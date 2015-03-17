@@ -68,12 +68,21 @@ for d in dirs:
   headers = Flatten(Glob(os.path.join(d, '*.h')))
   sources += Flatten(Glob(os.path.join(d, '*.cpp')))
   sources += env.GlobQObjectSources(os.path.join(d, '*.h'))
-  installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)
+  if uiLibPrefix == 'ui':
+    installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)
 
 uiLib = env.StaticLibrary('FabricUI', sources)
-installedUiLib = env.Install(stageDir.Dir('lib'), uiLib)
+uiFiles = installedHeaders
+if uiLibPrefix == 'ui':
+  uiFiles += env.Install(stageDir.Dir('lib'), uiLib)
 
-uiFiles = installedUiLib + installedHeaders
+locals()[uiLibPrefix + 'Lib'] = uiLib
+locals()[uiLibPrefix + 'IncludeDir'] = env.Dir('.').srcnode()
+locals()[uiLibPrefix + 'Flags'] = {
+  'CPPPATH': [locals()[uiLibPrefix + 'IncludeDir']],
+  'LIBS': [locals()[uiLibPrefix + 'Lib']]
+}
+Export(uiLibPrefix + 'Lib', uiLibPrefix + 'IncludeDir', uiLibPrefix + 'Flags')
 
 env.Alias(uiLibPrefix + 'Lib', uiFiles)
 
