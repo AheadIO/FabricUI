@@ -1,0 +1,243 @@
+// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+
+#ifndef __UI_GraphView_Graph__
+#define __UI_GraphView_Graph__
+
+#include <QtGui/QGraphicsWidget>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QColor>
+#include <QtGui/QPen>
+#include <QtGui/QMenu>
+
+#include "GraphConfig.h"
+#include "Controller.h"
+#include "GraphFactory.h"
+#include "Node.h"
+#include "NodeToolbar.h"
+#include "Pin.h"
+#include "Connection.h"
+#include "MouseGrabber.h"
+#include "MainPanel.h"
+#include "SidePanel.h"
+
+namespace FabricUI
+{
+
+  namespace GraphView
+  {
+
+    class Graph : public QGraphicsWidget
+    {
+      Q_OBJECT
+
+      friend class Controller;
+      friend class AddNodeCommand;
+      friend class RemoveNodeCommand;
+      friend class AddConnectionCommand;
+      friend class RemoveConnectionCommand;
+      friend class Node;
+      friend class MouseGrabber;
+
+    public:
+
+      Graph(QGraphicsItem * parent, const GraphConfig & config = GraphConfig(), GraphFactory * factory = NULL);
+      virtual ~Graph() {}
+
+      virtual void reset(QString path, bool createSidePanels = false);
+
+      virtual const GraphConfig & config() const;
+      QGraphicsWidget * itemGroup();
+      virtual Controller * controller();
+      virtual void setController(Controller * c);
+
+      MainPanel * mainPanel();
+      const MainPanel * mainPanel() const;
+      bool hasSidePanels() const;
+      SidePanel * sidePanel(PortType portType);
+      const SidePanel * sidePanel(PortType portType) const;
+
+      NodeToolbar * nodeToolbar();
+      
+      QString path() const;
+      void setPath(QString path);
+
+      // nodes
+      virtual std::vector<Node *> nodes() const;
+      virtual Node * node(QString name) const;
+      virtual Node * nodeFromPath(QString path) const;
+      virtual std::vector<Node *> selectedNodes() const;
+
+      // ports
+      virtual std::vector<Port *> ports() const;
+      virtual Port * port(QString name) const;
+
+      // connections
+      virtual std::vector<Connection *> connections() const;
+      virtual bool isConnected(const ConnectionTarget * target) const;
+
+      // hotkeys
+      virtual void defineHotkey(Qt::Key key, Qt::KeyboardModifier modifiers, QString name);
+
+      // context menus
+      // menus are consumed by the graph, so they are destroyed after use.
+      typedef QMenu* (*GraphContextMenuCallback)(Graph*, void*);
+      typedef QMenu* (*NodeContextMenuCallback)(Node*, void*);
+      typedef QMenu* (*PinContextMenuCallback)(Pin*, void*);
+      typedef QMenu* (*ConnectionContextMenuCallback)(Connection*, void*);
+      typedef QMenu* (*PortContextMenuCallback)(Port*, void*);
+      typedef QMenu* (*SidePanelContextMenuCallback)(SidePanel*, void*);
+      virtual void setGraphContextMenuCallback(GraphContextMenuCallback callback, void * userData = NULL);
+      virtual void setNodeContextMenuCallback(NodeContextMenuCallback callback, void * userData = NULL);
+      virtual void setPinContextMenuCallback(PinContextMenuCallback callback, void * userData = NULL);
+      virtual void setConnectionContextMenuCallback(ConnectionContextMenuCallback callback, void * userData = NULL);
+      virtual void setPortContextMenuCallback(PortContextMenuCallback callback, void * userData = NULL);
+      virtual void setSidePanelContextMenuCallback(SidePanelContextMenuCallback callback, void * userData = NULL);
+      virtual QMenu* getGraphContextMenu();
+      virtual QMenu* getNodeContextMenu(Node * node);
+      virtual QMenu* getPinContextMenu(Pin * pin);
+      virtual QMenu* getConnectionContextMenu(Connection * connection);
+      virtual QMenu* getPortContextMenu(Port * Port);
+      virtual QMenu* getSidePanelContextMenu(SidePanel * sidePanel);
+
+      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+
+      MouseGrabber * constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType);
+      MouseGrabber * getMouseGrabber();
+
+    public slots:
+
+      virtual bool pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
+      virtual bool releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
+      void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
+      void onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+
+    signals:
+
+      void graphChanged(FabricUI::GraphView::Graph * graph, QString path);
+      void nodeAdded(FabricUI::GraphView::Node * node);
+      void nodeRemoved(FabricUI::GraphView::Node * node);
+      void nodeSelected(FabricUI::GraphView::Node * node);
+      void nodeDeselected(FabricUI::GraphView::Node * node);
+      void nodeMoved(FabricUI::GraphView::Node * node, QPointF pos);
+      void nodeDoubleClicked(FabricUI::GraphView::Node * node);
+      void sidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+      void connectionAdded(FabricUI::GraphView::Connection * connection);
+      void connectionRemoved(FabricUI::GraphView::Connection * connection);
+      void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
+      void hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString);
+
+    protected:
+
+      // interaction - only possible through controller
+      virtual QString getUniquePath(QString path) const;
+      virtual Node * addNode(Node * node, bool quiet = false);
+      virtual Node * addNodeFromPreset(QString path, QString preset, bool quiet = false);
+      virtual bool removeNode(Node * node, bool quiet = false);
+      virtual bool addPort(Port * port, bool quiet = false);
+      virtual bool removePort(Port * port, bool quiet = false);
+      virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(Connection * connection, bool quiet = false);
+      virtual void resetMouseGrabber();
+
+    private:
+
+
+      struct Hotkey
+      {
+        Qt::Key key;
+        Qt::KeyboardModifier modifiers;
+
+        Hotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
+        {
+          this->key = key;
+          this->modifiers = modifiers;
+        }
+
+        bool operator < (const Hotkey & other) const
+        {
+          if((int)key < (int)other.key)
+            return true;
+          if((int)key > (int)other.key)
+            return false;
+          return (int)modifiers < (int)other.modifiers;
+        }
+      };
+
+      bool m_constructed;
+      GraphFactory * m_factory;
+      GraphConfig m_config;
+      Controller * m_controller;
+      NodeToolbar * m_nodeToolbar;
+      QString m_path;
+      std::vector<Node *> m_nodes;
+      std::map<QString, size_t> m_nodeMap;
+      std::vector<Connection *> m_connections;
+      MouseGrabber * m_mouseGrabber;
+      MainPanel * m_mainPanel;
+      SidePanel * m_leftPanel;
+      SidePanel * m_rightPanel;
+      std::map<Hotkey, QString> m_hotkeys;
+      GraphContextMenuCallback m_graphContextMenuCallback;
+      NodeContextMenuCallback m_nodeContextMenuCallback;
+      PinContextMenuCallback m_pinContextMenuCallback;
+      ConnectionContextMenuCallback m_connectionContextMenuCallback;
+      PortContextMenuCallback m_portContextMenuCallback;
+      SidePanelContextMenuCallback m_sidePanelContextMenuCallback;
+      void * m_graphContextMenuCallbackUD;
+      void * m_nodeContextMenuCallbackUD;
+      void * m_pinContextMenuCallbackUD;
+      void * m_connectionContextMenuCallbackUD;
+      void * m_portContextMenuCallbackUD;
+      void * m_sidePanelContextMenuCallbackUD;
+
+    };
+
+    inline std::string parentPathSTL(std::string path)
+    {
+      size_t pos = path.rfind('.');
+      if(pos == std::string::npos)
+        return "";
+      return path.substr(0, pos);
+    }
+
+    inline std::string relativePathSTL(std::string parent, std::string child)
+    {
+      if(child == parent)
+        return "";
+      if(child.length() > parent.length())
+      {
+        if(child.substr(0, parent.length()+1) == parent + ".")
+          return child.substr(parent.length() + 1, child.length());
+      }
+      return child;
+    }
+
+    inline std::string lastPathSegmentSTL(std::string path)
+    {
+      size_t pos = path.rfind('.');
+      if(pos == std::string::npos)
+        return path;
+      return path.substr(pos+1, path.length());
+    }
+
+    inline QString parentPath(QString path)
+    {
+      return parentPathSTL(std::string(path.toUtf8().constData())).c_str();
+    }
+
+    inline QString relativePath(QString parent, QString child)
+    {
+      return relativePathSTL(std::string(parent.toUtf8().constData()), std::string(child.toUtf8().constData())).c_str();
+    }
+
+    inline QString lastPathSegment(QString path)
+    {
+      return lastPathSegmentSTL(std::string(path.toUtf8().constData())).c_str();
+    }
+
+  };
+
+};
+
+#endif // __UI_GraphView_Graph__
