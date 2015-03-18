@@ -46,6 +46,7 @@ namespace FabricUI
 
       WidgetTreeItem * m_item;
       TreeEditorWidget * m_source;
+      bool m_changingData;
     };
 
   };

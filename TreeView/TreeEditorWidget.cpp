@@ -9,12 +9,17 @@ TreeEditorWidget::TreeEditorWidget(QWidget * parent)
 : QWidget(parent)
 {
   m_source = NULL;
+  m_changingData = false;
   setFocusPolicy(Qt::ClickFocus);
 }
 
 void TreeEditorWidget::changeData()
 {
+  if(m_changingData)
+    return;
+  m_changingData = true;
   emit dataChanged();
+  m_changingData = false;
 }
 
 void TreeEditorWidget::setItem(WidgetTreeItem * item)
