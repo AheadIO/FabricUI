@@ -65,9 +65,9 @@ includeDir = stageDir.Dir('include').Dir('FabricServices')
 installedHeaders = []
 sources = []
 for d in dirs:
-  headers = Flatten(Glob(os.path.join(d, '*.h')))
-  sources += Flatten(Glob(os.path.join(d, '*.cpp')))
-  sources += env.GlobQObjectSources(os.path.join(d, '*.h'))
+  headers = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.h')))
+  sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
+  sources += env.GlobQObjectSources(os.path.join(env.Dir('.').abspath, d, '*.h'))
   if uiLibPrefix == 'ui':
     installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)
 
