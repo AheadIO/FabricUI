@@ -21,6 +21,9 @@ env = parentEnv.Clone()
 env.Append(BUILDERS = {'QTMOC': qtMOCBuilder})
 env.Append(CPPPATH = [env.Dir('.').srcnode()])
 
+if buildOS == 'Linux':
+  env.Append(CPPPATH=['/usr/include/qt4'])
+
 def GlobQObjectHeaders(env, filter):
   headers = Flatten(env.Glob(filter))
   qobjectHeaders = []
