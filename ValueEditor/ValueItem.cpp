@@ -30,7 +30,6 @@ void ValueItem::setValue(FabricCore::RTVal v)
 {
   if(m_isSettingValue)
     return;
-  printf("ValueItem::setValue\n");
 
   m_isSettingValue = true;
   m_value = v;
@@ -60,7 +59,6 @@ void ValueItem::onUIChanged()
     return;
   m_value = ((ValueWidget*)editor())->value();
   emit valueChanged(this);
-  printf("ValueItem::onUIChanged\n");
 }
 
 void ValueItem::onDataChanged()
@@ -68,5 +66,4 @@ void ValueItem::onDataChanged()
   if(!editor())
     return;
   ((ValueWidget*)editor())->setValue(m_value);
-  printf("ValueItem::onDataChanged\n");
 }
