@@ -75,6 +75,8 @@ namespace FabricUI
 
       virtual QPointF graphPos() const;
       virtual QPointF topLeftGraphPos() const;
+      virtual QPointF topLeftToCentralPos(QPointF pos);
+      virtual QPointF centralPosToTopLeftPos(QPointF pos);
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);

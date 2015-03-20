@@ -690,6 +690,11 @@ bool DFGController::moveNode(QString path, QPointF pos, bool isTopLeftPos)
 
 bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLeftPos)
 {
+  if(!isTopLeftPos)
+  {
+    pos = uiNode->centralPosToTopLeftPos(pos);
+    isTopLeftPos = true;
+  }
   return moveNode(uiNode->path(), pos, isTopLeftPos);
 }
 

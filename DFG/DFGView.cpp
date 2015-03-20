@@ -68,11 +68,6 @@ void DFGView::onGraphSet()
     {
       onPinInserted(pins[j]);
     }
-
-    // update the graph pos
-    std::string metaData = nodes[i].getMetadata("uiGraphPos");
-    if(metaData.length())
-      onNodeMetadataChanged(nodes[i], "uiGraphPos", metaData.c_str());
   }
 
   std::vector<DFGWrapper::Port> ports = m_graph.getPorts();
@@ -113,7 +108,9 @@ void DFGView::onNodeInserted(DFGWrapper::Node node)
     return;
   std::string uiGraphPosMetadata = node.getMetadata("uiGraphPos");
   if(uiGraphPosMetadata.length() > 0)
+  {
     onNodeMetadataChanged(node, "uiGraphPos", uiGraphPosMetadata.c_str());
+  }
 
   if(m_performChecks)
     m_controller->checkErrors();
@@ -384,7 +381,7 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::Node node, const char * key, con
     const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
     float x = getFloatFromVariant(xVar);
     float y = getFloatFromVariant(yVar);
-    uiNode->setGraphPos(QPointF(x, y), false);
+    uiNode->setTopLeftGraphPos(QPointF(x, y), false);
   }
 }
 

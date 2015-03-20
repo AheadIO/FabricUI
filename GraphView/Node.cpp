@@ -297,6 +297,18 @@ void Node::setTopLeftGraphPos(QPointF pos, bool quiet)
   }
 }
 
+QPointF Node::topLeftToCentralPos(QPointF pos)
+{
+  QSizeF scale = size();
+  return QPointF(pos.x() + scale.width() * 0.5, pos.y() + scale.height() * 0.5);
+}
+
+QPointF Node::centralPosToTopLeftPos(QPointF pos)
+{
+  QSizeF scale = size();
+  return QPointF(pos.x() - scale.width() * 0.5, pos.y() - scale.height() * 0.5);
+}
+
 Pin * Node::addPin(Pin * pin, bool quiet)
 {
   // todo: we need a method to update the layout based on the collapsed state.....
