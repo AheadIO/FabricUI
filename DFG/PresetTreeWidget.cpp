@@ -14,6 +14,7 @@ PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfi
 : QWidget(parent)
 , m_host(host)
 {
+  m_searchEdit = new QLineEdit(this);
   m_treeView = new TreeView::TreeViewWidget(this);
   m_treeModel = new TreeView::TreeModel(this);
   m_treeView->setModel(m_treeModel);
@@ -32,9 +33,12 @@ PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfi
   setContentsMargins(0, 0, 0, 0);
   layout->setContentsMargins(0, 0, 0, 0);
 
+  layout->addWidget(m_searchEdit);
   layout->addWidget(m_treeView);
 
   refresh();
+
+  QObject::connect(m_searchEdit, SIGNAL(textChanged(const QString &)), this, SLOT(searchChanged(const QString &)));
 }
 
 PresetTreeWidget::~PresetTreeWidget()
@@ -63,4 +67,9 @@ void PresetTreeWidget::refresh()
   {
     m_treeModel->addItem(new PresetTreeItem(functions[i]));
   }
+}
+
+void PresetTreeWidget::searchChanged(const QString & text)
+{ 
+  printf("%s\n", text.toUtf8().constData());
 }

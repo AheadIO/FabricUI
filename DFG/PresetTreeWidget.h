@@ -6,6 +6,7 @@
 #include <DFGWrapper/Host.h>
 
 #include <QtGui/QWidget>
+#include <QtGui/QLineEdit>
 #include <TreeView/TreeViewWidget.h>
 #include <TreeView/TreeModel.h>
 #include "DFGConfig.h"
@@ -28,9 +29,11 @@ namespace FabricUI
     public slots:
 
       void refresh();
+      void searchChanged(const QString & text);
 
     private:
 
+      QLineEdit * m_searchEdit;
       FabricServices::DFGWrapper::Host * m_host;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;

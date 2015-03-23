@@ -118,6 +118,25 @@ void GLViewportWidget::paintGL()
     resizeGL(scale.width(), scale.height());
   }
 
+  // compute the fps
+  double ms = m_fpsTimer.elapsed();
+  if(ms == 0.0)
+    m_fps = 0.0;
+  else
+    m_fps = 1000.0 / ms;
+
+  double averageFps = 0.0;
+  for(int i=0;i<15;i++) {
+    m_fpsStack[i+1] = m_fpsStack[i];
+    averageFps += m_fpsStack[i];
+  }
+  m_fpsStack[0] = m_fps;
+  averageFps += m_fps;
+  averageFps /= 16.0;
+  m_fps = averageFps;
+
+  m_fpsTimer.start();
+
   try
   {
     FabricCore::RTVal args[2];

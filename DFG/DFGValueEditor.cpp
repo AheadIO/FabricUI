@@ -50,7 +50,7 @@ void DFGValueEditor::onArgsChanged()
           continue;
         if(ports[i].getName().length() == 0)
           continue;
-        if(ports[i].getName() == "timeLine")
+        if(ports[i].getName() == "timeLine" || ports[i].getName() == "timeline")
           continue;
         std::string path = ports[i].getPath();
         FabricCore::RTVal value = binding.getArgValue(path.c_str());
