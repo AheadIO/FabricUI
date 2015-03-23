@@ -2,6 +2,8 @@
 
 #include "ValueWidget.h"
 #include "ValueItem.h"
+#include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -9,6 +11,15 @@ using namespace FabricUI::ValueEditor;
 ValueWidget::ValueWidget(QString label, QWidget * parent)
 : TreeEditorWidget(parent)
 {
+  Q_FOREACH(QWidget* w, QApplication::topLevelWidgets() )
+  {
+    if( qobject_cast<QMainWindow*>(w) && w->parent() == NULL)
+    {
+      setPalette(((QMainWindow*)w)->palette());
+      break;
+    }
+  }  
+
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);
   setAutoFillBackground(true);

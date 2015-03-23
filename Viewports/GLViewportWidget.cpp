@@ -204,8 +204,11 @@ void GLViewportWidget::wheelEvent(QWheelEvent *event)
     QGLWidget::wheelEvent(event);
 }
 
-bool GLViewportWidget::manipulateCamera(QEvent *event)
+bool GLViewportWidget::manipulateCamera(QInputEvent *event)
 {
+  if(!event->modifiers().testFlag(Qt::AltModifier))
+    return false;
+
   bool result;
   try
   {
