@@ -21,9 +21,8 @@ env = parentEnv.Clone()
 env.Append(BUILDERS = {'QTMOC': qtMOCBuilder})
 env.Append(CPPPATH = [env.Dir('.').srcnode()])
 
-if buildOS != 'Windows':
-  env.Append(CXXFLAGS = ['-std=c++03'])
 if buildOS == 'Darwin':
+  env.Append(CXXFLAGS = ['-std=c++03'])
   env.Append(CXXFLAGS = ['-stdlib=libstdc++'])
   env.Append(LINKFLAGS = ['-stdlib=libstdc++'])
 
