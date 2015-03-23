@@ -10,6 +10,7 @@
 #include <TreeView/TreeViewWidget.h>
 #include <TreeView/TreeModel.h>
 #include "DFGConfig.h"
+#include <SplitSearch/SplitSearch.hpp>
 
 namespace FabricUI
 {
@@ -32,11 +33,18 @@ namespace FabricUI
       void searchChanged(const QString & text);
 
     private:
+      
+      void updatePresetPathDB();
 
       QLineEdit * m_searchEdit;
       FabricServices::DFGWrapper::Host * m_host;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
+      FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
+      FabricServices::SplitSearch::Dict m_presetPathDict;
+      std::vector<std::string> m_presetNameSpaceDictSTL;
+      std::vector<std::string> m_presetPathDictSTL;
+      bool m_presetDictsUpToDate;
     };
 
   };
