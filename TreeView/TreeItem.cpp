@@ -103,8 +103,16 @@ void TreeItem::setIndex(unsigned int i)
   m_index = i;
 }
 
-QModelIndex TreeItem::modelIndex() const
+QModelIndex TreeItem::modelIndex(TreeModel * model) const
 {
+  // try to get it by walking up
+  if(!m_modelIndex.isValid() && model)
+  {
+    QModelIndex parentIndex;
+    if(m_parent)
+      parentIndex = m_parent->modelIndex(model);
+    m_modelIndex = model->index(m_index, 0, parentIndex);
+  }
   return m_modelIndex;
 }
 

@@ -17,14 +17,21 @@ namespace FabricUI
 
     public:
 
-      NameSpaceTreeItem(FabricServices::DFGWrapper::NameSpace nameSpace);
+      NameSpaceTreeItem(FabricServices::DFGWrapper::NameSpace nameSpace, QStringList filters = QStringList());
 
       virtual unsigned int numChildren();
 
+      // filtering
+      virtual QStringList filters() const;
+      virtual void setFilters(QStringList f);
+
     private:
+
+      bool includeChildName(QString name);
 
       FabricServices::DFGWrapper::NameSpace m_nameSpace;
       bool m_validated;
+      QStringList m_filters;
     };
 
   };

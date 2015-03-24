@@ -30,7 +30,6 @@ namespace FabricUI
     public slots:
 
       void refresh();
-      void searchChanged(const QString & text);
 
     private:
       
@@ -40,11 +39,10 @@ namespace FabricUI
       FabricServices::DFGWrapper::Host * m_host;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
-      FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
       FabricServices::SplitSearch::Dict m_presetPathDict;
-      std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
+      QString m_state;
     };
 
   };

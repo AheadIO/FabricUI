@@ -27,6 +27,9 @@ namespace FabricUI
 
       virtual void setFactory(TreeEditorFactory * factory);
 
+      virtual QString state() const;
+      virtual void setState(QString s);
+
     private slots:
       void onCustomContextMenuRequested(const QPoint & point);
       void onEnteredIndex(const QModelIndex & index);

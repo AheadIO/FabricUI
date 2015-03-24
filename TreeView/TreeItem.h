@@ -22,6 +22,8 @@ namespace FabricUI
       TreeItemType_Widget
     };
 
+    class TreeModel;
+
     class TreeItem : public QObject
     {
       friend class TreeViewWidget;
@@ -48,7 +50,7 @@ namespace FabricUI
       virtual QPixmap pixmap() const;
       virtual void setPixmap(QPixmap pm);
       virtual unsigned int index() const;
-      virtual QModelIndex modelIndex() const;
+      virtual QModelIndex modelIndex(TreeModel * model = NULL) const;
       virtual bool selected() const;
       virtual bool collapsed() const;
       virtual bool expanded() const;
@@ -83,7 +85,7 @@ namespace FabricUI
       QPixmap m_pixmap;
       TreeItem * m_parent;
       unsigned int m_index;
-      QModelIndex m_modelIndex;
+      mutable QModelIndex m_modelIndex;
       bool m_selected;
       bool m_expanded;
       bool m_editable;
@@ -93,5 +95,7 @@ namespace FabricUI
   };
 
 };
+
+#include "TreeModel.h"
 
 #endif // __UI_TreeView_TreeItem__

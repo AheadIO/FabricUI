@@ -41,6 +41,60 @@ TreeViewWidget::~TreeViewWidget()
 {
 }
 
+QString TreeViewWidget::state() const
+{
+  QString result;
+
+  QAbstractItemModel * abstractModel = model();
+  if(!abstractModel)
+    return result;
+  
+  TreeModel * model = (TreeModel *)abstractModel;
+  std::vector<TreeItem*> items;
+  for(unsigned int i=0;i<model->numItems();i++)
+    items.push_back(model->item(i));
+
+  for(unsigned int i=0;i<items.size();i++)
+  {
+    if(items[i]->collapsed())
+      continue;
+
+    result += items[i]->path()+";";
+
+    for(unsigned int j=0;j<items[i]->numChildren();j++)
+      items.push_back(items[i]->child(j));
+  }
+
+  return result;
+}
+
+void TreeViewWidget::setState(QString s)
+{
+  if(s.isEmpty())
+    return;
+
+  QAbstractItemModel * abstractModel = model();
+  if(!abstractModel)
+    return;
+  TreeModel * model = (TreeModel *)abstractModel;
+  QStringList itemPaths = s.split(';');
+
+  for(unsigned int i=0;i<itemPaths.length();i++)
+  {
+    if(itemPaths[i].isEmpty())
+      continue;
+
+    TreeItem * item = model->item(itemPaths[i]);
+    if(!item)
+      continue;
+
+    item->numChildren();
+    setExpanded(item->modelIndex(model), true);
+  }
+
+  update();
+}
+
 void TreeViewWidget::onCustomContextMenuRequested(const QPoint & point)
 {
   QModelIndex index = indexAt(point);
@@ -77,7 +131,6 @@ void TreeViewWidget::onCollapsed(const QModelIndex & index)
   TreeItem * item = (TreeItem *)index.internalPointer();
   if(!item)
     return;
-
   item->setExpanded(false);
 }
 

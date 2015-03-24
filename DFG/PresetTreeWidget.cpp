@@ -3,9 +3,12 @@
 #include "PresetTreeWidget.h"
 #include "NameSpaceTreeItem.h"
 #include "PresetTreeItem.h"
+#include <FTL/Str.h>
+#include <FTL/MapCharSingle.h>
 
 #include <QtGui/QVBoxLayout>
 
+using namespace FabricServices;
 using namespace FabricServices::DFGWrapper;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -35,7 +38,7 @@ PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfi
 
   refresh();
 
-  QObject::connect(m_searchEdit, SIGNAL(textChanged(const QString &)), this, SLOT(searchChanged(const QString &)));
+  QObject::connect(m_searchEdit, SIGNAL(editingFinished()), this, SLOT(refresh()));
 }
 
 PresetTreeWidget::~PresetTreeWidget()
@@ -44,12 +47,17 @@ PresetTreeWidget::~PresetTreeWidget()
 
 void PresetTreeWidget::refresh()
 {
-  m_treeModel->clear();
+  std::string search = m_searchEdit->text().toUtf8().constData();
+
+  // persist the state of the treeview
+  if(search.length() != 0 && m_state.length() == 0)
+    m_state = m_treeView->state();
 
   if(!m_host)
     return;
 
-  std::string search = m_searchEdit->text().toUtf8().constData();
+  m_treeModel->clear();
+
   if(search.length() == 0)
   {
     std::vector<NameSpace> nameSpaces = m_host->getRootNameSpace().getNameSpaces();
@@ -67,6 +75,10 @@ void PresetTreeWidget::refresh()
     {
       m_treeModel->addItem(new PresetTreeItem(functions[i]));
     }
+
+    // todo: this should really be working.
+    //m_treeView->setState(m_state);
+    //m_state = "";
   }
   else
   {
@@ -75,12 +87,43 @@ void PresetTreeWidget::refresh()
     // namespace items... that way they can start unfolding in a subsection
     // we should somehow also keep around the expansion information.  }
     updatePresetPathDB();
-  }
-}
 
-void PresetTreeWidget::searchChanged(const QString & text)
-{ 
-  refresh();
+    // [pzion 20150305] This is a little evil but avoids lots of copying
+    std::vector<FTL::StrRef> searchSplit;
+    FTL::StrSplit<'.'>( search, searchSplit, true /*strict*/ );
+
+    FTL::StrRemap< FTL::MapCharSingle<'.', '\0'> >( search );
+
+    char const **cStrs = reinterpret_cast<char const **>(
+      alloca( searchSplit.size() * sizeof( char const * ) )
+      );
+    for ( size_t i = 0; i < searchSplit.size(); ++i )
+      cStrs[i] = searchSplit[i].data();    
+
+    SplitSearch::Matches matches = m_presetPathDict.search( searchSplit.size(), cStrs );
+
+    std::vector<const char *> userDatas;
+    userDatas.resize(matches.getSize());
+    matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);
+
+    std::vector<NameSpace> nameSpaces = m_host->getRootNameSpace().getNameSpaces();
+    for(size_t i=0;i<nameSpaces.size();i++)
+    {
+      QString name = QString(nameSpaces[i].getName().c_str()) + ".";
+      QStringList filters;
+      for(size_t j=0;j<userDatas.size();j++)
+      {
+        QString match(userDatas[j]);
+        if(match.startsWith(name))
+          filters.append(match.right(match.length() - name.length()));
+      }
+
+      if(filters.length() > 0)
+        m_treeModel->addItem(new NameSpaceTreeItem(nameSpaces[i], filters));
+    }
+
+    m_treeView->expandAll();
+  }
 }
 
 void PresetTreeWidget::updatePresetPathDB()
@@ -94,9 +137,7 @@ void PresetTreeWidget::updatePresetPathDB()
 
   m_presetDictsUpToDate = true;
 
-  m_presetNameSpaceDict.clear();
   m_presetPathDict.clear();
-  m_presetNameSpaceDictSTL.clear();
   m_presetPathDictSTL.clear();
 
   std::vector<NameSpace> namespaces;
@@ -104,8 +145,6 @@ void PresetTreeWidget::updatePresetPathDB()
 
   for(size_t i=0;i<namespaces.size();i++)
   {
-    m_presetNameSpaceDictSTL.push_back(namespaces[i].getPath());
-
     std::vector<NameSpace> childNameSpaces = namespaces[i].getNameSpaces();
     namespaces.insert(namespaces.end(), childNameSpaces.begin(), childNameSpaces.end());
 
@@ -114,8 +153,6 @@ void PresetTreeWidget::updatePresetPathDB()
       m_presetPathDictSTL.push_back(presets[j].getPath());
   }
 
-  for(size_t i=0;i<m_presetNameSpaceDictSTL.size();i++)
-    m_presetNameSpaceDict.add(m_presetNameSpaceDictSTL[i].c_str(), '.', m_presetNameSpaceDictSTL[i].c_str());
   for(size_t i=0;i<m_presetPathDictSTL.size();i++)
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
 }
