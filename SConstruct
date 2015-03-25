@@ -47,6 +47,10 @@ if buildOS == 'Linux':
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   qtMOC = '/usr/bin/moc-qt4'
 
+if buildOS == 'Windows':
+  env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
+  env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s.pdb /Zi" % File(PDB)) or ""}']
+
 fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
   'CPPDEFINES': ['FEC_SHARED'],
@@ -73,5 +77,10 @@ uiLib = SConscript('SConscript',
     'uiLibPrefix': 'ui',
   },
   variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'))
+
+if buildOS == 'Windows':
+  pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')
+  env.Depends(pdbFile, uiLib)
+  uiLib += env.InstallAs(env.Dir('#').Dir('stage').Dir('lib').File('FabricUI.pdb'), pdbFile)
 
 env.Default(uiLib)
