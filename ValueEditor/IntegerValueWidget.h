@@ -43,6 +43,7 @@ namespace FabricUI
       QLineEdit * m_lineEdit;
       QSlider * m_slider;
       std::string m_typeName;
+      bool m_changingValue;
     };
 
   };

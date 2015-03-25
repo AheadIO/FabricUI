@@ -12,6 +12,7 @@ IntegerValueWidget::IntegerValueWidget(QString label, QWidget * parent)
 : ValueWidget(label, parent)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
+  m_changingValue = false;
 
   m_lineEdit = new QLineEdit(this);
   QIntValidator * validator = new QIntValidator(m_lineEdit);
@@ -53,6 +54,10 @@ void IntegerValueWidget::setRange(int minimum, int maximum)
 
 void IntegerValueWidget::setValue(FabricCore::RTVal v)
 {
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
+
   ValueWidget::setValue(v);
 
   m_typeName = v.getTypeName().getStringCString();
@@ -75,8 +80,14 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
   else if(m_typeName == "UInt64")
     i = (int)v.getUInt64();
 
+  if(i < m_slider->minimum())
+    m_slider->setMinimum(i);
+  if(i > m_slider->maximum())
+    m_slider->setMaximum(i);
   m_slider->setValue(i);
   m_lineEdit->setText(QString::number(i));
+
+  m_changingValue = false;
 }
 
 void IntegerValueWidget::setEnabled(bool state)
@@ -87,8 +98,16 @@ void IntegerValueWidget::setEnabled(bool state)
 
 void IntegerValueWidget::onValueChangedInLineEdit()
 {
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
+
   QString text = m_lineEdit->text();
   int i = text.toInt();
+  if(i < m_slider->minimum())
+    m_slider->setMinimum(i);
+  if(i > m_slider->maximum())
+    m_slider->setMaximum(i);
   m_slider->setValue(i);
 
   if(m_typeName == "SInt8")
@@ -109,10 +128,16 @@ void IntegerValueWidget::onValueChangedInLineEdit()
     m_value = FabricCore::RTVal::ConstructUInt64(*((ValueItem*)item())->client(), i);
   
   emit dataChanged();
+
+  m_changingValue = false;
 }
 
 void IntegerValueWidget::onValueChangedInSlider()
 {
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
+
   int i = m_slider->value();
   m_lineEdit->setText(QString::number(i));
 
@@ -134,6 +159,7 @@ void IntegerValueWidget::onValueChangedInSlider()
     m_value = FabricCore::RTVal::ConstructUInt64(*((ValueItem*)item())->client(), i);
 
   emit dataChanged();
+  m_changingValue = false;
 }
 
 void IntegerValueWidget::onBeginInteraction()

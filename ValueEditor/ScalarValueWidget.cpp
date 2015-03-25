@@ -57,6 +57,10 @@ void ScalarValueWidget::setRange(float minimum, float maximum)
 
 void ScalarValueWidget::setValue(FabricCore::RTVal v)
 {
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
+
   ValueWidget::setValue(v);
 
   m_typeName = v.getTypeName().getStringCString();
@@ -67,16 +71,16 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
     f = (float)v.getFloat64();
 
   if(f <= m_minimum)
-    m_slider->setValue(0);
+    m_minimum = f;
   else if(f >= m_maximum)
-    m_slider->setValue(10000.0f);
-  else 
-  {
-    float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
-    m_slider->setValue(10000.0f * ratio);
-  }
+    m_maximum = f;
+
+  float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
+  m_slider->setValue(10000.0f * ratio);
 
   m_lineEdit->setText(QString::number(f));
+
+  m_changingValue = false;
 }
 
 void ScalarValueWidget::setEnabled(bool state)
