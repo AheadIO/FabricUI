@@ -22,6 +22,7 @@ namespace FabricUI
       QFont defaultFont;
       QColor defaultFontColor;
       QFont fixedFont;
+      QFont logFont;
       QColor searchBackgroundColor;
       QColor searchHighlightColor;
       QColor searchFontColor;

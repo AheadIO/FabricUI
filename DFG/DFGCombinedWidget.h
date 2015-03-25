@@ -9,6 +9,7 @@
 
 #include <DFG/DFGUI.h>
 #include <DFG/DFGValueEditor.h>
+#include <DFG/DFGLogWidget.h>
 #include <Commands/CommandStack.h>
 #include <DFGWrapper/DFGWrapper.h>
 
@@ -40,7 +41,7 @@ namespace FabricUI
         bool overTakeBindingNotifications = true
       );
 
-      void setLogFunc(DFGController::LogFunc func);
+      static void setLogFunc(DFGController::LogFunc func);
 
       virtual FabricCore::Client * getClient() { return m_client; }
       virtual ASTWrapper::KLASTManager * getManager() { return m_manager; }
@@ -48,6 +49,7 @@ namespace FabricUI
       virtual PresetTreeWidget * getTreeWidget() { return m_treeWidget; }
       virtual DFGWidget * getDfgWidget() { return m_dfgWidget; }
       virtual DFGValueEditor * getDfgValueEditor() { return m_dfgValueEditor; }
+      virtual DFGLogWidget * getDfgLogWidget() { return m_dfgLogWidget; }
 
 
     public slots:
@@ -62,13 +64,14 @@ namespace FabricUI
 
       void log(const char * message);
 
-      DFGController::LogFunc m_logFunc;
+      QSplitter * m_hSplitter;
       FabricCore::Client * m_client;
       ASTWrapper::KLASTManager * m_manager;
       DFGWrapper::Host * m_host;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;
       DFGValueEditor * m_dfgValueEditor;
+      DFGLogWidget * m_dfgLogWidget;
     };
 
   };

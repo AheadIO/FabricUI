@@ -27,7 +27,9 @@ namespace FabricUI
       DFGLogWidget(QWidget * parent, const DFGConfig & config = DFGConfig());
       virtual ~DFGLogWidget();
 
+      static void log(const char * message);
       static void callback(void * userData, char const * stringData, uint32_t stringLength);
+      static void setLogFunc(DFGController::LogFunc func);
 
     public slots:
 
@@ -38,6 +40,7 @@ namespace FabricUI
       QPlainTextEdit * m_text;
       DFGConfig m_config;
 
+      static DFGController::LogFunc s_logFunc;
       static std::vector<std::string> sUnconsumedMessages;
       static std::vector<DFGLogWidget*> sLogWidgets;
     };

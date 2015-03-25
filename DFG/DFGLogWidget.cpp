@@ -9,6 +9,7 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
+DFGController::LogFunc DFGLogWidget::s_logFunc = NULL;
 std::vector<DFGLogWidget*> DFGLogWidget::sLogWidgets;
 std::vector<std::string> DFGLogWidget::sUnconsumedMessages;
 
@@ -54,10 +55,13 @@ DFGLogWidget::~DFGLogWidget()
   }
 }
 
+void DFGLogWidget::log(const char * message)
+{
+  callback(NULL, message, 0);
+}
+
 void DFGLogWidget::callback(void * userData, char const * stringData, uint32_t stringLength)
 {
-  printf("%s\n", stringData);
-
   if(sLogWidgets.size() > 0)
   {
     QString message(stringData);
@@ -74,7 +78,16 @@ void DFGLogWidget::callback(void * userData, char const * stringData, uint32_t s
   {
     sUnconsumedMessages.push_back(stringData);
   }
+
+  if(s_logFunc)
+    (*s_logFunc)(stringData);
 }
+
+void DFGLogWidget::setLogFunc(DFGController::LogFunc func)
+{
+  s_logFunc = func;
+}
+
 
 void DFGLogWidget::copy()
 {

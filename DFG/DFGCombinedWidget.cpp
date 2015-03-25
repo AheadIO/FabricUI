@@ -15,7 +15,10 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   m_treeWidget = NULL;
   m_dfgWidget = NULL;
   m_dfgValueEditor = NULL;
-  m_logFunc = NULL;
+  m_hSplitter = NULL;
+  m_dfgLogWidget = NULL;
+
+  setOrientation(Qt::Vertical);
 };
 
 void DFGCombinedWidget::init(
@@ -42,11 +45,22 @@ void DFGCombinedWidget::init(
     m_dfgWidget = new DFG::DFGWidget(this, m_client, m_manager, m_host, binding, graph, stack, config, GraphView::GraphConfig(), overTakeBindingNotifications);
     m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
 
+    m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
+
     setContentsMargins(0, 0, 0, 0);
 
-    addWidget(m_treeWidget);
-    addWidget(m_dfgWidget);
-    addWidget(m_dfgValueEditor);
+    m_hSplitter = new QSplitter(this);
+    m_hSplitter->setOrientation(Qt::Horizontal);
+    m_hSplitter->setContentsMargins(0, 0, 0, 0);
+
+    m_hSplitter->addWidget(m_treeWidget);
+    m_hSplitter->addWidget(m_dfgWidget);
+    m_hSplitter->addWidget(m_dfgValueEditor);
+
+    addWidget(m_hSplitter);
+
+    m_dfgLogWidget = new DFGLogWidget(this, config);
+    addWidget(m_dfgLogWidget);
 
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
@@ -70,13 +84,15 @@ void DFGCombinedWidget::init(
   }
 
   resize(1000, 500);
-  QList<int> s = sizes();
-  // s[0] = 200;
-  // s[1] = 800;
-  // s[2] = 0;
+  QList<int> s = m_hSplitter->sizes();
   s[0] = 0;
   s[1] = 1000;
   s[2] = 0;
+  m_hSplitter->setSizes(s);
+
+  s = sizes();
+  s[0] = 500;
+  s[1] = 0;
   setSizes(s);
 }
 
@@ -136,8 +152,7 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 
 void DFGCombinedWidget::setLogFunc(DFGController::LogFunc func)
 {
-  if(m_dfgWidget)
-    m_dfgWidget->getUIController()->setLogFunc(func);
+  DFGLogWidget::setLogFunc(func);
 }
 
 void DFGCombinedWidget::log(const char * message)

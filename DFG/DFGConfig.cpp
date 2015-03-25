@@ -8,13 +8,15 @@ using namespace FabricUI::DFG;
 
 DFGConfig::DFGConfig()
 : defaultFont("Lucida", 10),
-  fixedFont("Courier", 12)
+  fixedFont("Courier", 12),
+  logFont("Courier", 10)
 {
   defaultWindowColor = QColor(80, 98, 110);
   defaultBackgroundColor = QColor(156, 174, 187);
   defaultFont.setBold(true);
   defaultFontColor = QColor(31, 43, 55, 255);
   fixedFont.setStyleHint( QFont::TypeWriter );
+  logFont.setStyleHint( QFont::TypeWriter );
   searchBackgroundColor = QColor(135, 135, 135);
   searchHighlightColor = QColor(137, 181, 202);
   searchFontColor = QColor(0, 0, 0);
