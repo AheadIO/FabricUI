@@ -29,6 +29,7 @@ namespace FabricUI
       virtual ~DFGKLEditorWidget();
 
       void setFunc(FabricServices::DFGWrapper::FuncExecutable func);
+      bool hasUnsavedChanges() const { return m_unsavedChanges; }
 
       virtual void closeEvent(QCloseEvent * event);
 
@@ -36,8 +37,7 @@ namespace FabricUI
 
       void onPortsChanged();
       void compile();
-      // void addPort();
-      // void removePort();
+      void onNewUnsavedChanges();
 
     private:
 
@@ -46,6 +46,7 @@ namespace FabricUI
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;
       DFGConfig m_config;
+      bool m_unsavedChanges;
     };
 
   };

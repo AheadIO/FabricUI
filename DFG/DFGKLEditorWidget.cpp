@@ -22,6 +22,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   m_controller = controller;
   m_config = config;
   m_func = NULL;
+  m_unsavedChanges = false;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(QSize(300, 600));
@@ -44,17 +45,26 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   buttonsWidget->setContentsMargins(0, 0, 0, 0);
   buttonsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
   QHBoxLayout * buttonsLayout = new QHBoxLayout();
-  buttonsWidget->setContentsMargins(0, 0, 0, 0);
   buttonsLayout->setContentsMargins(0, 0, 0, 0);
   buttonsWidget->setLayout(buttonsLayout);
 
+  GraphView::GraphConfig graphConfig;
+  QPalette buttonsPal(buttonsWidget->palette());
+  buttonsPal.setColor(QPalette::Background, graphConfig.headerBackgroundColor);
+  buttonsWidget->setAutoFillBackground(true);
+  buttonsWidget->setPalette(buttonsPal);
+  buttonsWidget->setContentsMargins(graphConfig.headerMargins, graphConfig.headerMargins, graphConfig.headerMargins, graphConfig.headerMargins);
+  buttonsWidget->setFont(graphConfig.nodeFont);
+
   QPushButton * compileButton = new QPushButton("Compile", buttonsWidget);
-  // QPushButton * addPortButton = new QPushButton("New Port", buttonsWidget);
-  // QPushButton * removePortButton = new QPushButton("Remove Port", buttonsWidget);
-  buttonsLayout->addWidget(compileButton);
-  // buttonsLayout->addWidget(addPortButton);
-  // buttonsLayout->addWidget(removePortButton);
   buttonsLayout->addStretch(2);
+  buttonsLayout->addWidget(compileButton);
+
+  QPalette buttonPal(compileButton->palette());
+  buttonPal.setColor(QPalette::ButtonText, graphConfig.headerFontColor);
+  buttonPal.setColor(QPalette::Button, graphConfig.nodeDefaultColor);
+  // compileButton->setAutoFillBackground(false);
+  compileButton->setPalette(buttonPal);
 
   KLEditor::EditorConfig editorConfig;
 
@@ -74,13 +84,12 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(0, 1);
   splitter->setStretchFactor(1, 7);
-  layout->addWidget(splitter);
   layout->addWidget(buttonsWidget);
+  layout->addWidget(splitter);
 
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
   QObject::connect(m_ports, SIGNAL(portsChanged()), this, SLOT(onPortsChanged()));
-  // QObject::connect(addPortButton, SIGNAL(clicked()), this, SLOT(addPort()));
-  // QObject::connect(removePortButton, SIGNAL(clicked()), this, SLOT(removePort()));
+  QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(textChanged()), this, SLOT(onNewUnsavedChanges()));
 }
 
 DFGKLEditorWidget::~DFGKLEditorWidget()
@@ -105,6 +114,7 @@ void DFGKLEditorWidget::setFunc(DFGWrapper::FuncExecutable func)
   }
 
   m_ports->setExec(func);
+  m_unsavedChanges = false;
 }
 
 void DFGKLEditorWidget::onPortsChanged()
@@ -204,55 +214,14 @@ void DFGKLEditorWidget::onPortsChanged()
 
 void DFGKLEditorWidget::compile()
 {
-  m_controller->setCode(m_func->getPath().c_str(), m_klEditor->sourceCodeWidget()->code());
+  if(m_controller->setCode(m_func->getPath().c_str(), m_klEditor->sourceCodeWidget()->code()))
+    m_unsavedChanges = false;
 }
 
-
-// void DFGKLEditorWidget::addPort()
-// {
-//   DFGNewPortDialog dialog(this, true, m_config);
-//   if(dialog.exec() != QDialog::Accepted)
-//     return;
-
-//   QString portTypeStr = dialog.portType();
-//   QString title = dialog.title();
-//   QString dataType = dialog.dataType();
-//   QString extension = dialog.extension();
-
-//   if(title.length() == 0)
-//     return;
-
-//   GraphView::PortType portType = GraphView::PortType_Input;
-//   if(portTypeStr == "In")
-//     portType = GraphView::PortType_Output;
-//   else if(portTypeStr == "IO")
-//     portType = GraphView::PortType_IO;
-
-//   if(title.length() > 0)
-//   {
-//     if(extension.length() > 0)
-//       m_controller->addExtensionDependency(extension, m_func->getPath().c_str());
-//     if(m_controller->addPort(m_func->getPath().c_str(), title, portType, dataType).length() > 0)
-//       m_ports->setExec(*m_func);
-//   }
-// }
-
-// void DFGKLEditorWidget::removePort()
-// {
-//   QString portName = m_ports->selectedItem();
-//   if(portName.length() == 0)
-//     return;
-
-//   try
-//   {
-//     if(m_controller->removePort(m_func->getPath().c_str(), portName))
-//       m_ports->setExec(*m_func);
-//   }
-//   catch(FabricCore::Exception e)
-//   {
-//     m_controller->logError(e.getDesc_cstr());
-//   }
-// }
+void DFGKLEditorWidget::onNewUnsavedChanges()
+{
+  m_unsavedChanges = true;
+}
 
 void DFGKLEditorWidget::closeEvent(QCloseEvent * event)
 {

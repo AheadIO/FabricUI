@@ -3,6 +3,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QCursor>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 #include <QtCore/QDebug>
 #include <FabricCore.h>
 #include "DFGWidget.h"
@@ -417,6 +418,17 @@ bool DFGWidget::editNode(const char * nodePath)
   try
   {
     DFGWrapper::Executable exec = m_uiController->getExecFromPath(nodePath);
+
+    if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
+    {
+      QMessageBox::StandardButton answer = 
+        QMessageBox::warning(this, "Fabric", 
+          "You haven't compiled the code.\nYou are going to lose the changes.\nSure?", 
+          QMessageBox::Ok | QMessageBox::Cancel);
+
+      if(answer == QMessageBox::Cancel)
+        return false;
+    }
 
     if(exec.getObjectType() == "Graph")
     {
