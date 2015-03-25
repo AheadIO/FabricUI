@@ -45,6 +45,7 @@ namespace FabricUI
       float m_minimum;
       float m_maximum;
       std::string m_typeName;
+      bool m_changingValue;
     };
 
   };

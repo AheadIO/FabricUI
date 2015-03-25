@@ -12,6 +12,7 @@ ScalarValueWidget::ScalarValueWidget(QString label, QWidget * parent)
 : ValueWidget(label, parent)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
+  m_changingValue = false;
 
   m_lineEdit = new QLineEdit(this);
   QDoubleValidator * validator = new QDoubleValidator(m_lineEdit);
@@ -23,7 +24,7 @@ ScalarValueWidget::ScalarValueWidget(QString label, QWidget * parent)
   m_slider = new QSlider(this);
   m_slider->setOrientation(Qt::Horizontal);
   m_slider->setMinimum(0);
-  m_slider->setMaximum(1000);
+  m_slider->setMaximum(10000);
   hbox->addWidget(m_slider);
 
   QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
@@ -68,11 +69,11 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
   if(f <= m_minimum)
     m_slider->setValue(0);
   else if(f >= m_maximum)
-    m_slider->setValue(1000.0f);
+    m_slider->setValue(10000.0f);
   else 
   {
     float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
-    m_slider->setValue(1000.0f * ratio);
+    m_slider->setValue(10000.0f * ratio);
   }
 
   m_lineEdit->setText(QString::number(f));
@@ -86,17 +87,18 @@ void ScalarValueWidget::setEnabled(bool state)
 
 void ScalarValueWidget::onValueChangedInLineEdit()
 {
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
   QString text = m_lineEdit->text();
   float f = text.toFloat();
   if(f <= m_minimum)
-    m_slider->setValue(0);
+    m_minimum = f;
   else if(f >= m_maximum)
-    m_slider->setValue(100);
-  else 
-  {
-    float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
-    m_slider->setValue(1000.0f * ratio);
-  }
+    m_maximum = f;
+
+  float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
+  m_slider->setValue(10000.0f * ratio);
 
   if(m_typeName == "Float32" || m_typeName == "Scalar")
     m_value = FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), f);
@@ -104,11 +106,15 @@ void ScalarValueWidget::onValueChangedInLineEdit()
     m_value = FabricCore::RTVal::ConstructFloat64(*((ValueItem*)item())->client(), f);
 
   emit dataChanged();
+  m_changingValue = false;
 }
 
 void ScalarValueWidget::onValueChangedInSlider()
 {
-  float ratio = float(m_slider->value()) / 1000.0f;
+  if(m_changingValue)
+    return;
+  m_changingValue = true;
+  float ratio = float(m_slider->value()) / 10000.0f;
   float f = m_minimum + (m_maximum - m_minimum) * ratio;
   m_lineEdit->setText(QString::number(f));
 
@@ -118,6 +124,7 @@ void ScalarValueWidget::onValueChangedInSlider()
     m_value = FabricCore::RTVal::ConstructFloat64(*((ValueItem*)item())->client(), f);
 
   emit dataChanged();
+  m_changingValue = false;
 }
 
 void ScalarValueWidget::onBeginInteraction()
