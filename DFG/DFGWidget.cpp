@@ -282,15 +282,15 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Save as Preset")
   {
-    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", "", "DFG Presets (*.dfg.json)");
-    if(filePath.length() == 0)
-      return;
-    std::string filePathStr = filePath.toUtf8().constData();
-
     DFGWrapper::Binding binding = m_uiController->getBinding();
     DFGWrapper::GraphExecutable graph = binding.getGraph();
     DFGWrapper::Node node = graph.getNode(m_contextNode->name().toUtf8().constData());
     DFGWrapper::Executable exec = node.getExecutable();
+
+    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", exec.getTitle().c_str(), "DFG Presets (*.dfg.json)");
+    if(filePath.length() == 0)
+      return;
+    std::string filePathStr = filePath.toUtf8().constData();
 
     try
     {
