@@ -16,6 +16,8 @@ DFGTabSearchWidget::DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & con
   m_parent = parent;
   m_metrics = new QFontMetrics(m_config.fixedFont);
   setMouseTracking(true);
+  m_requiresUpdate = false;
+  requestPixmapUpdate();
 }
 
 DFGTabSearchWidget::~DFGTabSearchWidget()
@@ -52,7 +54,7 @@ void DFGTabSearchWidget::mouseMoveEvent(QMouseEvent * event)
     if(m_currentIndex != index)
     {
       m_currentIndex = index;
-      updatePixmap();
+      m_requiresUpdate = true;
     }
     event->accept();
     return;
@@ -92,7 +94,8 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
     if(m_currentIndex > 0)
     {
       m_currentIndex--;
-      updatePixmap();
+      m_requiresUpdate = true;
+      requestPixmapUpdate();
     }
     event->accept();
   }
@@ -101,7 +104,7 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
     if(m_currentIndex < m_results.length() -1)
     {
       m_currentIndex++;
-      updatePixmap();
+      requestPixmapUpdate();
     }
     event->accept();
   }
@@ -126,6 +129,7 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
 
 void DFGTabSearchWidget::paintEvent(QPaintEvent * event)
 {
+  updatePixmap();
   QPainter painter(this);
   painter.drawPixmap(0, 0, m_pixmap);
   QWidget::paintEvent(event);  
@@ -138,7 +142,7 @@ void DFGTabSearchWidget::showForSearch(QPoint pos)
   m_currentIndex = -1;
   setFocus(Qt::TabFocusReason);
   m_pos = QPoint(pos.x() - width() * 0.5, pos.y() - m_metrics->lineSpacing() * 0.5);
-  updatePixmap();
+  requestPixmapUpdate();
 
   // always show on top
   Qt::WindowFlags flags = windowFlags();
@@ -186,11 +190,15 @@ void DFGTabSearchWidget::updateSearch()
   {
     m_currentIndex = 0;
   }
-  updatePixmap();
+  requestPixmapUpdate();
 }
 
 void DFGTabSearchWidget::updatePixmap()
 {
+  if(!m_requiresUpdate)
+    return;
+  m_requiresUpdate = false;
+
   int width = widthFromResults();
   int height = heightFromResults();
 
@@ -224,14 +232,26 @@ void DFGTabSearchWidget::updatePixmap()
     painter.drawText(margin(), offset, resultLabel(i));
   }
 
-  hide();
+  show();
+}
+
+int DFGTabSearchWidget::margin() const
+{
+  return 2;
+}
+
+void DFGTabSearchWidget::requestPixmapUpdate()
+{
+  int width = widthFromResults();
+  int height = heightFromResults();
+
   QPoint pos = m_parent->mapFromGlobal(m_pos);
   
   QWidget * parentWidget = qobject_cast<QWidget*>(parent());
   if(parentWidget)
   {
     QPoint tl = pos;
-    QPoint br = pos + QPoint(m_pixmap.width(), m_pixmap.height());
+    QPoint br = pos + QPoint(width, height);
 
     if(tl.x() < 0)
       pos += QPoint(-tl.x(), 0);
@@ -243,14 +263,9 @@ void DFGTabSearchWidget::updatePixmap()
       pos -= QPoint(0, br.y() - parentWidget->height());
   }
 
-  setGeometry(pos.x(), pos.y(), m_pixmap.width(), m_pixmap.height());
+  setGeometry(pos.x(), pos.y(), width, height);
 
-  show();
-}
-
-int DFGTabSearchWidget::margin() const
-{
-  return 2;
+  m_requiresUpdate = true;
 }
 
 QString DFGTabSearchWidget::resultLabel(unsigned int index) const

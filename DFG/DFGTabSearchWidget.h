@@ -43,6 +43,7 @@ namespace FabricUI
 
     private:
 
+      void requestPixmapUpdate();
       QString resultLabel(unsigned int index) const;
       int indexFromPos(QPoint pos);
       int widthFromResults() const;
@@ -56,6 +57,7 @@ namespace FabricUI
       QPoint m_pos;
       QFontMetrics * m_metrics;
       QPixmap m_pixmap;
+      bool m_requiresUpdate;
     };
 
   };
