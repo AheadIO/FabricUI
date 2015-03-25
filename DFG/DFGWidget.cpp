@@ -434,6 +434,7 @@ bool DFGWidget::editNode(const char * nodePath)
     {
       setGraph(m_dfgHost, m_dfgBinding, exec);
       m_uiGraphViewWidget->show();
+      m_uiGraphViewWidget->setFocus();
       m_klEditor->hide();      
     }
     else if(exec.getObjectType() == "Func")
@@ -441,6 +442,7 @@ bool DFGWidget::editNode(const char * nodePath)
       m_uiHeader->setCaption(exec.getPath().c_str());
       m_uiGraphViewWidget->hide();
       m_klEditor->show();      
+      m_klEditor->klEditor()->sourceCodeWidget()->setFocus();
       m_klEditor->setFunc(exec);
     }
   }

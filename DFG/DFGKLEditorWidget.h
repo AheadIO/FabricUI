@@ -30,6 +30,7 @@ namespace FabricUI
 
       void setFunc(FabricServices::DFGWrapper::FuncExecutable func);
       bool hasUnsavedChanges() const { return m_unsavedChanges; }
+      KLEditor::KLEditorWidget * klEditor() { return m_klEditor; }
 
       virtual void closeEvent(QCloseEvent * event);
 
