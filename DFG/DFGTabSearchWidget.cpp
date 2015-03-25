@@ -17,7 +17,7 @@ DFGTabSearchWidget::DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & con
   m_metrics = new QFontMetrics(m_config.fixedFont);
   setMouseTracking(true);
   m_requiresUpdate = false;
-  requestPixmapUpdate();
+  // requestPixmapUpdate();
 }
 
 DFGTabSearchWidget::~DFGTabSearchWidget()
