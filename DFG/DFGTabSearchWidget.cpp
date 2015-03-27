@@ -2,6 +2,7 @@
 
 #include "DFGTabSearchWidget.h"
 #include "DFGWidget.h"
+#include "DFGLogWidget.h"
 
 #include <QtGui/QCursor>
 
@@ -94,7 +95,6 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
     if(m_currentIndex > 0)
     {
       m_currentIndex--;
-      m_requiresUpdate = true;
       requestPixmapUpdate();
     }
     event->accept();
@@ -264,6 +264,7 @@ void DFGTabSearchWidget::requestPixmapUpdate()
   }
 
   setGeometry(pos.x(), pos.y(), width, height);
+  update();
 
   m_requiresUpdate = true;
 }

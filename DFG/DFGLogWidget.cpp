@@ -81,6 +81,8 @@ void DFGLogWidget::callback(void * userData, char const * stringData, uint32_t s
 
   if(s_logFunc)
     (*s_logFunc)(stringData);
+  else
+    printf("%s\n", stringData);
 }
 
 void DFGLogWidget::setLogFunc(DFGController::LogFunc func)
