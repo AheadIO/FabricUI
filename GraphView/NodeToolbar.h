@@ -32,6 +32,9 @@ namespace FabricUI
       virtual void attach(Node * node);
       virtual void deattach(bool disconnectSignal = true);
 
+      virtual void disable();
+      virtual void enable();
+
       virtual void addTool(QString name, QString resource, bool performUpdate = false);
       virtual void clearTools();
 
@@ -60,6 +63,7 @@ namespace FabricUI
         int rotation;
       };
 
+      bool m_enabled;
       Graph * m_graph;
       Node * m_node;
       GraphConfig m_config;

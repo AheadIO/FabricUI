@@ -220,6 +220,9 @@ Node * Graph::addNode(Node * node, bool quiet)
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
 
+  if(m_nodeToolbar)
+    m_nodeToolbar->attach(node);
+
   if(!quiet)
     emit nodeAdded(node);
 

@@ -103,7 +103,7 @@ namespace FabricUI
     signals:
 
       void selectionChanged(FabricUI::GraphView::Node *, bool);
-      void collapsedStateChanged(FabricUI::GraphView::Node *, CollapseState);
+      void collapsedStateChanged(FabricUI::GraphView::Node *, FabricUI::GraphView::Node::CollapseState);
       void positionChanged(FabricUI::GraphView::Node *, QPointF);
       void pinAdded(FabricUI::GraphView::Node *, Pin *);
       void pinRemoved(FabricUI::GraphView::Node *, Pin *);

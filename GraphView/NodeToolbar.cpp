@@ -21,6 +21,7 @@ NodeToolbar::NodeToolbar(Graph * parent, const GraphConfig & config)
   m_graph = parent;
   m_config = config;
   m_node = NULL;
+  m_enabled = true;
 
   setMinimumHeight(m_config.nodeToolbarHeight);
   setMaximumHeight(m_config.nodeToolbarHeight);
@@ -60,6 +61,19 @@ const Node * NodeToolbar::node() const
   return m_node;
 }
 
+void NodeToolbar::disable()
+{
+  deattach();
+  hide();
+  m_enabled = false;
+}
+
+void NodeToolbar::enable()
+{
+  m_enabled = true;
+  attach(m_node);
+}
+
 void NodeToolbar::attach(Node * node)
 {
   deattach();
@@ -70,14 +84,20 @@ void NodeToolbar::attach(Node * node)
   graph()->controller()->populateNodeToolbar(this, m_node);
   QObject::connect(m_node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(onNodePositionChanged(FabricUI::GraphView::Node *, QPointF)));
   onNodePositionChanged(m_node, QPointF());
-  show();
-  update();
+
+  if(m_enabled)
+  {
+    show();
+    update();
+  }
 }
 
 void NodeToolbar::deattach(bool disconnectSignal)
 {
   if(m_node && disconnectSignal)
+  {
     QObject::disconnect(m_node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(onNodePositionChanged(FabricUI::GraphView::Node *, QPointF)));
+  }
   m_node = NULL;
   clearTools();
   hide();
@@ -110,10 +130,19 @@ void NodeToolbar::addTool(QString name, QString resource, bool performUpdate)
   else
   {
     tool.pixmap = QPixmap(filePath);
-    if(tool.pixmap.width() == 0)
-      return;
     s_pixmaps.insert(std::pair<QString, QPixmap>(filePath, tool.pixmap));
+  
+    if(tool.pixmap.width() == 0)
+    {
+      printf("Nodetoolbar: Pixmap not found: '%s'\n", filePath.toUtf8().constData());
+      return;
+    }
   }
+
+  if(tool.pixmap.width() == 0)
+    return;
+
+
   tool.rotation = 0;
   m_tools.push_back(tool);
 
@@ -178,7 +207,7 @@ void NodeToolbar::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void NodeToolbar::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
-  if(m_node && m_tools.size() > 0)
+  if(m_node && m_tools.size() > 0 && m_enabled)
   {
     QPen standardPen = m_config.nodeToolbarPen;
     QRectF rect = windowFrameRect();
@@ -221,6 +250,9 @@ void NodeToolbar::onNodePositionChanged(FabricUI::GraphView::Node * node, QPoint
   p += QPointF(m_node->boundingRect().width() - m_config.nodeWidthReduction * 0.5f - m_config.nodeCornerRadius * 0.5, 0.0f);
 
   setTransform(QTransform::fromTranslate(p.x(), p.y()), false);
+
+  if(node->size().width() == 0)
+    deattach();
 }
 
 QRectF NodeToolbar::toolRect(int index) const

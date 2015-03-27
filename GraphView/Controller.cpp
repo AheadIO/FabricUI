@@ -417,5 +417,12 @@ void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, QString too
   if(toolName == "node_collapse")
   {
     node->toggleCollapsedState();
+    if(m_graph)
+    {
+      if(m_graph->nodeToolbar())
+      {
+        m_graph->nodeToolbar()->setToolRotation(toolName, node->collapsedState());
+      }
+    }    
   }
 }

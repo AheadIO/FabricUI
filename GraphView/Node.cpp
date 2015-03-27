@@ -207,6 +207,7 @@ Node::CollapseState Node::collapsedState() const
 void Node::setCollapsedState(Node::CollapseState state)
 {
   m_collapsedState = state;
+  emit collapsedStateChanged(this, m_collapsedState);
   updatePinLayout();
   update();
 }
