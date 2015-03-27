@@ -55,7 +55,7 @@ void DFGTabSearchWidget::mouseMoveEvent(QMouseEvent * event)
     if(m_currentIndex != index)
     {
       m_currentIndex = index;
-      m_requiresUpdate = true;
+      requestPixmapUpdate();
     }
     event->accept();
     return;
