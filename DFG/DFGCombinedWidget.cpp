@@ -141,12 +141,12 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
   DFGWrapper::Node codeNode = m_dfgWidget->getUIController()->getNodeFromPath(node->path().toUtf8().constData());
   m_dfgValueEditor->setNode(codeNode);
 
-  QList<int> s = sizes();
+  QList<int> s = m_hSplitter->sizes();
   if(s[2] == 0)
   {
     s[2] = (int)(float(s[1]) * 0.2f);
     s[1] = (int)(float(s[1]) * 0.8f);
-    setSizes(s);
+    m_hSplitter->setSizes(s);
   }
 }
 
