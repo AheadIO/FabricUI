@@ -287,9 +287,16 @@ void DFGWidget::onNodeAction(QAction * action)
     DFGWrapper::Node node = graph.getNode(m_contextNode->name().toUtf8().constData());
     DFGWrapper::Executable exec = node.getExecutable();
 
-    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", exec.getTitle().c_str(), "DFG Presets (*.dfg.json)");
+    QString title = exec.getTitle().c_str();
+    if(title.toLower().endsWith(".dfg.json"))
+      title = title.left(title.length() - 9);
+
+    QString filter = "DFG Preset (*.dfg.json)";
+    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", title, filter, &filter);
     if(filePath.length() == 0)
       return;
+    if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
+      filePath = filePath.left(filePath.length() - 9);
     std::string filePathStr = filePath.toUtf8().constData();
 
     try
