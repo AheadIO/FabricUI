@@ -36,7 +36,7 @@ namespace FabricUI
         FabricServices::ASTWrapper::KLASTManager * manager,
         FabricServices::DFGWrapper::Host * host,
         FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutable graph,
+        FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
       );

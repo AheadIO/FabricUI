@@ -16,11 +16,11 @@ DFGSetNodeCacheRuleCommand::DFGSetNodeCacheRuleCommand(DFGController * controlle
 bool DFGSetNodeCacheRuleCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::Node node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  if(m_rule == node.getExecutable().getCacheRule())
-    node.setCacheRule(FEC_DFGCacheRule_Unspecified);
+  DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
+  if(m_rule == node->getExecutable()->getCacheRule())
+    node->setCacheRule(FEC_DFGCacheRule_Unspecified);
   else
-    node.setCacheRule(m_rule);
+    node->setCacheRule(m_rule);
   return true;
 }
 

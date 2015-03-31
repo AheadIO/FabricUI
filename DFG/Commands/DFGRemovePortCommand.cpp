@@ -16,23 +16,24 @@ DFGRemovePortCommand::DFGRemovePortCommand(DFGController * controller, QString e
 bool DFGRemovePortCommand::invoke()
 {
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
-  DFGWrapper::GraphExecutable graph = view->getGraph();
-  DFGWrapper::Executable exec(graph);
-  std::string remainingGraphPath = GraphView::relativePathSTL(graph.getPath(), m_execPath);
+  DFGWrapper::GraphExecutablePtr graph = view->getGraph();
+  DFGWrapper::ExecutablePtr exec(graph);
+
+  std::string remainingGraphPath = GraphView::relativePathSTL(graph->getGraphPath(), m_execPath);
   while(remainingGraphPath.length() > 0)
   {
     std::string nodeName = remainingGraphPath;
     int periodPos = nodeName.find('.');
     if(periodPos != std::string::npos)
       nodeName = nodeName.substr(0, periodPos);
-    DFGWrapper::Node node = graph.getNode(nodeName.c_str());
-    exec = node.getExecutable();
-    if(exec.getObjectType() != "Graph")
+    DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
+    exec = node->getExecutable();
+    if(exec->getExecType() != FabricCore::DFGExecType_Graph)
       break;
-    graph = exec;
-    remainingGraphPath = GraphView::relativePathSTL(graph.getPath(), remainingGraphPath);
+    graph = DFGWrapper::GraphExecutablePtr::StaticCast(exec);
+    remainingGraphPath = GraphView::relativePathSTL(graph->getGraphPath(), remainingGraphPath);
   }
-  exec.removePort(m_portTitle.c_str());
+  exec->removePort(m_portTitle.c_str());
   return true;
 }
 

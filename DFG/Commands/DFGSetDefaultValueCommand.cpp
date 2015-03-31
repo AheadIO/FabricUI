@@ -3,6 +3,7 @@
 #include "DFGSetDefaultValueCommand.h"
 
 #include <CodeCompletion/KLTypeDesc.h>
+#include <GraphView/Graph.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -23,9 +24,9 @@ bool DFGSetDefaultValueCommand::invoke()
     return false;
 
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
-  DFGWrapper::GraphExecutable graph = view->getGraph();
-  FabricCore::DFGBinding binding = graph.getWrappedCoreBinding();
-  binding.setPinDefaultValue(m_path.c_str(), m_value);
+  DFGWrapper::NodePtr node = ((DFGController*)controller())->getNodeFromPath(GraphView::parentPathSTL(m_path));
+  DFGWrapper::PinPtr pin = node->getPin(GraphView::lastPathSegmentSTL(m_path).c_str());
+  pin->setDefaultValue(m_value);
   return true;
 }
 

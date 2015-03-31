@@ -19,7 +19,7 @@ DFGAddPortCommand::DFGAddPortCommand(DFGController * controller, QString execPat
 bool DFGAddPortCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::Executable exec = ctrl->getExecFromPath(m_execPath.c_str());
+  DFGWrapper::ExecutablePtr exec = ctrl->getExecFromPath(m_execPath.c_str());
 
   FabricCore::DFGPortType portType = FabricCore::DFGPortType_In;
   if(m_portType == GraphView::PortType_Input)
@@ -27,7 +27,7 @@ bool DFGAddPortCommand::invoke()
   else if(m_portType == GraphView::PortType_IO)
     portType = FabricCore::DFGPortType_IO;
 
-  m_portPath = exec.addPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL).getPath();
+  m_portPath = exec->addPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL)->getEndPointPath();
   return true;
 }
 

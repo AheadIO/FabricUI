@@ -24,10 +24,11 @@ namespace FabricUI
 
     public:
 
-      DFGView(FabricServices::DFGWrapper::GraphExecutable graph, const DFGConfig & config = DFGConfig());
+      DFGView(FabricServices::DFGWrapper::GraphExecutablePtr graph, const DFGConfig & config = DFGConfig());
 
       DFGController * getController();
       void setController(DFGController * view);
+      FabricServices::DFGWrapper::GraphExecutablePtr getGraph();
 
       GraphView::Port * getLastPortInserted();
 

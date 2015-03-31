@@ -34,7 +34,7 @@ namespace FabricUI
         FabricServices::ASTWrapper::KLASTManager * manager,
         FabricServices::DFGWrapper::Host * host,
         FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutable graph,
+        FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
         const GraphView::GraphConfig & graphConfig = GraphView::GraphConfig(),
@@ -45,7 +45,7 @@ namespace FabricUI
       void setGraph(
         FabricServices::DFGWrapper::Host * host,
         FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutable graph
+        FabricServices::DFGWrapper::GraphExecutablePtr graph
       );
 
       DFGGraph * getUIGraph();
@@ -94,7 +94,7 @@ namespace FabricUI
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       FabricServices::DFGWrapper::Host * m_dfgHost;
       FabricServices::DFGWrapper::Binding m_dfgBinding;
-      FabricServices::DFGWrapper::GraphExecutable m_dfgGraph;
+      FabricServices::DFGWrapper::GraphExecutablePtr m_dfgGraph;
       DFGConfig m_dfgConfig;
     };
 

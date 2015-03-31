@@ -82,14 +82,14 @@ namespace FabricUI
       virtual bool execute();
       bool bindUnboundRTVals(std::string dataType = "");
 
-      virtual bool canConnect(QString pathA, QString pathB, QString &failureReason);
+      virtual bool canConnectTo(QString pathA, QString pathB, QString &failureReason);
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
-      FabricServices::DFGWrapper::Node getNodeFromPath(const std::string & path);
-      FabricServices::DFGWrapper::Executable getExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::GraphExecutable getGraphExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::Port getPortFromPath(const std::string & path);
+      FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
+      FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
+      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
+      FabricServices::DFGWrapper::EndPointPtr getEndPointFromPath(const std::string & path);
 
       virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
 

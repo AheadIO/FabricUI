@@ -16,8 +16,8 @@ DFGRenameNodeCommand::DFGRenameNodeCommand(DFGController * controller, QString p
 bool DFGRenameNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::Node node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  node.setTitle(m_newTitle.toUtf8().constData());
+  DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
+  node->setTitle(m_newTitle.toUtf8().constData());
   return true;
 }
 

@@ -28,6 +28,11 @@ void DFGView::setController(DFGController * controller)
   m_controller = controller;
 }
 
+DFGWrapper::GraphExecutablePtr DFGView::getGraph()
+{
+  return m_graph;
+}
+
 GraphView::Port * DFGView::getLastPortInserted()
 {
   return m_lastPortInserted;

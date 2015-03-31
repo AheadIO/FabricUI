@@ -18,9 +18,9 @@ bool DFGRenamePortCommand::invoke()
   DFGController* ctrl = (DFGController*)controller();
   std::string execPath = GraphView::parentPathSTL(m_path);
   std::string oldName = GraphView::lastPathSegmentSTL(m_path);
-  DFGWrapper::Executable exec = ctrl->getExecFromPath(execPath);
-  DFGWrapper::Port port = exec.getPort(oldName.c_str());
-  m_result = port.setName(m_newName.c_str());
+  DFGWrapper::ExecutablePtr exec = ctrl->getExecFromPath(execPath);
+  DFGWrapper::PortPtr port = exec->getPort(oldName.c_str());
+  m_result = port->rename(m_newName.c_str());
   return true;
 }
 

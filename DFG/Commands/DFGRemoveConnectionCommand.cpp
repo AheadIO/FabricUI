@@ -23,39 +23,39 @@ bool DFGRemoveConnectionCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   DFGView * view = ctrl->getView();
-  DFGWrapper::GraphExecutable graph = view->getGraph();
+  DFGWrapper::GraphExecutablePtr graph = view->getGraph();
 
   if(m_srcIsPin && m_dstIsPin)
   {
-    DFGWrapper::Node srcNode = ctrl->getNodeFromPath(m_srcNodePath.c_str());
-    DFGWrapper::Node dstNode = ctrl->getNodeFromPath(m_dstNodePath.c_str());
-    DFGWrapper::Pin srcPin = srcNode.getPin(m_srcPinTitle.c_str());
-    DFGWrapper::Pin dstPin = dstNode.getPin(m_dstPinTitle.c_str());
-    srcPin.disconnect(dstPin);
+    DFGWrapper::NodePtr srcNode = ctrl->getNodeFromPath(m_srcNodePath.c_str());
+    DFGWrapper::NodePtr dstNode = ctrl->getNodeFromPath(m_dstNodePath.c_str());
+    DFGWrapper::PinPtr srcPin = srcNode->getPin(m_srcPinTitle.c_str());
+    DFGWrapper::PinPtr dstPin = dstNode->getPin(m_dstPinTitle.c_str());
+    srcPin->disconnectFrom(dstPin);
   }
   else if(!m_srcIsPin && !m_dstIsPin)
   {
-    DFGWrapper::Executable srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
-    DFGWrapper::Executable dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
-    DFGWrapper::Port srcPort = srcExec.getPort(m_srcPinTitle.c_str());
-    DFGWrapper::Port dstPort = dstExec.getPort(m_dstPinTitle.c_str());
-    srcPort.disconnect(dstPort);
+    DFGWrapper::ExecutablePtr srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
+    DFGWrapper::ExecutablePtr dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
+    DFGWrapper::PortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
+    DFGWrapper::PortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
+    srcPort->disconnectFrom(dstPort);
   }
   else if(m_srcIsPin && !m_dstIsPin)
   {
-    DFGWrapper::Node srcNode = ctrl->getNodeFromPath(m_srcNodePath.c_str());
-    DFGWrapper::Executable dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
-    DFGWrapper::Pin srcPin = srcNode.getPin(m_srcPinTitle.c_str());
-    DFGWrapper::Port dstPort = dstExec.getPort(m_dstPinTitle.c_str());
-    srcPin.disconnect(dstPort);
+    DFGWrapper::NodePtr srcNode = ctrl->getNodeFromPath(m_srcNodePath.c_str());
+    DFGWrapper::ExecutablePtr dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
+    DFGWrapper::PinPtr srcPin = srcNode->getPin(m_srcPinTitle.c_str());
+    DFGWrapper::PortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
+    srcPin->disconnectFrom(dstPort);
   }
   else if(!m_srcIsPin && m_dstIsPin)
   {
-    DFGWrapper::Executable srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
-    DFGWrapper::Node dstNode = ctrl->getNodeFromPath(m_dstNodePath.c_str());
-    DFGWrapper::Port srcPort = srcExec.getPort(m_srcPinTitle.c_str());
-    DFGWrapper::Pin dstPin = dstNode.getPin(m_dstPinTitle.c_str());
-    srcPort.disconnect(dstPin);
+    DFGWrapper::ExecutablePtr srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
+    DFGWrapper::NodePtr dstNode = ctrl->getNodeFromPath(m_dstNodePath.c_str());
+    DFGWrapper::PortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
+    DFGWrapper::PinPtr dstPin = dstNode->getPin(m_dstPinTitle.c_str());
+    srcPort->disconnectFrom(dstPin);
   }
   return true;
 }

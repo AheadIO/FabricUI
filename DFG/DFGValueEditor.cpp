@@ -23,12 +23,12 @@ DFGValueEditor::~DFGValueEditor()
 {
 }
 
-FabricServices::DFGWrapper::Node DFGValueEditor::getNode()
+FabricServices::DFGWrapper::NodePtr DFGValueEditor::getNode()
 {
   return m_node;
 }
 
-void DFGValueEditor::setNode(FabricServices::DFGWrapper::Node node)
+void DFGValueEditor::setNode(FabricServices::DFGWrapper::NodePtr node)
 {
   m_node = node;
   onArgsChanged();
@@ -40,10 +40,10 @@ void DFGValueEditor::onArgsChanged()
 
   try
   {
-    if(!m_node.isValid())
+    if(!m_node->isValid())
     {
       DFGWrapper::Binding binding = m_controller->getView()->getGraph().getWrappedCoreBinding();
-      std::vector<DFGWrapper::Port> ports = binding.getGraph().getPorts();
+      DFGWrapper::PortList ports = binding.getExecutable().getPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
         if(ports[i].getPortType() == FabricCore::DFGPortType_Out)
@@ -72,9 +72,9 @@ void DFGValueEditor::onArgsChanged()
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_node.getPath().c_str(), FabricCore::RTVal(), m_node.getPath().c_str(), false);
+      ValueItem * nodeItem = addValue(m_node->getPath().c_str(), FabricCore::RTVal(), m_node->getPath().c_str(), false);
 
-      std::vector<DFGWrapper::Pin> pins = m_node.getPins();
+      DFGWrapper::PinList pins = m_node->getPins();
       for(size_t i=0;i<pins.size();i++)
       {
         if(pins[i].getPinType() == FabricCore::DFGPortType_Out)
@@ -133,7 +133,7 @@ void DFGValueEditor::onArgsChanged()
 
 void DFGValueEditor::updateOutputs()
 {
-  if(m_node.isValid())
+  if(m_node->isValid())
     return;
 
   DFGWrapper::Binding binding = m_controller->getView()->getGraph().getWrappedCoreBinding();

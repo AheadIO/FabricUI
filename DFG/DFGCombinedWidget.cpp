@@ -26,7 +26,7 @@ void DFGCombinedWidget::init(
   FabricServices::ASTWrapper::KLASTManager * manager,
   FabricServices::DFGWrapper::Host * host,
   FabricServices::DFGWrapper::Binding binding,
-  FabricServices::DFGWrapper::GraphExecutable graph,
+  FabricServices::DFGWrapper::GraphExecutablePtr graph,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications
 ) {
@@ -138,7 +138,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
-  DFGWrapper::Node codeNode = m_dfgWidget->getUIController()->getNodeFromPath(node->path().toUtf8().constData());
+  DFGWrapper::NodePtr codeNode = m_dfgWidget->getUIController()->getNodeFromPath(node->path().toUtf8().constData());
   m_dfgValueEditor->setNode(codeNode);
 
   QList<int> s = m_hSplitter->sizes();

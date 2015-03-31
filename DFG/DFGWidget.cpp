@@ -22,7 +22,7 @@ DFGWidget::DFGWidget(
   ASTWrapper::KLASTManager * manager,
   DFGWrapper::Host * host,
   DFGWrapper::Binding binding,
-  DFGWrapper::GraphExecutable graph,
+  DFGWrapper::GraphExecutablePtr graph,
   Commands::CommandStack * stack,
   const DFGConfig & dfgConfig,
   const GraphView::GraphConfig & graphConfig,
@@ -82,7 +82,7 @@ DFGWidget::~DFGWidget()
 
 }
 
-void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, DFGWrapper::GraphExecutable graph)
+void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, DFGWrapper::GraphExecutablePtr graph)
 {
   m_dfgHost = host;
   m_dfgBinding = binding;
@@ -283,7 +283,7 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Save as Preset")
   {
     DFGWrapper::Binding binding = m_uiController->getBinding();
-    DFGWrapper::GraphExecutable graph = binding.getGraph();
+    DFGWrapper::GraphExecutablePtr graph = binding.getGraph();
     DFGWrapper::Node node = graph.getNode(m_contextNode->name().toUtf8().constData());
     DFGWrapper::Executable exec = node.getExecutable();
 
