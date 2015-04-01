@@ -146,6 +146,8 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   if(!uiNode)
     return;
   std::string dataType = pin->getResolvedType();
+  if(dataType.empty())
+    dataType = pin->getPort()->getTypeSpec();
   std::string name = pin->getName();
   QColor color = m_config.getColorForDataType(dataType);
   GraphView::PortType pType = GraphView::PortType_Input;
@@ -184,6 +186,8 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   std::string dataType = port->getResolvedType();
+  if(dataType.empty())
+    dataType = port->getTypeSpec();
   std::string path = port->getEndPointPath();
   std::string name = port->getName();
 
@@ -192,7 +196,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(port->getEndPointType() != FabricCore::DFGPortType_In)
+  if(port->getEndPointType() != FabricCore::DFGPortType_Out)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
@@ -202,7 +206,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(port->getEndPointType() != FabricCore::DFGPortType_Out)
+  if(port->getEndPointType() != FabricCore::DFGPortType_In)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)

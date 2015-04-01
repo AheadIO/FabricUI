@@ -46,7 +46,7 @@ void DFGValueEditor::onArgsChanged()
       DFGWrapper::PortList ports = binding.getExecutable()->getPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
+        if(ports[i]->getEndPointType() != FabricCore::DFGPortType_Out)
           continue;
         std::string portName = ports[i]->getName();
         if(portName.length() == 0)
@@ -61,7 +61,7 @@ void DFGValueEditor::onArgsChanged()
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getEndPointType() != FabricCore::DFGPortType_Out)
+        if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
           continue;
         char const * path = ports[i]->getEndPointPath();
         FabricCore::RTVal value = binding.getArgValue(path);
