@@ -133,7 +133,7 @@ void DFGKLEditorWidget::onPortsChanged()
       if(infos[i].portName != ports[i]->getName())
       {
         if(infos[i].portType == ports[i]->getEndPointType() &&
-          infos[i].dataType == ports[i]->getResolvedType())
+          infos[i].dataType == ports[i]->getTypeSpec())
         {
           m_controller->renamePort(ports[i]->getEndPointPath(), infos[i].portName.c_str());
           modified = true;
@@ -147,7 +147,7 @@ void DFGKLEditorWidget::onPortsChanged()
       {
         addRemovePort = true;
       }
-      else if(infos[i].dataType != ports[i]->getResolvedType())
+      else if(infos[i].dataType != ports[i]->getTypeSpec())
       {
         addRemovePort = true;
       }

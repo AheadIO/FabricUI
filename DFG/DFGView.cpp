@@ -165,10 +165,11 @@ void DFGView::onPinRemoved(DFGWrapper::PinPtr pin)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   QString path = GraphView::parentPath(pin->getEndPointPath());
+  QString name = GraphView::lastPathSegment(pin->getEndPointPath());
   GraphView::Node * uiNode = graph->node(path);
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(pin->getName());
+  GraphView::Pin * uiPin = uiNode->pin(name);
   if(!uiPin)
     return;
   uiNode->removePin(uiPin, false);
@@ -222,6 +223,7 @@ void DFGView::onPortRemoved(DFGWrapper::PortPtr port)
   if(m_controller->graph() == NULL)
     return;
   QString path = GraphView::parentPath(port->getEndPointPath());
+  QString name = GraphView::lastPathSegment(port->getEndPointPath());
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
@@ -231,8 +233,8 @@ void DFGView::onPortRemoved(DFGWrapper::PortPtr port)
   GraphView::SidePanel * uiInPanel = uiGraph->sidePanel(GraphView::PortType_Input);
   if(!uiInPanel)
     return;
-  GraphView::Port * uiOutPort = uiOutPanel->port(port->getName());
-  GraphView::Port * uiInPort = uiInPanel->port(port->getName());
+  GraphView::Port * uiOutPort = uiOutPanel->port(name);
+  GraphView::Port * uiInPort = uiInPanel->port(name);
 
   if(port->getEndPointType() == FabricCore::DFGPortType_IO && uiOutPort && uiInPort)
   {

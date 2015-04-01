@@ -82,7 +82,7 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
       {
         FabricCore::DFGPortType portType = ports[i]->getEndPointType();
         QString portName = ports[i]->getName();
-        QString dataType = ports[i]->getResolvedType();
+        QString dataType = ports[i]->getTypeSpec();
         addPort(portType, portName, dataType);
       }
     }

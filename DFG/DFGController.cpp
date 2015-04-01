@@ -952,19 +952,15 @@ void DFGController::bindingNotificationCallback(void * userData, char const *jso
     return;
   DFGController * ctrl = (DFGController *)userData;
 
-  FabricCore::Variant notificationsVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
-  for(uint32_t i=0;i<notificationsVar.getArraySize();i++)
-  {
-    const FabricCore::Variant * notificationVar = notificationsVar.getArrayElement(i);
-    const FabricCore::Variant * descVar = notificationVar->getDictValue("desc");
-    std::string descStr = descVar->getStringData();
+  FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
 
-    // if(descStr == "argTypeChanged")
-    // {
-    //   ctrl->m_view->updateDataTypesOnPorts();
-    // }
-  }
+  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
+  std::string descStr = descVar->getStringData();
 
+  // if(descStr == "argTypeChanged")
+  // {
+  //   ctrl->m_view->updateDataTypesOnPorts();
+  // }
 }
 
 QStringList DFGController::getPresetPathsFromSearch(QString search, bool includePresets, bool includeNameSpaces)
