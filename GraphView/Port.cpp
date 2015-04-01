@@ -157,7 +157,7 @@ void Port::setHighlighted(bool state)
   }
 }
 
-bool Port::canConnect(
+bool Port::canConnectTo(
   ConnectionTarget * other,
   QString &failureReason
   ) const
@@ -171,7 +171,7 @@ bool Port::canConnect(
         || portType() == PortType_Input
         || otherPin->portType() == PortType_Output )
         return false;
-      return m_sidePanel->graph()->controller()->canConnect(path(), otherPin->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPin->path(), failureReason);
     }
     case TargetType_Port:
     {
@@ -182,7 +182,7 @@ bool Port::canConnect(
         return false;
       if(path() == otherPort->path())
         return false;
-      return m_sidePanel->graph()->controller()->canConnect(path(), otherPort->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPort->path(), failureReason);
     }
     default:
       return false;

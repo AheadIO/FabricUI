@@ -100,9 +100,9 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
       QString failureReason;
       bool success = false;
       if(pinCircle->portType() == PortType_Input)
-        success = m_target->canConnect(target, failureReason);
+        success = m_target->canConnectTo(target, failureReason);
       else
-        success = target->canConnect(m_target, failureReason);
+        success = target->canConnectTo(m_target, failureReason);
       if(success)
       {
         float newDistance = (pinCircle->centerInSceneCoords() - mousePos).manhattanLength();

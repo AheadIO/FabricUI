@@ -179,7 +179,7 @@ const PinCircle * Pin::outCircle() const
   return m_outCircle;
 }
 
-bool Pin::canConnect(
+bool Pin::canConnectTo(
   ConnectionTarget * other,
   QString &failureReason
   ) const
@@ -194,7 +194,7 @@ bool Pin::canConnect(
         || portType() == PortType_Input
         || otherPin->portType() == PortType_Output )
         return false;
-      return m_node->graph()->controller()->canConnect(
+      return m_node->graph()->controller()->canConnectTo(
         path(), otherPin->path(), failureReason
         );
     }
@@ -205,7 +205,7 @@ bool Pin::canConnect(
         || portType() == PortType_Input
         || otherPort->portType() == PortType_Output )
         return false;
-      return m_node->graph()->controller()->canConnect(
+      return m_node->graph()->controller()->canConnectTo(
         path(), otherPort->path(), failureReason
         );
     }

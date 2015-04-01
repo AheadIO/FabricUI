@@ -54,7 +54,7 @@ namespace FabricUI
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
 
-      virtual bool canConnect(ConnectionTarget * other, QString &failureReason) const;
+      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const;
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
 

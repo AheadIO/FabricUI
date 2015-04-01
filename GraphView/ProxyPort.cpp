@@ -92,7 +92,7 @@ void ProxyPort::setHighlighted(bool state)
   }
 }
 
-bool ProxyPort::canConnect(
+bool ProxyPort::canConnectTo(
   ConnectionTarget * other,
   QString &failureReason
   ) const

@@ -475,6 +475,12 @@ void DFGView::onExecCacheRuleChanged(const char * path, const char * rule)
   // todo: we don't do anything here...
 }
 
+void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * resolvedType)
+{
+  // todo: I don't think we need anything here for this for now.
+}
+
+
 void DFGView::updateDataTypesOnPorts()
 {
   if(m_controller->graph() == NULL)

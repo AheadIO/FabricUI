@@ -56,6 +56,7 @@ namespace FabricUI
       virtual void onExtDepRemoved(const char * extension, const char * version);
       virtual void onNodeCacheRuleChanged(const char * path, const char * rule);
       virtual void onExecCacheRuleChanged(const char * path, const char * rule);
+      virtual void onPortResolvedTypeChanged(FabricServices::DFGWrapper::PortPtr port, const char * resolvedType);
 
       void updateDataTypesOnPorts();
 

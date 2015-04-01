@@ -33,7 +33,7 @@ namespace FabricUI
       Graph * graph();
       const Graph * graph() const;
 
-      virtual bool canConnect(ConnectionTarget * other, QString &failureReason) const { return false; }
+      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const { return false; }
       virtual TargetType targetType() const { return TargetType_MouseGrabber; }
       virtual QPointF connectionPos(PortType pType) const;
 

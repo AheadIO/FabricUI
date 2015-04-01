@@ -329,7 +329,7 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
 }
 
-bool Controller::canConnect(QString pathA, QString pathB, QString &failureReason)
+bool Controller::canConnectTo(QString pathA, QString pathB, QString &failureReason)
 {
   if(!m_graph)
   {
