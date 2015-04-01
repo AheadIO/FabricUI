@@ -19,7 +19,6 @@ DFGKLEditorPortTableWidget::DFGKLEditorPortTableWidget(QWidget * parent, DFGCont
 {
   m_controller = controller;
   m_config = config;
-  m_exec = NULL;
   m_signalsEnabled = true;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
@@ -54,20 +53,15 @@ DFGKLEditorPortTableWidget::DFGKLEditorPortTableWidget(QWidget * parent, DFGCont
 
 DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 {
-  if(m_exec)
-    delete(m_exec);
 }
 
-void DFGKLEditorPortTableWidget::setExec(DFGWrapper::Executable exec)
+void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
 {
   int prevCurrentRow = currentRow();
   int prevCurrentColumn = currentColumn();
 
   m_signalsEnabled = false;
-
-  if(m_exec)
-    delete(m_exec);
-  m_exec = new DFGWrapper::Executable(exec);
+  m_exec = exec;
 
   clearContents();
   while(rowCount() > 0)
@@ -75,7 +69,7 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::Executable exec)
 
   try
   {
-    std::vector<DFGWrapper::Port> ports = exec.getPorts();
+    DFGWrapper::PortList ports = m_exec->getPorts();
 
     if(ports.size() == 0)
     {
@@ -86,9 +80,9 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::Executable exec)
     {
       for(size_t i=0;i<ports.size();i++)
       {
-        FabricCore::DFGPortType portType = ports[i].getPortType();
-        QString portName = ports[i].getName().c_str();
-        QString dataType = ports[i].getDataType().c_str();
+        FabricCore::DFGPortType portType = ports[i]->getEndPointType();
+        QString portName = ports[i]->getName();
+        QString dataType = ports[i]->getResolvedType();
         addPort(portType, portName, dataType);
       }
     }

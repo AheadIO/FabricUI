@@ -27,12 +27,12 @@ namespace FabricUI
       DFGPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
       virtual ~DFGPortListWidget();
 
-      void setExec(FabricServices::DFGWrapper::Executable exec);
+      void setExec(FabricServices::DFGWrapper::ExecutablePtr exec);
       QString selectedItem() const;
 
     private:
 
-      FabricServices::DFGWrapper::Executable * m_exec;
+      FabricServices::DFGWrapper::ExecutablePtr m_exec;
       DFGController * m_controller;
       QListWidget * m_list;
       DFGConfig m_config;

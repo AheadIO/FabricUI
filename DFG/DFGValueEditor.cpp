@@ -40,53 +40,54 @@ void DFGValueEditor::onArgsChanged()
 
   try
   {
-    if(!m_node->isValid())
+    if(!m_node)
     {
-      DFGWrapper::Binding binding = m_controller->getView()->getGraph().getWrappedCoreBinding();
-      DFGWrapper::PortList ports = binding.getExecutable().getPorts();
+      DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
+      DFGWrapper::PortList ports = binding.getExecutable()->getPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i].getPortType() == FabricCore::DFGPortType_Out)
+        if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
           continue;
-        if(ports[i].getName().length() == 0)
+        std::string portName = ports[i]->getName();
+        if(portName.length() == 0)
           continue;
-        if(ports[i].getName() == "timeLine" || ports[i].getName() == "timeline")
+        if(portName == "timeLine" || portName == "timeline")
           continue;
-        std::string path = ports[i].getPath();
-        FabricCore::RTVal value = binding.getArgValue(path.c_str());
+        char const * path = ports[i]->getEndPointPath();
+        FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
-        addValue(path.c_str(), value, ports[i].getName().c_str(), true);
+        addValue(path, value, ports[i]->getName(), true);
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i].getPortType() != FabricCore::DFGPortType_Out)
+        if(ports[i]->getEndPointType() != FabricCore::DFGPortType_Out)
           continue;
-        std::string path = ports[i].getPath();
-        FabricCore::RTVal value = binding.getArgValue(path.c_str());
+        char const * path = ports[i]->getEndPointPath();
+        FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
-        addValue(path.c_str(), value, ports[i].getName().c_str(), false);
+        addValue(path, value, ports[i]->getName(), false);
       }
     }
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_node->getPath().c_str(), FabricCore::RTVal(), m_node->getPath().c_str(), false);
+      ValueItem * nodeItem = addValue(m_node->getNodePath(), FabricCore::RTVal(), m_node->getNodePath(), false);
 
       DFGWrapper::PinList pins = m_node->getPins();
       for(size_t i=0;i<pins.size();i++)
       {
-        if(pins[i].getPinType() == FabricCore::DFGPortType_Out)
+        if(pins[i]->getEndPointType() == FabricCore::DFGPortType_Out)
           continue;
-        if(pins[i].isConnected())
+        if(pins[i]->isConnectedToAny())
           continue;
 
-        std::string dataType = pins[i].getDataType();
+        std::string dataType = pins[i]->getResolvedType();
         if(dataType == "" || dataType.find('$') != std::string::npos)
           continue;
 
-        FabricCore::RTVal value = pins[i].getDefaultValue(dataType.c_str());
+        FabricCore::RTVal value = pins[i]->getDefaultValue(dataType.c_str());
         
         if(!value.isValid())
         {
@@ -101,7 +102,7 @@ void DFGValueEditor::onArgsChanged()
             aliasedDataType = "Float32";
 
           if(aliasedDataType.length() > 0)
-            value = pins[i].getDefaultValue(aliasedDataType.c_str());
+            value = pins[i]->getDefaultValue(aliasedDataType.c_str());
         }
 
         if(!value.isValid())
@@ -118,7 +119,7 @@ void DFGValueEditor::onArgsChanged()
         }
         if(!value.isValid())
           continue;
-        addValue(pins[i].getPath().c_str(), value, pins[i].getName().c_str(), true);
+        addValue(pins[i]->getEndPointPath(), value, pins[i]->getName(), true);
       }
 
       // expand the node level tree item
@@ -133,10 +134,10 @@ void DFGValueEditor::onArgsChanged()
 
 void DFGValueEditor::updateOutputs()
 {
-  if(m_node->isValid())
+  if(m_node)
     return;
 
-  DFGWrapper::Binding binding = m_controller->getView()->getGraph().getWrappedCoreBinding();
+  DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
 
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {

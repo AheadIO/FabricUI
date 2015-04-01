@@ -94,11 +94,11 @@ void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, D
     delete(m_dfgView);
   }
 
-  m_uiGraph->reset(m_dfgGraph.getPath().c_str(), true);
+  m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
   m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
   m_uiController->setHost(m_dfgHost);
   m_uiController->setView(m_dfgView);
-  m_uiHeader->setCaption(m_dfgGraph.getPath().c_str());
+  m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
 
   m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
   m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
@@ -146,10 +146,10 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void*
     return NULL;
   graphWidget->m_contextNode = node;
 
-  FabricServices::DFGWrapper::Node dfgNode = graphWidget->m_uiController->getNodeFromPath(node->path().toUtf8().constData());
-  FEC_DFGCacheRule cacheRule = dfgNode.getCacheRule();
+  FabricServices::DFGWrapper::NodePtr dfgNode = graphWidget->m_uiController->getNodeFromPath(node->path().toUtf8().constData());
+  FEC_DFGCacheRule cacheRule = dfgNode->getCacheRule();
   if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    cacheRule = dfgNode.getExecutable().getCacheRule();
+    cacheRule = dfgNode->getExecutable()->getCacheRule();
 
   QMenu* result = new QMenu(NULL);
   QAction* action;
@@ -283,11 +283,11 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Save as Preset")
   {
     DFGWrapper::Binding binding = m_uiController->getBinding();
-    DFGWrapper::GraphExecutablePtr graph = binding.getGraph();
-    DFGWrapper::Node node = graph.getNode(m_contextNode->name().toUtf8().constData());
-    DFGWrapper::Executable exec = node.getExecutable();
+    DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(binding.getExecutable());
+    DFGWrapper::NodePtr node = graph->getNode(m_contextNode->name().toUtf8().constData());
+    DFGWrapper::ExecutablePtr exec = node->getExecutable();
 
-    QString title = exec.getTitle().c_str();
+    QString title = exec->getTitle();
     if(title.toLower().endsWith(".dfg.json"))
       title = title.left(title.length() - 9);
 
@@ -301,7 +301,7 @@ void DFGWidget::onNodeAction(QAction * action)
 
     try
     {
-      std::string json = exec.exportJSON();
+      std::string json = exec->exportJSON();
       FILE * file = fopen(filePathStr.c_str(), "wb");
       if(file)
       {
@@ -309,8 +309,8 @@ void DFGWidget::onNodeAction(QAction * action)
         fclose(file);
       }
 
-      exec.setImportPathname(filePathStr.c_str());
-      exec.attachPreset("", exec.getTitle().c_str());
+      exec->setImportPathname(filePathStr.c_str());
+      exec->attachPreset("", exec->getTitle());
 
       emit newPresetSaved(filePathStr.c_str());
     }
@@ -424,7 +424,7 @@ bool DFGWidget::editNode(const char * nodePath)
 {
   try
   {
-    DFGWrapper::Executable exec = m_uiController->getExecFromPath(nodePath);
+    DFGWrapper::ExecutablePtr exec = m_uiController->getExecFromPath(nodePath);
 
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
     {
@@ -437,20 +437,20 @@ bool DFGWidget::editNode(const char * nodePath)
         return false;
     }
 
-    if(exec.getObjectType() == "Graph")
+    if(exec->isGraph())
     {
-      setGraph(m_dfgHost, m_dfgBinding, exec);
+      setGraph(m_dfgHost, m_dfgBinding, DFGWrapper::GraphExecutablePtr::StaticCast(exec));
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
       m_klEditor->hide();      
     }
-    else if(exec.getObjectType() == "Func")
+    else if(exec->isFunc())
     {
-      m_uiHeader->setCaption(exec.getPath().c_str());
+      m_uiHeader->setCaption(exec->getExecPath());
       m_uiGraphViewWidget->hide();
       m_klEditor->show();      
       m_klEditor->klEditor()->sourceCodeWidget()->setFocus();
-      m_klEditor->setFunc(exec);
+      m_klEditor->setFunc(DFGWrapper::FuncExecutablePtr::StaticCast(exec));
     }
   }
   catch(FabricCore::Exception e)

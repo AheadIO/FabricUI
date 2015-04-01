@@ -16,7 +16,6 @@ DFGPortListWidget::DFGPortListWidget(QWidget * parent, DFGController * controlle
 {
   m_controller = controller;
   m_config = config;
-  m_exec = NULL;
 
   setMinimumHeight(80);
   setMaximumHeight(80);
@@ -33,30 +32,26 @@ DFGPortListWidget::DFGPortListWidget(QWidget * parent, DFGController * controlle
 
 DFGPortListWidget::~DFGPortListWidget()
 {
-  if(m_exec)
-    delete(m_exec);
 }
 
-void DFGPortListWidget::setExec(DFGWrapper::Executable exec)
+void DFGPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
 {
-  if(m_exec)
-    delete(m_exec);
-  m_exec = new DFGWrapper::Executable(exec);
+  m_exec = exec;
 
   m_list->clear();
 
   try
   {
-    std::vector<DFGWrapper::Port> ports = exec.getPorts();
+    DFGWrapper::PortList ports = exec->getPorts();
     for(size_t i=0;i<ports.size();i++)
     {
       QString portType = " in";
-      if(ports[i].getPortType() == FabricCore::DFGPortType_Out)
+      if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
         portType = "out";
-      else if(ports[i].getPortType() == FabricCore::DFGPortType_IO)
+      else if(ports[i]->getEndPointType() == FabricCore::DFGPortType_IO)
         portType = " io";
-      QString dataType = ports[i].getDataType().c_str();
-      QString name = ports[i].getName().c_str();
+      QString dataType = ports[i]->getResolvedType();
+      QString name = ports[i]->getName();
       DFGPortListItem * item = new DFGPortListItem(m_list, portType, dataType, name);
       m_list->addItem(item);
     }

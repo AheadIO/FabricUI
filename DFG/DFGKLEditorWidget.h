@@ -28,7 +28,7 @@ namespace FabricUI
       DFGKLEditorWidget(QWidget * parent, DFGController * controller, FabricServices::ASTWrapper::KLASTManager * manager, const DFGConfig & config = DFGConfig());
       virtual ~DFGKLEditorWidget();
 
-      void setFunc(FabricServices::DFGWrapper::FuncExecutable func);
+      void setFunc(FabricServices::DFGWrapper::FuncExecutablePtr func);
       bool hasUnsavedChanges() const { return m_unsavedChanges; }
       KLEditor::KLEditorWidget * klEditor() { return m_klEditor; }
 
@@ -42,7 +42,7 @@ namespace FabricUI
 
     private:
 
-      FabricServices::DFGWrapper::FuncExecutable * m_func;
+      FabricServices::DFGWrapper::FuncExecutablePtr m_func;
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;

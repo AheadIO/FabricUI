@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGKLEditorPortTableWidget__
 
 #include <DFGWrapper/Host.h>
-#include <DFGWrapper/Executable.h>
+#include <DFGWrapper/FuncExecutable.h>
 
 #include <QtGui/QWidget>
 #include <QtGui/QTableWidget>
@@ -37,7 +37,7 @@ namespace FabricUI
       DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
       virtual ~DFGKLEditorPortTableWidget();
 
-      void setExec(FabricServices::DFGWrapper::Executable exec);
+      void setExec(FabricServices::DFGWrapper::FuncExecutablePtr exec);
 
       unsigned int nbPorts() const;
       PortInfo portInfo(unsigned int index) const;
@@ -61,7 +61,7 @@ namespace FabricUI
 
       int addPort(FabricCore::DFGPortType portType, QString portName, QString dataType, QString extension = "");
 
-      FabricServices::DFGWrapper::Executable * m_exec;
+      FabricServices::DFGWrapper::FuncExecutablePtr m_exec;
       DFGController * m_controller;
       DFGConfig m_config;
       bool m_signalsEnabled;

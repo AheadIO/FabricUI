@@ -94,19 +94,15 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
 
 DFGKLEditorWidget::~DFGKLEditorWidget()
 {
-  if(m_func)
-    delete(m_func);
 }
 
-void DFGKLEditorWidget::setFunc(DFGWrapper::FuncExecutable func)
+void DFGKLEditorWidget::setFunc(DFGWrapper::FuncExecutablePtr func)
 {
-  if(m_func)
-    delete(m_func);
-  m_func = new DFGWrapper::FuncExecutable(func);
+  m_func = func;
 
   try
   {
-    m_klEditor->sourceCodeWidget()->setCode(m_func->getCode().c_str());
+    m_klEditor->sourceCodeWidget()->setCode(m_func->getCode());
   }
   catch(FabricCore::Exception e)
   {
@@ -123,7 +119,7 @@ void DFGKLEditorWidget::onPortsChanged()
   for(unsigned int i=0;i<m_ports->nbPorts();i++)
     infos.push_back(m_ports->portInfo(i));
 
-  std::vector<DFGWrapper::Port> ports = m_func->getPorts();
+  DFGWrapper::PortList ports = m_func->getPorts();
 
   bool modified = false;
 
@@ -134,12 +130,12 @@ void DFGKLEditorWidget::onPortsChanged()
     for(size_t i=0;i<infos.size();i++)
     {
       bool addRemovePort = false;
-      if(infos[i].portName != ports[i].getName())
+      if(infos[i].portName != ports[i]->getName())
       {
-        if(infos[i].portType == ports[i].getPortType() &&
-          infos[i].dataType == ports[i].getDataType())
+        if(infos[i].portType == ports[i]->getEndPointType() &&
+          infos[i].dataType == ports[i]->getResolvedType())
         {
-          m_controller->renamePort(ports[i].getPath().c_str(), infos[i].portName.c_str());
+          m_controller->renamePort(ports[i]->getEndPointPath(), infos[i].portName.c_str());
           modified = true;
         }
         else
@@ -147,19 +143,19 @@ void DFGKLEditorWidget::onPortsChanged()
           addRemovePort = true;
         }
       }
-      else if(infos[i].portType != ports[i].getPortType())
+      else if(infos[i].portType != ports[i]->getEndPointType())
       {
         addRemovePort = true;
       }
-      else if(infos[i].dataType != ports[i].getDataType())
+      else if(infos[i].dataType != ports[i]->getResolvedType())
       {
         addRemovePort = true;
       }
 
       if(addRemovePort)
       {
-        QString path = m_func->getPath().c_str();
-        QString name = ports[i].getName().c_str();
+        QString path = m_func->getFuncPath();
+        QString name = ports[i]->getName();
 
         if(m_controller->removePort(path, name))
         {
@@ -174,15 +170,15 @@ void DFGKLEditorWidget::onPortsChanged()
     int indexToRemove = ports.size() - 1;
     for(size_t i=0;i<infos.size();i++)
     {
-      if(ports[i].getName() != infos[i].portName)
+      if(ports[i]->getName() != infos[i].portName)
       {
         indexToRemove = i;
         break;
       }
     }
 
-    QString path = m_func->getPath().c_str();
-    QString name = ports[indexToRemove].getName().c_str();
+    QString path = m_func->getFuncPath();
+    QString name = ports[indexToRemove]->getName();
     m_controller->removePort(path, name);
     modified = true;
   }
@@ -191,14 +187,14 @@ void DFGKLEditorWidget::onPortsChanged()
     int indexToAdd = infos.size() - 1;
     for(size_t i=0;i<ports.size();i++)
     {
-      if(ports[i].getName() != infos[i].portName)
+      if(ports[i]->getName() != infos[i].portName)
       {
         indexToAdd = i;
         break;
       }
     }
 
-    QString path = m_func->getPath().c_str();
+    QString path = m_func->getFuncPath();
     QString name = infos[indexToAdd].portName.c_str();
     QString dataType = infos[indexToAdd].dataType.c_str();
 
@@ -208,13 +204,13 @@ void DFGKLEditorWidget::onPortsChanged()
 
   if(modified)
   {
-    m_ports->setExec(*m_func);
+    m_ports->setExec(m_func);
   }
 }
 
 void DFGKLEditorWidget::compile()
 {
-  if(m_controller->setCode(m_func->getPath().c_str(), m_klEditor->sourceCodeWidget()->code()))
+  if(m_controller->setCode(m_func->getFuncPath(), m_klEditor->sourceCodeWidget()->code()))
     m_unsavedChanges = false;
 }
 
