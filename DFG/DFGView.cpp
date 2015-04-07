@@ -480,6 +480,10 @@ void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * r
   // todo: I don't think we need anything here for this for now.
 }
 
+void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * resolvedType)
+{
+  // todo: I don't think we need anything here for this for now.
+}
 
 void DFGView::updateDataTypesOnPorts()
 {
