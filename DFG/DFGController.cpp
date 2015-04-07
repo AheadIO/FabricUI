@@ -498,6 +498,31 @@ bool DFGController::removeConnection(GraphView::ConnectionTarget * src, GraphVie
   );
 }
 
+bool DFGController::removeAllConnections(QString path, bool isPin)
+{
+  try
+  {
+    Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
+      path.toUtf8().constData(), 
+      isPin
+    );
+
+    if(addCommand(command))
+    {
+      emit argsChanged();
+      emit structureChanged();
+      emit recompiled();
+      return true;
+    }
+    delete(command);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return false;
+}
+
 bool DFGController::addExtensionDependency(QString extension, QString execPath)
 {
   try
