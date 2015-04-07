@@ -374,9 +374,6 @@ void DFGWidget::onPortAction(QAction * action)
     if(m_uiController->setArg(m_contextPort->name(), dataType))
     {
       // setup the value editor
-
-      // update the pins / ports
-      m_dfgView->updateDataTypesOnPorts();
     }
   }
 

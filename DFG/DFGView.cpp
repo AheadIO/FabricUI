@@ -308,9 +308,6 @@ void DFGView::onEndPointsConnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndP
   uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
 
   if(m_performChecks)
-    updateDataTypesOnPorts();
-
-  if(m_performChecks)
     m_controller->checkErrors();
 }
 
@@ -358,9 +355,6 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
     return;
 
   graph->removeConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-    updateDataTypesOnPorts();
 
   if(m_performChecks)
     m_controller->checkErrors();
@@ -477,78 +471,104 @@ void DFGView::onExecCacheRuleChanged(const char * path, const char * rule)
 
 void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * resolvedType)
 {
-  // todo: I don't think we need anything here for this for now.
+  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
+    return;
+  GraphView::Port * uiPort = uiGraph->port(port->getName());
+  if(!uiPort)
+    return;
+
+  if(resolvedType != uiPort->dataType())
+  {
+    uiPort->setDataType(resolvedType);
+    uiPort->setColor(m_config.getColorForDataType(resolvedType));
+  }
 }
 
 void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * resolvedType)
 {
-  // todo: I don't think we need anything here for this for now.
-}
-
-void DFGView::updateDataTypesOnPorts()
-{
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  DFGWrapper::GraphExecutablePtr graph = m_controller->getView()->getGraph();
+  if(!uiGraph)
+    return;
+  DFGWrapper::NodePtr node = pin->getNode();
+  GraphView::Node * uiNode = uiGraph->node(node->getNodePath());
+  if(!uiNode)
+    return;
+  GraphView::Pin * uiPin = uiNode->pin(pin->getName());
+  if(!uiPin)
+    return;
 
-  // todo: this should really not be necessary. ideally we would receive notifications
-  // from the core for any type change.
-  std::vector<GraphView::Node*> uiNodes = uiGraph->nodes();
-  for(size_t i=0;i<uiNodes.size();i++)
+  if(resolvedType != uiPin->dataType())
   {
-    GraphView::Node * uiNode = uiNodes[i];
-    DFGWrapper::NodePtr node = graph->getNode(uiNode->name().toUtf8().constData());
-
-    // pull on getdesc to update the node's description.
-    try
-    {
-      // todo
-      // std::string string = node.getDesc();
-      // printf( "getDesc %s\n", string.c_str() );
-    }
-    catch(FabricCore::Exception e)
-    {
-      continue;
-    }
-
-    DFGWrapper::PinList pins = node->getPins();
-    for(size_t j=0;j<pins.size();j++)
-    {
-      GraphView::Pin * uiPin = uiNode->pin(pins[j]->getName());
-      if(!uiPin)
-        continue;
-      std::string dataType = pins[j]->getResolvedType();
-      if(dataType != uiPin->dataType().toUtf8().constData())
-      {
-        uiPin->setDataType(dataType.c_str());
-        uiPin->setColor(m_config.getColorForDataType(dataType), false);
-      }
-    }    
+    uiPin->setDataType(resolvedType);
+    uiPin->setColor(m_config.getColorForDataType(resolvedType), false);
   }
-
-  std::vector<GraphView::Port*> uiPorts = uiGraph->ports();
-  for(size_t i=0;i<uiPorts.size();i++)
-  {
-    GraphView::Port * uiPort = uiPorts[i];
-    DFGWrapper::PortPtr port = graph->getPort(uiPort->name().toUtf8().constData());
-
-    // pull on getdesc to update the node's description.
-    try
-    {
-      // todo
-      // graph.getDesc();
-      std::string dataType = port->getResolvedType();
-      if(dataType != uiPort->dataType().toUtf8().constData())
-      {
-        uiPort->setDataType(dataType.c_str());
-        uiPort->setColor(m_config.getColorForDataType(dataType));
-      }
-    }
-    catch(FabricCore::Exception e)
-    {
-      continue;
-    }
-  }
-
 }
+
+// void DFGView::updateDataTypesOnPorts()
+// {
+//   if(m_controller->graph() == NULL)
+//     return;
+//   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+//   DFGWrapper::GraphExecutablePtr graph = m_controller->getView()->getGraph();
+
+//   // todo: this should really not be necessary. ideally we would receive notifications
+//   // from the core for any type change.
+//   std::vector<GraphView::Node*> uiNodes = uiGraph->nodes();
+//   for(size_t i=0;i<uiNodes.size();i++)
+//   {
+//     GraphView::Node * uiNode = uiNodes[i];
+//     DFGWrapper::NodePtr node = graph->getNode(uiNode->name().toUtf8().constData());
+
+//     // pull on getdesc to update the node's description.
+//     try
+//     {
+//       // todo
+//       // std::string string = node.getDesc();
+//       // printf( "getDesc %s\n", string.c_str() );
+//     }
+//     catch(FabricCore::Exception e)
+//     {
+//       continue;
+//     }
+
+//     DFGWrapper::PinList pins = node->getPins();
+//     for(size_t j=0;j<pins.size();j++)
+//     {
+//       GraphView::Pin * uiPin = uiNode->pin(pins[j]->getName());
+//       if(!uiPin)
+//         continue;
+//       std::string dataType = pins[j]->getResolvedType();
+//       if(dataType != uiPin->dataType().toUtf8().constData())
+//       {
+//         uiPin->setDataType(dataType.c_str());
+//         uiPin->setColor(m_config.getColorForDataType(dataType), false);
+//       }
+//     }    
+//   }
+
+//   std::vector<GraphView::Port*> uiPorts = uiGraph->ports();
+//   for(size_t i=0;i<uiPorts.size();i++)
+//   {
+//     GraphView::Port * uiPort = uiPorts[i];
+//     DFGWrapper::PortPtr port = graph->getPort(uiPort->name().toUtf8().constData());
+
+//     // pull on getdesc to update the node's description.
+//     try
+//     {
+//       // todo
+//       // graph.getDesc();
+//       std::string dataType = port->getResolvedType();
+//       if(dataType != uiPort->dataType().toUtf8().constData())
+//       {
+//         uiPort->setDataType(dataType.c_str());
+//         uiPort->setColor(m_config.getColorForDataType(dataType));
+//       }
+//     }
+//     catch(FabricCore::Exception e)
+//     {
+//       continue;
+//     }
+//   }
+
+// }

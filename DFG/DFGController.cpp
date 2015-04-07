@@ -269,7 +269,6 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
         DFGSetArgCommand * argCommand = new DFGSetArgCommand(this, command->getPortName(), dataType);
         if(!addCommand(argCommand))
           delete(argCommand);
-        m_view->updateDataTypesOnPorts();
       }        
     }
 
@@ -978,9 +977,10 @@ void DFGController::bindingNotificationCallback(void * userData, char const *jso
   DFGController * ctrl = (DFGController *)userData;
 
   FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
+  // printf("%s\n", jsonCString);
 
-  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  std::string descStr = descVar->getStringData();
+  // const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
+  // std::string descStr = descVar->getStringData();
 
   // if(descStr == "argTypeChanged")
   // {

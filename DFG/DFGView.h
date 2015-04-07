@@ -59,8 +59,6 @@ namespace FabricUI
       virtual void onPortResolvedTypeChanged(FabricServices::DFGWrapper::PortPtr port, const char * resolvedType);
       virtual void onPinResolvedTypeChanged(FabricServices::DFGWrapper::PinPtr pin, const char * resolvedType);
 
-      void updateDataTypesOnPorts();
-
       DFGController * m_controller;
       DFGConfig m_config;
       GraphView::Port * m_lastPortInserted;
