@@ -57,6 +57,9 @@ DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 
 void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
 {
+  if(exec == m_exec)
+    return;
+
   int prevCurrentRow = currentRow();
   int prevCurrentColumn = currentColumn();
 
