@@ -67,6 +67,8 @@ void DFGCombinedWidget::init(
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
+    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
+    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
 
     QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
@@ -133,6 +135,14 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
     QPoint pos = m_dfgWidget->getGraphViewWidget()->lastEventPos();
     pos = m_dfgWidget->getGraphViewWidget()->mapToGlobal(pos);
     m_dfgWidget->getTabSearchWidget()->showForSearch(pos);
+  }
+  else if(hotkey == "copy")
+  {
+    m_dfgWidget->getUIController()->copy();
+  }
+  else if(hotkey == "paste")
+  {
+    m_dfgWidget->getUIController()->paste();
   }
 }
 

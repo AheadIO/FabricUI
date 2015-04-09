@@ -23,6 +23,8 @@
 #include "Commands/DFGSetArgCommand.h"
 #include "Commands/DFGSetDefaultValueCommand.h"
 #include "Commands/DFGSetNodeCacheRuleCommand.h"
+#include "Commands/DFGCopyCommand.h"
+#include "Commands/DFGPasteCommand.h"
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -731,6 +733,75 @@ bool DFGController::panCanvas(QPointF pan)
     return false;
   }
   return true;
+}
+
+QString DFGController::copy(QStringList paths)
+{
+  try
+  {
+    if(paths.length() == 0)
+    {
+      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+      for(unsigned int i=0;i<nodes.size();i++)
+        paths.append(nodes[i]->path());
+    }
+
+    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
+    DFGCopyCommand * command = new DFGCopyCommand(this, paths);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+
+    return command->getJSON().c_str();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+
+  return "";
+}
+
+bool DFGController::paste()
+{
+  try
+  {
+    DFGPasteCommand * command = new DFGPasteCommand(this);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return false;
+    }
+
+    emit structureChanged();
+    emit recompiled();
+
+    std::vector<std::string> paths = command->getNodePaths();
+    if(paths.size() > 0)
+    {
+      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+      for(size_t i=0;i<nodes.size();i++)
+        nodes[i]->setSelected(false);
+
+      for(size_t i=0;i<paths.size();i++)
+      {
+        GraphView::Node * uiNode = graph()->nodeFromPath(paths[i].c_str());
+        if(!uiNode)
+          continue;
+        uiNode->setSelected(true);
+        uiNode->setTopLeftGraphPos(uiNode->topLeftGraphPos() + QPointF(10, 10));
+      }
+    }
+    return true;
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+
+  return false;
 }
 
 void DFGController::checkErrors()

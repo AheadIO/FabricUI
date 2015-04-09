@@ -76,6 +76,9 @@ namespace FabricUI
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
 
+      virtual QString copy(QStringList paths = QStringList());
+      virtual bool paste();
+
       virtual void log(const char * message);
       virtual void logError(const char * message);
 
