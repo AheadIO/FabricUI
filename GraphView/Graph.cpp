@@ -213,7 +213,7 @@ Node * Graph::addNode(Node * node, bool quiet)
 {
   QString key = node->path();
   if(m_nodeMap.find(key) != m_nodeMap.end())
-    throw(Exception("Graph::addNode: Node already part of graph."));
+    return NULL;
 
   m_nodeMap.insert(std::pair<QString, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
@@ -251,7 +251,7 @@ bool Graph::removeNode(Node * node, bool quiet)
   QString key = node->path();
   std::map<QString, size_t>::iterator it = m_nodeMap.find(key);
   if(it == m_nodeMap.end())
-    throw(Exception("Graph::removeNode: Node not part of graph."));
+    return false;
 
   controller()->beginInteraction();
 
@@ -477,7 +477,7 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
     }
   }
   if(!found)
-    throw(Exception("Graph::removeConnection: Connection not part of graph."));
+    return false;
 
   prepareGeometryChange();
   controller()->beginInteraction();

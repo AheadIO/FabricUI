@@ -319,6 +319,8 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
 
   QString srcParentPath = GraphView::parentPath(src->getEndPointPath()).toUtf8().constData();
   QString dstParentPath = GraphView::parentPath(dst->getEndPointPath()).toUtf8().constData();
+  QString srcName = GraphView::lastPathSegment(src->getEndPointPath());
+  QString dstName = GraphView::lastPathSegment(dst->getEndPointPath());
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
@@ -328,13 +330,13 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
     GraphView::Node * uiSrcNode = graph->nodeFromPath(srcParentPath);
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(src->getName());
+    uiSrcTarget = uiSrcNode->pin(srcName);
   }
   else
   {
     GraphView::SidePanel * uiPanel = graph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(src->getName());
+      uiSrcTarget = uiPanel->port(srcName);
   }
 
   if(dstParentPath.length() > 0)
@@ -342,13 +344,13 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
     GraphView::Node * uiDstNode = graph->nodeFromPath(dstParentPath);
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(dst->getName());
+    uiDstTarget = uiDstNode->pin(dstName);
   }
   else
   {
     GraphView::SidePanel * uiPanel = graph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dst->getName());
+      uiDstTarget = uiPanel->port(dstName);
   }
 
   if(!uiSrcTarget || !uiDstTarget)
