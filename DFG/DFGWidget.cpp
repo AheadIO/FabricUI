@@ -430,13 +430,24 @@ bool DFGWidget::editNode(const char * nodePath)
 
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
     {
-      QMessageBox::StandardButton answer = 
-        QMessageBox::warning(this, "Fabric", 
-          "You haven't compiled the code.\nYou are going to lose the changes.\nSure?", 
-          QMessageBox::Ok | QMessageBox::Cancel);
+      QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+        "You haven't compiled the code.\nYou are going to lose the changes.\nSure?");
 
-      if(answer == QMessageBox::Cancel)
+      msg.addButton("Compile Now", QMessageBox::AcceptRole);
+      msg.addButton("Ok", QMessageBox::NoRole);
+      msg.addButton("Cancel", QMessageBox::RejectRole);
+
+      msg.exec();
+
+      QString clicked = msg.clickedButton()->text();
+      if(clicked == "Cancel")
         return false;
+      else if(clicked == "Compile Now")
+      {
+        m_klEditor->compile();
+        if(m_klEditor->hasUnsavedChanges())
+          return false;
+      }
     }
 
 
