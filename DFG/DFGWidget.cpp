@@ -208,10 +208,7 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
 
 void DFGWidget::onGoUpPressed()
 {
-  QString path = m_uiHeader->caption();
-  if(path == "")
-    return;
-  path = GraphView::parentPath(path+"");
+  QString path = popExecPath();
   editNode(path.toUtf8().constData());
 }
 
@@ -337,7 +334,15 @@ void DFGWidget::onNodeAction(QAction * action)
 
 void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
 {
-  editNode(node->path().toUtf8().constData());
+  QString globalPath;
+  for(unsigned int i=0;i<m_execPaths.length();i++)
+  {
+    globalPath += m_execPaths[i];
+    if(globalPath.length() > 0)
+      globalPath += ".";
+  }
+  globalPath += node->path();
+  editNode(globalPath.toUtf8().constData());
 }
 
 void DFGWidget::onPortAction(QAction * action)
@@ -421,7 +426,7 @@ bool DFGWidget::editNode(const char * nodePath)
 {
   try
   {
-    DFGWrapper::ExecutablePtr exec = m_uiController->getExecFromPath(nodePath);
+    DFGWrapper::ExecutablePtr exec = m_uiController->getExecFromGlobalPath(nodePath);
 
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
     {
@@ -434,8 +439,10 @@ bool DFGWidget::editNode(const char * nodePath)
         return false;
     }
 
+
     if(exec->isGraph())
     {
+      pushExecPath(nodePath);
       setGraph(m_dfgHost, m_dfgBinding, DFGWrapper::GraphExecutablePtr::StaticCast(exec));
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
@@ -443,6 +450,7 @@ bool DFGWidget::editNode(const char * nodePath)
     }
     else if(exec->isFunc())
     {
+      pushExecPath(nodePath);
       m_uiHeader->setCaption(exec->getExecPath());
       m_uiGraphViewWidget->hide();
       m_klEditor->show();      
@@ -456,4 +464,25 @@ bool DFGWidget::editNode(const char * nodePath)
     return false;
   }
   return true;  
+}
+
+void DFGWidget::pushExecPath(QString execPath)
+{
+  if(execPath.length() == 0)
+    return;
+  if(m_execPaths.length() > 0)
+  {
+    if(m_execPaths[m_execPaths.length() -1] == execPath)
+      return;
+  }
+  m_execPaths.append(execPath);
+}
+
+QString DFGWidget::popExecPath()
+{
+  if(m_execPaths.length() > 0)
+    m_execPaths.pop_back();
+  if(m_execPaths.length() == 0)
+    return "";
+  return m_execPaths[m_execPaths.length()-1];
 }

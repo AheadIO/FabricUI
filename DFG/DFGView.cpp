@@ -127,7 +127,7 @@ void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   QString path = node->getNodePath();
-  GraphView::Node * uiNode = graph->node(path);
+  GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
   graph->removeNode(uiNode);
@@ -142,7 +142,7 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   QString path = GraphView::parentPath(pin->getEndPointPath());
-  GraphView::Node * uiNode = graph->node(path);
+  GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
   std::string dataType = pin->getResolvedType();
@@ -168,7 +168,7 @@ void DFGView::onPinRemoved(DFGWrapper::PinPtr pin)
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   QString path = GraphView::parentPath(pin->getEndPointPath());
   QString name = GraphView::lastPathSegment(pin->getEndPointPath());
-  GraphView::Node * uiNode = graph->node(path);
+  GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
   GraphView::Pin * uiPin = uiNode->pin(name);
@@ -276,7 +276,7 @@ void DFGView::onEndPointsConnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndP
 
   if(srcParentPath.length() > 0)
   {
-    GraphView::Node * uiSrcNode = uiGraph->node(srcParentPath);
+    GraphView::Node * uiSrcNode = uiGraph->nodeFromPath(srcParentPath);
     if(!uiSrcNode)
       return;
     uiSrcTarget = uiSrcNode->pin(src->getName());
@@ -290,7 +290,7 @@ void DFGView::onEndPointsConnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndP
 
   if(dstParentPath.length() > 0)
   {
-    GraphView::Node * uiDstNode = uiGraph->node(dstParentPath);
+    GraphView::Node * uiDstNode = uiGraph->nodeFromPath(dstParentPath);
     if(!uiDstNode)
       return;
     uiDstTarget = uiDstNode->pin(dst->getName());
@@ -325,7 +325,7 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
 
   if(srcParentPath.length() > 0)
   {
-    GraphView::Node * uiSrcNode = graph->node(srcParentPath);
+    GraphView::Node * uiSrcNode = graph->nodeFromPath(srcParentPath);
     if(!uiSrcNode)
       return;
     uiSrcTarget = uiSrcNode->pin(src->getName());
@@ -339,7 +339,7 @@ void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::E
 
   if(dstParentPath.length() > 0)
   {
-    GraphView::Node * uiDstNode = graph->node(dstParentPath);
+    GraphView::Node * uiDstNode = graph->nodeFromPath(dstParentPath);
     if(!uiDstNode)
       return;
     uiDstTarget = uiDstNode->pin(dst->getName());
@@ -366,7 +366,7 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   QString path = node->getNodePath();
-  GraphView::Node * uiNode = uiGraph->node(path);
+  GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
   if(!uiNode)
     return;
 
@@ -387,7 +387,7 @@ void DFGView::onNodeTitleChanged(DFGWrapper::NodePtr node, const char * title)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   QString path = node->getNodePath();
-  GraphView::Node * uiNode = uiGraph->node(path);
+  GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
   if(!uiNode)
     return;
   uiNode->setTitle(title);
@@ -491,7 +491,7 @@ void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * reso
   if(!uiGraph)
     return;
   DFGWrapper::NodePtr node = pin->getNode();
-  GraphView::Node * uiNode = uiGraph->node(node->getNodePath());
+  GraphView::Node * uiNode = uiGraph->nodeFromPath(node->getNodePath());
   if(!uiNode)
     return;
   GraphView::Pin * uiPin = uiNode->pin(pin->getName());

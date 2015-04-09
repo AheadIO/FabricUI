@@ -62,6 +62,11 @@ DFGWrapper::Binding DFGController::getBinding()
   return getView()->getGraph()->getWrappedCoreBinding();
 }
 
+DFGWrapper::GraphExecutablePtr DFGController::getGraphExec()
+{
+  return getView()->getGraph();
+}
+
 void DFGController::setHost(FabricServices::DFGWrapper::Host * host)
 {
   m_host = host;
@@ -260,7 +265,7 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
       result = command->getPortPath();
 
     // if this port is on the binding graph
-    DFGWrapper::GraphExecutablePtr exec = getView()->getGraph();
+    DFGWrapper::GraphExecutablePtr exec = getGraphExec();
     DFGWrapper::Binding binding = exec->getWrappedCoreBinding();
     if(binding.getExecutable()->getExecPath() == path)
     {
@@ -879,7 +884,7 @@ bool DFGController::canConnectTo( QString pathA, QString pathB, QString &failure
 {
   std::string failureReasonStdString;
 
-  DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
+  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
   bool result =graph->canConnectTo(
     pathA.toUtf8().constData(),
     pathB.toUtf8().constData(),
@@ -898,8 +903,27 @@ void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphV
 
 DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
 {
-  DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
+  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
   std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
+  std::string nodeName = relPath;
+  int period = relPath.rfind('.');
+  if(period != std::string::npos)
+  {
+    graph = getGraphExecFromPath(path.substr(0, period));
+    nodeName = path.substr(period+1, relPath.length());
+  }
+  else
+    graph = getGraphExec();
+
+  return graph->getNode(nodeName.c_str());
+}
+
+DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & path)
+{
+  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
+  std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
+  if(relPath.length() == 0)
+    return graph;
   std::string nodeName = relPath;
   int period = relPath.rfind('.');
   if(period != std::string::npos)
@@ -910,10 +934,10 @@ DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
   else
     graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
 
-  return graph->getNode(nodeName.c_str());
+  return graph->getNode(nodeName.c_str())->getExecutable();
 }
 
-DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & path)
+DFGWrapper::ExecutablePtr DFGController::getExecFromGlobalPath(const std::string & path)
 {
   DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
   std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
@@ -934,7 +958,7 @@ DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & pat
 
 DFGWrapper::GraphExecutablePtr DFGController::getGraphExecFromPath(const std::string & path)
 {
-  DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
+  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
   std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
   while(relPath.length() > 0)
   {
@@ -956,7 +980,7 @@ DFGWrapper::GraphExecutablePtr DFGController::getGraphExecFromPath(const std::st
 
 DFGWrapper::EndPointPtr DFGController::getEndPointFromPath(const std::string & path)
 {
-  DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
+  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
   return DFGWrapper::EndPoint::Create(graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getGraphPath(), path.c_str());
 }
 
@@ -1017,6 +1041,8 @@ QStringList DFGController::getPresetPathsFromSearch(QString search, bool include
     SplitSearch::Matches matches =
       m_presetPathDict.search( searchSplit.size(), cStrs );
 
+    if(matches.getSize() == 0)
+      return results;
     std::vector<const char *> userDatas;
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);
@@ -1028,6 +1054,8 @@ QStringList DFGController::getPresetPathsFromSearch(QString search, bool include
   {
     SplitSearch::Matches matches = m_presetNameSpaceDict.search( searchSplit.size(), cStrs );
 
+    if(matches.getSize() == 0)
+      return results;
     std::vector<const char *> userDatas;
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);

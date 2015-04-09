@@ -36,6 +36,7 @@ namespace FabricUI
 
       FabricServices::DFGWrapper::Host * getHost();
       FabricServices::DFGWrapper::Binding getBinding();
+      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExec();
       void setHost(FabricServices::DFGWrapper::Host * host);
       FabricCore::Client * getClient();
       void setClient(FabricCore::Client * client);
@@ -89,6 +90,7 @@ namespace FabricUI
 
       FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
+      FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
       FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::EndPointPtr getEndPointFromPath(const std::string & path);
 

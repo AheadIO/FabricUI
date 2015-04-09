@@ -76,6 +76,8 @@ namespace FabricUI
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
       bool editNode(const char * nodePath);
+      void pushExecPath(QString execPath);
+      QString popExecPath();
 
       QPoint m_contextPos;
       FabricUI::GraphView::Node * m_contextNode;
@@ -96,6 +98,7 @@ namespace FabricUI
       FabricServices::DFGWrapper::Binding m_dfgBinding;
       FabricServices::DFGWrapper::GraphExecutablePtr m_dfgGraph;
       DFGConfig m_dfgConfig;
+      QStringList m_execPaths;
     };
 
   };

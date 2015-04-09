@@ -20,7 +20,7 @@ QString DFGRemoveNodeCommand::getNodePath() const
 bool DFGRemoveNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExecFromPath(GraphView::parentPath(m_nodePath).toUtf8().constData());
+  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
   graph->removeNode(ctrl->getNodeFromPath(m_nodePath.toUtf8().constData()));
   return true;
 }

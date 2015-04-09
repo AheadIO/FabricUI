@@ -102,6 +102,9 @@ void PresetTreeWidget::refresh()
 
     SplitSearch::Matches matches = m_presetPathDict.search( searchSplit.size(), cStrs );
 
+    if(matches.getSize() == 0)
+      return;
+
     std::vector<const char *> userDatas;
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);

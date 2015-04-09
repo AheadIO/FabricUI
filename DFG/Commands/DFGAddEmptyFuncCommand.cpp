@@ -45,7 +45,7 @@ GraphView::Node * DFGAddEmptyFuncCommand::getNode()
 bool DFGAddEmptyFuncCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExecFromPath(m_path.c_str());
+  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
   DFGWrapper::NodePtr node = graph->addNodeWithNewFunc(m_title.c_str());
   m_nodePath = node->getNodePath();
   if(ctrl->graph())
