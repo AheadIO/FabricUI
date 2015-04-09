@@ -988,7 +988,14 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, QString 
 {
   Controller::nodeToolTriggered(node, toolName);
 
-  if(toolName == "node_edit")
+  if(toolName == "node_collapse")
+  {
+    int collapsedState = (int)node->collapsedState();
+    FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
+    DFGWrapper::NodePtr dfgNode = getNodeFromPath(node->path().toUtf8().constData());
+    dfgNode->setMetadata("uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
+  }
+  else if(toolName == "node_edit")
   {
     emit nodeEditRequested(node);
   }

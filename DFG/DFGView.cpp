@@ -111,11 +111,14 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
   GraphView::Node * uiNode = graph->addNodeFromPreset(node->getNodePath(), node->getTitle());
   if(!uiNode)
     return;
+
   std::string uiGraphPosMetadata = node->getMetadata("uiGraphPos");
   if(uiGraphPosMetadata.length() > 0)
-  {
     onNodeMetadataChanged(node, "uiGraphPos", uiGraphPosMetadata.c_str());
-  }
+
+  std::string uiCollapsedStateMetadata = node->getMetadata("uiCollapsedState");
+  if(uiCollapsedStateMetadata.length() > 0)
+    onNodeMetadataChanged(node, "uiCollapsedState", uiCollapsedStateMetadata.c_str());
 
   if(m_performChecks)
     m_controller->checkErrors();
@@ -380,6 +383,12 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     float x = getFloatFromVariant(xVar);
     float y = getFloatFromVariant(yVar);
     uiNode->setTopLeftGraphPos(QPointF(x, y), false);
+  }
+  else if(key == std::string("uiCollapsedState"))
+  {
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    GraphView::Node::CollapseState state = (GraphView::Node::CollapseState)metadataVar.getSInt32();
+    uiNode->setCollapsedState(state);
   }
 }
 
