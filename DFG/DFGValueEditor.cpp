@@ -88,6 +88,8 @@ void DFGValueEditor::onArgsChanged()
           continue;
 
         FabricCore::RTVal value = pins[i]->getDefaultValue(dataType.c_str());
+        if(!value.isValid())
+          value = pins[i]->getPort()->getDefaultValue(dataType.c_str());
         
         if(!value.isValid())
         {
