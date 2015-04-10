@@ -134,6 +134,14 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   QMenu* result = new QMenu(NULL);
   result->addAction("New empty graph");
   result->addAction("New empty function");
+
+  const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+  if(nodes.size() > 0)
+  {
+    result->addSeparator();
+    result->addAction("Implode nodes");
+  }
+
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
   return result;
 }
@@ -170,6 +178,14 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void*
   action->setCheckable(true);
   if(cacheRule == FEC_DFGCacheRule_Always)
     action->setChecked(true);
+
+  const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+  if(nodes.size() > 0)
+  {
+    result->addSeparator();
+    result->addAction("Implode nodes");
+  }
+
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
 }
@@ -252,6 +268,18 @@ void DFGWidget::onGraphAction(QAction * action)
     }
     m_uiController->endInteraction();
   }
+  else if(action->text() == "Implode nodes")
+  {
+    DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString text = dialog.text();
+    if(text.length() == 0)
+      return;
+
+    m_uiController->implodeNodes(text);
+  }
 }
 
 void DFGWidget::onNodeAction(QAction * action)
@@ -327,6 +355,18 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Caching - Always")
   {
     m_uiController->setNodeCacheRule(m_contextNode->path(), FEC_DFGCacheRule_Always);
+  }
+  else if(action->text() == "Implode nodes")
+  {
+    DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString text = dialog.text();
+    if(text.length() == 0)
+      return;
+
+    m_uiController->implodeNodes(text);
   }
 
   m_contextNode = NULL;

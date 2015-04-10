@@ -25,6 +25,7 @@
 #include "Commands/DFGSetNodeCacheRuleCommand.h"
 #include "Commands/DFGCopyCommand.h"
 #include "Commands/DFGPasteCommand.h"
+#include "Commands/DFGImplodeNodesCommand.h"
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -802,6 +803,50 @@ bool DFGController::paste()
   }
 
   return false;
+}
+
+QString DFGController::implodeNodes(QString desiredName, QStringList paths)
+{
+  beginInteraction();
+  try
+  {
+    if(paths.length() == 0)
+    {
+      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+      for(unsigned int i=0;i<nodes.size();i++)
+        paths.append(nodes[i]->path());
+    }
+
+    QRectF bounds;
+    for(size_t i=0;i<paths.size();i++)
+    {
+      GraphView::Node * uiNode = graph()->nodeFromPath(paths[i]);
+      if(uiNode)
+        bounds = bounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
+    }
+
+    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
+    DFGImplodeNodesCommand * command = new DFGImplodeNodesCommand(this, desiredName, paths);
+    if(!addCommand(command))
+    {
+      delete(command);
+      endInteraction();
+      return "";
+    }
+
+    QString nodePath = command->getNodeName().c_str();
+    moveNode(nodePath, bounds.center(), false);
+
+    endInteraction();
+    return nodePath;
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+
+  endInteraction();
+  return "";
 }
 
 void DFGController::checkErrors()
