@@ -243,20 +243,16 @@ void DFGView::onPortRemoved(DFGWrapper::PortPtr port)
   GraphView::Port * uiOutPort = uiOutPanel->port(name);
   GraphView::Port * uiInPort = uiInPanel->port(name);
 
-  if(port->getEndPointType() == FabricCore::DFGPortType_IO && uiOutPort && uiInPort)
+  if(uiOutPort && uiInPort)
   {
     uiGraph->removeConnection(uiOutPort, uiInPort);
   }
-  if(port->getEndPointType() != FabricCore::DFGPortType_In)
+  if(uiInPort)
   {
-    if(!uiInPort)
-      return;
     uiInPanel->removePort(uiInPort);
   }
-  if(port->getEndPointType() != FabricCore::DFGPortType_Out)
+  if(uiOutPort)
   {
-    if(!uiOutPort)
-      return;
     uiOutPanel->removePort(uiOutPort);
   }
 
