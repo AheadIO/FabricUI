@@ -407,7 +407,7 @@ void DFGView::onPortRenamed(DFGWrapper::PortPtr port, const char * oldName)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
-  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getEndPointType() == FabricCore::DFGPortType_Out ? GraphView::PortType_Input : GraphView::PortType_Output);
+  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getEndPointType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
   if(!uiPanel)
     return;
 

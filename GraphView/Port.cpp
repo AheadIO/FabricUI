@@ -16,8 +16,8 @@ Port::Port(SidePanel * parent, QString name, PortType portType, QString dataType
   m_sidePanel = parent;
   m_name = parent->getUniqueName(name);
   m_path = m_name;
-  if(parent->graph()->path().length() > 0)
-    m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;
+  // if(parent->graph()->path().length() > 0)
+  //   m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;
   m_portType = portType;
   m_dataType = dataType;
   m_color = color;
@@ -94,7 +94,8 @@ void Port::setName(QString n)
     m_label->setText(m_labelCaption);
   }
   m_name = n;
-  m_path = graph()->path() + graph()->config().pathSep + m_name;
+  // m_path = graph()->path() + graph()->config().pathSep + m_name;
+  m_path = m_name;
   update();
 }
 

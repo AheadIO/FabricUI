@@ -998,17 +998,25 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
 
 bool DFGController::canConnectTo( QString pathA, QString pathB, QString &failureReason )
 {
-  std::string failureReasonStdString;
+  try
+  {
+    std::string failureReasonStdString;
 
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  bool result =graph->canConnectTo(
-    pathA.toUtf8().constData(),
-    pathB.toUtf8().constData(),
-    failureReasonStdString
-    );
-  if ( !result )
-    failureReason = failureReasonStdString.c_str();
-  return result;
+    DFGWrapper::GraphExecutablePtr graph = getGraphExec();
+    bool result =graph->canConnectTo(
+      pathA.toUtf8().constData(),
+      pathB.toUtf8().constData(),
+      failureReasonStdString
+      );
+    if ( !result )
+      failureReason = failureReasonStdString.c_str();
+    return result;
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return false;
 }
 
 void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node)
