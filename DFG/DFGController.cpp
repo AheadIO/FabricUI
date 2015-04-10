@@ -648,8 +648,7 @@ QString DFGController::exportJSON(QString path)
 {
   try
   {
-    DFGWrapper::ExecutablePtr exec = getExecFromPath(path.toUtf8().constData());
-    return exec->exportJSON().c_str();
+    return getBinding().exportJSON().c_str();
   }
   catch(FabricCore::Exception e)
   {
