@@ -25,7 +25,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   m_unsavedChanges = false;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  setMinimumSize(QSize(300, 600));
+  setMinimumSize(QSize(300, 250));
 
   QPalette p = palette();
   // p.setColor(QPalette::Window, config.defaultBackgroundColor);
