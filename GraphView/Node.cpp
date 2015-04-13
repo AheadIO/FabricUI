@@ -382,8 +382,55 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
   if(event->modifiers().testFlag(Qt::AltModifier))
     return QGraphicsWidget::mousePressEvent(event);
 
-  if(event->button() == Qt::LeftButton)
+  if(event->button() == Qt::LeftButton || event->button() == Qt::MiddleButton)
   {
+    bool clearSelection = true;
+    if(event->button() == Qt::MiddleButton)
+    {
+      // select the branch
+      std::map<Node*, Node*> visitedNodes;
+      std::vector<Node*> nodes;
+      visitedNodes.insert(std::pair<Node*, Node*>(this, this));
+      nodes.push_back(this);
+
+      if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
+      {
+        m_graph->controller()->clearSelection();
+        clearSelection = false;
+      }
+
+
+      std::vector<Connection*> connections = graph()->connections();
+      for(size_t i=0;i<nodes.size();i++)
+      {
+        for(size_t j=0;j<connections.size();j++)
+        {
+          ConnectionTarget * dst = connections[j]->dst();
+          ConnectionTarget * src = connections[j]->src();
+          if(!dst || !src)
+            continue;
+          if(dst->targetType() != TargetType_Pin || src->targetType() != TargetType_Pin)
+            continue;
+
+          Pin * dstPin = (Pin*)dst;
+          Pin * srcPin = (Pin*)src;
+          Node * dstNode = dstPin->node();
+          Node * srcNode = srcPin->node();
+  
+          if(dstNode != nodes[i])
+            continue;
+          if(visitedNodes.find(srcNode) != visitedNodes.end())
+            continue;
+
+          visitedNodes.insert(std::pair<Node*, Node*>(srcNode, srcNode));
+          nodes.push_back(srcNode);
+        }
+      }
+
+      for(size_t i=0;i<nodes.size();i++)
+        m_graph->controller()->selectNode(nodes[i], true);
+    }
+
     m_dragging = 1;
     m_lastDragPoint = mapToItem(m_graph->itemGroup(), event->pos());
     event->accept();
@@ -392,7 +439,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     {
       m_graph->controller()->beginInteraction();
 
-      if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
+      if(clearSelection && !event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
         m_graph->controller()->clearSelection();
       m_graph->controller()->selectNode(this, true);
 
