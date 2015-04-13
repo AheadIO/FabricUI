@@ -103,6 +103,14 @@ void DFGController::setView(DFGView * view)
   }
 }
 
+bool DFGController::isViewingRootGraph()
+{
+  DFGWrapper::GraphExecutablePtr graphExec = getGraphExec();
+  if(!graphExec)
+    return false;
+  return std::string(graphExec->getExecPath()) == "";
+}
+
 QString DFGController::addNodeFromPreset(QString path, QString preset, QPointF pos)
 {
   try
@@ -317,6 +325,24 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
 
   beginInteraction();
   QString portPath = addPort(graph()->path(), pin->name(), pType, pin->dataType());
+
+  // copy the default value into the port
+  DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(pin->path().toUtf8().constData());
+  if(endPoint)
+  {
+    // if this is the graph on the binding, we need to set the arg value
+    DFGWrapper::PinPtr pinEndPoint = DFGWrapper::PinPtr::StaticCast(endPoint);
+    std::string resolvedType = pinEndPoint->getResolvedType();
+    if(resolvedType.length() > 0)
+    {
+      FabricCore::RTVal defaultValue = pinEndPoint->getDefaultValue(resolvedType.c_str());
+      if(isViewingRootGraph())
+        setArg(portPath, defaultValue);
+      else
+        setDefaultValue(portPath, defaultValue);
+    }
+  }
+
   QString portName = GraphView::lastPathSegment(portPath);
   if(portPath.length() > 0)
   {

@@ -24,9 +24,21 @@ bool DFGSetDefaultValueCommand::invoke()
     return false;
 
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
-  DFGWrapper::NodePtr node = ((DFGController*)controller())->getNodeFromPath(GraphView::parentPathSTL(m_path));
-  DFGWrapper::PinPtr pin = node->getPin(GraphView::lastPathSegmentSTL(m_path).c_str());
-  pin->setDefaultValue(m_value);
+  DFGWrapper::GraphExecutablePtr graph = view->getGraph();
+  DFGWrapper::EndPointPtr endPoint = DFGWrapper::EndPoint::Create(
+    graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getExecPath(), m_path.c_str());
+  if(!endPoint)
+    return false;
+  if(endPoint->isPin())
+  {
+    DFGWrapper::PinPtr pin = DFGWrapper::PinPtr::StaticCast(endPoint);
+    pin->setDefaultValue(m_value);
+  }
+  else
+  {
+    DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+    port->setDefaultValue(m_value);
+  }
   return true;
 }
 

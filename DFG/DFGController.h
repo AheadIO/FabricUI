@@ -42,6 +42,7 @@ namespace FabricUI
       void setClient(FabricCore::Client * client);
       DFGView * getView();
       void setView(DFGView * view);
+      bool isViewingRootGraph();
 
       virtual QString addNodeFromPreset(QString path, QString preset, QPointF pos);
       virtual QString addEmptyGraph(QString path, QString title, QPointF pos);
