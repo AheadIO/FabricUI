@@ -102,6 +102,11 @@ DFGCombinedWidget::~DFGCombinedWidget()
 {
 }
 
+void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
+{
+  event->accept();
+}
+
 void DFGCombinedWidget::onValueChanged()
 {
   onRecompilation();

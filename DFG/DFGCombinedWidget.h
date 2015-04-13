@@ -51,6 +51,7 @@ namespace FabricUI
       virtual DFGValueEditor * getDfgValueEditor() { return m_dfgValueEditor; }
       virtual DFGLogWidget * getDfgLogWidget() { return m_dfgLogWidget; }
 
+      virtual void keyPressEvent(QKeyEvent * event);
 
     public slots:
       virtual void onValueChanged();
