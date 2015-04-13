@@ -152,6 +152,9 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   if(dataType.empty())
     dataType = pin->getPort()->getTypeSpec();
   std::string name = pin->getName();
+  // todo: once titles are supports
+  // std::string label = port->getTitle();
+  std::string label = pin->getName();
   QColor color = m_config.getColorForDataType(dataType);
   GraphView::PortType pType = GraphView::PortType_Input;
   if(pin->getEndPointType() == FabricCore::DFGPortType_Out)
@@ -159,7 +162,7 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   else if(pin->getEndPointType() == FabricCore::DFGPortType_IO)
     pType = GraphView::PortType_IO;
 
-  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, name.c_str(), pType, color);
+  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, name.c_str(), pType, color, label.c_str());
   uiPin->setDataType(dataType.c_str());
   uiNode->addPin(uiPin, false);
 }
@@ -194,6 +197,10 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
   std::string path = port->getEndPointPath();
   std::string name = port->getName();
 
+  // todo: once titles are supports
+  // std::string label = port->getTitle();
+  std::string label = port->getName();
+
   QColor color = m_config.getColorForDataType(dataType);
 
   GraphView::Port * uiOutPort = NULL;
@@ -205,7 +212,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
     if(!uiPanel)
       return;
 
-    uiInPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Input, dataType.c_str(), color);
+    uiInPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Input, dataType.c_str(), color, label.c_str());
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
@@ -215,7 +222,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
     if(!uiPanel)
       return;
 
-    uiOutPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Output, dataType.c_str(), color);
+    uiOutPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Output, dataType.c_str(), color, label.c_str());
     uiPanel->addPort(uiOutPort);
     m_lastPortInserted = uiOutPort;
   }
