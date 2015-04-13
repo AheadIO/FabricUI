@@ -10,6 +10,7 @@
 #include <QtGui/QGraphicsSceneWheelEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QCursor>
+#include <QtGui/QGraphicsView>
 
 using namespace FabricUI::GraphView;
 
@@ -70,11 +71,19 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
 {
   if(state > 1.0)
     state = 1.0;
+  if(state < 0.05)
+    state = 0.05;
   if(m_mouseWheelZoomState == state)
     return;
+
+  QPointF cursorPos = m_mouseWheelZoomState * m_lastPanPoint;
+
   m_mouseWheelZoomState = state;
 
   m_itemGroup->setTransform(QTransform().scale(m_mouseWheelZoomState, m_mouseWheelZoomState));
+
+  QPointF newCursorPos = m_mouseWheelZoomState * m_lastPanPoint;
+  setCanvasPan(canvasPan() + cursorPos - newCursorPos);
 
   update();
 
@@ -134,6 +143,7 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Zoom;
     m_lastPanPoint = event->pos();
+    m_mouseAltZoomState = m_mouseWheelZoomState;
   }
   else if(event->button() == Qt::RightButton)
   {
@@ -196,12 +206,10 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {
-    QTransform xfo = m_itemGroup->transform().inverted();
-    QPointF delta = xfo.map(event->pos()) - xfo.map(m_lastPanPoint);
-    m_lastPanPoint = event->pos();
+    QPointF delta = (event->pos() - m_lastPanPoint) * m_mouseAltZoomState;
 
-    float zoomFactor = 1.0f - 1.75 * (delta.y() - delta.x()) * m_mouseWheelZoomRate;
-    float newZoomState = m_mouseWheelZoomState * zoomFactor;
+    float zoomFactor = 1.0f - 3.5 * (delta.y() - delta.x()) * m_mouseWheelZoomRate;
+    float newZoomState = m_mouseAltZoomState * zoomFactor;
     m_graph->controller()->zoomCanvas(newZoomState);
   }
   else
@@ -234,6 +242,7 @@ void MainPanel::wheelEvent(QGraphicsSceneWheelEvent * event)
 {
   if(m_manipulationMode == ManipulationMode_None)
   {
+    m_lastPanPoint = event->pos();
     float zoomFactor = 1.0f + float(event->delta()) * m_mouseWheelZoomRate;
     float newZoomState = m_mouseWheelZoomState * zoomFactor;
     m_graph->controller()->zoomCanvas(newZoomState);

@@ -69,6 +69,7 @@ namespace FabricUI
 
       Graph * m_graph;
       float m_mouseWheelZoomRate;
+      float m_mouseAltZoomState;
       float m_mouseWheelZoomState;
       ManipulationMode m_manipulationMode;
       MainPanelBackground * m_backGround;
