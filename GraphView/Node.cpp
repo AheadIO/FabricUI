@@ -379,6 +379,9 @@ Pin * Node::pin(QString name)
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+  if(event->modifiers().testFlag(Qt::AltModifier))
+    return QGraphicsWidget::mousePressEvent(event);
+
   if(event->button() == Qt::LeftButton)
   {
     m_dragging = 1;

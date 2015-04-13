@@ -122,11 +122,17 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 #ifdef Q_OS_LINUX
   else if(event->button() == Qt::LeftButton && m_spaceBarDown)
 #else
-  else if(event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && m_spaceBarDown))
+  else if((event->button() == Qt::MiddleButton && event->modifiers().testFlag(Qt::AltModifier)) || (event->button() == Qt::LeftButton && m_spaceBarDown))
 #endif
   {
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Pan;
+    m_lastPanPoint = event->pos();
+  }
+  else if(event->button() == Qt::RightButton && event->modifiers().testFlag(Qt::AltModifier))
+  {
+    setCursor(Qt::OpenHandCursor);
+    m_manipulationMode = ManipulationMode_Zoom;
     m_lastPanPoint = event->pos();
   }
   else if(event->button() == Qt::RightButton)
@@ -188,6 +194,16 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
       update();
     }
   }
+  else if(m_manipulationMode == ManipulationMode_Zoom)
+  {
+    QTransform xfo = m_itemGroup->transform().inverted();
+    QPointF delta = xfo.map(event->pos()) - xfo.map(m_lastPanPoint);
+    m_lastPanPoint = event->pos();
+
+    float zoomFactor = 1.0f - 1.75 * (delta.y() - delta.x()) * m_mouseWheelZoomRate;
+    float newZoomState = m_mouseWheelZoomState * zoomFactor;
+    m_graph->controller()->zoomCanvas(newZoomState);
+  }
   else
     QGraphicsWidget::mouseMoveEvent(event);
 }
@@ -205,7 +221,7 @@ void MainPanel::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     //   m_graph.clearSelection()
     m_manipulationMode = ManipulationMode_None;
   }
-  else if(m_manipulationMode == ManipulationMode_Pan)
+  else if(m_manipulationMode == ManipulationMode_Pan || m_manipulationMode == ManipulationMode_Zoom)
   {
     setCursor(Qt::ArrowCursor);
     m_manipulationMode = ManipulationMode_None;

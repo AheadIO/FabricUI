@@ -183,6 +183,9 @@ void Connection::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 
 void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+  if(event->modifiers().testFlag(Qt::AltModifier))
+    return QGraphicsPathItem::mousePressEvent(event);
+
   if(event->button() == Qt::LeftButton)
   {
     m_dragging = true;
