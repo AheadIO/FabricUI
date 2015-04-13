@@ -130,9 +130,11 @@ void DFGKLEditorWidget::onPortsChanged()
     for(size_t i=0;i<infos.size();i++)
     {
       bool addRemovePort = false;
+      bool setPortType = false;
+      bool setDataType = false;
       if(infos[i].portName != ports[i]->getName())
       {
-        if(infos[i].portType == ports[i]->getEndPointType() &&
+        if(infos[i].portType == ports[i]->getPortType() &&
           infos[i].dataType == ports[i]->getTypeSpec())
         {
           m_controller->renamePort(ports[i]->getEndPointPath(), infos[i].portName.c_str());
@@ -143,13 +145,13 @@ void DFGKLEditorWidget::onPortsChanged()
           addRemovePort = true;
         }
       }
-      else if(infos[i].portType != ports[i]->getEndPointType())
+      else if(infos[i].portType != ports[i]->getPortType())
       {
-        addRemovePort = true;
+        setPortType = true;
       }
       else if(infos[i].dataType != ports[i]->getTypeSpec())
       {
-        addRemovePort = true;
+        setDataType = true;
       }
 
       if(addRemovePort)
@@ -162,6 +164,14 @@ void DFGKLEditorWidget::onPortsChanged()
           m_controller->addPort(path, name, infos[i].portType, infos[i].dataType.c_str()); 
           modified = true;
         }
+      }
+      else if(setPortType)
+      {
+        ports[i]->setPortType(infos[i].portType);
+      }
+      else if(setDataType)
+      {
+        ports[i]->setTypeSpec(infos[i].dataType.c_str());
       }
     }
   }
