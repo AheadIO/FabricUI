@@ -104,6 +104,14 @@ DFGCombinedWidget::~DFGCombinedWidget()
 
 void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
 {
+  if(event->modifiers().testFlag(Qt::ControlModifier))
+  {
+    // filter out undo redo
+    if(event->key() == Qt::Key_Z || event->key() == Qt::Key_Y)
+    {
+      return QSplitter::keyPressEvent(event);
+    }
+  }
   event->accept();
 }
 
