@@ -137,7 +137,14 @@ void DFGKLEditorWidget::onPortsChanged()
         if(infos[i].portType == ports[i]->getPortType() &&
           infos[i].dataType == ports[i]->getTypeSpec())
         {
-          m_controller->renamePort(ports[i]->getEndPointPath(), infos[i].portName.c_str());
+          try
+          {
+            m_controller->renamePort(ports[i]->getEndPointPath(), infos[i].portName.c_str());
+          }
+          catch(FabricCore::Exception e)
+          {
+            m_controller->logError(e.getDesc_cstr());
+          }
           modified = true;
         }
         else
@@ -167,11 +174,27 @@ void DFGKLEditorWidget::onPortsChanged()
       }
       else if(setPortType)
       {
-        ports[i]->setPortType(infos[i].portType);
+        try
+        {
+          ports[i]->setPortType(infos[i].portType);
+        }
+        catch(FabricCore::Exception e)
+        {
+          m_controller->logError(e.getDesc_cstr());
+          modified = true;
+        }
       }
       else if(setDataType)
       {
-        ports[i]->setTypeSpec(infos[i].dataType.c_str());
+        try
+        {
+          ports[i]->setTypeSpec(infos[i].dataType.c_str());
+        }
+        catch(FabricCore::Exception e)
+        {
+          m_controller->logError(e.getDesc_cstr());
+          modified = true;
+        }
       }
     }
   }
