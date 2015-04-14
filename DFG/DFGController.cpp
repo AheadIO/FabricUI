@@ -1072,7 +1072,7 @@ DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & pat
   DFGWrapper::GraphExecutablePtr graph = getGraphExec();
   if(path.length() == 0)
     return graph;
-  
+
   std::string nodeName = path;
   int period = path.rfind('.');
   if(period != std::string::npos)
@@ -1141,15 +1141,22 @@ void DFGController::bindingNotificationCallback(void * userData, char const *jso
   DFGController * ctrl = (DFGController *)userData;
 
   FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
-  // printf("%s\n", jsonCString);
 
-  // const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  // std::string descStr = descVar->getStringData();
+  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
+  if(!descVar)
+    return;
+
+  std::string descStr = descVar->getStringData();
 
   // if(descStr == "argTypeChanged")
   // {
   //   ctrl->m_view->updateDataTypesOnPorts();
   // }
+  if(descStr == "argChanged")
+  {
+    const FabricCore::Variant * nameVar = notificationVar.getDictValue("name");
+    emit ctrl->argValueChanged(nameVar->getStringData());
+  }
 }
 
 QStringList DFGController::getPresetPathsFromSearch(QString search, bool includePresets, bool includeNameSpaces)

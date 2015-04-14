@@ -108,6 +108,7 @@ namespace FabricUI
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void portRenamed(QString path, QString newName);
+      void argValueChanged(const char * argName);
 
     public slots:
 
