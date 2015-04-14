@@ -48,7 +48,7 @@ namespace FabricUI
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
 
     private:
-      PinCircle * ConnectionTarget::findPinCircle(QPointF pos);
+      PinCircle * findPinCircle(QPointF pos);
 
       PinCircle * m_lastPinCircle;
     };
