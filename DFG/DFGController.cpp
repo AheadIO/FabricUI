@@ -1070,9 +1070,9 @@ DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
 DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & path)
 {
   DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  // std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  // if(relPath.length() == 0)
-  //   return graph;
+  if(path.length() == 0)
+    return graph;
+  
   std::string nodeName = path;
   int period = path.rfind('.');
   if(period != std::string::npos)
@@ -1080,8 +1080,6 @@ DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & pat
     graph = getGraphExecFromPath(path.substr(0, period));
     nodeName = path.substr(period+1, path.length());
   }
-  else
-    graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
 
   return graph->getNode(nodeName.c_str())->getExecutable();
 }
