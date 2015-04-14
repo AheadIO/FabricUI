@@ -155,7 +155,7 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
   {
     target()->setHighlighted(false);
 
-    QPointF scenePos = mapToScene(event->pos());
+    QPointF scenePos = mapToScene(QPointF(m_radius * 0.5, m_radius * 0.5));
 
     // once the mousegrabber is destroyed
     // it will call end interaction

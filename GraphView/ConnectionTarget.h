@@ -14,6 +14,7 @@ namespace FabricUI
   {
     // forward declarations
     class Graph;
+    class PinCircle;
 
     enum TargetType
     {
@@ -28,7 +29,7 @@ namespace FabricUI
 
     public:
 
-      ConnectionTarget(QGraphicsWidget * parent) : QGraphicsWidget(parent) {}
+      ConnectionTarget(QGraphicsWidget * parent);
 
       virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const = 0;
       virtual TargetType targetType() const = 0;
@@ -41,6 +42,15 @@ namespace FabricUI
       virtual void setHighlighted(bool state = true) = 0;
 
       virtual bool isConnected() const;
+
+      virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
+      virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+      virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+
+    private:
+      PinCircle * ConnectionTarget::findPinCircle(QPointF pos);
+
+      PinCircle * m_lastPinCircle;
     };
 
   };

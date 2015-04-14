@@ -68,6 +68,16 @@ const Graph * ProxyPort::graph() const
   return sidePanel()->graph();
 }
 
+PinCircle * ProxyPort::circle()
+{
+  return m_circle;
+}
+
+const PinCircle * ProxyPort::circle() const
+{
+  return m_circle;
+}
+
 PortType ProxyPort::portType() const
 {
   return m_portType;
@@ -88,6 +98,7 @@ void ProxyPort::setHighlighted(bool state)
   if(m_highlighted != state)
   {
     m_circle->setHighlighted(state);
+    m_label->setHighlighted(state);
     m_highlighted = state;
   }
 }

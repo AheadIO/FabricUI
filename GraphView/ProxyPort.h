@@ -40,6 +40,8 @@ namespace FabricUI
       const SidePanel * sidePanel() const;
       Graph * graph();
       const Graph * graph() const;
+      PinCircle * circle();
+      const PinCircle * circle() const;
 
       virtual PortType portType() const;
       QColor color() const;

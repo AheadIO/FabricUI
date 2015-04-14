@@ -81,6 +81,16 @@ const Graph * Port::graph() const
   return sidePanel()->graph();
 }
 
+PinCircle * Port::circle()
+{
+  return m_circle;
+}
+
+const PinCircle * Port::circle() const
+{
+  return m_circle;
+}
+
 QString Port::name() const
 {
   return m_name;
