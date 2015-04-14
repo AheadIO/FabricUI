@@ -128,11 +128,7 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     m_manipulationMode = ManipulationMode_Select;
   }
-#ifdef Q_OS_LINUX
-  else if(event->button() == Qt::LeftButton && m_spaceBarDown)
-#else
-  else if((event->button() == Qt::MiddleButton && event->modifiers().testFlag(Qt::AltModifier)) || (event->button() == Qt::LeftButton && m_spaceBarDown))
-#endif
+  else if((event->button() == DFG_QT_MIDDLE_MOUSE && event->modifiers().testFlag(Qt::AltModifier)) || (event->button() == Qt::LeftButton && m_spaceBarDown))
   {
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Pan;

@@ -382,10 +382,10 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
   if(event->modifiers().testFlag(Qt::AltModifier))
     return QGraphicsWidget::mousePressEvent(event);
 
-  if(event->button() == Qt::LeftButton || event->button() == Qt::MiddleButton)
+  if(event->button() == Qt::LeftButton || event->button() == DFG_QT_MIDDLE_MOUSE)
   {
     bool clearSelection = true;
-    if(event->button() == Qt::MiddleButton)
+    if(event->button() == DFG_QT_MIDDLE_MOUSE)
     {
       // select the branch
       std::map<Node*, Node*> visitedNodes;

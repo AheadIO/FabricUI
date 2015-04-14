@@ -20,6 +20,12 @@
 #include "MainPanel.h"
 #include "SidePanel.h"
 
+#if QT_VERSION > 0x040602
+# define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
+#else
+# define DFG_QT_MIDDLE_MOUSE Qt::MidButton
+#endif
+
 namespace FabricUI
 {
 
