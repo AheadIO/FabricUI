@@ -1053,13 +1053,13 @@ void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphV
 DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
 {
   DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  std::string nodeName = relPath;
-  int period = relPath.rfind('.');
+  // std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
+  std::string nodeName = path;
+  int period = path.rfind('.');
   if(period != std::string::npos)
   {
     graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, relPath.length());
+    nodeName = path.substr(period+1, path.length());
   }
   else
     graph = getGraphExec();
@@ -1070,15 +1070,15 @@ DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
 DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & path)
 {
   DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  if(relPath.length() == 0)
-    return graph;
-  std::string nodeName = relPath;
-  int period = relPath.rfind('.');
+  // std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
+  // if(relPath.length() == 0)
+  //   return graph;
+  std::string nodeName = path;
+  int period = path.rfind('.');
   if(period != std::string::npos)
   {
     graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, relPath.length());
+    nodeName = path.substr(period+1, path.length());
   }
   else
     graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
@@ -1107,24 +1107,10 @@ DFGWrapper::ExecutablePtr DFGController::getExecFromGlobalPath(const std::string
 
 DFGWrapper::GraphExecutablePtr DFGController::getGraphExecFromPath(const std::string & path)
 {
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  while(relPath.length() > 0)
-  {
-    std::string graphName = relPath;
-    int period = relPath.find('.');
-    if(period != std::string::npos)
-    {
-      graph = getGraphExecFromPath(path.substr(0, period));
-      graphName = path.substr(0, period);
-      relPath = relPath.substr(period+1, relPath.length());
-    }
-    else
-      relPath = "";
-
-    graph = DFGWrapper::GraphExecutablePtr::StaticCast(graph->getNode(graphName.c_str())->getExecutable());
-  }
-  return graph;
+  DFGWrapper::ExecutablePtr exec = getExecFromPath(path);
+  if(!exec)
+    return DFGWrapper::GraphExecutablePtr();
+  return DFGWrapper::GraphExecutablePtr::StaticCast(exec);
 }
 
 DFGWrapper::EndPointPtr DFGController::getEndPointFromPath(const std::string & path)

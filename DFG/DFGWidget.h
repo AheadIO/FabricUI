@@ -45,7 +45,8 @@ namespace FabricUI
       void setGraph(
         FabricServices::DFGWrapper::Host * host,
         FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph
+        FabricServices::DFGWrapper::GraphExecutablePtr graph,
+        bool clear = true
       );
 
       DFGGraph * getUIGraph();
@@ -75,9 +76,7 @@ namespace FabricUI
       static QMenu* portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData);
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
-      bool editNode(const char * nodePath);
-      void pushExecPath(QString execPath);
-      QString popExecPath();
+      bool editNode(FabricServices::DFGWrapper::ExecutablePtr exec, bool pushExec = false);
 
       QPoint m_contextPos;
       FabricUI::GraphView::Node * m_contextNode;
@@ -98,7 +97,7 @@ namespace FabricUI
       FabricServices::DFGWrapper::Binding m_dfgBinding;
       FabricServices::DFGWrapper::GraphExecutablePtr m_dfgGraph;
       DFGConfig m_dfgConfig;
-      QStringList m_execPaths;
+      std::vector<FabricServices::DFGWrapper::ExecutablePtr> m_execStack;
     };
 
   };

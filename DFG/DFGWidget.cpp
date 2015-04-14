@@ -82,11 +82,13 @@ DFGWidget::~DFGWidget()
 
 }
 
-void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, DFGWrapper::GraphExecutablePtr graph)
+void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, DFGWrapper::GraphExecutablePtr graph, bool clear)
 {
   m_dfgHost = host;
   m_dfgBinding = binding;
   m_dfgGraph = graph;
+  if(clear)
+    m_execStack.clear();
 
   if(m_dfgView)
   {
@@ -224,8 +226,11 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
 
 void DFGWidget::onGoUpPressed()
 {
-  QString path = popExecPath();
-  editNode(path.toUtf8().constData());
+  if(m_execStack.size() == 0)
+    return;
+  DFGWrapper::ExecutablePtr prevExec = m_execStack[m_execStack.size()-1];
+  m_execStack.pop_back();
+  editNode(prevExec, false);
 }
 
 void DFGWidget::onGraphAction(QAction * action)
@@ -263,8 +268,8 @@ void DFGWidget::onGraphAction(QAction * action)
     GraphView::Node * uiNode = m_uiGraph->nodeFromPath(nodePath);
     if(uiNode)
     {
-      std::string nodePath = GraphView::relativePath(m_uiGraph->path(), uiNode->path()).toUtf8().constData();
-      editNode(nodePath.c_str());
+      DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(uiNode->path().toUtf8().constData());
+      editNode(dfgNode->getExecutable(), true);
     }
     m_uiController->endInteraction();
   }
@@ -290,7 +295,8 @@ void DFGWidget::onNodeAction(QAction * action)
   std::string nodePath = GraphView::relativePath(m_uiGraph->path(), m_contextNode->path()).toUtf8().constData();
   if(action->text() == "Edit")
   {
-    editNode(nodePath.c_str());
+    DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(m_contextNode->path().toUtf8().constData());
+    editNode(dfgNode->getExecutable(), true);
   }
   else if(action->text() == "Rename")
   {
@@ -374,15 +380,8 @@ void DFGWidget::onNodeAction(QAction * action)
 
 void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
 {
-  QString globalPath;
-  for(unsigned int i=0;i<m_execPaths.length();i++)
-  {
-    globalPath += m_execPaths[i];
-    if(globalPath.length() > 0)
-      globalPath += ".";
-  }
-  globalPath += node->path();
-  editNode(globalPath.toUtf8().constData());
+  DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(node->path().toUtf8().constData());
+  editNode(dfgNode->getExecutable(), true);
 }
 
 void DFGWidget::onPortAction(QAction * action)
@@ -462,11 +461,16 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
   }
 }
 
-bool DFGWidget::editNode(const char * nodePath)
+bool DFGWidget::editNode(DFGWrapper::ExecutablePtr exec, bool pushExec)
 {
   try
   {
-    DFGWrapper::ExecutablePtr exec = m_uiController->getExecFromGlobalPath(nodePath);
+    if(pushExec)
+    {
+      DFGWrapper::GraphExecutablePtr prevExec = m_uiController->getGraphExec();
+      if(prevExec)
+        m_execStack.push_back(DFGWrapper::ExecutablePtr::StaticCast(prevExec));
+    }
 
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
     {
@@ -493,15 +497,13 @@ bool DFGWidget::editNode(const char * nodePath)
 
     if(exec->isGraph())
     {
-      pushExecPath(nodePath);
-      setGraph(m_dfgHost, m_dfgBinding, DFGWrapper::GraphExecutablePtr::StaticCast(exec));
+      setGraph(m_dfgHost, m_dfgBinding, DFGWrapper::GraphExecutablePtr::StaticCast(exec), false);
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
       m_klEditor->hide();      
     }
     else if(exec->isFunc())
     {
-      pushExecPath(nodePath);
       m_uiHeader->setCaption(exec->getExecPath());
       m_uiGraphViewWidget->hide();
       m_klEditor->show();      
@@ -515,25 +517,4 @@ bool DFGWidget::editNode(const char * nodePath)
     return false;
   }
   return true;  
-}
-
-void DFGWidget::pushExecPath(QString execPath)
-{
-  if(execPath.length() == 0)
-    return;
-  if(m_execPaths.length() > 0)
-  {
-    if(m_execPaths[m_execPaths.length() -1] == execPath)
-      return;
-  }
-  m_execPaths.append(execPath);
-}
-
-QString DFGWidget::popExecPath()
-{
-  if(m_execPaths.length() > 0)
-    m_execPaths.pop_back();
-  if(m_execPaths.length() == 0)
-    return "";
-  return m_execPaths[m_execPaths.length()-1];
 }
