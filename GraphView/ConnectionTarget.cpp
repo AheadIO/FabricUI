@@ -51,9 +51,18 @@ void ConnectionTarget::mousePressEvent(QGraphicsSceneMouseEvent * event)
   PinCircle * circle = findPinCircle(event->pos());
   if(circle)
   {
-    circle->mousePressEvent(event);
-    m_lastPinCircle = NULL;
-    return;
+    float pinClickableDistance = graph()->config().pinClickableDistance;
+    QPointF center = circle->centerInSceneCoords();
+    QPointF clicked = mapToScene(event->pos());
+    float x = center.x() - clicked.x();
+    float y = center.y() - clicked.y();
+    float distance = sqrt(x * x + y * y);
+    if(distance < pinClickableDistance)
+    {
+      circle->mousePressEvent(event);
+      m_lastPinCircle = NULL;
+      return;
+    }
   }
 
   QGraphicsWidget::mousePressEvent(event);

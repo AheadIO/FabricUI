@@ -87,6 +87,7 @@ namespace FabricUI
       float pinLabelSpacing;
       bool pinInputUsesFullCircle;
       bool pinOutputUsesFullCircle;
+      float pinClickableDistance;
 
       QPen connectionDefaultPen;
       QPen connectionHoverPen;

@@ -66,6 +66,7 @@ GraphConfig::GraphConfig()
   pinLabelSpacing = 2.0f;
   pinInputUsesFullCircle = false;
   pinOutputUsesFullCircle = true;
+  pinClickableDistance = 30.0f;
 
   connectionUsePinColor = false;
   connectionColor = QColor(130, 130, 130);
