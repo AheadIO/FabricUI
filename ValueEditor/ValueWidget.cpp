@@ -11,14 +11,16 @@ using namespace FabricUI::ValueEditor;
 ValueWidget::ValueWidget(QString label, QWidget * parent)
 : TreeEditorWidget(parent)
 {
-  Q_FOREACH(QWidget* w, QApplication::topLevelWidgets() )
-  {
-    if( qobject_cast<QMainWindow*>(w) && w->parent() == NULL)
-    {
-      setPalette(((QMainWindow*)w)->palette());
-      break;
-    }
-  }  
+
+  setStyle(QApplication::style());  
+  // Q_FOREACH(QWidget* w, QApplication::topLevelWidgets() )
+  // {
+  //   if( qobject_cast<QMainWindow*>(w) && w->parent() == NULL)
+  //   {
+  //     setPalette(((QMainWindow*)w)->palette());
+  //     break;
+  //   }
+  // }  
 
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);
