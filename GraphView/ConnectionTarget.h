@@ -37,6 +37,7 @@ namespace FabricUI
     
       virtual Graph * graph() = 0;
       virtual const Graph * graph() const = 0;
+      virtual QColor color() const = 0;
 
       virtual bool highlighted() const = 0;
       virtual void setHighlighted(bool state = true) = 0;

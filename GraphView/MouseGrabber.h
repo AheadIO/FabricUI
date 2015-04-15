@@ -32,6 +32,7 @@ namespace FabricUI
       const ConnectionTarget * target() const;
       Graph * graph();
       const Graph * graph() const;
+      virtual QColor color() const;
 
       virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const { return false; }
       virtual TargetType targetType() const { return TargetType_MouseGrabber; }

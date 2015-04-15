@@ -518,6 +518,7 @@ void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * r
   {
     uiPort->setDataType(resolvedType);
     uiPort->setColor(m_config.getColorForDataType(resolvedType, m_controller->astManager()));
+    uiGraph->updateColorForConnections(uiPort);
   }
 }
 
@@ -538,5 +539,6 @@ void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * reso
   {
     uiPin->setDataType(resolvedType);
     uiPin->setColor(m_config.getColorForDataType(resolvedType, m_controller->astManager()), false);
+    uiGraph->updateColorForConnections(uiPin);
   }
 }

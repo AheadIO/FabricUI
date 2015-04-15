@@ -71,6 +71,11 @@ const Graph * MouseGrabber::graph() const
   return target()->graph();
 }
 
+QColor MouseGrabber::color() const
+{
+  return m_target->color();
+}
+
 QPointF MouseGrabber::connectionPos(PortType pType) const
 {
   if(m_targetUnderMouse)

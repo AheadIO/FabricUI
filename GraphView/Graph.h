@@ -80,6 +80,7 @@ namespace FabricUI
       // connections
       virtual std::vector<Connection *> connections() const;
       virtual bool isConnected(const ConnectionTarget * target) const;
+      virtual void updateColorForConnections(const ConnectionTarget * target) const;
 
       // hotkeys
       virtual void defineHotkey(Qt::Key key, Qt::KeyboardModifier modifiers, QString name);

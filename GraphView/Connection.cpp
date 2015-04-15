@@ -116,8 +116,24 @@ QColor Connection::color() const
 
 void Connection::setColor(QColor color)
 {
+  if(m_graph->config().connectionUsePinColor)
+  {
+    QColor defaultColor = m_graph->config().connectionColor;
+    float ratio = m_graph->config().connectionPinColorRatio;
+    float iratio = 1.0 - ratio;
+    int r = (int)(float(color.red()) * ratio + float(defaultColor.red()) * iratio);
+    int g = (int)(float(color.green()) * ratio + float(defaultColor.green()) * iratio);
+    int b = (int)(float(color.blue()) * ratio + float(defaultColor.blue()) * iratio);
+    color = QColor(r, g, b);
+  }
+  else
+  {
+    color = m_graph->config().connectionColor;
+  }
+
   m_color = color;
   m_defaultPen.setColor(color);
+  setPen(m_defaultPen);
 }
 
 QPen Connection::defaultPen() const

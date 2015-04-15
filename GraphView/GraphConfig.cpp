@@ -68,7 +68,8 @@ GraphConfig::GraphConfig()
   pinOutputUsesFullCircle = true;
   pinClickableDistance = 30.0f;
 
-  connectionUsePinColor = false;
+  connectionUsePinColor = true;
+  connectionPinColorRatio = 0.75;
   connectionColor = QColor(130, 130, 130);
   connectionDefaultPen = QPen(connectionColor, 1.5);
   connectionHoverPen = QPen(QColor(170, 170, 170), 2.0, Qt::SolidLine);
