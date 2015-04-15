@@ -56,6 +56,7 @@ env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
 
 dirs = [
+  'Style',
   'TreeView',
   'ValueEditor',
   'GraphView',

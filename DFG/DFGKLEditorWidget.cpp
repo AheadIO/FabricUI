@@ -27,13 +27,6 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(QSize(300, 250));
 
-  QPalette p = palette();
-  // p.setColor(QPalette::Window, config.defaultBackgroundColor);
-  // p.setColor(QPalette::Base, config.defaultFontColor);
-  // p.setColor(QPalette::Text, config.defaultBackgroundColor);
-  // p.setColor(QPalette::Button, config.defaultFontColor);
-  // p.setColor(QPalette::ButtonText, config.defaultBackgroundColor);
-  // setPalette(p);  
   setFont(config.fixedFont);
 
   QVBoxLayout * layout = new QVBoxLayout();

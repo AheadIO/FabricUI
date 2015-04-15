@@ -20,14 +20,6 @@ DFGBaseDialog::DFGBaseDialog(QWidget * parent, bool useGridLayout, const DFGConf
   m_dfgConfig = dfgConfig;
   m_usesGridLayout = useGridLayout;
 
-  // QPalette p = palette();
-  // p.setColor(QPalette::Window, dfgConfig.defaultWindowColor);
-  // p.setColor(QPalette::WindowText, dfgConfig.defaultFontColor);
-  // p.setColor(QPalette::Base, dfgConfig.defaultBackgroundColor);
-  // p.setColor(QPalette::Text, dfgConfig.defaultFontColor);
-  // p.setColor(QPalette::Button, dfgConfig.defaultBackgroundColor);
-  // p.setColor(QPalette::ButtonText, dfgConfig.defaultFontColor);
-  // setPalette(p);  
   setFont(dfgConfig.defaultFont);
 
   setContentsMargins(0, 0, 0, 0);
