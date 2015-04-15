@@ -128,6 +128,12 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
   if(uiNodeColorMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiNodeColor", uiNodeColorMetadata.c_str());
 
+  std::string uiHeaderColorMetadata = node->getMetadata("uiHeaderColor");
+  if(uiHeaderColorMetadata.length() == 0)
+    uiHeaderColorMetadata = node->getExecutable()->getMetadata("uiHeaderColor");
+  if(uiHeaderColorMetadata.length() > 0)
+    onNodeMetadataChanged(node, "uiHeaderColor", uiHeaderColorMetadata.c_str());
+
   if(m_performChecks)
     m_controller->checkErrors();
 }
@@ -414,6 +420,19 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     QColor color(r, g, b);
     uiNode->setColor(color);
     uiNode->setLabelColor(color.darker(130));
+  }
+  else if(key == std::string("uiHeaderColor"))
+  {
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
+    const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
+    const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
+    int r = (int)getFloatFromVariant(rVar);
+    int g = (int)getFloatFromVariant(gVar);
+    int b = (int)getFloatFromVariant(bVar);
+
+    QColor color(r, g, b);
+    uiNode->setLabelColor(color);
   }
 }
 
