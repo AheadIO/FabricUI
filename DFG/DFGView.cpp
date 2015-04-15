@@ -40,6 +40,8 @@ GraphView::Port * DFGView::getLastPortInserted()
 
 float DFGView::getFloatFromVariant(const FabricCore::Variant * variant)
 {
+  if(variant == 0)
+    return 0.0f;
   if(variant->isSInt8())
     return variant->getSInt8();
   else if(variant->isSInt16())
@@ -119,6 +121,12 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
   std::string uiCollapsedStateMetadata = node->getMetadata("uiCollapsedState");
   if(uiCollapsedStateMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiCollapsedState", uiCollapsedStateMetadata.c_str());
+
+  std::string uiNodeColorMetadata = node->getMetadata("uiNodeColor");
+  if(uiNodeColorMetadata.length() == 0)
+    uiNodeColorMetadata = node->getExecutable()->getMetadata("uiNodeColor");
+  if(uiNodeColorMetadata.length() > 0)
+    onNodeMetadataChanged(node, "uiNodeColor", uiNodeColorMetadata.c_str());
 
   if(m_performChecks)
     m_controller->checkErrors();
@@ -392,6 +400,20 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
     GraphView::Node::CollapseState state = (GraphView::Node::CollapseState)metadataVar.getSInt32();
     uiNode->setCollapsedState(state);
+  }
+  else if(key == std::string("uiNodeColor"))
+  {
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
+    const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
+    const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
+    int r = (int)getFloatFromVariant(rVar);
+    int g = (int)getFloatFromVariant(gVar);
+    int b = (int)getFloatFromVariant(bVar);
+
+    QColor color(r, g, b);
+    uiNode->setColor(color);
+    uiNode->setLabelColor(color.darker(130));
   }
 }
 

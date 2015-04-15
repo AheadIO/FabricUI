@@ -50,43 +50,6 @@ void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color
   colorForDataType.insert(std::pair<std::string, QColor>(baseType, color));
 }
 
-std::string filterTypeColor(const std::string & typeColor)
-{
-  std::string filteredTypeColor;
-  int commaCount = 0;
-  for(unsigned int i=0;i<typeColor.length();i++)
-  {
-    char c = typeColor[i];
-    if(c == ',')
-      commaCount++;
-    if(isalnum(c) || c == '(' || c == ')' || c == ',') // don't use '.'' since it is all integers
-      filteredTypeColor += tolower(c);
-  }
-
-  if(filteredTypeColor.length() < 12) // color(0,0,0)
-  {
-    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
-    return "";
-  }
-  if(commaCount != 2)
-  {
-    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
-    return "";
-  }
-  if(filteredTypeColor.substr(0, 6) != "color(")
-  {
-    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
-    return "";
-  }
-  if(filteredTypeColor[filteredTypeColor.length()-1] != ')')
-  {
-    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
-    return "";
-  }
-
-  return filteredTypeColor;
-}
-
 QColor DFGConfig::getColorForDataType(const std::string & dataType, ASTWrapper::KLASTManager * manager)
 {
   if(dataType.length() > 0)
@@ -102,24 +65,9 @@ QColor DFGConfig::getColorForDataType(const std::string & dataType, ASTWrapper::
       const ASTWrapper::KLType * klType = manager->getKLTypeByName(baseType.c_str());
       if(klType)
       {
-        std::string typeColor = klType->getComments()->getSingleQualifier("dfgTypeColor");
-        typeColor = filterTypeColor(typeColor);
-        if(typeColor.length() > 0)
+        int r, g, b;
+        if(klType->getComments()->getColorFromSingleQualifier("dfgTypeColor", r, g, b))
         {
-          std::string parts = typeColor.substr(6, typeColor.length() - 7);
-
-          int firstComma = parts.find(',');
-          int secondComma = parts.find(',', firstComma + 1);
-
-          std::string rStr = parts.substr(0, firstComma);
-          std::string gStr = parts.substr(firstComma + 1, secondComma - firstComma - 1);
-          std::string bStr = parts.substr(secondComma + 1, parts.length() - secondComma);
-
-          int r, g, b;
-          r = atoi(rStr.c_str());
-          g = atoi(gStr.c_str());
-          b = atoi(bStr.c_str());
-
           QColor color(r, g, b);
           registerDataTypeColor(dataType, color);
           return color;

@@ -24,7 +24,7 @@ GraphConfig::GraphConfig()
   nodeDefaultLabelColor = QColor(80, 98, 110);
   nodeFont = QFont("Lucida", 9);
   nodeFont.setBold(true);
-  nodeFontColor = QColor(31, 43, 55, 255);
+  nodeFontColor = QColor(20, 20, 20, 255);
   nodeFontHighlightColor = QColor(195, 195, 195, 255);
   nodeDefaultPen = QPen(nodeFontColor, 1.0);
   nodeDefaultPenUsesNodeColor = false;

@@ -21,6 +21,8 @@ NodeRectangle::NodeRectangle(Node * parent)
 void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   QPen standardPen = m_node->m_defaultPen;
+  if(m_node->selected())
+    standardPen = m_node->m_selectedPen;
   if(m_node->hasError())
     standardPen = m_node->m_errorPen;
 
