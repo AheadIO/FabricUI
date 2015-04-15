@@ -39,11 +39,11 @@ void FabricStyle::polish(QPalette &palette)
   palette.setBrush(QPalette::Button, baseColor);
   palette.setBrush(QPalette::ButtonText, baseColor.lighter(spread));
   palette.setBrush(QPalette::BrightText, QColor(240, 240, 240));
-  palette.setBrush(QPalette::Light, baseColor.lighter(spread));
-  palette.setBrush(QPalette::Midlight, baseColor.lighter(spread/2));
-  palette.setBrush(QPalette::Dark, baseColor.darker(spread));
+  palette.setBrush(QPalette::Light, baseColor.lighter(spread/2));
+  palette.setBrush(QPalette::Midlight, baseColor.lighter(spread/4));
+  palette.setBrush(QPalette::Dark, baseColor.darker(spread/4));
   palette.setBrush(QPalette::Mid, baseColor);
-  palette.setBrush(QPalette::Shadow, baseColor.darker(spread*2));
+  palette.setBrush(QPalette::Shadow, baseColor.darker(spread/2));
   palette.setBrush(QPalette::Highlight, highlightColor);
   palette.setBrush(QPalette::HighlightedText, highlightedTextColor);
 }
