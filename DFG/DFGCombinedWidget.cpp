@@ -4,6 +4,7 @@
 #include <QtGui/QLabel>
 
 #include "DFGCombinedWidget.h"
+#include <Style/FabricStyle.h>
 
 using namespace FabricUI::DFG;
 
@@ -18,6 +19,7 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   m_hSplitter = NULL;
   m_dfgLogWidget = NULL;
 
+  setStyle(new FabricUI::Style::FabricStyle());
   setOrientation(Qt::Vertical);
 };
 
