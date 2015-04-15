@@ -7,6 +7,8 @@
 #include <QtGui/QGraphicsSceneHoverEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
+#include <math.h>
+
 using namespace FabricUI::GraphView;
 
 ConnectionTarget::ConnectionTarget(QGraphicsWidget * parent)
