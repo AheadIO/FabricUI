@@ -39,7 +39,7 @@ DFGWidget::DFGWidget(
   m_uiGraph = new DFGGraph(NULL, graphConfig, m_uiFactory);
   m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", graphConfig);
   m_uiGraphViewWidget = new DFGGraphViewWidget(this, graphConfig, m_uiFactory, m_uiGraph);
-  m_uiController = new DFGController(m_uiGraph, stack, client, NULL, overTakeBindingNotifications);
+  m_uiController = new DFGController(m_uiGraph, stack, client, NULL, m_manager, overTakeBindingNotifications);
   m_klEditor = new DFGKLEditorWidget(this, m_uiController, m_manager, m_dfgConfig);
   m_klEditor->hide();
   m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);

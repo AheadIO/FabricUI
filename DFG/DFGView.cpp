@@ -155,7 +155,7 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   // todo: once titles are supports
   // std::string label = port->getTitle();
   std::string label = pin->getName();
-  QColor color = m_config.getColorForDataType(dataType);
+  QColor color = m_config.getColorForDataType(dataType, m_controller->astManager());
   GraphView::PortType pType = GraphView::PortType_Input;
   if(pin->getEndPointType() == FabricCore::DFGPortType_Out)
     pType = GraphView::PortType_Output;
@@ -201,7 +201,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
   // std::string label = port->getTitle();
   std::string label = port->getName();
 
-  QColor color = m_config.getColorForDataType(dataType);
+  QColor color = m_config.getColorForDataType(dataType, m_controller->astManager());
 
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
@@ -495,7 +495,7 @@ void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * r
   if(resolvedType != uiPort->dataType())
   {
     uiPort->setDataType(resolvedType);
-    uiPort->setColor(m_config.getColorForDataType(resolvedType));
+    uiPort->setColor(m_config.getColorForDataType(resolvedType, m_controller->astManager()));
   }
 }
 
@@ -515,6 +515,6 @@ void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * reso
   if(resolvedType != uiPin->dataType())
   {
     uiPin->setDataType(resolvedType);
-    uiPin->setColor(m_config.getColorForDataType(resolvedType), false);
+    uiPin->setColor(m_config.getColorForDataType(resolvedType, m_controller->astManager()), false);
   }
 }

@@ -32,7 +32,7 @@ namespace FabricUI
 
       typedef void(*LogFunc)(const char * message);
 
-      DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, FabricServices::DFGWrapper::Host * host, bool overTakeBindingNotifications = true);
+      DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, FabricServices::DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications = true);
 
       FabricServices::DFGWrapper::Host * getHost();
       FabricServices::DFGWrapper::Binding getBinding();
@@ -43,6 +43,7 @@ namespace FabricUI
       DFGView * getView();
       void setView(DFGView * view);
       bool isViewingRootGraph();
+      FabricServices::ASTWrapper::KLASTManager * astManager();
 
       virtual QString addNodeFromPreset(QString path, QString preset, QPointF pos);
       virtual QString addEmptyGraph(QString path, QString title, QPointF pos);
@@ -123,6 +124,7 @@ namespace FabricUI
 
       FabricCore::Client * m_client;
       FabricServices::DFGWrapper::Host * m_host;
+      FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGView * m_view;
       LogFunc m_logFunc;
       bool m_overTakeBindingNotifications;

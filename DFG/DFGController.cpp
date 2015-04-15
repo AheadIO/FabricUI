@@ -31,10 +31,11 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGController::DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, DFGWrapper::Host * host, bool overTakeBindingNotifications)
+DFGController::DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications)
 : GraphView::Controller(graph, stack)
 , m_client(client)
 , m_host(host)
+, m_manager(manager)
 {
   m_view = NULL;
   m_host = host;
@@ -109,6 +110,11 @@ bool DFGController::isViewingRootGraph()
   if(!graphExec)
     return false;
   return std::string(graphExec->getExecPath()) == "";
+}
+
+ASTWrapper::KLASTManager * DFGController::astManager()
+{
+  return m_manager;
 }
 
 QString DFGController::addNodeFromPreset(QString path, QString preset, QPointF pos)

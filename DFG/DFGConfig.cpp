@@ -39,25 +39,6 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("Index", QColor(0, 153, 100));
   registerDataTypeColor("Size", QColor(0, 153, 100));
   registerDataTypeColor("String", QColor(134, 55, 41));
-  registerDataTypeColor("Regex", QColor(134, 55, 41));
-  registerDataTypeColor("Vec2", QColor(255, 242, 0));
-  registerDataTypeColor("Vec3", QColor(255, 242, 0));
-  registerDataTypeColor("Vec4", QColor(255, 242, 0));
-  registerDataTypeColor("Mat22", QColor(249, 157, 28));
-  registerDataTypeColor("Mat33", QColor(249, 157, 28));
-  registerDataTypeColor("Mat44", QColor(249, 157, 28));
-  registerDataTypeColor("Xfo", QColor(249, 157, 28));
-  registerDataTypeColor("Quat", QColor(0, 191, 232));
-  registerDataTypeColor("Euler", QColor(0, 191, 232));
-  registerDataTypeColor("RotationOrder", QColor(0, 191, 232));
-  registerDataTypeColor("Color", QColor(255, 0, 0));
-  registerDataTypeColor("RGB", QColor(255, 0, 0));
-  registerDataTypeColor("RGBA", QColor(255, 0, 0));
-  registerDataTypeColor("ARGB", QColor(255, 0, 0));
-  registerDataTypeColor("Geometry", QColor(92, 46, 145));
-  registerDataTypeColor("Lines", QColor(92, 46, 145));
-  registerDataTypeColor("Points", QColor(92, 46, 145));
-  registerDataTypeColor("PolygonMesh", QColor(92, 46, 145));
 }
 
 void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color)
@@ -69,7 +50,44 @@ void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color
   colorForDataType.insert(std::pair<std::string, QColor>(baseType, color));
 }
 
-QColor DFGConfig::getColorForDataType(const std::string & dataType)
+std::string filterTypeColor(const std::string & typeColor)
+{
+  std::string filteredTypeColor;
+  int commaCount = 0;
+  for(unsigned int i=0;i<typeColor.length();i++)
+  {
+    char c = typeColor[i];
+    if(c == ',')
+      commaCount++;
+    if(isalnum(c) || c == '(' || c == ')' || c == ',') // don't use '.'' since it is all integers
+      filteredTypeColor += tolower(c);
+  }
+
+  if(filteredTypeColor.length() < 12) // color(0,0,0)
+  {
+    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
+    return "";
+  }
+  if(commaCount != 2)
+  {
+    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
+    return "";
+  }
+  if(filteredTypeColor.substr(0, 6) != "color(")
+  {
+    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
+    return "";
+  }
+  if(filteredTypeColor[filteredTypeColor.length()-1] != ')')
+  {
+    printf("Invalid dfgTypeColor token found: '%s'\n", typeColor.c_str());
+    return "";
+  }
+
+  return filteredTypeColor;
+}
+
+QColor DFGConfig::getColorForDataType(const std::string & dataType, ASTWrapper::KLASTManager * manager)
 {
   if(dataType.length() > 0)
   {
@@ -77,6 +95,38 @@ QColor DFGConfig::getColorForDataType(const std::string & dataType)
       return QColor(0, 0, 0);
     std::string baseType = CodeCompletion::KLTypeDesc(dataType).getBaseType();
     std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
+
+    // get it from the AST manager
+    if(it == colorForDataType.end() && manager)
+    {
+      const ASTWrapper::KLType * klType = manager->getKLTypeByName(baseType.c_str());
+      if(klType)
+      {
+        std::string typeColor = klType->getComments()->getSingleQualifier("dfgTypeColor");
+        typeColor = filterTypeColor(typeColor);
+        if(typeColor.length() > 0)
+        {
+          std::string parts = typeColor.substr(6, typeColor.length() - 7);
+
+          int firstComma = parts.find(',');
+          int secondComma = parts.find(',', firstComma + 1);
+
+          std::string rStr = parts.substr(0, firstComma);
+          std::string gStr = parts.substr(firstComma + 1, secondComma - firstComma - 1);
+          std::string bStr = parts.substr(secondComma + 1, parts.length() - secondComma);
+
+          int r, g, b;
+          r = atoi(rStr.c_str());
+          g = atoi(gStr.c_str());
+          b = atoi(bStr.c_str());
+
+          QColor color(r, g, b);
+          registerDataTypeColor(dataType, color);
+          return color;
+        }
+      }
+    }
+
     if(it != colorForDataType.end())
       return it->second;
     return QColor(150, 150, 150);
