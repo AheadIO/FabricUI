@@ -19,6 +19,7 @@ PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfi
 {
   m_searchEdit = new QLineEdit(this);
   m_treeView = new TreeView::TreeViewWidget(this);
+  m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_treeModel = new TreeView::TreeModel(this);
   m_treeView->setModel(m_treeModel);
   m_presetDictsUpToDate = false;
