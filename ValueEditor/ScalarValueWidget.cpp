@@ -70,6 +70,24 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
   else if(m_typeName == "Float64")
     f = (float)v.getFloat64();
 
+  QString uiRange = valueItem()->getMetaData("uiRange");
+  if(uiRange.length() > 0)
+  {
+    QString filteredUiRange;
+    for(unsigned int i=0;i<uiRange.length();i++)
+    {
+      char c = uiRange.toUtf8().constData()[i];
+      if(isalnum(c) || c == '.' || c == ',')
+        filteredUiRange += c;
+    }
+
+    QStringList parts = filteredUiRange.split(',');
+    if(parts.length() == 2)
+    {
+      m_minimum = parts[0].toFloat();
+      m_maximum = parts[1].toFloat();
+    }
+  }
   if(f <= m_minimum)
     m_minimum = f;
   else if(f >= m_maximum)

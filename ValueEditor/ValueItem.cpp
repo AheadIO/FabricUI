@@ -67,3 +67,25 @@ void ValueItem::onDataChanged()
     return;
   ((ValueWidget*)editor())->setValue(m_value);
 }
+
+void ValueItem::setMetaData(const char * key, const char * value)
+{
+  if(key == NULL || value == NULL)
+    return;
+  if(strlen(key) == 0 || strlen(value) == 0)
+    return;
+
+  std::map<std::string, std::string>::iterator it = m_metaData.find(key);
+  if(it == m_metaData.end())
+    m_metaData.insert(std::pair<std::string, std::string>(key, value));
+  else
+    it->second = value;
+}
+
+const char * ValueItem::getMetaData(const char * key)
+{
+  std::map<std::string, std::string>::iterator it = m_metaData.find(key);
+  if(it == m_metaData.end())
+    return NULL;
+  return it->second.c_str();
+}

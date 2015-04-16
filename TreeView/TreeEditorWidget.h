@@ -39,6 +39,7 @@ namespace FabricUI
 
     signals:
       void dataChanged();
+      void itemChanged();
       void selected(bool);
       void expanded(bool);
 

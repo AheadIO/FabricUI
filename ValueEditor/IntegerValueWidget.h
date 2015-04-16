@@ -4,6 +4,7 @@
 #define __UI_ValueEditor_IntegerValueWidget__
 
 #include <QtGui/QSlider>
+#include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 
 #include "ValueWidget.h"
@@ -35,6 +36,7 @@ namespace FabricUI
 
       void onValueChangedInLineEdit();
       void onValueChangedInSlider();
+      void onValueChangedInComboBox(int index);
       void onBeginInteraction();
       void onEndInteraction();
 
@@ -42,6 +44,7 @@ namespace FabricUI
 
       QLineEdit * m_lineEdit;
       QSlider * m_slider;
+      QComboBox * m_comboBox;
       std::string m_typeName;
       bool m_changingValue;
     };

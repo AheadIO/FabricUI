@@ -4,6 +4,7 @@
 #define __UI_ValueEditor_ValueItem__
 
 #include <TreeView/WidgetTreeItem.h>
+#include <map>
 
 #include <FabricCore.h>
 
@@ -31,6 +32,9 @@ namespace FabricUI
       void onUIChanged();
       void onDataChanged();
 
+      void setMetaData(const char * key, const char * value);
+      const char * getMetaData(const char * key);
+
     signals:
 
       void beginInteraction(ValueItem * item);
@@ -42,6 +46,7 @@ namespace FabricUI
       FabricCore::Client * m_client;
       FabricCore::RTVal m_value;
       QString m_valueTypeName;
+      std::map<std::string, std::string> m_metaData;
       bool m_enabled;
       bool m_isSettingValue;
     };

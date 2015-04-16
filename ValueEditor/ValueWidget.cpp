@@ -24,6 +24,7 @@ ValueWidget::ValueWidget(QString label, QWidget * parent)
   layout->setContentsMargins(0, 0, 0, 0);
 
   m_label = new QLabel(label, this);
+  m_label->setMinimumWidth(50);
   layout->addWidget(m_label);
 }
 

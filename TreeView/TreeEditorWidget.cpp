@@ -24,7 +24,10 @@ void TreeEditorWidget::changeData()
 
 void TreeEditorWidget::setItem(WidgetTreeItem * item)
 {
+  if(m_item == item)
+    return;
   m_item = item;
+  emit itemChanged();
 }
 
 WidgetTreeItem * TreeEditorWidget::item()

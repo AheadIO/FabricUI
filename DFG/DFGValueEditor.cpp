@@ -57,7 +57,9 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
-        addValue(path, value, ports[i]->getName(), true);
+        ValueItem * item = addValue(path, value, ports[i]->getName(), true);
+        item->setMetaData("uiRange", ports[i]->getMetadata("uiRange"));
+        item->setMetaData("uiCombo", ports[i]->getMetadata("uiCombo"));
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
@@ -121,7 +123,9 @@ void DFGValueEditor::onArgsChanged()
         }
         if(!value.isValid())
           continue;
-        addValue(pins[i]->getEndPointPath(), value, pins[i]->getName(), true);
+        ValueItem * item = addValue(pins[i]->getEndPointPath(), value, pins[i]->getName(), true);
+        item->setMetaData("uiRange", pins[i]->getPort()->getMetadata("uiRange"));
+        item->setMetaData("uiCombo", pins[i]->getPort()->getMetadata("uiCombo"));
       }
 
       // expand the node level tree item
