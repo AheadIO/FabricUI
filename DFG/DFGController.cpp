@@ -282,9 +282,7 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
       result = command->getPortPath();
 
     // if this port is on the binding graph
-    DFGWrapper::GraphExecutablePtr exec = getGraphExec();
-    DFGWrapper::Binding binding = exec->getWrappedCoreBinding();
-    if(binding.getExecutable()->getExecPath() == path)
+    if(isViewingRootGraph())
     {
       if(dataType[0] != '$')
       {
@@ -300,7 +298,6 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
-    return "";
   }
   return result;
 }
@@ -329,53 +326,79 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   if(!graph())
     return NULL;
 
-  beginInteraction();
-  QString portPath = addPort(graph()->path(), pin->name(), pType, pin->dataType());
-
-  // copy the default value into the port
-  DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(pin->path().toUtf8().constData());
-  if(endPoint)
+  try
   {
-    // if this is the graph on the binding, we need to set the arg value
-    DFGWrapper::PinPtr pinEndPoint = DFGWrapper::PinPtr::StaticCast(endPoint);
-    std::string resolvedType = pinEndPoint->getResolvedType();
-    if(resolvedType.length() > 0)
-    {
-      FabricCore::RTVal defaultValue = pinEndPoint->getDefaultValue(resolvedType.c_str());
-      if(isViewingRootGraph())
-        setArg(portPath, defaultValue);
-      else
-        setDefaultValue(portPath, defaultValue);
-    }
-  }
+    beginInteraction();
+    QString portPath = addPort("", pin->name(), pType, pin->dataType());
 
-  QString portName = GraphView::lastPathSegment(portPath);
-  if(portPath.length() > 0)
-  {
-    std::vector<GraphView::Connection*> connections = graph()->connections();
-    if(pType == GraphView::PortType_Output)
+    // copy the default value into the port
+    DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(pin->path().toUtf8().constData());
+    if(endPoint && portPath.length() > 0)
     {
-      for(size_t i=0;i<connections.size();i++)
+      if(endPoint->getEndPointType() == FabricCore::DFGPortType_In)
       {
-        if(connections[i]->dst() == pin)
+        // if this is the graph on the binding, we need to set the arg value
+        DFGWrapper::PinPtr pinEndPoint = DFGWrapper::PinPtr::StaticCast(endPoint);
+        std::string resolvedType = pinEndPoint->getResolvedType();
+        if(resolvedType.length() > 0)
         {
-          if(!removeConnection(connections[i]->src(), connections[i]->dst()))
+          if(resolvedType == "Integer")
+            resolvedType = "SInt32";
+          else if(resolvedType == "Byte")
+            resolvedType = "UInt8";
+          else if(resolvedType == "Size" || resolvedType == "Count" || resolvedType == "Index")
+            resolvedType = "UInt32";
+          else if(resolvedType == "Scalar")
+            resolvedType = "Float32";
+
+          FabricCore::RTVal defaultValue = pinEndPoint->getDefaultValue(resolvedType.c_str());
+          if(!defaultValue.isValid())
+            defaultValue = pinEndPoint->getPort()->getDefaultValue(resolvedType.c_str());
+
+          if(defaultValue.isValid())
           {
-            endInteraction();
-            return NULL;
+            if(isViewingRootGraph())
+              setArg(portPath, defaultValue);
+            else
+              setDefaultValue(portPath, defaultValue);
           }
-          break;
+        }
+
+        // copy all of the metadata
+        endPoint = getEndPointFromPath(portPath.toUtf8().constData());
+        if(endPoint)
+        { 
+          DFGWrapper::PortPtr portEndPoint = DFGWrapper::PortPtr::StaticCast(endPoint);
+
+          const char * uiRange = pinEndPoint->getPort()->getMetadata("uiRange");
+          if(uiRange)
+          {
+            if(strlen(uiRange) > 0)
+            {
+              portEndPoint->setMetadata("uiRange", uiRange, false);
+            }
+          }
+          const char * uiCombo = pinEndPoint->getPort()->getMetadata("uiCombo");
+          if(uiCombo)
+          {
+            if(strlen(uiCombo) > 0)
+            {
+              portEndPoint->setMetadata("uiCombo", uiCombo, false);
+            }
+          }
         }
       }
-      addConnection(portPath, pin->path(), false, true);
     }
-    else if(pType == GraphView::PortType_Input)
+
+    QString portName = GraphView::lastPathSegment(portPath);
+    if(portPath.length() > 0)
     {
-      for(size_t i=0;i<connections.size();i++)
+      std::vector<GraphView::Connection*> connections = graph()->connections();
+      if(pType == GraphView::PortType_Output)
       {
-        if(connections[i]->dst()->targetType() == GraphView::TargetType_Port)
+        for(size_t i=0;i<connections.size();i++)
         {
-          if(((GraphView::Port*)connections[i]->dst())->path() == portPath)
+          if(connections[i]->dst() == pin)
           {
             if(!removeConnection(connections[i]->src(), connections[i]->dst()))
             {
@@ -385,12 +408,37 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             break;
           }
         }
+        addConnection(portPath, pin->path(), false, true);
       }
-      addConnection(pin->path(), portPath, true, false);
+      else if(pType == GraphView::PortType_Input)
+      {
+        for(size_t i=0;i<connections.size();i++)
+        {
+          if(connections[i]->dst()->targetType() == GraphView::TargetType_Port)
+          {
+            if(((GraphView::Port*)connections[i]->dst())->path() == portPath)
+            {
+              if(!removeConnection(connections[i]->src(), connections[i]->dst()))
+              {
+                endInteraction();
+                return NULL;
+              }
+              break;
+            }
+          }
+        }
+        addConnection(pin->path(), portPath, true, false);
+      }
     }
+    endInteraction();
+    return graph()->port(portName);
   }
-  endInteraction();
-  return graph()->port(portName);
+  catch(FabricCore::Exception e)
+  {
+    endInteraction();
+    logError(e.getDesc_cstr());
+  }
+  return NULL;
 }
 
 QString DFGController::renamePort(QString path, QString name)

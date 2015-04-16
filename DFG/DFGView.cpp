@@ -134,6 +134,12 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
   if(uiHeaderColorMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiHeaderColor", uiHeaderColorMetadata.c_str());
 
+  std::string uiTooltipMetadata = node->getMetadata("uiTooltip");
+  if(uiTooltipMetadata.length() == 0)
+    uiTooltipMetadata = node->getExecutable()->getMetadata("uiTooltip");
+  if(uiTooltipMetadata.length() > 0)
+    onNodeMetadataChanged(node, "uiTooltip", uiTooltipMetadata.c_str());
+
   if(m_performChecks)
     m_controller->checkErrors();
 }
@@ -433,6 +439,11 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
 
     QColor color(r, g, b);
     uiNode->setLabelColor(color);
+  }
+  else if(key == std::string("uiTooltip"))
+  {
+    QString tooltip = metadata;
+    uiNode->header()->setToolTip(tooltip.trimmed());
   }
 }
 
