@@ -71,6 +71,7 @@ void DFGCombinedWidget::init(
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
     m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
+    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
 
     QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
@@ -160,6 +161,23 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     m_dfgWidget->getUIController()->paste();
   }
+  else if(hotkey == "toggleSidePanels")
+  {
+    QList<int> s = m_hSplitter->sizes();
+    if(s[0] != 0 || s[2] != 0)
+    {
+      s[1] += s[0] + s[2];
+      s[0] = 0;
+      s[2] = 0;
+    }
+    else
+    {
+      s[0] = (int)(float(s[1]) * 0.2f);
+      s[2] = s[0];
+      s[1] -= s[0] + s[2];
+    }
+    m_hSplitter->setSizes(s);
+  }
 }
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
@@ -171,7 +189,7 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
   if(s[2] == 0)
   {
     s[2] = (int)(float(s[1]) * 0.2f);
-    s[1] = (int)(float(s[1]) * 0.8f);
+    s[1] -= s[2];
     m_hSplitter->setSizes(s);
   }
 }
