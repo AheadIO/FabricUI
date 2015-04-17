@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 
-#include <ASTWrapper/KLASTManager.h>
+#include <DFGWrapper/Port.h>
 
 namespace FabricUI
 {
@@ -34,7 +34,7 @@ namespace FabricUI
       DFGConfig();
 
       void registerDataTypeColor(const std::string & dataType, QColor color);
-      QColor getColorForDataType(const std::string & dataType, FabricServices::ASTWrapper::KLASTManager * manager = NULL);
+      QColor getColorForDataType(const std::string & dataType, FabricServices::DFGWrapper::PortPtr port = NULL);
     };
 
   };

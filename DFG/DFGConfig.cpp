@@ -50,7 +50,7 @@ void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color
   colorForDataType.insert(std::pair<std::string, QColor>(baseType, color));
 }
 
-QColor DFGConfig::getColorForDataType(const std::string & dataType, ASTWrapper::KLASTManager * manager)
+QColor DFGConfig::getColorForDataType(const std::string & dataType, DFGWrapper::PortPtr port)
 {
   if(dataType.length() > 0)
   {
@@ -59,16 +59,19 @@ QColor DFGConfig::getColorForDataType(const std::string & dataType, ASTWrapper::
     std::string baseType = CodeCompletion::KLTypeDesc(dataType).getBaseType();
     std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
 
-    // get it from the AST manager
-    if(it == colorForDataType.end() && manager)
+    if(it == colorForDataType.end() && port)
     {
-      const ASTWrapper::KLType * klType = manager->getKLTypeByName(baseType.c_str());
-      if(klType)
+      QString uiColor = port->getMetadata("uiColor");
+      if(uiColor.length() > 0)
       {
-        int r, g, b;
-        if(klType->getComments()->getColorFromSingleQualifier("dfgTypeColor", r, g, b))
+        FabricCore::Variant uiColorVar = FabricCore::Variant::CreateFromJSON(uiColor.toUtf8().constData());
+        const FabricCore::Variant * rVar = uiColorVar.getDictValue("r");
+        const FabricCore::Variant * gVar = uiColorVar.getDictValue("g");
+        const FabricCore::Variant * bVar = uiColorVar.getDictValue("b");
+
+        if(rVar && gVar && bVar)
         {
-          QColor color(r, g, b);
+          QColor color(rVar->getSInt32(), gVar->getSInt32(), bVar->getSInt32());
           registerDataTypeColor(dataType, color);
           return color;
         }

@@ -12,6 +12,7 @@
 #include "DFGView.h"
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
+#include <ASTWrapper/KLASTManager.h>
 
 using namespace FabricUI::ValueEditor;
 
