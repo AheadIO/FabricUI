@@ -120,6 +120,7 @@ void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
 void DFGCombinedWidget::onValueChanged()
 {
   onRecompilation();
+  emit valueChanged();
 }
 
 void DFGCombinedWidget::onStructureChanged()

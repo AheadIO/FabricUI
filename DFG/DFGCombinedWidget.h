@@ -61,6 +61,10 @@ namespace FabricUI
       virtual void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
 
+    signals:
+
+      void valueChanged();
+
     private:
 
       void log(const char * message);
