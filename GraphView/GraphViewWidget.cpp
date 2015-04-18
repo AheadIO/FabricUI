@@ -4,13 +4,17 @@
 
 #include <QtGui/QPainter>
 
+#ifdef FABRICUI_TIMERS
+  #include <Util/Timer.h>
+#endif
+
 using namespace FabricUI::GraphView;
 
 GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, GraphFactory * factory, Graph * graph)
 : QGraphicsView(parent)
 {
   setRenderHint(QPainter::Antialiasing);
-  setRenderHint(QPainter::HighQualityAntialiasing);
+  // setRenderHint(QPainter::HighQualityAntialiasing);
   setRenderHint(QPainter::TextAntialiasing);
 
   setStyleSheet( "QGraphicsView { border-style: none; }" );
@@ -21,10 +25,14 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
   setCacheMode(CacheBackground);
-  setViewportUpdateMode(SmartViewportUpdate);
+
+  // setViewportUpdateMode(SmartViewportUpdate);
+  setViewportUpdateMode(MinimalViewportUpdate);
 
   m_scene = new QGraphicsScene();
   setScene(m_scene);
+
+  QObject::connect(m_scene, SIGNAL(changed(const QList<QRectF> &)), this, SLOT(onSceneChanged()));
 
   m_graph = graph;
   if(!m_graph)
@@ -109,6 +117,34 @@ void GraphViewWidget::keyReleaseEvent(QKeyEvent * event)
 QPoint GraphViewWidget::lastEventPos() const
 {
   return m_lastEventPos;
+}
+
+void GraphViewWidget::onSceneChanged()
+{
+#ifdef FABRICUI_TIMERS
+  Util::TimerPtr overAllTimer = Util::Timer::getTimer("FabricUI::GraphViewWidget");
+
+  std::map<std::string, Util::TimerPtr> & timers = Util::Timer::getAllTimers();
+  std::map<std::string, Util::TimerPtr>::iterator it;
+  for(it = timers.begin(); it != timers.end(); it++)
+  {
+    QString message;
+    message += it->second->title();
+    if(message.left(8) != "FabricUI")
+      continue;
+    double elapsed = it->second->getElapsedMS();
+    if(elapsed == 0.0)
+      continue;
+    message += " " + QString::number(elapsed, 'g', 3);
+    message += "ms";
+    printf("%s\n", message.toUtf8().constData());
+    it->second->reset();
+  }
+
+  overAllTimer->resume();
+
+#endif  
+  emit sceneChanged();
 }
 
 bool GraphViewWidget::focusNextPrevChild(bool next)

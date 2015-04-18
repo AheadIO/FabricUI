@@ -29,6 +29,16 @@ if buildOS == 'Darwin':
 if buildOS == 'Linux':
   env.Append(CPPPATH=['/usr/include/qt4'])
 
+if buildOS == 'Windows':
+  env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS'])
+elif buildOS == 'Linux':
+  env.Append(CPPDEFINES = ['FABRIC_OS_LINUX'])
+elif buildOS == 'Darwin':
+  env.Append(CPPDEFINES = ['FABRIC_OS_DARWIN'])
+
+# # enable timers
+# env.Append(CPPDEFINES = ['FABRICUI_TIMERS'])
+
 def GlobQObjectHeaders(env, filter):
   headers = Flatten(env.Glob(filter))
   qobjectHeaders = []
@@ -56,6 +66,7 @@ env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
 
 dirs = [
+  'Util',
   'Style',
   'TreeView',
   'ValueEditor',

@@ -36,6 +36,14 @@ namespace FabricUI
       virtual void keyReleaseEvent(QKeyEvent * event);
       QPoint lastEventPos() const;
 
+    public slots:
+
+      void onSceneChanged();
+
+    signals:
+
+      void sceneChanged();
+
     protected:
 
       virtual bool focusNextPrevChild(bool next);

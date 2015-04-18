@@ -10,6 +10,10 @@
 #include <QtGui/QStyleOptionGraphicsItem>
 #include <QtCore/QDebug>
 
+#ifdef FABRICUI_TIMERS
+  #include <Util/Timer.h>
+#endif
+
 using namespace FabricUI::GraphView;
 
 NodeRectangle::NodeRectangle(Node * parent)
@@ -20,6 +24,11 @@ NodeRectangle::NodeRectangle(Node * parent)
 
 void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
+#ifdef FABRICUI_TIMERS
+  Util::TimerPtr timer = Util::Timer::getTimer("FabricUI::NodeRectangle");
+  timer->resume();
+#endif
+
   QPen standardPen = m_node->m_defaultPen;
   if(m_node->selected())
     standardPen = m_node->m_selectedPen;
@@ -67,6 +76,10 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
 
   // draw the outline
   painter->strokePath(rounded_rect, standardPen);
+
+#ifdef FABRICUI_TIMERS
+  timer->pause();
+#endif
 
   QGraphicsWidget::paint(painter, option, widget);
 }
