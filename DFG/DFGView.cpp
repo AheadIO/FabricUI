@@ -102,7 +102,14 @@ void DFGView::onGraphSet()
 
 void DFGView::onNotification(char const * json)
 {
-  // printf("%s\n", json);
+  // todo: remove this
+  FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
+  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
+  std::string descStr = descVar->getStringData();
+  if(descStr != "nodeMetadataChanged" && descStr != "execMetadataChanged")
+  {
+    m_controller->log(("View::callback "+std::string(json)).c_str());    
+  }
 }
 
 void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
