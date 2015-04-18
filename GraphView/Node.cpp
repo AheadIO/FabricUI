@@ -534,6 +534,14 @@ QGraphicsWidget * Node::pinsWidget()
   return m_pinsWidget;
 }
 
+void Node::onConnectionsChanged()
+{
+  if(m_collapsedState == CollapseState_OnlyConnections)
+  {
+    updatePinLayout();
+  }
+}
+
 void Node::updatePinLayout()
 {
   int count = m_pinsLayout->count();

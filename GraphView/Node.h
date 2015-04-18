@@ -99,6 +99,10 @@ namespace FabricUI
 
       QGraphicsWidget * mainWidget();
       QGraphicsWidget * pinsWidget();
+
+    public slots:
+
+      void onConnectionsChanged();
       
     signals:
 

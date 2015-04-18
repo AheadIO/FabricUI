@@ -460,6 +460,17 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
     connection = new Connection(this, src, dst);
   m_connections.push_back(connection);
 
+  if(connection->src()->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)connection->src())->node();
+    node->onConnectionsChanged();
+  }
+  if(connection->dst()->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)connection->dst())->node();
+    node->onConnectionsChanged();
+  }
+
   if(!quiet)
     emit connectionAdded(connection);
 
