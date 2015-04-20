@@ -8,6 +8,7 @@
 #include "Ticks.h"
 #include <stdio.h>
 #include <map>
+#include <string>
 #include <FTL/SharedPtr.h>
 
 namespace FabricUI
