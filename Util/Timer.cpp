@@ -10,7 +10,7 @@ std::map<std::string, TimerPtr> Timer::s_timers;
 
 TimerPtr Timer::getTimer(const char * title)
 {
-  std::map<std::string, TimerPtr>::iterator it = s_timers.find(title);
+  std::map<std::string, TimerPtr>::iterator it = s_timers.find(std::string(title));
   if(it != s_timers.end())
     return it->second;
   TimerPtr timer = new Timer(title);
@@ -27,7 +27,7 @@ void Timer::resetAllTimers()
 
 void Timer::removeTimer(const char * title)
 {
-  std::map<std::string, TimerPtr>::iterator it = s_timers.find(title);
+  std::map<std::string, TimerPtr>::iterator it = s_timers.find(std::string(title));
   if(it == s_timers.end())
     return;
   s_timers.erase(it);
