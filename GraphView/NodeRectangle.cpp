@@ -67,10 +67,11 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
   painter->setClipRect(rect.adjusted(-2, -2, 2, 2));
 
   // draw the header lines
-  QPen coloredPen = standardPen;
-  coloredPen.setColor(m_node->color());
-  painter->setPen(coloredPen);
-  painter->drawLine(labelRect.bottomLeft() - QPointF(0, standardPen.width()), labelRect.bottomRight() - QPointF(0, standardPen.width()));
+  // FE-4157
+  // QPen coloredPen = standardPen;
+  // coloredPen.setColor(m_node->color());
+  // painter->setPen(coloredPen);
+  // painter->drawLine(labelRect.bottomLeft() - QPointF(0, standardPen.width()), labelRect.bottomRight() - QPointF(0, standardPen.width()));
   painter->setPen(standardPen);
   painter->drawLine(labelRect.bottomLeft(), labelRect.bottomRight());
 
