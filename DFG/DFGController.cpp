@@ -1047,6 +1047,15 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
       else if(ports[i]->getResolvedType() != dataTypeToCheck)
         continue;
 
+      if(dataTypeToCheck == "Integer")
+        dataTypeToCheck = "SInt32";
+      else if(dataTypeToCheck == "Byte")
+        dataTypeToCheck = "UInt8";
+      else if(dataTypeToCheck == "Size" || dataTypeToCheck == "Count" || dataTypeToCheck == "Index")
+        dataTypeToCheck = "UInt32";
+      else if(dataTypeToCheck == "Scalar")
+        dataTypeToCheck = "Float32";
+
       // if there is already a bound value, make sure it has the right type
       FabricCore::RTVal value;
       try
