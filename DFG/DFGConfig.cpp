@@ -39,6 +39,27 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("Index", QColor(0, 153, 100));
   registerDataTypeColor("Size", QColor(0, 153, 100));
   registerDataTypeColor("String", QColor(134, 55, 41));
+
+  // todo: to be removed
+  registerDataTypeColor("Regex", QColor(134, 55, 41));
+  registerDataTypeColor("Vec2", QColor(255, 242, 0));
+  registerDataTypeColor("Vec3", QColor(255, 242, 0));
+  registerDataTypeColor("Vec4", QColor(255, 242, 0));
+  registerDataTypeColor("Mat22", QColor(249, 157, 28));
+  registerDataTypeColor("Mat33", QColor(249, 157, 28));
+  registerDataTypeColor("Mat44", QColor(249, 157, 28));
+  registerDataTypeColor("Xfo", QColor(249, 157, 28));
+  registerDataTypeColor("Quat", QColor(0, 191, 232));
+  registerDataTypeColor("Euler", QColor(0, 191, 232));
+  registerDataTypeColor("RotationOrder", QColor(0, 191, 232));
+  registerDataTypeColor("Color", QColor(255, 0, 0));
+  registerDataTypeColor("RGB", QColor(255, 0, 0));
+  registerDataTypeColor("RGBA", QColor(255, 0, 0));
+  registerDataTypeColor("ARGB", QColor(255, 0, 0));
+  registerDataTypeColor("Geometry", QColor(92, 46, 145));
+  registerDataTypeColor("Lines", QColor(92, 46, 145));
+  registerDataTypeColor("Points", QColor(92, 46, 145));
+  registerDataTypeColor("PolygonMesh", QColor(92, 46, 145));
 }
 
 void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color)
