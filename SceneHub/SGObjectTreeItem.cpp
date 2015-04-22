@@ -1,16 +1,17 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "SGObjectTreeItem.h"
+#include "SGObjectTreeView.h"
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-SGObjectTreeItem * SGObjectTreeItem::Create(QString name, FabricCore::Client * client, FabricCore::RTVal sgObject)
+SGObjectTreeItem * SGObjectTreeItem::Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject)
 {
   try
   {
     FabricCore::RTVal browser = FabricCore::RTVal::Create(*client, "SGObjectHierarchyBrowser", 1, &sgObject);
-    return new SGObjectTreeItem(name, client, browser);
+    return new SGObjectTreeItem(view, name, client, browser);
   }
   catch(FabricCore::Exception e)
   {
@@ -19,9 +20,10 @@ SGObjectTreeItem * SGObjectTreeItem::Create(QString name, FabricCore::Client * c
   return NULL;
 }
 
-SGObjectTreeItem::SGObjectTreeItem(QString name, FabricCore::Client * client, FabricCore::RTVal browser)
+SGObjectTreeItem::SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser)
 : TreeView::TreeItem(name)
 {
+  m_view = view;
   m_client = client;
   m_rtVal = browser;
 }
@@ -51,8 +53,10 @@ unsigned int SGObjectTreeItem::numChildren()
         FabricCore::RTVal index = FabricCore::RTVal::ConstructUInt32(*m_client, i);
         FabricCore::RTVal browser = m_rtVal.callMethod("SGObjectHierarchyBrowser", "getChildBrowser", 1, &index);
         FabricCore::RTVal name = browser.callMethod("String", "getName", 0, 0);
-        addChild(Create(name.getStringCString(), m_client, browser));
+        addChild(Create(m_view, name.getStringCString(), m_client, browser));
       }
+
+      emit m_view->itemExpanded(this);
     }
   }
   catch(FabricCore::Exception e)

@@ -41,8 +41,6 @@ void SGObjectTreeView::contextMenuTriggered(QAction * action)
       for(unsigned int j=0;j<items[i]->numChildren();j++)
         items.push_back(items[i]->child(j));
     }
-
-    emit itemRecursivelyExpanded(m_lastItemClickedOn);
   }
 
   m_lastItemClickedOn = NULL;

@@ -11,13 +11,15 @@ namespace FabricUI
 
   namespace SceneHub
   {
+    class SGObjectTreeView;
+    
     class SGObjectTreeItem : public TreeView::TreeItem
     {
       Q_OBJECT
 
     public:
 
-      static SGObjectTreeItem * Create(QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
+      static SGObjectTreeItem * Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
       virtual ~SGObjectTreeItem();
 
       virtual QString type() const;
@@ -25,10 +27,11 @@ namespace FabricUI
 
     protected:
 
-      SGObjectTreeItem(QString name, FabricCore::Client * client, FabricCore::RTVal browser);
+      SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
 
       FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;
+      SGObjectTreeView * m_view;
     };
 
   };

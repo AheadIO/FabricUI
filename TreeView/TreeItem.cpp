@@ -98,16 +98,6 @@ unsigned int TreeItem::index() const
   return m_index;
 }
 
-void TreeItem::onChildAdded(TreeItem * child)
-{
-  emit childAddedRecursive(child);
-}
-
-void TreeItem::onChildRemoved(TreeItem * child)
-{
-  emit childRemovedRecursive(child);
-}
-
 void TreeItem::setIndex(unsigned int i)
 {
   m_index = i;
@@ -162,8 +152,6 @@ void TreeItem::addChild(TreeItem * childToAdd)
   childToAdd->setIndex(m_children.size());
   m_children.push_back(childToAdd);
   emit childAdded(childToAdd);
-  QObject::connect(childToAdd, SIGNAL(childAdded(FabricUI::TreeView::TreeItem*)), this, SLOT(onChildAdded(FabricUI::TreeView::TreeItem*)));
-  QObject::connect(childToAdd, SIGNAL(childRemoved(FabricUI::TreeView::TreeItem*)), this, SLOT(onChildRemoved(FabricUI::TreeView::TreeItem*)));
 }
 
 bool TreeItem::removeChild(TreeItem * childToRemove)
@@ -183,9 +171,6 @@ bool TreeItem::removeChild(TreeItem * childToRemove)
 
   m_children.erase(m_children.begin() + index);
   emit childRemoved(childToRemove);
-
-  QObject::disconnect(childToRemove, SIGNAL(childAdded(FabricUI::TreeView::TreeItem*)), this, SLOT(onChildAdded(FabricUI::TreeView::TreeItem*)));
-  QObject::disconnect(childToRemove, SIGNAL(childRemoved(FabricUI::TreeView::TreeItem*)), this, SLOT(onChildRemoved(FabricUI::TreeView::TreeItem*)));
 
   return true;
 }

@@ -18,6 +18,8 @@ namespace FabricUI
     {
       Q_OBJECT
 
+      friend class SGObjectTreeItem;
+
     public:
 
       SGObjectTreeView(QWidget * parent);
@@ -31,7 +33,7 @@ namespace FabricUI
 
     signals:
 
-      void itemRecursivelyExpanded(FabricUI::TreeView::TreeItem *);
+      void itemExpanded(FabricUI::TreeView::TreeItem *);
 
     private:
 
