@@ -49,9 +49,9 @@ unsigned int SGObjectTreeItem::numChildren()
       for(unsigned int i=0;i<count;i++)
       {
         FabricCore::RTVal index = FabricCore::RTVal::ConstructUInt32(*m_client, i);
-        FabricCore::RTVal sgObject = m_rtVal.callMethod("SGObject", "getChildSGObject", 1, &index);
-        FabricCore::RTVal name = sgObject.callMethod("String", "getName", 0, 0);
-        addChild(Create(name.getStringCString(), m_client, sgObject));
+        FabricCore::RTVal browser = m_rtVal.callMethod("SGObjectHierarchyBrowser", "getChildBrowser", 1, &index);
+        FabricCore::RTVal name = browser.callMethod("String", "getName", 0, 0);
+        addChild(Create(name.getStringCString(), m_client, browser));
       }
     }
   }
