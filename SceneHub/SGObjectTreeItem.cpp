@@ -5,36 +5,25 @@
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-SGObjectTreeItem * SGObjectTreeItem::Create(QString name, FabricCore::RTVal sgObject)
+SGObjectTreeItem * SGObjectTreeItem::Create(QString name, FabricCore::Client * client, FabricCore::RTVal sgObject)
 {
-  return new SGObjectTreeItem(name, sgObject);
+  try
+  {
+    FabricCore::RTVal browser = FabricCore::RTVal::Create(*client, "SGObjectHierarchyBrowser", 1, &sgObject);
+    return new SGObjectTreeItem(name, client, browser);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+  return NULL;
 }
 
-SGObjectTreeItem::SGObjectTreeItem(QString name, FabricCore::RTVal sgObject)
+SGObjectTreeItem::SGObjectTreeItem(QString name, FabricCore::Client * client, FabricCore::RTVal browser)
 : TreeView::TreeItem(name)
 {
-  m_rtVal = sgObject;
-  // call setPixmap to pick an icon
-
-  /*
-    if( (options.withProperties || options.recursive) && canAccessProperties ) {
-    SGObjectPropertyIterator propIter = this.getPropertyIterator();
-    SGObjectProperty property;
-    while( propIter.getNext( property ) ) {
-      //Careful: just getting the property type will call the generator
-      if( options.callGenerators || property.isGenerated() ) {
-        if( property.isReference() || property.isReferenceArray() ) {
-          if( options.warnMaxLineCount( lines ) )
-            return lines;
-
-          SceneGraphDumpOptions subOptions = options;
-          subOptions.maxLineCount -= lines.size();
-          lines += property.dumpContent( subOptions );
-        }
-      }
-    }
-  }
-  */
+  m_client = client;
+  m_rtVal = browser;
 }
 
 SGObjectTreeItem::~SGObjectTreeItem()
@@ -43,16 +32,33 @@ SGObjectTreeItem::~SGObjectTreeItem()
 
 QString SGObjectTreeItem::type() const
 {
-  // query the rtval
-  // return m_rtVal.callMethod("String", "getItemType", 0, 0).getString_cstr();
-  return TreeView::TreeItem::type();
+  return "SGObject";
 }
 
 unsigned int SGObjectTreeItem::numChildren()
 {
-  // query the rtval
-  // return m_rtVal.callMethod("UInt32", "getNumChildren", 0, 0).getUInt32()
-  // lazily fill the contents using TreeItem::addChild
+  try
+  {
+    unsigned int count = m_rtVal.callMethod("UInt32", "getNumChildSGObjects", 0, 0).getUInt32();
+    if(count != TreeView::TreeItem::numChildren())
+    {
+      // clear previous children
+      for(int i=TreeView::TreeItem::numChildren()-1;i>=0;i--)
+        removeChild(child(i));
+
+      for(unsigned int i=0;i<count;i++)
+      {
+        FabricCore::RTVal index = FabricCore::RTVal::ConstructUInt32(*m_client, i);
+        FabricCore::RTVal sgObject = m_rtVal.callMethod("SGObject", "getChildSGObject", 1, &index);
+        FabricCore::RTVal name = sgObject.callMethod("String", "getName", 0, 0);
+        addChild(Create(name.getStringCString(), m_client, sgObject));
+      }
+    }
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
 
   return TreeView::TreeItem::numChildren();
 }

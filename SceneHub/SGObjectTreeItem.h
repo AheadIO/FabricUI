@@ -17,7 +17,7 @@ namespace FabricUI
 
     public:
 
-      static SGObjectTreeItem * Create(QString name, FabricCore::RTVal sgObject);
+      static SGObjectTreeItem * Create(QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
       virtual ~SGObjectTreeItem();
 
       virtual QString type() const;
@@ -25,8 +25,9 @@ namespace FabricUI
 
     protected:
 
-      SGObjectTreeItem(QString name, FabricCore::RTVal sgObject);
+      SGObjectTreeItem(QString name, FabricCore::Client * client, FabricCore::RTVal browser);
 
+      FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;
     };
 
