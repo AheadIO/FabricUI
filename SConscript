@@ -76,7 +76,7 @@ dirs = [
   'DFG',
   'DFG/Commands',
   'DFG/Dialogs',
-  'SceneGraph',
+  'SceneHub',
   'Viewports',
 ]
 
