@@ -66,6 +66,18 @@ namespace FabricUI
       virtual QVariant data(int role);
       virtual QString mimeDataAsText();
 
+    public slots:
+
+      void onChildAdded(FabricUI::TreeView::TreeItem * child);
+      void onChildRemoved(FabricUI::TreeView::TreeItem * child);
+
+    signals:
+
+      void childAdded(FabricUI::TreeView::TreeItem*);
+      void childRemoved(FabricUI::TreeView::TreeItem*);
+      void childAddedRecursive(FabricUI::TreeView::TreeItem*);
+      void childRemovedRecursive(FabricUI::TreeView::TreeItem*);
+
     protected:
 
       virtual void setIndex(unsigned int i);
