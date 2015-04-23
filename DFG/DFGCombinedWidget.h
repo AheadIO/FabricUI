@@ -38,7 +38,8 @@ namespace FabricUI
         FabricServices::DFGWrapper::Binding binding,
         FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
-        bool overTakeBindingNotifications = true
+        bool overTakeBindingNotifications = true,
+        DFGConfig config = DFGConfig()
       );
 
       static void setLogFunc(DFGController::LogFunc func);

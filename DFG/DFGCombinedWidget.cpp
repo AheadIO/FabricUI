@@ -30,7 +30,8 @@ void DFGCombinedWidget::init(
   FabricServices::DFGWrapper::Binding binding,
   FabricServices::DFGWrapper::GraphExecutablePtr graph,
   FabricServices::Commands::CommandStack * stack,
-  bool overTakeBindingNotifications
+  bool overTakeBindingNotifications,
+  DFGConfig config
 ) {
 
   if(m_dfgWidget)
@@ -42,9 +43,8 @@ void DFGCombinedWidget::init(
     m_manager = manager;
     m_host = host;
 
-    DFGConfig config;
     m_treeWidget = new DFG::PresetTreeWidget(this, m_host, config);
-    m_dfgWidget = new DFG::DFGWidget(this, m_client, m_manager, m_host, binding, graph, stack, config, GraphView::GraphConfig(), overTakeBindingNotifications);
+    m_dfgWidget = new DFG::DFGWidget(this, m_client, m_manager, m_host, binding, graph, stack, config, overTakeBindingNotifications);
     m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);

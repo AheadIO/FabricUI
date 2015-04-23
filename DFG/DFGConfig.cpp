@@ -21,6 +21,9 @@ DFGConfig::DFGConfig()
   searchHighlightColor = QColor(137, 181, 202);
   searchFontColor = QColor(0, 0, 0);
 
+  klEditorConfig.codeBackgroundColor = defaultFontColor;
+  klEditorConfig.codeFontColor = defaultBackgroundColor;
+
   registerDataTypeColor("", QColor(40, 40, 40));
   registerDataTypeColor("Boolean", QColor(240, 78, 35));
   registerDataTypeColor("Scalar", QColor(128, 195, 66));

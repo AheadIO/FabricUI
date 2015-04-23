@@ -260,17 +260,17 @@ bool DFGController::removePin(GraphView::Pin * pin)
   return false;
 }
 
-QString DFGController::addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType)
+QString DFGController::addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType, bool setArgValue)
 {
   GraphView::PortType portType = GraphView::PortType_Input;
   if(pType == FabricCore::DFGPortType_In)
     portType = GraphView::PortType_Output;
   else if(pType == FabricCore::DFGPortType_IO)
     portType = GraphView::PortType_IO;
-  return addPort(path, name, portType, dataType);
+  return addPort(path, name, portType, dataType, setArgValue);
 }
 
-QString DFGController::addPort(QString path, QString name, GraphView::PortType pType, QString dataType)
+QString DFGController::addPort(QString path, QString name, GraphView::PortType pType, QString dataType, bool setArgValue)
 {
   QString result;
   try
@@ -282,7 +282,7 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
       result = command->getPortPath();
 
     // if this port is on the binding graph
-    if(isViewingRootGraph())
+    if(isViewingRootGraph() && setArgValue)
     {
       if(dataType[0] != '$')
       {

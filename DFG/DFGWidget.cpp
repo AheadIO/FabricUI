@@ -24,7 +24,6 @@ DFGWidget::DFGWidget(
   DFGWrapper::GraphExecutablePtr graph,
   Commands::CommandStack * stack,
   const DFGConfig & dfgConfig,
-  const GraphView::GraphConfig & graphConfig,
   bool overTakeBindingNotifications
 )
 : QWidget(parent)
@@ -35,9 +34,9 @@ DFGWidget::DFGWidget(
 {
   m_dfgConfig = dfgConfig;
   m_uiFactory = new DFGFactory(dfgConfig);
-  m_uiGraph = new DFGGraph(NULL, graphConfig, m_uiFactory);
-  m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", graphConfig);
-  m_uiGraphViewWidget = new DFGGraphViewWidget(this, graphConfig, m_uiFactory, m_uiGraph);
+  m_uiGraph = new DFGGraph(NULL, dfgConfig.graphConfig, m_uiFactory);
+  m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", dfgConfig.graphConfig);
+  m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, m_uiFactory, m_uiGraph);
   m_uiController = new DFGController(m_uiGraph, stack, client, NULL, m_manager, overTakeBindingNotifications);
   m_klEditor = new DFGKLEditorWidget(this, m_uiController, m_manager, m_dfgConfig);
   m_klEditor->hide();

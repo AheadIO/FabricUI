@@ -37,7 +37,6 @@ namespace FabricUI
         FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
-        const GraphView::GraphConfig & graphConfig = GraphView::GraphConfig(),
         bool overTakeBindingNotifications = true
       );
       virtual ~DFGWidget();

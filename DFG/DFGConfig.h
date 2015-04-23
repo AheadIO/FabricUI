@@ -8,6 +8,8 @@
 #include <QtGui/QTextCharFormat>
 #include <string>
 #include <map>
+#include <KLEditor/EditorConfig.h>
+#include <GraphView/GraphConfig.h>
 
 #include <DFGWrapper/Port.h>
 
@@ -30,6 +32,9 @@ namespace FabricUI
       QColor searchFontColor;
 
       std::map<std::string, QColor> colorForDataType;
+
+      KLEditor::EditorConfig klEditorConfig;
+      GraphView::GraphConfig graphConfig;
 
       DFGConfig();
 

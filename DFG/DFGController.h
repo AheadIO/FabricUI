@@ -56,8 +56,8 @@ namespace FabricUI
       virtual bool renameNode(GraphView::Node * node, QString title);
       virtual GraphView::Pin * addPin(GraphView::Node * node, QString name, GraphView::PortType pType, QColor color, QString dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
-      virtual QString addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType = "");
-      virtual QString addPort(QString path, QString name, GraphView::PortType pType, QString dataType = "");
+      virtual QString addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType = "", bool setArgValue = true);
+      virtual QString addPort(QString path, QString name, GraphView::PortType pType, QString dataType = "", bool setArgValue = true);
       virtual bool removePort(QString path, QString name);
       virtual GraphView::Port * addPortFromPin(GraphView::Pin * pin, GraphView::PortType pType);
       virtual QString renamePort(QString path, QString title);

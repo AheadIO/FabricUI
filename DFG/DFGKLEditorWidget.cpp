@@ -40,28 +40,22 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   buttonsLayout->setContentsMargins(0, 0, 0, 0);
   buttonsWidget->setLayout(buttonsLayout);
 
-  GraphView::GraphConfig graphConfig;
   QPalette buttonsPal(buttonsWidget->palette());
-  buttonsPal.setColor(QPalette::Background, graphConfig.headerBackgroundColor);
+  buttonsPal.setColor(QPalette::Background, config.graphConfig.headerBackgroundColor);
   buttonsWidget->setAutoFillBackground(true);
   buttonsWidget->setPalette(buttonsPal);
-  buttonsWidget->setContentsMargins(graphConfig.headerMargins, graphConfig.headerMargins, graphConfig.headerMargins, graphConfig.headerMargins);
-  buttonsWidget->setFont(graphConfig.nodeFont);
+  buttonsWidget->setContentsMargins(config.graphConfig.headerMargins, config.graphConfig.headerMargins, config.graphConfig.headerMargins, config.graphConfig.headerMargins);
+  buttonsWidget->setFont(config.graphConfig.nodeFont);
 
   QPushButton * compileButton = new QPushButton("Compile", buttonsWidget);
   buttonsLayout->addStretch(2);
   buttonsLayout->addWidget(compileButton);
 
   QPalette buttonPal(compileButton->palette());
-  buttonPal.setColor(QPalette::ButtonText, graphConfig.headerFontColor);
-  buttonPal.setColor(QPalette::Button, graphConfig.nodeDefaultColor);
+  buttonPal.setColor(QPalette::ButtonText, config.graphConfig.headerFontColor);
+  buttonPal.setColor(QPalette::Button, config.graphConfig.nodeDefaultColor);
   // compileButton->setAutoFillBackground(false);
   compileButton->setPalette(buttonPal);
-
-  KLEditor::EditorConfig editorConfig;
-
-  editorConfig.codeBackgroundColor = config.defaultFontColor;
-  editorConfig.codeFontColor = config.defaultBackgroundColor;
 
   QSplitter * splitter = new QSplitter(this);
   splitter->setOrientation(Qt::Vertical);
@@ -70,7 +64,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   splitter->setChildrenCollapsible(false);
 
   m_ports = new DFGKLEditorPortTableWidget(splitter, controller, config);
-  m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, editorConfig);
+  m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
   splitter->addWidget(m_ports);
   splitter->addWidget(m_klEditor);
@@ -160,7 +154,7 @@ void DFGKLEditorWidget::onPortsChanged()
 
         if(m_controller->removePort(path, name))
         {
-          m_controller->addPort(path, name, infos[i].portType, infos[i].dataType.c_str()); 
+          m_controller->addPort(path, name, infos[i].portType, infos[i].dataType.c_str(), false); 
           modified = true;
         }
       }
@@ -223,7 +217,7 @@ void DFGKLEditorWidget::onPortsChanged()
     QString name = infos[indexToAdd].portName.c_str();
     QString dataType = infos[indexToAdd].dataType.c_str();
 
-    m_controller->addPort(path, name, infos[indexToAdd].portType, dataType);
+    m_controller->addPort(path, name, infos[indexToAdd].portType, dataType, false);
     modified = true;
   }
 
