@@ -102,14 +102,14 @@ void DFGView::onGraphSet()
 
 void DFGView::onNotification(char const * json)
 {
-  // todo: remove this
-  FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
-  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  std::string descStr = descVar->getStringData();
-  if(descStr != "nodeMetadataChanged" && descStr != "execMetadataChanged")
-  {
-    m_controller->log(("View::callback "+std::string(json)).c_str());    
-  }
+  // // todo: remove this
+  // FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
+  // const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
+  // std::string descStr = descVar->getStringData();
+  // if(descStr != "nodeMetadataChanged" && descStr != "execMetadataChanged")
+  // {
+  //   m_controller->log(("View::callback "+std::string(json)).c_str());    
+  // }
 }
 
 void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
@@ -583,4 +583,14 @@ void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * reso
     uiPin->setColor(m_config.getColorForDataType(resolvedType, pin->getPort()), false);
     uiGraph->updateColorForConnections(uiPin);
   }
+}
+
+void DFGView::onPortMetadataChanged(FabricServices::DFGWrapper::PortPtr port, const char * key, const char * metadata)
+{
+  // todo: we don't do anything here...
+}
+
+void DFGView::onPinMetadataChanged(FabricServices::DFGWrapper::PinPtr pin, const char * key, const char * metadata)
+{
+  // todo: we don't do anything here...
 }

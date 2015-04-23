@@ -26,6 +26,7 @@ namespace FabricUI
     {
 
       friend class DFGValueEditor;
+      friend class DFGWidget;
 
       Q_OBJECT
 

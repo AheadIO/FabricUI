@@ -42,6 +42,7 @@ DFGWidget::DFGWidget(
   m_klEditor = new DFGKLEditorWidget(this, m_uiController, m_manager, m_dfgConfig);
   m_klEditor->hide();
   m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+  m_tabSearchWidget->hide();
 
   QVBoxLayout * layout = new QVBoxLayout();
   layout->setSpacing(0);
@@ -450,6 +451,60 @@ void DFGWidget::onPortAction(QAction * action)
 
       if(dialog.exec() != QDialog::Accepted)
         return;
+
+      if(dialog.native())
+        port->setMetadata("uiNativeArray", "true", false);
+      else if(uiNativeArray.length() > 0)
+        port->setMetadata("uiNativeArray", NULL, false);
+      if(dialog.hidden())
+        port->setMetadata("uiHidden", "true", false);
+      else if(uiHidden.length() > 0)
+        port->setMetadata("uiHidden", NULL, false);
+      if(dialog.opaque())
+        port->setMetadata("uiOpaque", "true", false);
+      else if(uiOpaque.length() > 0)
+        port->setMetadata("uiOpaque", NULL, false);
+      if(dialog.hasRange())
+      {
+        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        port->setMetadata("uiRange", range.toUtf8().constData(), false);
+      }
+      else if(uiRange.length() > 0)
+      {
+        port->setMetadata("uiRange", NULL, false);
+      }
+      if(dialog.hasCombo())
+      {
+        QStringList combo = dialog.comboValues();
+        QString flat = "(";
+        for(unsigned int i=0;i<combo.length();i++)
+        {
+          if(i > 0)
+            flat += ", ";
+          flat += "\"" + combo[i] + "\"";
+        }
+        flat += ")";
+        port->setMetadata("uiCombo", flat.toUtf8().constData(), false);
+      }
+      else if(uiCombo.length() > 0)
+      {
+        port->setMetadata("uiCombo", NULL, false);
+      }
+
+      m_uiController->beginInteraction();
+      if(dialog.dataType().length() > 0)
+      {
+        if(m_uiController->isViewingRootGraph())
+          m_uiController->setArg(m_contextPort->name(), dialog.dataType());
+      }
+
+      if(dialog.title() != port->getName())
+      {
+        m_uiController->renamePort(m_contextPort->path(), dialog.title());
+      }
+      m_uiController->endInteraction();
+
+      emit m_uiController->structureChanged();
     }
     catch(FabricCore::Exception e)
     {
@@ -522,6 +577,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
             flat += ")";
             port->setMetadata("uiCombo", flat.toUtf8().constData(), false);
           }
+
+          emit m_uiController->structureChanged();
         }
       }
       catch(FabricCore::Exception e)

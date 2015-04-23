@@ -157,7 +157,7 @@ float DFGEditPortDialog::rangeMin() const
 
 void DFGEditPortDialog::setRangeMin(float value)
 {
-
+  m_rangeMin->setText(QString::number(value));
 }
 
 float DFGEditPortDialog::rangeMax() const
@@ -167,7 +167,7 @@ float DFGEditPortDialog::rangeMax() const
 
 void DFGEditPortDialog::setRangeMax(float value)
 {
-
+  m_rangeMax->setText(QString::number(value));
 }
 
 bool DFGEditPortDialog::hasCombo() const
