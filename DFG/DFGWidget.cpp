@@ -9,8 +9,7 @@
 #include "DFGWidget.h"
 #include "DFGMainWindow.h"
 #include "Dialogs/DFGGetStringDialog.h"
-#include "Dialogs/DFGNewPortDialog.h"
-#include "Dialogs/DFGBindValueDialog.h"
+#include "Dialogs/DFGEditPortDialog.h"
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -200,12 +199,8 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
     return NULL;
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
-  result->addAction("Rename");
+  result->addAction("Edit");
   result->addAction("Delete");
-
-  // only show bind value on root path
-  if(graph->path() == "")
-    result->addAction("Bind value");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onPortAction(QAction*)));
   return result;
@@ -392,36 +387,87 @@ void DFGWidget::onPortAction(QAction * action)
   if(m_contextPort == NULL)
     return;
 
-   else if(action->text() == "Rename")
-  {
-    DFGGetStringDialog dialog(this, m_contextPort->label(), m_dfgConfig);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
-
-    QString text = dialog.text();
-    m_uiController->renamePort(m_contextPort->path(), text);
-  }
-  else if(action->text() == "Delete")
+  if(action->text() == "Delete")
   {
     m_uiController->removePort(GraphView::parentPath(m_contextPort->path()), m_contextPort->name());
   }
-  else if(action->text() == "Bind value")
+  else if(action->text() == "Edit")
   {
-    DFGBindValueDialog dialog(this, m_contextPort->dataType(), m_dfgConfig);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
-
-    QString dataType = dialog.dataType();
-    QString extension = dialog.extension();
-
-    if(extension.length() > 0)
+    try
     {
-      m_uiController->addExtensionDependency(extension, m_uiGraph->path());
+      DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(m_contextPort->path().toUtf8().constData());
+      if(!endPoint)
+        return;
+      DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+      
+      DFGEditPortDialog dialog(this, false, m_dfgConfig);
+
+      dialog.setTitle(port->getName());
+      dialog.setDataType(port->getResolvedType());
+
+      QString uiNativeArray = port->getMetadata("uiNativeArray");
+      if(uiNativeArray == "true")
+        dialog.setNative(true);
+      QString uiHidden = port->getMetadata("uiHidden");
+      if(uiHidden == "true")
+        dialog.setHidden();
+      QString uiOpaque = port->getMetadata("uiOpaque");
+      if(uiOpaque == "true")
+        dialog.setOpaque();
+      QString uiRange = port->getMetadata("uiRange");
+      if(uiRange.length() > 0)
+      {
+        QString filteredUiRange;
+        for(unsigned int i=0;i<uiRange.length();i++)
+        {
+          char c = uiRange.toUtf8().constData()[i];
+          if(isalnum(c) || c == '.' || c == ',')
+            filteredUiRange += c;
+        }
+
+        QStringList parts = filteredUiRange.split(',');
+        if(parts.length() == 2)
+        {
+          float minimum = parts[0].toFloat();
+          float maximum = parts[1].toFloat();
+          dialog.setHasRange(true);
+          dialog.setRangeMin(minimum);
+          dialog.setRangeMax(maximum);
+        }
+      }
+      QString uiCombo = port->getMetadata("uiCombo");
+      if(uiCombo.length() > 0)
+      {
+        if(uiCombo[0] == '(');
+          uiCombo = uiCombo.mid(1);
+        if(uiCombo[uiCombo.length()-1] == ')');
+          uiCombo = uiCombo.left(uiCombo.length()-1);
+
+        QStringList parts = uiCombo.split(',');
+        dialog.setHasCombo(true);
+        dialog.setComboValues(parts);
+      }
+
+      if(dialog.exec() != QDialog::Accepted)
+        return;
     }
-    if(m_uiController->setArg(m_contextPort->name(), dataType))
+    catch(FabricCore::Exception e)
     {
-      // setup the value editor
+      printf("Exception: %s\n", e.getDesc_cstr());
     }
+
+
+    // QString dataType = dialog.dataType();
+    // QString extension = dialog.extension();
+
+    // if(extension.length() > 0)
+    // {
+    //   m_uiController->addExtensionDependency(extension, m_uiGraph->path());
+    // }
+    // if(m_uiController->setArg(m_contextPort->name(), dataType))
+    // {
+    //   // setup the value editor
+    // }
   }
 
   m_contextPort = NULL;
@@ -431,7 +477,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
 {
   if(action->text() == "Create Port")
   {
-    DFGNewPortDialog dialog(this, false, m_dfgConfig);
+    DFGEditPortDialog dialog(this, false, m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -443,7 +489,45 @@ void DFGWidget::onSidePanelAction(QAction * action)
     {
       if(extension.length() > 0)
         m_uiController->addExtensionDependency(extension, m_uiGraph->path());
-      m_uiController->addPort(m_uiGraph->path(), title, m_contextPortType, dataType);
+      QString portPath = m_uiController->addPort(m_uiGraph->path(), title, m_contextPortType, dataType);
+
+      try
+      {
+        DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(portPath.toUtf8().constData());
+        if(endPoint)
+        {
+          DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+
+          if(dialog.native())
+            port->setMetadata("uiNativeArray", "true", false);
+          if(dialog.hidden())
+            port->setMetadata("uiHidden", "true", false);
+          if(dialog.opaque())
+            port->setMetadata("uiOpaque", "true", false);
+          if(dialog.hasRange())
+          {
+            QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+            port->setMetadata("uiRange", range.toUtf8().constData(), false);
+          }
+          if(dialog.hasCombo())
+          {
+            QStringList combo = dialog.comboValues();
+            QString flat = "(";
+            for(unsigned int i=0;i<combo.length();i++)
+            {
+              if(i > 0)
+                flat += ", ";
+              flat += "\"" + combo[i] + "\"";
+            }
+            flat += ")";
+            port->setMetadata("uiCombo", flat.toUtf8().constData(), false);
+          }
+        }
+      }
+      catch(FabricCore::Exception e)
+      {
+        printf("Exception: %s\n", e.getDesc_cstr());
+      }
     }
   }
 }

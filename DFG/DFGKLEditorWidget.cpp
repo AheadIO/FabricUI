@@ -10,7 +10,6 @@
 #include <GraphView/SidePanel.h>
 
 #include "DFGKLEditorWidget.h"
-#include "Dialogs/DFGNewPortDialog.h"
 
 using namespace FabricServices;
 using namespace FabricUI;

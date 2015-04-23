@@ -8,6 +8,8 @@
 #include <QtGui/QLabel>
 #include <QtCore/QDebug>
 #include <QtGui/QLineEdit>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 
 #include "DFGBaseDialog.h"
 
@@ -74,6 +76,17 @@ void DFGBaseDialog::showEvent(QShowEvent * event)
   QPoint pos = QCursor().pos();
   QSize currSize = size();
   pos -= QPoint(currSize.width() * 0.5, currSize.height() * 0.5);
+
+  QRect desktop = QApplication::desktop()->screenGeometry();
+  if(pos.x() < 5)
+    pos.setX(5);
+  else if(pos.x() + currSize.width() + 5 >= desktop.width())
+    pos.setX(desktop.width() - currSize.width() - 5);
+  if(pos.y() < 5)
+    pos.setY(5);
+  else if(pos.y() + currSize.height() + 5>= desktop.height())
+    pos.setY(desktop.height() - currSize.height() - 5);
+
   setGeometry(pos.x(), pos.y(), currSize.width(), currSize.height());
 
   if(m_inputs.size() > 0)
