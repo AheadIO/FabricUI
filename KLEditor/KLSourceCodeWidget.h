@@ -82,6 +82,7 @@ namespace FabricUI
       const FabricServices::ASTWrapper::KLDecl * m_contextMenuDecl;
       bool m_hasUnsavedChanges;
       bool m_isHighlighting;
+      QString m_lastCode;
       CodeCompletionPopup * m_popup;
     };
 

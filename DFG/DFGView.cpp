@@ -559,6 +559,11 @@ void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * r
   }
 }
 
+void DFGView::onPortTypeSpecChanged(FabricServices::DFGWrapper::PortPtr port, const char * typeSpec)
+{
+  // todo: we don't do anything here...
+}
+
 void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();

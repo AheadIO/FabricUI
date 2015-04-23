@@ -82,7 +82,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
 
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
   QObject::connect(m_ports, SIGNAL(portsChanged()), this, SLOT(onPortsChanged()));
-  QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(textChanged()), this, SLOT(onNewUnsavedChanges()));
+  QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
 }
 
 DFGKLEditorWidget::~DFGKLEditorWidget()

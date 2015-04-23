@@ -88,6 +88,7 @@ void KLSourceCodeWidget::setCode(QString text)
   m_isHighlighting = true;
   m_highlighter->rehighlight();
   m_isHighlighting = false;
+  m_lastCode = code();
 }
 
 QString KLSourceCodeWidget::filePath()
@@ -628,8 +629,13 @@ void KLSourceCodeWidget::onTextChanged()
 
   if(!m_hasUnsavedChanges)
   {
-    emit newUnsavedChanged();
-    m_hasUnsavedChanges = true;
+    QString currentCode = code();
+    if(m_lastCode != currentCode && !m_lastCode.isEmpty())
+    {
+      emit newUnsavedChanged();
+      m_hasUnsavedChanges = true;
+      m_lastCode = currentCode;
+    }
   }
   if(m_config.editorAutoRebuildAST)
   {

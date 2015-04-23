@@ -57,6 +57,7 @@ namespace FabricUI
       virtual void onNodeCacheRuleChanged(const char * path, const char * rule);
       virtual void onExecCacheRuleChanged(const char * path, const char * rule);
       virtual void onPortResolvedTypeChanged(FabricServices::DFGWrapper::PortPtr port, const char * resolvedType);
+      virtual void onPortTypeSpecChanged(FabricServices::DFGWrapper::PortPtr port, const char * typeSpec);
       virtual void onPinResolvedTypeChanged(FabricServices::DFGWrapper::PinPtr pin, const char * resolvedType);
 
       DFGController * m_controller;
