@@ -230,7 +230,10 @@ void DFGWidget::onGoUpPressed()
     return;
   DFGWrapper::ExecutablePtr prevExec = m_execStack[m_execStack.size()-1];
   m_execStack.pop_back();
-  editNode(prevExec, false);
+  if(!editNode(prevExec, false))
+  {
+    m_execStack.push_back(prevExec);
+  }
 }
 
 void DFGWidget::onGraphAction(QAction * action)
