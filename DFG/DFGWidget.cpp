@@ -543,7 +543,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
     {
       if(extension.length() > 0)
         m_uiController->addExtensionDependency(extension, m_uiGraph->path());
-      QString portPath = m_uiController->addPort(m_uiGraph->path(), title, m_contextPortType, dataType);
+      QString portPath = m_uiController->addPort("", title, m_contextPortType, dataType);
 
       try
       {
