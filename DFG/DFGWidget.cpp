@@ -491,7 +491,7 @@ void DFGWidget::onPortAction(QAction * action)
       }
 
       m_uiController->beginInteraction();
-      if(dialog.dataType().length() > 0)
+      if(dialog.dataType().length() > 0 && dialog.dataType() != port->getResolvedType())
       {
         if(m_uiController->isViewingRootGraph())
           m_uiController->setArg(m_contextPort->name(), dialog.dataType());
