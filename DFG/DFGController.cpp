@@ -286,7 +286,7 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
     {
       if(dataType[0] != '$')
       {
-        DFGSetArgCommand * argCommand = new DFGSetArgCommand(this, command->getPortName(), dataType);
+        DFGSetArgCommand * argCommand = new DFGSetArgCommand(this, command->getPortPath(), dataType);
         if(!addCommand(argCommand))
           delete(argCommand);
       }        
