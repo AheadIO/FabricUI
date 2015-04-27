@@ -46,6 +46,11 @@ PresetTreeWidget::~PresetTreeWidget()
 {
 }
 
+void PresetTreeWidget::setHost(FabricServices::DFGWrapper::Host * host)
+{
+  m_host = host;
+}
+
 void PresetTreeWidget::refresh()
 {
   std::string search = m_searchEdit->text().toUtf8().constData();

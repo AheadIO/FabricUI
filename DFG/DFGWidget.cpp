@@ -328,16 +328,46 @@ void DFGWidget::onNodeAction(QAction * action)
     if(title.toLower().endsWith(".dfg.json"))
       title = title.left(title.length() - 9);
 
+    QString lastPresetFolder = title;
+    if(DFGGraph::getSettings())
+    {
+      lastPresetFolder = DFGGraph::getSettings()->value("DFGWidget/lastPresetFolder").toString();
+      lastPresetFolder += "/" + title;
+    }
+
     QString filter = "DFG Preset (*.dfg.json)";
-    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", title, filter, &filter);
+    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
     if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
       filePath = filePath.left(filePath.length() - 9);
+
+    if(DFGGraph::getSettings())
+    {
+      QDir dir(filePath);
+      dir.cdUp();
+      DFGGraph::getSettings()->setValue( "DFGWidget/lastPresetFolder", dir.path() );
+    }
+
     std::string filePathStr = filePath.toUtf8().constData();
 
     try
     {
+      // copy all defaults
+      DFGWrapper::PortList ports = exec->getPorts();
+      for(unsigned int i=0;i<ports.size();i++)
+      {
+        DFGWrapper::PinPtr pin = node->getPin(ports[i]->getName());
+        QString rType = pin->getResolvedType();
+        if(rType.length() == 0 || rType.indexOf('$') >= 0)
+          continue;
+        FabricCore::RTVal val = pin->getDefaultValue(rType.toUtf8().constData());
+        if(val.isValid())
+        {
+          ports[i]->setDefaultValue(val);
+        }
+      }
+
       std::string json = exec->exportJSON();
       FILE * file = fopen(filePathStr.c_str(), "wb");
       if(file)

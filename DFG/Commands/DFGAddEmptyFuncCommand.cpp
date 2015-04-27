@@ -47,6 +47,7 @@ bool DFGAddEmptyFuncCommand::invoke()
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
   DFGWrapper::NodePtr node = graph->addNodeWithNewFunc(m_title.c_str());
+  node->getExecutable()->setTitle(m_title.c_str());
   m_nodePath = node->getNodePath();
   if(ctrl->graph())
   {

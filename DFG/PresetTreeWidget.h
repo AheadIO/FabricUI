@@ -27,6 +27,8 @@ namespace FabricUI
       PresetTreeWidget(QWidget * parent, FabricServices::DFGWrapper::Host * host, const DFGConfig & config = DFGConfig());
       virtual ~PresetTreeWidget();
 
+      void setHost(FabricServices::DFGWrapper::Host * host);
+
     public slots:
 
       void refresh();

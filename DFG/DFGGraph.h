@@ -4,6 +4,7 @@
 #define __UI_DFG_DFGGraph__
 
 #include <QtGui/QMenu>
+#include <QtCore/QSettings>
 
 #include <GraphView/Graph.h>
 
@@ -22,6 +23,12 @@ namespace FabricUI
     public:
 
       DFGGraph(QGraphicsItem * parent, const GraphView::GraphConfig & config = GraphView::GraphConfig(), GraphView::GraphFactory * factory = NULL);
+
+      static QSettings * getSettings();
+      static void setSettings(QSettings * settings);
+
+    private:
+      static QSettings * g_settings;
 
     };
 
