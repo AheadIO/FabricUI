@@ -477,7 +477,23 @@ bool DFGController::addConnection(QString srcPath, QString dstPath, bool srcIsPi
     DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(dstPath.toUtf8().constData());
     if(endPoint->isValid())
     {
-      if(endPoint->isConnectedToAny())
+      if(endPoint->getEndPointType() == FabricCore::DFGPortType_IO && dstIsPin)
+      {
+        std::vector<GraphView::Connection*> connections = graph()->connections();
+        for(size_t i=0;i<connections.size();i++)
+        {
+          if(((GraphView::Pin*)connections[i]->dst())->path() == dstPath)
+          {
+            if(!removeConnection(connections[i]->src(), connections[i]->dst()))
+            {
+              endInteraction();
+              return false;
+            }
+            break;
+          }
+        }
+      }
+      else if(endPoint->isConnectedToAny())
       {
         Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
           endPoint->getEndPointPath(),
