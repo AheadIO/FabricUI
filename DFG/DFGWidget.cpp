@@ -93,18 +93,26 @@ void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, D
   {
     m_uiController->setView(NULL);
     delete(m_dfgView);
+    m_dfgView = NULL;
   }
 
-  m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
-  m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
-  m_uiController->setHost(m_dfgHost);
-  m_uiController->setView(m_dfgView);
-  m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
-
-  m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
-  m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
-  m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
-  m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
+  if(m_dfgGraph)
+  {
+    m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
+    m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
+    m_uiController->setHost(m_dfgHost);
+    m_uiController->setView(m_dfgView);
+    m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
+  
+    m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
+    m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
+    m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
+    m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
+  }
+  else
+  {
+    m_uiGraph->reset("", true);
+  }
 }
 
 DFGGraph * DFGWidget::getUIGraph()

@@ -42,6 +42,9 @@ void DFGValueEditor::onArgsChanged()
   {
     if(!m_node)
     {
+      if(!m_controller->getView())
+        return;
+
       DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
       DFGWrapper::PortList ports = binding.getExecutable()->getPorts();
       for(uint32_t i=0;i<ports.size();i++)
@@ -141,6 +144,9 @@ void DFGValueEditor::onArgsChanged()
 void DFGValueEditor::updateOutputs()
 {
   if(m_node)
+    return;
+
+  if(!m_controller->getView())
     return;
 
   DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
