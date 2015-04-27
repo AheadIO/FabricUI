@@ -421,7 +421,7 @@ void DFGWidget::onPortAction(QAction * action)
         for(unsigned int i=0;i<uiRange.length();i++)
         {
           char c = uiRange.toUtf8().constData()[i];
-          if(isalnum(c) || c == '.' || c == ',')
+          if(isalnum(c) || c == '.' || c == ',' || c == '-')
             filteredUiRange += c;
         }
 
