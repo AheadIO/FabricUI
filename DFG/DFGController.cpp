@@ -949,6 +949,10 @@ void DFGController::checkErrors()
   DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
   DFGWrapper::NodeList nodes = exec->getNodes();
 
+  std::vector<std::string> errors = exec->getErrors();
+  for(size_t i=0;i<errors.size();i++)
+    logError((std::string(exec->getExecPath()) + " : " +errors[i]).c_str());
+
   for(size_t j=0;j<nodes.size();j++)
   {
     GraphView::Node * uiNode = NULL; 
@@ -961,7 +965,7 @@ void DFGController::checkErrors()
       uiNode->clearError();
     }
 
-    std::vector<std::string> errors = nodes[j]->getExecutable()->getErrors();
+    errors = nodes[j]->getExecutable()->getErrors();
     std::string errorComposed;
     for(size_t i=0;i<errors.size();i++)
     {
