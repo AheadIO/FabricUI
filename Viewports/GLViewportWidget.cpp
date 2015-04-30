@@ -79,10 +79,6 @@ void GLViewportWidget::clearInlineDrawing()
   {
     try
     {
-      FabricCore::RTVal oglInlineDrawing = FabricCore::RTVal::Create(*m_client, "OGLInlineDrawing", 0, 0);
-      oglInlineDrawing = oglInlineDrawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
-      FabricCore::RTVal rootTransform = oglInlineDrawing.callMethod("InlineTransform", "getRoot", 0, 0);
-      rootTransform.callMethod("", "removeAllChildren", 0, 0);
       m_viewport.callMethod("", "setup", 1, &m_drawContext);
     }
     catch(FabricCore::Exception e)
