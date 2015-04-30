@@ -29,6 +29,8 @@ namespace FabricUI
       QColor backgroundColor() const;
       void setBackgroundColor(QColor color);
 
+      void clearInlineDrawing();
+
     public slots:
 
       void redraw();

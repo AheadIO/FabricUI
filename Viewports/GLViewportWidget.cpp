@@ -73,6 +73,25 @@ void GLViewportWidget::setBackgroundColor(QColor color)
   }
 }
 
+void GLViewportWidget::clearInlineDrawing()
+{
+  if(m_viewport.isValid() && m_drawContext.isValid())
+  {
+    try
+    {
+      FabricCore::RTVal oglInlineDrawing = FabricCore::RTVal::Create(*m_client, "OGLInlineDrawing", 0, 0);
+      oglInlineDrawing = oglInlineDrawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
+      FabricCore::RTVal rootTransform = oglInlineDrawing.callMethod("InlineTransform", "getRoot", 0, 0);
+      rootTransform.callMethod("", "removeAllChildren", 0, 0);
+      m_viewport.callMethod("", "setup", 1, &m_drawContext);
+    }
+    catch(FabricCore::Exception e)
+    {
+      printf("Error: %s\n", e.getDesc_cstr());
+    }
+  }
+}
+
 void GLViewportWidget::redraw()
 {
   updateGL();
