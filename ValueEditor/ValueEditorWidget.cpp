@@ -101,5 +101,7 @@ FabricCore::RTVal ValueEditorWidget::getValue(QString path)
 
 void ValueEditorWidget::clear()
 {
+  blockSignals(true);
   m_treeModel->clear();
+  blockSignals(false);
 }
