@@ -41,7 +41,7 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("UInt64", QColor(0, 153, 100));
   registerDataTypeColor("Index", QColor(0, 153, 100));
   registerDataTypeColor("Size", QColor(0, 153, 100));
-  registerDataTypeColor("String", QColor(134, 55, 41));
+  registerDataTypeColor("String", QColor(76, 16, 0));
 
   // todo: to be removed
   registerDataTypeColor("Regex", QColor(134, 55, 41));
@@ -59,10 +59,10 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("RGB", QColor(255, 0, 0));
   registerDataTypeColor("RGBA", QColor(255, 0, 0));
   registerDataTypeColor("ARGB", QColor(255, 0, 0));
-  registerDataTypeColor("Geometry", QColor(92, 46, 145));
-  registerDataTypeColor("Lines", QColor(92, 46, 145));
-  registerDataTypeColor("Points", QColor(92, 46, 145));
-  registerDataTypeColor("PolygonMesh", QColor(92, 46, 145));
+  registerDataTypeColor("Geometry", QColor(51, 1, 106));
+  registerDataTypeColor("Lines", QColor(51, 1, 106));
+  registerDataTypeColor("Points", QColor(51, 1, 106));
+  registerDataTypeColor("PolygonMesh", QColor(51, 1, 106));
 }
 
 void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color)
