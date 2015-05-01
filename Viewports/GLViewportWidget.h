@@ -31,6 +31,11 @@ namespace FabricUI
 
       void clearInlineDrawing();
 
+      FabricCore::RTVal getCamera() const { return m_camera; }
+      FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
+      FabricCore::RTVal getViewport() const { return m_viewport; }
+      FabricCore::RTVal getDrawContext() const { return m_drawContext; }
+
     public slots:
 
       void redraw();
