@@ -42,6 +42,9 @@ bool DFGImplodeNodesCommand::invoke()
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
 
   m_nodeName = graph->implodeNodes(m_desiredName.c_str(), m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
+  DFGWrapper::NodePtr newNode = graph->getNode(m_nodeName.c_str());
+  if(newNode)
+    newNode->getExecutable()->setTitle(m_nodeName.c_str());
 
   return true;
 }
