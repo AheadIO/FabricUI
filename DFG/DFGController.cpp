@@ -26,6 +26,7 @@
 #include "Commands/DFGCopyCommand.h"
 #include "Commands/DFGPasteCommand.h"
 #include "Commands/DFGImplodeNodesCommand.h"
+#include "Commands/DFGExplodeNodeCommand.h"
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -932,6 +933,10 @@ QString DFGController::implodeNodes(QString desiredName, QStringList paths)
     QString nodePath = command->getNodeName().c_str();
     moveNode(nodePath, bounds.center(), false);
 
+    GraphView::Node * uiNode = graph()->nodeFromPath(nodePath);
+    if(uiNode)
+      uiNode->setSelected(true);
+
     endInteraction();
     return nodePath;
   }
@@ -942,6 +947,74 @@ QString DFGController::implodeNodes(QString desiredName, QStringList paths)
 
   endInteraction();
   return "";
+}
+
+QStringList DFGController::explodeNode(QString path)
+{
+  QStringList result;
+
+  beginInteraction();
+  try
+  {
+    if(path.length() == 0)
+    {
+      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+      for(unsigned int i=0;i<nodes.size();i++)
+      {
+        path = nodes[i]->path();
+        break;
+      }
+    }
+
+    QRectF oldBound;
+    GraphView::Node * uiNode = graph()->nodeFromPath(path);
+    if(uiNode)
+      oldBound = oldBound.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
+
+    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
+    DFGExplodeNodeCommand * command = new DFGExplodeNodeCommand(this, path);
+    if(!addCommand(command))
+    {
+      delete(command);
+      endInteraction();
+      return result;
+    }
+
+    std::vector<std::string> nodeNames = command->getNodeNames();
+    for(size_t i=0;i<nodeNames.size();i++)
+      result.append(nodeNames[i].c_str());
+
+    QRectF newBounds;
+    for(unsigned int i=0;i<result.length();i++)
+    {
+      GraphView::Node * uiNode = graph()->nodeFromPath(result[i]);
+      if(uiNode)
+      {
+        newBounds = newBounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
+      }
+    }
+
+    QPointF delta = oldBound.center() - newBounds.center();
+    for(unsigned int i=0;i<result.length();i++)
+    {
+      GraphView::Node * uiNode = graph()->nodeFromPath(result[i]);
+      if(uiNode)
+      {
+        moveNode(result[i], uiNode->topLeftGraphPos() + delta, true);
+        uiNode->setSelected(true);
+      }
+    }
+
+    endInteraction();
+    return result;
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+
+  endInteraction();
+  return result;
 }
 
 void DFGController::checkErrors()
