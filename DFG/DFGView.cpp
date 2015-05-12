@@ -594,3 +594,13 @@ void DFGView::onPinMetadataChanged(FabricServices::DFGWrapper::PinPtr pin, const
 {
   // todo: we don't do anything here...
 }
+
+void DFGView::onPinTypeChanged(FabricServices::DFGWrapper::PinPtr pin, FabricCore::DFGPortType pinType)
+{
+  // todo: we don't do anything here...
+}
+
+void DFGView::onPortTypeChanged(FabricServices::DFGWrapper::PortPtr port, FabricCore::DFGPortType portType)
+{
+  // todo: we don't do anything here...
+}

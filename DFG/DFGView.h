@@ -61,6 +61,8 @@ namespace FabricUI
       virtual void onPinResolvedTypeChanged(FabricServices::DFGWrapper::PinPtr pin, const char * resolvedType);
       virtual void onPortMetadataChanged(FabricServices::DFGWrapper::PortPtr port, const char * key, const char * metadata);
       virtual void onPinMetadataChanged(FabricServices::DFGWrapper::PinPtr pin, const char * key, const char * metadata);
+      virtual void onPinTypeChanged(FabricServices::DFGWrapper::PinPtr pin, FabricCore::DFGPortType pinType);
+      virtual void onPortTypeChanged(FabricServices::DFGWrapper::PortPtr port, FabricCore::DFGPortType portType);
 
       DFGController * m_controller;
       DFGConfig m_config;
