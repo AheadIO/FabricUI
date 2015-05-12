@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGConfig.h"
-#include <CodeCompletion/KLTypeDesc.h>
+#include <DFGWrapper/KLTypeDesc.h>
 
 using namespace FabricServices;
 using namespace FabricUI::DFG;
@@ -67,7 +67,7 @@ DFGConfig::DFGConfig()
 
 void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color)
 {
-  std::string baseType = CodeCompletion::KLTypeDesc(dataType).getBaseType();
+  std::string baseType = DFGWrapper::KLTypeDesc(dataType).getBaseType();
   std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
   if(it != colorForDataType.end())
     it->second = color;
@@ -80,7 +80,7 @@ QColor DFGConfig::getColorForDataType(const std::string & dataType, DFGWrapper::
   {
     if(dataType[0] == '$')
       return QColor(0, 0, 0);
-    std::string baseType = CodeCompletion::KLTypeDesc(dataType).getBaseType();
+    std::string baseType = DFGWrapper::KLTypeDesc(dataType).getBaseType();
     std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
 
     if(it == colorForDataType.end() && port)

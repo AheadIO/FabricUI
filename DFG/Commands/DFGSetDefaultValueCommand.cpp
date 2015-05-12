@@ -2,7 +2,7 @@
 
 #include "DFGSetDefaultValueCommand.h"
 
-#include <CodeCompletion/KLTypeDesc.h>
+#include <DFGWrapper/KLTypeDesc.h>
 #include <GraphView/Graph.h>
 
 using namespace FabricServices;

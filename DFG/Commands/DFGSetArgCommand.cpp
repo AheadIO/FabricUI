@@ -2,7 +2,7 @@
 
 #include "DFGSetArgCommand.h"
 
-#include <CodeCompletion/KLTypeDesc.h>
+#include <DFGWrapper/KLTypeDesc.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -32,7 +32,7 @@ bool DFGSetArgCommand::invoke()
   DFGWrapper::GraphExecutablePtr graph = view->getGraph();
   FabricCore::DFGBinding binding = graph->getWrappedCoreBinding();
 
-  CodeCompletion::KLTypeDesc typeDesc(m_dataType);
+  DFGWrapper::KLTypeDesc typeDesc(m_dataType);
   std::string baseType = typeDesc.getBaseType();
 
   if(!m_value.isValid())
@@ -41,8 +41,10 @@ bool DFGSetArgCommand::invoke()
     
     if(m_json.length() > 0)
       m_value = FabricCore::ConstructRTValFromJSON(*client, m_dataType.c_str(), m_json.c_str());
-    else if(typeDesc.isArray())
+    else if(typeDesc.isVariableArray())
       m_value = FabricCore::RTVal::ConstructVariableArray(*client, baseType.c_str());
+    else if(typeDesc.isExternalArray())
+      m_value = FabricCore::RTVal::ConstructExternalArray(*client, baseType.c_str(), 0, 0);
     else if(baseType == "Boolean")
       m_value = FabricCore::RTVal::ConstructBoolean(*client, false);
     else if(baseType == "SInt16")
