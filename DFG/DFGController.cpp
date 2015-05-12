@@ -647,18 +647,29 @@ bool DFGController::setCode(QString path, QString code)
   try
   {
     Commands::Command * command = new DFGSetCodeCommand(this, path, code);;
-    if(addCommand(command))
+    if(!addCommand(command))
     {
-      emit recompiled();
-      return true;
+      delete(command);
+      return false;
     }
-    delete(command);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+
+  try
+  {
+    getBinding().execute();
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
   }
-  return false;
+
+  emit recompiled();
+  return true;
 }
 
 bool DFGController::setArg(QString argName, QString dataType, QString json)
