@@ -40,6 +40,7 @@ PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfi
   refresh();
 
   QObject::connect(m_searchEdit, SIGNAL(editingFinished()), this, SLOT(refresh()));
+  QObject::connect(m_searchEdit, SIGNAL(textChanged(const QString&)), this, SLOT(refresh()));
 }
 
 PresetTreeWidget::~PresetTreeWidget()
@@ -66,17 +67,17 @@ void PresetTreeWidget::refresh()
 
   if(search.length() == 0)
   {
-    std::vector<NameSpace> nameSpaces = m_host->getRootNameSpace().getNameSpaces();
+    std::vector<NameSpace> & nameSpaces = m_host->getRootNameSpace().getNameSpaces();
     for(size_t i=0;i<nameSpaces.size();i++)
     {
       m_treeModel->addItem(new NameSpaceTreeItem(nameSpaces[i]));
     }
-    std::vector<Graph> graphs = m_host->getRootNameSpace().getGraphs();
+    std::vector<Graph> & graphs = m_host->getRootNameSpace().getGraphs();
     for(size_t i=0;i<graphs.size();i++)
     {
       m_treeModel->addItem(new PresetTreeItem(graphs[i]));
     }
-    std::vector<Func> functions = m_host->getRootNameSpace().getFuncs();
+    std::vector<Func> & functions = m_host->getRootNameSpace().getFuncs();
     for(size_t i=0;i<functions.size();i++)
     {
       m_treeModel->addItem(new PresetTreeItem(functions[i]));
@@ -115,7 +116,7 @@ void PresetTreeWidget::refresh()
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);
 
-    std::vector<NameSpace> nameSpaces = m_host->getRootNameSpace().getNameSpaces();
+    std::vector<NameSpace> & nameSpaces = m_host->getRootNameSpace().getNameSpaces();
     for(size_t i=0;i<nameSpaces.size();i++)
     {
       QString name = QString(nameSpaces[i].getName().c_str()) + ".";
@@ -149,19 +150,11 @@ void PresetTreeWidget::updatePresetPathDB()
   m_presetPathDict.clear();
   m_presetPathDictSTL.clear();
 
-  std::vector<NameSpace> namespaces;
-  namespaces.push_back(m_host->getRootNameSpace());
-
-  for(size_t i=0;i<namespaces.size();i++)
+  std::vector<Object> & presets = m_host->getRootNameSpace().getPresets(true /*recursive*/);
+  m_presetPathDictSTL.resize(presets.size());
+  for(size_t i=0;i<presets.size();i++)
   {
-    std::vector<NameSpace> childNameSpaces = namespaces[i].getNameSpaces();
-    namespaces.insert(namespaces.end(), childNameSpaces.begin(), childNameSpaces.end());
-
-    std::vector<Object> presets = namespaces[i].getPresets();
-    for(size_t j=0;j<presets.size();j++)
-      m_presetPathDictSTL.push_back(presets[j].getPath());
-  }
-
-  for(size_t i=0;i<m_presetPathDictSTL.size();i++)
+    m_presetPathDictSTL[i] = presets[i].getPath();
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
+  }
 }

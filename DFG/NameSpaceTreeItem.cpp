@@ -21,7 +21,7 @@ unsigned int NameSpaceTreeItem::numChildren()
   if(!m_validated)
   {
     {
-      std::vector<NameSpace> nameSpaces = m_nameSpace.getNameSpaces();
+      std::vector<NameSpace> & nameSpaces = m_nameSpace.getNameSpaces();
       std::map<std::string, NameSpace> lookup;
       for(size_t i=0;i<nameSpaces.size();i++)
       {
@@ -45,8 +45,8 @@ unsigned int NameSpaceTreeItem::numChildren()
     }
 
     {
-      std::vector<Func> funcs = m_nameSpace.getFuncs();
-      std::vector<Graph> graphs = m_nameSpace.getGraphs();
+      std::vector<Func> & funcs = m_nameSpace.getFuncs();
+      std::vector<Graph> & graphs = m_nameSpace.getGraphs();
       std::map<std::string, Object> lookup;
       for(size_t i=0;i<funcs.size();i++)
       {
