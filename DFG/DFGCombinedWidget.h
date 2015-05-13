@@ -58,7 +58,6 @@ namespace FabricUI
       virtual void onValueChanged();
       virtual void onStructureChanged();
       virtual void onRecompilation() = 0;
-      virtual void onPortRenamed(QString path, QString newName) = 0;
       virtual void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
 
