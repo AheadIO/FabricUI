@@ -29,15 +29,7 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
   // setViewportUpdateMode(SmartViewportUpdate);
   setViewportUpdateMode(MinimalViewportUpdate);
 
-  m_scene = new QGraphicsScene();
-  setScene(m_scene);
-
-  QObject::connect(m_scene, SIGNAL(changed(const QList<QRectF> &)), this, SLOT(onSceneChanged()));
-
-  m_graph = graph;
-  if(!m_graph)
-    m_graph = new Graph(NULL, config, factory);
-  m_scene->addItem(m_graph);
+  setGraph(graph);
 
   setAcceptDrops(true);
   setMouseTracking(true);
@@ -51,6 +43,18 @@ Graph * GraphViewWidget::graph()
 const Graph * GraphViewWidget::graph() const
 {
   return m_graph;
+}
+
+void GraphViewWidget::setGraph(Graph * graph)
+{
+  m_scene = new QGraphicsScene();
+  setScene(m_scene);
+
+  QObject::connect(m_scene, SIGNAL(changed(const QList<QRectF> &)), this, SLOT(onSceneChanged()));
+
+  m_graph = graph;
+  if(m_graph)
+    m_scene->addItem(m_graph);
 }
 
 void GraphViewWidget::resizeEvent(QResizeEvent * event)

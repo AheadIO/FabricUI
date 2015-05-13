@@ -36,6 +36,7 @@ namespace FabricUI
 
       Graph * graph();
       const Graph * graph() const;
+      void setGraph(Graph * graph);
 
       virtual bool beginInteraction();
       virtual bool endInteraction();

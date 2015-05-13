@@ -26,6 +26,7 @@ namespace FabricUI
 
       Graph * graph();
       const Graph * graph() const;
+      void setGraph(Graph * graph);
 
       virtual void resizeEvent(QResizeEvent * event);
       virtual void dragMoveEvent(QDragMoveEvent *event);

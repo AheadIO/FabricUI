@@ -48,6 +48,11 @@ const Graph * Controller::graph() const
   return m_graph;
 }
 
+void Controller::setGraph(Graph * graph)
+{
+  m_graph = graph;
+}
+
 bool Controller::beginInteraction()
 {
   if(m_interactionBracket == 0)
