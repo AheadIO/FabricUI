@@ -5,6 +5,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
 #include <FabricCore.h>
 #include "DFGWidget.h"
 #include "DFGMainWindow.h"
@@ -693,6 +694,7 @@ bool DFGWidget::editNode(DFGWrapper::ExecutablePtr exec, bool pushExec)
       }
     }
 
+    QCoreApplication::processEvents();
 
     if(exec->isGraph())
     {
