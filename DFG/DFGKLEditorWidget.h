@@ -38,6 +38,7 @@ namespace FabricUI
 
       void onPortsChanged();
       void compile();
+      void reload();
       void onNewUnsavedChanges();
 
     private:

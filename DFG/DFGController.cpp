@@ -672,6 +672,17 @@ bool DFGController::setCode(QString path, QString code)
   return true;
 }
 
+QString DFGController::reloadCode(QString path)
+{
+  DFGWrapper::FuncExecutablePtr func = getFuncExecFromPath(path.toUtf8().constData());
+  if(func)
+  {
+    // todo: FE-4268: desc filename is empty
+    printf("desc '%s'\n", func->getDesc().c_str());
+  }
+  return "";
+}
+
 bool DFGController::setArg(QString argName, QString dataType, QString json)
 {
   beginInteraction();
@@ -1276,6 +1287,14 @@ DFGWrapper::GraphExecutablePtr DFGController::getGraphExecFromPath(const std::st
   if(!exec)
     return DFGWrapper::GraphExecutablePtr();
   return DFGWrapper::GraphExecutablePtr::StaticCast(exec);
+}
+
+DFGWrapper::FuncExecutablePtr DFGController::getFuncExecFromPath(const std::string & path)
+{
+  DFGWrapper::ExecutablePtr exec = getExecFromPath(path);
+  if(!exec)
+    return DFGWrapper::FuncExecutablePtr();
+  return DFGWrapper::FuncExecutablePtr::StaticCast(exec);
 }
 
 DFGWrapper::EndPointPtr DFGController::getEndPointFromPath(const std::string & path)

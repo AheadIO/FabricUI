@@ -5,6 +5,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QSplitter>
+#include <QtGui/QMessageBox>
 
 #include <GraphView/Graph.h>
 #include <GraphView/SidePanel.h>
@@ -48,14 +49,18 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   buttonsWidget->setFont(config.graphConfig.nodeFont);
 
   QPushButton * compileButton = new QPushButton("Compile", buttonsWidget);
+  QPushButton * reloadButton = new QPushButton("Reload", buttonsWidget);
   buttonsLayout->addStretch(2);
+  buttonsLayout->addWidget(reloadButton);
   buttonsLayout->addWidget(compileButton);
+
 
   QPalette buttonPal(compileButton->palette());
   buttonPal.setColor(QPalette::ButtonText, config.graphConfig.headerFontColor);
   buttonPal.setColor(QPalette::Button, config.graphConfig.nodeDefaultColor);
   // compileButton->setAutoFillBackground(false);
   compileButton->setPalette(buttonPal);
+  reloadButton->setPalette(buttonPal);
 
   QSplitter * splitter = new QSplitter(this);
   splitter->setOrientation(Qt::Vertical);
@@ -74,6 +79,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   layout->addWidget(splitter);
 
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
+  QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
   QObject::connect(m_ports, SIGNAL(portsChanged()), this, SLOT(onPortsChanged()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
 }
@@ -234,6 +240,37 @@ void DFGKLEditorWidget::compile()
 {
   if(m_controller->setCode(m_func->getFuncPath(), m_klEditor->sourceCodeWidget()->code()))
     m_unsavedChanges = false;
+}
+
+void DFGKLEditorWidget::reload()
+{
+  if(m_unsavedChanges)
+  {
+    QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+      "You have unsaved changes in the source code window, are you sure?");
+
+    msg.addButton("Ok", QMessageBox::AcceptRole);
+    msg.addButton("Cancel", QMessageBox::RejectRole);
+    msg.exec();
+
+    QString clicked = msg.clickedButton()->text();
+    if(clicked == "Cancel")
+      return;
+  }
+
+  QString code = m_controller->reloadCode(m_func->getFuncPath());
+  if(code.length() > 0)
+  {
+    try
+    {
+      m_klEditor->sourceCodeWidget()->setCode(code);
+    }
+    catch(FabricCore::Exception e)
+    {
+      m_controller->logError(e.getDesc_cstr());
+    }
+    m_unsavedChanges = false;
+  }
 }
 
 void DFGKLEditorWidget::onNewUnsavedChanges()

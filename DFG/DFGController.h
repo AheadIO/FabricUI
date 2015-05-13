@@ -4,6 +4,7 @@
 #define __UI_DFG_DFGController__
 
 #include <DFGWrapper/Host.h>
+#include <DFGWrapper/FuncExecutable.h>
 #include <GraphView/Controller.h>
 #include <GraphView/Node.h>
 #include <GraphView/Pin.h>
@@ -68,6 +69,7 @@ namespace FabricUI
       virtual bool removeAllConnections(QString path, bool isPin = true);
       virtual bool addExtensionDependency(QString extension, QString execPath);
       virtual bool setCode(QString path, QString code);
+      virtual QString reloadCode(QString path);
       virtual bool setArg(QString argName, QString dataType, QString json = "");
       virtual bool setArg(QString argName, FabricCore::RTVal value);
       virtual bool setDefaultValue(QString path, FabricCore::RTVal value);
@@ -101,6 +103,7 @@ namespace FabricUI
       FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
       FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
+      FabricServices::DFGWrapper::FuncExecutablePtr getFuncExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::EndPointPtr getEndPointFromPath(const std::string & path);
 
       virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
