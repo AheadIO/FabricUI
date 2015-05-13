@@ -62,25 +62,10 @@ DFGWidget::DFGWidget(
 
   QObject::connect(m_uiHeader, SIGNAL(goUpPressed()), this, SLOT(onGoUpPressed()));
 
-  // this should go in setgraph
-  m_uiGraph = new DFGGraph(NULL, m_dfgConfig.graphConfig, m_uiFactory);
-  m_uiGraph->setController(m_uiController);
-  m_uiController->setGraph(m_uiGraph);
-  m_uiGraphViewWidget->setGraph(m_uiGraph);
-
-  QObject::connect(
-    m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-    this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
-  );  
-  QObject::connect(
-    m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
-    this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
-  );  
   QObject::connect(
     m_uiController, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
     this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
   );  
-  m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
 }
 
 DFGWidget::~DFGWidget()
@@ -103,25 +88,40 @@ void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, D
     m_dfgView = NULL;
   }
 
-  if(m_uiGraph)
+  if(m_dfgGraph)
   {
-    if(m_dfgGraph)
-    {
-      m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
-      m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
-      m_uiController->setHost(m_dfgHost);
-      m_uiController->setView(m_dfgView);
-      m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
-    
-      m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
-      m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
-      m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
-      m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
-    }
-    else
-    {
-      m_uiGraphViewWidget->setGraph(NULL);
-    }
+    m_uiGraph = new DFGGraph(NULL, m_dfgConfig.graphConfig, m_uiFactory);
+    m_uiGraph->setController(m_uiController);
+    m_uiController->setGraph(m_uiGraph);
+    m_uiGraphViewWidget->setGraph(m_uiGraph);
+
+    QObject::connect(
+      m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
+      this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
+    );  
+    QObject::connect(
+      m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
+      this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
+    );  
+    m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
+
+    m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
+    m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
+    m_uiController->setHost(m_dfgHost);
+    m_uiController->setView(m_dfgView);
+    m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
+  
+    m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
+    m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
+    m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
+    m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
+  }
+  else
+  {
+    m_uiGraph = NULL;
+    m_uiController->setGraph(NULL);
+    m_uiGraphViewWidget->setGraph(NULL);
+    m_uiGraphViewWidget->setGraph(NULL);
   }
 }
 
@@ -444,8 +444,15 @@ void DFGWidget::onNodeAction(QAction * action)
 
 void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
 {
-  DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(node->path().toUtf8().constData());
-  editNode(dfgNode->getExecutable(), true);
+  try
+  {
+    DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(node->path().toUtf8().constData());
+    editNode(dfgNode->getExecutable(), true);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Exception: %s\n", e.getDesc_cstr());
+  }
 }
 
 void DFGWidget::onPortAction(QAction * action)

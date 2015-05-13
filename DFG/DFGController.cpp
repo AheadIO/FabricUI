@@ -678,7 +678,7 @@ QString DFGController::reloadCode(QString path)
   if(func)
   {
     // todo: FE-4268: desc filename is empty
-    printf("desc '%s'\n", func->getDesc().c_str());
+    // std::string filePath = func->getImportPathname();
   }
   return "";
 }
@@ -1402,7 +1402,7 @@ QStringList DFGController::getPresetPathsFromSearch(QString search, bool include
 
 void DFGController::updatePresetPathDB()
 {
-  if(m_presetDictsUpToDate)
+  if(m_presetDictsUpToDate || m_host == NULL)
     return;
   m_presetDictsUpToDate = true;
 

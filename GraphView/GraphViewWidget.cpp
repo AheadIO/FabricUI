@@ -54,7 +54,10 @@ void GraphViewWidget::setGraph(Graph * graph)
 
   m_graph = graph;
   if(m_graph)
+  {
     m_scene->addItem(m_graph);
+    m_graph->setGeometry(0, 0, size().width(), size().height());
+  }
 }
 
 void GraphViewWidget::resizeEvent(QResizeEvent * event)
