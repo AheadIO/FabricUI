@@ -207,6 +207,8 @@ void GLViewportWidget::resetRTVals()
       printf("[GLWidget] Error: Cannot construct DrawContext RTVal (extension loaded?)\n");
       return;
     }
+    m_drawContext = m_drawContext.callMethod("DrawContext", "getInstance", 0, 0);
+    m_drawContext.callMethod("", "resetAllViewportParams", 0, 0);
   }
   catch(FabricCore::Exception e)
   {
