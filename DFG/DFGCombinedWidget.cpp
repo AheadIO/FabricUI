@@ -77,10 +77,6 @@ void DFGCombinedWidget::init(
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(portRenamed(QString, QString)), this, SLOT(onPortRenamed(QString, QString)));
-    QObject::connect(m_dfgWidget->getUIGraph(), SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-      this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
-    QObject::connect(m_dfgWidget->getUIGraph(), SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
-      this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   }
   catch(FabricCore::Exception e)
   {
@@ -177,6 +173,18 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
       s[1] -= s[0] + s[2];
     }
     m_hSplitter->setSizes(s);
+  }
+}
+
+void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
+{
+  if(graph)
+  {
+    // FE-4277
+    QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
+      this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
+    QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
+      this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   }
 }
 

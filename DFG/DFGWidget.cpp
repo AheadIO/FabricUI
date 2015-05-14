@@ -115,6 +115,9 @@ void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, D
     m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
     m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
     m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
+
+    // FE-4277
+    emit onGraphSet(m_uiGraph);
   }
   else
   {

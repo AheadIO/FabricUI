@@ -56,6 +56,7 @@ namespace FabricUI
     signals:
 
       void newPresetSaved(QString presetFilePath);
+      void onGraphSet(FabricUI::GraphView::Graph* graph);
 
     public slots:
 
