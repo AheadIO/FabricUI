@@ -677,8 +677,46 @@ QString DFGController::reloadCode(QString path)
   DFGWrapper::FuncExecutablePtr func = getFuncExecFromPath(path.toUtf8().constData());
   if(func)
   {
-    // todo: FE-4268: desc filename is empty
-    // std::string filePath = func->getImportPathname();
+    std::string filePath = func->getImportPathname();
+    FILE * file = fopen(filePath.c_str(), "rb");
+    if(file)
+    {
+      fseek( file, 0, SEEK_END );
+      int fileSize = ftell( file );
+      rewind( file );
+
+      char * buffer = (char*) malloc(fileSize + 1);
+      buffer[fileSize] = '\0';
+
+      fread(buffer, 1, fileSize, file);
+
+      fclose(file);
+
+      std::string json = buffer;
+      free(buffer);
+
+      try
+      {
+        FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
+        if(jsonVar.isDict())
+        {
+          const FabricCore::Variant * klCodeVar = jsonVar.getDictValue("code");
+          if(klCodeVar)
+          {
+            if(klCodeVar->isString())
+            {
+              std::string klCode = klCodeVar->getStringData();
+              if(DFGController::setCode(path, klCode.c_str()))
+                return klCode.c_str();
+            }
+          }
+        }
+      }
+      catch(FabricCore::Exception e)
+      {
+        logError(e.getDesc_cstr());
+      }
+    }    
   }
   return "";
 }
