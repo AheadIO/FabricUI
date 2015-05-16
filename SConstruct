@@ -46,6 +46,7 @@ if buildOS == 'Linux':
   qtFlags['LIBPATH'] = ['/usr/lib']
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   qtMOC = '/usr/bin/moc-qt4'
+  env.Append(CXXFLAGS = ['-fPIC'])
 
 if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
