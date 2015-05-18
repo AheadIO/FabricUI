@@ -64,19 +64,14 @@ void DFGCombinedWidget::init(
     m_dfgLogWidget = new DFGLogWidget(this, config);
     addWidget(m_dfgLogWidget);
 
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
-    m_dfgWidget->getUIGraph()->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
-
     QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(portRenamed(QString, QString)), this, SLOT(onPortRenamed(QString, QString)));
+    QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
+      this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+
+    onGraphSet(m_dfgWidget->getUIGraph());
   }
   catch(FabricCore::Exception e)
   {
@@ -180,7 +175,15 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 {
   if(graph)
   {
-    // FE-4277
+    graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
+    graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
+    graph->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
+    graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
+    graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
+    graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
+    graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
+    graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
+
     QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
       this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
     QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
