@@ -77,14 +77,9 @@ void GLViewportWidget::clearInlineDrawing()
 {
   if(m_viewport.isValid() && m_drawContext.isValid())
   {
-    try
-    {
-      m_viewport.callMethod("", "setup", 1, &m_drawContext);
-    }
-    catch(FabricCore::Exception e)
-    {
-      printf("Error: %s\n", e.getDesc_cstr());
-    }
+    resetRTVals();
+    initializeGL();
+    resizeGL(size().width(), size().height());
   }
 }
 
@@ -98,6 +93,7 @@ void GLViewportWidget::initializeGL()
   try
   {
     m_viewport.callMethod("", "setup", 1, &m_drawContext);
+    m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
   }
   catch(FabricCore::Exception e)
   {
@@ -178,7 +174,7 @@ void GLViewportWidget::resetRTVals()
       printf("[GLWidget] Error: Cannot construct OGLInlineDrawing RTVal (extension loaded?)\n");
       return;
     }
-    m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
+    m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getNewInstance", 0, 0);
 
     m_viewport = FabricCore::RTVal::Create(*m_client, "OGLStandaloneViewport", 0, 0);
     if(!m_viewport.isValid())
