@@ -88,6 +88,11 @@ void GLViewportWidget::redraw()
   updateGL();
 }
 
+void GLViewportWidget::onKeyPressed(QKeyEvent * event)
+{
+  keyPressEvent(event);  
+}
+
 void GLViewportWidget::initializeGL()
 {
   try

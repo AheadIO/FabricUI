@@ -685,6 +685,14 @@ void DFGWidget::onNodeToBeRenamed(FabricUI::GraphView::Node* node)
   m_uiController->renameNode(node, text);
 }
 
+void DFGWidget::onKeyPressed(QKeyEvent * event)
+{
+  if(getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+    event->accept();
+  else
+    keyPressEvent(event);  
+}
+
 bool DFGWidget::editNode(DFGWrapper::ExecutablePtr exec, bool pushExec)
 {
   try

@@ -19,6 +19,8 @@ namespace FabricUI
     {
     	Q_OBJECT
 
+      friend class MainWindow;
+
     public:
 
     	GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent = NULL);
@@ -39,6 +41,7 @@ namespace FabricUI
     public slots:
 
       void redraw();
+      void onKeyPressed(QKeyEvent * event);
 
     signals:
 
