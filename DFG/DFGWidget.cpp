@@ -333,12 +333,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Rename")
   {
-    DFGGetStringDialog dialog(this, m_contextNode->title(), m_dfgConfig);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
-
-    QString text = dialog.text();
-    m_uiController->renameNode(m_contextNode, text);
+    onNodeToBeRenamed(m_contextNode);
   }
   else if(action->text() == "Delete")
   {
@@ -678,6 +673,16 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
   {
     m_uiGraph->mainPanel()->setSpaceBarDown(false);
   }
+}
+
+void DFGWidget::onNodeToBeRenamed(FabricUI::GraphView::Node* node)
+{
+  DFGGetStringDialog dialog(this, node->title(), m_dfgConfig);
+  if(dialog.exec() != QDialog::Accepted)
+    return;
+
+  QString text = dialog.text();
+  m_uiController->renameNode(node, text);
 }
 
 bool DFGWidget::editNode(DFGWrapper::ExecutablePtr exec, bool pushExec)

@@ -169,6 +169,12 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
     }
     m_hSplitter->setSizes(s);
   }
+  else if(hotkey == "rename node")
+  {
+    std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
+    if(nodes.size() > 0)
+      m_dfgWidget->onNodeToBeRenamed(nodes[0]);
+  }
 }
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
@@ -183,6 +189,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
     graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
     graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
     graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
+    graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
 
     QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
       this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
