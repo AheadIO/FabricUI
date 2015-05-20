@@ -2,6 +2,8 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
+#include <QtGui/QGraphicsView>
+#include <QtGui/QGraphicsScene>
 
 #include <FTL/Str.h>
 #include <FTL/MapCharSingle.h>
@@ -939,8 +941,24 @@ bool DFGController::paste()
     if(paths.size() > 0)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+
       for(size_t i=0;i<nodes.size();i++)
         nodes[i]->setSelected(false);
+
+      QRectF bounds;
+      for(size_t i=0;i<paths.size();i++)
+      {
+        GraphView::Node * uiNode = graph()->nodeFromPath(paths[i].c_str());
+        if(!uiNode)
+          continue;
+        bounds = bounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
+      }
+
+      QGraphicsView * graphicsView = graph()->scene()->views()[0];
+      QPointF cursorPos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
+      cursorPos = graph()->itemGroup()->mapFromScene(cursorPos);
+
+      QPointF delta = cursorPos - bounds.center();
 
       for(size_t i=0;i<paths.size();i++)
       {
@@ -948,7 +966,8 @@ bool DFGController::paste()
         if(!uiNode)
           continue;
         uiNode->setSelected(true);
-        uiNode->setTopLeftGraphPos(uiNode->topLeftGraphPos() + QPointF(10, 10));
+        moveNode(paths[i].c_str(), uiNode->topLeftGraphPos() + delta, true);
+        // uiNode->setTopLeftGraphPos(uiNode->topLeftGraphPos() + QPointF(10, 10));
       }
     }
     return true;
