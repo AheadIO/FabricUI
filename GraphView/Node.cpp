@@ -194,6 +194,17 @@ QPen Node::selectedPen() const
   return m_selectedPen;
 }
 
+QRectF Node::boundingRect() const
+{
+  QRectF rect = QGraphicsWidget::boundingRect();
+  if(m_graph->config().nodeShadowEnabled)
+  {
+    rect.setWidth(rect.width() + m_graph->config().nodeShadowOffset.x() * 2.0);
+    rect.setHeight(rect.height() + m_graph->config().nodeShadowOffset.y() * 2.0);
+  }
+  return rect;
+}
+
 bool Node::selected() const
 {
   return m_selected;

@@ -315,7 +315,11 @@ bool Controller::frameNodes(const std::vector<Node*> & nodes)
   for(size_t i=0;i<nodes.size();i++)
     bounds = bounds.united(nodes[i]->boundingRect().translated(nodes[i]->topLeftGraphPos()));
 
-  return panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
+  bool result = panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
+
+  m_graph->mainPanel()->update();
+
+  return result;
 }
 
 bool Controller::frameSelectedNodes()

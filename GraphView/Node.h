@@ -62,6 +62,8 @@ namespace FabricUI
       QPen defaultPen() const;
       QPen selectedPen() const;
 
+      virtual QRectF boundingRect() const;
+      
       virtual bool selected() const;
 
       virtual CollapseState collapsedState() const;
