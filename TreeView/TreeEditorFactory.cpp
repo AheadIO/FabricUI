@@ -12,6 +12,18 @@ TreeEditorFactory::~TreeEditorFactory()
 {
 }
 
+bool TreeEditorFactory::canDisplay(WidgetTreeItem * item) const
+{
+  for(int i=m_editors.size()-1;i>=0;i--)
+  {
+    if((*m_editors[i].canDisplay)(item))
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 TreeEditorWidget * TreeEditorFactory::createEditor(QWidget * parent, WidgetTreeItem * item) const
 {
   for(int i=m_editors.size()-1;i>=0;i--)

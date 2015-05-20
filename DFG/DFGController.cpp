@@ -389,6 +389,14 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
               portEndPoint->setMetadata("uiCombo", uiCombo, false);
             }
           }
+          const char * uiHidden = pinEndPoint->getPort()->getMetadata("uiHidden");
+          if(uiHidden)
+          {
+            if(strlen(uiHidden) > 0)
+            {
+              portEndPoint->setMetadata("uiHidden", uiHidden, false);
+            }
+          }
         }
       }
     }

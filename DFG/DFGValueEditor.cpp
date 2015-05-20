@@ -56,17 +56,26 @@ void DFGValueEditor::onArgsChanged()
           continue;
         if(portName == "timeLine" || portName == "timeline")
           continue;
+        QString hidden = ports[i]->getMetadata("uiHidden");
+        if(hidden == "true")
+          continue;
         char const * path = ports[i]->getEndPointPath();
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
         ValueItem * item = addValue(path, value, ports[i]->getName(), true);
-        item->setMetaData("uiRange", ports[i]->getMetadata("uiRange"));
-        item->setMetaData("uiCombo", ports[i]->getMetadata("uiCombo"));
+        if(item)
+        {
+          item->setMetaData("uiRange", ports[i]->getMetadata("uiRange"));
+          item->setMetaData("uiCombo", ports[i]->getMetadata("uiCombo"));
+        }
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
         if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
+          continue;
+        QString hidden = ports[i]->getMetadata("uiHidden");
+        if(hidden == "true")
           continue;
         char const * path = ports[i]->getEndPointPath();
         FabricCore::RTVal value = binding.getArgValue(path);
@@ -90,6 +99,10 @@ void DFGValueEditor::onArgsChanged()
 
         std::string dataType = pins[i]->getResolvedType();
         if(dataType == "" || dataType.find('$') != std::string::npos)
+          continue;
+
+        QString hidden = pins[i]->getPort()->getMetadata("uiHidden");
+        if(hidden == "true")
           continue;
 
         FabricCore::RTVal value = pins[i]->getDefaultValue(dataType.c_str());
@@ -126,9 +139,13 @@ void DFGValueEditor::onArgsChanged()
         }
         if(!value.isValid())
           continue;
+        
         ValueItem * item = addValue(pins[i]->getEndPointPath(), value, pins[i]->getName(), true);
-        item->setMetaData("uiRange", pins[i]->getPort()->getMetadata("uiRange"));
-        item->setMetaData("uiCombo", pins[i]->getPort()->getMetadata("uiCombo"));
+        if(item)
+        {
+          item->setMetaData("uiRange", pins[i]->getPort()->getMetadata("uiRange"));
+          item->setMetaData("uiCombo", pins[i]->getPort()->getMetadata("uiCombo"));
+        }
       }
 
       // expand the node level tree item

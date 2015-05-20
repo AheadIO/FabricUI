@@ -169,7 +169,7 @@ TreeEditorWidget * ScalarValueWidget::creator(QWidget * parent, WidgetTreeItem *
 
 bool ScalarValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  if(!ValueWidget::canDisplay(item))
+  if(item->type() != "ValueItem")
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();

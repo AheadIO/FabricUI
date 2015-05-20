@@ -292,7 +292,7 @@ TreeEditorWidget * IntegerValueWidget::creator(QWidget * parent, WidgetTreeItem 
 
 bool IntegerValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  if(!ValueWidget::canDisplay(item))
+  if(item->type() != "ValueItem")
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();

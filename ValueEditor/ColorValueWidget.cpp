@@ -191,7 +191,7 @@ TreeEditorWidget * ColorValueWidget::creator(QWidget * parent, WidgetTreeItem * 
 
 bool ColorValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  if(!ValueWidget::canDisplay(item))
+  if(item->type() != "ValueItem")
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();

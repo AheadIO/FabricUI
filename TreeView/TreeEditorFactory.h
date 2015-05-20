@@ -18,6 +18,7 @@ namespace FabricUI
       TreeEditorFactory();
       virtual ~TreeEditorFactory();
 
+      virtual bool canDisplay(WidgetTreeItem * item) const;
       virtual TreeEditorWidget * createEditor(QWidget * parent, WidgetTreeItem * item) const;
       virtual void registerEditor(TreeEditorWidget::CreatorFunc creator, TreeEditorWidget::CanDisplayFunc canDisplay);
 

@@ -76,7 +76,7 @@ TreeEditorWidget * Vec2ValueWidget::creator(QWidget * parent, WidgetTreeItem * i
 
 bool Vec2ValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  if(!ValueWidget::canDisplay(item))
+  if(item->type() != "ValueItem")
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();

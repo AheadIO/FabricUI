@@ -118,7 +118,7 @@ TreeEditorWidget * StringValueWidget::creator(QWidget * parent, WidgetTreeItem *
 
 bool StringValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  if(!ValueWidget::canDisplay(item))
+  if(item->type() != "ValueItem")
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();

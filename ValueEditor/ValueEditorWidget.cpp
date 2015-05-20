@@ -60,6 +60,14 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     if(item != NULL)
       return NULL;
     ValueItem * newItem = new ValueItem(left, m_factory, m_client, m_treeView, value, label, enabled);
+    if(value.isValid())
+    {
+      if(!m_factory->canDisplay(newItem))
+      {
+        delete(newItem);
+        return NULL;
+      }
+    }
     QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
     QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
     QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
@@ -72,6 +80,14 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     if(item == NULL)
       return NULL;
     ValueItem * newItem = new ValueItem(right, m_factory, m_client, m_treeView, value, label, enabled);
+    if(value.isValid())
+    {
+      if(!m_factory->canDisplay(newItem))
+      {
+        delete(newItem);
+        return NULL;
+      }
+    }
     QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
     QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
     QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));

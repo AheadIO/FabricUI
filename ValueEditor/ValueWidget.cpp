@@ -9,7 +9,7 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueWidget::ValueWidget(QString label, QWidget * parent, bool labelRightAligned)
+ValueWidget::ValueWidget(QString label, QWidget * parent, bool requiresEditability)
 : TreeEditorWidget(parent)
 {
   setStyle(QApplication::style());  
@@ -25,7 +25,7 @@ ValueWidget::ValueWidget(QString label, QWidget * parent, bool labelRightAligned
   layout->setContentsMargins(0, 0, 0, 0);
 
   m_label = new QLabel(label, this);
-  if(labelRightAligned)
+  if(requiresEditability)
     m_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   m_label->setMinimumWidth(EditorConfig().minLabelWidth);
   layout->addWidget(m_label);
@@ -61,5 +61,6 @@ TreeEditorWidget * ValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 
 bool ValueWidget::canDisplay(WidgetTreeItem * item)
 {
-  return item->type() == "ValueItem";
+  QString typeName = ((ValueItem*)item)->valueTypeName();
+  return item->type() == "ValueItem" && typeName == ""; // only accept empty RTVals
 }
