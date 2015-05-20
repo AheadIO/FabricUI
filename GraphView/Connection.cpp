@@ -58,7 +58,7 @@ Connection::Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget 
   setZValue(-1);
 
   m_dragging = false;
-  m_lastBoundingBox = QRectF(srcPoint().x(), srcPoint().y(), 0.0f, 0.0f);
+  m_boundingBox = QRectF(srcPoint().x(), srcPoint().y(), 0.0f, 0.0f);
 
   for(int i=0;i<2;i++)
   {
@@ -149,7 +149,7 @@ QPen Connection::hoverPen() const
 QPointF Connection::srcPoint() const
 {
   if(m_aboutToBeDeleted)
-    return m_lastBoundingBox.topLeft();
+    return m_boundingBox.topLeft();
 
   return mapFromScene(m_src->connectionPos(PortType_Output));
 }
@@ -157,27 +157,14 @@ QPointF Connection::srcPoint() const
 QPointF Connection::dstPoint() const
 {
   if(m_aboutToBeDeleted)
-    return m_lastBoundingBox.bottomRight();
+    return m_boundingBox.bottomRight();
 
   return mapFromScene(m_dst->connectionPos(PortType_Input));
 }
 
 QRectF Connection::boundingRect() const
 {
-  if(m_aboutToBeDeleted)
-    return m_lastBoundingBox;
-
-  QPointF currSrcPoint = srcPoint();
-  QPointF currDstPoint = dstPoint();
-  float penWidth = pen().width();
-  float tangentLength = computeTangentLength();
-
-  return m_lastBoundingBox.united(QRectF(
-    std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,
-    std::min(currSrcPoint.y(), currDstPoint.y()) - penWidth,
-    std::abs(int(currDstPoint.x() - currSrcPoint.x())) + penWidth * 2.0 + tangentLength * 2.0,
-    std::abs(int(currDstPoint.y() - currSrcPoint.y())) + penWidth * 2.0
-  ));
+  return m_boundingBox;
 }
 
 void Connection::invalidate()
@@ -276,12 +263,19 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
 {
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
-  m_lastBoundingBox = boundingRect();
+  float penWidth = pen().width();
+  float tangentLength = computeTangentLength();
+
+  prepareGeometryChange();
+  m_boundingBox = m_boundingBox.united(QRectF(
+    std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,
+    std::min(currSrcPoint.y(), currDstPoint.y()) - penWidth,
+    std::abs(int(currDstPoint.x() - currSrcPoint.x())) + penWidth * 2.0 + tangentLength * 2.0,
+    std::abs(int(currDstPoint.y() - currSrcPoint.y())) + penWidth * 2.0
+  ));
 
   QPainterPath path;
   path.moveTo(currSrcPoint);
-
-  float tangentLength = computeTangentLength();
 
   path.cubicTo(
       currSrcPoint + QPointF(tangentLength, 0), 

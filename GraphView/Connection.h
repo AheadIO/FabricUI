@@ -74,7 +74,7 @@ namespace FabricUI
 
       bool m_dragging;
       QPointF m_lastDragPoint;
-      QRectF m_lastBoundingBox;
+      QRectF m_boundingBox;
       bool m_aboutToBeDeleted;
     };
 
