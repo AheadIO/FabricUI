@@ -687,7 +687,7 @@ void DFGWidget::onNodeToBeRenamed(FabricUI::GraphView::Node* node)
 
 void DFGWidget::onKeyPressed(QKeyEvent * event)
 {
-  if(getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+  if(getUIGraph() && getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
     event->accept();
   else
     keyPressEvent(event);  

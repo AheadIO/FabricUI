@@ -63,7 +63,8 @@ void GraphViewWidget::setGraph(Graph * graph)
 void GraphViewWidget::resizeEvent(QResizeEvent * event)
 {
   setSceneRect(0, 0, event->size().width(), event->size().height());
-  m_graph->setGeometry(0, 0, event->size().width(), event->size().height());
+  if (m_graph)
+    m_graph->setGeometry(0, 0, event->size().width(), event->size().height());
 }
 
 void GraphViewWidget::dragMoveEvent(QDragMoveEvent *event)
