@@ -22,7 +22,7 @@ namespace FabricUI
 
     public:
 
-      WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type = "widget", QString label = "");
+      WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type = "widget", QString label = "", QWidget * parent = NULL);
       virtual ~WidgetTreeItem();
 
       virtual TreeItemType itemType() const;
@@ -56,6 +56,7 @@ namespace FabricUI
       mutable TreeEditorWidget * m_editor;
       TreeEditorFactory * m_factory;
       mutable QSize m_minimumSize;
+      QWidget * m_parent;
     };
 
   };

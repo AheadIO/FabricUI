@@ -79,7 +79,7 @@ void ColorPickerWidget::colorDialogRejected()
 }
 
 ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
-: ValueWidget(label, parent)
+: ValueWidget(label, parent, true)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 

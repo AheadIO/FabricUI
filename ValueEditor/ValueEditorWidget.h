@@ -13,6 +13,7 @@
 #include <FabricCore.h>
 
 #include "ValueItem.h"
+#include "EditorConfig.h"
 
 namespace FabricUI
 {
@@ -25,8 +26,9 @@ namespace FabricUI
 
     public:
 
-      ValueEditorWidget(QWidget * parent, FabricCore::Client * client);
+      ValueEditorWidget(QWidget * parent, FabricCore::Client * client, const EditorConfig & config = EditorConfig());
       virtual ~ValueEditorWidget();
+      EditorConfig & config();
 
       virtual ValueItem * addValue(QString path, FabricCore::RTVal value, QString label = "", bool enabled = true);
       virtual bool removeValue(QString path);
@@ -41,6 +43,7 @@ namespace FabricUI
 
     protected:
     
+      EditorConfig m_config;
       FabricCore::Client * m_client;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;

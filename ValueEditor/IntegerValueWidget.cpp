@@ -9,7 +9,7 @@ using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
 IntegerValueWidget::IntegerValueWidget(QString label, QWidget * parent)
-: ValueWidget(label, parent)
+: ValueWidget(label, parent, true)
 {
   m_changingValue = false;
 

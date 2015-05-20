@@ -7,4 +7,5 @@ using namespace FabricUI::ValueEditor;
 EditorConfig::EditorConfig()
 {
   backgroundColor = QColor(50, 50, 50, 255);
+  minLabelWidth = 105;
 }

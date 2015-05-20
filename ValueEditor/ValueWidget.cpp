@@ -2,13 +2,14 @@
 
 #include "ValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorWidget.h"
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueWidget::ValueWidget(QString label, QWidget * parent)
+ValueWidget::ValueWidget(QString label, QWidget * parent, bool labelRightAligned)
 : TreeEditorWidget(parent)
 {
   setStyle(QApplication::style());  
@@ -24,7 +25,9 @@ ValueWidget::ValueWidget(QString label, QWidget * parent)
   layout->setContentsMargins(0, 0, 0, 0);
 
   m_label = new QLabel(label, this);
-  m_label->setMinimumWidth(50);
+  if(labelRightAligned)
+    m_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  m_label->setMinimumWidth(EditorConfig().minLabelWidth);
   layout->addWidget(m_label);
 }
 

@@ -16,6 +16,7 @@ namespace FabricUI
     struct EditorConfig
     {
       QColor backgroundColor;
+      int minLabelWidth;
 
       EditorConfig();
     };

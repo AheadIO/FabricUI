@@ -24,7 +24,7 @@ namespace FabricUI
 
     public:
 
-      ValueWidget(QString label, QWidget * parent);
+      ValueWidget(QString label, QWidget * parent, bool labelRightAligned = false);
       virtual ~ValueWidget();
 
       virtual FabricCore::RTVal value() const;

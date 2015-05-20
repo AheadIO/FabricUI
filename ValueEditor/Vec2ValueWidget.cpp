@@ -9,7 +9,7 @@ using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
 Vec2ValueWidget::Vec2ValueWidget(QString label, QWidget * parent)
-: ValueWidget(label, parent)
+: ValueWidget(label, parent, true)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 

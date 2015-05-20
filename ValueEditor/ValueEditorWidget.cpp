@@ -9,8 +9,9 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client * client)
+ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client * client, const EditorConfig & config)
 : QWidget(parent)
+, m_config(config)
 {
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);
@@ -37,6 +38,11 @@ ValueEditorWidget::~ValueEditorWidget()
 {
 }
 
+EditorConfig & ValueEditorWidget::config()
+{
+  return m_config;
+}
+
 ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, QString label, bool enabled)
 {
   int pos = path.lastIndexOf('.');
@@ -53,7 +59,7 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     TreeItem * item = m_treeModel->item(left);
     if(item != NULL)
       return NULL;
-    ValueItem * newItem = new ValueItem(left, m_factory, m_client, value, label, enabled);
+    ValueItem * newItem = new ValueItem(left, m_factory, m_client, m_treeView, value, label, enabled);
     QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
     QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
     QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
@@ -65,7 +71,7 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     TreeItem * item = m_treeModel->item(left);
     if(item == NULL)
       return NULL;
-    ValueItem * newItem = new ValueItem(right, m_factory, m_client, value, label, enabled);
+    ValueItem * newItem = new ValueItem(right, m_factory, m_client, m_treeView, value, label, enabled);
     QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
     QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
     QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));

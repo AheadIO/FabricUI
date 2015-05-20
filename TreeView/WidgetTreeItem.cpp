@@ -7,8 +7,9 @@
 
 using namespace FabricUI::TreeView;
 
-WidgetTreeItem::WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type, QString label)
+WidgetTreeItem::WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type, QString label, QWidget * parent)
 : TreeItem(name, type, label)
+, m_parent(parent)
 {
   m_editor = NULL;
   m_factory = factory;
@@ -153,7 +154,7 @@ void WidgetTreeItem::setExpanded(bool state)
 TreeEditorWidget * WidgetTreeItem::createTempEditor() const
 {
   QStyleOptionViewItem option;
-  return m_factory->createEditor(NULL, (WidgetTreeItem*)this);
+  return m_factory->createEditor(m_parent, (WidgetTreeItem*)this);
 }
 
 void WidgetTreeItem::updateFromUI()
