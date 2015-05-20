@@ -4,6 +4,7 @@
 #define __UI_ValueEditor_StringValueWidget__
 
 #include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
 
 #include "ValueWidget.h"
 
@@ -30,10 +31,13 @@ namespace FabricUI
     public slots:
 
       void onValueChangedInLineEdit();
+      void onValueChangedInComboBox(int index);
 
     private:
 
       QLineEdit * m_lineEdit;
+      QComboBox * m_comboBox;
+      bool m_changingValue;
     };
 
   };
