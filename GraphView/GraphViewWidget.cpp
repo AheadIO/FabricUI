@@ -26,8 +26,8 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
 
   setCacheMode(CacheBackground);
 
-  // setViewportUpdateMode(SmartViewportUpdate);
-  setViewportUpdateMode(MinimalViewportUpdate);
+  setViewportUpdateMode(SmartViewportUpdate);
+  // setViewportUpdateMode(MinimalViewportUpdate);
 
   setGraph(graph);
 
