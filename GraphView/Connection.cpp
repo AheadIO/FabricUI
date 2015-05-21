@@ -58,7 +58,7 @@ Connection::Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget 
   setZValue(-1);
 
   m_dragging = false;
-  m_boundingBox = QRectF(srcPoint().x(), srcPoint().y(), dstPoint().x(), dstPoint().y());
+  updateBbox();
 
   for(int i=0;i<2;i++)
   {
@@ -289,7 +289,7 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
 
 void Connection::dependencyMoved()
 {
-  m_boundingBox = QRectF(srcPoint().x(), srcPoint().y(), dstPoint().x(), dstPoint().y());
+  updateBbox();
   update();
 }
 
@@ -307,4 +307,9 @@ float Connection::computeTangentLength() const
     tangentLength += m_graph->config().connectionPercentualTangentLength * 0.01 * (currDstPoint.x() - currSrcPoint.x());
   }
   return tangentLength;
+}
+
+void Connection::updateBbox()
+{
+  m_boundingBox = QRectF(srcPoint().x(), srcPoint().y(), 0, 0).united(QRectF(dstPoint().x(), dstPoint().y(), 0, 0));
 }

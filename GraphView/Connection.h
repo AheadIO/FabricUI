@@ -62,6 +62,7 @@ namespace FabricUI
 
     private:
 
+      void updateBbox();
       float computeTangentLength() const;
 
       Graph * m_graph;
