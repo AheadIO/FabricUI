@@ -6,6 +6,8 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QCheckBox>
+#include <QtGui/QShowEvent>
+
 #include "DFGBaseDialog.h"
 
 namespace FabricUI
@@ -46,6 +48,8 @@ namespace FabricUI
       void setHasCombo(bool value);
       QStringList comboValues() const;
       void setComboValues(QStringList value);
+
+      virtual void showEvent(QShowEvent * event);
 
     private slots:
 

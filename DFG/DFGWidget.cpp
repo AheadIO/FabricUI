@@ -602,7 +602,11 @@ void DFGWidget::onSidePanelAction(QAction * action)
 {
   if(action->text() == "Create Port")
   {
-    DFGEditPortDialog dialog(this, false, m_dfgConfig);
+    DFGEditPortDialog dialog(this, true, m_dfgConfig);
+    if(m_contextPortType == FabricUI::GraphView::PortType_Output)
+      dialog.setPortType("In");
+    else
+      dialog.setPortType("Out");
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -614,7 +618,14 @@ void DFGWidget::onSidePanelAction(QAction * action)
     {
       if(extension.length() > 0)
         m_uiController->addExtensionDependency(extension, m_uiGraph->path());
-      QString portPath = m_uiController->addPort("", title, m_contextPortType, dataType);
+
+      GraphView::PortType portType = GraphView::PortType_Input;
+      if(dialog.portType() == "In")
+        portType = GraphView::PortType_Output;
+      else if(dialog.portType() == "IO")
+        portType = GraphView::PortType_IO;
+
+      QString portPath = m_uiController->addPort("", title, portType, dataType);
 
       try
       {

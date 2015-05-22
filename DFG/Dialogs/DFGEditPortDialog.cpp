@@ -2,6 +2,8 @@
 
 #include <QtGui/QLayout>
 #include <QtGui/QDoubleValidator>
+#include <QtCore/QTimer>
+
 #include "DFGEditPortDialog.h"
 
 using namespace FabricUI;
@@ -206,6 +208,13 @@ void DFGEditPortDialog::setComboValues(QStringList value)
   m_combo->setText(flat);
 
 }
+
+void DFGEditPortDialog::showEvent(QShowEvent * event)
+{
+  QTimer::singleShot(0, m_titleEdit, SLOT(setFocus()));
+  DFGBaseDialog::showEvent(event);  
+}
+
 
 void DFGEditPortDialog::onRangeToggled(int state)
 {
