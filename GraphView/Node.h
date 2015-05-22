@@ -99,6 +99,13 @@ namespace FabricUI
       virtual Pin * addPin(Pin * pin, bool quiet = false);
       virtual bool removePin(Pin * pin, bool quiet = false);
 
+      virtual std::vector<Node*> upStreamNodes(bool sortForPins = false, std::vector<Node*> rootNodes = std::vector<Node*>());
+      // temporary information around row and col
+      virtual int row() const;
+      virtual void setRow(int i);
+      virtual int col() const;
+      virtual void setCol(int i);
+
       QGraphicsWidget * mainWidget();
       QGraphicsWidget * pinsWidget();
 
@@ -144,6 +151,8 @@ namespace FabricUI
 
       std::vector<Pin*> m_pins;
       CachingEffect * m_cache;
+      int m_row;
+      int m_col;
     };
 
 

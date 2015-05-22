@@ -10,6 +10,7 @@
 
 #include "DFGController.h"
 #include "DFGLogWidget.h"
+#include <GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
 #include "Commands/DFGAddEmptyFuncCommand.h"
@@ -901,6 +902,75 @@ bool DFGController::panCanvas(QPointF pan)
     logError(e.getDesc_cstr());
     return false;
   }
+  return true;
+}
+
+bool DFGController::relaxNodes(QStringList paths)
+{
+  if(paths.length() == 0)
+  {
+    const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+    for(unsigned int i=0;i<nodes.size();i++)
+      paths.append(nodes[i]->path());
+  }
+
+  std::vector<GraphView::Node*> allNodes = graph()->nodes();
+  for(unsigned int i=0;i<allNodes.size();i++)
+  {
+    allNodes[i]->setRow(-1);
+    allNodes[i]->setCol(-1);
+  }
+
+  std::vector<GraphView::Node*> rootNodes;
+  for(unsigned int i=0;i<paths.length();i++)
+  {
+    GraphView::Node * uiNode = graph()->nodeFromPath(paths[i]);
+    if(!uiNode)
+      continue;
+    rootNodes.push_back(uiNode);
+  }
+
+  if(rootNodes.size() == 0)
+    return false;
+
+  std::vector<GraphView::Node*> nodes = rootNodes[0]->upStreamNodes(true, rootNodes);
+  if(nodes.size() <= 1)
+    return false;
+
+  GraphView::GraphRelaxer relaxer(graph()->config());
+  for(unsigned int i=0;i<nodes.size();i++)
+  {
+    QRectF rect = nodes[i]->boundingRect();
+    relaxer.addNode(nodes[i]->path(), nodes[i]->topLeftGraphPos(), nodes[i]->col(), nodes[i]->row(), rect.width(), rect.height());
+  }
+
+  std::vector<GraphView::Connection*> connections = graph()->connections();
+  for(unsigned int i=0;i<connections.size();i++)
+  {
+    GraphView::ConnectionTarget * src = connections[i]->src();
+    if(src->targetType() != GraphView::TargetType_Pin)
+      continue;
+
+    GraphView::ConnectionTarget * dst = connections[i]->dst();
+    if(dst->targetType() != GraphView::TargetType_Pin)
+      continue;
+
+    GraphView::Pin * srcPin = (GraphView::Pin *)src;
+    GraphView::Pin * dstPin = (GraphView::Pin *)dst;
+
+    GraphView::Node * srcNode = srcPin->node();
+    GraphView::Node * dstNode = dstPin->node();
+
+    relaxer.addSpring(srcNode->path(), dstNode->path());
+  }
+
+  relaxer.relax(50);
+
+  for(unsigned int i=0;i<relaxer.numNodes();i++)
+  {
+    moveNode(relaxer.getName(i), relaxer.getPos(i), true);
+  }
+
   return true;
 }
 

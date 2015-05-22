@@ -20,6 +20,7 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
   if(m_labelCaption.length() == 0)
     m_labelCaption = m_name;
   m_color = color;
+  m_index = 0;
   m_drawState = true;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
@@ -129,6 +130,16 @@ void Pin::setColor(QColor color, bool quiet)
       emit colorChanged(this, color);
   }
   update();
+}
+
+int Pin::index() const
+{
+  return m_index;
+}
+
+void Pin::setIndex(int i)
+{
+  m_index = i;
 }
 
 bool Pin::highlighted() const

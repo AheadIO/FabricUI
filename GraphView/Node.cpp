@@ -332,6 +332,7 @@ Pin * Node::addPin(Pin * pin, bool quiet)
       return NULL;
   }
 
+  pin->setIndex((int)m_pins.size());
   m_pins.push_back(pin);
   if(!quiet)
     emit pinAdded(this, pin);
@@ -368,6 +369,108 @@ bool Node::removePin(Pin * pin, bool quiet)
   return true;
 }
 
+std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> rootNodes)
+{
+  int maxCol = 0;
+
+  std::map<Node*, Node*> visitedNodes;
+  std::vector<Node*> nodes;
+
+  if(rootNodes.size() == 0)
+  {
+    visitedNodes.insert(std::pair<Node*, Node*>(this, this));
+    nodes.push_back(this);
+  }
+  else
+  {
+    for(size_t i=0;i<rootNodes.size();i++)
+    {
+      visitedNodes.insert(std::pair<Node*, Node*>(rootNodes[i], rootNodes[i]));
+      nodes.push_back(rootNodes[i]);
+    }
+  }
+
+  for(size_t i=0;i<nodes.size();i++)
+  {
+    if(nodes[i]->col() == -1)
+      nodes[i]->setCol(0);
+  }
+
+  std::vector<Connection*> connections = graph()->connections();
+  for(size_t i=0;i<nodes.size();i++)
+  {
+    for(size_t k=0;k<nodes[i]->m_pins.size();k++)
+    {
+      for(size_t j=0;j<connections.size();j++)
+      {
+        ConnectionTarget * dst = connections[j]->dst();
+        ConnectionTarget * src = connections[j]->src();
+        if(!dst || !src)
+          continue;
+        if(dst->targetType() != TargetType_Pin || src->targetType() != TargetType_Pin)
+          continue;
+
+        Pin * dstPin = (Pin*)dst;
+        Pin * srcPin = (Pin*)src;
+        Node * dstNode = dstPin->node();
+        Node * srcNode = srcPin->node();
+
+        if(dstNode != nodes[i])
+          continue;
+        if(visitedNodes.find(srcNode) != visitedNodes.end())
+          continue;
+        if(sortForPins && dstPin != nodes[i]->m_pins[k])
+          continue;
+
+        if(srcNode->col() < nodes[i]->col() + 1)
+          srcNode->setCol(nodes[i]->col() + 1);
+        if(srcNode->col() > maxCol)
+          maxCol = srcNode->col();
+
+        visitedNodes.insert(std::pair<Node*, Node*>(srcNode, srcNode));
+        nodes.push_back(srcNode);
+      }
+
+      if(!sortForPins)
+        break;
+    }
+  }
+
+  std::vector<int> rows(maxCol+1);
+  for(int i=0; i<maxCol; i++)
+  {
+    rows[i] = 0;
+  }
+
+  for(size_t i=0;i<nodes.size();i++)
+  {
+    nodes[i]->setRow(rows[nodes[i]->col()]);
+    rows[nodes[i]->col()]++;
+  }
+
+  return nodes;
+}
+
+int Node::row() const
+{
+  return m_row;
+}
+
+void Node::setRow(int i)
+{
+  m_row = i;
+}
+
+int Node::col() const
+{
+  return m_col;
+}
+
+void Node::setCol(int i)
+{
+  m_col = i;
+}
+
 unsigned int Node::pinCount() const
 {
   return m_pins.size();
@@ -398,44 +501,12 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     bool clearSelection = true;
     if(event->button() == DFG_QT_MIDDLE_MOUSE)
     {
-      // select the branch
-      std::map<Node*, Node*> visitedNodes;
-      std::vector<Node*> nodes;
-      visitedNodes.insert(std::pair<Node*, Node*>(this, this));
-      nodes.push_back(this);
+      std::vector<Node*> nodes = upStreamNodes();
 
       if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
       {
         m_graph->controller()->clearSelection();
         clearSelection = false;
-      }
-
-
-      std::vector<Connection*> connections = graph()->connections();
-      for(size_t i=0;i<nodes.size();i++)
-      {
-        for(size_t j=0;j<connections.size();j++)
-        {
-          ConnectionTarget * dst = connections[j]->dst();
-          ConnectionTarget * src = connections[j]->src();
-          if(!dst || !src)
-            continue;
-          if(dst->targetType() != TargetType_Pin || src->targetType() != TargetType_Pin)
-            continue;
-
-          Pin * dstPin = (Pin*)dst;
-          Pin * srcPin = (Pin*)src;
-          Node * dstNode = dstPin->node();
-          Node * srcNode = srcPin->node();
-  
-          if(dstNode != nodes[i])
-            continue;
-          if(visitedNodes.find(srcNode) != visitedNodes.end())
-            continue;
-
-          visitedNodes.insert(std::pair<Node*, Node*>(srcNode, srcNode));
-          nodes.push_back(srcNode);
-        }
       }
 
       for(size_t i=0;i<nodes.size();i++)

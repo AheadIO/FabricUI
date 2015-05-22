@@ -175,6 +175,10 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
     if(nodes.size() > 0)
       m_dfgWidget->onNodeToBeRenamed(nodes[0]);
   }
+  else if(hotkey == "relax nodes")
+  {
+    m_dfgWidget->getUIController()->relaxNodes();
+  }
 }
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
@@ -190,6 +194,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
     graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
     graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
     graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
+    graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, "relax nodes");
 
     QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
       this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));

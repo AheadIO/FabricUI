@@ -42,6 +42,8 @@ namespace FabricUI
       virtual PortType portType() const;
       QColor color() const;
       void setColor(QColor color, bool quiet = false);
+      virtual int index() const;
+      virtual void setIndex(int i);
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
       virtual QString dataType() const;
@@ -75,6 +77,7 @@ namespace FabricUI
       QString m_labelCaption;
       bool m_highlighted;
       QColor m_color;
+      int m_index;
       PinLabel * m_label;
       PinCircle * m_inCircle;
       PinCircle * m_outCircle;

@@ -81,6 +81,7 @@ namespace FabricUI
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
+      virtual bool relaxNodes(QStringList paths = QStringList());
 
       virtual QString copy(QStringList paths = QStringList());
       virtual bool paste();
