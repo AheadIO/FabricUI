@@ -617,7 +617,17 @@ void DFGWidget::onSidePanelAction(QAction * action)
     if(title.length() > 0)
     {
       if(extension.length() > 0)
-        m_uiController->addExtensionDependency(extension, m_uiGraph->path());
+      {
+        QString errorMessage;
+        if(!m_uiController->addExtensionDependency(extension, m_uiGraph->path(), errorMessage))
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            errorMessage);
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          return;
+        }
+      }
 
       GraphView::PortType portType = GraphView::PortType_Input;
       if(dialog.portType() == "In")

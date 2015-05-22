@@ -637,15 +637,17 @@ bool DFGController::removeAllConnections(QString path, bool isPin)
   return false;
 }
 
-bool DFGController::addExtensionDependency(QString extension, QString execPath)
+bool DFGController::addExtensionDependency(QString extension, QString execPath, QString & errorMessage)
 {
   try
   {
+    m_client->loadExtension(extension.toUtf8().constData(), "", false);
     DFGWrapper::ExecutablePtr exec = getExecFromPath(execPath.toUtf8().constData());
     exec->addExtensionDependency(extension.toUtf8().constData());
   }
   catch(FabricCore::Exception e)
   {
+    errorMessage = e.getDesc_cstr();
     logError(e.getDesc_cstr());
     return false;
   }
