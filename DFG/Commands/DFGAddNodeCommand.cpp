@@ -47,7 +47,7 @@ bool DFGAddNodeCommand::invoke()
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
   DFGWrapper::NodePtr node = graph->addNodeFromPreset(m_preset.c_str());
-  m_nodePath = node->getNodePath();
+  m_nodePath = node->getName();
   ctrl->moveNode(m_nodePath.c_str(), m_pos, false);
   return true;
 }

@@ -87,7 +87,7 @@ void DFGValueEditor::onArgsChanged()
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_node->getNodePath(), FabricCore::RTVal(), m_node->getNodePath(), false);
+      ValueItem * nodeItem = addValue(m_node->getName(), FabricCore::RTVal(), m_node->getName(), false);
 
       DFGWrapper::PinList pins = m_node->getPins();
       for(size_t i=0;i<pins.size();i++)

@@ -1190,7 +1190,7 @@ void DFGController::checkErrors()
     GraphView::Node * uiNode = NULL; 
     if(graph())
     {
-      std::string path = GraphView::relativePathSTL(m_view->getGraph()->getGraphPath(), nodes[j]->getNodePath());
+      std::string path = GraphView::relativePathSTL(m_view->getGraph()->getGraphPath(), nodes[j]->getName());
       uiNode = graph()->nodeFromPath(path.c_str());
       if(!uiNode)
         continue;
@@ -1208,7 +1208,7 @@ void DFGController::checkErrors()
 
     if(errorComposed.length() > 0 && uiNode)
     {
-      logError((std::string(nodes[j]->getNodePath()) + " : " +errorComposed).c_str());
+      logError((std::string(nodes[j]->getName()) + " : " +errorComposed).c_str());
       uiNode->setError(errorComposed.c_str());
     }
   }

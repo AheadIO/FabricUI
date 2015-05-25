@@ -48,7 +48,7 @@ bool DFGAddEmptyGraphCommand::invoke()
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
   DFGWrapper::NodePtr node = graph->addNodeWithNewGraph(m_title.c_str());
   node->getExecutable()->setTitle(m_title.c_str());
-  m_nodePath = node->getNodePath();
+  m_nodePath = node->getName();
   if(ctrl->graph())
   {
     GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
