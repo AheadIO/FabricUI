@@ -29,9 +29,7 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
 
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
 
-  if(portType() == PortType_Input)
-    layout->setContentsMargins(0, 0, config.nodeWidthReduction * 0.5, 0);
-  else if(portType() == PortType_Output)
+  if ( portType() == PortType_Output )
     layout->setContentsMargins(config.nodeWidthReduction * 0.5, 0, 0, 0);
   else
     layout->setContentsMargins(0, 0, 0, 0);
@@ -63,13 +61,9 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
   if(portType() != PortType_Output)
     layout->addStretch(2);
 
-  if(portType() == PortType_Output || portType() == PortType_IO)
-  {
-    m_outCircle = new PinCircle(this, PortType_Output, m_color);
-    layout->addItem(m_outCircle);
-    layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
-  }
-
+  m_outCircle = new PinCircle(this, PortType_Output, m_color);
+  layout->addItem(m_outCircle);
+  layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
 }
 
 Node * Pin::node()
@@ -202,7 +196,6 @@ bool Pin::canConnectTo(
       Pin * otherPin = (Pin *)other;
       if ( this == otherPin
         || otherPin->node() == this->node()
-        || portType() == PortType_Input
         || otherPin->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
@@ -213,7 +206,6 @@ bool Pin::canConnectTo(
     {
       Port * otherPort = (Port *)other;
       if ( this == other
-        || portType() == PortType_Input
         || otherPort->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
@@ -224,7 +216,6 @@ bool Pin::canConnectTo(
     {
       ProxyPort * otherProxyPort = (ProxyPort *)other;
       if ( this == other
-        || portType() == PortType_Input
         || otherProxyPort->portType() == PortType_Output )
         return false;
       return true;
