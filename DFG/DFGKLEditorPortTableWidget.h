@@ -10,6 +10,7 @@
 #include <QtGui/QTableWidget>
 #include <QtGui/QListWidget>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QAction>
 
 #include "DFGConfig.h"
 #include "DFGController.h"
@@ -52,6 +53,8 @@ namespace FabricUI
 
       void onCellChanged(int row, int col);
       void onComboBoxChanged(int index);
+      void onCustomContextMenuRequested(const QPoint & pos);
+      void contextMenuTriggered(QAction * action);
 
     signals:
 

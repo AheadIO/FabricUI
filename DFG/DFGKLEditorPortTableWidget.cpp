@@ -8,6 +8,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
+#include <QtGui/QMenu>
 #include <QtCore/QCoreApplication>
 
 using namespace FabricServices;
@@ -49,6 +50,9 @@ DFGKLEditorPortTableWidget::DFGKLEditorPortTableWidget(QWidget * parent, DFGCont
 
   // connect all signals / slots
   QObject::connect(this, SIGNAL(cellChanged(int, int)), this, SLOT(onCellChanged(int, int)));
+ 
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  QObject::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenuRequested(const QPoint &)));
 }
 
 DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
@@ -235,4 +239,40 @@ int DFGKLEditorPortTableWidget::addPort(FabricCore::DFGPortType portType, QStrin
   setItem(index, 2, new QTableWidgetItem(dataType));
 
   return index;
+}
+
+void DFGKLEditorPortTableWidget::onCustomContextMenuRequested(const QPoint & pos)
+{
+  QPoint globalPos = mapToGlobal(pos);
+
+  QMenu *menu=new QMenu(this);
+  menu->addAction(new QAction("Delete Port (Ctrl+BackSpace)", this));
+  menu->addAction(new QAction("Add New Port (Ctrl+Enter)", this));
+  QObject::connect(menu, SIGNAL(triggered(QAction *)), this, SLOT(contextMenuTriggered(QAction *)));
+  menu->exec(globalPos);
+}
+
+void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
+{
+  if(action->text() == "Delete Port (Ctrl+BackSpace)")
+  {
+    if(rowCount() <= 1)
+      return;
+
+    int index = currentRow();
+    removeRow(index);
+    if(index >= rowCount())
+      setCurrentCell(rowCount()-1, 0);
+    else
+      setCurrentCell(index, 0);
+    if(m_signalsEnabled)
+      emit portsChanged();
+  }
+  else if(action->text() == "Add New Port (Ctrl+Enter)")
+  {
+    int index = currentRow();
+    index = addPort(portType(index), "", dataType(index), extension(index));
+    setCurrentCell(index, 0);
+    return;
+  }
 }
