@@ -263,16 +263,7 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
 {
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
-  float penWidth = pen().width();
   float tangentLength = computeTangentLength();
-
-  prepareGeometryChange();
-  m_boundingBox = m_boundingBox.united(QRectF(
-    std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,
-    std::min(currSrcPoint.y(), currDstPoint.y()) - penWidth,
-    std::abs(int(currDstPoint.x() - currSrcPoint.x())) + penWidth * 2.0 + tangentLength * 2.0,
-    std::abs(int(currDstPoint.y() - currSrcPoint.y())) + penWidth * 2.0
-  ));
 
   QPainterPath path;
   path.moveTo(currSrcPoint);
@@ -311,5 +302,15 @@ float Connection::computeTangentLength() const
 
 void Connection::updateBbox()
 {
-  m_boundingBox = QRectF(srcPoint().x(), srcPoint().y(), 0, 0).united(QRectF(dstPoint().x(), dstPoint().y(), 0, 0));
+  QPointF currSrcPoint = srcPoint();
+  QPointF currDstPoint = dstPoint();
+  float penWidth = pen().width();
+  float tangentLength = computeTangentLength();
+
+  m_boundingBox = QRectF(
+    std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,
+    std::min(currSrcPoint.y(), currDstPoint.y()) - penWidth,
+    std::abs(int(currDstPoint.x() - currSrcPoint.x())) + penWidth * 2.0 + tangentLength * 2.0,
+    std::abs(int(currDstPoint.y() - currSrcPoint.y())) + penWidth * 2.0
+  );
 }
