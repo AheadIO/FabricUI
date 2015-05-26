@@ -46,7 +46,7 @@ void DFGValueEditor::onArgsChanged()
         return;
 
       DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
-      DFGWrapper::PortList ports = binding.getExecutable()->getPorts();
+      DFGWrapper::ExecPortList ports = binding.getExecutable()->getPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
         if(ports[i]->getEndPointType() != FabricCore::DFGPortType_Out)

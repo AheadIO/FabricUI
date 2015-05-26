@@ -382,7 +382,7 @@ void DFGWidget::onNodeAction(QAction * action)
     try
     {
       // copy all defaults
-      DFGWrapper::PortList ports = exec->getPorts();
+      DFGWrapper::ExecPortList ports = exec->getPorts();
       for(unsigned int i=0;i<ports.size();i++)
       {
         DFGWrapper::PinPtr pin = node->getPin(ports[i]->getName());

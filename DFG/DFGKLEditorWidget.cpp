@@ -111,7 +111,7 @@ void DFGKLEditorWidget::onPortsChanged()
   for(unsigned int i=0;i<m_ports->nbPorts();i++)
     infos.push_back(m_ports->portInfo(i));
 
-  DFGWrapper::PortList ports = m_func->getPorts();
+  DFGWrapper::ExecPortList ports = m_func->getPorts();
 
   bool modified = false;
 

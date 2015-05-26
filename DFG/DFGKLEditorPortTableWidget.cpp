@@ -76,7 +76,7 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
 
   try
   {
-    DFGWrapper::PortList ports = m_exec->getPorts();
+    DFGWrapper::ExecPortList ports = m_exec->getPorts();
 
     if(ports.size() == 0)
     {

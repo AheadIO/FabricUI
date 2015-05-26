@@ -745,7 +745,7 @@ bool DFGController::setArg(QString argName, QString dataType, QString json)
       // check other ports which have no value bound and set an arg on them too
       DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
       FabricCore::DFGBinding binding = exec->getWrappedCoreBinding();
-      DFGWrapper::PortList ports = exec->getPorts();
+      DFGWrapper::ExecPortList ports = exec->getPorts();
 
       bindUnboundRTVals();
       emit argsChanged();
@@ -1317,7 +1317,7 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
   {
     DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
     FabricCore::DFGBinding binding = exec->getWrappedCoreBinding();
-    DFGWrapper::PortList ports = exec->getPorts();
+    DFGWrapper::ExecPortList ports = exec->getPorts();
 
     bool argsHaveChanged = false;
 

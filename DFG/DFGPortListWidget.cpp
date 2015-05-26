@@ -42,7 +42,7 @@ void DFGPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
 
   try
   {
-    DFGWrapper::PortList ports = exec->getPorts();
+    DFGWrapper::ExecPortList ports = exec->getPorts();
     for(size_t i=0;i<ports.size();i++)
     {
       QString portType = " in";

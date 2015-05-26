@@ -77,7 +77,7 @@ void DFGView::onGraphSet()
     }
   }
 
-  DFGWrapper::PortList ports = m_graph->getPorts();
+  DFGWrapper::ExecPortList ports = m_graph->getPorts();
   for(size_t i=0;i<ports.size();i++)
   {
     onPortInserted(ports[i]);
