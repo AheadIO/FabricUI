@@ -1176,6 +1176,38 @@ QStringList DFGController::explodeNode(QString path)
   return result;
 }
 
+bool DFGController::reloadExtensionDependencies(QString path)
+{
+  DFGWrapper::ExecutablePtr exec = getExecFromPath(path.toUtf8().constData());
+  if(!exec)
+    return false;
+
+  bool result = false;
+  uint32_t nbExtensions = exec->getNumExtensionDependencies();
+  for(uint32_t i=0;i<nbExtensions;i++)
+  {
+    std::string ext = exec->getExtensionDependencyName(i);
+    std::string version = exec->getExtensionDependencyVersion(i);
+    try
+    {
+      m_client->loadExtension(ext.c_str(), version.c_str(), true);
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+      return false;
+    }
+    result = true;
+  }
+
+  if(result)
+  {
+    result = execute();
+  }
+
+  return result;
+}
+
 void DFGController::checkErrors()
 {
   DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();

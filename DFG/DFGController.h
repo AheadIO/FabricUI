@@ -88,6 +88,8 @@ namespace FabricUI
       virtual QString implodeNodes(QString desiredName, QStringList paths = QStringList());
       virtual QStringList explodeNode(QString path);
 
+      virtual bool reloadExtensionDependencies(QString path);
+
       virtual void log(const char * message);
       virtual void logError(const char * message);
 

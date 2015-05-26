@@ -201,25 +201,31 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void*
   if(cacheRule == FEC_DFGCacheRule_Always)
     action->setChecked(true);
 
-  bool hasSecondSep = false;
+  bool hasSep = false;
   const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
   if(nodes.size() > 0)
   {
-    if(!hasSecondSep)
+    if(!hasSep)
     {
       result->addSeparator();
-      hasSecondSep = true;
+      hasSep = true;
     }
     result->addAction("Implode nodes");
   }
   if(dfgNode->getExecutable()->isGraph())
   {
-    if(!hasSecondSep)
+    if(!hasSep)
     {
       result->addSeparator();
-      hasSecondSep = true;
+      hasSep = true;
     }
     result->addAction("Explode node");
+  }
+
+  if(dfgNode->getExecutable()->getNumExtensionDependencies() > 0)
+  {
+    result->addSeparator();
+    result->addAction("Reload Extension(s)");
   }
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
@@ -436,6 +442,11 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->explodeNode(m_contextNode->path());
   }
+  else if(action->text() == "Reload Extension(s)")
+  {
+    m_uiController->reloadExtensionDependencies(m_contextNode->path());
+  }
+
 
   m_contextNode = NULL;
 }
