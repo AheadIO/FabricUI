@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "DFGPortListWidget.h"
-#include "DFGPortListItem.h"
+#include "DFGExecPortListWidget.h"
+#include "DFGExecPortListItem.h"
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -11,7 +11,7 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGPortListWidget::DFGPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config)
+DFGExecPortListWidget::DFGExecPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config)
 : QWidget(parent)
 {
   m_controller = controller;
@@ -30,11 +30,11 @@ DFGPortListWidget::DFGPortListWidget(QWidget * parent, DFGController * controlle
   layout->addWidget(m_list);
 }
 
-DFGPortListWidget::~DFGPortListWidget()
+DFGExecPortListWidget::~DFGExecPortListWidget()
 {
 }
 
-void DFGPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
+void DFGExecPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
 {
   m_exec = exec;
 
@@ -52,7 +52,7 @@ void DFGPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
         portType = " io";
       QString dataType = ports[i]->getResolvedType();
       QString name = ports[i]->getName();
-      DFGPortListItem * item = new DFGPortListItem(m_list, portType, dataType, name);
+      DFGExecPortListItem * item = new DFGExecPortListItem(m_list, portType, dataType, name);
       m_list->addItem(item);
     }
   }
@@ -62,9 +62,9 @@ void DFGPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
   }
 }
 
-QString DFGPortListWidget::selectedItem() const
+QString DFGExecPortListWidget::selectedItem() const
 {
-  DFGPortListItem * item = (DFGPortListItem*)m_list->currentItem();
+  DFGExecPortListItem * item = (DFGExecPortListItem*)m_list->currentItem();
   if(item)
     return item->name();
   return "";

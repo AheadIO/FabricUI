@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_DFG_DFGPortListWidget__
-#define __UI_DFG_DFGPortListWidget__
+#ifndef __UI_DFG_DFGExecPortListWidget__
+#define __UI_DFG_DFGExecPortListWidget__
 
 #include <DFGWrapper/Host.h>
 #include <DFGWrapper/Executable.h>
@@ -18,14 +18,14 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGPortListWidget : public QWidget
+    class DFGExecPortListWidget : public QWidget
     {
       Q_OBJECT
 
     public:
 
-      DFGPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
-      virtual ~DFGPortListWidget();
+      DFGExecPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
+      virtual ~DFGExecPortListWidget();
 
       void setExec(FabricServices::DFGWrapper::ExecutablePtr exec);
       QString selectedItem() const;
@@ -42,4 +42,4 @@ namespace FabricUI
 
 };
 
-#endif // __UI_DFG_DFGPortListWidget__
+#endif // __UI_DFG_DFGExecPortListWidget__

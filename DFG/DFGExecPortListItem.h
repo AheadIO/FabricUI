@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_DFG_DFGPortListItem__
-#define __UI_DFG_DFGPortListItem__
+#ifndef __UI_DFG_DFGExecPortListItem__
+#define __UI_DFG_DFGExecPortListItem__
 
 #include <QtGui/QListWidget>
 #include <QtGui/QListWidgetItem>
@@ -12,12 +12,12 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGPortListItem : public QListWidgetItem 
+    class DFGExecPortListItem : public QListWidgetItem 
     {
     public:
 
-      DFGPortListItem(QListWidget * parent, QString portType, QString dataType, QString name);
-      virtual ~DFGPortListItem();
+      DFGExecPortListItem(QListWidget * parent, QString portType, QString dataType, QString name);
+      virtual ~DFGExecPortListItem();
 
       QString portType() const;
       QString dataType() const;
@@ -34,4 +34,4 @@ namespace FabricUI
 
 };
 
-#endif // __UI_DFG_DFGPortListItem__
+#endif // __UI_DFG_DFGExecPortListItem__

@@ -1,10 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "DFGPortListItem.h"
+#include "DFGExecPortListItem.h"
 
 using namespace FabricUI::DFG;
 
-DFGPortListItem::DFGPortListItem(QListWidget * parent, QString portType, QString dataType, QString name)
+DFGExecPortListItem::DFGExecPortListItem(QListWidget * parent, QString portType, QString dataType, QString name)
 : QListWidgetItem(parent)
 {
   m_portType = portType;
@@ -17,21 +17,21 @@ DFGPortListItem::DFGPortListItem(QListWidget * parent, QString portType, QString
   setText(text);
 }
 
-DFGPortListItem::~DFGPortListItem()
+DFGExecPortListItem::~DFGExecPortListItem()
 {
 }
 
-QString DFGPortListItem::portType() const
+QString DFGExecPortListItem::portType() const
 {
   return m_portType;
 }
 
-QString DFGPortListItem::dataType() const
+QString DFGExecPortListItem::dataType() const
 {
   return m_dataType;
 }
 
-QString DFGPortListItem::name() const
+QString DFGExecPortListItem::name() const
 {
   return m_name;
 }
