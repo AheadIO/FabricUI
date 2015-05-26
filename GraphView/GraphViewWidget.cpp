@@ -3,6 +3,7 @@
 #include "GraphViewWidget.h"
 
 #include <QtGui/QPainter>
+#include <QtOpenGL/QGLWidget>
 
 #ifdef FABRICUI_TIMERS
   #include <Util/Timer.h>
@@ -16,6 +17,7 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
   setRenderHint(QPainter::Antialiasing);
   // setRenderHint(QPainter::HighQualityAntialiasing);
   setRenderHint(QPainter::TextAntialiasing);
+  setOptimizationFlag(DontSavePainterState);
 
   setStyleSheet( "QGraphicsView { border-style: none; }" );
 
@@ -24,10 +26,17 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
+  setBackgroundBrush(config.mainPanelBackgroundColor);
   setCacheMode(CacheBackground);
 
   setViewportUpdateMode(SmartViewportUpdate);
-  // setViewportUpdateMode(MinimalViewportUpdate);
+
+  // use opengl for rendering with multi sampling
+  QGLFormat format;
+  format.setSampleBuffers(true);
+  QGLContext * context = new QGLContext(format);
+  QGLWidget * glWidget = new QGLWidget(context);
+  setViewport(glWidget);
 
   setGraph(graph);
 

@@ -197,11 +197,23 @@ QPen Node::selectedPen() const
 QRectF Node::boundingRect() const
 {
   QRectF rect = QGraphicsWidget::boundingRect();
+
+  float left = rect.left();
+  float top = rect.top();
+  float width = rect.width();
+  float height = rect.height();
+
+  // left -= m_graph->config().pinRadius;
+  // width += m_graph->config().pinRadius * 2.0f;
+  // width += 30.0f;
+
   if(m_graph->config().nodeShadowEnabled)
   {
-    rect.setWidth(rect.width() + m_graph->config().nodeShadowOffset.x() * 2.0);
-    rect.setHeight(rect.height() + m_graph->config().nodeShadowOffset.y() * 2.0);
+    width += m_graph->config().nodeShadowOffset.x() * 2.0f;
+    height += m_graph->config().nodeShadowOffset.y() * 2.0f;
   }
+
+  rect = QRectF(left, top, width, height);
   return rect;
 }
 

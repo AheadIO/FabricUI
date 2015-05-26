@@ -82,5 +82,7 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
   timer->pause();
 #endif
 
+  painter->setClipping(false);
   QGraphicsWidget::paint(painter, option, widget);
+
 }

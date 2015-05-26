@@ -72,7 +72,7 @@ namespace FabricUI
       float m_mouseAltZoomState;
       float m_mouseWheelZoomState;
       ManipulationMode m_manipulationMode;
-      MainPanelBackground * m_backGround;
+      // MainPanelBackground * m_backGround;
       QGraphicsWidget * m_itemGroup;
       bool m_draggingSelRect;
       QPointF m_lastPanPoint;

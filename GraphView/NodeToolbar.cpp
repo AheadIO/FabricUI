@@ -247,7 +247,7 @@ void NodeToolbar::onNodePositionChanged(FabricUI::GraphView::Node * node, QPoint
 {
   QPointF p = node->topLeftGraphPos();// + node->windowFrameRect().topRight();
   p -= QPointF(minimumWidth(), minimumHeight());
-  p += QPointF(m_node->boundingRect().width() - m_config.nodeWidthReduction * 0.5f - m_config.nodeCornerRadius * 0.5, 0.0f);
+  p += QPointF(m_node->boundingRect().width() - m_config.nodeWidthReduction * 0.5f - 3.0f - m_config.nodeCornerRadius * 0.5, 0.0f);
 
   setTransform(QTransform::fromTranslate(p.x(), p.y()), false);
 

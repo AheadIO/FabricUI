@@ -1,12 +1,13 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <QtGui/QGraphicsSceneHoverEvent>
+#include <QtGui/QGraphicsSceneMouseEvent>
+#include <QtGui/QPainter>
+
 #include "Connection.h"
 #include "Graph.h"
 #include "Pin.h"
 #include "Port.h"
-
-#include <QtGui/QGraphicsSceneHoverEvent>
-#include <QtGui/QGraphicsSceneMouseEvent>
 
 #include <algorithm>
 #include <cstdlib>
@@ -264,6 +265,9 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
   float tangentLength = computeTangentLength();
+
+  // painter->setRenderHint(QPainter::Antialiasing,true);
+  // painter->setRenderHint(QPainter::HighQualityAntialiasing,true);
 
   QPainterPath path;
   path.moveTo(currSrcPoint);

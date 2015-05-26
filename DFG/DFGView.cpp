@@ -405,6 +405,8 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
   if(!uiNode)
     return;
 
+  // printf("'%s' metadata changed for '%s'\n", key, path.toUtf8().constData());
+
   if(key == std::string("uiGraphPos"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
@@ -493,6 +495,8 @@ void DFGView::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec, const char *
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+
+  // printf("'%s' metadata changed for '%s'\n", key, exec->getExecPath());
 
   if(key == std::string("uiGraphPan"))
   {

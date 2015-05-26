@@ -1,16 +1,17 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "MainPanel.h"
-#include "Pin.h"
-#include "Node.h"
-#include "Graph.h"
-#include "GraphConfig.h"
-
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsSceneWheelEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QCursor>
 #include <QtGui/QGraphicsView>
+
+#include "MainPanel.h"
+#include "Pin.h"
+#include "Node.h"
+#include "Graph.h"
+#include "GraphConfig.h"
+#include "CachingEffect.h"
 
 using namespace FabricUI::GraphView;
 
@@ -23,8 +24,9 @@ MainPanel::MainPanel(Graph * parent)
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-  m_backGround = new MainPanelBackground(this);
+  // m_backGround = new MainPanelBackground(this);
   m_itemGroup = new QGraphicsWidget(this);
+  // m_itemGroup = new QGraphicsWidget(parent);
 
   m_manipulationMode = ManipulationMode_None;
   m_draggingSelRect = false;
@@ -80,7 +82,13 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
 
   m_mouseWheelZoomState = state;
 
-  m_itemGroup->setTransform(QTransform().scale(m_mouseWheelZoomState, m_mouseWheelZoomState));
+  QGraphicsView * graphicsView = graph()->scene()->views()[0];
+  if(m_mouseWheelZoomState == 1.0)
+    graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, false);
+  else
+    graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+  m_itemGroup->setScale(m_mouseWheelZoomState);
 
   QPointF newCursorPos = m_mouseWheelZoomState * m_lastPanPoint;
   setCanvasPan(canvasPan() + cursorPos - newCursorPos);
@@ -191,12 +199,11 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   {
     QTransform xfo = m_itemGroup->transform().inverted();
     QPointF delta = xfo.map(event->pos()) - xfo.map(m_lastPanPoint);
-    delta *= m_mouseWheelZoomState;
     m_lastPanPoint = event->pos();
     if(m_graph->controller()->panCanvas(delta + canvasPan()))
     {
-      if(!m_graph->config().mainPanelBackGroundPanFixed)
-        m_backGround->setOffset(m_itemGroup->transform());
+      // if(!m_graph->config().mainPanelBackGroundPanFixed)
+      // m_backGround->setOffset(m_itemGroup->transform());
       update();
     }
   }
@@ -247,8 +254,7 @@ void MainPanel::wheelEvent(QGraphicsSceneWheelEvent * event)
 
 void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
-  QRectF rect = windowFrameRect();
-  m_backGround->resize(rect.width(), rect.height());
-
+  // QRectF rect = windowFrameRect();
+  // m_backGround->resize(rect.width(), rect.height());
   QGraphicsWidget::paint(painter, option, widget);
 }
