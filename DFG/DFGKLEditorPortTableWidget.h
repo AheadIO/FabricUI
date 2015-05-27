@@ -58,7 +58,7 @@ namespace FabricUI
 
     signals:
 
-      void portsChanged();
+      void execPortsChanged();
 
     private:
 

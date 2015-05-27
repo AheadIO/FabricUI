@@ -133,7 +133,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
           {
             QString path = m_func->getExecPath();
             path += ".";
-            path += ports[i]->getEndPointPath();
+            path += ports[i]->getPortPath();
             m_controller->renamePort(path, infos[i].portName.c_str());
           }
           catch(FabricCore::Exception e)

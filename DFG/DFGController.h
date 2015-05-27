@@ -107,7 +107,7 @@ namespace FabricUI
       FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
       FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::FuncExecutablePtr getFuncExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::EndPointPtr getEndPointFromPath(const std::string & path);
+      FabricServices::DFGWrapper::PortPtr getPortFromPath(const std::string & path);
 
       virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
 

@@ -336,14 +336,14 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
     QString portPath = addPort("", pin->name(), pType, pin->dataType());
 
     // copy the default value into the port
-    DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(pin->path().toUtf8().constData());
+    DFGWrapper::PortPtr endPoint = getPortFromPath(pin->path().toUtf8().constData());
     if(endPoint && portPath.length() > 0)
     {
-      if(endPoint->getEndPointType() == FabricCore::DFGPortType_In)
+      if(endPoint->getInsidePortType() == FabricCore::DFGPortType_In)
       {
         // if this is the graph on the binding, we need to set the arg value
-        DFGWrapper::PinPtr pinEndPoint = DFGWrapper::PinPtr::StaticCast(endPoint);
-        std::string resolvedType = pinEndPoint->getResolvedType();
+        DFGWrapper::NodePortPtr pinPort = DFGWrapper::NodePortPtr::StaticCast(endPoint);
+        std::string resolvedType = pinPort->getResolvedType();
         if(resolvedType.length() > 0)
         {
           if(resolvedType == "Integer")
@@ -355,9 +355,9 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
           else if(resolvedType == "Scalar")
             resolvedType = "Float32";
 
-          FabricCore::RTVal defaultValue = pinEndPoint->getDefaultValue(resolvedType.c_str());
+          FabricCore::RTVal defaultValue = pinPort->getDefaultValue(resolvedType.c_str());
           if(!defaultValue.isValid())
-            defaultValue = pinEndPoint->getPort()->getDefaultValue(resolvedType.c_str());
+            defaultValue = pinPort->getPort()->getDefaultValue(resolvedType.c_str());
 
           if(defaultValue.isValid())
           {
@@ -369,33 +369,33 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
         }
 
         // copy all of the metadata
-        endPoint = getEndPointFromPath(portPath.toUtf8().constData());
+        endPoint = getPortFromPath(portPath.toUtf8().constData());
         if(endPoint)
         { 
-          DFGWrapper::ExecPortPtr portEndPoint = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
+          DFGWrapper::ExecPortPtr portPort = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
 
-          const char * uiRange = pinEndPoint->getPort()->getMetadata("uiRange");
+          const char * uiRange = pinPort->getPort()->getMetadata("uiRange");
           if(uiRange)
           {
             if(strlen(uiRange) > 0)
             {
-              portEndPoint->setMetadata("uiRange", uiRange, false);
+              portPort->setMetadata("uiRange", uiRange, false);
             }
           }
-          const char * uiCombo = pinEndPoint->getPort()->getMetadata("uiCombo");
+          const char * uiCombo = pinPort->getPort()->getMetadata("uiCombo");
           if(uiCombo)
           {
             if(strlen(uiCombo) > 0)
             {
-              portEndPoint->setMetadata("uiCombo", uiCombo, false);
+              portPort->setMetadata("uiCombo", uiCombo, false);
             }
           }
-          const char * uiHidden = pinEndPoint->getPort()->getMetadata("uiHidden");
+          const char * uiHidden = pinPort->getPort()->getMetadata("uiHidden");
           if(uiHidden)
           {
             if(strlen(uiHidden) > 0)
             {
-              portEndPoint->setMetadata("uiHidden", uiHidden, false);
+              portPort->setMetadata("uiHidden", uiHidden, false);
             }
           }
         }
@@ -486,10 +486,10 @@ bool DFGController::addConnection(QString srcPath, QString dstPath, bool srcIsPi
   beginInteraction();
   try
   {
-    DFGWrapper::EndPointPtr endPoint = getEndPointFromPath(dstPath.toUtf8().constData());
+    DFGWrapper::PortPtr endPoint = getPortFromPath(dstPath.toUtf8().constData());
     if(endPoint->isValid())
     {
-      if(endPoint->getEndPointType() == FabricCore::DFGPortType_IO && dstIsPin)
+      if(endPoint->getInsidePortType() == FabricCore::DFGPortType_IO && dstIsPin)
       {
         std::vector<GraphView::Connection*> connections = graph()->connections();
         for(size_t i=0;i<connections.size();i++)
@@ -508,7 +508,7 @@ bool DFGController::addConnection(QString srcPath, QString dstPath, bool srcIsPi
       else if(endPoint->isConnectedToAny())
       {
         Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
-          endPoint->getEndPointPath(),
+          endPoint->getPortPath(),
           dstIsPin
         );
         if(!addCommand(command))
@@ -1466,10 +1466,10 @@ DFGWrapper::FuncExecutablePtr DFGController::getFuncExecFromPath(const std::stri
   return DFGWrapper::FuncExecutablePtr::StaticCast(exec);
 }
 
-DFGWrapper::EndPointPtr DFGController::getEndPointFromPath(const std::string & path)
+DFGWrapper::PortPtr DFGController::getPortFromPath(const std::string & path)
 {
   DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  return DFGWrapper::EndPoint::Create(graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getGraphPath(), path.c_str());
+  return DFGWrapper::Port::Create(graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getGraphPath(), path.c_str());
 }
 
 void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, QString toolName)

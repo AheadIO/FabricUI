@@ -49,7 +49,7 @@ void DFGValueEditor::onArgsChanged()
       DFGWrapper::ExecPortList ports = binding.getExecutable()->getPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getEndPointType() != FabricCore::DFGPortType_Out)
+        if(ports[i]->getInsidePortType() != FabricCore::DFGPortType_Out)
           continue;
         std::string portName = ports[i]->getName();
         if(portName.length() == 0)
@@ -59,7 +59,7 @@ void DFGValueEditor::onArgsChanged()
         QString hidden = ports[i]->getMetadata("uiHidden");
         if(hidden == "true")
           continue;
-        char const * path = ports[i]->getEndPointPath();
+        char const * path = ports[i]->getPortPath();
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
@@ -72,12 +72,12 @@ void DFGValueEditor::onArgsChanged()
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getEndPointType() == FabricCore::DFGPortType_Out)
+        if(ports[i]->getInsidePortType() == FabricCore::DFGPortType_Out)
           continue;
         QString hidden = ports[i]->getMetadata("uiHidden");
         if(hidden == "true")
           continue;
-        char const * path = ports[i]->getEndPointPath();
+        char const * path = ports[i]->getPortPath();
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
@@ -89,10 +89,10 @@ void DFGValueEditor::onArgsChanged()
       // add an item for the node
       ValueItem * nodeItem = addValue(m_node->getName(), FabricCore::RTVal(), m_node->getName(), false);
 
-      DFGWrapper::PinList pins = m_node->getPins();
+      DFGWrapper::NodePortList pins = m_node->getPorts();
       for(size_t i=0;i<pins.size();i++)
       {
-        if(pins[i]->getEndPointType() == FabricCore::DFGPortType_Out)
+        if(pins[i]->getInsidePortType() == FabricCore::DFGPortType_Out)
           continue;
         if(pins[i]->isConnectedToAny())
           continue;
@@ -140,7 +140,7 @@ void DFGValueEditor::onArgsChanged()
         if(!value.isValid())
           continue;
         
-        ValueItem * item = addValue(pins[i]->getEndPointPath(), value, pins[i]->getName(), true);
+        ValueItem * item = addValue(pins[i]->getPortPath(), value, pins[i]->getName(), true);
         if(item)
         {
           item->setMetaData("uiRange", pins[i]->getPort()->getMetadata("uiRange"));

@@ -190,7 +190,7 @@ void DFGKLEditorPortTableWidget::keyPressEvent(QKeyEvent * event)
       else
         setCurrentCell(index, 0);
       if(m_signalsEnabled)
-        emit portsChanged();
+        emit execPortsChanged();
     }
   }
   else if(event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
@@ -206,13 +206,13 @@ void DFGKLEditorPortTableWidget::keyPressEvent(QKeyEvent * event)
 void DFGKLEditorPortTableWidget::onCellChanged(int row, int col)
 {
   if(m_signalsEnabled)
-    emit portsChanged();
+    emit execPortsChanged();
 }
 
 void DFGKLEditorPortTableWidget::onComboBoxChanged(int index)
 {
   if(m_signalsEnabled)
-    emit portsChanged();
+    emit execPortsChanged();
 }
 
 int DFGKLEditorPortTableWidget::addPort(FabricCore::DFGPortType portType, QString portName, QString dataType, QString extension)
@@ -266,7 +266,7 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
     else
       setCurrentCell(index, 0);
     if(m_signalsEnabled)
-      emit portsChanged();
+      emit execPortsChanged();
   }
   else if(action->text() == "Add New Port (Ctrl+Enter)")
   {

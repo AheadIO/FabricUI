@@ -25,19 +25,19 @@ bool DFGSetDefaultValueCommand::invoke()
 
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
   DFGWrapper::GraphExecutablePtr graph = view->getGraph();
-  DFGWrapper::EndPointPtr endPoint = DFGWrapper::EndPoint::Create(
+  DFGWrapper::PortPtr port = DFGWrapper::Port::Create(
     graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getExecPath(), m_path.c_str());
-  if(!endPoint)
+  if(!port)
     return false;
-  if(endPoint->isPin())
+  if(port->isNodePort())
   {
-    DFGWrapper::PinPtr pin = DFGWrapper::PinPtr::StaticCast(endPoint);
-    pin->setDefaultValue(m_value);
+    DFGWrapper::NodePortPtr nodePort = DFGWrapper::NodePortPtr::StaticCast(port);
+    nodePort->setDefaultValue(m_value);
   }
   else
   {
-    DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
-    port->setDefaultValue(m_value);
+    DFGWrapper::ExecPortPtr execPort = DFGWrapper::ExecPortPtr::StaticCast(port);
+    execPort->setDefaultValue(m_value);
   }
   return true;
 }

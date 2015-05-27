@@ -70,10 +70,10 @@ void DFGView::onGraphSet()
     onNodeInserted(nodes[i]);
 
     // all pins
-    DFGWrapper::PinList pins = nodes[i]->getPins();
+    DFGWrapper::NodePortList pins = nodes[i]->getPorts();
     for(size_t j=0;j<pins.size();j++)
     {
-      onPinInserted(pins[j]);
+      onNodePortInserted(pins[j]);
     }
   }
 
@@ -86,7 +86,7 @@ void DFGView::onGraphSet()
   DFGWrapper::ConnectionList connections = m_graph->getConnections();
   for(size_t i=0;i<connections.size();i++)
   {
-    onEndPointsConnected(connections[i]->getSrc(), connections[i]->getDst());
+    onPortsConnected(connections[i]->getSrc(), connections[i]->getDst());
   }
 
   // update the graph's pan and zoom
@@ -166,12 +166,12 @@ void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
     m_controller->checkErrors();
 }
 
-void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
+void DFGView::onNodePortInserted(DFGWrapper::NodePortPtr pin)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = GraphView::parentPath(pin->getEndPointPath());
+  QString path = GraphView::parentPath(pin->getPortPath());
   GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
@@ -184,9 +184,9 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   std::string label = pin->getName();
   QColor color = m_config.getColorForDataType(dataType, pin->getPort());
   GraphView::PortType pType = GraphView::PortType_Input;
-  if(pin->getEndPointType() == FabricCore::DFGPortType_Out)
+  if(pin->getInsidePortType() == FabricCore::DFGPortType_Out)
     pType = GraphView::PortType_Output;
-  else if(pin->getEndPointType() == FabricCore::DFGPortType_IO)
+  else if(pin->getInsidePortType() == FabricCore::DFGPortType_IO)
     pType = GraphView::PortType_IO;
 
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, name.c_str(), pType, color, label.c_str());
@@ -194,13 +194,13 @@ void DFGView::onPinInserted(DFGWrapper::PinPtr pin)
   uiNode->addPin(uiPin, false);
 }
 
-void DFGView::onPinRemoved(DFGWrapper::PinPtr pin)
+void DFGView::onNodePortRemoved(DFGWrapper::NodePortPtr pin)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = GraphView::parentPath(pin->getEndPointPath());
-  QString name = GraphView::lastPathSegment(pin->getEndPointPath());
+  QString path = GraphView::parentPath(pin->getPortPath());
+  QString name = GraphView::lastPathSegment(pin->getPortPath());
   GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
@@ -221,7 +221,7 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
   std::string dataType = port->getResolvedType();
   if(dataType.empty())
     dataType = port->getTypeSpec();
-  std::string path = port->getEndPointPath();
+  std::string path = port->getPortPath();
   std::string name = port->getName();
 
   // todo: once titles are supports
@@ -233,7 +233,7 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(port->getEndPointType() != FabricCore::DFGPortType_Out)
+  if(port->getInsidePortType() != FabricCore::DFGPortType_Out)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
@@ -243,7 +243,7 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(port->getEndPointType() != FabricCore::DFGPortType_In)
+  if(port->getInsidePortType() != FabricCore::DFGPortType_In)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)
@@ -263,8 +263,8 @@ void DFGView::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
 {
   if(m_controller->graph() == NULL)
     return;
-  QString path = GraphView::parentPath(port->getEndPointPath());
-  QString name = GraphView::lastPathSegment(port->getEndPointPath());
+  QString path = GraphView::parentPath(port->getPortPath());
+  QString name = GraphView::lastPathSegment(port->getPortPath());
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
@@ -294,15 +294,15 @@ void DFGView::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
     m_controller->checkErrors();
 }
 
-void DFGView::onEndPointsConnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndPointPtr dst)
+void DFGView::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   DFGWrapper::GraphExecutablePtr graph = m_controller->getView()->getGraph();
 
-  QString srcParentPath = GraphView::parentPath(src->getEndPointPath()).toUtf8().constData();
-  QString dstParentPath = GraphView::parentPath(dst->getEndPointPath()).toUtf8().constData();
+  QString srcParentPath = GraphView::parentPath(src->getPortPath()).toUtf8().constData();
+  QString dstParentPath = GraphView::parentPath(dst->getPortPath()).toUtf8().constData();
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
@@ -344,16 +344,16 @@ void DFGView::onEndPointsConnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndP
     m_controller->checkErrors();
 }
 
-void DFGView::onEndPointsDisconnected(DFGWrapper::EndPointPtr src, DFGWrapper::EndPointPtr dst)
+void DFGView::onPortsDisconnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
 
-  QString srcParentPath = GraphView::parentPath(src->getEndPointPath()).toUtf8().constData();
-  QString dstParentPath = GraphView::parentPath(dst->getEndPointPath()).toUtf8().constData();
-  QString srcName = GraphView::lastPathSegment(src->getEndPointPath());
-  QString dstName = GraphView::lastPathSegment(dst->getEndPointPath());
+  QString srcParentPath = GraphView::parentPath(src->getPortPath()).toUtf8().constData();
+  QString dstParentPath = GraphView::parentPath(dst->getPortPath()).toUtf8().constData();
+  QString srcName = GraphView::lastPathSegment(src->getPortPath());
+  QString dstName = GraphView::lastPathSegment(dst->getPortPath());
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
@@ -475,7 +475,7 @@ void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldNa
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
-  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getEndPointType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
+  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getInsidePortType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
   if(!uiPanel)
     return;
 
@@ -485,7 +485,7 @@ void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldNa
   uiPort->setName(port->getName());
 }
 
-void DFGView::onPinRenamed(DFGWrapper::PinPtr pin, const char * oldName)
+void DFGView::onNodePortRenamed(DFGWrapper::NodePortPtr pin, const char * oldName)
 {
   // this shouldn't happen for us for now
 }
@@ -568,7 +568,7 @@ void DFGView::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr 
   // todo: we don't do anything here...
 }
 
-void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * resolvedType)
+void DFGView::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr pin, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -594,12 +594,12 @@ void DFGView::onExecPortMetadataChanged(FabricServices::DFGWrapper::ExecPortPtr 
   // todo: we don't do anything here...
 }
 
-void DFGView::onPinMetadataChanged(FabricServices::DFGWrapper::PinPtr pin, const char * key, const char * metadata)
+void DFGView::onNodePortMetadataChanged(FabricServices::DFGWrapper::NodePortPtr pin, const char * key, const char * metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onPinTypeChanged(FabricServices::DFGWrapper::PinPtr pin, FabricCore::DFGPortType pinType)
+void DFGView::onNodePortTypeChanged(FabricServices::DFGWrapper::NodePortPtr pin, FabricCore::DFGPortType pinType)
 {
   // todo: we don't do anything here...
 }

@@ -24,7 +24,7 @@ bool DFGRemoveAllConnectionsCommand::invoke()
   if(m_isPin)
   {
     DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.c_str());
-    DFGWrapper::PinPtr pin = node->getPin(m_pinTitle.c_str());
+    DFGWrapper::NodePortPtr pin = node->getPort(m_pinTitle.c_str());
     pin->disconnectFromAll();
   }
   else

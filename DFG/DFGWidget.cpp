@@ -385,7 +385,7 @@ void DFGWidget::onNodeAction(QAction * action)
       DFGWrapper::ExecPortList ports = exec->getPorts();
       for(unsigned int i=0;i<ports.size();i++)
       {
-        DFGWrapper::PinPtr pin = node->getPin(ports[i]->getName());
+        DFGWrapper::NodePortPtr pin = node->getPort(ports[i]->getName());
         QString rType = pin->getResolvedType();
         if(rType.length() == 0 || rType.indexOf('$') >= 0)
           continue;
@@ -477,7 +477,7 @@ void DFGWidget::onExecPortAction(QAction * action)
   {
     try
     {
-      DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(m_contextPort->path().toUtf8().constData());
+      DFGWrapper::PortPtr endPoint = m_uiController->getPortFromPath(m_contextPort->path().toUtf8().constData());
       if(!endPoint)
         return;
       DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
@@ -650,7 +650,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
       try
       {
-        DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(portPath.toUtf8().constData());
+        DFGWrapper::PortPtr endPoint = m_uiController->getPortFromPath(portPath.toUtf8().constData());
         if(endPoint)
         {
           DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
