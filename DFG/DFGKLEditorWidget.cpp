@@ -126,7 +126,7 @@ void DFGKLEditorWidget::onPortsChanged()
       bool setDataType = false;
       if(infos[i].portName != ports[i]->getName())
       {
-        if(infos[i].portType == ports[i]->getPortType() &&
+        if(infos[i].portType == ports[i]->getOutsidePortType() &&
           infos[i].dataType == ports[i]->getTypeSpec())
         {
           try
@@ -147,7 +147,7 @@ void DFGKLEditorWidget::onPortsChanged()
           addRemovePort = true;
         }
       }
-      else if(infos[i].portType != ports[i]->getPortType())
+      else if(infos[i].portType != ports[i]->getOutsidePortType())
       {
         setPortType = true;
       }
@@ -171,7 +171,7 @@ void DFGKLEditorWidget::onPortsChanged()
       {
         try
         {
-          ports[i]->setPortType(infos[i].portType);
+          ports[i]->setOutsidePortType(infos[i].portType);
         }
         catch(FabricCore::Exception e)
         {

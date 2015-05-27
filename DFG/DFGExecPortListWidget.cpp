@@ -46,9 +46,9 @@ void DFGExecPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
     for(size_t i=0;i<ports.size();i++)
     {
       QString portType = " in";
-      if(ports[i]->getPortType() == FabricCore::DFGPortType_Out)
+      if(ports[i]->getOutsidePortType() == FabricCore::DFGPortType_Out)
         portType = "out";
-      else if(ports[i]->getPortType() == FabricCore::DFGPortType_IO)
+      else if(ports[i]->getOutsidePortType() == FabricCore::DFGPortType_IO)
         portType = " io";
       QString dataType = ports[i]->getResolvedType();
       QString name = ports[i]->getName();
