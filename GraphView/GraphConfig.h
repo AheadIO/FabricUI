@@ -15,6 +15,8 @@ namespace FabricUI
 
     struct GraphConfig
     {
+      bool useOpenGL;
+      
       QString pathSep;
       bool disconnectInputsAutomatically;
       bool rightClickDeletesConnections;

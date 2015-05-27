@@ -6,6 +6,8 @@ using namespace FabricUI::GraphView;
 
 GraphConfig::GraphConfig()
 {
+  useOpenGL = true;
+  
   pathSep = ".";
   disconnectInputsAutomatically = true;
   rightClickDeletesConnections = true;

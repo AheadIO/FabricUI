@@ -32,11 +32,14 @@ GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, G
   setViewportUpdateMode(SmartViewportUpdate);
 
   // use opengl for rendering with multi sampling
-  QGLFormat format;
-  format.setSampleBuffers(true);
-  QGLContext * context = new QGLContext(format);
-  QGLWidget * glWidget = new QGLWidget(context);
-  setViewport(glWidget);
+  if(config.useOpenGL)
+  {
+    QGLFormat format;
+    format.setSampleBuffers(true);
+    QGLContext * context = new QGLContext(format);
+    QGLWidget * glWidget = new QGLWidget(context);
+    setViewport(glWidget);
+  }
 
   setGraph(graph);
 
