@@ -37,8 +37,8 @@ bool DFGAddConnectionCommand::invoke()
   {
     DFGWrapper::ExecutablePtr srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
     DFGWrapper::ExecutablePtr dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
-    DFGWrapper::PortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
-    DFGWrapper::PortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
+    DFGWrapper::ExecPortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
+    DFGWrapper::ExecPortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
     srcPort->connectTo(dstPort);
   }
   else if(m_srcIsPin && !m_dstIsPin)
@@ -46,14 +46,14 @@ bool DFGAddConnectionCommand::invoke()
     DFGWrapper::NodePtr srcNode = ctrl->getNodeFromPath(m_srcNodePath.c_str());
     DFGWrapper::ExecutablePtr dstExec = ctrl->getExecFromPath(m_dstNodePath.c_str());
     DFGWrapper::PinPtr srcPin = srcNode->getPin(m_srcPinTitle.c_str());
-    DFGWrapper::PortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
+    DFGWrapper::ExecPortPtr dstPort = dstExec->getPort(m_dstPinTitle.c_str());
     srcPin->connectTo(dstPort);
   }
   else if(!m_srcIsPin && m_dstIsPin)
   {
     DFGWrapper::ExecutablePtr srcExec = ctrl->getExecFromPath(m_srcNodePath.c_str());
     DFGWrapper::NodePtr dstNode = ctrl->getNodeFromPath(m_dstNodePath.c_str());
-    DFGWrapper::PortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
+    DFGWrapper::ExecPortPtr srcPort = srcExec->getPort(m_srcPinTitle.c_str());
     DFGWrapper::PinPtr dstPin = dstNode->getPin(m_dstPinTitle.c_str());
     srcPort->connectTo(dstPin);
   }

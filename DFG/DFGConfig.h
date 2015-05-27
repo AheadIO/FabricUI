@@ -11,7 +11,7 @@
 #include <KLEditor/EditorConfig.h>
 #include <GraphView/GraphConfig.h>
 
-#include <DFGWrapper/Port.h>
+#include <DFGWrapper/ExecPort.h>
 
 namespace FabricUI
 {
@@ -39,7 +39,7 @@ namespace FabricUI
       DFGConfig();
 
       void registerDataTypeColor(const std::string & dataType, QColor color);
-      QColor getColorForDataType(const std::string & dataType, FabricServices::DFGWrapper::PortPtr port = NULL);
+      QColor getColorForDataType(const std::string & dataType, FabricServices::DFGWrapper::ExecPortPtr port = NULL);
     };
 
   };

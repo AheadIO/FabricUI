@@ -74,7 +74,7 @@ void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color
   colorForDataType.insert(std::pair<std::string, QColor>(baseType, color));
 }
 
-QColor DFGConfig::getColorForDataType(const std::string & dataType, DFGWrapper::PortPtr port)
+QColor DFGConfig::getColorForDataType(const std::string & dataType, DFGWrapper::ExecPortPtr port)
 {
   if(dataType.length() > 0)
   {

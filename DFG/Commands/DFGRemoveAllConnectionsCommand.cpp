@@ -30,7 +30,7 @@ bool DFGRemoveAllConnectionsCommand::invoke()
   else
   {
     DFGWrapper::ExecutablePtr exec = ctrl->getExecFromPath(m_nodePath.c_str());
-    DFGWrapper::PortPtr port = exec->getPort(m_pinTitle.c_str());
+    DFGWrapper::ExecPortPtr port = exec->getPort(m_pinTitle.c_str());
     port->disconnectFromAll();
   }
   return true;

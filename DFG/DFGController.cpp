@@ -372,7 +372,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
         endPoint = getEndPointFromPath(portPath.toUtf8().constData());
         if(endPoint)
         { 
-          DFGWrapper::PortPtr portEndPoint = DFGWrapper::PortPtr::StaticCast(endPoint);
+          DFGWrapper::ExecPortPtr portEndPoint = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
 
           const char * uiRange = pinEndPoint->getPort()->getMetadata("uiRange");
           if(uiRange)

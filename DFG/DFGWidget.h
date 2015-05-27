@@ -64,7 +64,7 @@ namespace FabricUI
       void onGraphAction(QAction * action);
       void onNodeAction(QAction * action);
       void onNodeEditRequested(FabricUI::GraphView::Node *);
-      void onPortAction(QAction * action);
+      void onExecPortAction(QAction * action);
       void onSidePanelAction(QAction * action);
       void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);

@@ -80,7 +80,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
 
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
   QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
-  QObject::connect(m_ports, SIGNAL(portsChanged()), this, SLOT(onPortsChanged()));
+  QObject::connect(m_ports, SIGNAL(execPortsChanged()), this, SLOT(onExecPortsChanged()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
 }
 
@@ -105,7 +105,7 @@ void DFGKLEditorWidget::setFunc(DFGWrapper::FuncExecutablePtr func)
   m_unsavedChanges = false;
 }
 
-void DFGKLEditorWidget::onPortsChanged()
+void DFGKLEditorWidget::onExecPortsChanged()
 {
   std::vector<DFGKLEditorPortTableWidget::PortInfo> infos;
   for(unsigned int i=0;i<m_ports->nbPorts();i++)

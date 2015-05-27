@@ -36,7 +36,7 @@ bool DFGSetDefaultValueCommand::invoke()
   }
   else
   {
-    DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+    DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
     port->setDefaultValue(m_value);
   }
   return true;

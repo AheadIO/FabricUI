@@ -80,7 +80,7 @@ void DFGView::onGraphSet()
   DFGWrapper::ExecPortList ports = m_graph->getPorts();
   for(size_t i=0;i<ports.size();i++)
   {
-    onPortInserted(ports[i]);
+    onExecPortInserted(ports[i]);
   }
 
   DFGWrapper::ConnectionList connections = m_graph->getConnections();
@@ -213,7 +213,7 @@ void DFGView::onPinRemoved(DFGWrapper::PinPtr pin)
     m_controller->checkErrors();
 }
 
-void DFGView::onPortInserted(DFGWrapper::PortPtr port)
+void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -259,7 +259,7 @@ void DFGView::onPortInserted(DFGWrapper::PortPtr port)
   }
 }
 
-void DFGView::onPortRemoved(DFGWrapper::PortPtr port)
+void DFGView::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -469,7 +469,7 @@ void DFGView::onNodeTitleChanged(DFGWrapper::NodePtr node, const char * title)
   uiNode->update();
 }
 
-void DFGView::onPortRenamed(DFGWrapper::PortPtr port, const char * oldName)
+void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldName)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -546,7 +546,7 @@ void DFGView::onExecCacheRuleChanged(const char * path, const char * rule)
   // todo: we don't do anything here...
 }
 
-void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * resolvedType)
+void DFGView::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -563,7 +563,7 @@ void DFGView::onPortResolvedTypeChanged(DFGWrapper::PortPtr port, const char * r
   }
 }
 
-void DFGView::onPortTypeSpecChanged(FabricServices::DFGWrapper::PortPtr port, const char * typeSpec)
+void DFGView::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * typeSpec)
 {
   // todo: we don't do anything here...
 }
@@ -589,7 +589,7 @@ void DFGView::onPinResolvedTypeChanged(DFGWrapper::PinPtr pin, const char * reso
   }
 }
 
-void DFGView::onPortMetadataChanged(FabricServices::DFGWrapper::PortPtr port, const char * key, const char * metadata)
+void DFGView::onExecPortMetadataChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * key, const char * metadata)
 {
   // todo: we don't do anything here...
 }
@@ -604,7 +604,7 @@ void DFGView::onPinTypeChanged(FabricServices::DFGWrapper::PinPtr pin, FabricCor
   // todo: we don't do anything here...
 }
 
-void DFGView::onPortTypeChanged(FabricServices::DFGWrapper::PortPtr port, FabricCore::DFGPortType portType)
+void DFGView::onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port, FabricCore::DFGPortType portType)
 {
   // todo: we don't do anything here...
 }

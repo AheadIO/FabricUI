@@ -36,7 +36,7 @@ namespace FabricUI
 
     public slots:
 
-      void onPortsChanged();
+      void onExecPortsChanged();
       void compile();
       void reload();
       void onNewUnsavedChanges();

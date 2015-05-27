@@ -243,7 +243,7 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   result->addAction("Edit");
   result->addAction("Delete");
 
-  graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onPortAction(QAction*)));
+  graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onExecPortAction(QAction*)));
   return result;
 }
 
@@ -464,7 +464,7 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   }
 }
 
-void DFGWidget::onPortAction(QAction * action)
+void DFGWidget::onExecPortAction(QAction * action)
 {
   if(m_contextPort == NULL)
     return;
@@ -480,7 +480,7 @@ void DFGWidget::onPortAction(QAction * action)
       DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(m_contextPort->path().toUtf8().constData());
       if(!endPoint)
         return;
-      DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+      DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
       
       DFGEditPortDialog dialog(this, false, m_dfgConfig);
 
@@ -653,7 +653,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
         DFGWrapper::EndPointPtr endPoint = m_uiController->getEndPointFromPath(portPath.toUtf8().constData());
         if(endPoint)
         {
-          DFGWrapper::PortPtr port = DFGWrapper::PortPtr::StaticCast(endPoint);
+          DFGWrapper::ExecPortPtr port = DFGWrapper::ExecPortPtr::StaticCast(endPoint);
 
           if(dialog.native())
             port->setMetadata("uiNativeArray", "true", false);
