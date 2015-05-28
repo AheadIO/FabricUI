@@ -51,6 +51,7 @@ if buildOS == 'Linux':
 if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
   env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s.pdb /Zi" % File(PDB)) or ""}']
+  env.Append(CCFLAGS = ['/FS'])
 
 fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
