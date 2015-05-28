@@ -19,7 +19,7 @@ elif platform.system().lower().startswith('lin'):
 buildArch = 'x86_64'
 buildType = 'Release'
 
-env = Environment(MSVC_VERSION = "10.0")
+env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
 
 qtDir = os.environ['QT_DIR']
