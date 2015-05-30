@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGSetNodeCacheRuleCommand.h"
+#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -17,10 +18,13 @@ bool DFGSetNodeCacheRuleCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  if(m_rule == node->getExecutable()->getCacheRule())
-    node->setCacheRule(FEC_DFGCacheRule_Unspecified);
+  if ( !node->isInst() )
+    return false;
+  DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
+  if(m_rule == inst->getExecutable()->getCacheRule())
+    inst->setCacheRule(FEC_DFGCacheRule_Unspecified);
   else
-    node->setCacheRule(m_rule);
+    inst->setCacheRule(m_rule);
   return true;
 }
 

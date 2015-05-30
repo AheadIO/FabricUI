@@ -103,6 +103,7 @@ namespace FabricUI
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
       FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
+      FabricServices::DFGWrapper::InstPtr getInstFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
       FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);

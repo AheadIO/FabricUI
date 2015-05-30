@@ -3,6 +3,8 @@
 #include "DFGView.h"
 #include "DFGGraph.h"
 #include "DFGController.h"
+#include <DFGWrapper/Inst.h>
+#include <DFGWrapper/InstPort.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -70,14 +72,14 @@ void DFGView::onGraphSet()
     onNodeInserted(nodes[i]);
 
     // all pins
-    DFGWrapper::NodePortList pins = nodes[i]->getPorts();
+    DFGWrapper::NodePortList pins = nodes[i]->getNodePorts();
     for(size_t j=0;j<pins.size();j++)
     {
       onNodePortInserted(pins[j]);
     }
   }
 
-  DFGWrapper::ExecPortList ports = m_graph->getPorts();
+  DFGWrapper::ExecPortList ports = m_graph->getExecPorts();
   for(size_t i=0;i<ports.size();i++)
   {
     onExecPortInserted(ports[i]);
@@ -117,7 +119,18 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  GraphView::Node * uiNode = graph->addNodeFromPreset(node->getName(), node->getTitle());
+
+  DFGWrapper::InstPtr inst;
+  if ( node->isInst() )
+    inst = DFGWrapper::InstPtr::StaticCast( node );
+
+  char const *title;
+  if ( inst )
+    title = inst->getTitle();
+  else
+    title = "UNKNOWN NODE TYPE";
+
+  GraphView::Node * uiNode = graph->addNodeFromPreset(node->getNodeName(), title);
   if(!uiNode)
     return;
 
@@ -130,20 +143,20 @@ void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
     onNodeMetadataChanged(node, "uiCollapsedState", uiCollapsedStateMetadata.c_str());
 
   std::string uiNodeColorMetadata = node->getMetadata("uiNodeColor");
-  if(uiNodeColorMetadata.length() == 0)
-    uiNodeColorMetadata = node->getExecutable()->getMetadata("uiNodeColor");
+  if(uiNodeColorMetadata.length() == 0 && inst)
+    uiNodeColorMetadata = inst->getExecutable()->getMetadata("uiNodeColor");
   if(uiNodeColorMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiNodeColor", uiNodeColorMetadata.c_str());
 
   std::string uiHeaderColorMetadata = node->getMetadata("uiHeaderColor");
-  if(uiHeaderColorMetadata.length() == 0)
-    uiHeaderColorMetadata = node->getExecutable()->getMetadata("uiHeaderColor");
+  if(uiHeaderColorMetadata.length() == 0 && inst)
+    uiHeaderColorMetadata = inst->getExecutable()->getMetadata("uiHeaderColor");
   if(uiHeaderColorMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiHeaderColor", uiHeaderColorMetadata.c_str());
 
   std::string uiTooltipMetadata = node->getMetadata("uiTooltip");
-  if(uiTooltipMetadata.length() == 0)
-    uiTooltipMetadata = node->getExecutable()->getMetadata("uiTooltip");
+  if(uiTooltipMetadata.length() == 0 && inst)
+    uiTooltipMetadata = inst->getExecutable()->getMetadata("uiTooltip");
   if(uiTooltipMetadata.length() > 0)
     onNodeMetadataChanged(node, "uiTooltip", uiTooltipMetadata.c_str());
 
@@ -156,7 +169,7 @@ void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = node->getName();
+  QString path = node->getNodeName();
   GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
@@ -166,27 +179,34 @@ void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
     m_controller->checkErrors();
 }
 
-void DFGView::onNodePortInserted(DFGWrapper::NodePortPtr pin)
+void DFGView::onNodePortInserted(DFGWrapper::NodePortPtr nodePort)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = GraphView::parentPath(pin->getPortPath());
+  QString path = GraphView::parentPath(nodePort->getPortPath());
   GraphView::Node * uiNode = graph->nodeFromPath(path);
   if(!uiNode)
     return;
-  std::string dataType = pin->getResolvedType();
-  if(dataType.empty())
-    dataType = pin->getPort()->getTypeSpec();
-  std::string name = pin->getName();
+
+  DFGWrapper::InstPortPtr instPort;
+  if ( nodePort->isInstPort() )
+    instPort = DFGWrapper::InstPortPtr::StaticCast( nodePort );
+
+  std::string dataType = nodePort->getResolvedType();
+  if(dataType.empty() && instPort)
+    dataType = instPort->getExecPort()->getTypeSpec();
+  std::string name = nodePort->getPortName();
   // todo: once titles are supports
   // std::string label = port->getTitle();
-  std::string label = pin->getName();
-  QColor color = m_config.getColorForDataType(dataType, pin->getPort());
+  std::string label = nodePort->getPortName();
+  QColor color;
+  if ( instPort )
+    color = m_config.getColorForDataType(dataType, instPort->getExecPort());
   GraphView::PortType pType = GraphView::PortType_Input;
-  if(pin->getInsidePortType() == FabricCore::DFGPortType_Out)
+  if(nodePort->getNodePortType() == FabricCore::DFGPortType_Out)
     pType = GraphView::PortType_Output;
-  else if(pin->getInsidePortType() == FabricCore::DFGPortType_IO)
+  else if(nodePort->getNodePortType() == FabricCore::DFGPortType_IO)
     pType = GraphView::PortType_IO;
 
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, name.c_str(), pType, color, label.c_str());
@@ -222,18 +242,18 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
   if(dataType.empty())
     dataType = port->getTypeSpec();
   std::string path = port->getPortPath();
-  std::string name = port->getName();
+  std::string name = port->getPortName();
 
   // todo: once titles are supports
   // std::string label = port->getTitle();
-  std::string label = port->getName();
+  std::string label = port->getPortName();
 
   QColor color = m_config.getColorForDataType(dataType, port);
 
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(port->getInsidePortType() != FabricCore::DFGPortType_Out)
+  if(port->getNodePortType() != FabricCore::DFGPortType_Out)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
@@ -243,7 +263,7 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(port->getInsidePortType() != FabricCore::DFGPortType_In)
+  if(port->getNodePortType() != FabricCore::DFGPortType_In)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)
@@ -312,13 +332,13 @@ void DFGView::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
     GraphView::Node * uiSrcNode = uiGraph->nodeFromPath(srcParentPath);
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(src->getName());
+    uiSrcTarget = uiSrcNode->pin(src->getPortName());
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(src->getName());
+      uiSrcTarget = uiPanel->port(src->getPortName());
   }
 
   if(dstParentPath.length() > 0)
@@ -326,13 +346,13 @@ void DFGView::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
     GraphView::Node * uiDstNode = uiGraph->nodeFromPath(dstParentPath);
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(dst->getName());
+    uiDstTarget = uiDstNode->pin(dst->getPortName());
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dst->getName());
+      uiDstTarget = uiPanel->port(dst->getPortName());
   }
 
   if(!uiSrcTarget || !uiDstTarget)
@@ -400,7 +420,7 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  QString path = node->getName();
+  QString path = node->getNodeName();
   GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
   if(!uiNode)
     return;
@@ -461,7 +481,7 @@ void DFGView::onNodeTitleChanged(DFGWrapper::NodePtr node, const char * title)
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  QString path = node->getName();
+  QString path = node->getNodeName();
   GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
   if(!uiNode)
     return;
@@ -475,14 +495,14 @@ void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldNa
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
-  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getInsidePortType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
+  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getNodePortType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
   if(!uiPanel)
     return;
 
   GraphView::Port * uiPort = uiPanel->port(oldName);
   if(!uiPort)
     return;
-  uiPort->setName(port->getName());
+  uiPort->setName(port->getPortName());
 }
 
 void DFGView::onNodePortRenamed(DFGWrapper::NodePortPtr pin, const char * oldName)
@@ -551,7 +571,7 @@ void DFGView::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const 
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-  GraphView::Port * uiPort = uiGraph->port(port->getName());
+  GraphView::Port * uiPort = uiGraph->port(port->getPortName());
   if(!uiPort)
     return;
 
@@ -568,23 +588,28 @@ void DFGView::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr 
   // todo: we don't do anything here...
 }
 
-void DFGView::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr pin, const char * resolvedType)
+void DFGView::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr nodePort, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-  DFGWrapper::NodePtr node = pin->getNode();
-  GraphView::Node * uiNode = uiGraph->nodeFromPath(node->getName());
+  DFGWrapper::NodePtr node = nodePort->getNode();
+  GraphView::Node * uiNode = uiGraph->nodeFromPath(node->getNodeName());
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(pin->getName());
+  GraphView::Pin * uiPin = uiNode->pin(nodePort->getPortName());
   if(!uiPin)
     return;
 
   if(resolvedType != uiPin->dataType())
   {
     uiPin->setDataType(resolvedType);
-    uiPin->setColor(m_config.getColorForDataType(resolvedType, pin->getPort()), false);
+    if ( nodePort->isInstPort() )
+    {
+      DFGWrapper::InstPortPtr instPotr =
+        DFGWrapper::InstPortPtr::StaticCast( nodePort );
+      uiPin->setColor(m_config.getColorForDataType(resolvedType, instPotr->getExecPort()), false);
+    }
     uiGraph->updateColorForConnections(uiPin);
   }
 }

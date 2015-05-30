@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGRenameNodeCommand.h"
+#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -17,7 +18,10 @@ bool DFGRenameNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  node->setTitle(m_newTitle.toUtf8().constData());
+  if ( !node->isInst() )
+    return false;
+  DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
+  inst->setTitle(m_newTitle.toUtf8().constData());
   return true;
 }
 

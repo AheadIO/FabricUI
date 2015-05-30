@@ -23,7 +23,7 @@ namespace FabricUI
       virtual const char * getFullDesc() const { return "Adds a node to the graph using a given node type and a preset name."; }
 
       std::string getPath() const;
-      std::string getNodePath() const;
+      std::string getInstPath() const;
       std::string getPreset() const;
       QPointF getPos() const;
       GraphView::Node * getNode();
@@ -38,7 +38,7 @@ namespace FabricUI
 
       std::string m_path;
       std::string m_preset;
-      std::string m_nodePath;
+      std::string m_instPath;
       QPointF m_pos;
     };
 

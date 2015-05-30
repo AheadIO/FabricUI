@@ -30,7 +30,7 @@ bool DFGSetArgCommand::invoke()
 
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
   DFGWrapper::GraphExecutablePtr graph = view->getGraph();
-  FabricCore::DFGBinding binding = graph->getWrappedCoreBinding();
+  FabricCore::DFGBinding binding = graph->getDFGBinding();
 
   DFGWrapper::KLTypeDesc typeDesc(m_dataType);
   std::string baseType = typeDesc.getBaseType();

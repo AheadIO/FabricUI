@@ -42,16 +42,16 @@ void DFGExecPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
 
   try
   {
-    DFGWrapper::ExecPortList ports = exec->getPorts();
+    DFGWrapper::ExecPortList ports = exec->getExecPorts();
     for(size_t i=0;i<ports.size();i++)
     {
       QString portType = " in";
-      if(ports[i]->getOutsidePortType() == FabricCore::DFGPortType_Out)
+      if(ports[i]->getExecPortType() == FabricCore::DFGPortType_Out)
         portType = "out";
-      else if(ports[i]->getOutsidePortType() == FabricCore::DFGPortType_IO)
+      else if(ports[i]->getExecPortType() == FabricCore::DFGPortType_IO)
         portType = " io";
       QString dataType = ports[i]->getResolvedType();
-      QString name = ports[i]->getName();
+      QString name = ports[i]->getPortName();
       DFGExecPortListItem * item = new DFGExecPortListItem(m_list, portType, dataType, name);
       m_list->addItem(item);
     }
