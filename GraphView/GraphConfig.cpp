@@ -1,12 +1,17 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <FTL/Config.h>
 #include "GraphConfig.h"
 
 using namespace FabricUI::GraphView;
 
 GraphConfig::GraphConfig()
 {
+#if defined(FTL_OS_DARWIN)
+  useOpenGL = false;
+#else
   useOpenGL = true;
+#endif
   
   pathSep = ".";
   disconnectInputsAutomatically = true;
