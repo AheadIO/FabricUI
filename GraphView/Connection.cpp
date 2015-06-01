@@ -171,6 +171,7 @@ QRectF Connection::boundingRect() const
 void Connection::invalidate()
 {
   m_aboutToBeDeleted = true;
+  prepareGeometryChange();
 }
 
 void Connection::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
@@ -310,6 +311,8 @@ void Connection::updateBbox()
   QPointF currDstPoint = dstPoint();
   float penWidth = pen().width();
   float tangentLength = computeTangentLength();
+
+  prepareGeometryChange();
 
   m_boundingBox = QRectF(
     std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,

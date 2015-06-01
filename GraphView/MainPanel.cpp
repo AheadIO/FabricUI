@@ -119,7 +119,7 @@ MainPanel::ManipulationMode MainPanel::manipulationMode() const
 
 QRectF MainPanel::boundingRect() const
 {
-  return windowFrameRect();
+  return m_boundingRect;
 }
 
 void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
@@ -254,6 +254,12 @@ void MainPanel::wheelEvent(QGraphicsSceneWheelEvent * event)
 
 void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
+  if ( windowFrameRect() != m_boundingRect )
+  {
+    prepareGeometryChange();
+    m_boundingRect = windowFrameRect();
+  }
+
   // QRectF rect = windowFrameRect();
   // m_backGround->resize(rect.width(), rect.height());
   QGraphicsWidget::paint(painter, option, widget);

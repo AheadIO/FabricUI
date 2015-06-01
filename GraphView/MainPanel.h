@@ -79,6 +79,7 @@ namespace FabricUI
       SelectionRect * m_selectionRect;
       bool m_spaceBarDown;
       std::vector<Node*> m_ongoingSelection;
+      QRectF m_boundingRect;
     };
 
   };
