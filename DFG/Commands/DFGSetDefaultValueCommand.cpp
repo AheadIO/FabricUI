@@ -3,6 +3,7 @@
 #include "DFGSetDefaultValueCommand.h"
 
 #include <DFGWrapper/KLTypeDesc.h>
+#include <DFGWrapper/InstPort.h>
 #include <GraphView/Graph.h>
 
 using namespace FabricServices;
@@ -26,13 +27,18 @@ bool DFGSetDefaultValueCommand::invoke()
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
   DFGWrapper::GraphExecutablePtr graph = view->getGraph();
   DFGWrapper::PortPtr port = DFGWrapper::Port::Create(
-    graph->getWrappedCoreBinding(), graph->getWrappedCoreExec(), graph->getExecPath(), m_path.c_str());
+    graph->getDFGBinding(), graph->getExecPath(), graph->getDFGExec(), m_path.c_str());
   if(!port)
     return false;
   if(port->isNodePort())
   {
     DFGWrapper::NodePortPtr nodePort = DFGWrapper::NodePortPtr::StaticCast(port);
-    nodePort->setDefaultValue(m_value);
+    if ( nodePort->isInstPort() )
+    {
+      DFGWrapper::InstPortPtr instPort =
+        DFGWrapper::InstPortPtr::StaticCast( nodePort);
+      instPort->setDefaultValue(m_value);
+    }
   }
   else
   {

@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <DFGWrapper/Binding.h>
+#include <DFGWrapper/InstPort.h>
 
 #include "DFGValueEditor.h"
 
@@ -45,13 +46,13 @@ void DFGValueEditor::onArgsChanged()
       if(!m_controller->getView())
         return;
 
-      DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
-      DFGWrapper::ExecPortList ports = binding.getExecutable()->getPorts();
+      DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getDFGBinding();
+      DFGWrapper::ExecPortList ports = binding.getExecutable()->getExecPorts();
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getInsidePortType() != FabricCore::DFGPortType_Out)
+        if(ports[i]->getNodePortType() != FabricCore::DFGPortType_Out)
           continue;
-        std::string portName = ports[i]->getName();
+        std::string portName = ports[i]->getPortName();
         if(portName.length() == 0)
           continue;
         if(portName == "timeLine" || portName == "timeline")
@@ -63,7 +64,7 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
-        ValueItem * item = addValue(path, value, ports[i]->getName(), true);
+        ValueItem * item = addValue(path, value, ports[i]->getPortName(), true);
         if(item)
         {
           item->setMetaData("uiRange", ports[i]->getMetadata("uiRange"));
@@ -72,7 +73,7 @@ void DFGValueEditor::onArgsChanged()
       }
       for(uint32_t i=0;i<ports.size();i++)
       {
-        if(ports[i]->getInsidePortType() == FabricCore::DFGPortType_Out)
+        if(ports[i]->getNodePortType() == FabricCore::DFGPortType_Out)
           continue;
         QString hidden = ports[i]->getMetadata("uiHidden");
         if(hidden == "true")
@@ -81,33 +82,38 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(path);
         if(!value.isValid())
           continue;
-        addValue(path, value, ports[i]->getName(), false);
+        addValue(path, value, ports[i]->getPortName(), false);
       }
     }
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_node->getName(), FabricCore::RTVal(), m_node->getName(), false);
+      ValueItem * nodeItem = addValue(m_node->getNodeName(), FabricCore::RTVal(), m_node->getNodeName(), false);
 
-      DFGWrapper::NodePortList pins = m_node->getPorts();
-      for(size_t i=0;i<pins.size();i++)
+      DFGWrapper::NodePortList nodePorts = m_node->getNodePorts();
+      for(size_t i=0;i<nodePorts.size();i++)
       {
-        if(pins[i]->getInsidePortType() == FabricCore::DFGPortType_Out)
+        if ( !nodePorts[i]->isInstPort() )
           continue;
-        if(pins[i]->isConnectedToAny())
+        DFGWrapper::InstPortPtr instPort =
+          DFGWrapper::InstPortPtr::StaticCast( nodePorts[i] );
+
+        if(instPort->getNodePortType() == FabricCore::DFGPortType_Out)
+          continue;
+        if(instPort->isConnectedToAny())
           continue;
 
-        std::string dataType = pins[i]->getResolvedType();
+        std::string dataType = instPort->getResolvedType();
         if(dataType == "" || dataType.find('$') != std::string::npos)
           continue;
 
-        QString hidden = pins[i]->getPort()->getMetadata("uiHidden");
+        QString hidden = instPort->getExecPort()->getMetadata("uiHidden");
         if(hidden == "true")
           continue;
 
-        FabricCore::RTVal value = pins[i]->getDefaultValue(dataType.c_str());
+        FabricCore::RTVal value = instPort->getDefaultValue(dataType.c_str());
         if(!value.isValid())
-          value = pins[i]->getPort()->getDefaultValue(dataType.c_str());
+          value = instPort->getExecPort()->getDefaultValue(dataType.c_str());
         
         if(!value.isValid())
         {
@@ -122,7 +128,7 @@ void DFGValueEditor::onArgsChanged()
             aliasedDataType = "Float32";
 
           if(aliasedDataType.length() > 0)
-            value = pins[i]->getDefaultValue(aliasedDataType.c_str());
+            value = instPort->getDefaultValue(aliasedDataType.c_str());
         }
 
         if(!value.isValid())
@@ -140,11 +146,11 @@ void DFGValueEditor::onArgsChanged()
         if(!value.isValid())
           continue;
         
-        ValueItem * item = addValue(pins[i]->getPortPath(), value, pins[i]->getName(), true);
+        ValueItem * item = addValue(instPort->getPortPath(), value, instPort->getPortName(), true);
         if(item)
         {
-          item->setMetaData("uiRange", pins[i]->getPort()->getMetadata("uiRange"));
-          item->setMetaData("uiCombo", pins[i]->getPort()->getMetadata("uiCombo"));
+          item->setMetaData("uiRange", instPort->getExecPort()->getMetadata("uiRange"));
+          item->setMetaData("uiCombo", instPort->getExecPort()->getMetadata("uiCombo"));
         }
       }
 
@@ -166,7 +172,7 @@ void DFGValueEditor::updateOutputs()
   if(!m_controller->getView())
     return;
 
-  DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getWrappedCoreBinding();
+  DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getDFGBinding();
 
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {

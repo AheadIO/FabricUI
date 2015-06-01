@@ -27,7 +27,7 @@ bool DFGAddPortCommand::invoke()
   else if(m_portType == GraphView::PortType_IO)
     portType = FabricCore::DFGPortType_IO;
 
-  m_portPath = exec->addPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL)->getPortPath();
+  m_portPath = exec->addExecPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL)->getPortPath();
   return true;
 }
 

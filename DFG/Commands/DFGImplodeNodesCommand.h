@@ -24,7 +24,7 @@ namespace FabricUI
 
       std::vector<std::string> getNodePaths() const;
       std::string getDesiredName() const;
-      std::string getNodeName() const;
+      std::string getInstName() const;
 
     protected:
       
@@ -37,7 +37,7 @@ namespace FabricUI
       std::vector<std::string> m_nodePaths;
       std::vector<char const *> m_nodePathsPtr;
       std::string m_desiredName;
-      std::string m_nodeName;
+      std::string m_instName;
     };
 
   };

@@ -24,13 +24,13 @@ bool DFGRemoveAllConnectionsCommand::invoke()
   if(m_isPin)
   {
     DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.c_str());
-    DFGWrapper::NodePortPtr pin = node->getPort(m_pinTitle.c_str());
+    DFGWrapper::NodePortPtr pin = node->getNodePort(m_pinTitle.c_str());
     pin->disconnectFromAll();
   }
   else
   {
     DFGWrapper::ExecutablePtr exec = ctrl->getExecFromPath(m_nodePath.c_str());
-    DFGWrapper::ExecPortPtr port = exec->getPort(m_pinTitle.c_str());
+    DFGWrapper::ExecPortPtr port = exec->getExecPort(m_pinTitle.c_str());
     port->disconnectFromAll();
   }
   return true;

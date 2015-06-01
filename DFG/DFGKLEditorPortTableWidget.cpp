@@ -76,7 +76,7 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
 
   try
   {
-    DFGWrapper::ExecPortList ports = m_exec->getPorts();
+    DFGWrapper::ExecPortList ports = m_exec->getExecPorts();
 
     if(ports.size() == 0)
     {
@@ -87,8 +87,8 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
     {
       for(size_t i=0;i<ports.size();i++)
       {
-        FabricCore::DFGPortType portType = ports[i]->getOutsidePortType();
-        QString portName = ports[i]->getName();
+        FabricCore::DFGPortType portType = ports[i]->getExecPortType();
+        QString portName = ports[i]->getPortName();
         QString dataType = ports[i]->getTypeSpec();
         addPort(portType, portName, dataType);
       }

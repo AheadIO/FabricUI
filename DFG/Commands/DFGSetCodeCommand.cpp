@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <DFGWrapper/FuncExecutable.h>
+#include <DFGWrapper/Inst.h>
 #include "DFGSetCodeCommand.h"
 
 using namespace FabricServices;
@@ -19,7 +20,7 @@ bool DFGSetCodeCommand::invoke()
   DFGView * view = (DFGView *)((DFGController*)controller())->getView();
   DFGWrapper::GraphExecutablePtr graph = view->getGraph();
   DFGWrapper::ExecutablePtr exec(graph);
-  std::string remainingGraphPath = GraphView::relativePathSTL(graph->getGraphPath(), m_execPath);
+  std::string remainingGraphPath = GraphView::relativePathSTL(graph->getExecPath(), m_execPath);
   while(remainingGraphPath.length() > 0)
   {
     std::string nodeName = remainingGraphPath;
@@ -27,11 +28,14 @@ bool DFGSetCodeCommand::invoke()
     if(periodPos != std::string::npos)
       nodeName = nodeName.substr(0, periodPos);
     DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
-    exec = node->getExecutable();
+    if ( !node->isInst() )
+      return false;
+    DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
+    exec = inst->getExecutable();
     if(exec->getExecType() != FabricCore::DFGExecType_Graph)
       break;
     graph = DFGWrapper::GraphExecutablePtr::StaticCast(exec);
-    remainingGraphPath = GraphView::relativePathSTL(graph->getGraphPath(), remainingGraphPath);
+    remainingGraphPath = GraphView::relativePathSTL(graph->getExecPath(), remainingGraphPath);
   }
 
   if(exec->getExecType() != FabricCore::DFGExecType_Func)

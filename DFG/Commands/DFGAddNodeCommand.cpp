@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGAddNodeCommand.h"
+#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -16,12 +17,12 @@ DFGAddNodeCommand::DFGAddNodeCommand(DFGController * controller, QString path, Q
 
 std::string DFGAddNodeCommand::getPath() const
 {
-  return GraphView::parentPathSTL(m_nodePath);
+  return GraphView::parentPathSTL(m_instPath);
 }
 
-std::string DFGAddNodeCommand::getNodePath() const
+std::string DFGAddNodeCommand::getInstPath() const
 {
-  return m_nodePath;
+  return m_instPath;
 }
 
 std::string DFGAddNodeCommand::getPreset() const
@@ -38,7 +39,7 @@ GraphView::Node * DFGAddNodeCommand::getNode()
 {
   DFGController * ctrl = (DFGController*)controller();
   if(ctrl->graph())
-    return ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+    return ctrl->graph()->nodeFromPath(m_instPath.c_str());
   return NULL;
 }
 
@@ -46,9 +47,9 @@ bool DFGAddNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
-  DFGWrapper::NodePtr node = graph->addNodeFromPreset(m_preset.c_str());
-  m_nodePath = node->getName();
-  ctrl->moveNode(m_nodePath.c_str(), m_pos, false);
+  DFGWrapper::InstPtr inst = graph->addInstFromPreset(m_preset.c_str());
+  m_instPath = inst->getNodeName();
+  ctrl->moveNode(m_instPath.c_str(), m_pos, false);
   return true;
 }
 
@@ -57,7 +58,7 @@ bool DFGAddNodeCommand::undo()
   DFGController * ctrl = (DFGController*)controller();
   if(ctrl->graph())
   {
-    GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+    GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
     if(uiNode)
     {
       m_pos = uiNode->topLeftGraphPos();
@@ -80,7 +81,7 @@ bool DFGAddNodeCommand::redo()
   {
     if(ctrl->graph())
     {
-      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
       if(uiNode)
       {
         ctrl->moveNode(uiNode, m_pos, true);
@@ -90,7 +91,7 @@ bool DFGAddNodeCommand::redo()
     }
     else
     {
-      ctrl->moveNode(m_nodePath.c_str(), m_pos, false);
+      ctrl->moveNode(m_instPath.c_str(), m_pos, false);
     }
     return true;
   }

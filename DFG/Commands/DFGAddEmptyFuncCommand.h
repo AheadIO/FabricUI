@@ -25,7 +25,7 @@ namespace FabricUI
       std::string getPath() const;
       std::string getTitle() const;
       QPointF getPos() const;
-      std::string getNodePath() const;
+      std::string getInstPath() const;
       GraphView::Node * getNode();
 
     protected:
@@ -38,7 +38,7 @@ namespace FabricUI
 
       std::string m_path;
       std::string m_title;
-      std::string m_nodePath;
+      std::string m_instPath;
       QPointF m_pos;
     };
 

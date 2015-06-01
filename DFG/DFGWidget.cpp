@@ -11,6 +11,7 @@
 #include "DFGMainWindow.h"
 #include "Dialogs/DFGGetStringDialog.h"
 #include "Dialogs/DFGEditPortDialog.h"
+#include <assert.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -105,11 +106,11 @@ void DFGWidget::setGraph(DFGWrapper::Host * host, DFGWrapper::Binding binding, D
     );  
     m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
 
-    m_uiGraph->reset(m_dfgGraph->getGraphPath(), true);
+    m_uiGraph->reset(m_dfgGraph->getExecPath(), true);
     m_dfgView = new DFGView(m_dfgGraph, m_dfgConfig);
     m_uiController->setHost(m_dfgHost);
     m_uiController->setView(m_dfgView);
-    m_uiHeader->setCaption(m_dfgGraph->getGraphPath());
+    m_uiHeader->setCaption(m_dfgGraph->getExecPath());
   
     m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
     m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
@@ -168,21 +169,27 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   return result;
 }
 
-QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void* userData)
+QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
   DFGGraph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
-  graphWidget->m_contextNode = node;
+  graphWidget->m_contextNode = uiNode;
 
-  FabricServices::DFGWrapper::NodePtr dfgNode = graphWidget->m_uiController->getNodeFromPath(node->path().toUtf8().constData());
-  FEC_DFGCacheRule cacheRule = dfgNode->getCacheRule();
-  if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    cacheRule = dfgNode->getExecutable()->getCacheRule();
+  FabricServices::DFGWrapper::NodePtr node =
+    graphWidget->m_uiController->getNodeFromPath(uiNode->path().toUtf8().constData());
+  if ( !node->isInst() )
+    return NULL;
+  FabricServices::DFGWrapper::InstPtr inst =
+    FabricServices::DFGWrapper::InstPtr::StaticCast( node );
 
   QMenu* result = new QMenu(NULL);
   QAction* action;
+  FEC_DFGCacheRule cacheRule = inst->getCacheRule();
+  if(cacheRule == FEC_DFGCacheRule_Unspecified)
+    cacheRule = inst->getExecutable()->getCacheRule();
+
   action = result->addAction("Edit");
   action = result->addAction("Rename");
   action = result->addAction("Delete");
@@ -212,7 +219,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void*
     }
     result->addAction("Implode nodes");
   }
-  if(dfgNode->getExecutable()->isGraph())
+  if(inst->getExecutable()->isGraph())
   {
     if(!hasSep)
     {
@@ -222,7 +229,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* node, void*
     result->addAction("Explode node");
   }
 
-  if(dfgNode->getExecutable()->getNumExtensionDependencies() > 0)
+  if(inst->getExecutable()->getNumExtensionDependencies() > 0)
   {
     result->addSeparator();
     result->addAction("Reload Extension(s)");
@@ -308,7 +315,12 @@ void DFGWidget::onGraphAction(QAction * action)
     if(uiNode)
     {
       DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(uiNode->path().toUtf8().constData());
-      editNode(dfgNode->getExecutable(), true);
+      if ( dfgNode->isInst() )
+      {
+        DFGWrapper::InstPtr dfgInst =
+          DFGWrapper::InstPtr::StaticCast( dfgNode );
+        editNode(dfgInst->getExecutable(), true);
+      }
     }
     m_uiController->endInteraction();
   }
@@ -335,7 +347,12 @@ void DFGWidget::onNodeAction(QAction * action)
   if(action->text() == "Edit")
   {
     DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(m_contextNode->path().toUtf8().constData());
-    editNode(dfgNode->getExecutable(), true);
+    if ( dfgNode->isInst() )
+    {
+      DFGWrapper::InstPtr dfgInst =
+        DFGWrapper::InstPtr::StaticCast( dfgNode );
+      editNode(dfgInst->getExecutable(), true);
+    }
   }
   else if(action->text() == "Rename")
   {
@@ -350,7 +367,9 @@ void DFGWidget::onNodeAction(QAction * action)
     DFGWrapper::Binding binding = m_uiController->getBinding();
     DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(binding.getExecutable());
     DFGWrapper::NodePtr node = graph->getNode(m_contextNode->name().toUtf8().constData());
-    DFGWrapper::ExecutablePtr exec = node->getExecutable();
+    assert( node->isInst() );
+    DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
+    DFGWrapper::ExecutablePtr exec = inst->getExecutable();
 
     QString title = exec->getTitle();
     if(title.toLower().endsWith(".dfg.json"))
@@ -382,17 +401,23 @@ void DFGWidget::onNodeAction(QAction * action)
     try
     {
       // copy all defaults
-      DFGWrapper::ExecPortList ports = exec->getPorts();
+      DFGWrapper::ExecPortList ports = exec->getExecPorts();
       for(unsigned int i=0;i<ports.size();i++)
       {
-        DFGWrapper::NodePortPtr pin = node->getPort(ports[i]->getName());
-        QString rType = pin->getResolvedType();
+        DFGWrapper::NodePortPtr nodePort = node->getNodePort(ports[i]->getPortName());
+        QString rType = nodePort->getResolvedType();
         if(rType.length() == 0 || rType.indexOf('$') >= 0)
           continue;
-        FabricCore::RTVal val = pin->getDefaultValue(rType.toUtf8().constData());
-        if(val.isValid())
+        if ( nodePort->isInstPort() )
         {
-          ports[i]->setDefaultValue(val);
+          DFGWrapper::InstPortPtr instPort =
+            DFGWrapper::InstPortPtr::StaticCast( nodePort );
+          FabricCore::RTVal val =
+            instPort->getDefaultValue(rType.toUtf8().constData());
+          if(val.isValid())
+          {
+            ports[i]->setDefaultValue(val);
+          }
         }
       }
 
@@ -456,7 +481,12 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   try
   {
     DFGWrapper::NodePtr dfgNode = m_uiController->getNodeFromPath(node->path().toUtf8().constData());
-    editNode(dfgNode->getExecutable(), true);
+    if ( dfgNode->isInst() )
+    {
+      DFGWrapper::InstPtr dfgInst =
+        DFGWrapper::InstPtr::StaticCast( dfgNode );
+      editNode(dfgInst->getExecutable(), true);
+    }
   }
   catch(FabricCore::Exception e)
   {
@@ -484,7 +514,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       
       DFGEditPortDialog dialog(this, false, m_dfgConfig);
 
-      dialog.setTitle(port->getName());
+      dialog.setTitle(port->getPortName());
       dialog.setDataType(port->getResolvedType());
 
       QString uiNativeArray = port->getMetadata("uiNativeArray");
@@ -579,7 +609,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           m_uiController->setArg(m_contextPort->name(), dialog.dataType());
       }
 
-      if(dialog.title() != port->getName())
+      if(dialog.title() != port->getPortName())
       {
         m_uiController->renamePort(m_contextPort->path(), dialog.title());
       }

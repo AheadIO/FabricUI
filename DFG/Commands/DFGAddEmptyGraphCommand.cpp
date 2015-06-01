@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGAddEmptyGraphCommand.h"
+#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -29,9 +30,9 @@ QPointF DFGAddEmptyGraphCommand::getPos() const
   return m_pos;
 }
 
-std::string DFGAddEmptyGraphCommand::getNodePath() const
+std::string DFGAddEmptyGraphCommand::getInstPath() const
 {
-  return m_nodePath;
+  return m_instPath;
 }
 
 GraphView::Node * DFGAddEmptyGraphCommand::getNode()
@@ -39,19 +40,19 @@ GraphView::Node * DFGAddEmptyGraphCommand::getNode()
   DFGController * ctrl = (DFGController*)controller();
   if(!ctrl->graph())
     return NULL;
-  return ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+  return ctrl->graph()->nodeFromPath(m_instPath.c_str());
 }
 
 bool DFGAddEmptyGraphCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
-  DFGWrapper::NodePtr node = graph->addNodeWithNewGraph(m_title.c_str());
-  node->getExecutable()->setTitle(m_title.c_str());
-  m_nodePath = node->getName();
+  DFGWrapper::InstPtr inst = graph->addInstWithNewGraph(m_title.c_str());
+  inst->getExecutable()->setTitle(m_title.c_str());
+  m_instPath = inst->getNodeName();
   if(ctrl->graph())
   {
-    GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+    GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
     if(uiNode)
       ctrl->moveNode(uiNode, m_pos, false);
   }
@@ -65,7 +66,7 @@ bool DFGAddEmptyGraphCommand::undo()
   {
     if(ctrl->graph())
     {
-      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
       if(uiNode)
       {
         m_pos = uiNode->topLeftGraphPos();
@@ -83,7 +84,7 @@ bool DFGAddEmptyGraphCommand::redo()
   {
     if(ctrl->graph())
     {
-      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_nodePath.c_str());
+      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
       if(uiNode)
       {
         ctrl->moveNode(uiNode, m_pos, true);

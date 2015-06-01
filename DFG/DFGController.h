@@ -103,6 +103,7 @@ namespace FabricUI
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
       FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
+      FabricServices::DFGWrapper::InstPtr getInstFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
       FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
       FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
@@ -117,7 +118,7 @@ namespace FabricUI
       void structureChanged();
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void portRenamed(QString path, QString newName);
+      void execPortRenamed(QString path, QString newName);
       void argValueChanged(const char * argName);
 
     public slots:
