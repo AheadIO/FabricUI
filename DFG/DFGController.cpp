@@ -472,7 +472,7 @@ QString DFGController::renamePort(QString path, QString name)
     emit recompiled();
 
     QString newName = command->getResult();
-    emit portRenamed(path, newName);
+    emit execPortRenamed(path, newName);
     return newName;
   }
   catch(FabricCore::Exception e)
