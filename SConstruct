@@ -5,6 +5,13 @@
 import os
 import platform
 
+AddOption('--buildType',
+                  dest='buildType',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  help='Type of build to perform (Release or Debug)')
+
 if not os.environ.has_key('QT_DIR'):
   raise Exception("No QT_DIR environment variable specified.")
 if not os.environ.has_key('FABRIC_DIR'):
@@ -18,6 +25,9 @@ elif platform.system().lower().startswith('lin'):
 
 buildArch = 'x86_64'
 buildType = 'Release'
+
+if str(GetOption('buildType')).lower() == 'debug':
+  buildType = 'Debug'
 
 env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
