@@ -70,66 +70,6 @@ PortType SidePanel::portType() const
   return m_portType;
 }
 
-QString SidePanel::getUniqueName(QString name, bool isLabel) const
-{
-  QString resolvedName = name;
-  unsigned int suffixIndex = 0;
-  QString prefix = name;
-  QString suffix;
-
-  // std::vector<Port*> ports = graph()->ports();
-  std::vector<Port*> ports = m_ports;
-
-  bool found = false;
-  for(size_t i=0;i<ports.size();i++)
-  {
-    if(isLabel)
-    {
-      if(ports[i]->label() == resolvedName)
-      {
-        found = true;
-        break;
-      }
-    }
-    else
-    {
-      if(ports[i]->name() == resolvedName)
-      {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  while(found)
-  {
-    found = false;
-    suffix = QString::number(++suffixIndex);
-    resolvedName = prefix + suffix;
-    for(size_t i=0;i<ports.size();i++)
-    {
-      if(isLabel)
-      {
-        if(ports[i]->label() == resolvedName)
-        {
-          found = true;
-          break;
-        }
-      }
-      else
-      {
-        if(ports[i]->name() == resolvedName)
-        {
-          found = true;
-          break;
-        }
-      }
-    }
-  }
-
-  return resolvedName;
-}
-
 Port * SidePanel::addPort(Port * port)
 {
   // std::vector<Port*> ports = graph()->ports();

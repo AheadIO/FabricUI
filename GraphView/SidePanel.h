@@ -35,9 +35,7 @@ namespace FabricUI
       QString name() const;
       QColor color() const;
       PortType portType() const;
-
-      virtual QString getUniqueName(QString name, bool isLabel = false) const;
-
+      
       virtual unsigned int portCount() const;
       virtual Port * port(unsigned int index);
       virtual Port * port(QString nameOrPath);

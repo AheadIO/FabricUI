@@ -174,7 +174,7 @@ const PinCircle * Pin::outCircle() const
 
 bool Pin::canConnectTo(
   ConnectionTarget * other,
-  QString &failureReason
+  std::string &failureReason
   ) const
 {
   switch(other->targetType())
@@ -187,7 +187,7 @@ bool Pin::canConnectTo(
         || otherPin->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        path(), otherPin->path(), failureReason
+        pathString().c_str(), otherPin->pathString().c_str(), failureReason
         );
     }
     case TargetType_Port:
@@ -197,7 +197,7 @@ bool Pin::canConnectTo(
         || otherPort->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        path(), otherPort->path(), failureReason
+        pathString().c_str(), otherPort->path(), failureReason
         );
     }
     case TargetType_ProxyPort:

@@ -31,7 +31,11 @@ namespace FabricUI
 
       ConnectionTarget(QGraphicsWidget * parent);
 
-      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const = 0;
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const = 0;
+
       virtual TargetType targetType() const = 0;
       virtual QPointF connectionPos(PortType pType) const = 0;
     

@@ -19,7 +19,11 @@ namespace FabricUI
 
       DFGFactory(const DFGConfig & config = DFGConfig());
 
-      virtual GraphView::Node * constructNodeFromPreset(GraphView::Graph * graph, QString path, QString preset);
+      virtual GraphView::Node * constructNodeFromPreset(
+        GraphView::Graph * graph,
+        char const *path,
+        char const *preset
+        );
 
     private:
 

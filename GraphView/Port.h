@@ -31,7 +31,14 @@ namespace FabricUI
 
     public:
 
-      Port(SidePanel * parent, QString name, PortType portType, QString dataType, QColor color, QString label = "");
+      Port(
+        SidePanel * parent,
+        char const *name,
+        PortType portType,
+        QString dataType,
+        QColor color,
+        QString label = ""
+        );
       virtual ~Port() {}
 
       virtual int type() const { return QGraphicsItemType_Port; }
@@ -43,9 +50,11 @@ namespace FabricUI
       PinCircle * circle();
       const PinCircle * circle() const;
 
-      virtual QString name() const;
-      void setName(QString n);
-      virtual QString path() const;
+      char const *name() const
+        { return m_name.c_str(); }
+      void setName( char const *name );
+      char const *path() const
+        { return name(); }
       virtual QString label() const;
       void setLabel(QString n);
       virtual QColor color() const;
@@ -56,7 +65,11 @@ namespace FabricUI
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
 
-      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const;
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const;
+      
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
 
@@ -65,8 +78,7 @@ namespace FabricUI
       void init();
 
       SidePanel * m_sidePanel;
-      QString m_name;
-      QString m_path;
+      std::string m_name;
       PortType m_portType;
       QString m_labelCaption;
       QColor m_color;

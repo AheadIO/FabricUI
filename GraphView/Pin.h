@@ -59,7 +59,11 @@ namespace FabricUI
       PinCircle * outCircle();
       const PinCircle * outCircle() const;
 
-      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const;
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const;
+
       virtual TargetType targetType() const { return TargetType_Pin; }
       virtual QPointF connectionPos(PortType pType) const;
 

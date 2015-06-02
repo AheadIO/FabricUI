@@ -74,7 +74,7 @@ namespace FabricUI
       virtual QString renamePort(QString path, QString title);
       virtual bool addConnection(QString srcPath, QString dstPath, bool srcIsPin = true, bool dstIsPin = true);
       virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeConnection(QString srcPath, QString dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual bool removeConnection(char const *srcPath, char const *dstPath, bool srcIsPin = true, bool dstIsPin = true);
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
       virtual bool removeAllConnections(QString path, bool isPin = true);
       virtual bool addExtensionDependency(QString extension, QString execPath, QString & errorMessage);

@@ -102,7 +102,7 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     {
       PinCircle * pinCircle = (PinCircle *)items[i];
       ConnectionTarget * target = pinCircle->target();
-      QString failureReason;
+      std::string failureReason;
       bool success = false;
       if(pinCircle->portType() == PortType_Input)
         success = m_target->canConnectTo(target, failureReason);
@@ -122,7 +122,8 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
       {
         if(failureReason.length() > 0)
         {
-          if(!QToolTip::isVisible() || QToolTip::text() != failureReason)
+          QString failureReasonQString = failureReason.c_str();
+          if(!QToolTip::isVisible() || QToolTip::text() != failureReasonQString)
           {
             QGraphicsView * view = scene()->views()[0];
             if(view)
@@ -142,7 +143,7 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
               QRect rect(widgetCircleTopLeft, widgetCircleBottomRight);
               if(rect.contains(widgetPos))
-                QToolTip::showText(globalPos, failureReason, view, rect);
+                QToolTip::showText(globalPos, failureReasonQString, view, rect);
               else
                 QToolTip::hideText();
             }

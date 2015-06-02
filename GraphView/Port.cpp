@@ -10,12 +10,18 @@
 
 using namespace FabricUI::GraphView;
 
-Port::Port(SidePanel * parent, QString name, PortType portType, QString dataType, QColor color, QString label)
-: ConnectionTarget(parent)
+Port::Port(
+  SidePanel * parent,
+  char const *name,
+  PortType portType,
+  QString dataType,
+  QColor color,
+  QString label
+  )
+  : ConnectionTarget( parent )
+  , m_sidePanel( parent )
+  , m_name( name )
 {
-  m_sidePanel = parent;
-  m_name = parent->getUniqueName(name);
-  m_path = m_name;
   // if(parent->graph()->path().length() > 0)
   //   m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;
   m_portType = portType;
@@ -23,7 +29,7 @@ Port::Port(SidePanel * parent, QString name, PortType portType, QString dataType
   m_color = color;
   m_labelCaption = label;
   if(m_labelCaption.length() == 0)
-    m_labelCaption = m_name;
+    m_labelCaption = name;
 
   init();
 }
@@ -91,21 +97,14 @@ const PinCircle * Port::circle() const
   return m_circle;
 }
 
-QString Port::name() const
-{
-  return m_name;
-}
-
-void Port::setName(QString n)
+void Port::setName( char const *name )
 {
   if(m_name == m_labelCaption)
   {
     m_labelCaption = m_sidePanel->getUniqueName(n, true /* isLabel */);
     m_label->setText(m_labelCaption);
   }
-  m_name = n;
-  // m_path = graph()->path() + graph()->config().pathSep + m_name;
-  m_path = m_name;
+  m_name = name;
   update();
 }
 
@@ -182,7 +181,11 @@ bool Port::canConnectTo(
         || portType() == PortType_Input
         || otherPin->portType() == PortType_Output )
         return false;
-      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPin->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(
+        path(),
+        otherPin->pathString().c_str(),
+        failureReason
+        );
     }
     case TargetType_Port:
     {
@@ -193,7 +196,11 @@ bool Port::canConnectTo(
         return false;
       if(path() == otherPort->path())
         return false;
-      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPort->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(
+        path(),
+        otherPort->path(),
+        failureReason
+        );
     }
     default:
       return false;
