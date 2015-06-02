@@ -25,7 +25,7 @@ namespace FabricUI
       DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & config = DFGConfig());
       virtual ~DFGTabSearchWidget();
 
-      void showForSearch(QPoint pos);
+      void showForSearch( QPoint globalPos );
       void showForSearch();
 
       virtual void mousePressEvent(QMouseEvent * event);
@@ -38,26 +38,23 @@ namespace FabricUI
       virtual void focusOutEvent(QFocusEvent * event);
       virtual bool focusNextPrevChild(bool next);
       virtual void updateSearch();
-      virtual void updatePixmap();
       virtual int margin() const;
 
-    private:
-
-      void requestPixmapUpdate();
       QString resultLabel(unsigned int index) const;
       int indexFromPos(QPoint pos);
       int widthFromResults() const;
       int heightFromResults() const;
+      void updateGeometry();
 
-      DFGConfig m_config;
+    private:
+
       DFGWidget * m_parent;
+      DFGConfig m_config;
+      QFontMetrics m_metrics;
+
       int m_currentIndex;
       QString m_search;
       QStringList m_results;
-      QPoint m_pos;
-      QFontMetrics * m_metrics;
-      QPixmap m_pixmap;
-      bool m_requiresUpdate;
     };
 
   };
