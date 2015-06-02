@@ -17,7 +17,7 @@ namespace FabricUI
     {
       bool useOpenGL;
       
-      QString pathSep;
+      char const *pathSep;
       bool disconnectInputsAutomatically;
       bool rightClickDeletesConnections;
 

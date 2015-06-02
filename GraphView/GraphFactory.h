@@ -28,8 +28,8 @@ namespace FabricUI
 
     protected:
 
-      virtual Node * constructNode(Graph * graph, QString path, QString label = "");
-      virtual Node * constructNodeFromPreset(Graph * graph, QString path, QString preset) = 0;
+      virtual Node * constructNode(Graph * graph, char const *name, QString label = "");
+      virtual Node * constructNodeFromPreset(Graph * graph, char const *name, char const *preset) = 0;
       virtual Connection * constructConnection(Graph * graph, ConnectionTarget * src, ConnectionTarget * dst);
     };
 

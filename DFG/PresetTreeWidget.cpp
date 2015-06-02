@@ -13,9 +13,13 @@ using namespace FabricServices::DFGWrapper;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfig & config)
-: QWidget(parent)
-, m_host(host)
+PresetTreeWidget::PresetTreeWidget(
+  QWidget * parent,
+  FabricCore::DFGHost const &coreDFGHost,
+  const DFGConfig & config
+  )
+  : QWidget( parent )
+  , m_coreDFGHost( coreDFGHost )
 {
   m_searchEdit = new QLineEdit(this);
   m_treeView = new TreeView::TreeViewWidget(this);
@@ -47,9 +51,9 @@ PresetTreeWidget::~PresetTreeWidget()
 {
 }
 
-void PresetTreeWidget::setHost(FabricServices::DFGWrapper::Host * host)
+void PresetTreeWidget::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
-  m_host = host;
+  m_coreDFGHost = coreDFGHost;
 }
 
 void PresetTreeWidget::refresh()

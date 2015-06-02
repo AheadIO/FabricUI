@@ -9,6 +9,8 @@
 #include <QtGui/QPen>
 #include <QtGui/QMenu>
 
+#include <FTL/StrRef.h>
+
 #include "GraphConfig.h"
 #include "Controller.h"
 #include "GraphFactory.h"
@@ -69,8 +71,9 @@ namespace FabricUI
 
       // nodes
       virtual std::vector<Node *> nodes() const;
-      virtual Node * node(QString name) const;
-      virtual Node * nodeFromPath(QString path) const;
+      virtual Node * node( char const *name ) const;
+      virtual Node * nodeFromPath( char const *path ) const
+        { return node( path ); }
       virtual std::vector<Node *> selectedNodes() const;
 
       // ports
@@ -138,7 +141,7 @@ namespace FabricUI
       // interaction - only possible through controller
       virtual QString getUniquePath(QString path) const;
       virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(QString path, QString preset, bool quiet = false);
+      virtual Node * addNodeFromPreset(char const *name, char const *preset, bool quiet = false);
       virtual bool removeNode(Node * node, bool quiet = false);
       virtual bool addPort(Port * port, bool quiet = false);
       virtual bool removePort(Port * port, bool quiet = false);
@@ -178,7 +181,7 @@ namespace FabricUI
       NodeToolbar * m_nodeToolbar;
       QString m_path;
       std::vector<Node *> m_nodes;
-      std::map<QString, size_t> m_nodeMap;
+      std::map<FTL::StrRef, size_t> m_nodeMap;
       std::vector<Connection *> m_connections;
       MouseGrabber * m_mouseGrabber;
       MainPanel * m_mainPanel;

@@ -109,7 +109,7 @@ Node * Controller::addNodeFromPreset(QString preset, QPointF pos)
 
 bool Controller::removeNode(Node * node)
 {
-  RemoveNodeCommand * command = new RemoveNodeCommand(this, node->path());
+  RemoveNodeCommand * command = new RemoveNodeCommand(this, node->name());
   if(!addCommand(command))
   {
     delete(command);
@@ -336,74 +336,6 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
-}
-
-bool Controller::canConnectTo(QString pathA, QString pathB, QString &failureReason)
-{
-  if(!m_graph)
-  {
-    failureReason = "no graph";
-    return false;
-  }
-  QString relPathA = GraphView::relativePath(m_graph->path(), pathA);
-  QString relPathB = GraphView::relativePath(m_graph->path(), pathB);
-  QString dataTypeA;
-  QString dataTypeB;
-
-  if(relPathA.indexOf('.') == -1)
-  {
-    GraphView::Port * port = m_graph->port(relPathA);
-    if(port)
-      dataTypeA = port->dataType();
-  }
-  else
-  {
-    QStringList parts = relPathA.split('.');
-    if(parts.length() == 2)
-    {
-      GraphView::Node * node = m_graph->node(parts[0]);
-      if(node)
-      {
-        GraphView::Pin * pin = node->pin(parts[1]);
-        if(pin)
-        {
-          dataTypeA = pin->dataType();
-        }
-      }
-    }
-  }
-
-  if(relPathB.indexOf('.') == -1)
-  {
-    GraphView::Port * port = m_graph->port(relPathB);
-    if(port)
-      dataTypeB = port->dataType();
-  }
-  else
-  {
-    QStringList parts = relPathB.split('.');
-    if(parts.length() == 2)
-    {
-      GraphView::Node * node = m_graph->node(parts[0]);
-      if(node)
-      {
-        GraphView::Pin * pin = node->pin(parts[1]);
-        if(pin)
-        {
-          dataTypeB = pin->dataType();
-        }
-      }
-    }
-  }
-
-  if(dataTypeA == dataTypeB)
-    return true;
-
-  if(dataTypeA == "" || dataTypeB == "")
-    return true;
-
-  failureReason = "type mismatch";
-  return false;
 }
 
 bool Controller::addCommand(Command * command)

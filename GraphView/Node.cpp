@@ -14,14 +14,20 @@
 
 using namespace FabricUI::GraphView;
 
-Node::Node(Graph * parent, QString path, QString label, QColor color, QColor labelColor)
-: QGraphicsWidget(parent->itemGroup())
+Node::Node(
+  Graph * parent,
+  char const *name,
+  QString label,
+  QColor color,
+  QColor labelColor
+  )
+  : QGraphicsWidget( parent->itemGroup() )
+  , m_graph( parent )
+  , m_name( name )
 {
-  m_graph = parent;
-  m_path = path;
   m_labelCaption = label;
   if(m_labelCaption.length() == 0)
-    m_labelCaption = name();
+    m_labelCaption = name;
   else
   {
     QStringList parts = m_labelCaption.split(m_graph->config().pathSep);
@@ -129,17 +135,6 @@ const NodeHeader * Node::header() const
   return m_header;
 }
 
-QString Node::path() const
-{
-  return m_path;
-}
-
-QString Node::name() const
-{
-  QStringList parts = m_path.split(m_graph->config().pathSep);
-  return parts[parts.count()-1];
-}
-
 QString Node::title() const
 {
   return m_labelCaption;
@@ -149,11 +144,6 @@ void Node::setTitle(QString t)
 {
   m_labelCaption = t;
   m_header->setTitle(t);
-}
-
-QString Node::preset() const
-{
-  return m_preset;
 }
 
 QColor Node::color() const
@@ -240,9 +230,9 @@ void Node::toggleCollapsedState()
   setCollapsedState(CollapseState((int(m_collapsedState) + 1) % int(CollapseState_NumStates)));
 }
 
-void Node::setPreset(QString p)
+void Node::setPreset( char const *preset )
 {
-  m_preset = p;
+  m_preset = preset;
 }
 
 void Node::setSelected(bool state, bool quiet)

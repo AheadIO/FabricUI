@@ -24,10 +24,14 @@ namespace FabricUI
 
     public:
 
-      PresetTreeWidget(QWidget * parent, FabricServices::DFGWrapper::Host * host, const DFGConfig & config = DFGConfig());
+      PresetTreeWidget(
+        QWidget * parent,
+        FabricCore::DFGHost const &coreDFGHost,
+        const DFGConfig & config = DFGConfig()
+        );
       virtual ~PresetTreeWidget();
 
-      void setHost(FabricServices::DFGWrapper::Host * host);
+      void setHost( FabricCore::DFGHost const &coreDFGHost );
 
     public slots:
 
@@ -38,7 +42,7 @@ namespace FabricUI
       void updatePresetPathDB();
 
       QLineEdit * m_searchEdit;
-      FabricServices::DFGWrapper::Host * m_host;
+      FabricCore::DFGHost m_coreDFGHost;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       FabricServices::SplitSearch::Dict m_presetPathDict;

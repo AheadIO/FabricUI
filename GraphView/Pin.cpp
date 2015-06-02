@@ -10,15 +10,16 @@
 
 using namespace FabricUI::GraphView;
 
-Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString label)
-: ConnectionTarget(parent->pinsWidget())
+Pin::Pin(
+  Node * parent, char const *name, PortType pType, QColor color, QString label)
+  : ConnectionTarget(parent->pinsWidget())
+  , m_node( parent )
+  , m_name( name )
 {
-  m_node = parent;
-  m_name = name;
   m_portType = pType;
   m_labelCaption = label;
   if(m_labelCaption.length() == 0)
-    m_labelCaption = m_name;
+    m_labelCaption = name;
   m_color = color;
   m_index = 0;
   m_drawState = true;
@@ -66,16 +67,6 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
   layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
 }
 
-Node * Pin::node()
-{
-  return m_node;
-}
-
-const Node * Pin::node() const
-{
-  return m_node;
-}
-
 Graph * Pin::graph()
 {
   return node()->graph();
@@ -86,14 +77,11 @@ const Graph * Pin::graph() const
   return node()->graph();
 }
 
-QString Pin::name() const
+std::string Pin::pathString() const
 {
-  return m_name;
-}
-
-QString Pin::path() const
-{
-  return node()->path() + graph()->config().pathSep + name();
+  return node()->name()
+    + std::string( graph()->config().pathSep )
+    + m_name;
 }
 
 QString Pin::label() const

@@ -62,7 +62,11 @@ namespace FabricUI
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
 
-      virtual bool canConnectTo(QString pathA, QString pathB, QString &failureReason);
+      virtual bool canConnectTo(
+        char const *pathA,
+        char const *pathB,
+        std::string &failureReason
+        ) = 0;
 
       bool addCommand(FabricServices::Commands::Command * command);
       bool clearCommands();

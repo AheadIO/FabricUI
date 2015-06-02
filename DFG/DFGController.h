@@ -35,14 +35,24 @@ namespace FabricUI
 
       typedef void(*LogFunc)(const char * message);
 
-      DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, FabricServices::DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications = true);
+      DFGController(
+        GraphView::Graph * graph,
+        FabricServices::Commands::CommandStack * stack,
+        FabricCore::Client * client,
+        FabricServices::DFGWrapper::Host * host,
+        FabricServices::ASTWrapper::KLASTManager * manager,
+        bool overTakeBindingNotifications = true
+        );
 
-      FabricServices::DFGWrapper::Host * getHost();
-      FabricServices::DFGWrapper::Binding getBinding();
-      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExec();
-      void setHost(FabricServices::DFGWrapper::Host * host);
-      FabricCore::Client * getClient();
-      void setClient(FabricCore::Client * client);
+      FabricCore::Client const &getClient()
+        { return m_coreClient; }
+      FabricCore::DFGHost const &getCoreDFGHost()
+        { return m_coreDFGHost; }
+      FabricCore::DFGBinding const &getCoreDFGBinding();
+      FabricCore::DFGExec const &getCoreDFGExec();
+
+      void setHost( FabricCore::DFGHost const &coreDFGHost );
+      void setClient( FabricCore::Client const &coreClient );
       DFGView * getView();
       void setView(DFGView * view);
       bool isViewingRootGraph();
@@ -98,7 +108,11 @@ namespace FabricUI
       virtual bool execute();
       bool bindUnboundRTVals(std::string dataType = "");
 
-      virtual bool canConnectTo(QString pathA, QString pathB, QString &failureReason);
+      virtual bool canConnectTo(
+        char const *pathA,
+        char const *pathB,
+        std::string &failureReason
+        );
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
@@ -132,8 +146,8 @@ namespace FabricUI
       static void bindingNotificationCallback(void * userData, char const *jsonCString, uint32_t jsonLength);
       void updatePresetPathDB();
 
-      FabricCore::Client * m_client;
-      FabricServices::DFGWrapper::Host * m_host;
+      FabricCore::Client m_coreClient;
+      FabricCore::DFGHost m_coreDFGHost;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGView * m_view;
       LogFunc m_logFunc;

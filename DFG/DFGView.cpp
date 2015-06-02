@@ -10,9 +10,14 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGView::DFGView(DFGWrapper::GraphExecutablePtr graph, const DFGConfig & config)
-: DFGWrapper::View(graph)
-, m_graph(graph)
+DFGView::DFGView(
+  FabricCore::DFGExec const &coreDFGGraph,
+  const DFGConfig & config
+  )
+  : m_coreDFGGraph( coreDFGGraph )
+  , m_coreDFGView(
+    coreDFGGraph.createView( &ViewCallback, this )
+    )
 {
   m_controller = false;
   m_config = config;

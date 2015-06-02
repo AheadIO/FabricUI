@@ -19,20 +19,21 @@ using namespace FabricUI::DFG;
 
 DFGWidget::DFGWidget(
   QWidget * parent, 
-  FabricCore::Client * client,
-  ASTWrapper::KLASTManager * manager,
-  DFGWrapper::Host * host,
-  DFGWrapper::Binding binding,
-  DFGWrapper::GraphExecutablePtr graph,
+  FabricCore::Client const &coreClient,
+  FabricCore::DFGHost const &coreDFGHost,
+  FabricCore::DFGBinding const &coreDFGBinding,
+  FabricCore::DFGExec const &coreDFGGraph,
+  FabricServices::ASTWrapper::KLASTManager * manager,
   Commands::CommandStack * stack,
   const DFGConfig & dfgConfig,
   bool overTakeBindingNotifications
-)
-: QWidget(parent)
-, m_client(client)
-, m_manager(manager)
-, m_dfgGraph(graph)
-, m_dfgBinding(binding)
+  )
+  : QWidget(parent)
+  , m_coreClient(coreClient)
+  , m_coreDFGHost( coreDFGHost )
+  , m_coreDFGBinding( coreDFGBinding )
+  , m_coreDFGGraph( coreDFGGraph )
+  , m_manager(manager)
 {
   m_dfgConfig = dfgConfig;
   m_uiGraph = NULL;

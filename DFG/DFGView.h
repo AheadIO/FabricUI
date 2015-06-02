@@ -4,6 +4,7 @@
 #define __UI_DFG_DFGView__
 
 #include <DFGWrapper/View.h>
+#include <FTL/StrRef.h>
 #include <GraphView/Controller.h>
 #include <GraphView/Port.h>
 #include "DFGConfig.h"
@@ -24,11 +25,16 @@ namespace FabricUI
 
     public:
 
-      DFGView(FabricServices::DFGWrapper::GraphExecutablePtr graph, const DFGConfig & config = DFGConfig());
+      DFGView(
+        FabricCore::DFGExec const &coreDFGGraph,
+        const DFGConfig & config = DFGConfig()
+        );
 
       DFGController * getController();
       void setController(DFGController * view);
-      FabricServices::DFGWrapper::GraphExecutablePtr getGraph();
+      
+      FabricCore::DFGExec const &getCoreDFGGraph()
+        { return m_coreDFGGraph; }
 
       GraphView::Port * getLastPortInserted();
 
@@ -64,10 +70,25 @@ namespace FabricUI
       virtual void onNodePortTypeChanged(FabricServices::DFGWrapper::NodePortPtr pin, FabricCore::DFGPortType pinType);
       virtual void onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port, FabricCore::DFGPortType portType);
 
+    private:
+
+      void viewCallback( FTL::StrRef jsonStr );
+
+      static void ViewCallback(
+        void *thisVoidPtr,
+        char const *jsonCStr,
+        uint32_t jsonSize
+        )
+      {
+        static_cast<DFGView *>( thisVoidPtr )->viewCallback(
+          FTL::StrRef( jsonCStr, jsonSize )
+          );
+      }
+
       DFGController * m_controller;
       DFGConfig m_config;
       GraphView::Port * m_lastPortInserted;
-      FabricServices::DFGWrapper::GraphExecutablePtr m_graph;
+      FabricCore::DFGExec m_coreDFGGraph;
       bool m_performChecks;
     };
 

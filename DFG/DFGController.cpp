@@ -37,14 +37,20 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGController::DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications)
-: GraphView::Controller(graph, stack)
-, m_client(client)
-, m_host(host)
-, m_manager(manager)
+DFGController::DFGController(
+  GraphView::Graph * graph,
+  FabricServices::Commands::CommandStack * stack,
+  FabricCore::Client const &coreClient,
+  FabricCore::DFGHost const &coreDFGHost,
+  FabricServices::ASTWrapper::KLASTManager * manager,
+  bool overTakeBindingNotifications
+  )
+  : GraphView::Controller(graph, stack)
+  , m_coreClient( coreClient )
+  , m_coreDFGHost( coreDFGHost )
+  , m_manager(manager)
 {
   m_view = NULL;
-  m_host = host;
   m_logFunc = NULL;
   m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
@@ -52,34 +58,24 @@ DFGController::DFGController(GraphView::Graph * graph, FabricServices::Commands:
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
 }
 
-FabricCore::Client * DFGController::getClient()
+void DFGController::setClient( FabricCore::Client const &coreClient )
 {
-  return m_client;
+  m_coreClient = coreClient;
 }
 
-void DFGController::setClient(FabricCore::Client * client)
+DFGWrapper::Binding DFGController::getCoreDFGBinding()
 {
-  m_client = client;
-}
-
-DFGWrapper::Host * DFGController::getHost()
-{
-  return m_host;
-}
-
-DFGWrapper::Binding DFGController::getBinding()
-{
-  return getView()->getGraph()->getDFGBinding();
+  return getView()->getCoreDFGGraph()->getBinding();
 }
 
 DFGWrapper::GraphExecutablePtr DFGController::getGraphExec()
 {
-  return getView()->getGraph();
+  return getView()->getCoreDFGGraph();
 }
 
-void DFGController::setHost(FabricServices::DFGWrapper::Host * host)
+void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
-  m_host = host;
+  m_coreDFGHost = coreDFGHost;
 }
 
 DFGView * DFGController::getView()
@@ -1212,43 +1208,54 @@ bool DFGController::reloadExtensionDependencies(QString path)
 
 void DFGController::checkErrors()
 {
-  DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
-  DFGWrapper::NodeList nodes = exec->getNodes();
+  char const *execPath = m_view->getExecPath();
+  FabricCore::DFGExec const &exec = m_view->getCoreDFGExec();
 
-  std::vector<std::string> errors = exec->getErrors();
-  for(size_t i=0;i<errors.size();i++)
-    logError((std::string(exec->getExecPath()) + " : " +errors[i]).c_str());
-
-  for(size_t j=0;j<nodes.size();j++)
+  unsigned errorCount = exec.getErrorCount();
+  for(unsigned i=0;i<errorCount;i++)
   {
-    GraphView::Node * uiNode = NULL; 
-    if(graph())
+    std::string prefixedError = execPath;
+    prefixedError += " : ";
+    prefixedError += exec.getError(i);
+    logError( prefixedError.c_str() );
+  }
+
+  unsigned nodeCount = exec.getNodeCount();
+  for(size_t j=0;j<nodeCount;j++)
+  {
+    char const *nodeName = exec.getNodeName(j);
+
+    if ( !graph() )
+      continue;
+    GraphView::Node *uiNode = NULL;
+    if ( graph() )
     {
-      std::string path = GraphView::relativePathSTL(m_view->getGraph()->getExecPath(), nodes[j]->getNodeName());
-      uiNode = graph()->nodeFromPath(path.c_str());
-      if(!uiNode)
-        continue;
-      uiNode->clearError();
+      uiNode = graph()->nodeFromPath( nodeName );
+      if ( uiNode )
+        uiNode->clearError();
     }
 
-    if ( nodes[j]->isInst() )
+    if ( exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
     {
-      DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( nodes[j] );
+      FabricCore::DFGExec instExec = exec.getSubExec( nodeName );
 
-      errors = inst->getExecutable()->getErrors();
-      std::string errorComposed;
-      for(size_t i=0;i<errors.size();i++)
+      unsigned errorCount = instExec.getErrorCount();
+      if ( errorCount > 0 )
       {
-        if(errorComposed.length() > 0)
-          errorComposed += "\n";
-        errorComposed += errors[i];
+        std::string errorComposed;
+        errorComposed += nodeName;
+        errorComposed += " : ";
+        for(size_t i=0;i<errors.size();i++)
+        {
+          if(i > 0)
+            errorComposed += "\n";
+          errorComposed += instExec.getError(i);
+        }
       }
 
-      if(errorComposed.length() > 0 && uiNode)
-      {
-        logError((std::string(inst->getNodeName()) + " : " +errorComposed).c_str());
+      logError( errorComposed.c_str() );
+      if ( uiNode )
         uiNode->setError(errorComposed.c_str());
-      }
     }
   }
 }
@@ -1375,21 +1382,25 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
   return false;
 }
 
-bool DFGController::canConnectTo( QString pathA, QString pathB, QString &failureReason )
+bool DFGController::canConnectTo(
+  char const *pathA,
+  char const *pathB,
+  std::string &failureReason
+  )
 {
   try
   {
-    std::string failureReasonStdString;
-
-    DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-    bool result =graph->canConnectTo(
-      pathA.toUtf8().constData(),
-      pathB.toUtf8().constData(),
-      failureReasonStdString
-      );
-    if ( !result )
-      failureReason = failureReasonStdString.c_str();
-    return result;
+    DFGStringResult result =
+      getCoreDFGExec()->canConnectTo( pathA, pathB );
+    char const *resultData;
+    uint32_t resultSize;
+    result.getStringDataAndLength( resultData, resultSize );
+    if ( resultSize > 0 )
+    {
+      failureReason = std::string( resultData, resultSize );
+      return false;
+    }
+    else return true;
   }
   catch(FabricCore::Exception e)
   {

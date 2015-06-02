@@ -9,12 +9,19 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGValueEditor::DFGValueEditor(QWidget * parent, DFGController * controller, const DFGConfig & config)
-: ValueEditor::ValueEditorWidget(parent, controller->getClient())
+DFGValueEditor::DFGValueEditor(
+  QWidget * parent,
+  DFGController * controller,
+  const DFGConfig & config
+  )
+  : ValueEditor::ValueEditorWidget(
+    parent,
+    controller->getClient()
+    )
+  , m_nodeName( 0 )
+  , m_config( config )
+  , m_controller( controller )
 {
-  m_config = config;
-  m_controller = controller;
-
   // todo: really the value editor should be using a dfgview... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
@@ -22,11 +29,6 @@ DFGValueEditor::DFGValueEditor(QWidget * parent, DFGController * controller, con
 
 DFGValueEditor::~DFGValueEditor()
 {
-}
-
-FabricServices::DFGWrapper::NodePtr DFGValueEditor::getNode()
-{
-  return m_node;
 }
 
 void DFGValueEditor::setNode(FabricServices::DFGWrapper::NodePtr node)
@@ -41,7 +43,7 @@ void DFGValueEditor::onArgsChanged()
 
   try
   {
-    if(!m_node)
+    if(!m_nodeName)
     {
       if(!m_controller->getView())
         return;

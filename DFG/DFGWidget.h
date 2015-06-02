@@ -30,23 +30,23 @@ namespace FabricUI
 
       DFGWidget(
         QWidget * parent, 
-        FabricCore::Client * client,
+        FabricCore::Client const &client,
+        FabricCore::DFGHost const &dfgHost,
+        FabricCore::DFGBinding const &binding,
+        FabricCore::DFGExec const &graph,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricServices::DFGWrapper::Host * host,
-        FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
         bool overTakeBindingNotifications = true
-      );
+        );
       virtual ~DFGWidget();
 
       void setGraph(
-        FabricServices::DFGWrapper::Host * host,
-        FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph,
+        FabricCore::DFGHost const &coreDFGHost,
+        FabricCore::DFGBinding const &coreDFGBinding,
+        FabricCore::DFGExec const &coreDFGGraph,
         bool clear = true
-      );
+        );
 
       DFGGraph * getUIGraph();
       DFGController * getUIController();
@@ -93,13 +93,13 @@ namespace FabricUI
       DFGView * m_dfgView;
       DFGKLEditorWidget * m_klEditor;
       DFGTabSearchWidget * m_tabSearchWidget;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_coreClient;
+      FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
+      FabricCore::DFGExec m_coreDFGGraph;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
-      FabricServices::DFGWrapper::Host * m_dfgHost;
-      FabricServices::DFGWrapper::Binding m_dfgBinding;
-      FabricServices::DFGWrapper::GraphExecutablePtr m_dfgGraph;
       DFGConfig m_dfgConfig;
-      std::vector<FabricServices::DFGWrapper::ExecutablePtr> m_execStack;
+      std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
     };
 
   };

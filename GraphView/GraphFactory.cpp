@@ -6,9 +6,9 @@
 
 using namespace FabricUI::GraphView;
 
-Node * GraphFactory::constructNode(Graph * graph, QString path, QString label)
+Node * GraphFactory::constructNode(Graph * graph, char const *name, QString label)
 {
-  return new Node(graph, path, label);
+  return new Node(graph, name, label);
 }
 
 Connection * GraphFactory::constructConnection(Graph * graph, ConnectionTarget * src, ConnectionTarget * dst)

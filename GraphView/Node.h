@@ -39,7 +39,13 @@ namespace FabricUI
         CollapseState_NumStates
       };
 
-      Node(Graph * parent, QString path, QString label = "", QColor color = QColor(), QColor labelColor = QColor());
+      Node(
+        Graph * parent,
+        char const *name,
+        QString label = "",
+        QColor color = QColor(),
+        QColor labelColor = QColor()
+        );
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
@@ -49,11 +55,14 @@ namespace FabricUI
       NodeHeader * header();
       const NodeHeader * header() const;
 
-      QString path() const;
-      QString name() const;
+      char const *name() const
+        { return m_name.c_str(); }
+      std::string const &nameString() const
+        { return m_name; }
       QString title() const;
       void setTitle(QString t);
-      QString preset() const;
+      char const *preset() const
+        { return m_preset.c_str(); }
       QColor color() const;
       void setColor(QColor col);
       void setColorAsGradient(QColor a, QColor b);
@@ -92,7 +101,7 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
       // accessed by controller
-      virtual void setPreset(QString p);
+      virtual void setPreset( char const *preset );
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
       virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
@@ -127,8 +136,8 @@ namespace FabricUI
       void updatePinLayout();
 
       Graph * m_graph;
-      QString m_path;
-      QString m_preset;
+      std::string m_name;
+      std::string m_preset;
       QString m_labelCaption;
 
       QColor m_colorA;

@@ -211,11 +211,11 @@ NodeToolbar * Graph::nodeToolbar()
 
 Node * Graph::addNode(Node * node, bool quiet)
 {
-  QString key = node->path();
+  FTL::StrRef key = node->name();
   if(m_nodeMap.find(key) != m_nodeMap.end())
     return NULL;
 
-  m_nodeMap.insert(std::pair<QString, size_t>(key, m_nodes.size()));
+  m_nodeMap.insert(std::pair<FTL::StrRef, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
@@ -229,17 +229,17 @@ Node * Graph::addNode(Node * node, bool quiet)
   return node;
 }
 
-Node * Graph::addNodeFromPreset(QString path, QString preset, bool quiet)
+Node * Graph::addNodeFromPreset(
+  char const *name, char const *preset, bool quiet
+  )
 {
   if(!m_factory)
   {
-    if(preset == "")
-    {
-      return addNode(new Node(this, path), quiet);
-    }
+    if ( !preset || !preset[0] )
+      return addNode(new Node(this, name), quiet);
     return NULL;
   }
-  Node * node = m_factory->constructNodeFromPreset(this, path, preset);
+  Node * node = m_factory->constructNodeFromPreset(this, name, preset);
   if(!node)
     return NULL;
   node->setPreset(preset);
@@ -248,8 +248,8 @@ Node * Graph::addNodeFromPreset(QString path, QString preset, bool quiet)
 
 bool Graph::removeNode(Node * node, bool quiet)
 {
-  QString key = node->path();
-  std::map<QString, size_t>::iterator it = m_nodeMap.find(key);
+  FTL::StrRef key = node->name();
+  std::map<FTL::StrRef, size_t>::iterator it = m_nodeMap.find(key);
   if(it == m_nodeMap.end())
     return false;
 
@@ -310,21 +310,10 @@ std::vector<Node *> Graph::nodes() const
   return result;
 }
 
-Node * Graph::node(QString name) const
+Node * Graph::node( char const *name ) const
 {
-  QString key = path();
-  if(key.length() > 0)
-    key += m_config.pathSep;
-  key += name;
-  std::map<QString, size_t>::const_iterator it = m_nodeMap.find(key);
-  if(it == m_nodeMap.end())
-    return NULL;
-  return m_nodes[it->second];
-}
-
-Node * Graph::nodeFromPath(QString path) const
-{
-  std::map<QString, size_t>::const_iterator it = m_nodeMap.find(path);
+  FTL::StrRef key( name );
+  std::map<FTL::StrRef, size_t>::const_iterator it = m_nodeMap.find(key);
   if(it == m_nodeMap.end())
     return NULL;
   return m_nodes[it->second];
@@ -692,7 +681,7 @@ QString Graph::getUniquePath(QString path) const
     resolvedPath = prefix + middle + suffix;
     for(size_t i=0;i<m_nodes.size();i++)
     {
-      if(m_nodes[i]->path() == resolvedPath)
+      if(m_nodes[i]->name() == resolvedPath)
       {
         found = true;
         break;

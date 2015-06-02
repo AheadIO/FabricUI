@@ -21,11 +21,16 @@ namespace FabricUI
 
     public:
 
-      DFGValueEditor(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
+      DFGValueEditor(
+        QWidget * parent,
+        DFGController * controller,
+        const DFGConfig & config = DFGConfig()
+        );
       virtual ~DFGValueEditor();
 
-      FabricServices::DFGWrapper::NodePtr getNode();
-      void setNode(FabricServices::DFGWrapper::NodePtr node);
+      char const *getNodeName()
+        { return m_nodeName; }
+      void setNodeName( char const *nodeName );
 
     public slots:
 
@@ -34,7 +39,7 @@ namespace FabricUI
 
     private:
 
-      FabricServices::DFGWrapper::NodePtr m_node;
+      char const *m_nodeName;
       DFGConfig m_config;
       DFGController * m_controller;
     };

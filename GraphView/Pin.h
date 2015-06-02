@@ -32,12 +32,17 @@ namespace FabricUI
 
       virtual int type() const { return QGraphicsItemType_Pin; }
 
-      Node * node();
-      const Node * node() const;
+      Node *node()
+        { return m_node; }
+      const Node * node() const
+        { return m_node; }
       Graph * graph();
       const Graph * graph() const;
-      virtual QString name() const;
-      virtual QString path() const;
+      char const *name() const
+        { return m_name.c_str(); }
+      std::string const &nameString() const
+        { return m_name; }
+      std::string pathString() const;
       virtual QString label() const;
       virtual PortType portType() const;
       QColor color() const;
@@ -62,7 +67,7 @@ namespace FabricUI
       virtual bool drawState() const;
 
       // accessed by controller
-      Pin(Node * parent, QString name, PortType pType, QColor color, QString label = "");
+      Pin(Node * parent, char const *name, PortType pType, QColor color, QString label = "");
       
     signals:
 
@@ -71,7 +76,7 @@ namespace FabricUI
     private:
 
       Node * m_node;
-      QString m_name;
+      std::string m_name;
       PortType m_portType;
       QString m_dataType;
       QString m_labelCaption;
