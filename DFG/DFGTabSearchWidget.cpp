@@ -260,6 +260,7 @@ void DFGTabSearchWidget::updateGeometry()
   rect.setSize( QSize( width, height ) );
 
   setGeometry( rect );
+  update();
 }
 
 QString DFGTabSearchWidget::resultLabel(unsigned int index) const
