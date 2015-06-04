@@ -3,8 +3,6 @@
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
 
-#include <DFGWrapper/Host.h>
-#include <DFGWrapper/FuncExecutable.h>
 #include <GraphView/Controller.h>
 #include <GraphView/Node.h>
 #include <GraphView/Pin.h>
@@ -37,10 +35,12 @@ namespace FabricUI
 
       DFGController(
         GraphView::Graph * graph,
-        FabricServices::Commands::CommandStack * stack,
-        FabricCore::Client * client,
-        FabricServices::DFGWrapper::Host * host,
+        FabricCore::Client client,
         FabricServices::ASTWrapper::KLASTManager * manager,
+        FabricCore::DFGHost host,
+        FabricCore::DFGBinding binding,
+        FabricCore::DFGExec exec,
+        FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
         );
 
@@ -116,14 +116,6 @@ namespace FabricUI
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
-      FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
-      FabricServices::DFGWrapper::InstPtr getInstFromPath(const std::string & path);
-      FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
-      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::FuncExecutablePtr getFuncExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::PortPtr getPortFromPath(const std::string & path);
-
       virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
 
     signals:
@@ -148,6 +140,7 @@ namespace FabricUI
 
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGView * m_view;
       LogFunc m_logFunc;

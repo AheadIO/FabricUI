@@ -5,7 +5,6 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
-#include <DFGWrapper/DFGWrapper.h>
 #include <Commands/CommandStack.h>
 #include <GraphView/GraphHeaderWidget.h>
 #include "DFGGraphViewWidget.h"
@@ -78,7 +77,7 @@ namespace FabricUI
       static QMenu* portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData);
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
-      bool editNode(FabricServices::DFGWrapper::ExecutablePtr exec, bool pushExec = false);
+      bool editNode(FabricCore::DFGExec exec, bool pushExec = false);
 
       QPoint m_contextPos;
       FabricUI::GraphView::Node * m_contextNode;

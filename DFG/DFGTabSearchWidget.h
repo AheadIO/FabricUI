@@ -3,7 +3,6 @@
 #ifndef __UI_DFG_DFGTabSearchWidget__
 #define __UI_DFG_DFGTabSearchWidget__
 
-#include <DFGWrapper/Host.h>
 #include "DFGConfig.h"
 
 #include <QtGui/QWidget>

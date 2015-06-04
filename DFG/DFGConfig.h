@@ -10,8 +10,8 @@
 #include <map>
 #include <KLEditor/EditorConfig.h>
 #include <GraphView/GraphConfig.h>
-
-#include <DFGWrapper/ExecPort.h>
+#include <FTL/StrRef.h>
+#include <FabricCore.h>
 
 namespace FabricUI
 {
@@ -38,8 +38,8 @@ namespace FabricUI
 
       DFGConfig();
 
-      void registerDataTypeColor(const std::string & dataType, QColor color);
-      QColor getColorForDataType(const std::string & dataType, FabricServices::DFGWrapper::ExecPortPtr port = NULL);
+      void registerDataTypeColor(FTL::StrRef dataType, QColor color);
+      QColor getColorForDataType(FTL::StrRef dataType, FabricCore::DFGExec * exec = NULL, char const * portName = NULL);
     };
 
   };

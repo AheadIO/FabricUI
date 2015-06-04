@@ -3,9 +3,6 @@
 #ifndef __UI_DFG_DFGKLEditorWidget__
 #define __UI_DFG_DFGKLEditorWidget__
 
-#include <DFGWrapper/Host.h>
-#include <DFGWrapper/FuncExecutable.h>
-
 #include <QtGui/QWidget>
 #include <QtGui/QPlainTextEdit>
 #include <KLEditor/KLEditorWidget.h>
@@ -28,7 +25,7 @@ namespace FabricUI
       DFGKLEditorWidget(QWidget * parent, DFGController * controller, FabricServices::ASTWrapper::KLASTManager * manager, const DFGConfig & config = DFGConfig());
       virtual ~DFGKLEditorWidget();
 
-      void setFunc(FabricServices::DFGWrapper::FuncExecutablePtr func);
+      void setFunc(FabricCore::DFGExec func);
       bool hasUnsavedChanges() const { return m_unsavedChanges; }
       KLEditor::KLEditorWidget * klEditor() { return m_klEditor; }
 
@@ -43,7 +40,7 @@ namespace FabricUI
 
     private:
 
-      FabricServices::DFGWrapper::FuncExecutablePtr m_func;
+      FabricCore::DFGExec m_func;
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;

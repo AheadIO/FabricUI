@@ -12,7 +12,6 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
 :QSplitter(parent)
 {
   m_manager = NULL;
-  m_host = NULL;
   m_treeWidget = NULL;
   m_dfgWidget = NULL;
   m_dfgValueEditor = NULL;
@@ -24,11 +23,11 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
 };
 
 void DFGCombinedWidget::init(
-  FabricCore::Client * client,
+  FabricCore::Client client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  FabricServices::DFGWrapper::Host * host,
-  FabricServices::DFGWrapper::Binding binding,
-  FabricServices::DFGWrapper::GraphExecutablePtr graph,
+  FabricCore::DFGHost host,
+  FabricCore::DFGBinding binding,
+  FabricCore::DFGExec exec,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
   DFGConfig config
@@ -39,12 +38,14 @@ void DFGCombinedWidget::init(
 
   try
   {
-    m_client = client;
+    m_coreClient = client;
     m_manager = manager;
-    m_host = host;
+    m_coreDFGHost = host;
+    m_coreDFGBinding = binding;
+    m_coreDFGExec = exec;
 
-    m_treeWidget = new DFG::PresetTreeWidget(this, m_host, config);
-    m_dfgWidget = new DFG::DFGWidget(this, m_client, m_manager, m_host, binding, graph, stack, config, overTakeBindingNotifications);
+    m_treeWidget = new DFG::PresetTreeWidget(this, m_coreDFGHost, config);
+    m_dfgWidget = new DFG::DFGWidget(this, m_coreClient, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, m_manager, stack, config, overTakeBindingNotifications);
     m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
@@ -205,8 +206,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
-  DFGWrapper::NodePtr codeNode = m_dfgWidget->getUIController()->getNodeFromPath(node->path().toUtf8().constData());
-  m_dfgValueEditor->setNode(codeNode);
+  m_dfgValueEditor->setNodeName(node->name());
 
   QList<int> s = m_hSplitter->sizes();
   if(s[2] == 0)

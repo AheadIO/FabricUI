@@ -1,7 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGAddNodeCommand.h"
-#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;

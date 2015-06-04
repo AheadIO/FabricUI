@@ -3,7 +3,6 @@
 #ifndef __UI_DFG_PresetTreeItem__
 #define __UI_DFG_PresetTreeItem__
 
-#include <DFGWrapper/Object.h>
 #include <TreeView/TreeItem.h>
 
 namespace FabricUI
@@ -17,14 +16,14 @@ namespace FabricUI
 
     public:
 
-      PresetTreeItem(FabricServices::DFGWrapper::Object preset);
+      PresetTreeItem(char const * path, char const * name);
 
       virtual Qt::ItemFlags flags();
       virtual QString mimeDataAsText();
 
     private:
 
-      QString m_path;
+      std::string m_path;
     };
 
   };

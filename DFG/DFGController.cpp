@@ -10,8 +10,6 @@
 
 #include "DFGController.h"
 #include "DFGLogWidget.h"
-#include <DFGWrapper/Inst.h>
-#include <DFGWrapper/InstPort.h>
 #include <GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
@@ -39,15 +37,17 @@ using namespace FabricUI::DFG;
 
 DFGController::DFGController(
   GraphView::Graph * graph,
-  FabricServices::Commands::CommandStack * stack,
-  FabricCore::Client const &coreClient,
-  FabricCore::DFGHost const &coreDFGHost,
+  FabricCore::Client client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  bool overTakeBindingNotifications
-  )
+  FabricCore::DFGHost host,
+  FabricCore::DFGBinding binding,
+  FabricCore::DFGExec exec,
+  FabricServices::Commands::CommandStack * stack,
+  bool overTakeBindingNotifications)
   : GraphView::Controller(graph, stack)
-  , m_coreClient( coreClient )
-  , m_coreDFGHost( coreDFGHost )
+  , m_coreClient( client )
+  , m_coreDFGHost( host )
+  , m_coreDFGBinding( binding )
   , m_manager(manager)
 {
   m_view = NULL;

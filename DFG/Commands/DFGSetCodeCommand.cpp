@@ -1,7 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include <DFGWrapper/FuncExecutable.h>
-#include <DFGWrapper/Inst.h>
 #include "DFGSetCodeCommand.h"
 
 using namespace FabricServices;

@@ -3,8 +3,6 @@
 #ifndef __UI_DFG_PresetTreeWidget__
 #define __UI_DFG_PresetTreeWidget__
 
-#include <DFGWrapper/Host.h>
-
 #include <QtGui/QWidget>
 #include <QtGui/QLineEdit>
 #include <TreeView/TreeViewWidget.h>

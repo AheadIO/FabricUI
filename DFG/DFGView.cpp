@@ -3,8 +3,6 @@
 #include "DFGView.h"
 #include "DFGGraph.h"
 #include "DFGController.h"
-#include <DFGWrapper/Inst.h>
-#include <DFGWrapper/InstPort.h>
 
 using namespace FabricServices;
 using namespace FabricUI;

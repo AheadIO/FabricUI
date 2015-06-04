@@ -1,8 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include <DFGWrapper/Binding.h>
-#include <DFGWrapper/InstPort.h>
-
 #include "DFGValueEditor.h"
 
 using namespace FabricServices;

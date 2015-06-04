@@ -1,7 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGImplodeNodesCommand.h"
-#include <DFGWrapper/Inst.h>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <assert.h>
