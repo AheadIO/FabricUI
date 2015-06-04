@@ -58,47 +58,47 @@ namespace FabricUI
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
-      virtual QString addNodeFromPreset(QString path, QString preset, QPointF pos);
-      virtual QString addEmptyGraph(QString path, QString title, QPointF pos);
-      virtual QString addEmptyFunc(QString path, QString title, QPointF pos);
-      virtual bool removeNode(QString path);
+      virtual std::string addNodeFromPreset(char const * path, char const * preset, QPointF pos);
+      virtual std::string addEmptyGraph(char const * path, char const * title, QPointF pos);
+      virtual std::string addEmptyFunc(char const * path, char const * title, QPointF pos);
+      virtual bool removeNode(char const * path);
       virtual bool removeNode(GraphView::Node * node);
-      virtual bool renameNode(QString path, QString title);
-      virtual bool renameNode(GraphView::Node * node, QString title);
-      virtual GraphView::Pin * addPin(GraphView::Node * node, QString name, GraphView::PortType pType, QColor color, QString dataType = "");
+      virtual bool renameNode(char const * path, char const * title);
+      virtual bool renameNode(GraphView::Node * node, char const * title);
+      virtual GraphView::Pin * addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
-      virtual QString addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType = "", bool setArgValue = true);
-      virtual QString addPort(QString path, QString name, GraphView::PortType pType, QString dataType = "", bool setArgValue = true);
-      virtual bool removePort(QString path, QString name);
+      virtual std::string addPort(char const *  path, char const *  name, FabricCore::DFGPortType pType, char const *  dataType = "", bool setArgValue = true);
+      virtual std::string addPort(char const *  path, char const *  name, GraphView::PortType pType, char const *  dataType = "", bool setArgValue = true);
+      virtual bool removePort(char const *  name);
       virtual GraphView::Port * addPortFromPin(GraphView::Pin * pin, GraphView::PortType pType);
-      virtual QString renamePort(QString path, QString title);
-      virtual bool addConnection(QString srcPath, QString dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual std::string renamePort(char const *  path, char const *  title);
+      virtual bool addConnection(char const *  srcPath, char const *  dstPath, bool srcIsPin = true, bool dstIsPin = true);
       virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
       virtual bool removeConnection(char const *srcPath, char const *dstPath, bool srcIsPin = true, bool dstIsPin = true);
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeAllConnections(QString path, bool isPin = true);
-      virtual bool addExtensionDependency(QString extension, QString execPath, QString & errorMessage);
-      virtual bool setCode(QString path, QString code);
-      virtual QString reloadCode(QString path);
-      virtual bool setArg(QString argName, QString dataType, QString json = "");
-      virtual bool setArg(QString argName, FabricCore::RTVal value);
-      virtual bool setDefaultValue(QString path, FabricCore::RTVal value);
-      virtual bool setDefaultValue(QString path, QString dataType, QString json);
-      virtual QString exportJSON(QString path);
-      virtual bool setNodeCacheRule(QString path, FEC_DFGCacheRule rule);
+      virtual bool removeAllConnections(char const *  path, bool isPin = true);
+      virtual bool addExtensionDependency(char const *  extension, char const *  execPath, char const *  & errorMessage);
+      virtual bool setCode(char const *  path, char const *  code);
+      virtual std::string reloadCode(char const *  path);
+      virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
+      virtual bool setArg(char const *  argName, FabricCore::RTVal value);
+      virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
+      virtual bool setDefaultValue(char const *  path, char const *  dataType, char const *  json);
+      virtual std::string exportJSON(char const *  path);
+      virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
 
-      virtual bool moveNode(QString path, QPointF pos, bool isTopLeftPos = false);
+      virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
 
-      virtual QString copy(QStringList paths = QStringList());
+      virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();
-      virtual QString implodeNodes(QString desiredName, QStringList paths = QStringList());
-      virtual QStringList explodeNode(QString path);
+      virtual std::string implodeNodes(char const * desiredName, QStringList paths = QStringList());
+      virtual QStringList explodeNode(char const * path);
 
-      virtual bool reloadExtensionDependencies(QString path);
+      virtual bool reloadExtensionDependencies(char const * path);
 
       virtual void log(const char * message);
       virtual void logError(const char * message);
@@ -116,7 +116,7 @@ namespace FabricUI
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
-      virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
+      virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
     signals:
 
@@ -124,14 +124,14 @@ namespace FabricUI
       void structureChanged();
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void execPortRenamed(QString path, QString newName);
+      void execPortRenamed(char const * path, char const * newName);
       void argValueChanged(const char * argName);
 
     public slots:
 
       void onValueChanged(ValueItem * item);
       void checkErrors();
-      void nodeToolTriggered(FabricUI::GraphView::Node *, QString);
+      void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
 
     private:
 
