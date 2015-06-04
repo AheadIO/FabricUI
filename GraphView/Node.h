@@ -42,7 +42,7 @@ namespace FabricUI
       Node(
         Graph * parent,
         char const *name,
-        QString label = "",
+        char const * label = "",
         QColor color = QColor(),
         QColor labelColor = QColor()
         );
@@ -59,8 +59,8 @@ namespace FabricUI
         { return m_name.c_str(); }
       std::string const &nameString() const
         { return m_name; }
-      QString title() const;
-      void setTitle(QString t);
+      char const * title() const;
+      void setTitle(char const * t);
       char const *preset() const
         { return m_preset.c_str(); }
       QColor color() const;
@@ -91,7 +91,7 @@ namespace FabricUI
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
-      virtual Pin * pin(QString name);
+      virtual Pin * pin(char const * name);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
@@ -138,7 +138,7 @@ namespace FabricUI
       Graph * m_graph;
       std::string m_name;
       std::string m_preset;
-      QString m_labelCaption;
+      std::string m_labelCaption;
 
       QColor m_colorA;
       QColor m_colorB;

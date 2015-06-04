@@ -11,6 +11,7 @@
 #include "PortType.h"
 #include "NodeToolbar.h"
 #include <vector>
+#include <FTL/StrRef.h>
 
 namespace FabricUI
 {
@@ -40,18 +41,18 @@ namespace FabricUI
 
       virtual bool beginInteraction();
       virtual bool endInteraction();
-      virtual Node * addNodeFromPreset(QString preset, QPointF pos);
+      virtual Node * addNodeFromPreset(FTL::StrRef preset, QPointF pos);
       virtual bool removeNode(Node * node);
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
-      virtual bool renameNode(Node * node, QString title);
+      virtual bool renameNode(Node * node, FTL::StrRef title);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
-      virtual Pin * addPin(Node * node, QString name, PortType pType, QColor color, QString dataType = "");
+      virtual Pin * addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType = "");
       virtual bool removePin(Pin * pin);
-      virtual Port * addPort(QString name, PortType pType, QColor color, QString dataType = "");
+      virtual Port * addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType = "");
       virtual bool removePort(Port * port);
       virtual Port * addPortFromPin(Pin * pin, PortType pType);
-      virtual bool renamePort(Port * port, QString title);
+      virtual bool renamePort(Port * port, FTL::StrRef title);
       virtual bool addConnection(ConnectionTarget * src, ConnectionTarget * dst);
       virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst);
       virtual bool removeConnection(Connection * conn);

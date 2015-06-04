@@ -4,7 +4,7 @@
 
 using namespace FabricUI::GraphView;
 
-AddNodeCommand::AddNodeCommand(Controller * controller, QString path, QString preset, QPointF pos)
+AddNodeCommand::AddNodeCommand(Controller * controller, char const * path, char const * preset, QPointF pos)
 : ControllerCommand(controller)
 {
   m_path = path;
@@ -19,15 +19,15 @@ AddNodeCommand::~AddNodeCommand()
 
 Node * AddNodeCommand::getNode()
 {
-  return controller()->graph()->nodeFromPath(m_path);
+  return controller()->graph()->nodeFromPath(m_path.c_str());
 }
 
 bool AddNodeCommand::invoke()
 {
-  Node * node = controller()->graph()->addNodeFromPreset(m_path, m_preset);
+  Node * node = controller()->graph()->addNodeFromPreset(m_path.c_str(), m_preset.c_str());
   if(!node)
     return false;
-  m_path = node->path();
+  m_path = node->name();
   controller()->moveNode(node, m_graphPos, m_useTopLeftPos);
   return true;
 }

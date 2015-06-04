@@ -11,7 +11,7 @@
 using namespace FabricUI::GraphView;
 
 Pin::Pin(
-  Node * parent, char const *name, PortType pType, QColor color, QString label)
+  Node * parent, char const *name, PortType pType, QColor color, char const * label)
   : ConnectionTarget(parent->pinsWidget())
   , m_node( parent )
   , m_name( name )
@@ -53,7 +53,7 @@ Pin::Pin(
 
   if(m_labelCaption.length() > 0)
   {
-    m_label = new PinLabel(this, m_labelCaption, config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
+    m_label = new PinLabel(this, m_labelCaption.c_str(), config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
 
     layout->addItem(m_label);
     layout->setAlignment(m_label, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -84,9 +84,9 @@ std::string Pin::pathString() const
     + m_name;
 }
 
-QString Pin::label() const
+char const * Pin::label() const
 {
-  return m_labelCaption;
+  return m_labelCaption.c_str();
 }
 
 PortType Pin::portType() const
@@ -141,12 +141,12 @@ void Pin::setHighlighted(bool state)
   setColor(m_color, true);
 }
 
-QString Pin::dataType() const
+char const * Pin::dataType() const
 {
-  return m_dataType;
+  return m_dataType.c_str();
 }
 
-void Pin::setDataType(QString type)
+void Pin::setDataType(char const * type)
 {
   m_dataType = type;
   setToolTip(type);

@@ -35,9 +35,9 @@ namespace FabricUI
         SidePanel * parent,
         char const *name,
         PortType portType,
-        QString dataType,
+        char const * dataType,
         QColor color,
-        QString label = ""
+        char const * label = ""
         );
       virtual ~Port() {}
 
@@ -55,13 +55,13 @@ namespace FabricUI
       void setName( char const *name );
       char const *path() const
         { return name(); }
-      virtual QString label() const;
-      void setLabel(QString n);
+      virtual char const * label() const;
+      void setLabel(char const * n);
       virtual QColor color() const;
       void setColor(QColor color);
       virtual PortType portType() const;
-      virtual QString dataType() const;
-      virtual void setDataType(QString dt);
+      virtual char const * dataType() const;
+      virtual void setDataType(char const * dt);
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
 
@@ -80,9 +80,9 @@ namespace FabricUI
       SidePanel * m_sidePanel;
       std::string m_name;
       PortType m_portType;
-      QString m_labelCaption;
+      std::string m_labelCaption;
       QColor m_color;
-      QString m_dataType;
+      std::string m_dataType;
       bool m_highlighted;
       TextContainer * m_label;
       PinCircle * m_circle;

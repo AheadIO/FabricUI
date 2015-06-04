@@ -30,11 +30,11 @@ namespace FabricUI
       virtual bool invoke();
       virtual bool undo();
 
-      QString m_path;
-      QString m_name;
+      std::string m_path;
+      std::string m_name;
       PortType m_pType;
       QColor m_color;
-      QString m_dataType;
+      std::string m_dataType;
 
     };
 

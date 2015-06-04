@@ -23,7 +23,7 @@ Port * RemovePortCommand::getPort()
   if(!panel)
     return NULL;
 
-  return panel->port(m_name);
+  return panel->port(m_name.c_str());
 }
 
 bool RemovePortCommand::invoke()
@@ -45,8 +45,8 @@ bool RemovePortCommand::undo()
   if(!panel)
     return NULL;
 
-  Port * port = new Port(panel, m_name, m_pType, m_dataType, m_color);
-  port->setDataType(m_dataType);
+  Port * port = new Port(panel, m_name.c_str(), m_pType, m_dataType.c_str(), m_color);
+  port->setDataType(m_dataType.c_str());
 
   if(panel->addPort(port))
     return true;

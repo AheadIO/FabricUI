@@ -4,7 +4,7 @@
 
 using namespace FabricUI::GraphView;
 
-RemoveNodeCommand::RemoveNodeCommand(Controller * controller, QString path)
+RemoveNodeCommand::RemoveNodeCommand(Controller * controller, char const * path)
 : ControllerCommand(controller)
 {
   m_path = path;
@@ -18,7 +18,7 @@ Node * RemoveNodeCommand::getNode()
 {
   if(m_path.length() == 0)
     return NULL;
-  return controller()->graph()->nodeFromPath(m_path);
+  return controller()->graph()->nodeFromPath(m_path.c_str());
 }
 
 bool RemoveNodeCommand::invoke()
@@ -35,10 +35,10 @@ bool RemoveNodeCommand::invoke()
 
 bool RemoveNodeCommand::undo()
 {
-  Node * node = controller()->graph()->addNodeFromPreset(m_path, m_preset);
+  Node * node = controller()->graph()->addNodeFromPreset(m_path.c_str(), m_preset.c_str());
   if(!node)
     return false;
-  m_path = node->path();
+  m_path = node->name();
   controller()->moveNode(node, m_graphPos, true);
   return true;
 }

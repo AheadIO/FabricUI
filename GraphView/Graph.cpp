@@ -39,7 +39,7 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
   m_constructed = true;
 }
 
-void Graph::reset(QString path, bool createSidePanels)
+void Graph::reset(char const * path, bool createSidePanels)
 {
   m_path = path;
 
@@ -156,12 +156,12 @@ void Graph::setController(Controller * c)
   m_controller = c;
 }
 
-QString Graph::path() const
+char const * Graph::path() const
 {
-  return m_path;
+  return m_path.c_str();
 }
 
-void Graph::setPath(QString path)
+void Graph::setPath(char const * path)
 {
   m_path = path;
 }
@@ -353,19 +353,20 @@ std::vector<Port *> Graph::ports() const
   return result;
 }
 
-Port * Graph::port(QString name) const
+Port * Graph::port(char const * name) const
 {
   if(!hasSidePanels())
     return NULL;
 
+  FTL::StrRef nameRef = name;
   for(unsigned int i=0;i<m_leftPanel->portCount();i++)
   {
-    if(m_leftPanel->port(i)->name() == name)
+    if(nameRef == m_leftPanel->port(i)->name())
       return m_leftPanel->port(i);
   }
   for(unsigned int i=0;i<m_rightPanel->portCount();i++)
   {
-    if(m_rightPanel->port(i)->name() == name)
+    if(nameRef == m_rightPanel->port(i)->name())
       return m_rightPanel->port(i);
   }
 
@@ -651,43 +652,4 @@ QMenu* Graph::getSidePanelContextMenu(SidePanel * sidePanel)
 void Graph::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   QGraphicsWidget::paint(painter, option, widget);
-}
-
-QString Graph::getUniquePath(QString path) const
-{
-  QString resolvedPath;
-  unsigned int suffixIndex = 0;
-  QString prefix;
-  QString middle;
-  QString suffix;
-
-  QStringList parts = path.split(config().pathSep);
-  for(int i=0;i<parts.count()-1;i++)
-  {
-    if(i>0)
-      prefix += config().pathSep;
-    prefix += parts[i].remove(" ");
-  }
-  if(prefix.length() > 0)
-    prefix += config().pathSep;
-
-  middle = parts[parts.count()-1].remove(" ");
-
-  bool found = true;
-  while(found)
-  {
-    found = false;
-    suffix = QString::number(++suffixIndex);
-    resolvedPath = prefix + middle + suffix;
-    for(size_t i=0;i<m_nodes.size();i++)
-    {
-      if(m_nodes[i]->name() == resolvedPath)
-      {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  return resolvedPath;
 }

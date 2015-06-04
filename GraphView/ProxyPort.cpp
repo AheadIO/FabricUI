@@ -105,7 +105,7 @@ void ProxyPort::setHighlighted(bool state)
 
 bool ProxyPort::canConnectTo(
   ConnectionTarget * other,
-  QString &failureReason
+  std::string &failureReason
   ) const
 {
   switch(other->targetType())

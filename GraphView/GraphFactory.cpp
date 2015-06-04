@@ -6,7 +6,7 @@
 
 using namespace FabricUI::GraphView;
 
-Node * GraphFactory::constructNode(Graph * graph, char const *name, QString label)
+Node * GraphFactory::constructNode(Graph * graph, char const *name, char const * label)
 {
   return new Node(graph, name, label);
 }

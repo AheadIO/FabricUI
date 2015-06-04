@@ -31,11 +31,11 @@ namespace FabricUI
       virtual bool undo();
 
       bool m_srcIsPort;
-      QString m_srcPath;
-      QString m_srcName;
+      std::string m_srcPath;
+      std::string m_srcName;
       bool m_dstIsPort;
-      QString m_dstPath;
-      QString m_dstName;
+      std::string m_dstPath;
+      std::string m_dstName;
 
     };
 

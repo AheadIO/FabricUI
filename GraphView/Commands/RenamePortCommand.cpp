@@ -4,7 +4,7 @@
 
 using namespace FabricUI::GraphView;
 
-RenamePortCommand::RenamePortCommand(Controller * controller, Port * port, QString title)
+RenamePortCommand::RenamePortCommand(Controller * controller, Port * port, char const * title)
 : ControllerCommand(controller)
 {
   m_path = port->path();
@@ -23,7 +23,7 @@ Port * RenamePortCommand::getPort()
   if(!panel)
     return NULL;
 
-  return panel->port(m_path);
+  return panel->port(m_path.c_str());
 }
 
 bool RenamePortCommand::invoke()
@@ -31,7 +31,7 @@ bool RenamePortCommand::invoke()
   Port * port = getPort();
   if(!port)
     return false;
-  port->setLabel(m_newTitle);
+  port->setLabel(m_newTitle.c_str());
   return true;
 }
 
@@ -40,6 +40,6 @@ bool RenamePortCommand::undo()
   Port * port = getPort();
   if(!port)
     return false;
-  port->setLabel(m_oldTitle);
+  port->setLabel(m_oldTitle.c_str());
   return true;
 }

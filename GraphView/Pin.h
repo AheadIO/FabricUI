@@ -43,7 +43,7 @@ namespace FabricUI
       std::string const &nameString() const
         { return m_name; }
       std::string pathString() const;
-      virtual QString label() const;
+      virtual char const * label() const;
       virtual PortType portType() const;
       QColor color() const;
       void setColor(QColor color, bool quiet = false);
@@ -51,8 +51,8 @@ namespace FabricUI
       virtual void setIndex(int i);
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
-      virtual QString dataType() const;
-      virtual void setDataType(QString type);
+      virtual char const * dataType() const;
+      virtual void setDataType(char const * type);
 
       PinCircle * inCircle();
       const PinCircle * inCircle() const;
@@ -71,7 +71,7 @@ namespace FabricUI
       virtual bool drawState() const;
 
       // accessed by controller
-      Pin(Node * parent, char const *name, PortType pType, QColor color, QString label = "");
+      Pin(Node * parent, char const *name, PortType pType, QColor color, const char * label = "");
       
     signals:
 
@@ -82,8 +82,8 @@ namespace FabricUI
       Node * m_node;
       std::string m_name;
       PortType m_portType;
-      QString m_dataType;
-      QString m_labelCaption;
+      std::string m_dataType;
+      std::string m_labelCaption;
       bool m_highlighted;
       QColor m_color;
       int m_index;

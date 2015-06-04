@@ -17,7 +17,7 @@ using namespace FabricUI::GraphView;
 Node::Node(
   Graph * parent,
   char const *name,
-  QString label,
+  char const *label,
   QColor color,
   QColor labelColor
   )
@@ -26,13 +26,6 @@ Node::Node(
   , m_name( name )
 {
   m_labelCaption = label;
-  if(m_labelCaption.length() == 0)
-    m_labelCaption = name;
-  else
-  {
-    QStringList parts = m_labelCaption.split(m_graph->config().pathSep);
-    m_labelCaption = parts[parts.count()-1];
-  }
 
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
@@ -135,12 +128,12 @@ const NodeHeader * Node::header() const
   return m_header;
 }
 
-QString Node::title() const
+char const * Node::title() const
 {
-  return m_labelCaption;
+  return m_labelCaption.c_str();
 }
 
-void Node::setTitle(QString t)
+void Node::setTitle(char const * t)
 {
   m_labelCaption = t;
   m_header->setTitle(t);
@@ -483,11 +476,12 @@ Pin * Node::pin(unsigned int index)
   return m_pins[index];
 }
 
-Pin * Node::pin(QString name)
+Pin * Node::pin(char const * name)
 {
+  FTL::StrRef nameRef = name;
   for(unsigned int i=0;i<m_pins.size();i++)
   {
-    if(m_pins[i]->name() == name)
+    if(nameRef == m_pins[i]->name())
       return m_pins[i];
   }
   return NULL;

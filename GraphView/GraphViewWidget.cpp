@@ -104,7 +104,7 @@ void GraphViewWidget::dropEvent(QDropEvent *event)
   QPointF pos(event->pos().x(), event->pos().y());
   pos = graph()->itemGroup()->mapFromScene(pos);
 
-  Node * node = graph()->controller()->addNodeFromPreset(preset, pos);
+  Node * node = graph()->controller()->addNodeFromPreset(preset.toUtf8().constData(), pos);
 
   graph()->controller()->endInteraction();
 

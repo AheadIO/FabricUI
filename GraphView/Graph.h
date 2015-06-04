@@ -51,7 +51,7 @@ namespace FabricUI
       Graph(QGraphicsItem * parent, const GraphConfig & config = GraphConfig(), GraphFactory * factory = NULL);
       virtual ~Graph() {}
 
-      virtual void reset(QString path, bool createSidePanels = false);
+      virtual void reset(char const * path, bool createSidePanels = false);
 
       virtual const GraphConfig & config() const;
       QGraphicsWidget * itemGroup();
@@ -66,8 +66,8 @@ namespace FabricUI
 
       NodeToolbar * nodeToolbar();
       
-      QString path() const;
-      void setPath(QString path);
+      char const * path() const;
+      void setPath(char const * path);
 
       // nodes
       virtual std::vector<Node *> nodes() const;
@@ -78,7 +78,7 @@ namespace FabricUI
 
       // ports
       virtual std::vector<Port *> ports() const;
-      virtual Port * port(QString name) const;
+      virtual Port * port(char const * name) const;
 
       // connections
       virtual std::vector<Connection *> connections() const;
@@ -139,7 +139,6 @@ namespace FabricUI
     protected:
 
       // interaction - only possible through controller
-      virtual QString getUniquePath(QString path) const;
       virtual Node * addNode(Node * node, bool quiet = false);
       virtual Node * addNodeFromPreset(char const *name, char const *preset, bool quiet = false);
       virtual bool removeNode(Node * node, bool quiet = false);
@@ -179,7 +178,7 @@ namespace FabricUI
       GraphConfig m_config;
       Controller * m_controller;
       NodeToolbar * m_nodeToolbar;
-      QString m_path;
+      std::string m_path;
       std::vector<Node *> m_nodes;
       std::map<FTL::StrRef, size_t> m_nodeMap;
       std::vector<Connection *> m_connections;

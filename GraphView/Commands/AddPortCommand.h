@@ -15,7 +15,7 @@ namespace FabricUI
     {
     public:
 
-      AddPortCommand(Controller * controller, QString name, PortType pType, QColor color, QString dataType);
+      AddPortCommand(Controller * controller, char const * name, PortType pType, QColor color, char const * dataType);
       virtual ~AddPortCommand();
 
       virtual const char * getName() const { return "AddPort"; }
@@ -29,11 +29,11 @@ namespace FabricUI
       virtual bool invoke();
       virtual bool undo();
 
-      QString m_name;
+      std::string m_name;
       PortType m_pType;
       QColor m_color;
-      QString m_label;
-      QString m_dataType;
+      std::string m_label;
+      std::string m_dataType;
 
     };
 

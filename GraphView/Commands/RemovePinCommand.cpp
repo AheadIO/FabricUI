@@ -7,7 +7,7 @@ using namespace FabricUI::GraphView;
 RemovePinCommand::RemovePinCommand(Controller * controller, Pin * pin)
 : ControllerCommand(controller)
 {
-  m_path = pin->node()->path();
+  m_path = pin->node()->name();
   m_name = pin->name();
   m_pType = pin->portType();
   m_color = pin->color();
@@ -20,12 +20,12 @@ RemovePinCommand::~RemovePinCommand()
 
 Node * RemovePinCommand::getNode()
 {
-  return controller()->graph()->nodeFromPath(m_path);
+  return controller()->graph()->nodeFromPath(m_path.c_str());
 }
 
 Pin * RemovePinCommand::getPin()
 {
-  return getNode()->pin(m_name);
+  return getNode()->pin(m_name.c_str());
 }
 
 bool RemovePinCommand::invoke()
@@ -47,8 +47,8 @@ bool RemovePinCommand::undo()
   if(!node)
     return false;
 
-  Pin * pin = new Pin(node, m_name, m_pType, m_color);
-  pin->setDataType(m_dataType);
+  Pin * pin = new Pin(node, m_name.c_str(), m_pType, m_color);
+  pin->setDataType(m_dataType.c_str());
 
   if(node->addPin(pin, false))
     return true;

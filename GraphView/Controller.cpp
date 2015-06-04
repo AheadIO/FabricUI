@@ -84,21 +84,29 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNodeFromPreset(QString preset, QPointF pos)
+Node * Controller::addNodeFromPreset(FTL::StrRef preset, QPointF pos)
 {
-  QString path;
-  if(preset.length() == 0)
+  std::string presetStr(preset);
+  std::string path;
+  if(presetStr.length() == 0)
   {
-    path = graph()->path() + graph()->config().pathSep + "Node";
+    path = graph()->path();
+    path += graph()->config().pathSep;
+    path += "Node";
   }
   else
   {
-    QStringList parts = preset.split(graph()->config().pathSep);
-    path = graph()->path() + graph()->config().pathSep + parts[parts.count()-1];
-  }
-  path = graph()->getUniquePath(path);
+    path = graph()->path();
+    path += graph()->config().pathSep;
 
-  AddNodeCommand * command = new AddNodeCommand(this, path, preset, pos);
+    int pos =  presetStr.find(graph()->config().pathSep);
+    if(pos == std::string::npos)
+      path += presetStr;
+    else
+      path += presetStr.substr(pos+1, presetStr.length());
+  }
+
+  AddNodeCommand * command = new AddNodeCommand(this, path.c_str(), preset.data(), pos);
   if(!addCommand(command))
   {
     delete(command);
@@ -127,11 +135,11 @@ bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
-bool Controller::renameNode(Node * node, QString title)
+bool Controller::renameNode(Node * node, FTL::StrRef title)
 {
-  if(node->title() == title)
+  if(title == node->title())
     return false;
-  RenameNodeCommand * command = new RenameNodeCommand(this, node, title);
+  RenameNodeCommand * command = new RenameNodeCommand(this, node, title.data());
   if(!addCommand(command))
   {
     delete(command);
@@ -162,9 +170,9 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-Pin * Controller::addPin(Node * node, QString name, PortType pType, QColor color, QString dataType)
+Pin * Controller::addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
 {
-  AddPinCommand * command = new AddPinCommand(this, node, name, pType, color, dataType);
+  AddPinCommand * command = new AddPinCommand(this, node, name.data(), pType, color, dataType.data());
 
   if(addCommand(command))
     return command->getPin();
@@ -184,9 +192,9 @@ bool Controller::removePin(Pin * pin)
   return false;
 }
 
-Port * Controller::addPort(QString name, PortType pType, QColor color, QString dataType)
+Port * Controller::addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
 {
-  AddPortCommand * command = new AddPortCommand(this, name, pType, color, dataType);
+  AddPortCommand * command = new AddPortCommand(this, name.data(), pType, color, dataType.data());
 
   if(addCommand(command))
     return command->getPort();
@@ -252,11 +260,11 @@ Port * Controller::addPortFromPin(Pin * pin, PortType pType)
   return port;
 }
 
-bool Controller::renamePort(Port * port, QString title)
+bool Controller::renamePort(Port * port, FTL::StrRef title)
 {
-  if(port->name() == title)
+  if(title == port->name())
     return false;
-  RenamePortCommand * command = new RenamePortCommand(this, port, title);
+  RenamePortCommand * command = new RenamePortCommand(this, port, title.data());
   if(!addCommand(command))
   {
     delete(command);
