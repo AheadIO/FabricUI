@@ -7,58 +7,21 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGRemovePortCommand::DFGRemovePortCommand(DFGController * controller, QString execPath, QString name)
+DFGRemovePortCommand::DFGRemovePortCommand(DFGController * controller, char const * name)
 : DFGCommand(controller)
 {
-  m_execPath = execPath.toUtf8().constData();
-  m_portTitle = name.toUtf8().constData();
+  m_portName = name;
 }
 
 bool DFGRemovePortCommand::invoke()
 {
-  DFGView * view = (DFGView *)((DFGController*)controller())->getView();
-  DFGWrapper::GraphExecutablePtr graph = view->getGraph();
-  DFGWrapper::ExecutablePtr exec(graph);
-
-  std::string remainingGraphPath = GraphView::relativePathSTL(graph->getExecPath(), m_execPath);
-  while(remainingGraphPath.length() > 0)
-  {
-    std::string nodeName = remainingGraphPath;
-    int periodPos = nodeName.find('.');
-    if(periodPos != std::string::npos)
-      nodeName = nodeName.substr(0, periodPos);
-    DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
-    if ( !node->isInst() )
-      return false;
-    DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
-    exec = inst->getExecutable();
-    if(exec->getExecType() != FabricCore::DFGExecType_Graph)
-      break;
-    graph = DFGWrapper::GraphExecutablePtr::StaticCast(exec);
-    remainingGraphPath = GraphView::relativePathSTL(graph->getExecPath(), remainingGraphPath);
-  }
-  exec->removeExecPort(m_portTitle.c_str());
+  DFGController * ctrl = (DFGController*)controller();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+  graph.removeExecPort(m_portName.c_str());
   return true;
-}
-
-bool DFGRemovePortCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();  
-}
-
-bool DFGRemovePortCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
-}
-
-const char * DFGRemovePortCommand::getExecPath() const
-{
-  return m_execPath.c_str();
 }
 
 const char * DFGRemovePortCommand::getPortName() const
 {
-  return m_portTitle.c_str();
+  return m_portName.c_str();
 }

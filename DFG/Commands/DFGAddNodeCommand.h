@@ -16,23 +16,21 @@ namespace FabricUI
     {
     public:
 
-      DFGAddNodeCommand(DFGController * controller, QString path, QString preset, QPointF pos);
+      DFGAddNodeCommand(DFGController * controller, char const * path, char const * preset, QPointF pos);
 
       virtual const char * getName() const { return "dfgAddNode"; }
       virtual const char * getShortDesc() const { return "Adds a node to the graph."; }
       virtual const char * getFullDesc() const { return "Adds a node to the graph using a given node type and a preset name."; }
 
-      std::string getPath() const;
-      std::string getInstPath() const;
-      std::string getPreset() const;
+      char const * getPath() const;
+      char const * getInstPath() const;
+      char const * getPreset() const;
       QPointF getPos() const;
       GraphView::Node * getNode();
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

@@ -17,13 +17,12 @@ namespace FabricUI
     {
     public:
 
-      DFGRemovePortCommand(DFGController * controller, QString execPath, QString name);
+      DFGRemovePortCommand(DFGController * controller, char const * name);
 
       virtual const char * getName() const { return "dfgRemovePort"; }
       virtual const char * getShortDesc() const { return "Removes a port to from the graph."; }
       virtual const char * getFullDesc() const { return "Removes a port to from the graph."; }
 
-      const char * getExecPath() const;
       const char * getPortName() const;
 
     protected:
@@ -34,8 +33,7 @@ namespace FabricUI
 
     private:
 
-      std::string m_execPath;
-      std::string m_portTitle;
+      std::string m_portName;
 
     };
 

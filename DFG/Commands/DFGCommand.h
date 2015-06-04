@@ -17,6 +17,11 @@ namespace FabricUI
     public:
 
       DFGCommand(DFGController * controller);
+
+    protected:
+      
+      virtual bool undo();
+      virtual bool redo();
     };
 
   };

@@ -6,12 +6,12 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGAddPortCommand::DFGAddPortCommand(DFGController * controller, QString execPath, QString name, GraphView::PortType pType, QString dataType)
+DFGAddPortCommand::DFGAddPortCommand(DFGController * controller, char const * execPath, char const * name, GraphView::PortType pType, char const * dataType)
 : DFGCommand(controller)
 {
-  m_execPath = execPath.toUtf8().constData();
-  m_portTitle = name.toUtf8().constData();
-  m_dataType = dataType.toUtf8().constData();
+  m_execPath = execPath;
+  m_portTitle = name;
+  m_dataType = dataType;
   m_portType = pType;
 }
 
@@ -29,18 +29,6 @@ bool DFGAddPortCommand::invoke()
 
   m_portPath = exec->addExecPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL)->getPortPath();
   return true;
-}
-
-bool DFGAddPortCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();  
-}
-
-bool DFGAddPortCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
 }
 
 const char * DFGAddPortCommand::getExecPath() const

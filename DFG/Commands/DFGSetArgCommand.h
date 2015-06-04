@@ -17,8 +17,8 @@ namespace FabricUI
     {
     public:
 
-      DFGSetArgCommand(DFGController * controller, QString argName, QString dataType, QString json = "");
-      DFGSetArgCommand(DFGController * controller, QString argName, FabricCore::RTVal value);
+      DFGSetArgCommand(DFGController * controller, char const * argName, char const * dataType, char const * json = "");
+      DFGSetArgCommand(DFGController * controller, char const * argName, FabricCore::RTVal value);
 
       virtual const char * getName() const { return "dfgSetArg"; }
       virtual const char * getShortDesc() const { return "Binds a new value to a port."; }
@@ -32,8 +32,6 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

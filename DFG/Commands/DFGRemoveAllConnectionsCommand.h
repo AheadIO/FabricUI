@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGRemoveAllConnectionsCommand(DFGController * controller, const char * path, bool asPin);
+      DFGRemoveAllConnectionsCommand(DFGController * controller, const char * path);
 
       virtual const char * getName() const { return "dfgRemoveAllConnections"; }
       virtual const char * getShortDesc() const { return "Removes all connection for an endpoint in a graph."; }
@@ -29,15 +29,10 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      bool m_isPin;
       std::string m_path;
-      std::string m_nodePath;
-      std::string m_pinTitle;
 
     };
 

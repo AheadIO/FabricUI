@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGAddPortCommand(DFGController * controller, QString execPath, QString name, GraphView::PortType pType, QString dataType);
+      DFGAddPortCommand(DFGController * controller, char const * execPath, char const * name, GraphView::PortType pType, char const * dataType);
 
       virtual const char * getName() const { return "dfgAddPort"; }
       virtual const char * getShortDesc() const { return "Adds a port."; }
@@ -32,8 +32,6 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

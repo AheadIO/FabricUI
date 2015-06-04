@@ -7,7 +7,7 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGSetNodeCacheRuleCommand::DFGSetNodeCacheRuleCommand(DFGController * controller, QString path, FEC_DFGCacheRule rule)
+DFGSetNodeCacheRuleCommand::DFGSetNodeCacheRuleCommand(DFGController * controller, char const * path, FEC_DFGCacheRule rule)
 : DFGCommand(controller)
 {
   m_nodePath = path;
@@ -17,32 +17,19 @@ DFGSetNodeCacheRuleCommand::DFGSetNodeCacheRuleCommand(DFGController * controlle
 bool DFGSetNodeCacheRuleCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  if ( !node->isInst() )
-    return false;
-  DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
-  if(m_rule == inst->getExecutable()->getCacheRule())
-    inst->setCacheRule(FEC_DFGCacheRule_Unspecified);
+  FabricCore::DFGExec exec = ctrl->getCoreDFGExec();
+  FabricCore::DFGExec subExec = exec.getSubExec(m_nodePath.c_str());
+
+  if(m_rule == subExec.getCacheRule())
+    exec.setInstCacheRule(m_nodePath.c_str(), FEC_DFGCacheRule_Unspecified);
   else
-    inst->setCacheRule(m_rule);
+    exec.setInstCacheRule(m_nodePath.c_str(), m_rule);
   return true;
 }
 
-bool DFGSetNodeCacheRuleCommand::undo()
+char const * DFGSetNodeCacheRuleCommand::getPath() const
 {
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGSetNodeCacheRuleCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
-}
-
-QString DFGSetNodeCacheRuleCommand::getPath() const
-{
-  return m_nodePath;
+  return m_nodePath.c_str();
 }
 
 FEC_DFGCacheRule DFGSetNodeCacheRuleCommand::getRule() const
@@ -50,7 +37,7 @@ FEC_DFGCacheRule DFGSetNodeCacheRuleCommand::getRule() const
   return m_rule;
 }
 
-QString DFGSetNodeCacheRuleCommand::getRuleName() const
+char const * DFGSetNodeCacheRuleCommand::getRuleName() const
 {
   if(m_rule == FEC_DFGCacheRule_Unspecified)
     return "Unspecified";

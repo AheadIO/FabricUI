@@ -41,26 +41,10 @@ bool DFGImplodeNodesCommand::invoke()
     return false;
 
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
 
-  m_instName = graph->implodeNodes(m_desiredName.c_str(), m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
-  DFGWrapper::NodePtr newNode = graph->getNode(m_instName.c_str());
-  assert( newNode->isInst() );
-  DFGWrapper::InstPtr newInst = DFGWrapper::InstPtr::StaticCast( newNode );
-  if(newInst)
-    newInst->getExecutable()->setTitle(m_instName.c_str());
+  m_instName = graph.implodeNodes(m_desiredName.c_str(), m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
+  graph.setInstTitle(m_instName.c_str(), m_desiredName.c_str());
 
   return true;
-}
-
-bool DFGImplodeNodesCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGImplodeNodesCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();
 }

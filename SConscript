@@ -73,9 +73,9 @@ dirs = [
   'GraphView',
   'GraphView/Commands',
   'KLEditor',
-  'DFG',
+  # 'DFG',
   'DFG/Commands',
-  'DFG/Dialogs',
+  # 'DFG/Dialogs',
   'SceneHub',
   'Viewports',
 ]

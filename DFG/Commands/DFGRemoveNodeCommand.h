@@ -16,23 +16,21 @@ namespace FabricUI
     {
     public:
 
-      DFGRemoveNodeCommand(DFGController * controller, QString path);
+      DFGRemoveNodeCommand(DFGController * controller, char const * path);
 
       virtual const char * getName() const { return "dfgRemoveNode"; }
       virtual const char * getShortDesc() const { return "Removes a node from the graph."; }
       virtual const char * getFullDesc() const { return "Removes a node from the graph."; }
 
-      QString getNodePath() const;
+      char const * getNodePath() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      QString m_nodePath;
+      std::string m_nodePath;
 
     };
 

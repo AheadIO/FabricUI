@@ -7,7 +7,7 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGRenameNodeCommand::DFGRenameNodeCommand(DFGController * controller, QString path, QString title)
+DFGRenameNodeCommand::DFGRenameNodeCommand(DFGController * controller, char const * path, char const * title)
 : DFGCommand(controller)
 {
   m_nodePath = path;
@@ -17,32 +17,17 @@ DFGRenameNodeCommand::DFGRenameNodeCommand(DFGController * controller, QString p
 bool DFGRenameNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::NodePtr node = ctrl->getNodeFromPath(m_nodePath.toUtf8().constData());
-  if ( !node->isInst() )
-    return false;
-  DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( node );
-  inst->setTitle(m_newTitle.toUtf8().constData());
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+  graph.setInstTitle(m_nodePath.c_str(), m_newTitle.c_str());
   return true;
 }
 
-bool DFGRenameNodeCommand::undo()
+char const * DFGRenameNodeCommand::getPath() const
 {
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
+  return m_nodePath.c_str();
 }
 
-bool DFGRenameNodeCommand::redo()
+char const * DFGRenameNodeCommand::getTitle() const
 {
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
-}
-
-QString DFGRenameNodeCommand::getPath() const
-{
-  return m_nodePath;
-}
-
-QString DFGRenameNodeCommand::getTitle() const
-{
-  return m_newTitle;
+  return m_newTitle.c_str();
 }

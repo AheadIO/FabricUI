@@ -8,10 +8,10 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGPasteCommand::DFGPasteCommand(DFGController * controller, QString json)
+DFGPasteCommand::DFGPasteCommand(DFGController * controller, char const * json)
 : DFGCommand(controller)
 {
-  m_json = json.toUtf8().constData();
+  m_json = json;
   if(m_json.length() == 0)
   {
     QClipboard *clipboard = QApplication::clipboard();
@@ -19,9 +19,9 @@ DFGPasteCommand::DFGPasteCommand(DFGController * controller, QString json)
   }
 }
 
-std::string DFGPasteCommand::getJSON() const
+char const * DFGPasteCommand::getJSON() const
 {
-  return m_json;
+  return m_json.c_str();
 }
 
 std::vector<std::string> DFGPasteCommand::getNodePaths() const
@@ -35,9 +35,9 @@ bool DFGPasteCommand::invoke()
     return false;
 
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
 
-  std::string result = graph->importNodesJSON(m_json.c_str());
+  std::string result = graph.importNodesJSON(m_json.c_str()).getCString();
   FabricCore::Variant resultVar = FabricCore::Variant::CreateFromJSON(result.c_str());
   if(resultVar.isArray())
   {
@@ -52,16 +52,4 @@ bool DFGPasteCommand::invoke()
   }
 
   return true;
-}
-
-bool DFGPasteCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGPasteCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();
 }

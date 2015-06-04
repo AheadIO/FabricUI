@@ -16,23 +16,21 @@ namespace FabricUI
     {
     public:
 
-      DFGAddEmptyFuncCommand(DFGController * controller, QString path, QString title, QPointF pos);
+      DFGAddEmptyFuncCommand(DFGController * controller, char const * path, char const * title, QPointF pos);
 
       virtual const char * getName() const { return "dfgAddEmptyFunc"; }
       virtual const char * getShortDesc() const { return "Adds an empty func node to the graph."; }
       virtual const char * getFullDesc() const { return "Adds an empty func node to the graph."; }
 
-      std::string getPath() const;
-      std::string getTitle() const;
+      char const * getPath() const;
+      char const * getTitle() const;
       QPointF getPos() const;
-      std::string getInstPath() const;
+      char const * getInstPath() const;
       GraphView::Node * getNode();
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

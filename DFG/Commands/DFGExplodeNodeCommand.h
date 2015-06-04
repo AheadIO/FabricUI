@@ -16,20 +16,18 @@ namespace FabricUI
     {
     public:
 
-      DFGExplodeNodeCommand(DFGController * controller, QString nodePath);
+      DFGExplodeNodeCommand(DFGController * controller, char const * nodePath);
 
       virtual const char * getName() const { return "dfgExplodeNode"; }
       virtual const char * getShortDesc() const { return "Groups nodes in graph to a new subgraph."; }
       virtual const char * getFullDesc() const { return "Groups nodes in graph to a new subgraph."; }
 
-      std::string getNodePath() const;
+      char const * getNodePath() const;
       std::vector<std::string> getNodeNames() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

@@ -10,3 +10,15 @@ DFGCommand::DFGCommand(DFGController * controller)
 : GraphView::ControllerCommand(controller)
 {
 }
+
+bool DFGCommand::undo()
+{
+  DFGController * ctrl = (DFGController*)controller();
+  return FabricCore::DFGHost(ctrl->getCoreDFGHost()).maybeUndo();  
+}
+
+bool DFGCommand::redo()
+{
+  DFGController * ctrl = (DFGController*)controller();
+  return FabricCore::DFGHost(ctrl->getCoreDFGHost()).maybeRedo();  
+}
