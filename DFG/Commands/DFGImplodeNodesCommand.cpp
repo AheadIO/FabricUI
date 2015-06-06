@@ -24,14 +24,14 @@ std::vector<std::string> DFGImplodeNodesCommand::getNodePaths() const
   return m_nodePaths;
 }
 
-std::string DFGImplodeNodesCommand::getDesiredName() const
+char const * DFGImplodeNodesCommand::getDesiredName() const
 {
-  return m_desiredName;
+  return m_desiredName.c_str();
 }
 
-std::string DFGImplodeNodesCommand::getInstName() const
+char const * DFGImplodeNodesCommand::getInstName() const
 {
-  return m_instName;
+  return m_instName.c_str();
 }
 
 bool DFGImplodeNodesCommand::invoke()

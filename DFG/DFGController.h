@@ -72,12 +72,12 @@ namespace FabricUI
       virtual bool removePort(char const *  name);
       virtual GraphView::Port * addPortFromPin(GraphView::Pin * pin, GraphView::PortType pType);
       virtual std::string renamePort(char const *  path, char const *  title);
-      virtual bool addConnection(char const *  srcPath, char const *  dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual bool addConnection(char const *  srcPath, char const *  dstPath);
       virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeConnection(char const *srcPath, char const *dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual bool removeConnection(char const *srcPath, char const *dstPath);
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeAllConnections(char const *  path, bool isPin = true);
-      virtual bool addExtensionDependency(char const *  extension, char const *  execPath, char const *  & errorMessage);
+      virtual bool removeAllConnections(char const *  path);
+      virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual bool setCode(char const *  path, char const *  code);
       virtual std::string reloadCode(char const *  path);
       virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
@@ -104,6 +104,9 @@ namespace FabricUI
       virtual void logError(const char * message);
 
       virtual void setLogFunc(LogFunc func);
+
+      virtual char const * getExecPath()
+        {  return m_execPath.c_str(); }
 
       virtual bool execute();
       bool bindUnboundRTVals(std::string dataType = "");
@@ -150,6 +153,7 @@ namespace FabricUI
       std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
+      std::string m_execPath;
     };
 
   };

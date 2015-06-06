@@ -202,49 +202,6 @@ namespace FabricUI
 
     };
 
-    inline std::string parentPathSTL(std::string path)
-    {
-      size_t pos = path.rfind('.');
-      if(pos == std::string::npos)
-        return "";
-      return path.substr(0, pos);
-    }
-
-    inline std::string relativePathSTL(std::string parent, std::string child)
-    {
-      if(child == parent)
-        return "";
-      if(child.length() > parent.length())
-      {
-        if(child.substr(0, parent.length()+1) == parent + ".")
-          return child.substr(parent.length() + 1, child.length());
-      }
-      return child;
-    }
-
-    inline std::string lastPathSegmentSTL(std::string path)
-    {
-      size_t pos = path.rfind('.');
-      if(pos == std::string::npos)
-        return path;
-      return path.substr(pos+1, path.length());
-    }
-
-    inline QString parentPath(QString path)
-    {
-      return parentPathSTL(std::string(path.toUtf8().constData())).c_str();
-    }
-
-    inline QString relativePath(QString parent, QString child)
-    {
-      return relativePathSTL(std::string(parent.toUtf8().constData()), std::string(child.toUtf8().constData())).c_str();
-    }
-
-    inline QString lastPathSegment(QString path)
-    {
-      return lastPathSegmentSTL(std::string(path.toUtf8().constData())).c_str();
-    }
-
   };
 
 };
