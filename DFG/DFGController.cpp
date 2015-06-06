@@ -1470,24 +1470,38 @@ void DFGController::updatePresetPathDB()
   m_presetNameSpaceDictSTL.clear();
   m_presetPathDictSTL.clear();
 
-  // todo
-  // std::vector<DFGWrapper::NameSpace> namespaces;
-  // namespaces.push_back(m_coreDFGHost->getRootNameSpace());
+  std::vector<std::string> paths;
+  paths.push_back("");
 
-  // for(size_t i=0;i<namespaces.size();i++)
-  // {
-  //   m_presetNameSpaceDictSTL.push_back(namespaces[i].getPath());
+  for(size_t i=0;i<paths.size();i++)
+  {
+    std::string prefix = paths[i];
+    if(prefix.length() > 0)
+      prefix += ".";
 
-  //   std::vector<DFGWrapper::NameSpace> childNameSpaces = namespaces[i].getNameSpaces();
-  //   namespaces.insert(namespaces.end(), childNameSpaces.begin(), childNameSpaces.end());
+    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
+    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    {
+      std::string name = memberIter.getKey()->getStringData();
+      const FabricCore::Variant * memberVar = memberIter.getValue();
+      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+      std::string objectType = objectTypeVar->getStringData();
+      if(objectType == "Preset")
+      {
+        m_presetPathDictSTL.push_back(prefix+name);
+      }
+      else if(objectType == "NameSpace")
+      {
+        paths.push_back(prefix+name);
+        m_presetNameSpaceDictSTL.push_back(prefix+name);
+      }
+    }
+  }
 
-  //   std::vector<DFGWrapper::Object> presets = namespaces[i].getPresets();
-  //   for(size_t j=0;j<presets.size();j++)
-  //     m_presetPathDictSTL.push_back(presets[j].getPath());
-  // }
-
-  // for(size_t i=0;i<m_presetNameSpaceDictSTL.size();i++)
-  //   m_presetNameSpaceDict.add(m_presetNameSpaceDictSTL[i].c_str(), '.', m_presetNameSpaceDictSTL[i].c_str());
-  // for(size_t i=0;i<m_presetPathDictSTL.size();i++)
-  //   m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
+  for(size_t i=0;i<m_presetNameSpaceDictSTL.size();i++)
+    m_presetNameSpaceDict.add(m_presetNameSpaceDictSTL[i].c_str(), '.', m_presetNameSpaceDictSTL[i].c_str());
+  for(size_t i=0;i<m_presetPathDictSTL.size();i++)
+    m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
 }

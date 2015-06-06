@@ -34,7 +34,7 @@ DFGExecPortListWidget::~DFGExecPortListWidget()
 {
 }
 
-void DFGExecPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
+void DFGExecPortListWidget::setExec(FabricCore::DFGExec exec)
 {
   m_exec = exec;
 
@@ -42,16 +42,16 @@ void DFGExecPortListWidget::setExec(DFGWrapper::ExecutablePtr exec)
 
   try
   {
-    DFGWrapper::ExecPortList ports = exec->getExecPorts();
-    for(size_t i=0;i<ports.size();i++)
+    for(size_t i=0;i<exec.getExecPortCount();i++)
     {
-      QString portType = " in";
-      if(ports[i]->getExecPortType() == FabricCore::DFGPortType_Out)
+      char const * portType = " in";
+      if(exec.getExecPortType(i) == FabricCore::DFGPortType_Out)
         portType = "out";
-      else if(ports[i]->getExecPortType() == FabricCore::DFGPortType_IO)
+      else if(exec.getExecPortType(i) == FabricCore::DFGPortType_IO)
         portType = " io";
-      QString dataType = ports[i]->getResolvedType();
-      QString name = ports[i]->getPortName();
+
+      char const * name = exec.getExecPortName(i);
+      char const * dataType = exec.getExecPortResolvedType(i);
       DFGExecPortListItem * item = new DFGExecPortListItem(m_list, portType, dataType, name);
       m_list->addItem(item);
     }

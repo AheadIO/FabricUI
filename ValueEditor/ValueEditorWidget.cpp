@@ -9,7 +9,7 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client * client, const EditorConfig & config)
+ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config)
 : QWidget(parent)
 , m_config(config)
 {
@@ -59,7 +59,7 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     TreeItem * item = m_treeModel->item(left);
     if(item != NULL)
       return NULL;
-    ValueItem * newItem = new ValueItem(left, m_factory, m_client, m_treeView, value, label, enabled);
+    ValueItem * newItem = new ValueItem(left, m_factory, &m_client, m_treeView, value, label, enabled);
     if(value.isValid())
     {
       if(!m_factory->canDisplay(newItem))
@@ -79,7 +79,7 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
     TreeItem * item = m_treeModel->item(left);
     if(item == NULL)
       return NULL;
-    ValueItem * newItem = new ValueItem(right, m_factory, m_client, m_treeView, value, label, enabled);
+    ValueItem * newItem = new ValueItem(right, m_factory, &m_client, m_treeView, value, label, enabled);
     if(value.isValid())
     {
       if(!m_factory->canDisplay(newItem))

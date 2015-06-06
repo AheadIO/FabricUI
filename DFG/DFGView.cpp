@@ -9,7 +9,7 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGView::DFGView(
-  FabricCore::DFGExec const &coreDFGGraph,
+  FabricCore::DFGExec coreDFGGraph,
   const DFGConfig & config
   )
   : m_coreDFGGraph( coreDFGGraph )
@@ -31,11 +31,6 @@ DFGController * DFGView::getController()
 void DFGView::setController(DFGController * controller)
 {
   m_controller = controller;
-}
-
-DFGWrapper::GraphExecutablePtr DFGView::getGraph()
-{
-  return m_graph;
 }
 
 GraphView::Port * DFGView::getLastPortInserted()
@@ -62,6 +57,7 @@ float DFGView::getFloatFromVariant(const FabricCore::Variant * variant)
   return 0.0f;
 }
 
+/*
 void DFGView::onGraphSet()
 {
   if(m_controller->graph() == NULL)
@@ -636,3 +632,4 @@ void DFGView::onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port
 {
   // todo: we don't do anything here...
 }
+*/

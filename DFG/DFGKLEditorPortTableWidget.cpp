@@ -59,7 +59,7 @@ DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 {
 }
 
-void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
+void DFGKLEditorPortTableWidget::setExec(FabricCore::DFGExec exec)
 {
   if(exec == m_exec)
     return;
@@ -76,21 +76,19 @@ void DFGKLEditorPortTableWidget::setExec(DFGWrapper::FuncExecutablePtr exec)
 
   try
   {
-    DFGWrapper::ExecPortList ports = m_exec->getExecPorts();
-
-    if(ports.size() == 0)
+    if(exec.getExecPortCount() == 0)
     {
       // add a single port to start off of
       addPort(FabricCore::DFGPortType_In, "", "$TYPE$");
     }
     else
     {
-      for(size_t i=0;i<ports.size();i++)
+      for(size_t i=0;i<exec.getExecPortCount();i++)
       {
-        FabricCore::DFGPortType portType = ports[i]->getExecPortType();
-        QString portName = ports[i]->getPortName();
-        QString dataType = ports[i]->getTypeSpec();
-        addPort(portType, portName, dataType);
+        FabricCore::DFGPortType portType = exec.getExecPortType(i);
+        char const * portName = exec.getExecPortName(i);
+        char const * portTypeSpec = exec.getExecPortTypeSpec(i);
+        addPort(portType, portName, portTypeSpec);
       }
     }
   }

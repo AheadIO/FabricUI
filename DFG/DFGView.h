@@ -25,7 +25,7 @@ namespace FabricUI
     public:
 
       DFGView(
-        FabricCore::DFGExec const &coreDFGGraph,
+        FabricCore::DFGExec coreDFGGraph,
         const DFGConfig & config = DFGConfig()
         );
 
@@ -87,6 +87,7 @@ namespace FabricUI
       DFGConfig m_config;
       GraphView::Port * m_lastPortInserted;
       FabricCore::DFGExec m_coreDFGGraph;
+      FabricCore::DFGView m_coreDFGView;
       bool m_performChecks;
     };
 

@@ -4,35 +4,35 @@
 
 using namespace FabricUI::DFG;
 
-DFGExecPortListItem::DFGExecPortListItem(QListWidget * parent, QString portType, QString dataType, QString name)
+DFGExecPortListItem::DFGExecPortListItem(QListWidget * parent, char const * portType, char const * dataType, char const * name)
 : QListWidgetItem(parent)
 {
   m_portType = portType;
   m_dataType = dataType;
   m_name = name;
 
-  QString text = m_portType + " " + m_name;
+  std::string text = m_portType + " " + m_name;
   if(m_dataType.length() > 0)
     text += " ( " + m_dataType + " )";
-  setText(text);
+  setText(text.c_str());
 }
 
 DFGExecPortListItem::~DFGExecPortListItem()
 {
 }
 
-QString DFGExecPortListItem::portType() const
+char const * DFGExecPortListItem::portType() const
 {
-  return m_portType;
+  return m_portType.c_str();
 }
 
-QString DFGExecPortListItem::dataType() const
+char const * DFGExecPortListItem::dataType() const
 {
-  return m_dataType;
+  return m_dataType.c_str();
 }
 
-QString DFGExecPortListItem::name() const
+char const * DFGExecPortListItem::name() const
 {
-  return m_name;
+  return m_name.c_str();
 }
 

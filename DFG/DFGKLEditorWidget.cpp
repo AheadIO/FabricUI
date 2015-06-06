@@ -21,7 +21,6 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
 {
   m_controller = controller;
   m_config = config;
-  m_func = NULL;
   m_unsavedChanges = false;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -88,13 +87,14 @@ DFGKLEditorWidget::~DFGKLEditorWidget()
 {
 }
 
-void DFGKLEditorWidget::setFunc(DFGWrapper::FuncExecutablePtr func)
+void DFGKLEditorWidget::setFunc(FabricCore::DFGExec func, char const * execPath)
 {
   m_func = func;
+  m_execPath = execPath;
 
   try
   {
-    m_klEditor->sourceCodeWidget()->setCode(m_func->getCode());
+    m_klEditor->sourceCodeWidget()->setCode(m_func.getCode());
   }
   catch(FabricCore::Exception e)
   {
@@ -111,30 +111,28 @@ void DFGKLEditorWidget::onExecPortsChanged()
   for(unsigned int i=0;i<m_ports->nbPorts();i++)
     infos.push_back(m_ports->portInfo(i));
 
-  DFGWrapper::ExecPortList ports = m_func->getExecPorts();
-
   bool modified = false;
 
   // we expect only one change, so either a new port,
   // portName / portType or dataType change
-  if(ports.size() == infos.size())
+  if(m_func.getExecPortCount() == infos.size())
   {
     for(size_t i=0;i<infos.size();i++)
     {
       bool addRemovePort = false;
       bool setPortType = false;
       bool setDataType = false;
-      if(infos[i].portName != ports[i]->getPortName())
+      if(infos[i].portName != m_func.getExecPortName(i))
       {
-        if(infos[i].portType == ports[i]->getExecPortType() &&
-          infos[i].dataType == ports[i]->getTypeSpec())
+        if(infos[i].portType == m_func.getExecPortType(i) &&
+          infos[i].dataType == m_func.getExecPortTypeSpec(i))
         {
           try
           {
-            QString path = m_func->getExecPath();
+            std::string path = m_execPath;
             path += ".";
-            path += ports[i]->getPortPath();
-            m_controller->renamePort(path, infos[i].portName.c_str());
+            path += m_func.getExecPortName(i);
+            m_controller->renamePort(path.c_str(), infos[i].portName.c_str());
           }
           catch(FabricCore::Exception e)
           {
@@ -147,23 +145,22 @@ void DFGKLEditorWidget::onExecPortsChanged()
           addRemovePort = true;
         }
       }
-      else if(infos[i].portType != ports[i]->getExecPortType())
+      else if(infos[i].portType != m_func.getExecPortType(i))
       {
         setPortType = true;
       }
-      else if(infos[i].dataType != ports[i]->getTypeSpec())
+      else if(infos[i].dataType != m_func.getExecPortTypeSpec(i))
       {
         setDataType = true;
       }
 
       if(addRemovePort)
       {
-        QString path = m_func->getExecPath();
-        QString name = ports[i]->getPortName();
+        char const * name = m_func.getExecPortName(i);
 
-        if(m_controller->removePort(path, name))
+        if(m_controller->removePort(name))
         {
-          m_controller->addPort(path, name, infos[i].portType, infos[i].dataType.c_str(), false); 
+          m_controller->addPort(m_execPath.c_str(), name, infos[i].portType, infos[i].dataType.c_str(), false); 
           modified = true;
         }
       }
@@ -171,7 +168,8 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         try
         {
-          ports[i]->setExecPortType(infos[i].portType);
+          char const * name = m_func.getExecPortName(i);
+          m_func.setExecPortType(name, infos[i].portType);
         }
         catch(FabricCore::Exception e)
         {
@@ -183,7 +181,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         try
         {
-          ports[i]->setTypeSpec(infos[i].dataType.c_str());
+          m_func.setExecPortTypeSpec(i, infos[i].dataType.c_str());
         }
         catch(FabricCore::Exception e)
         {
@@ -193,38 +191,37 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
   }
-  else if(ports.size() > infos.size())
+  else if(m_func.getExecPortCount() > infos.size())
   {
-    int indexToRemove = ports.size() - 1;
+    int indexToRemove = m_func.getExecPortCount() - 1;
     for(size_t i=0;i<infos.size();i++)
     {
-      if(ports[i]->getPortName() != infos[i].portName)
+      if(m_func.getExecPortName(i) != infos[i].portName)
       {
         indexToRemove = i;
         break;
       }
     }
 
-    QString path = m_func->getExecPath();
-    QString name = ports[indexToRemove]->getPortName();
-    m_controller->removePort(path, name);
+    char const * name = m_func.getExecPortName(indexToRemove);
+    m_controller->removePort(name);
     modified = true;
   }
-  else if(ports.size() < infos.size())
+  else if(m_func.getExecPortCount() < infos.size())
   {
     int indexToAdd = infos.size() - 1;
-    for(size_t i=0;i<ports.size();i++)
+    for(size_t i=0;i<m_func.getExecPortCount();i++)
     {
-      if(ports[i]->getPortName() != infos[i].portName)
+      if(m_func.getExecPortName(i) != infos[i].portName)
       {
         indexToAdd = i;
         break;
       }
     }
 
-    QString path = m_func->getExecPath();
-    QString name = infos[indexToAdd].portName.c_str();
-    QString dataType = infos[indexToAdd].dataType.c_str();
+    char const * path = m_execPath.c_str();
+    char const * name = infos[indexToAdd].portName.c_str();
+    char const * dataType = infos[indexToAdd].dataType.c_str();
 
     m_controller->addPort(path, name, infos[indexToAdd].portType, dataType, false);
     modified = true;
@@ -238,7 +235,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
 void DFGKLEditorWidget::compile()
 {
-  if(m_controller->setCode(m_func->getExecPath(), m_klEditor->sourceCodeWidget()->code()))
+  if(m_controller->setCode(m_execPath.c_str(), m_klEditor->sourceCodeWidget()->code().toUtf8().constData()))
     m_unsavedChanges = false;
 }
 
@@ -258,12 +255,12 @@ void DFGKLEditorWidget::reload()
       return;
   }
 
-  QString code = m_controller->reloadCode(m_func->getExecPath());
+  std::string code = m_controller->reloadCode(m_execPath.c_str());
   if(code.length() > 0)
   {
     try
     {
-      m_klEditor->sourceCodeWidget()->setCode(code);
+      m_klEditor->sourceCodeWidget()->setCode(code.c_str());
     }
     catch(FabricCore::Exception e)
     {

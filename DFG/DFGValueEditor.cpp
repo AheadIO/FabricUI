@@ -28,9 +28,9 @@ DFGValueEditor::~DFGValueEditor()
 {
 }
 
-void DFGValueEditor::setNode(FabricServices::DFGWrapper::NodePtr node)
+void DFGValueEditor::setNodeName( char const *nodeName )
 {
-  m_node = node;
+  m_nodeName = nodeName;
   onArgsChanged();
 }
 
@@ -45,75 +45,80 @@ void DFGValueEditor::onArgsChanged()
       if(!m_controller->getView())
         return;
 
-      DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getDFGBinding();
-      DFGWrapper::ExecPortList ports = binding.getExecutable()->getExecPorts();
-      for(uint32_t i=0;i<ports.size();i++)
+      FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
+      FabricCore::DFGExec exec = binding.getExec();
+
+      for(size_t i=0;i<exec.getExecPortCount();i++)
       {
-        if(ports[i]->getNodePortType() != FabricCore::DFGPortType_Out)
+        if(exec.getExecPortType(i) == FabricCore::DFGPortType_Out)
           continue;
-        std::string portName = ports[i]->getPortName();
-        if(portName.length() == 0)
+        FTL::StrRef portName = exec.getExecPortName(i);
+        if(portName.size() == 0)
           continue;
         if(portName == "timeLine" || portName == "timeline")
           continue;
-        QString hidden = ports[i]->getMetadata("uiHidden");
-        if(hidden == "true")
+        FTL::StrRef uiHidden = exec.getExecPortMetadata(portName.data(), "uiHidden");
+        if(uiHidden == "true")
           continue;
-        char const * path = ports[i]->getPortPath();
-        FabricCore::RTVal value = binding.getArgValue(path);
+
+        FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
-        ValueItem * item = addValue(path, value, ports[i]->getPortName(), true);
+
+        ValueItem * item = addValue(portName.data(), value, portName.data(), true);
         if(item)
         {
-          item->setMetaData("uiRange", ports[i]->getMetadata("uiRange"));
-          item->setMetaData("uiCombo", ports[i]->getMetadata("uiCombo"));
+          item->setMetaData("uiRange", exec.getExecPortMetadata(portName.data(), "uiRange"));
+          item->setMetaData("uiCombo", exec.getExecPortMetadata(portName.data(), "uiCombo"));
         }
       }
-      for(uint32_t i=0;i<ports.size();i++)
+
+      for(size_t i=0;i<exec.getExecPortCount();i++)
       {
-        if(ports[i]->getNodePortType() == FabricCore::DFGPortType_Out)
+        if(exec.getExecPortType(i) != FabricCore::DFGPortType_Out)
           continue;
-        QString hidden = ports[i]->getMetadata("uiHidden");
-        if(hidden == "true")
+        FTL::StrRef portName = exec.getExecPortName(i);
+        if(portName.size() == 0)
           continue;
-        char const * path = ports[i]->getPortPath();
-        FabricCore::RTVal value = binding.getArgValue(path);
+        FTL::StrRef uiHidden = exec.getExecPortMetadata(portName.data(), "uiHidden");
+        if(uiHidden == "true")
+          continue;
+        FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
-        addValue(path, value, ports[i]->getPortName(), false);
+        addValue(portName.data(), value, portName.data(), false);
       }
     }
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_node->getNodeName(), FabricCore::RTVal(), m_node->getNodeName(), false);
+      ValueItem * nodeItem = addValue(m_nodeName, FabricCore::RTVal(), m_nodeName, false);
 
-      DFGWrapper::NodePortList nodePorts = m_node->getNodePorts();
-      for(size_t i=0;i<nodePorts.size();i++)
+      FabricCore::DFGExec exec = m_controller->getCoreDFGExec();
+      FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName);
+
+      std::string prefix = m_nodeName;
+      prefix += ".";
+
+      for(size_t i=0;i<subExec.getExecPortCount();i++)
       {
-        if ( !nodePorts[i]->isInstPort() )
-          continue;
-        DFGWrapper::InstPortPtr instPort =
-          DFGWrapper::InstPortPtr::StaticCast( nodePorts[i] );
-
-        if(instPort->getNodePortType() == FabricCore::DFGPortType_Out)
-          continue;
-        if(instPort->isConnectedToAny())
+        if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
           continue;
 
-        std::string dataType = instPort->getResolvedType();
+        FTL::StrRef portName = subExec.getExecPortName(i);
+        std::string pinPath = prefix + portName.data();
+        if(exec.isConnectedToAny(pinPath.c_str()))
+          continue;
+
+        std::string dataType = exec.getNodePortResolvedType(pinPath.c_str());
         if(dataType == "" || dataType.find('$') != std::string::npos)
           continue;
 
-        QString hidden = instPort->getExecPort()->getMetadata("uiHidden");
+        FTL::StrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
         if(hidden == "true")
           continue;
 
-        FabricCore::RTVal value = instPort->getDefaultValue(dataType.c_str());
-        if(!value.isValid())
-          value = instPort->getExecPort()->getDefaultValue(dataType.c_str());
-        
+        FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), dataType.c_str());
         if(!value.isValid())
         {
           std::string aliasedDataType;
@@ -127,29 +132,29 @@ void DFGValueEditor::onArgsChanged()
             aliasedDataType = "Float32";
 
           if(aliasedDataType.length() > 0)
-            value = instPort->getDefaultValue(aliasedDataType.c_str());
+            value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), aliasedDataType.c_str());
         }
 
         if(!value.isValid())
         {
-          bool isObject = FabricCore::GetRegisteredTypeIsObject(*m_controller->getClient(), dataType.c_str());
+          bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
           if(isObject)
           {
-            value = FabricCore::RTVal::Create(*m_controller->getClient(), dataType.c_str(), 0, 0);
+            value = FabricCore::RTVal::Create(m_controller->getClient(), dataType.c_str(), 0, 0);
           }
           else
           {
-            value = FabricCore::RTVal::Construct(*m_controller->getClient(), dataType.c_str(), 0, 0);
+            value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
           }
         }
         if(!value.isValid())
           continue;
         
-        ValueItem * item = addValue(instPort->getPortPath(), value, instPort->getPortName(), true);
+        ValueItem * item = addValue(portName.data(), value, portName.data(), true);
         if(item)
         {
-          item->setMetaData("uiRange", instPort->getExecPort()->getMetadata("uiRange"));
-          item->setMetaData("uiCombo", instPort->getExecPort()->getMetadata("uiCombo"));
+          item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));
+          item->setMetaData("uiCombo", subExec.getExecPortMetadata(portName.data(), "uiCombo"));
         }
       }
 
@@ -165,13 +170,13 @@ void DFGValueEditor::onArgsChanged()
 
 void DFGValueEditor::updateOutputs()
 {
-  if(m_node)
+  if(m_nodeName == NULL)
     return;
 
   if(!m_controller->getView())
     return;
 
-  DFGWrapper::Binding binding = m_controller->getView()->getGraph()->getDFGBinding();
+  FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
 
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {

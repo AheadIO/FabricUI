@@ -26,7 +26,7 @@ namespace FabricUI
 
     public:
 
-      ValueEditorWidget(QWidget * parent, FabricCore::Client * client, const EditorConfig & config = EditorConfig());
+      ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config = EditorConfig());
       virtual ~ValueEditorWidget();
       EditorConfig & config();
 
@@ -44,7 +44,7 @@ namespace FabricUI
     protected:
     
       EditorConfig m_config;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_client;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       TreeView::TreeEditorFactory * m_factory;

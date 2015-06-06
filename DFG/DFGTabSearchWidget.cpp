@@ -35,10 +35,10 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
     int index = indexFromPos(event->pos());
     if(index >= 0)
     {
-      QString graphPath = m_parent->getUIController()->graph()->path();
+      char const * graphPath = m_parent->getUIController()->graph()->path();
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[index], scenePos);
+      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[index].toUtf8().constData(), scenePos);
 
       hide();
       event->accept();
@@ -114,10 +114,10 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
   {
     if(m_currentIndex > -1 && m_currentIndex < m_results.length())
     {
-      QString graphPath = m_parent->getUIController()->graph()->path();
+      char const * graphPath = m_parent->getUIController()->graph()->path();
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[m_currentIndex], scenePos);
+      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[m_currentIndex].toUtf8().constData(), scenePos);
     }
     hide();
     event->accept();
@@ -202,7 +202,7 @@ bool DFGTabSearchWidget::focusNextPrevChild(bool next)
 
 void DFGTabSearchWidget::updateSearch()
 {
-  m_results = m_parent->getUIController()->getPresetPathsFromSearch(m_search);
+  m_results = m_parent->getUIController()->getPresetPathsFromSearch(m_search.toUtf8().constData());
   if(m_results.size() > 16)
   {
     QStringList lessResults;
