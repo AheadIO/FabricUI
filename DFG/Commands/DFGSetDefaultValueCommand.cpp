@@ -27,9 +27,9 @@ bool DFGSetDefaultValueCommand::invoke()
   FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
 
   if(m_path.find('.') != std::string::npos)
-    graph.setInstPortDefaultValue(m_path.c_str(), m_value);
+    graph.setPortDefaultValue(m_path.c_str(), m_value);
   else
-    graph.setExecPortDefaultValue(m_path.c_str(), m_value);
+    graph.setPortDefaultValue(m_path.c_str(), m_value);
 
   return true;
 }

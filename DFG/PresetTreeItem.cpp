@@ -2,6 +2,9 @@
 
 #include "PresetTreeItem.h"
 
+using namespace FabricUI;
+using namespace FabricUI::DFG;
+
 PresetTreeItem::PresetTreeItem(char const * path, char const * name)
 : TreeView::TreeItem(name, "Preset")
 {

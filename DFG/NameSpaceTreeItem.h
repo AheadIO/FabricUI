@@ -4,6 +4,7 @@
 #define __UI_DFG_NameSpaceTreeItem__
 
 #include <TreeView/TreeItem.h>
+#include <FabricCore.h>
 
 namespace FabricUI
 {
@@ -16,7 +17,7 @@ namespace FabricUI
 
     public:
 
-      NameSpaceTreeItem(FabricServices::DFGWrapper::NameSpace nameSpace, QStringList filters = QStringList());
+      NameSpaceTreeItem(FabricCore::DFGHost const &coreDFGHost, char const * name, char const * ns, QStringList filters = QStringList());
 
       virtual unsigned int numChildren();
 
@@ -28,7 +29,8 @@ namespace FabricUI
 
       bool includeChildName(QString name);
 
-      FabricServices::DFGWrapper::NameSpace m_nameSpace;
+      FabricCore::DFGHost m_coreDFGHost;
+      std::string m_nameSpace;
       bool m_validated;
       QStringList m_filters;
     };

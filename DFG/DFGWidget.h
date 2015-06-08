@@ -77,7 +77,7 @@ namespace FabricUI
       static QMenu* portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData);
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
-      bool editNode(FabricCore::DFGExec exec, bool pushExec = false);
+      bool editNode(FabricCore::DFGExec exec, char const * name, bool pushExec = false);
 
       QPoint m_contextPos;
       FabricUI::GraphView::Node * m_contextNode;
@@ -95,10 +95,12 @@ namespace FabricUI
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;
       FabricCore::DFGBinding m_coreDFGBinding;
-      FabricCore::DFGExec m_coreDFGGraph;
+      FabricCore::DFGExec m_coreDFGExec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGConfig m_dfgConfig;
+
       std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
+      std::string m_coreDFGExecPath;
     };
 
   };

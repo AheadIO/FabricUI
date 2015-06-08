@@ -16,7 +16,7 @@ DFGAddNodeCommand::DFGAddNodeCommand(DFGController * controller, char const * pa
 
 char const * DFGAddNodeCommand::getPath() const
 {
-  return GraphView::parentPathSTL(m_instPath).c_str();
+  return m_path.c_str();
 }
 
 char const * DFGAddNodeCommand::getInstPath() const
