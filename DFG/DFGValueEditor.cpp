@@ -19,7 +19,7 @@ DFGValueEditor::DFGValueEditor(
   , m_config( config )
   , m_controller( controller )
 {
-  // todo: really the value editor should be using a dfgview... 
+  // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
 }
@@ -42,7 +42,7 @@ void DFGValueEditor::onArgsChanged()
   {
     if(!m_nodeName)
     {
-      if(!m_controller->getView())
+      if(!m_controller->getRouter())
         return;
 
       FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
@@ -173,7 +173,7 @@ void DFGValueEditor::updateOutputs()
   if(m_nodeName == NULL)
     return;
 
-  if(!m_controller->getView())
+  if(!m_controller->getRouter())
     return;
 
   FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();

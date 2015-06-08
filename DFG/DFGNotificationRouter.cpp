@@ -1,6 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "DFGView.h"
+#include "DFGNotificationRouter.h"
 #include "DFGGraph.h"
 #include "DFGController.h"
 
@@ -8,37 +8,24 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGView::DFGView(
+DFGNotificationRouter::DFGNotificationRouter(
+  FabricCore::DFGBinding coreDFGBinding,
   FabricCore::DFGExec coreDFGGraph,
   const DFGConfig & config
   )
-  : m_coreDFGGraph( coreDFGGraph )
-  , m_coreDFGView(
-    coreDFGGraph.createView( &ViewCallback, this )
-    )
+  : NotificationRouter( coreDFGBinding, coreDFGGraph )
 {
-  m_controller = false;
   m_config = config;
   m_lastPortInserted = NULL;
   m_performChecks = true;
 }
 
-DFGController * DFGView::getController()
-{
-  return m_controller;
-}
-
-void DFGView::setController(DFGController * controller)
-{
-  m_controller = controller;
-}
-
-GraphView::Port * DFGView::getLastPortInserted()
+GraphView::Port * DFGNotificationRouter::getLastPortInserted()
 {
   return m_lastPortInserted;
 }
 
-float DFGView::getFloatFromVariant(const FabricCore::Variant * variant)
+float DFGNotificationRouter::getFloatFromVariant(const FabricCore::Variant * variant)
 {
   if(variant == 0)
     return 0.0f;
@@ -58,7 +45,7 @@ float DFGView::getFloatFromVariant(const FabricCore::Variant * variant)
 }
 
 /*
-void DFGView::onGraphSet()
+void DFGNotificationRouter::onGraphSet()
 {
   if(m_controller->graph() == NULL)
     return;
@@ -101,7 +88,9 @@ void DFGView::onGraphSet()
   m_performChecks = true;
 }
 
-void DFGView::onNotification(char const * json)
+*/
+
+void DFGNotificationRouter::onNotification(FTL::StrRef json)
 {
   // // todo: remove this
   // FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
@@ -113,57 +102,52 @@ void DFGView::onNotification(char const * json)
   // }
 }
 
-void DFGView::onNodeInserted(DFGWrapper::NodePtr node)
+void DFGNotificationRouter::onNodeInserted(FabricCore::DFGExec parent, FTL::StrRef nodePath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
 
-  DFGWrapper::InstPtr inst;
-  if ( node->isInst() )
-    inst = DFGWrapper::InstPtr::StaticCast( node );
+  FabricCore::DFGExec exec = parent.getSubExec(nodePath.data());
 
-  char const *title;
-  if ( inst )
-    title = inst->getTitle();
-  else
-    title = "UNKNOWN NODE TYPE";
-
-  GraphView::Node * uiNode = graph->addNodeFromPreset(node->getNodeName(), title);
+  GraphView::Node * uiNode = graph->addNodeFromPreset(nodePath.data(), exec.getTitle());
   if(!uiNode)
     return;
 
-  std::string uiGraphPosMetadata = node->getMetadata("uiGraphPos");
-  if(uiGraphPosMetadata.length() > 0)
-    onNodeMetadataChanged(node, "uiGraphPos", uiGraphPosMetadata.c_str());
+  FTL::StrRef uiGraphPosMetadata = parent.getNodeMetadata(nodePath.data(), "uiGraphPos");
+  if(uiGraphPosMetadata.size() > 0)
+    onNodeMetadataChanged(parent, nodePath, "uiGraphPos", uiGraphPosMetadata);
 
-  std::string uiCollapsedStateMetadata = node->getMetadata("uiCollapsedState");
-  if(uiCollapsedStateMetadata.length() > 0)
-    onNodeMetadataChanged(node, "uiCollapsedState", uiCollapsedStateMetadata.c_str());
+  std::string uiCollapsedStateMetadata = parent.getNodeMetadata(nodePath.data(), "uiCollapsedState");
+  if(uiCollapsedStateMetadata.size() > 0)
+    onNodeMetadataChanged(parent, nodePath, "uiCollapsedState", uiCollapsedStateMetadata);
 
-  std::string uiNodeColorMetadata = node->getMetadata("uiNodeColor");
-  if(uiNodeColorMetadata.length() == 0 && inst)
-    uiNodeColorMetadata = inst->getExecutable()->getMetadata("uiNodeColor");
-  if(uiNodeColorMetadata.length() > 0)
-    onNodeMetadataChanged(node, "uiNodeColor", uiNodeColorMetadata.c_str());
+  std::string uiNodeColorMetadata = parent.getNodeMetadata(nodePath.data(), "uiNodeColor");
+  if(uiNodeColorMetadata.size() == 0 && exec.isValid())
+    uiNodeColorMetadata = exec.getMetadata("uiNodeColor");
+  if(uiNodeColorMetadata.size() > 0)
+    onNodeMetadataChanged(parent, nodePath, "uiNodeColor", uiNodeColorMetadata);
 
-  std::string uiHeaderColorMetadata = node->getMetadata("uiHeaderColor");
-  if(uiHeaderColorMetadata.length() == 0 && inst)
-    uiHeaderColorMetadata = inst->getExecutable()->getMetadata("uiHeaderColor");
-  if(uiHeaderColorMetadata.length() > 0)
-    onNodeMetadataChanged(node, "uiHeaderColor", uiHeaderColorMetadata.c_str());
+  std::string uiHeaderColorMetadata = parent.getNodeMetadata(nodePath.data(), "uiHeaderColor");
+  if(uiHeaderColorMetadata.size() == 0 && exec.isValid())
+    uiHeaderColorMetadata = exec.getMetadata("uiHeaderColor");
+  if(uiHeaderColorMetadata.size() > 0)
+    onNodeMetadataChanged(parent, nodePath, "uiHeaderColor", uiHeaderColorMetadata);
 
-  std::string uiTooltipMetadata = node->getMetadata("uiTooltip");
-  if(uiTooltipMetadata.length() == 0 && inst)
-    uiTooltipMetadata = inst->getExecutable()->getMetadata("uiTooltip");
-  if(uiTooltipMetadata.length() > 0)
-    onNodeMetadataChanged(node, "uiTooltip", uiTooltipMetadata.c_str());
+  std::string uiTooltipMetadata = parent.getNodeMetadata(nodePath.data(), "uiTooltip");
+  if(uiTooltipMetadata.size() == 0 && exec.isValid())
+    uiTooltipMetadata = exec.getMetadata("uiTooltip");
+  if(uiTooltipMetadata.size() > 0)
+    onNodeMetadataChanged(parent, nodePath, "uiTooltip", uiTooltipMetadata);
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
 
-void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
+/*
+void DFGNotificationRouter::onNodeRemoved(DFGWrapper::NodePtr node)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -177,43 +161,43 @@ void DFGView::onNodeRemoved(DFGWrapper::NodePtr node)
   if(m_performChecks)
     m_controller->checkErrors();
 }
+*/
 
-void DFGView::onNodePortInserted(DFGWrapper::NodePortPtr nodePort)
+void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::StrRef nodePortPath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = GraphView::parentPath(nodePort->getPortPath());
-  GraphView::Node * uiNode = graph->nodeFromPath(path);
+
+  int delimPos = nodePortPath.find('.') - nodePortPath.data();
+  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
+  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
+
+  // the first part of the substr won't 
+  // work since there is no \0 char. 
+  // casting it to a std::string does
+  std::string nodeNameStr(nodeName);
+
+  GraphView::Node * uiNode = graph->node(nodeNameStr.c_str());
   if(!uiNode)
     return;
 
-  DFGWrapper::InstPortPtr instPort;
-  if ( nodePort->isInstPort() )
-    instPort = DFGWrapper::InstPortPtr::StaticCast( nodePort );
-
-  std::string dataType = nodePort->getResolvedType();
-  if(dataType.empty() && instPort)
-    dataType = instPort->getExecPort()->getTypeSpec();
-  std::string name = nodePort->getPortName();
-  // todo: once titles are supports
-  // std::string label = port->getTitle();
-  std::string label = nodePort->getPortName();
-  QColor color;
-  if ( instPort )
-    color = m_config.getColorForDataType(dataType, instPort->getExecPort());
+  FabricCore::DFGExec subExec = parent.getSubExec(nodeNameStr.c_str());
+  FTL::StrRef dataType = parent.getNodePortResolvedType(nodePortPath.data());
+  QColor color = m_config.getColorForDataType(dataType, &subExec, portName.data());
   GraphView::PortType pType = GraphView::PortType_Input;
-  if(nodePort->getNodePortType() == FabricCore::DFGPortType_Out)
+  if(subExec.getExecPortType(portName.data()) == FabricCore::DFGPortType_Out)
     pType = GraphView::PortType_Output;
-  else if(nodePort->getNodePortType() == FabricCore::DFGPortType_IO)
+  else if(subExec.getExecPortType(portName.data()) == FabricCore::DFGPortType_IO)
     pType = GraphView::PortType_IO;
 
-  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, name.c_str(), pType, color, label.c_str());
-  uiPin->setDataType(dataType.c_str());
+  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.data(), pType, color, portName.data());
+  uiPin->setDataType(dataType.data());
   uiNode->addPin(uiPin, false);
 }
 
-void DFGView::onNodePortRemoved(DFGWrapper::NodePortPtr pin)
+/*
+void DFGNotificationRouter::onNodePortRemoved(DFGWrapper::NodePortPtr pin)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -232,7 +216,7 @@ void DFGView::onNodePortRemoved(DFGWrapper::NodePortPtr pin)
     m_controller->checkErrors();
 }
 
-void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
+void DFGNotificationRouter::onExecPortInserted(DFGWrapper::ExecPortPtr port)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -278,7 +262,7 @@ void DFGView::onExecPortInserted(DFGWrapper::ExecPortPtr port)
   }
 }
 
-void DFGView::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
+void DFGNotificationRouter::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -313,12 +297,12 @@ void DFGView::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
     m_controller->checkErrors();
 }
 
-void DFGView::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
+void DFGNotificationRouter::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  DFGWrapper::GraphExecutablePtr graph = m_controller->getView()->getGraph();
+  DFGWrapper::GraphExecutablePtr graph = m_controller->getGraph();
 
   QString srcParentPath = GraphView::parentPath(src->getPortPath()).toUtf8().constData();
   QString dstParentPath = GraphView::parentPath(dst->getPortPath()).toUtf8().constData();
@@ -363,7 +347,7 @@ void DFGView::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
     m_controller->checkErrors();
 }
 
-void DFGView::onPortsDisconnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
+void DFGNotificationRouter::onPortsDisconnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -413,37 +397,37 @@ void DFGView::onPortsDisconnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr d
   if(m_performChecks)
     m_controller->checkErrors();
 }
+*/
 
-void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, const char * metadata)
+void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  QString path = node->getNodeName();
-  GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
+  GraphView::Node * uiNode = uiGraph->node(nodePath.data());
   if(!uiNode)
     return;
 
   // printf("'%s' metadata changed for '%s'\n", key, path.toUtf8().constData());
 
-  if(key == std::string("uiGraphPos"))
+  if(key == "uiGraphPos")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
     const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
     float x = getFloatFromVariant(xVar);
     float y = getFloatFromVariant(yVar);
     uiNode->setTopLeftGraphPos(QPointF(x, y), false);
   }
-  else if(key == std::string("uiCollapsedState"))
+  else if(key == "uiCollapsedState")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     GraphView::Node::CollapseState state = (GraphView::Node::CollapseState)metadataVar.getSInt32();
     uiNode->setCollapsedState(state);
   }
-  else if(key == std::string("uiNodeColor"))
+  else if(key == "uiNodeColor")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
     const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
     const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
@@ -455,9 +439,9 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     uiNode->setColor(color);
     uiNode->setLabelColor(color.darker(130));
   }
-  else if(key == std::string("uiHeaderColor"))
+  else if(key == "uiHeaderColor")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
     const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
     const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
@@ -468,27 +452,27 @@ void DFGView::onNodeMetadataChanged(DFGWrapper::NodePtr node, const char * key, 
     QColor color(r, g, b);
     uiNode->setLabelColor(color);
   }
-  else if(key == std::string("uiTooltip"))
+  else if(key == "uiTooltip")
   {
-    QString tooltip = metadata;
+    QString tooltip = metadata.data();
     uiNode->header()->setToolTip(tooltip.trimmed());
   }
 }
 
-void DFGView::onNodeTitleChanged(DFGWrapper::NodePtr node, const char * title)
+void DFGNotificationRouter::onNodeTitleChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef title)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  QString path = node->getNodeName();
-  GraphView::Node * uiNode = uiGraph->nodeFromPath(path);
+  GraphView::Node * uiNode = uiGraph->node(nodePath.data());
   if(!uiNode)
     return;
-  uiNode->setTitle(title);
+  uiNode->setTitle(title.data());
   uiNode->update();
 }
 
-void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldName)
+/*
+void DFGNotificationRouter::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldName)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -504,12 +488,12 @@ void DFGView::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldNa
   uiPort->setName(port->getPortName());
 }
 
-void DFGView::onNodePortRenamed(DFGWrapper::NodePortPtr pin, const char * oldName)
+void DFGNotificationRouter::onNodePortRenamed(DFGWrapper::NodePortPtr pin, const char * oldName)
 {
   // this shouldn't happen for us for now
 }
 
-void DFGView::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec, const char * key, const char * metadata)
+void DFGNotificationRouter::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec, const char * key, const char * metadata)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -536,7 +520,7 @@ void DFGView::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec, const char *
   }
 }
 
-void DFGView::onExtDepAdded(const char * extension, const char * version)
+void DFGNotificationRouter::onExtDepAdded(const char * extension, const char * version)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -550,22 +534,22 @@ void DFGView::onExtDepAdded(const char * extension, const char * version)
   }
 }
 
-void DFGView::onExtDepRemoved(const char * extension, const char * version)
+void DFGNotificationRouter::onExtDepRemoved(const char * extension, const char * version)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onNodeCacheRuleChanged(const char * path, const char * rule)
+void DFGNotificationRouter::onNodeCacheRuleChanged(const char * path, const char * rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onExecCacheRuleChanged(const char * path, const char * rule)
+void DFGNotificationRouter::onExecCacheRuleChanged(const char * path, const char * rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const char * resolvedType)
+void DFGNotificationRouter::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -582,12 +566,12 @@ void DFGView::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const 
   }
 }
 
-void DFGView::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * typeSpec)
+void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * typeSpec)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr nodePort, const char * resolvedType)
+void DFGNotificationRouter::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr nodePort, const char * resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -613,22 +597,22 @@ void DFGView::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr nodePort, co
   }
 }
 
-void DFGView::onExecPortMetadataChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * key, const char * metadata)
+void DFGNotificationRouter::onExecPortMetadataChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * key, const char * metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onNodePortMetadataChanged(FabricServices::DFGWrapper::NodePortPtr pin, const char * key, const char * metadata)
+void DFGNotificationRouter::onNodePortMetadataChanged(FabricServices::DFGWrapper::NodePortPtr pin, const char * key, const char * metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onNodePortTypeChanged(FabricServices::DFGWrapper::NodePortPtr pin, FabricCore::DFGPortType pinType)
+void DFGNotificationRouter::onNodePortTypeChanged(FabricServices::DFGWrapper::NodePortPtr pin, FabricCore::DFGPortType pinType)
 {
   // todo: we don't do anything here...
 }
 
-void DFGView::onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port, FabricCore::DFGPortType portType)
+void DFGNotificationRouter::onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port, FabricCore::DFGPortType portType)
 {
   // todo: we don't do anything here...
 }

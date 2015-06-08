@@ -18,7 +18,7 @@ namespace FabricUI
     {
       Q_OBJECT
 
-      friend class DFGView;
+      friend class DFGNotificationRouter;
 
     public:
 

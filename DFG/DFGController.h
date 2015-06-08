@@ -8,7 +8,7 @@
 #include <GraphView/Pin.h>
 #include <GraphView/Port.h>
 #include <ValueEditor/ValueItem.h>
-#include "DFGView.h"
+#include "NotificationRouter.h"
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
@@ -48,13 +48,14 @@ namespace FabricUI
         { return m_coreClient; }
       FabricCore::DFGHost const &getCoreDFGHost()
         { return m_coreDFGHost; }
-      FabricCore::DFGBinding const &getCoreDFGBinding();
-      FabricCore::DFGExec const &getCoreDFGExec();
+      FabricCore::DFGBinding const &getCoreDFGBinding()
+        { return m_coreDFGBinding; }
+      FabricCore::DFGExec getCoreDFGExec();
 
       void setHost( FabricCore::DFGHost const &coreDFGHost );
       void setClient( FabricCore::Client const &coreClient );
-      DFGView * getView();
-      void setView(DFGView * view);
+      NotificationRouter * getRouter();
+      void setRouter(NotificationRouter * router);
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
@@ -121,6 +122,10 @@ namespace FabricUI
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
+      virtual NotificationRouter * createRouter(
+        FabricCore::DFGBinding binding,
+        FabricCore::DFGExec exec);
+
     signals:
 
       void argsChanged();
@@ -145,7 +150,7 @@ namespace FabricUI
       FabricCore::DFGHost m_coreDFGHost;
       FabricCore::DFGBinding m_coreDFGBinding;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
-      DFGView * m_view;
+      NotificationRouter * m_router;
       LogFunc m_logFunc;
       bool m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;

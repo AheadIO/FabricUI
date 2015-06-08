@@ -57,7 +57,7 @@ DFGWidget::DFGWidget(
   setLayout(layout);
   setContentsMargins(0, 0, 0, 0);
 
-  m_dfgView = NULL;
+  m_router = NULL;
 
   setGraph(m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec);
 
@@ -87,11 +87,11 @@ void DFGWidget::setGraph(
   if(clear)
     m_coreDFGExecStack.clear();
 
-  if(m_dfgView)
+  if(m_router)
   {
-    m_uiController->setView(NULL);
-    delete(m_dfgView);
-    m_dfgView = NULL;
+    m_uiController->setRouter(NULL);
+    delete(m_router);
+    m_router = NULL;
   }
 
   if(m_coreDFGExec.isValid())
@@ -112,9 +112,10 @@ void DFGWidget::setGraph(
     m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
 
     m_uiGraph->reset(m_coreDFGExec.getTitle(), true);
-    m_dfgView = new DFGView(m_coreDFGExec, m_dfgConfig);
+
+    m_router = (DFGNotificationRouter*)m_uiController->createRouter(m_coreDFGBinding, m_coreDFGExec);
     m_uiController->setHost(m_coreDFGHost);
-    m_uiController->setView(m_dfgView);
+    m_uiController->setRouter(m_router);
     m_uiHeader->setCaption(m_coreDFGExec.getTitle());
   
     m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
@@ -798,6 +799,7 @@ bool DFGWidget::editNode(FabricCore::DFGExec exec, char const * name, bool pushE
       std::string execPath = m_coreDFGExecPath;
       execPath += ".";
       execPath += name;
+      setGraph(m_coreDFGHost, m_coreDFGBinding, exec, false);
       m_klEditor->setFunc(exec, execPath.c_str());
     }
   }

@@ -1,11 +1,12 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_DFG_DFGView__
-#define __UI_DFG_DFGView__
+#ifndef __UI_DFG_DFGNotificationRouter__
+#define __UI_DFG_DFGNotificationRouter__
 
 #include <FTL/StrRef.h>
 #include <GraphView/Controller.h>
 #include <GraphView/Port.h>
+#include "NotificationRouter.h"
 #include "DFGConfig.h"
 
 namespace FabricUI
@@ -16,7 +17,7 @@ namespace FabricUI
     // forward decl
     class DFGController;
 
-    class DFGView
+    class DFGNotificationRouter : public NotificationRouter
     {
 
       friend class DFGController;
@@ -24,35 +25,31 @@ namespace FabricUI
 
     public:
 
-      DFGView(
+      DFGNotificationRouter(
+        FabricCore::DFGBinding coreDFGBinding,
         FabricCore::DFGExec coreDFGGraph,
         const DFGConfig & config = DFGConfig()
         );
-
-      DFGController * getController();
-      void setController(DFGController * view);
-      
-      FabricCore::DFGExec const &getCoreDFGGraph()
-        { return m_coreDFGGraph; }
 
       GraphView::Port * getLastPortInserted();
 
       static float getFloatFromVariant(const FabricCore::Variant * variant);
 
+
     protected:
 
       // virtual void onGraphSet();
-      // virtual void onNotification(char const * json);
-      // virtual void onNodeInserted(FabricServices::DFGWrapper::NodePtr node);
+      virtual void onNotification(FTL::StrRef json);
+      virtual void onNodeInserted(FabricCore::DFGExec parent, FTL::StrRef nodePath);
       // virtual void onNodeRemoved(FabricServices::DFGWrapper::NodePtr node);
-      // virtual void onNodePortInserted(FabricServices::DFGWrapper::NodePortPtr pin);
+      virtual void onNodePortInserted(FabricCore::DFGExec parent, FTL::StrRef nodePortPath);
       // virtual void onNodePortRemoved(FabricServices::DFGWrapper::NodePortPtr pin);
       // virtual void onExecPortInserted(FabricServices::DFGWrapper::ExecPortPtr pin);
       // virtual void onExecPortRemoved(FabricServices::DFGWrapper::ExecPortPtr pin);
       // virtual void onPortsConnected(FabricServices::DFGWrapper::PortPtr src, FabricServices::DFGWrapper::PortPtr dst);
       // virtual void onPortsDisconnected(FabricServices::DFGWrapper::PortPtr src, FabricServices::DFGWrapper::PortPtr dst);
-      // virtual void onNodeMetadataChanged(FabricServices::DFGWrapper::NodePtr node, const char * key, const char * metadata);
-      // virtual void onNodeTitleChanged(FabricServices::DFGWrapper::NodePtr node, const char * title);
+      virtual void onNodeMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata);
+      virtual void onNodeTitleChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef title);
       // virtual void onExecPortRenamed(FabricServices::DFGWrapper::ExecPortPtr port, const char * oldName);
       // virtual void onNodePortRenamed(FabricServices::DFGWrapper::NodePortPtr pin, const char * oldName);
       // virtual void onExecMetadataChanged(FabricServices::DFGWrapper::ExecutablePtr exec, const char * key, const char * metadata);
@@ -70,24 +67,8 @@ namespace FabricUI
 
     private:
 
-      void viewCallback( FTL::StrRef jsonStr );
-
-      static void ViewCallback(
-        void *thisVoidPtr,
-        char const *jsonCStr,
-        uint32_t jsonSize
-        )
-      {
-        static_cast<DFGView *>( thisVoidPtr )->viewCallback(
-          FTL::StrRef( jsonCStr, jsonSize )
-          );
-      }
-
-      DFGController * m_controller;
       DFGConfig m_config;
       GraphView::Port * m_lastPortInserted;
-      FabricCore::DFGExec m_coreDFGGraph;
-      FabricCore::DFGView m_coreDFGView;
       bool m_performChecks;
     };
 
@@ -95,4 +76,4 @@ namespace FabricUI
 
 };
 
-#endif // __UI_DFG_DFGView__
+#endif // __UI_DFG_DFGNotificationRouter__

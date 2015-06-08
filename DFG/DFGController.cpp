@@ -10,6 +10,7 @@
 
 #include "DFGController.h"
 #include "DFGLogWidget.h"
+#include "DFGNotificationRouter.h"
 #include <GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
@@ -50,7 +51,7 @@ DFGController::DFGController(
   , m_coreDFGBinding( binding )
   , m_manager(manager)
 {
-  m_view = NULL;
+  m_router = NULL;
   m_logFunc = NULL;
   m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
@@ -63,34 +64,36 @@ void DFGController::setClient( FabricCore::Client const &coreClient )
   m_coreClient = coreClient;
 }
 
-FabricCore::DFGBinding const & DFGController::getCoreDFGBinding()
-{
-  return m_coreDFGBinding;
-}
-
 void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
   m_coreDFGHost = coreDFGHost;
 }
 
-DFGView * DFGController::getView()
+NotificationRouter * DFGController::getRouter()
 {
-  return m_view;
+  return m_router;
 }
 
-void DFGController::setView(DFGView * view)
+FabricCore::DFGExec DFGController::getCoreDFGExec()
 {
-  if(m_view && m_overTakeBindingNotifications)
+  if(this->getRouter() == NULL)
+    return FabricCore::DFGExec();
+  return this->getRouter()->getCoreDFGExec();
+}
+
+void DFGController::setRouter(NotificationRouter * router)
+{
+  if(m_router && m_overTakeBindingNotifications)
     m_coreDFGBinding.setNotificationCallback(NULL, NULL);
 
-  m_view = view;
-  if(m_view)
+  m_router = router;
+  if(m_router)
   {
-    m_view->setController(this);
+    m_router->setController(this);
     try
     {
       // todo
-      // m_view->onGraphSet();
+      // m_router->onGraphSet();
     }
     catch(FabricCore::Exception e)
     {
@@ -251,13 +254,13 @@ bool DFGController::renameNode(GraphView::Node * node, char const * title)
 
 GraphView::Pin * DFGController::addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType)
 {
-  // disabled, pins are created by the DFGView
+  // disabled, pins are created by the DFGNotificationRouter
   return NULL;
 }
 
 bool DFGController::removePin(GraphView::Pin * pin)
 {
-  // disabled, pins are created by the DFGView
+  // disabled, pins are created by the DFGNotificationRouter
   return false;
 }
 
@@ -1394,7 +1397,7 @@ void DFGController::bindingNotificationCallback(void * userData, char const *jso
 
   // if(descStr == "argTypeChanged")
   // {
-  //   ctrl->m_view->updateDataTypesOnPorts();
+  //   ctrl->m_router->updateDataTypesOnPorts();
   // }
   if(descStr == "argChanged")
   {
@@ -1504,4 +1507,9 @@ void DFGController::updatePresetPathDB()
     m_presetNameSpaceDict.add(m_presetNameSpaceDictSTL[i].c_str(), '.', m_presetNameSpaceDictSTL[i].c_str());
   for(size_t i=0;i<m_presetPathDictSTL.size();i++)
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
+}
+
+NotificationRouter * DFGController::createRouter(FabricCore::DFGBinding binding, FabricCore::DFGExec exec)
+{
+  return new DFGNotificationRouter(binding, exec);
 }

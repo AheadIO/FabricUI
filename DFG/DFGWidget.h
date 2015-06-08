@@ -11,7 +11,7 @@
 #include "DFGGraph.h"
 #include "DFGController.h"
 #include "DFGFactory.h"
-#include "DFGView.h"
+#include "DFGNotificationRouter.h"
 #include "DFGConfig.h"
 #include "DFGKLEditorWidget.h"
 #include "DFGTabSearchWidget.h"
@@ -89,7 +89,7 @@ namespace FabricUI
       DFGGraph * m_uiGraph;
       DFGController * m_uiController;
       DFGFactory * m_uiFactory;
-      DFGView * m_dfgView;
+      DFGNotificationRouter * m_router;
       DFGKLEditorWidget * m_klEditor;
       DFGTabSearchWidget * m_tabSearchWidget;
       FabricCore::Client m_coreClient;
