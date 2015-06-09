@@ -185,9 +185,8 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
   char const * nodeName = uiNode->name();
 
-  // todo: once we have DFGExec::getNodeType(char const * name)
-  // if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-  //   return NULL;
+  if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+    return NULL;
   FabricCore::DFGExec subExec = graphWidget->m_coreDFGExec.getSubExec(nodeName);
 
   QMenu* result = new QMenu(NULL);
@@ -235,12 +234,11 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     result->addAction("Explode node");
   }
 
-  // todo: once we have getExtDepCount
-  // if(subExec.getNumExtensionDependencies() > 0)
-  // {
-  //   result->addSeparator();
-  //   result->addAction("Reload Extension(s)");
-  // }
+  if(subExec.getExtDepCount() > 0)
+  {
+    result->addSeparator();
+    result->addAction("Reload Extension(s)");
+  }
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
@@ -357,9 +355,8 @@ void DFGWidget::onNodeAction(QAction * action)
   char const * nodeName = m_contextNode->name();
   if(action->text() == "Edit")
   {
-    // todo: once we have 
-    // if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-    //   return;
+    if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return;
     FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
     editNode(subExec, nodeName, true);
   }
@@ -373,9 +370,8 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Save as Preset")
   {
-    // todo: once we have 
-    // if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-    //   return;
+    if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return;
     FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
 
     QString title = subExec.getTitle();
@@ -483,9 +479,8 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   try
   {
     char const * nodeName = node->name();
-    // todo: once we have DFGExec::getNodeType(nodeName)
-    // if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-    //   return;
+    if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return;
     FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
     editNode(subExec, nodeName, true);
   }

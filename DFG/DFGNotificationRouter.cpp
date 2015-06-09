@@ -146,22 +146,21 @@ void DFGNotificationRouter::onNodeInserted(FabricCore::DFGExec parent, FTL::StrR
   }
 }
 
-/*
-void DFGNotificationRouter::onNodeRemoved(DFGWrapper::NodePtr node)
+void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = node->getNodeName();
-  GraphView::Node * uiNode = graph->nodeFromPath(path);
+  GraphView::Node * uiNode = graph->node(nodePath.data());
   if(!uiNode)
     return;
   graph->removeNode(uiNode);
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
-*/
 
 void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::StrRef nodePortPath)
 {
@@ -196,63 +195,68 @@ void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::
   uiNode->addPin(uiPin, false);
 }
 
-/*
-void DFGNotificationRouter::onNodePortRemoved(DFGWrapper::NodePortPtr pin)
+void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePortPath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  QString path = GraphView::parentPath(pin->getPortPath());
-  QString name = GraphView::lastPathSegment(pin->getPortPath());
-  GraphView::Node * uiNode = graph->nodeFromPath(path);
+
+  int delimPos = nodePortPath.find('.') - nodePortPath.data();
+  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
+  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
+
+  // the first part of the substr won't 
+  // work since there is no \0 char. 
+  // casting it to a std::string does
+  std::string nodeNameStr(nodeName);
+
+  GraphView::Node * uiNode = graph->nodeFromPath(nodeNameStr.c_str());
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(name);
+  GraphView::Pin * uiPin = uiNode->pin(portName.data());
   if(!uiPin)
     return;
   uiNode->removePin(uiPin, false);
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
 
-void DFGNotificationRouter::onExecPortInserted(DFGWrapper::ExecPortPtr port)
+void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::StrRef portPath)
 {
   if(m_controller->graph() == NULL)
     return;
+
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  std::string dataType = port->getResolvedType();
+
+  FTL::StrRef dataType = exec.getExecPortResolvedType(portPath.data());
   if(dataType.empty())
-    dataType = port->getTypeSpec();
-  std::string path = port->getPortPath();
-  std::string name = port->getPortName();
+    dataType = exec.getExecPortTypeSpec(portPath.data());
 
-  // todo: once titles are supports
-  // std::string label = port->getTitle();
-  std::string label = port->getPortName();
-
-  QColor color = m_config.getColorForDataType(dataType, port);
+  QColor color = m_config.getColorForDataType(dataType, &exec, portPath.data());
 
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(port->getNodePortType() != FabricCore::DFGPortType_Out)
+  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_Out)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
       return;
 
-    uiInPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Input, dataType.c_str(), color, label.c_str());
+    uiInPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Input, dataType.data(), color, portPath.data());
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(port->getNodePortType() != FabricCore::DFGPortType_In)
+  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_In)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)
       return;
 
-    uiOutPort = new GraphView::Port(uiPanel, name.c_str(), GraphView::PortType_Output, dataType.c_str(), color, label.c_str());
+    uiOutPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Input, dataType.data(), color, portPath.data());
     uiPanel->addPort(uiOutPort);
     m_lastPortInserted = uiOutPort;
   }
@@ -262,13 +266,11 @@ void DFGNotificationRouter::onExecPortInserted(DFGWrapper::ExecPortPtr port)
   }
 }
 
-void DFGNotificationRouter::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
+void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::StrRef portPath)
 {
   if(m_controller->graph() == NULL)
     return;
-  QString path = GraphView::parentPath(port->getPortPath());
-  QString name = GraphView::lastPathSegment(port->getPortPath());
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
+ 
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
   GraphView::SidePanel * uiOutPanel = uiGraph->sidePanel(GraphView::PortType_Output);
@@ -277,8 +279,8 @@ void DFGNotificationRouter::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
   GraphView::SidePanel * uiInPanel = uiGraph->sidePanel(GraphView::PortType_Input);
   if(!uiInPanel)
     return;
-  GraphView::Port * uiOutPort = uiOutPanel->port(name);
-  GraphView::Port * uiInPort = uiInPanel->port(name);
+  GraphView::Port * uiOutPort = uiOutPanel->port(portPath.data());
+  GraphView::Port * uiInPort = uiInPanel->port(portPath.data());
 
   if(uiOutPort && uiInPort)
   {
@@ -294,48 +296,56 @@ void DFGNotificationRouter::onExecPortRemoved(DFGWrapper::ExecPortPtr port)
   }
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
 
-void DFGNotificationRouter::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
+void DFGNotificationRouter::onPortsConnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  DFGWrapper::GraphExecutablePtr graph = m_controller->getGraph();
-
-  QString srcParentPath = GraphView::parentPath(src->getPortPath()).toUtf8().constData();
-  QString dstParentPath = GraphView::parentPath(dst->getPortPath()).toUtf8().constData();
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
 
-  if(srcParentPath.length() > 0)
+  if(srcPath.contains('.'))
   {
-    GraphView::Node * uiSrcNode = uiGraph->nodeFromPath(srcParentPath);
+    int delimPos = srcPath.find('.') - srcPath.data();
+    FTL::StrRef nodeName = srcPath.substr(0, delimPos);
+    FTL::StrRef portName = srcPath.substr(delimPos+1);
+    std::string nodeNameStr(nodeName);
+
+    GraphView::Node * uiSrcNode = uiGraph->node(nodeNameStr.c_str());
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(src->getPortName());
+    uiSrcTarget = uiSrcNode->pin(portName.data());
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(src->getPortName());
+      uiSrcTarget = uiPanel->port(srcPath.data());
   }
 
-  if(dstParentPath.length() > 0)
+  if(dstPath.contains('.'))
   {
-    GraphView::Node * uiDstNode = uiGraph->nodeFromPath(dstParentPath);
+    int delimPos = dstPath.find('.') - dstPath.data();
+    FTL::StrRef nodeName = dstPath.substr(0, delimPos);
+    FTL::StrRef portName = dstPath.substr(delimPos+1);
+    std::string nodeNameStr(nodeName);
+
+    GraphView::Node * uiDstNode = uiGraph->node(nodeNameStr.c_str());
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(dst->getPortName());
+    uiDstTarget = uiDstNode->pin(portName.data());
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dst->getPortName());
+      uiDstTarget = uiPanel->port(dstPath.data());
   }
 
   if(!uiSrcTarget || !uiDstTarget)
@@ -344,60 +354,68 @@ void DFGNotificationRouter::onPortsConnected(DFGWrapper::PortPtr src, DFGWrapper
   uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
 
-void DFGNotificationRouter::onPortsDisconnected(DFGWrapper::PortPtr src, DFGWrapper::PortPtr dst)
+void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath)
 {
   if(m_controller->graph() == NULL)
     return;
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
-
-  QString srcParentPath = GraphView::parentPath(src->getPortPath()).toUtf8().constData();
-  QString dstParentPath = GraphView::parentPath(dst->getPortPath()).toUtf8().constData();
-  QString srcName = GraphView::lastPathSegment(src->getPortPath());
-  QString dstName = GraphView::lastPathSegment(dst->getPortPath());
+  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
 
-  if(srcParentPath.length() > 0)
+  if(srcPath.contains('.'))
   {
-    GraphView::Node * uiSrcNode = graph->nodeFromPath(srcParentPath);
+    int delimPos = srcPath.find('.') - srcPath.data();
+    FTL::StrRef nodeName = srcPath.substr(0, delimPos);
+    FTL::StrRef portName = srcPath.substr(delimPos+1);
+    std::string nodeNameStr(nodeName);
+
+    GraphView::Node * uiSrcNode = uiGraph->node(nodeNameStr.c_str());
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(srcName);
+    uiSrcTarget = uiSrcNode->pin(portName.data());
   }
   else
   {
-    GraphView::SidePanel * uiPanel = graph->sidePanel(GraphView::PortType_Output);
+    GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(srcName);
+      uiSrcTarget = uiPanel->port(srcPath.data());
   }
 
-  if(dstParentPath.length() > 0)
+  if(dstPath.contains('.'))
   {
-    GraphView::Node * uiDstNode = graph->nodeFromPath(dstParentPath);
+    int delimPos = dstPath.find('.') - dstPath.data();
+    FTL::StrRef nodeName = dstPath.substr(0, delimPos);
+    FTL::StrRef portName = dstPath.substr(delimPos+1);
+    std::string nodeNameStr(nodeName);
+
+    GraphView::Node * uiDstNode = uiGraph->node(nodeNameStr.c_str());
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(dstName);
+    uiDstTarget = uiDstNode->pin(portName.data());
   }
   else
   {
-    GraphView::SidePanel * uiPanel = graph->sidePanel(GraphView::PortType_Input);
+    GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dstName);
+      uiDstTarget = uiPanel->port(dstPath.data());
   }
 
   if(!uiSrcTarget || !uiDstTarget)
     return;
 
-  graph->removeConnection(uiSrcTarget, uiDstTarget, false);
+  uiGraph->removeConnection(uiSrcTarget, uiDstTarget, false);
 
   if(m_performChecks)
-    m_controller->checkErrors();
+  {
+    ((DFGController*)m_controller)->checkErrors();
+  }
 }
-*/
 
 void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata)
 {
@@ -471,29 +489,30 @@ void DFGNotificationRouter::onNodeTitleChanged(FabricCore::DFGExec parent, FTL::
   uiNode->update();
 }
 
-/*
-void DFGNotificationRouter::onExecPortRenamed(DFGWrapper::ExecPortPtr port, const char * oldName)
+
+void DFGNotificationRouter::onExecPortRenamed(FabricCore::DFGExec exec, FTL::StrRef oldPath, FTL::StrRef newPath)
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
-  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(port->getNodePortType() == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
+  FabricCore::DFGPortType portType = exec.getExecPortType(newPath.data());
+  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(portType == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
   if(!uiPanel)
     return;
 
-  GraphView::Port * uiPort = uiPanel->port(oldName);
+  GraphView::Port * uiPort = uiPanel->port(oldPath.data());
   if(!uiPort)
     return;
-  uiPort->setName(port->getPortName());
+  uiPort->setName(newPath.data());
 }
 
-void DFGNotificationRouter::onNodePortRenamed(DFGWrapper::NodePortPtr pin, const char * oldName)
+void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::StrRef oldPath, FTL::StrRef newPath)
 {
   // this shouldn't happen for us for now
 }
 
-void DFGNotificationRouter::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec, const char * key, const char * metadata)
+void DFGNotificationRouter::onExecMetadataChanged(FabricCore::DFGExec exec, FTL::StrRef key, FTL::StrRef metadata)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -501,18 +520,18 @@ void DFGNotificationRouter::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec
 
   // printf("'%s' metadata changed for '%s'\n", key, exec->getExecPath());
 
-  if(key == std::string("uiGraphPan"))
+  if(key == "uiGraphPan")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
     const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
     float x = getFloatFromVariant(xVar);
     float y = getFloatFromVariant(yVar);
     uiGraph->mainPanel()->setCanvasPan(QPointF(x, y), false);
   }
-  else if(key == std::string("uiGraphZoom"))
+  else if(key == "uiGraphZoom")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata);
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * valueVar = metadataVar.getDictValue("value");
     const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
     float value = getFloatFromVariant(valueVar);
@@ -520,100 +539,105 @@ void DFGNotificationRouter::onExecMetadataChanged(DFGWrapper::ExecutablePtr exec
   }
 }
 
-void DFGNotificationRouter::onExtDepAdded(const char * extension, const char * version)
+void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::StrRef extension, FTL::StrRef version)
 {
   if(m_controller->graph() == NULL)
     return;
   try
   {
-    m_controller->getClient()->loadExtension(extension, version, false);
+    FabricCore::Client client = ((DFGController*)m_controller)->getClient();
+    client.loadExtension(extension.data(), version.data(), false);
   }
   catch(FabricCore::Exception e)
   {
-    m_controller->logError(e.getDesc_cstr());
+    ((DFGController*)m_controller)->logError(e.getDesc_cstr());
   }
 }
 
-void DFGNotificationRouter::onExtDepRemoved(const char * extension, const char * version)
+void DFGNotificationRouter::onExtDepRemoved(FabricCore::DFGExec exec, FTL::StrRef extension, FTL::StrRef version)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodeCacheRuleChanged(const char * path, const char * rule)
+void DFGNotificationRouter::onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::StrRef path, FTL::StrRef rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecCacheRuleChanged(const char * path, const char * rule)
+void DFGNotificationRouter::onExecCacheRuleChanged(FabricCore::DFGExec exec, FTL::StrRef rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecPortResolvedTypeChanged(DFGWrapper::ExecPortPtr port, const char * resolvedType)
+void DFGNotificationRouter::onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-  GraphView::Port * uiPort = uiGraph->port(port->getPortName());
+  GraphView::Port * uiPort = uiGraph->port(portPath.data());
   if(!uiPort)
     return;
 
   if(resolvedType != uiPort->dataType())
   {
-    uiPort->setDataType(resolvedType);
-    uiPort->setColor(m_config.getColorForDataType(resolvedType, port));
+    uiPort->setDataType(resolvedType.data());
+    uiPort->setColor(m_config.getColorForDataType(resolvedType, &exec, portPath.data()));
     uiGraph->updateColorForConnections(uiPort);
   }
 }
 
-void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * typeSpec)
+void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef typeSpec)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortResolvedTypeChanged(DFGWrapper::NodePortPtr nodePort, const char * resolvedType)
+void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef nodePortPath, FTL::StrRef resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-  DFGWrapper::NodePtr node = nodePort->getNode();
-  GraphView::Node * uiNode = uiGraph->nodeFromPath(node->getNodeName());
+
+  int delimPos = nodePortPath.find('.') - nodePortPath.data();
+  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
+  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
+
+  // the first part of the substr won't 
+  // work since there is no \0 char. 
+  // casting it to a std::string does
+  std::string nodeNameStr(nodeName);
+ 
+  GraphView::Node * uiNode = uiGraph->node(nodeNameStr.c_str());
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(nodePort->getPortName());
+  GraphView::Pin * uiPin = uiNode->pin(portName.data());
   if(!uiPin)
     return;
 
   if(resolvedType != uiPin->dataType())
   {
-    uiPin->setDataType(resolvedType);
-    if ( nodePort->isInstPort() )
-    {
-      DFGWrapper::InstPortPtr instPotr =
-        DFGWrapper::InstPortPtr::StaticCast( nodePort );
-      uiPin->setColor(m_config.getColorForDataType(resolvedType, instPotr->getExecPort()), false);
-    }
+    FabricCore::DFGExec subExec = exec.getSubExec(nodeNameStr.c_str());
+    uiPin->setDataType(resolvedType.data());
+    uiPin->setColor(m_config.getColorForDataType(resolvedType, &subExec, portName.data()));
     uiGraph->updateColorForConnections(uiPin);
   }
 }
 
-void DFGNotificationRouter::onExecPortMetadataChanged(FabricServices::DFGWrapper::ExecPortPtr port, const char * key, const char * metadata)
+void DFGNotificationRouter::onExecPortMetadataChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef key, FTL::StrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortMetadataChanged(FabricServices::DFGWrapper::NodePortPtr pin, const char * key, const char * metadata)
+void DFGNotificationRouter::onNodePortMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef key, FTL::StrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortTypeChanged(FabricServices::DFGWrapper::NodePortPtr pin, FabricCore::DFGPortType pinType)
+void DFGNotificationRouter::onExecPortTypeChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef portType)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecPortTypeChanged(FabricServices::DFGWrapper::ExecPortPtr port, FabricCore::DFGPortType portType)
+void DFGNotificationRouter::onNodePortTypeChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef portType)
 {
   // todo: we don't do anything here...
 }
-*/

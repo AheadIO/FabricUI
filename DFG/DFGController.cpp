@@ -1134,21 +1134,13 @@ bool DFGController::reloadExtensionDependencies(char const * path)
   if(exec.isValid())
     return false;
 
-  FabricCore::DFGStringResult desc = exec.getDesc();
-  FabricCore::Variant descVar = FabricCore::Variant::CreateFromJSON(desc.getCString());
-  const FabricCore::Variant * extDepsVar = descVar.getDictValue("extDeps");
-  if(!extDepsVar)
-    return false;
-  if(!extDepsVar->isDict())
-    return false;
-
-  for(FabricCore::Variant::DictIter keyIter(*extDepsVar); !keyIter.isDone(); keyIter.next())
+  for(unsigned int i = 0; i < exec.getExtDepCount(); i++ )
   {
-    char const * ext = keyIter.getKey()->getStringData();
-    char const * version = keyIter.getValue()->getStringData();
+    char const * ext = exec.getExtDepName(i);
+    std::string version = exec.getExtDepVersion(i).getCString();
     try
     {
-      m_coreClient.loadExtension(ext, version, true);
+      m_coreClient.loadExtension(ext, version.c_str(), true);
     }
     catch(FabricCore::Exception e)
     {
