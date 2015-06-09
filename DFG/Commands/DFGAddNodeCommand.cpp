@@ -6,17 +6,15 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGAddNodeCommand::DFGAddNodeCommand(DFGController * controller, char const * path, char const * preset, QPointF pos)
-: DFGCommand(controller)
+DFGAddNodeCommand::DFGAddNodeCommand(
+  DFGController * controller,
+  char const * preset,
+  QPointF pos
+  )
+  : DFGCommand(controller)
+  , m_preset(preset)
+  , m_pos(pos)
 {
-  m_path = path;
-  m_preset = preset;
-  m_pos = pos;
-}
-
-char const * DFGAddNodeCommand::getPath() const
-{
-  return m_path.c_str();
 }
 
 char const * DFGAddNodeCommand::getInstPath() const

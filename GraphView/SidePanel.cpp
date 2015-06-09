@@ -11,13 +11,12 @@
 
 using namespace FabricUI::GraphView;
 
-SidePanel::SidePanel(Graph * parent, QString path, PortType portType, QColor color)
+SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 : QGraphicsWidget(parent)
 {
   const GraphConfig & config = parent->config();
 
   m_graph = parent;
-  m_path = path;
   m_color = color;
   if(!m_color.isValid())
     m_color = config.sidePanelBackgroundColor;
@@ -47,17 +46,6 @@ Graph * SidePanel::graph()
 const Graph * SidePanel::graph() const
 {
   return m_graph;
-}
-
-QString SidePanel::path() const
-{
-  return m_path;
-}
-
-QString SidePanel::name() const
-{
-  QStringList parts = m_path.split(m_graph->config().pathSep);
-  return parts[parts.count()-1];
 }
 
 QColor SidePanel::color() const

@@ -10,7 +10,6 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
 {
   m_config = config;
   m_factory = factory;
-  m_path = "";
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
@@ -35,14 +34,12 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
   m_nodeToolbar = NULL;
 
   m_constructed = false;
-  reset("graph", false);
+  reset(false);
   m_constructed = true;
 }
 
-void Graph::reset(char const * path, bool createSidePanels)
+void Graph::reset(bool createSidePanels)
 {
-  m_path = path;
-
   if(m_nodeToolbar)
     m_nodeToolbar->deattach(false);
 
@@ -102,8 +99,8 @@ void Graph::reset(char const * path, bool createSidePanels)
 
   if(createSidePanels)
   {
-    m_leftPanel = new SidePanel(this, path, PortType_Output);
-    m_rightPanel = new SidePanel(this, path, PortType_Input);
+    m_leftPanel = new SidePanel(this, PortType_Output);
+    m_rightPanel = new SidePanel(this, PortType_Input);
   }
 
   setContentsMargins(0, 0, 0, 0);
@@ -154,16 +151,6 @@ void Graph::setController(Controller * c)
       c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, QString)));
   }
   m_controller = c;
-}
-
-char const * Graph::path() const
-{
-  return m_path.c_str();
-}
-
-void Graph::setPath(char const * path)
-{
-  m_path = path;
 }
 
 QGraphicsWidget * Graph::itemGroup()

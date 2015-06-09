@@ -78,7 +78,8 @@ void DFGWidget::setGraph(
   FabricCore::DFGHost const &coreDFGHost,
   FabricCore::DFGBinding const &coreDFGBinding,
   FabricCore::DFGExec const &coreDFGGraph,
-  bool clear)
+  bool clear
+  )
 {
   m_coreDFGHost = coreDFGHost;
   m_coreDFGBinding = coreDFGBinding;
@@ -111,9 +112,15 @@ void DFGWidget::setGraph(
     );  
     m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
 
-    m_uiGraph->reset(m_coreDFGExec.getTitle(), true);
+    m_uiGraph->reset(true);
 
-    m_router = (DFGNotificationRouter*)m_uiController->createRouter(m_coreDFGBinding, m_coreDFGExec);
+    m_router =
+      static_cast<DFGNotificationRouter *>(
+        m_uiController->createRouter(
+          m_coreDFGBinding,
+          m_coreDFGExec
+          )
+        );
     m_uiController->setHost(m_coreDFGHost);
     m_uiController->setRouter(m_router);
     m_uiHeader->setCaption(m_coreDFGExec.getTitle());
@@ -309,7 +316,7 @@ void DFGWidget::onGraphAction(QAction * action)
     if(text.length() == 0)
       return;
 
-    m_uiController->addEmptyGraph(m_uiGraph->path(), text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+    m_uiController->addEmptyGraph(text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
   }
   else if(action->text() == "New empty function")
   {
@@ -323,7 +330,7 @@ void DFGWidget::onGraphAction(QAction * action)
 
     m_uiController->beginInteraction();
 
-    std::string nodePath = m_uiController->addEmptyFunc(m_uiGraph->path(), text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+    std::string nodePath = m_uiController->addEmptyFunc(text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
     GraphView::Node * uiNode = m_uiGraph->node(nodePath.c_str());
     if(uiNode)
     {

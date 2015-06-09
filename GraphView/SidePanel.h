@@ -26,7 +26,7 @@ namespace FabricUI
 
     public:
 
-      SidePanel(Graph * parent, QString path, PortType portType, QColor color = QColor());
+      SidePanel(Graph * parent, PortType portType, QColor color = QColor());
 
       Graph * graph();
       const Graph * graph() const;
@@ -58,7 +58,6 @@ namespace FabricUI
       void resetLayout();
 
       Graph * m_graph;
-      QString m_path;
       QColor m_color;
       QPen m_pen;
       PortType m_portType;

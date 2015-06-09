@@ -6,17 +6,15 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGAddEmptyFuncCommand::DFGAddEmptyFuncCommand(DFGController * controller, char const * path, char const * title, QPointF pos)
-: DFGCommand(controller)
+DFGAddEmptyFuncCommand::DFGAddEmptyFuncCommand(
+  DFGController * controller,
+  char const * title,
+  QPointF pos
+  )
+  : DFGCommand(controller)
+  , m_title(title)
+  , m_pos(pos)
 {
-  m_path = path;
-  m_title = title;
-  m_pos = pos;
-}
-
-char const * DFGAddEmptyFuncCommand::getPath() const
-{
-  return m_path.c_str();
 }
 
 char const * DFGAddEmptyFuncCommand::getTitle() const

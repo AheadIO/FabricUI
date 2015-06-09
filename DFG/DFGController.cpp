@@ -44,7 +44,8 @@ DFGController::DFGController(
   FabricCore::DFGBinding binding,
   FabricCore::DFGExec exec,
   FabricServices::Commands::CommandStack * stack,
-  bool overTakeBindingNotifications)
+  bool overTakeBindingNotifications
+  )
   : GraphView::Controller(graph, stack)
   , m_coreClient( client )
   , m_coreDFGHost( host )
@@ -115,11 +116,11 @@ ASTWrapper::KLASTManager * DFGController::astManager()
   return m_manager;
 }
 
-std::string DFGController::addNodeFromPreset(char const * path, char const * preset, QPointF pos)
+std::string DFGController::addNodeFromPreset(char const * preset, QPointF pos)
 {
   try
   {
-    DFGAddNodeCommand * command = new DFGAddNodeCommand(this, path, preset, pos);
+    DFGAddNodeCommand * command = new DFGAddNodeCommand(this, preset, pos);
     if(!addCommand(command))
     {
       delete(command);
@@ -136,11 +137,12 @@ std::string DFGController::addNodeFromPreset(char const * path, char const * pre
   return "";
 }
 
-std::string DFGController::addEmptyGraph(char const * path, char const * title, QPointF pos)
+std::string DFGController::addEmptyGraph(char const * title, QPointF pos)
 {
   try
   {
-    DFGAddEmptyGraphCommand * command = new DFGAddEmptyGraphCommand(this, path, title, pos);
+    DFGAddEmptyGraphCommand * command =
+      new DFGAddEmptyGraphCommand(this, title, pos);
     if(!addCommand(command))
     {
       delete(command);
@@ -157,11 +159,12 @@ std::string DFGController::addEmptyGraph(char const * path, char const * title, 
   return "";
 }
 
-std::string DFGController::addEmptyFunc(char const * path, char const * title, QPointF pos)
+std::string DFGController::addEmptyFunc(char const * title, QPointF pos)
 {
   try
   {
-    DFGAddEmptyFuncCommand * command = new DFGAddEmptyFuncCommand(this, path, title, pos);
+    DFGAddEmptyFuncCommand * command =
+      new DFGAddEmptyFuncCommand(this, title, pos);
     if(!addCommand(command))
     {
       delete(command);
@@ -1519,7 +1522,10 @@ void DFGController::updatePresetPathDB()
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
 }
 
-NotificationRouter * DFGController::createRouter(FabricCore::DFGBinding binding, FabricCore::DFGExec exec)
+NotificationRouter * DFGController::createRouter(
+  FabricCore::DFGBinding binding,
+  FabricCore::DFGExec exec
+  )
 {
   return new DFGNotificationRouter(binding, exec);
 }

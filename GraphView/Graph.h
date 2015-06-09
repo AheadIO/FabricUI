@@ -48,10 +48,14 @@ namespace FabricUI
 
     public:
 
-      Graph(QGraphicsItem * parent, const GraphConfig & config = GraphConfig(), GraphFactory * factory = NULL);
+      Graph(
+        QGraphicsItem * parent,
+        const GraphConfig & config = GraphConfig(),
+        GraphFactory * factory = NULL
+        );
       virtual ~Graph() {}
 
-      virtual void reset(char const * path, bool createSidePanels = false);
+      virtual void reset(bool createSidePanels = false);
 
       virtual const GraphConfig & config() const;
       QGraphicsWidget * itemGroup();
@@ -65,9 +69,6 @@ namespace FabricUI
       const SidePanel * sidePanel(PortType portType) const;
 
       NodeToolbar * nodeToolbar();
-      
-      char const * path() const;
-      void setPath(char const * path);
 
       // nodes
       virtual std::vector<Node *> nodes() const;
@@ -178,7 +179,6 @@ namespace FabricUI
       GraphConfig m_config;
       Controller * m_controller;
       NodeToolbar * m_nodeToolbar;
-      std::string m_path;
       std::vector<Node *> m_nodes;
       std::map<FTL::StrRef, size_t> m_nodeMap;
       std::vector<Connection *> m_connections;

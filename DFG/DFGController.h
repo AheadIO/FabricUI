@@ -59,9 +59,9 @@ namespace FabricUI
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
-      virtual std::string addNodeFromPreset(char const * path, char const * preset, QPointF pos);
-      virtual std::string addEmptyGraph(char const * path, char const * title, QPointF pos);
-      virtual std::string addEmptyFunc(char const * path, char const * title, QPointF pos);
+      virtual std::string addNodeFromPreset(char const * preset, QPointF pos);
+      virtual std::string addEmptyGraph(char const * title, QPointF pos);
+      virtual std::string addEmptyFunc(char const * title, QPointF pos);
       virtual bool removeNode(char const * path);
       virtual bool removeNode(GraphView::Node * node);
       virtual bool renameNode(char const * path, char const * title);

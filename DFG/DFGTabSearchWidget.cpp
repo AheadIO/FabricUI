@@ -35,10 +35,11 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
     int index = indexFromPos(event->pos());
     if(index >= 0)
     {
-      char const * graphPath = m_parent->getUIController()->graph()->path();
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[index].toUtf8().constData(), scenePos);
+      m_parent->getUIController()->addNodeFromPreset(
+        m_results[index].toUtf8().constData(), scenePos
+        );
 
       hide();
       event->accept();
@@ -114,10 +115,11 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
   {
     if(m_currentIndex > -1 && m_currentIndex < m_results.length())
     {
-      char const * graphPath = m_parent->getUIController()->graph()->path();
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[m_currentIndex].toUtf8().constData(), scenePos);
+      m_parent->getUIController()->addNodeFromPreset(
+        m_results[m_currentIndex].toUtf8().constData(), scenePos
+        );
     }
     hide();
     event->accept();

@@ -90,15 +90,10 @@ Node * Controller::addNodeFromPreset(FTL::StrRef preset, QPointF pos)
   std::string path;
   if(presetStr.length() == 0)
   {
-    path = graph()->path();
-    path += graph()->config().pathSep;
     path += "Node";
   }
   else
   {
-    path = graph()->path();
-    path += graph()->config().pathSep;
-
     int pos =  presetStr.find(graph()->config().pathSep);
     if(pos == std::string::npos)
       path += presetStr;
