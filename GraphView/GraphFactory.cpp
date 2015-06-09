@@ -6,7 +6,11 @@
 
 using namespace FabricUI::GraphView;
 
-Node * GraphFactory::constructNode(Graph * graph, char const *name, char const * label)
+Node * GraphFactory::constructNode(
+  Graph * graph,
+  FTL::StrRef name,
+  FTL::StrRef label
+  )
 {
   return new Node(graph, name, label);
 }

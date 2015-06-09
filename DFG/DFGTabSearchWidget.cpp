@@ -37,7 +37,7 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
     {
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(
+      m_parent->getUIController()->addDFGNodeFromPreset(
         m_results[index].toUtf8().constData(), scenePos
         );
 
@@ -117,7 +117,7 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
     {
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(
+      m_parent->getUIController()->addDFGNodeFromPreset(
         m_results[m_currentIndex].toUtf8().constData(), scenePos
         );
     }

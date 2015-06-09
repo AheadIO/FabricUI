@@ -21,8 +21,8 @@ namespace FabricUI
 
       virtual GraphView::Node * constructNodeFromPreset(
         GraphView::Graph * graph,
-        char const *path,
-        char const *preset
+        FTL::StrRef path,
+        FTL::StrRef preset
         );
 
     private:

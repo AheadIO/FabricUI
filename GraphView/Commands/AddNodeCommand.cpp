@@ -24,7 +24,7 @@ Node * AddNodeCommand::getNode()
 
 bool AddNodeCommand::invoke()
 {
-  Node * node = controller()->graph()->addNodeFromPreset(m_path.c_str(), m_preset.c_str());
+  Node * node = controller()->graph()->addNodeFromPreset(m_path, m_preset);
   if(!node)
     return false;
   m_path = node->name();

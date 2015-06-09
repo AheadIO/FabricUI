@@ -4,6 +4,8 @@
 #include "DFGGraph.h"
 #include "DFGController.h"
 
+#include <FTL/JSONValue.h>
+
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -32,177 +34,200 @@ void NotificationRouter::callback( FTL::StrRef jsonStr )
 
     onNotification(jsonStr);
 
-    FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonStr.data(), jsonStr.size());
-    const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-    std::string descStr = descVar->getStringData();
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    FTL::StrRef descStr = jsonObject->getString( FTL_STR("desc") );
 
-    if(descStr == "nodeInserted")
+    if(descStr == FTL_STR("nodeInserted"))
     {
-      const FabricCore::Variant * nodePathVar = notificationVar.getDictValue("path");
-      char const * nodePath = nodePathVar->getStringData();
-      onNodeInserted(m_coreDFGExec, nodePath);
+      onNodeInserted(
+        jsonObject->get( FTL_STR("nodeDesc") )->cast<FTL::JSONObject>()
+        );
     }
-    else if(descStr == "nodeRemoved")
+    else if(descStr == FTL_STR("nodeRemoved"))
     {
-      const FabricCore::Variant * nodePathVar = notificationVar.getDictValue("path");
-      char const * nodePath = nodePathVar->getStringData();
-      onNodeRemoved(m_coreDFGExec, nodePath);
+      onNodeRemoved(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") )
+        );
     }
-    else if(descStr == "nodePortInserted")
+    else if(descStr == FTL_STR("nodePortInserted"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      onNodePortInserted(m_coreDFGExec, nodePortPathVar->getStringData());
+      onNodePortInserted(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") )
+        );
     }
-    else if(descStr == "nodePortRemoved")
+    else if(descStr == FTL_STR("nodePortRemoved"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      onNodePortRemoved(m_coreDFGExec, nodePortPathVar->getStringData());
+      onNodePortRemoved(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") )
+        );
     }
-    else if(descStr == "execPortInserted")
+    else if(descStr == FTL_STR("execPortInserted"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      onExecPortInserted(m_coreDFGExec, nodePortPathVar->getStringData());
+      onExecPortInserted(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") )
+        );
     }
-    else if(descStr == "execPortRemoved")
+    else if(descStr == FTL_STR("execPortRemoved"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      onExecPortRemoved(m_coreDFGExec, nodePortPathVar->getStringData());
+      onExecPortRemoved(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") )
+        );
     }
-    else if(descStr == "portsConnected")
+    else if(descStr == FTL_STR("portsConnected"))
     {
-      const FabricCore::Variant * srcPortPathVar = notificationVar.getDictValue("srcPath");
-      const FabricCore::Variant * dstPortPathVar = notificationVar.getDictValue("dstPath");
-      onPortsConnected(m_coreDFGExec, srcPortPathVar->getStringData(), dstPortPathVar->getStringData());
+      onPortsConnected(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("srcPath") ),
+        jsonObject->getString( FTL_STR("dstPath") )
+        );
     }
-    else if(descStr == "portsDisconnected")
+    else if(descStr == FTL_STR("portsDisconnected"))
     {
-      const FabricCore::Variant * srcPortPathVar = notificationVar.getDictValue("srcPath");
-      const FabricCore::Variant * dstPortPathVar = notificationVar.getDictValue("dstPath");
-      onPortsDisconnected(m_coreDFGExec, srcPortPathVar->getStringData(), dstPortPathVar->getStringData());
+      onPortsDisconnected(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("srcPath") ),
+        jsonObject->getString( FTL_STR("dstPath") )
+        );
     }
-    else if(descStr == "nodeMetadataChanged")
+    else if(descStr == FTL_STR("nodeMetadataChanged"))
     {
-      const FabricCore::Variant * nodePathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * keyVar = notificationVar.getDictValue("key");
-      const FabricCore::Variant * valueVar = notificationVar.getDictValue("value");
-      onNodeMetadataChanged(m_coreDFGExec, nodePathVar->getStringData(), keyVar->getStringData(), valueVar->getStringData());
+      onNodeMetadataChanged(
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
     }
-    else if(descStr == "nodeTitleChanged")
+    else if(descStr == FTL_STR("nodeTitleChanged"))
     {
-      const FabricCore::Variant * nodePathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * titleVar = notificationVar.getDictValue("title");
-      onNodeTitleChanged(m_coreDFGExec, nodePathVar->getStringData(), titleVar->getStringData());
+      onNodeTitleChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("title") )
+        );
     }
-    else if(descStr == "execPortRenamed")
+    else if(descStr == FTL_STR("execPortRenamed"))
     {
-      const FabricCore::Variant * oldPathVar = notificationVar.getDictValue("oldPath");
-      const FabricCore::Variant * newPathVar = notificationVar.getDictValue("newPath");
-      onExecPortRenamed(m_coreDFGExec, oldPathVar->getStringData(), newPathVar->getStringData());
+      onExecPortRenamed(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("oldPath") ),
+        jsonObject->getString( FTL_STR("newPath") )
+        );
     }
-    else if(descStr == "nodePortRenamed")
+    else if(descStr == FTL_STR("nodePortRenamed"))
     {
-      const FabricCore::Variant * oldPathVar = notificationVar.getDictValue("oldPath");
-      const FabricCore::Variant * newPathVar = notificationVar.getDictValue("newPath");
-      onNodePortRenamed(m_coreDFGExec, oldPathVar->getStringData(), newPathVar->getStringData());
+      onNodePortRenamed(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("oldPath") ),
+        jsonObject->getString( FTL_STR("newPath") )
+        );
     }
-    else if(descStr == "execMetadataChanged")
+    else if(descStr == FTL_STR("execMetadataChanged"))
     {
-      const FabricCore::Variant * keyVar = notificationVar.getDictValue("key");
-      const FabricCore::Variant * valueVar = notificationVar.getDictValue("value");
-      onExecMetadataChanged(m_coreDFGExec, keyVar->getStringData(), valueVar->getStringData());
+      onExecMetadataChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
     }
-    else if(descStr == "extDepAdded")
+    else if(descStr == FTL_STR("extDepAdded"))
     {
-      const FabricCore::Variant * nameVar = notificationVar.getDictValue("name");
-      const FabricCore::Variant * versionRangeVar = notificationVar.getDictValue("versionRange");
-      onExtDepAdded(m_coreDFGExec, nameVar->getStringData(), versionRangeVar->getStringData());
+      onExtDepAdded(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("name") ),
+        jsonObject->getString( FTL_STR("versionRange") )
+        );
     }
-    else if(descStr == "extDepRemoved")
+    else if(descStr == FTL_STR("extDepRemoved"))
     {
-      const FabricCore::Variant * nameVar = notificationVar.getDictValue("name");
-      const FabricCore::Variant * versionRangeVar = notificationVar.getDictValue("versionRange");
-      onExtDepRemoved(m_coreDFGExec, nameVar->getStringData(), versionRangeVar->getStringData());
+      onExtDepRemoved(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("name") ),
+        jsonObject->getString( FTL_STR("versionRange") )
+        );
     }
-    else if(descStr == "nodeCacheRuleChanged")
+    else if(descStr == FTL_STR("nodeCacheRuleChanged"))
     {
-      const FabricCore::Variant * nodePathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * cacheRuleVar = notificationVar.getDictValue("cacheRule");
-      onNodeCacheRuleChanged(m_coreDFGExec, nodePathVar->getStringData(), cacheRuleVar->getStringData());
+      onNodeCacheRuleChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("cacheRule") )
+        );
     }
-    else if(descStr == "execCacheRuleChanged")
+    else if(descStr == FTL_STR("execCacheRuleChanged"))
     {
-      // const FabricCore::Variant * execPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * cacheRuleVar = notificationVar.getDictValue("cacheRule");
-      onExecCacheRuleChanged(m_coreDFGExec, cacheRuleVar->getStringData());
+      onExecCacheRuleChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("cacheRule") )
+        );
     }
-    else if(descStr == "portResolvedTypeChanged")
+    else if(descStr == FTL_STR("portResolvedTypeChanged"))
     {
-      const FabricCore::Variant * portPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * resolvedTypeVar = notificationVar.getDictValue("resolvedType");
-      FTL::StrRef resolvedType;
-      if(resolvedTypeVar->isString())
-        resolvedType = resolvedTypeVar->getStringData();
-      onExecPortResolvedTypeChanged(m_coreDFGExec, portPathVar->getStringData(), resolvedType);
+      onExecPortResolvedTypeChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getStringOrEmpty( FTL_STR("resolvedType") )
+        );
     }
-    else if(descStr == "portTypeSpecChanged")
+    else if(descStr == FTL_STR("portTypeSpecChanged"))
     {
-      const FabricCore::Variant * portPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * typeSpecVar = notificationVar.getDictValue("typeSpec");
-      FTL::StrRef typeSpec;
-      if(typeSpecVar->isString())
-        typeSpec = typeSpecVar->getStringData();
-      onExecPortTypeSpecChanged(m_coreDFGExec, portPathVar->getStringData(), typeSpec);
+      onExecPortTypeSpecChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getStringOrEmpty( FTL_STR("typeSpec") )
+        );
     }
-    else if(descStr == "nodePortResolvedTypeChanged")
+    else if(descStr == FTL_STR("nodePortResolvedTypeChanged"))
     {
-      const FabricCore::Variant * portPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * resolvedTypeVar = notificationVar.getDictValue("resolvedType");
-      FTL::StrRef resolvedType;
-      if(resolvedTypeVar->isString())
-        resolvedType = resolvedTypeVar->getStringData();
-      onNodePortResolvedTypeChanged(m_coreDFGExec, portPathVar->getStringData(), resolvedType);
+      onNodePortResolvedTypeChanged(
+        m_coreDFGExec,
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getStringOrEmpty( FTL_STR("resolvedType") )
+        );
     }
-    else if(descStr == "portMetadataChanged")
+    else if(descStr == FTL_STR("portMetadataChanged"))
     {
-      const FabricCore::Variant * portPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * keyVar = notificationVar.getDictValue("key");
-      const FabricCore::Variant * valueVar = notificationVar.getDictValue("value");
-      FTL::StrRef value;
-      if(valueVar->isString())
-        value = valueVar->getStringData();
-      onExecPortMetadataChanged(m_coreDFGExec, portPathVar->getStringData(), keyVar->getStringData(), value);
+      onExecPortMetadataChanged(
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
     }
-    else if(descStr == "nodePortMetadataChanged")
+    else if(descStr == FTL_STR("nodePortMetadataChanged"))
     {
-      const FabricCore::Variant * portPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * keyVar = notificationVar.getDictValue("key");
-      const FabricCore::Variant * valueVar = notificationVar.getDictValue("value");
-      FTL::StrRef value;
-      if(valueVar->isString())
-        value = valueVar->getStringData();
-      onNodePortMetadataChanged(m_coreDFGExec, portPathVar->getStringData(), keyVar->getStringData(), value);
+      onNodePortMetadataChanged(
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
     }
-    else if(descStr == "execPortOutsidePortTypeChanged")
+    else if(descStr == FTL_STR("execPortOutsidePortTypeChanged"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * newPortTypeVar = notificationVar.getDictValue("newPortType");
-      FTL::StrRef newPortType;
-      if(newPortTypeVar->isString())
-        newPortType = newPortTypeVar->getStringData();
-      onExecPortTypeChanged(m_coreDFGExec, nodePortPathVar->getStringData(), newPortType);
+      onExecPortTypeChanged(
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("newPortType") )
+        );
     }
-    else if(descStr == "nodePortTypeChanged")
+    else if(descStr == FTL_STR("nodePortTypeChanged"))
     {
-      const FabricCore::Variant * nodePortPathVar = notificationVar.getDictValue("path");
-      const FabricCore::Variant * newPortTypeVar = notificationVar.getDictValue("newPortType");
-      FTL::StrRef newPortType;
-      if(newPortTypeVar->isString())
-        newPortType = newPortTypeVar->getStringData();
-      onNodePortTypeChanged(m_coreDFGExec, nodePortPathVar->getStringData(), newPortType);
+      onNodePortTypeChanged(
+        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("newPortType") )
+        );
     }
     else
     {
-      printf("View::callback: Unhandled desc '%s', '%s'\n", descStr.c_str(), jsonStr.data());
+      printf(
+        "NotificationRouter::callback: Unhandled notification:\n%s\n",
+        jsonStr.data()
+        );
     }
   }
   catch ( FabricCore::Exception e )
@@ -210,6 +235,13 @@ void NotificationRouter::callback( FTL::StrRef jsonStr )
     printf(
       "NotificationRouter::callback: caught Core exception: %s\n",
       e.getDesc_cstr()
+      );
+  }
+  catch ( FTL::JSONException e )
+  {
+    printf(
+      "NotificationRouter::callback: caught FTL::JSONException: %s\n",
+      e.getDescCStr()
       );
   }
 }

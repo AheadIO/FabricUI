@@ -70,7 +70,7 @@ void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
   m_coreDFGHost = coreDFGHost;
 }
 
-NotificationRouter * DFGController::getRouter()
+DFGNotificationRouter * DFGController::getRouter()
 {
   return m_router;
 }
@@ -82,7 +82,7 @@ FabricCore::DFGExec DFGController::getCoreDFGExec()
   return this->getRouter()->getCoreDFGExec();
 }
 
-void DFGController::setRouter(NotificationRouter * router)
+void DFGController::setRouter(DFGNotificationRouter * router)
 {
   if(m_router && m_overTakeBindingNotifications)
     m_coreDFGBinding.setNotificationCallback(NULL, NULL);
@@ -93,8 +93,7 @@ void DFGController::setRouter(NotificationRouter * router)
     m_router->setController(this);
     try
     {
-      // todo
-      // m_router->onGraphSet();
+      m_router->onGraphSet();
     }
     catch(FabricCore::Exception e)
     {
@@ -116,7 +115,10 @@ ASTWrapper::KLASTManager * DFGController::astManager()
   return m_manager;
 }
 
-std::string DFGController::addNodeFromPreset(char const * preset, QPointF pos)
+std::string DFGController::addDFGNodeFromPreset(
+  FTL::StrRef preset,
+  QPointF pos
+  )
 {
   try
   {
@@ -1522,7 +1524,7 @@ void DFGController::updatePresetPathDB()
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
 }
 
-NotificationRouter * DFGController::createRouter(
+DFGNotificationRouter * DFGController::createRouter(
   FabricCore::DFGBinding binding,
   FabricCore::DFGExec exec
   )

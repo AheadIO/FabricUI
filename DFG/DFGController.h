@@ -8,7 +8,6 @@
 #include <GraphView/Pin.h>
 #include <GraphView/Port.h>
 #include <ValueEditor/ValueItem.h>
-#include "NotificationRouter.h"
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
@@ -20,6 +19,8 @@ namespace FabricUI
 
   namespace DFG
   {
+
+    class DFGNotificationRouter;
 
     class DFGController : public GraphView::Controller
     {
@@ -54,12 +55,12 @@ namespace FabricUI
 
       void setHost( FabricCore::DFGHost const &coreDFGHost );
       void setClient( FabricCore::Client const &coreClient );
-      NotificationRouter * getRouter();
-      void setRouter(NotificationRouter * router);
+      DFGNotificationRouter * getRouter();
+      void setRouter(DFGNotificationRouter * router);
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
-      virtual std::string addNodeFromPreset(char const * preset, QPointF pos);
+      virtual std::string addDFGNodeFromPreset(FTL::StrRef preset, QPointF pos);
       virtual std::string addEmptyGraph(char const * title, QPointF pos);
       virtual std::string addEmptyFunc(char const * title, QPointF pos);
       virtual bool removeNode(char const * path);
@@ -122,9 +123,10 @@ namespace FabricUI
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
-      virtual NotificationRouter * createRouter(
+      virtual DFGNotificationRouter * createRouter(
         FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec);
+        FabricCore::DFGExec exec
+        );
 
     signals:
 
@@ -150,7 +152,7 @@ namespace FabricUI
       FabricCore::DFGHost m_coreDFGHost;
       FabricCore::DFGBinding m_coreDFGBinding;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
-      NotificationRouter * m_router;
+      DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
       bool m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;

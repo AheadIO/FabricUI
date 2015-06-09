@@ -18,7 +18,7 @@ namespace FabricUI
 
       DFGAddNodeCommand(
         DFGController * controller,
-        char const * preset,
+        FTL::StrRef preset,
         QPointF pos
         );
 

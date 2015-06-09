@@ -8,6 +8,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
+#include <FTL/StrRef.h>
+
 #include "NodeRectangle.h"
 #include "NodeHeader.h"
 #include "Pin.h"
@@ -41,8 +43,8 @@ namespace FabricUI
 
       Node(
         Graph * parent,
-        char const *name,
-        char const * label = "",
+        FTL::StrRef name,
+        FTL::StrRef label = FTL::StrRef(),
         QColor color = QColor(),
         QColor labelColor = QColor()
         );
@@ -101,7 +103,7 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
       // accessed by controller
-      virtual void setPreset( char const *preset );
+      virtual void setPreset( FTL::StrRef preset );
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
       virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);

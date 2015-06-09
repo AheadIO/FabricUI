@@ -217,12 +217,14 @@ Node * Graph::addNode(Node * node, bool quiet)
 }
 
 Node * Graph::addNodeFromPreset(
-  char const *name, char const *preset, bool quiet
+  FTL::StrRef name,
+  FTL::StrRef preset,
+  bool quiet
   )
 {
   if(!m_factory)
   {
-    if ( !preset || !preset[0] )
+    if ( preset.empty() )
       return addNode(new Node(this, name), quiet);
     return NULL;
   }

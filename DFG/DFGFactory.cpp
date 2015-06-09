@@ -10,9 +10,12 @@ DFGFactory::DFGFactory(const DFGConfig & config)
   m_config = config;
 }
 
-GraphView::Node * DFGFactory::constructNodeFromPreset(GraphView::Graph * graph, char const * path, char const * preset)
+GraphView::Node * DFGFactory::constructNodeFromPreset(
+  GraphView::Graph * graph,
+  FTL::StrRef path,
+  FTL::StrRef preset
+  )
 {
-  FTL::StrRef presetRef(preset);
-  FTL::StrRef lastBit = presetRef.rsplit('.').second;
-  return constructNode(graph, path, lastBit.data());
+  FTL::StrRef lastBit = preset.rsplit('.').second;
+  return constructNode(graph, path, lastBit);
 }

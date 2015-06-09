@@ -4,6 +4,8 @@
 #include "DFGGraph.h"
 #include "DFGController.h"
 
+#include <FTL/JSONValue.h>
+
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -44,51 +46,70 @@ float DFGNotificationRouter::getFloatFromVariant(const FabricCore::Variant * var
   return 0.0f;
 }
 
-/*
 void DFGNotificationRouter::onGraphSet()
 {
-  if(m_controller->graph() == NULL)
+  if(!m_coreDFGExec)
     return;
 
-  m_performChecks = false;
+  FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+  char const *descData;
+  uint32_t descSize;
+  desc.getStringDataAndLength( descData, descSize );
+  FTL::JSONStrWithLoc jsonSrcWithLoc( FTL::StrRef( descData, descSize ) );
+  FTL::OwnedPtr<FTL::JSONValue const> rootValue(
+    FTL::JSONValue::Decode( jsonSrcWithLoc )
+    );
 
-  DFGWrapper::NodeList nodes = m_graph->getNodes();
-  for(size_t i=0;i<nodes.size();i++)
+  try
   {
-    onNodeInserted(nodes[i]);
+    FTL::JSONObject const *rootObject = rootValue->cast<FTL::JSONObject>();
 
-    // all pins
-    DFGWrapper::NodePortList pins = nodes[i]->getNodePorts();
-    for(size_t j=0;j<pins.size();j++)
+    FTL::JSONArray const *nodesArray =
+      rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
+    for ( size_t i = 0; i < nodesArray->size(); ++i )
     {
-      onNodePortInserted(pins[j]);
+      FTL::JSONObject const *nodeObject =
+        nodesArray->get( i )->cast<FTL::JSONObject>();
+      onNodeInserted( nodeObject );
     }
-  }
+  // DFGWrapper::NodeList nodes = m_graph->getNodes();
+  // for(size_t i=0;i<nodes.size();i++)
+  // {
+  //   onNodeInserted(nodes[i]);
 
-  DFGWrapper::ExecPortList ports = m_graph->getExecPorts();
-  for(size_t i=0;i<ports.size();i++)
+  //   // all pins
+  //   DFGWrapper::NodePortList pins = nodes[i]->getNodePorts();
+  //   for(size_t j=0;j<pins.size();j++)
+  //   {
+  //     onNodePortInserted(pins[j]);
+  //   }
+  // }
+
+  // DFGWrapper::ExecPortList ports = m_graph->getExecPorts();
+  // for(size_t i=0;i<ports.size();i++)
+  // {
+  //   onExecPortInserted(ports[i]);
+  // }
+
+  // DFGWrapper::ConnectionList connections = m_graph->getConnections();
+  // for(size_t i=0;i<connections.size();i++)
+  // {
+  //   onPortsConnected(connections[i]->getSrc(), connections[i]->getDst());
+  // }
+
+  // // update the graph's pan and zoom
+  // std::string metaData = m_graph->getMetadata("uiGraphPan");
+  // if(metaData.length())
+  //   onExecMetadataChanged(m_graph, "uiGraphPan", metaData.c_str());
+  // metaData = m_graph->getMetadata("uiGraphZoom");
+  // if(metaData.length())
+  //   onExecMetadataChanged(m_graph, "uiGraphZoom", metaData.c_str());
+  }
+  catch ( FTL::JSONException je )
   {
-    onExecPortInserted(ports[i]);
+    printf( "Caught JSONException: %s\n", je.getDescCStr() );
   }
-
-  DFGWrapper::ConnectionList connections = m_graph->getConnections();
-  for(size_t i=0;i<connections.size();i++)
-  {
-    onPortsConnected(connections[i]->getSrc(), connections[i]->getDst());
-  }
-
-  // update the graph's pan and zoom
-  std::string metaData = m_graph->getMetadata("uiGraphPan");
-  if(metaData.length())
-    onExecMetadataChanged(m_graph, "uiGraphPan", metaData.c_str());
-  metaData = m_graph->getMetadata("uiGraphZoom");
-  if(metaData.length())
-    onExecMetadataChanged(m_graph, "uiGraphZoom", metaData.c_str());
-
-  m_performChecks = true;
 }
-
-*/
 
 void DFGNotificationRouter::onNotification(FTL::StrRef json)
 {
@@ -102,43 +123,32 @@ void DFGNotificationRouter::onNotification(FTL::StrRef json)
   // }
 }
 
-void DFGNotificationRouter::onNodeInserted(FabricCore::DFGExec parent, FTL::StrRef nodePath)
+void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
+  if(!graph)
+    return;
 
-  FabricCore::DFGExec exec = parent.getSubExec(nodePath.data());
+  FTL::StrRef name =
+    jsonObject->get( FTL_STR("name") )->cast<FTL::JSONString>()->getValue();
 
-  GraphView::Node * uiNode = graph->addNodeFromPreset(nodePath.data(), exec.getTitle());
+  GraphView::Node * uiNode = graph->addNodeFromPreset( name, FTL::StrRef() );
   if(!uiNode)
     return;
 
-  FTL::StrRef uiGraphPosMetadata = parent.getNodeMetadata(nodePath.data(), "uiGraphPos");
-  if(uiGraphPosMetadata.size() > 0)
-    onNodeMetadataChanged(parent, nodePath, "uiGraphPos", uiGraphPosMetadata);
+  if ( FTL::JSONValue const *metadataJSONValue = jsonObject->maybeGet( FTL_STR("metadata") ) )
+  {
+    FTL::JSONObject const *metadataJSONObject =
+      metadataJSONValue->cast<FTL::JSONObject>();
 
-  std::string uiCollapsedStateMetadata = parent.getNodeMetadata(nodePath.data(), "uiCollapsedState");
-  if(uiCollapsedStateMetadata.size() > 0)
-    onNodeMetadataChanged(parent, nodePath, "uiCollapsedState", uiCollapsedStateMetadata);
-
-  std::string uiNodeColorMetadata = parent.getNodeMetadata(nodePath.data(), "uiNodeColor");
-  if(uiNodeColorMetadata.size() == 0 && exec.isValid())
-    uiNodeColorMetadata = exec.getMetadata("uiNodeColor");
-  if(uiNodeColorMetadata.size() > 0)
-    onNodeMetadataChanged(parent, nodePath, "uiNodeColor", uiNodeColorMetadata);
-
-  std::string uiHeaderColorMetadata = parent.getNodeMetadata(nodePath.data(), "uiHeaderColor");
-  if(uiHeaderColorMetadata.size() == 0 && exec.isValid())
-    uiHeaderColorMetadata = exec.getMetadata("uiHeaderColor");
-  if(uiHeaderColorMetadata.size() > 0)
-    onNodeMetadataChanged(parent, nodePath, "uiHeaderColor", uiHeaderColorMetadata);
-
-  std::string uiTooltipMetadata = parent.getNodeMetadata(nodePath.data(), "uiTooltip");
-  if(uiTooltipMetadata.size() == 0 && exec.isValid())
-    uiTooltipMetadata = exec.getMetadata("uiTooltip");
-  if(uiTooltipMetadata.size() > 0)
-    onNodeMetadataChanged(parent, nodePath, "uiTooltip", uiTooltipMetadata);
+    for ( FTL::JSONObject::const_iterator it = metadataJSONObject->begin();
+      it != metadataJSONObject->end(); ++it )
+    {
+      FTL::StrRef key = it->first;
+      FTL::StrRef value = it->second->cast<FTL::JSONString>()->getValue();
+      onNodeMetadataChanged(name, key, value);
+    }
+  }
 
   if(m_performChecks)
   {
@@ -418,18 +428,22 @@ void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::S
   }
 }
 
-void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata)
+void DFGNotificationRouter::onNodeMetadataChanged(
+  FTL::StrRef nodeName,
+  FTL::StrRef key,
+  FTL::StrRef metadata
+  )
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  GraphView::Node * uiNode = uiGraph->node(nodePath.data());
+  GraphView::Node * uiNode = uiGraph->node(nodeName.data());
   if(!uiNode)
     return;
 
   // printf("'%s' metadata changed for '%s'\n", key, path.toUtf8().constData());
 
-  if(key == "uiGraphPos")
+  if(key == FTL_STR("uiGraphPos"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
@@ -438,13 +452,13 @@ void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FT
     float y = getFloatFromVariant(yVar);
     uiNode->setTopLeftGraphPos(QPointF(x, y), false);
   }
-  else if(key == "uiCollapsedState")
+  else if(key == FTL_STR("uiCollapsedState"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     GraphView::Node::CollapseState state = (GraphView::Node::CollapseState)metadataVar.getSInt32();
     uiNode->setCollapsedState(state);
   }
-  else if(key == "uiNodeColor")
+  else if(key == FTL_STR("uiNodeColor"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
@@ -458,7 +472,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FT
     uiNode->setColor(color);
     uiNode->setLabelColor(color.darker(130));
   }
-  else if(key == "uiHeaderColor")
+  else if(key == FTL_STR("uiHeaderColor"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
@@ -471,7 +485,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(FabricCore::DFGExec parent, FT
     QColor color(r, g, b);
     uiNode->setLabelColor(color);
   }
-  else if(key == "uiTooltip")
+  else if(key == FTL_STR("uiTooltip"))
   {
     QString tooltip = metadata.data();
     uiNode->header()->setToolTip(tooltip.trimmed());
@@ -623,22 +637,34 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec ex
   }
 }
 
-void DFGNotificationRouter::onExecPortMetadataChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef key, FTL::StrRef metadata)
+void DFGNotificationRouter::onExecPortMetadataChanged(
+  FTL::StrRef portPath,
+  FTL::StrRef key,
+  FTL::StrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef key, FTL::StrRef metadata)
+void DFGNotificationRouter::onNodePortMetadataChanged(
+  FTL::StrRef nodePortPath,
+  FTL::StrRef key,
+  FTL::StrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecPortTypeChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef portType)
+void DFGNotificationRouter::onExecPortTypeChanged(
+  FTL::StrRef portPath,
+  FTL::StrRef portType
+  )
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortTypeChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef portType)
+void DFGNotificationRouter::onNodePortTypeChanged(
+  FTL::StrRef nodePortPath,
+  FTL::StrRef portType
+  )
 {
   // todo: we don't do anything here...
 }

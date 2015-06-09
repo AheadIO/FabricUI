@@ -39,7 +39,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               if(pathVar->isString())
               {
-                ((DFGController*)graph()->controller())->addNodeFromPreset(
+                ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
                   pathVar->getStringData(), pos
                   );
                 pos += QPointF(30, 30);

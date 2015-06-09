@@ -8,7 +8,7 @@ using namespace FabricUI::DFG;
 
 DFGAddNodeCommand::DFGAddNodeCommand(
   DFGController * controller,
-  char const * preset,
+  FTL::StrRef preset,
   QPointF pos
   )
   : DFGCommand(controller)

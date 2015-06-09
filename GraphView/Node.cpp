@@ -16,17 +16,16 @@ using namespace FabricUI::GraphView;
 
 Node::Node(
   Graph * parent,
-  char const *name,
-  char const *label,
+  FTL::StrRef name,
+  FTL::StrRef label,
   QColor color,
   QColor labelColor
   )
   : QGraphicsWidget( parent->itemGroup() )
   , m_graph( parent )
   , m_name( name )
+  , m_labelCaption( label )
 {
-  m_labelCaption = label;
-
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -223,7 +222,7 @@ void Node::toggleCollapsedState()
   setCollapsedState(CollapseState((int(m_collapsedState) + 1) % int(CollapseState_NumStates)));
 }
 
-void Node::setPreset( char const *preset )
+void Node::setPreset( FTL::StrRef preset )
 {
   m_preset = preset;
 }

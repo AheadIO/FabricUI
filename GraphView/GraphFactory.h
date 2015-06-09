@@ -28,8 +28,18 @@ namespace FabricUI
 
     protected:
 
-      virtual Node * constructNode(Graph * graph, char const *name, char const * label = "");
-      virtual Node * constructNodeFromPreset(Graph * graph, char const *name, char const *preset) = 0;
+      virtual Node * constructNode(
+        Graph * graph,
+        FTL::StrRef name,
+        FTL::StrRef label = FTL::StrRef()
+        );
+
+      virtual Node * constructNodeFromPreset(
+        Graph * graph,
+        FTL::StrRef name,
+        FTL::StrRef preset
+        ) = 0;
+
       virtual Connection * constructConnection(Graph * graph, ConnectionTarget * src, ConnectionTarget * dst);
     };
 

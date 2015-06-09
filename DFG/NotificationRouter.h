@@ -3,6 +3,7 @@
 #ifndef __UI_DFG_NotificationRouter__
 #define __UI_DFG_NotificationRouter__
 
+#include <FTL/JSONValue.h>
 #include <FTL/StrRef.h>
 #include <GraphView/Controller.h>
 #include "DFGConfig.h"
@@ -39,7 +40,7 @@ namespace FabricUI
     protected:
 
       virtual void onNotification(FTL::StrRef json) = 0;
-      virtual void onNodeInserted(FabricCore::DFGExec parent, FTL::StrRef nodePath) = 0;
+      virtual void onNodeInserted(FTL::JSONObject const *jsonObject) = 0;
       virtual void onNodeRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePath) = 0;
       virtual void onNodePortInserted(FabricCore::DFGExec parent, FTL::StrRef nodePortPath) = 0;
       virtual void onNodePortRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePortPath) = 0;
@@ -47,7 +48,7 @@ namespace FabricUI
       virtual void onExecPortRemoved(FabricCore::DFGExec exec, FTL::StrRef portPath) = 0;
       virtual void onPortsConnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath) = 0;
       virtual void onPortsDisconnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath) = 0;
-      virtual void onNodeMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata) = 0;
+      virtual void onNodeMetadataChanged(FTL::StrRef nodePath, FTL::StrRef key, FTL::StrRef metadata) = 0;
       virtual void onNodeTitleChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef title) = 0;
       virtual void onExecPortRenamed(FabricCore::DFGExec exec, FTL::StrRef oldPath, FTL::StrRef newPath) = 0;
       virtual void onNodePortRenamed(FabricCore::DFGExec parent, FTL::StrRef oldPath, FTL::StrRef newPath) = 0;
@@ -59,10 +60,10 @@ namespace FabricUI
       virtual void onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef resolvedType) = 0;
       virtual void onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef typeSpec) = 0;
       virtual void onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef nodePortPath, FTL::StrRef resolvedType) = 0;
-      virtual void onExecPortMetadataChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef key, FTL::StrRef metadata) = 0;
-      virtual void onNodePortMetadataChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef key, FTL::StrRef metadata) = 0;
-      virtual void onExecPortTypeChanged(FabricCore::DFGExec exec, FTL::StrRef portPath, FTL::StrRef portType) = 0;
-      virtual void onNodePortTypeChanged(FabricCore::DFGExec parent, FTL::StrRef nodePortPath, FTL::StrRef portType) = 0;
+      virtual void onExecPortMetadataChanged(FTL::StrRef portPath, FTL::StrRef key, FTL::StrRef metadata) = 0;
+      virtual void onNodePortMetadataChanged(FTL::StrRef nodePortPath, FTL::StrRef key, FTL::StrRef metadata) = 0;
+      virtual void onExecPortTypeChanged(FTL::StrRef portPath, FTL::StrRef portType) = 0;
+      virtual void onNodePortTypeChanged(FTL::StrRef nodePortPath, FTL::StrRef portType) = 0;
 
     private:
 

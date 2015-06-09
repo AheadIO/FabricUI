@@ -141,7 +141,7 @@ namespace FabricUI
 
       // interaction - only possible through controller
       virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(char const *name, char const *preset, bool quiet = false);
+      virtual Node * addNodeFromPreset(FTL::StrRef name, FTL::StrRef preset, bool quiet = false);
       virtual bool removeNode(Node * node, bool quiet = false);
       virtual bool addPort(Port * port, bool quiet = false);
       virtual bool removePort(Port * port, bool quiet = false);
