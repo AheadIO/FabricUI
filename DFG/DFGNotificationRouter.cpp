@@ -191,7 +191,8 @@ void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::
     pType = GraphView::PortType_IO;
 
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.data(), pType, color, portName.data());
-  uiPin->setDataType(dataType.data());
+  if ( !dataType.empty() )
+    uiPin->setDataType(dataType.data());
   uiNode->addPin(uiPin, false);
 }
 
