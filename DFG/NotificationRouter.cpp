@@ -29,8 +29,8 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
   {
     printf( "notif = %s\n", jsonStr.c_str() );
     
-    FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
-    printf( "exec = %s\n", desc.getCString() );
+    // FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+    // printf( "exec = %s\n", desc.getCString() );
 
     onNotification(jsonStr);
 
@@ -56,8 +56,8 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodePortInserted"))
     {
       onNodePortInserted(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") )
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->get( FTL_STR("nodePortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("nodePortRemoved"))

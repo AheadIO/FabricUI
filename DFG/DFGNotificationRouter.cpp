@@ -140,7 +140,17 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
   if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
     onNodeTitleChanged( nodeName, title );
 
-  if ( FTL::JSONValue const *metadataJSONValue = jsonObject->maybeGet( FTL_STR("metadata") ) )
+  FTL::JSONArray const *portsJSONArray =
+    jsonObject->get( FTL_STR("ports") )->cast<FTL::JSONArray>();
+  for ( size_t i = 0; i < portsJSONArray->size(); ++i )
+  {
+    FTL::JSONObject const *portJSONObject =
+      portsJSONArray->get( i )->cast<FTL::JSONObject>();
+    onNodePortInserted( nodeName, portJSONObject );
+  }
+
+  if ( FTL::JSONValue const *metadataJSONValue =
+    jsonObject->maybeGet( FTL_STR("metadata") ) )
   {
     FTL::JSONObject const *metadataJSONObject =
       metadataJSONValue->cast<FTL::JSONObject>();
@@ -176,37 +186,36 @@ void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::CStrR
   }
 }
 
-void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath)
+void DFGNotificationRouter::onNodePortInserted(
+  FTL::CStrRef nodeName,
+  FTL::JSONObject const *jsonObject
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-
-  int delimPos = nodePortPath.find('.') - nodePortPath.data();
-  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
-  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
-
-  // the first part of the substr won't 
-  // work since there is no \0 char. 
-  // casting it to a std::string does
-  std::string nodeNameStr(nodeName);
-
-  GraphView::Node * uiNode = graph->node(nodeNameStr.c_str());
+  if(!graph)
+    return;
+  GraphView::Node * uiNode = graph->node(nodeName);
   if(!uiNode)
     return;
 
-  FabricCore::DFGExec subExec = parent.getSubExec(nodeNameStr.c_str());
-  FTL::CStrRef dataType = parent.getNodePortResolvedType(nodePortPath.data());
-  QColor color = m_config.getColorForDataType(dataType, &subExec, portName.data());
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("name") );
+
+  FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
+
+  FabricCore::DFGExec exec = getCoreDFGExec();
+  QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
+
+  FTL::CStrRef nodePortType =
+    jsonObject->getStringOrEmpty( FTL_STR("nodePortType") );
   GraphView::PortType pType = GraphView::PortType_Input;
-  if(subExec.getExecPortType(portName.data()) == FabricCore::DFGPortType_Out)
+  if(nodePortType == FTL_STR("Out"))
     pType = GraphView::PortType_Output;
-  else if(subExec.getExecPortType(portName.data()) == FabricCore::DFGPortType_IO)
+  else if(nodePortType == FTL_STR("IO"))
     pType = GraphView::PortType_IO;
 
-  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.data(), pType, color, portName.data());
+  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
   if ( !dataType.empty() )
-    uiPin->setDataType(dataType.data());
+    uiPin->setDataType(dataType.c_str());
   uiNode->addPin(uiPin, false);
 }
 
