@@ -25,6 +25,11 @@ void NotificationRouter::callback( FTL::StrRef jsonStr )
 {
   try
   {
+    printf( "notif = %s\n", jsonStr.data() );
+    
+    FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+    printf( "exec = %s\n", desc.getCString() );
+
     onNotification(jsonStr);
 
     FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonStr.data(), jsonStr.size());

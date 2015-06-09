@@ -264,7 +264,13 @@ bool DFGController::removePin(GraphView::Pin * pin)
   return false;
 }
 
-std::string DFGController::addPort(char const * path, char const * name, FabricCore::DFGPortType pType, char const * dataType, bool setArgValue)
+std::string DFGController::addPort(
+  char const * path,
+  char const * name,
+  FabricCore::DFGPortType pType,
+  char const * dataType,
+  bool setArgValue
+  )
 {
   GraphView::PortType portType = GraphView::PortType_Input;
   if(pType == FabricCore::DFGPortType_In)
@@ -274,7 +280,13 @@ std::string DFGController::addPort(char const * path, char const * name, FabricC
   return addPort(path, name, portType, dataType, setArgValue);
 }
 
-std::string DFGController::addPort(char const * path, char const * name, GraphView::PortType pType, char const * dataType, bool setArgValue)
+std::string DFGController::addPort(
+  char const * path,
+  char const * name,
+  GraphView::PortType pType,
+  char const * dataType,
+  bool setArgValue
+  )
 {
   std::string result;
   try
