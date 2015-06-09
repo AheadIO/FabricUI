@@ -50,6 +50,9 @@ namespace FabricUI
   			/// this signal is emited when ever the time on the widget changed
   			/// client would connect this slight to any slots that need to know about the time
   			void frameChanged(int frame);
+
+        /// this is emitted whenever playback changes
+        void playbackChanged(bool isPlaying);
   		
   		public slots:
   			
