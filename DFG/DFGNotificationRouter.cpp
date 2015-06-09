@@ -241,7 +241,7 @@ void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::St
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_Out)
+  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_In)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
@@ -251,13 +251,13 @@ void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::St
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_In)
+  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_Out)
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)
       return;
 
-    uiOutPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Input, dataType.data(), color, portPath.data());
+    uiOutPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Output, dataType.data(), color, portPath.data());
     uiPanel->addPort(uiOutPort);
     m_lastPortInserted = uiOutPort;
   }
