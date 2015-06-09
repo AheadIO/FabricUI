@@ -30,7 +30,7 @@ bool RemovePortCommand::invoke()
 {
   SidePanel * panel = controller()->graph()->sidePanel(m_pType);
   if(!panel)
-    return NULL;
+    return false;
 
   Port * port = getPort();
   if(!port)
@@ -43,7 +43,7 @@ bool RemovePortCommand::undo()
 {
   SidePanel * panel = controller()->graph()->sidePanel(m_pType);
   if(!panel)
-    return NULL;
+    return false;
 
   Port * port = new Port(panel, m_name.c_str(), m_pType, m_dataType.c_str(), m_color);
   port->setDataType(m_dataType.c_str());

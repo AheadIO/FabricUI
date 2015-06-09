@@ -110,7 +110,7 @@ namespace FabricUI
         {  return m_execPath.c_str(); }
 
       virtual bool execute();
-      bool bindUnboundRTVals(std::string dataType = "");
+      bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
 
       virtual bool canConnectTo(
         char const *pathA,

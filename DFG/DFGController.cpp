@@ -343,19 +343,25 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
       if(subExec.getExecPortType(pin->name()) == FabricCore::DFGPortType_In)
       {
         // if this is the graph on the binding, we need to set the arg value
-        std::string resolvedType = subExec.getExecPortResolvedType(pin->name());
-        if(resolvedType.length() > 0)
+        FTL::StrRef resolvedType = subExec.getExecPortResolvedType(pin->name());
+        if(!resolvedType.empty())
         {
           if(resolvedType == "Integer")
             resolvedType = "SInt32";
           else if(resolvedType == "Byte")
             resolvedType = "UInt8";
-          else if(resolvedType == "Size" || resolvedType == "Count" || resolvedType == "Index")
+          else if(resolvedType == "Size"
+            || resolvedType == "Count"
+            || resolvedType == "Index")
             resolvedType = "UInt32";
           else if(resolvedType == "Scalar")
             resolvedType = "Float32";
 
-          FabricCore::RTVal defaultValue = exec.getInstPortResolvedDefaultValue(pin->pathString().c_str(), resolvedType.c_str());
+          FabricCore::RTVal defaultValue =
+          exec.getInstPortResolvedDefaultValue(
+            pin->pathString().c_str(),
+            resolvedType.data()
+            );
           if(defaultValue.isValid())
           {
             if(isViewingRootGraph())
@@ -1269,7 +1275,7 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
   endInteraction();
 }
 
-bool DFGController::bindUnboundRTVals(std::string dataType)
+bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
 {
   try
   {
@@ -1279,10 +1285,10 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
 
     for(size_t i=0;i<exec.getExecPortCount();i++)
     {
-      std::string dataTypeToCheck = dataType;
-      if(dataTypeToCheck.length() == 0)
+      FTL::StrRef dataTypeToCheck = dataType;
+      if(dataTypeToCheck.empty())
         dataTypeToCheck = exec.getExecPortResolvedType(i);
-      if(dataTypeToCheck.length() == 0)
+      if(dataTypeToCheck.empty())
         continue;
       else if(exec.getExecPortResolvedType(i) != dataTypeToCheck)
         continue;
@@ -1312,7 +1318,13 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
           continue;
       }
 
-      addCommand(new DFGSetArgCommand(this, exec.getExecPortName(i), dataTypeToCheck.c_str()));
+      addCommand(
+        new DFGSetArgCommand(
+          this,
+          exec.getExecPortName(i),
+          dataTypeToCheck.data()
+          )
+        );
       argsHaveChanged = true;
     }
     return argsHaveChanged;
