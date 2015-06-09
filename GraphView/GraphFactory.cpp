@@ -8,14 +8,18 @@ using namespace FabricUI::GraphView;
 
 Node * GraphFactory::constructNode(
   Graph * graph,
-  FTL::StrRef name,
-  FTL::StrRef label
+  FTL::CStrRef name,
+  FTL::CStrRef label
   )
 {
   return new Node(graph, name, label);
 }
 
-Connection * GraphFactory::constructConnection(Graph * graph, ConnectionTarget * src, ConnectionTarget * dst)
+Connection * GraphFactory::constructConnection(
+  Graph * graph,
+  ConnectionTarget * src,
+  ConnectionTarget * dst
+  )
 {
   return new Connection(graph, src, dst);
 }

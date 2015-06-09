@@ -84,7 +84,7 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNodeFromPreset(FTL::StrRef preset, QPointF pos)
+Node * Controller::addNodeFromPreset(FTL::CStrRef preset, QPointF pos)
 {
   std::string presetStr(preset);
   std::string path;

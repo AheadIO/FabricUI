@@ -23,11 +23,11 @@ NotificationRouter::NotificationRouter(
 {
 }
 
-void NotificationRouter::callback( FTL::StrRef jsonStr )
+void NotificationRouter::callback( FTL::CStrRef jsonStr )
 {
   try
   {
-    printf( "notif = %s\n", jsonStr.data() );
+    printf( "notif = %s\n", jsonStr.c_str() );
     
     FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
     printf( "exec = %s\n", desc.getCString() );
@@ -108,7 +108,6 @@ void NotificationRouter::callback( FTL::StrRef jsonStr )
     else if(descStr == FTL_STR("nodeTitleChanged"))
     {
       onNodeTitleChanged(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("path") ),
         jsonObject->getString( FTL_STR("title") )
         );

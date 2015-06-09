@@ -30,17 +30,21 @@ namespace FabricUI
 
       virtual Node * constructNode(
         Graph * graph,
-        FTL::StrRef name,
-        FTL::StrRef label = FTL::StrRef()
+        FTL::CStrRef name,
+        FTL::CStrRef label = FTL::CStrRef()
         );
 
       virtual Node * constructNodeFromPreset(
         Graph * graph,
-        FTL::StrRef name,
-        FTL::StrRef preset
+        FTL::CStrRef name,
+        FTL::CStrRef preset
         ) = 0;
 
-      virtual Connection * constructConnection(Graph * graph, ConnectionTarget * src, ConnectionTarget * dst);
+      virtual Connection * constructConnection(
+        Graph * graph,
+        ConnectionTarget * src,
+        ConnectionTarget * dst
+        );
     };
 
   };

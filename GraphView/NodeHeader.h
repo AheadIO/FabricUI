@@ -23,13 +23,15 @@ namespace FabricUI
 
     public:
 
-      NodeHeader(Node * parent, QString text);
+      NodeHeader(
+        Node * parent,
+        QString const &title
+        );
 
       Node * node();
       const Node * node() const;
 
-      QString title() const;
-      void setTitle(QString t);
+      void setTitle(QString const &title);
 
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);

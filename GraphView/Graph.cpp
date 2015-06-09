@@ -217,8 +217,8 @@ Node * Graph::addNode(Node * node, bool quiet)
 }
 
 Node * Graph::addNodeFromPreset(
-  FTL::StrRef name,
-  FTL::StrRef preset,
+  FTL::CStrRef name,
+  FTL::CStrRef preset,
   bool quiet
   )
 {
@@ -299,10 +299,9 @@ std::vector<Node *> Graph::nodes() const
   return result;
 }
 
-Node * Graph::node( char const *name ) const
+Node * Graph::node( FTL::StrRef name ) const
 {
-  FTL::StrRef key( name );
-  std::map<FTL::StrRef, size_t>::const_iterator it = m_nodeMap.find(key);
+  std::map<FTL::StrRef, size_t>::const_iterator it = m_nodeMap.find(name);
   if(it == m_nodeMap.end())
     return NULL;
   return m_nodes[it->second];

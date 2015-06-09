@@ -72,8 +72,8 @@ namespace FabricUI
 
       // nodes
       virtual std::vector<Node *> nodes() const;
-      virtual Node * node( char const *name ) const;
-      virtual Node * nodeFromPath( char const *path ) const
+      virtual Node * node( FTL::StrRef name ) const;
+      virtual Node * nodeFromPath( FTL::StrRef path ) const
         { return node( path ); }
       virtual std::vector<Node *> selectedNodes() const;
 
@@ -141,7 +141,7 @@ namespace FabricUI
 
       // interaction - only possible through controller
       virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(FTL::StrRef name, FTL::StrRef preset, bool quiet = false);
+      virtual Node * addNodeFromPreset(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
       virtual bool removeNode(Node * node, bool quiet = false);
       virtual bool addPort(Port * port, bool quiet = false);
       virtual bool removePort(Port * port, bool quiet = false);

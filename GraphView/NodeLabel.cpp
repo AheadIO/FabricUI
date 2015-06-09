@@ -8,7 +8,19 @@
 
 using namespace FabricUI::GraphView;
 
-NodeLabel::NodeLabel(NodeHeader * parent, QString text, QColor color, QColor highlightColor, QFont font)
-: TextContainer(parent, text, color, highlightColor, font)
+NodeLabel::NodeLabel(
+  NodeHeader * parent,
+  QString const &text,
+  QColor color,
+  QColor highlightColor,
+  QFont font
+  )
+  : TextContainer(
+    parent,
+    text,
+    color,
+    highlightColor,
+    font
+    )
 {
 }

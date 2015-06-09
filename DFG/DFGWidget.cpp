@@ -732,7 +732,11 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
 
 void DFGWidget::onNodeToBeRenamed(FabricUI::GraphView::Node* node)
 {
-  DFGGetStringDialog dialog(this, node->title(), m_dfgConfig);
+  DFGGetStringDialog dialog(
+    this,
+    QString( node->title().c_str() ),
+    m_dfgConfig
+    );
   if(dialog.exec() != QDialog::Accepted)
     return;
 

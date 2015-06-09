@@ -111,7 +111,7 @@ void DFGNotificationRouter::onGraphSet()
   }
 }
 
-void DFGNotificationRouter::onNotification(FTL::StrRef json)
+void DFGNotificationRouter::onNotification(FTL::CStrRef json)
 {
   // // todo: remove this
   // FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
@@ -129,12 +129,16 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
   if(!graph)
     return;
 
-  FTL::StrRef name =
+  FTL::CStrRef nodeName =
     jsonObject->get( FTL_STR("name") )->cast<FTL::JSONString>()->getValue();
 
-  GraphView::Node * uiNode = graph->addNodeFromPreset( name, FTL::StrRef() );
+  GraphView::Node * uiNode = graph->addNodeFromPreset( nodeName, FTL::CStrRef() );
   if(!uiNode)
     return;
+
+  FTL::CStrRef title;
+  if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
+    onNodeTitleChanged( nodeName, title );
 
   if ( FTL::JSONValue const *metadataJSONValue = jsonObject->maybeGet( FTL_STR("metadata") ) )
   {
@@ -144,9 +148,9 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
     for ( FTL::JSONObject::const_iterator it = metadataJSONObject->begin();
       it != metadataJSONObject->end(); ++it )
     {
-      FTL::StrRef key = it->first;
-      FTL::StrRef value = it->second->cast<FTL::JSONString>()->getValue();
-      onNodeMetadataChanged(name, key, value);
+      FTL::CStrRef key = it->first;
+      FTL::CStrRef value = it->second->cast<FTL::JSONString>()->getValue();
+      onNodeMetadataChanged(nodeName, key, value);
     }
   }
 
@@ -156,7 +160,7 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
   }
 }
 
-void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePath)
+void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -172,7 +176,7 @@ void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::StrRe
   }
 }
 
-void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::StrRef nodePortPath)
+void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -192,7 +196,7 @@ void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::
     return;
 
   FabricCore::DFGExec subExec = parent.getSubExec(nodeNameStr.c_str());
-  FTL::StrRef dataType = parent.getNodePortResolvedType(nodePortPath.data());
+  FTL::CStrRef dataType = parent.getNodePortResolvedType(nodePortPath.data());
   QColor color = m_config.getColorForDataType(dataType, &subExec, portName.data());
   GraphView::PortType pType = GraphView::PortType_Input;
   if(subExec.getExecPortType(portName.data()) == FabricCore::DFGPortType_Out)
@@ -206,7 +210,7 @@ void DFGNotificationRouter::onNodePortInserted(FabricCore::DFGExec parent, FTL::
   uiNode->addPin(uiPin, false);
 }
 
-void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::StrRef nodePortPath)
+void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -235,14 +239,14 @@ void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::S
   }
 }
 
-void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::StrRef portPath)
+void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::CStrRef portPath)
 {
   if(m_controller->graph() == NULL)
     return;
 
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
 
-  FTL::StrRef dataType = exec.getExecPortResolvedType(portPath.data());
+  FTL::CStrRef dataType = exec.getExecPortResolvedType(portPath.data());
   if(dataType.empty())
     dataType = exec.getExecPortTypeSpec(portPath.data());
 
@@ -277,7 +281,7 @@ void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::St
   }
 }
 
-void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::StrRef portPath)
+void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::CStrRef portPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -312,7 +316,7 @@ void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::Str
   }
 }
 
-void DFGNotificationRouter::onPortsConnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath)
+void DFGNotificationRouter::onPortsConnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -370,7 +374,7 @@ void DFGNotificationRouter::onPortsConnected(FabricCore::DFGExec exec, FTL::StrR
   }
 }
 
-void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::StrRef srcPath, FTL::StrRef dstPath)
+void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -429,9 +433,9 @@ void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::S
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
-  FTL::StrRef nodeName,
-  FTL::StrRef key,
-  FTL::StrRef metadata
+  FTL::CStrRef nodeName,
+  FTL::CStrRef key,
+  FTL::CStrRef metadata
   )
 {
   if(m_controller->graph() == NULL)
@@ -492,20 +496,23 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
 }
 
-void DFGNotificationRouter::onNodeTitleChanged(FabricCore::DFGExec parent, FTL::StrRef nodePath, FTL::StrRef title)
+void DFGNotificationRouter::onNodeTitleChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef title
+  )
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-  GraphView::Node * uiNode = uiGraph->node(nodePath.data());
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
-  uiNode->setTitle(title.data());
+  uiNode->setTitle(title);
   uiNode->update();
 }
 
 
-void DFGNotificationRouter::onExecPortRenamed(FabricCore::DFGExec exec, FTL::StrRef oldPath, FTL::StrRef newPath)
+void DFGNotificationRouter::onExecPortRenamed(FabricCore::DFGExec exec, FTL::CStrRef oldPath, FTL::CStrRef newPath)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -522,12 +529,12 @@ void DFGNotificationRouter::onExecPortRenamed(FabricCore::DFGExec exec, FTL::Str
   uiPort->setName(newPath.data());
 }
 
-void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::StrRef oldPath, FTL::StrRef newPath)
+void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath)
 {
   // this shouldn't happen for us for now
 }
 
-void DFGNotificationRouter::onExecMetadataChanged(FabricCore::DFGExec exec, FTL::StrRef key, FTL::StrRef metadata)
+void DFGNotificationRouter::onExecMetadataChanged(FabricCore::DFGExec exec, FTL::CStrRef key, FTL::CStrRef metadata)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -554,7 +561,7 @@ void DFGNotificationRouter::onExecMetadataChanged(FabricCore::DFGExec exec, FTL:
   }
 }
 
-void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::StrRef extension, FTL::StrRef version)
+void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version)
 {
   if(m_controller->graph() == NULL)
     return;
@@ -569,22 +576,22 @@ void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::StrRef 
   }
 }
 
-void DFGNotificationRouter::onExtDepRemoved(FabricCore::DFGExec exec, FTL::StrRef extension, FTL::StrRef version)
+void DFGNotificationRouter::onExtDepRemoved(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::StrRef path, FTL::StrRef rule)
+void DFGNotificationRouter::onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::CStrRef path, FTL::CStrRef rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecCacheRuleChanged(FabricCore::DFGExec exec, FTL::StrRef rule)
+void DFGNotificationRouter::onExecCacheRuleChanged(FabricCore::DFGExec exec, FTL::CStrRef rule)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef resolvedType)
+void DFGNotificationRouter::onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -601,12 +608,12 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(FabricCore::DFGExec ex
   }
 }
 
-void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::StrRef portPath, FTL::StrRef typeSpec)
+void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef typeSpec)
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::StrRef nodePortPath, FTL::StrRef resolvedType)
+void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef nodePortPath, FTL::CStrRef resolvedType)
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
@@ -638,32 +645,32 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec ex
 }
 
 void DFGNotificationRouter::onExecPortMetadataChanged(
-  FTL::StrRef portPath,
-  FTL::StrRef key,
-  FTL::StrRef metadata)
+  FTL::CStrRef portPath,
+  FTL::CStrRef key,
+  FTL::CStrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
-  FTL::StrRef nodePortPath,
-  FTL::StrRef key,
-  FTL::StrRef metadata)
+  FTL::CStrRef nodePortPath,
+  FTL::CStrRef key,
+  FTL::CStrRef metadata)
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onExecPortTypeChanged(
-  FTL::StrRef portPath,
-  FTL::StrRef portType
+  FTL::CStrRef portPath,
+  FTL::CStrRef portType
   )
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortTypeChanged(
-  FTL::StrRef nodePortPath,
-  FTL::StrRef portType
+  FTL::CStrRef nodePortPath,
+  FTL::CStrRef portType
   )
 {
   // todo: we don't do anything here...

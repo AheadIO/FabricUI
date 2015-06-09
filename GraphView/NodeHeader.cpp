@@ -11,7 +11,10 @@
 
 using namespace FabricUI::GraphView;
 
-NodeHeader::NodeHeader(Node * parent, QString text)
+NodeHeader::NodeHeader(
+  Node * parent,
+  QString const &text
+  )
 : QGraphicsWidget(parent->mainWidget())
 {
   m_node = parent;
@@ -46,14 +49,9 @@ const Node * NodeHeader::node() const
   return m_node;
 }
 
-QString NodeHeader::title() const
+void NodeHeader::setTitle(QString const &title)
 {
-  return m_title->text();
-}
-
-void NodeHeader::setTitle(QString t)
-{
-  m_title->setText(t);
+  m_title->setText(title);
 }
 
 bool NodeHeader::highlighted() const

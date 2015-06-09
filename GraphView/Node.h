@@ -8,7 +8,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
-#include <FTL/StrRef.h>
+#include <FTL/CStrRef.h>
 
 #include "NodeRectangle.h"
 #include "NodeHeader.h"
@@ -43,8 +43,8 @@ namespace FabricUI
 
       Node(
         Graph * parent,
-        FTL::StrRef name,
-        FTL::StrRef label = FTL::StrRef(),
+        FTL::CStrRef name,
+        FTL::CStrRef label = FTL::CStrRef(),
         QColor color = QColor(),
         QColor labelColor = QColor()
         );
@@ -61,8 +61,9 @@ namespace FabricUI
         { return m_name.c_str(); }
       std::string const &nameString() const
         { return m_name; }
-      char const * title() const;
-      void setTitle(char const * t);
+      FTL::CStrRef title() const
+        { return m_labelCaption; }
+      void setTitle( FTL::CStrRef title );
       char const *preset() const
         { return m_preset.c_str(); }
       QColor color() const;

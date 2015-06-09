@@ -16,8 +16,8 @@ using namespace FabricUI::GraphView;
 
 Node::Node(
   Graph * parent,
-  FTL::StrRef name,
-  FTL::StrRef label,
+  FTL::CStrRef name,
+  FTL::CStrRef label,
   QColor color,
   QColor labelColor
   )
@@ -64,7 +64,7 @@ Node::Node(
   layout->setOrientation(Qt::Vertical);
   m_mainWidget->setLayout(layout);
 
-  m_header = new NodeHeader(this, title());
+  m_header = new NodeHeader(this, QString( label.c_str() ));
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
@@ -127,15 +127,10 @@ const NodeHeader * Node::header() const
   return m_header;
 }
 
-char const * Node::title() const
+void Node::setTitle( FTL::CStrRef title )
 {
-  return m_labelCaption.c_str();
-}
-
-void Node::setTitle(char const * t)
-{
-  m_labelCaption = t;
-  m_header->setTitle(t);
+  m_labelCaption = title;
+  m_header->setTitle( QString( title.c_str() ) );
 }
 
 QColor Node::color() const

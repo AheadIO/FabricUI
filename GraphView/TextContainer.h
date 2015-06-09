@@ -18,11 +18,18 @@ namespace FabricUI
     {
     public:
 
-      TextContainer(QGraphicsWidget * parent, QString text, QColor color, QColor hlColor, QFont font);
+      TextContainer(
+        QGraphicsWidget * parent,
+        QString const &text,
+        QColor color,
+        QColor hlColor,
+        QFont font
+        );
       virtual ~TextContainer() {}
 
-      virtual QString text() const;
-      virtual void setText(QString text);
+      virtual QString text() const
+        { return m_textItem->text(); }
+      virtual void setText(QString const &text);
       virtual QColor color() const;
       virtual QColor highlightColor() const;
       virtual void setColor(QColor color, QColor hlColor);
@@ -39,7 +46,6 @@ namespace FabricUI
 
     private:
 
-      QString m_text;
       QColor m_color;
       QFont m_font;
       QColor m_highlightColor;
