@@ -428,7 +428,7 @@ void DFGWidget::onNodeAction(QAction * action)
       }
 
       subExec.setImportPathname(filePathStr.c_str());
-      subExec.attachPreset("", subExec.getTitle());
+      subExec.attachPresetFile("", subExec.getTitle());
 
       emit newPresetSaved(filePathStr.c_str());
     }

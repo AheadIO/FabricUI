@@ -107,13 +107,7 @@ void DFGController::setRouter(NotificationRouter * router)
 
 bool DFGController::isViewingRootGraph()
 {
-  // FabricCore::DFGExec exec = getCoreDFGExec();
-  // if(!exec.isValid())
-  //   return false;
-  // return FTL::StrRef(exec.getPath()) == "";
-
-  // todo
-  return false;
+  return m_execPath.empty();
 }
 
 ASTWrapper::KLASTManager * DFGController::astManager()
