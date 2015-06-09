@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<typesystem package="FabricUI">
+ <load-typesystem name="typesystem_core.xml" generate="no"/>
+ <load-typesystem name="typesystem_gui.xml" generate="no"/>
+ <namespace-type name="FabricUI" generate="yes">
+  <namespace-type name="DFG" generate="yes">
+   <object-type name="DFGWidget" />
+  </namespace-type>
+ </namespace-type>
+</typesystem>
