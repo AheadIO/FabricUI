@@ -12,24 +12,22 @@ using namespace FabricUI::GraphView;
 
 Port::Port(
   SidePanel * parent,
-  char const *name,
+  FTL::StrRef name,
   PortType portType,
-  char const * dataType,
+  FTL::StrRef dataType,
   QColor color,
-  char const * label
+  FTL::StrRef label
   )
   : ConnectionTarget( parent )
   , m_sidePanel( parent )
   , m_name( name )
+  , m_labelCaption( !label.empty()? label: name )
 {
   // if(parent->graph()->path().length() > 0)
   //   m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;
   m_portType = portType;
   m_dataType = dataType;
   m_color = color;
-  m_labelCaption = label;
-  if(m_labelCaption.length() == 0)
-    m_labelCaption = name;
 
   init();
 }

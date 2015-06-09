@@ -49,7 +49,9 @@ namespace FabricUI
         FTL::JSONObject const *jsonObject
         ) = 0;
       virtual void onNodePortRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath) = 0;
-      virtual void onExecPortInserted(FabricCore::DFGExec exec, FTL::CStrRef portPath) = 0;
+      virtual void onExecPortInserted(
+        FTL::JSONObject const *jsonObject
+        ) = 0;
       virtual void onExecPortRemoved(FabricCore::DFGExec exec, FTL::CStrRef portPath) = 0;
       virtual void onPortsConnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath) = 0;
       virtual void onPortsDisconnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath) = 0;

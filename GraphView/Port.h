@@ -7,6 +7,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
+#include <FTL/StrRef.h>
+
 #include "PortType.h"
 #include "TextContainer.h"
 #include "PinCircle.h"
@@ -33,11 +35,11 @@ namespace FabricUI
 
       Port(
         SidePanel * parent,
-        char const *name,
+        FTL::StrRef name,
         PortType portType,
-        char const * dataType,
+        FTL::StrRef dataType,
         QColor color,
-        char const * label = ""
+        FTL::StrRef label = FTL::StrRef()
         );
       virtual ~Port() {}
 

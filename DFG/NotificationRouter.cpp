@@ -70,8 +70,7 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortInserted"))
     {
       onExecPortInserted(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") )
+        jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("execPortRemoved"))

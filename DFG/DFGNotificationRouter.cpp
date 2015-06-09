@@ -64,6 +64,15 @@ void DFGNotificationRouter::onGraphSet()
   {
     FTL::JSONObject const *rootObject = rootValue->cast<FTL::JSONObject>();
 
+    FTL::JSONArray const *portsArray =
+      rootObject->get( FTL_STR("ports") )->cast<FTL::JSONArray>();
+    for ( size_t i = 0; i < portsArray->size(); ++i )
+    {
+      FTL::JSONObject const *portObject =
+        portsArray->get( i )->cast<FTL::JSONObject>();
+      onExecPortInserted( portObject );
+    }
+
     FTL::JSONArray const *nodesArray =
       rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
     for ( size_t i = 0; i < nodesArray->size(); ++i )
@@ -72,18 +81,6 @@ void DFGNotificationRouter::onGraphSet()
         nodesArray->get( i )->cast<FTL::JSONObject>();
       onNodeInserted( nodeObject );
     }
-  // DFGWrapper::NodeList nodes = m_graph->getNodes();
-  // for(size_t i=0;i<nodes.size();i++)
-  // {
-  //   onNodeInserted(nodes[i]);
-
-  //   // all pins
-  //   DFGWrapper::NodePortList pins = nodes[i]->getNodePorts();
-  //   for(size_t j=0;j<pins.size();j++)
-  //   {
-  //     onNodePortInserted(pins[j]);
-  //   }
-  // }
 
   // DFGWrapper::ExecPortList ports = m_graph->getExecPorts();
   // for(size_t i=0;i<ports.size();i++)
@@ -248,39 +245,47 @@ void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::C
   }
 }
 
-void DFGNotificationRouter::onExecPortInserted(FabricCore::DFGExec exec, FTL::CStrRef portPath)
+void DFGNotificationRouter::onExecPortInserted(
+  FTL::JSONObject const *jsonObject
+  )
 {
-  if(m_controller->graph() == NULL)
+  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
     return;
 
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("name") );
 
-  FTL::CStrRef dataType = exec.getExecPortResolvedType(portPath.data());
-  if(dataType.empty())
-    dataType = exec.getExecPortTypeSpec(portPath.data());
+  FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
-  QColor color = m_config.getColorForDataType(dataType, &exec, portPath.data());
+  FabricCore::DFGExec exec = getCoreDFGExec();
+  QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
 
   GraphView::Port * uiOutPort = NULL;
   GraphView::Port * uiInPort = NULL;
 
-  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_In)
+  FTL::CStrRef execPortType =
+    jsonObject->getStringOrEmpty( FTL_STR("execPortType") );
+  if(execPortType != FTL_STR("In"))
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(!uiPanel)
       return;
 
-    uiInPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Input, dataType.data(), color, portPath.data());
+    uiInPort = new GraphView::Port(
+      uiPanel, portName, GraphView::PortType_Input, dataType, color, portName
+      );
     uiPanel->addPort(uiInPort);
     m_lastPortInserted = uiInPort;
   }
-  if(exec.getExecPortType(portPath.data()) != FabricCore::DFGPortType_Out)
+  if(execPortType != FTL_STR("Out"))
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(!uiPanel)
       return;
 
-    uiOutPort = new GraphView::Port(uiPanel, portPath.data(), GraphView::PortType_Output, dataType.data(), color, portPath.data());
+    uiOutPort = new GraphView::Port(
+      uiPanel, portName, GraphView::PortType_Output, dataType, color, portName
+      );
     uiPanel->addPort(uiOutPort);
     m_lastPortInserted = uiOutPort;
   }
