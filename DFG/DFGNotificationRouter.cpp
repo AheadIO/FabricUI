@@ -472,12 +472,16 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   if(key == FTL_STR("uiGraphPos"))
   {
     FTL::JSONStrWithLoc jsonStrWithLoc( value );
-    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
       );
-    float x = jsonObject->getFloat64( FTL_STR("x") );
-    float y = jsonObject->getFloat64( FTL_STR("y") );
-    uiNode->setTopLeftGraphPos(QPointF(x, y), false);
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float x = jsonObject->getFloat64( FTL_STR("x") );
+      float y = jsonObject->getFloat64( FTL_STR("y") );
+      uiNode->setTopLeftGraphPos(QPointF(x, y), false);
+    }
   }
   else if(key == FTL_STR("uiCollapsedState"))
   {
@@ -598,22 +602,30 @@ void DFGNotificationRouter::onExecMetadataChanged(
   if(key == "uiGraphPan")
   {
     FTL::JSONStrWithLoc jsonStrWithLoc( value );
-    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
       );
-    float x = jsonObject->getFloat64( FTL_STR("x") );
-    float y = jsonObject->getFloat64( FTL_STR("y") );
-    uiGraph->mainPanel()->setCanvasPan(QPointF(x, y), false);
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float x = jsonObject->getFloat64( FTL_STR("x") );
+      float y = jsonObject->getFloat64( FTL_STR("y") );
+      uiGraph->mainPanel()->setCanvasPan(QPointF(x, y), false);
+    }
   }
   else if(key == "uiGraphZoom")
   {
     FTL::JSONStrWithLoc jsonStrWithLoc( value );
-    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
       );
-    float value = jsonObject->getFloat64( FTL_STR("value") );
-    // float y = jsonObject->getFloat64( FTL_STR("y") );
-    uiGraph->mainPanel()->setCanvasZoom(value, false);
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float value = jsonObject->getFloat64( FTL_STR("value") );
+      // float y = jsonObject->getFloat64( FTL_STR("y") );
+      uiGraph->mainPanel()->setCanvasZoom(value, false);
+    }
   }
 }
 
