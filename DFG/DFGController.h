@@ -54,6 +54,7 @@ namespace FabricUI
       FabricCore::DFGExec getCoreDFGExec();
 
       void setHost( FabricCore::DFGHost const &coreDFGHost );
+      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
       void setClient( FabricCore::Client const &coreClient );
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);

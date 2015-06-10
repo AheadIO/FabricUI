@@ -122,6 +122,7 @@ void DFGWidget::setGraph(
           )
         );
     m_uiController->setHost(m_coreDFGHost);
+    m_uiController->setBinding(m_coreDFGBinding);
     m_uiController->setRouter(m_router);
     m_uiHeader->setCaption(m_coreDFGExec.getTitle());
   

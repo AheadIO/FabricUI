@@ -70,6 +70,11 @@ void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
   m_coreDFGHost = coreDFGHost;
 }
 
+void DFGController::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
+{
+  m_coreDFGBinding = coreDFGBinding;
+}
+
 DFGNotificationRouter * DFGController::getRouter()
 {
   return m_router;
