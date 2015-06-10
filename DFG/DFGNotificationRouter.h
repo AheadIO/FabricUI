@@ -58,17 +58,27 @@ namespace FabricUI
         FTL::CStrRef portName
         );
       virtual void onExecPortInserted(
+        FTL::CStrRef portName,
         FTL::JSONObject const *jsonObject
         );
-      virtual void onExecPortRemoved(FabricCore::DFGExec exec, FTL::CStrRef portPath);
+      virtual void onExecPortRemoved(
+        FTL::CStrRef portName
+        );
       virtual void onPortsConnected(
         FTL::CStrRef srcPath,
         FTL::CStrRef dstPath
         );
-      virtual void onPortsDisconnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath);
+      virtual void onPortsDisconnected(
+        FTL::CStrRef srcPath,
+        FTL::CStrRef dstPath
+        );
       virtual void onNodeMetadataChanged(FTL::CStrRef nodePath, FTL::CStrRef key, FTL::CStrRef metadata);
       virtual void onNodeTitleChanged(FTL::CStrRef nodePath, FTL::CStrRef title);
-      virtual void onExecPortRenamed(FabricCore::DFGExec exec, FTL::CStrRef oldPath, FTL::CStrRef newPath);
+      virtual void onExecPortRenamed(
+        FTL::CStrRef oldPortName,
+        FTL::CStrRef newPortName,
+        FTL::JSONObject const *execPortJSONObject
+        );
       virtual void onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath);
       virtual void onExecMetadataChanged(FabricCore::DFGExec exec, FTL::CStrRef key, FTL::CStrRef metadata);
       virtual void onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version);

@@ -160,7 +160,12 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
         if(m_controller->removePort(name))
         {
-          m_controller->addPort(m_execPath.c_str(), name, infos[i].portType, infos[i].dataType.c_str(), false); 
+          m_controller->addPort(
+            name,
+            infos[i].portType,
+            infos[i].dataType.c_str(),
+            false
+            ); 
           modified = true;
         }
       }
@@ -219,11 +224,13 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
 
-    char const * path = m_execPath.c_str();
-    char const * name = infos[indexToAdd].portName.c_str();
-    char const * dataType = infos[indexToAdd].dataType.c_str();
-
-    m_controller->addPort(path, name, infos[indexToAdd].portType, dataType, false);
+    m_controller->addPort(
+      infos[indexToAdd].portName,
+      infos[indexToAdd].portType,
+      infos[indexToAdd].dataType,
+      false
+      );
+    
     modified = true;
   }
 

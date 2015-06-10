@@ -7,6 +7,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
+#include <FTL/CStrRef.h>
+
 #include "PortType.h"
 #include "PinLabel.h"
 #include "PinCircle.h"
@@ -38,11 +40,12 @@ namespace FabricUI
         { return m_node; }
       Graph * graph();
       const Graph * graph() const;
-      char const *name() const
-        { return m_name.c_str(); }
-      std::string const &nameString() const
+
+      FTL::CStrRef name() const
         { return m_name; }
-      std::string pathString() const;
+
+      std::string path() const;
+
       virtual char const * label() const;
       virtual PortType portType() const;
       QColor color() const;

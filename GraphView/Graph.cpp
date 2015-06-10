@@ -417,7 +417,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
         // filter out IO ports
         if(m_connections[i]->src()->targetType() == TargetType_Port && m_connections[i]->dst()->targetType() == TargetType_Port)
         {
-          if(((Port*)m_connections[i]->src())->path() == ((Port*)m_connections[i]->dst())->path())
+          if(((Port*)m_connections[i]->src())->name() == ((Port*)m_connections[i]->dst())->name())
             continue;
         }
 

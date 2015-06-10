@@ -71,14 +71,14 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortInserted"))
     {
       onExecPortInserted(
+        jsonObject->getString( FTL_STR("portName") ),
         jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("execPortRemoved"))
     {
       onExecPortRemoved(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") )
+        jsonObject->getString( FTL_STR("portName") )
         );
     }
     else if(descStr == FTL_STR("portsConnected"))
@@ -91,7 +91,6 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("portsDisconnected"))
     {
       onPortsDisconnected(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("srcPath") ),
         jsonObject->getString( FTL_STR("dstPath") )
         );
@@ -114,9 +113,9 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortRenamed"))
     {
       onExecPortRenamed(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("oldPath") ),
-        jsonObject->getString( FTL_STR("newPath") )
+        jsonObject->getString( FTL_STR("oldPortName") ),
+        jsonObject->getString( FTL_STR("newPortName") ),
+        jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("nodePortRenamed"))

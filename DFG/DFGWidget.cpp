@@ -502,7 +502,7 @@ void DFGWidget::onExecPortAction(QAction * action)
   if(m_contextPort == NULL)
     return;
 
-    char const * portName = m_contextPort->name();
+  char const * portName = m_contextPort->name().c_str();
   if(action->text() == "Delete")
   {
     m_uiController->removePort(portName);
@@ -675,7 +675,12 @@ void DFGWidget::onSidePanelAction(QAction * action)
       else if(dialog.portType() == "IO")
         portType = GraphView::PortType_IO;
 
-      std::string portName = m_uiController->addPort("", title.toUtf8().constData(), portType, dataType.toUtf8().constData());
+      std::string portName =
+        m_uiController->addPort(
+          title.toUtf8().constData(),
+          portType, 
+          dataType.toUtf8().constData()
+          );
 
       try
       {

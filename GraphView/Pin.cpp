@@ -77,11 +77,12 @@ const Graph * Pin::graph() const
   return node()->graph();
 }
 
-std::string Pin::pathString() const
+std::string Pin::path() const
 {
-  return node()->name()
-    + std::string( graph()->config().pathSep )
-    + m_name;
+  std::string result = node()->name();
+  result += graph()->config().pathSep;
+  result += m_name;
+  return result;
 }
 
 char const * Pin::label() const
@@ -187,7 +188,7 @@ bool Pin::canConnectTo(
         || otherPin->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        pathString().c_str(), otherPin->pathString().c_str(), failureReason
+        path().c_str(), otherPin->path().c_str(), failureReason
         );
     }
     case TargetType_Port:
@@ -197,7 +198,7 @@ bool Pin::canConnectTo(
         || otherPort->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        pathString().c_str(), otherPort->path(), failureReason
+        path().c_str(), otherPort->path().c_str(), failureReason
         );
     }
     case TargetType_ProxyPort:

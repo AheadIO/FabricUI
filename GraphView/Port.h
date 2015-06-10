@@ -7,7 +7,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
-#include <FTL/StrRef.h>
+#include <FTL/CStrRef.h>
 
 #include "PortType.h"
 #include "TextContainer.h"
@@ -52,11 +52,13 @@ namespace FabricUI
       PinCircle * circle();
       const PinCircle * circle() const;
 
-      char const *name() const
-        { return m_name.c_str(); }
-      void setName( char const *name );
-      char const *path() const
+      FTL::CStrRef name() const
+        { return m_name; }
+      void setName( FTL::CStrRef name );
+
+      FTL::CStrRef path() const
         { return name(); }
+
       virtual char const * label() const;
       void setLabel(char const * n);
       virtual QColor color() const;

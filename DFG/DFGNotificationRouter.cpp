@@ -70,7 +70,10 @@ void DFGNotificationRouter::onGraphSet()
     {
       FTL::JSONObject const *portObject =
         portsArray->get( i )->cast<FTL::JSONObject>();
-      onExecPortInserted( portObject );
+      onExecPortInserted(
+        portObject->getString( FTL_STR("name") ),
+        portObject
+        );
     }
 
     FTL::JSONArray const *nodesArray =
@@ -254,14 +257,13 @@ void DFGNotificationRouter::onNodePortRemoved(
 }
 
 void DFGNotificationRouter::onExecPortInserted(
+  FTL::CStrRef portName,
   FTL::JSONObject const *jsonObject
   )
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-
-  FTL::CStrRef portName = jsonObject->getString( FTL_STR("name") );
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
@@ -303,12 +305,13 @@ void DFGNotificationRouter::onExecPortInserted(
   }
 }
 
-void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::CStrRef portPath)
+void DFGNotificationRouter::onExecPortRemoved(
+  FTL::CStrRef portName
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
- 
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
+    return;
 
   GraphView::SidePanel * uiOutPanel = uiGraph->sidePanel(GraphView::PortType_Output);
   if(!uiOutPanel)
@@ -316,8 +319,8 @@ void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::CSt
   GraphView::SidePanel * uiInPanel = uiGraph->sidePanel(GraphView::PortType_Input);
   if(!uiInPanel)
     return;
-  GraphView::Port * uiOutPort = uiOutPanel->port(portPath.data());
-  GraphView::Port * uiInPort = uiInPanel->port(portPath.data());
+  GraphView::Port * uiOutPort = uiOutPanel->port(portName);
+  GraphView::Port * uiInPort = uiInPanel->port(portName);
 
   if(uiOutPort && uiInPort)
   {
@@ -391,51 +394,46 @@ void DFGNotificationRouter::onPortsConnected(
   }
 }
 
-void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath)
+void DFGNotificationRouter::onPortsDisconnected(
+  FTL::CStrRef srcPath,
+  FTL::CStrRef dstPath
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
+    return;
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
 
-  if(srcPath.contains('.'))
+  std::pair<FTL::StrRef, FTL::CStrRef> srcSplit = srcPath.split('.');
+  if(!srcSplit.second.empty())
   {
-    int delimPos = srcPath.find('.') - srcPath.data();
-    FTL::StrRef nodeName = srcPath.substr(0, delimPos);
-    FTL::StrRef portName = srcPath.substr(delimPos+1);
-    std::string nodeNameStr(nodeName);
-
-    GraphView::Node * uiSrcNode = uiGraph->node(nodeNameStr.c_str());
+    GraphView::Node * uiSrcNode = uiGraph->node(srcSplit.first);
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(portName.data());
+    uiSrcTarget = uiSrcNode->pin(srcSplit.second);
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(srcPath.data());
+      uiSrcTarget = uiPanel->port(srcSplit.first);
   }
 
-  if(dstPath.contains('.'))
+  std::pair<FTL::StrRef, FTL::CStrRef> dstSplit = dstPath.split('.');
+  if(!dstSplit.second.empty())
   {
-    int delimPos = dstPath.find('.') - dstPath.data();
-    FTL::StrRef nodeName = dstPath.substr(0, delimPos);
-    FTL::StrRef portName = dstPath.substr(delimPos+1);
-    std::string nodeNameStr(nodeName);
-
-    GraphView::Node * uiDstNode = uiGraph->node(nodeNameStr.c_str());
+    GraphView::Node * uiDstNode = uiGraph->node(dstSplit.first);
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(portName.data());
+    uiDstTarget = uiDstNode->pin(dstSplit.second);
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dstPath.data());
+      uiDstTarget = uiPanel->port(dstSplit.first);
   }
 
   if(!uiSrcTarget || !uiDstTarget)
@@ -452,7 +450,7 @@ void DFGNotificationRouter::onPortsDisconnected(FabricCore::DFGExec exec, FTL::C
 void DFGNotificationRouter::onNodeMetadataChanged(
   FTL::CStrRef nodeName,
   FTL::CStrRef key,
-  FTL::CStrRef metadata
+  FTL::CStrRef value
   )
 {
   if(m_controller->graph() == NULL)
@@ -466,7 +464,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
 
   if(key == FTL_STR("uiGraphPos"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
     const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
     const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
     float x = getFloatFromVariant(xVar);
@@ -475,13 +473,13 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
   else if(key == FTL_STR("uiCollapsedState"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
     GraphView::Node::CollapseState state = (GraphView::Node::CollapseState)metadataVar.getSInt32();
     uiNode->setCollapsedState(state);
   }
   else if(key == FTL_STR("uiNodeColor"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
     const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
     const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
@@ -495,7 +493,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
   else if(key == FTL_STR("uiHeaderColor"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
+    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
     const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
     const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
     const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
@@ -508,7 +506,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
   else if(key == FTL_STR("uiTooltip"))
   {
-    QString tooltip = metadata.data();
+    QString tooltip = value.c_str();
     uiNode->header()->setToolTip(tooltip.trimmed());
   }
 }
@@ -529,21 +527,44 @@ void DFGNotificationRouter::onNodeTitleChanged(
 }
 
 
-void DFGNotificationRouter::onExecPortRenamed(FabricCore::DFGExec exec, FTL::CStrRef oldPath, FTL::CStrRef newPath)
+void DFGNotificationRouter::onExecPortRenamed(
+  FTL::CStrRef oldPortName,
+  FTL::CStrRef newPortName,
+  FTL::JSONObject const *execPortJSONObject
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
-
-  FabricCore::DFGPortType portType = exec.getExecPortType(newPath.data());
-  GraphView::SidePanel * uiPanel = uiGraph->sidePanel(portType == FabricCore::DFGPortType_In ? GraphView::PortType_Input : GraphView::PortType_Output);
-  if(!uiPanel)
+  if(!uiGraph)
     return;
 
-  GraphView::Port * uiPort = uiPanel->port(oldPath.data());
-  if(!uiPort)
-    return;
-  uiPort->setName(newPath.data());
+  FTL::CStrRef execPortTypeStr =
+    execPortJSONObject->getString( FTL_STR("execPortType") );
+
+  if ( execPortTypeStr != FTL_STR("Out") )
+  {
+    GraphView::SidePanel * uiPanel =
+      uiGraph->sidePanel(GraphView::PortType_Input);
+    if(!uiPanel)
+      return;
+
+    GraphView::Port * uiPort = uiPanel->port(oldPortName);
+    if(!uiPort)
+      return;
+    uiPort->setName(newPortName);
+  }
+
+  if ( execPortTypeStr != FTL_STR("In") )
+  {
+    GraphView::SidePanel * uiPanel =
+      uiGraph->sidePanel(GraphView::PortType_Output);
+    if(!uiPanel)
+      return;
+
+    GraphView::Port * uiPort = uiPanel->port(oldPortName);
+    if(!uiPort)
+      return;
+    uiPort->setName(newPortName);
+  }
 }
 
 void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath)

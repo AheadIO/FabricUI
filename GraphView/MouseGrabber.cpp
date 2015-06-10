@@ -218,7 +218,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
           // filter out IO ports
           if(connections[i]->src()->targetType() == TargetType_Port && connections[i]->dst()->targetType() == TargetType_Port)
           {
-            if(((Port*)connections[i]->src())->path() == ((Port*)connections[i]->dst())->path())
+            if(((Port*)connections[i]->src())->name() == ((Port*)connections[i]->dst())->name())
               continue;
           }
 

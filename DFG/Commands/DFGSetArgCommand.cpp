@@ -8,19 +8,28 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGSetArgCommand::DFGSetArgCommand(DFGController * controller, char const * argName, char const * dataType, char const * json)
-: DFGCommand(controller)
+DFGSetArgCommand::DFGSetArgCommand(
+  DFGController * controller,
+  FTL::StrRef argName,
+  FTL::StrRef dataType,
+  FTL::StrRef json
+  )
+  : DFGCommand(controller)
+  , m_argName( argName )
+  , m_dataType( dataType )
+  , m_json( json )
 {
-  m_argName = argName;
-  m_dataType = dataType;
-  m_json = json;
 }
 
-DFGSetArgCommand::DFGSetArgCommand(DFGController * controller, char const * argName, FabricCore::RTVal value)
-: DFGCommand(controller)
+DFGSetArgCommand::DFGSetArgCommand(
+  DFGController * controller,
+  FTL::StrRef argName,
+  FabricCore::RTVal value
+  )
+  : DFGCommand(controller)
+  , m_argName( argName )
+  , m_value( value )
 {
-  m_argName = argName;
-  m_value = value;
 }
 
 bool DFGSetArgCommand::invoke()

@@ -17,13 +17,17 @@ namespace FabricUI
     {
     public:
 
-      DFGAddPortCommand(DFGController * controller, char const * execPath, char const * name, GraphView::PortType pType, char const * dataType);
+      DFGAddPortCommand(
+        DFGController * controller,
+        FTL::StrRef name,
+        GraphView::PortType pType,
+        FTL::StrRef dataType
+        );
 
       virtual const char * getName() const { return "dfgAddPort"; }
       virtual const char * getShortDesc() const { return "Adds a port."; }
       virtual const char * getFullDesc() const { return "Adds a port on a graph as an external port."; }
 
-      const char * getExecPath() const;
       const char * getPortName() const;
       GraphView::PortType getPortType() const;
       const char * getDataType() const;
@@ -35,7 +39,6 @@ namespace FabricUI
 
     private:
 
-      std::string m_execPath;
       std::string m_portTitle;
       std::string m_portPath;
       GraphView::PortType m_portType;

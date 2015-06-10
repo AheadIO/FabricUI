@@ -95,7 +95,7 @@ const PinCircle * Port::circle() const
   return m_circle;
 }
 
-void Port::setName( char const *name )
+void Port::setName( FTL::CStrRef name )
 {
   if(m_name == m_labelCaption)
   {
@@ -175,8 +175,8 @@ bool Port::canConnectTo(
         || otherPin->portType() == PortType_Output )
         return false;
       return m_sidePanel->graph()->controller()->canConnectTo(
-        path(),
-        otherPin->pathString().c_str(),
+        path().c_str(),
+        otherPin->path().c_str(),
         failureReason
         );
     }
@@ -190,8 +190,8 @@ bool Port::canConnectTo(
       if(path() == otherPort->path())
         return false;
       return m_sidePanel->graph()->controller()->canConnectTo(
-        path(),
-        otherPort->path(),
+        path().c_str(),
+        otherPort->path().c_str(),
         failureReason
         );
     }

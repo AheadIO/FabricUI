@@ -264,10 +264,9 @@ bool DFGController::removePin(GraphView::Pin * pin)
 }
 
 std::string DFGController::addPort(
-  char const * path,
-  char const * name,
+  FTL::StrRef name,
   FabricCore::DFGPortType pType,
-  char const * dataType,
+  FTL::StrRef dataType,
   bool setArgValue
   )
 {
@@ -276,21 +275,21 @@ std::string DFGController::addPort(
     portType = GraphView::PortType_Output;
   else if(pType == FabricCore::DFGPortType_IO)
     portType = GraphView::PortType_IO;
-  return addPort(path, name, portType, dataType, setArgValue);
+  return addPort(name, portType, dataType, setArgValue);
 }
 
 std::string DFGController::addPort(
-  char const * path,
-  char const * name,
+  FTL::StrRef name,
   GraphView::PortType pType,
-  char const * dataType,
+  FTL::StrRef dataType,
   bool setArgValue
   )
 {
   std::string result;
   try
   {
-    DFGAddPortCommand * command = new DFGAddPortCommand(this, path, name, pType, dataType);
+    DFGAddPortCommand * command =
+      new DFGAddPortCommand(this, name, pType, dataType);
     if(!addCommand(command))
       delete(command);
     else
@@ -301,7 +300,8 @@ std::string DFGController::addPort(
     {
       if(dataType[0] != '$')
       {
-        DFGSetArgCommand * argCommand = new DFGSetArgCommand(this, command->getPortPath(), dataType);
+        DFGSetArgCommand * argCommand =
+          new DFGSetArgCommand(this, command->getPortPath(), dataType);
         if(!addCommand(argCommand))
           delete(argCommand);
       }        
@@ -344,17 +344,18 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   try
   {
     beginInteraction();
-    std::string portPath = addPort("", pin->name(), pType, pin->dataType());
+    std::string portPath = addPort(pin->name(), pType, pin->dataType());
 
     // copy the default value into the port
     FabricCore::DFGExec exec = getCoreDFGExec();
     FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name());
     if(subExec.isValid() && portPath.length() > 0)
     {
-      if(subExec.getExecPortType(pin->name()) == FabricCore::DFGPortType_In)
+      if(subExec.getExecPortType(pin->name().c_str()) == FabricCore::DFGPortType_In)
       {
         // if this is the graph on the binding, we need to set the arg value
-        FTL::StrRef resolvedType = subExec.getExecPortResolvedType(pin->name());
+        FTL::CStrRef resolvedType =
+          subExec.getExecPortResolvedType(pin->name().c_str());
         if(!resolvedType.empty())
         {
           if(resolvedType == "Integer")
@@ -370,8 +371,8 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
 
           FabricCore::RTVal defaultValue =
           exec.getInstPortResolvedDefaultValue(
-            pin->pathString().c_str(),
-            resolvedType.data()
+            pin->path().c_str(),
+            resolvedType.c_str()
             );
           if(defaultValue.isValid())
           {
@@ -383,7 +384,8 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
         }
 
         // copy all of the metadata
-        const char * uiRange = subExec.getExecPortMetadata(pin->name(), "uiRange");
+        const char * uiRange =
+          subExec.getExecPortMetadata(pin->name().c_str(), "uiRange");
         if(uiRange)
         {
           if(strlen(uiRange) > 0)
@@ -391,7 +393,8 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             exec.setExecPortMetadata(portPath.c_str(), "uiRange", uiRange, false);
           }
         }
-        const char * uiCombo = subExec.getExecPortMetadata(pin->name(), "uiCombo");
+        const char * uiCombo =
+          subExec.getExecPortMetadata(pin->name().c_str(), "uiCombo");
         if(uiCombo)
         {
           if(strlen(uiCombo) > 0)
@@ -399,7 +402,8 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             exec.setExecPortMetadata(portPath.c_str(), "uiCombo", uiCombo, false);
           }
         }
-        const char * uiHidden = subExec.getExecPortMetadata(pin->name(), "uiHidden");
+        const char * uiHidden =
+          subExec.getExecPortMetadata(pin->name().c_str(), "uiHidden");
         if(uiHidden)
         {
           if(strlen(uiHidden) > 0)
@@ -427,7 +431,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             break;
           }
         }
-        addConnection(portPath.c_str(), pin->pathString().c_str());
+        addConnection(portPath.c_str(), pin->path().c_str());
       }
       else if(pType == GraphView::PortType_Input)
       {
@@ -446,7 +450,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             }
           }
         }
-        addConnection(pin->pathString().c_str(), portPath.c_str());
+        addConnection(pin->path().c_str(), portPath.c_str());
       }
     }
     endInteraction();
@@ -531,12 +535,12 @@ bool DFGController::addConnection(GraphView::ConnectionTarget * src, GraphView::
 {
   std::string srcPath;
   if(src->targetType() == GraphView::TargetType_Pin)
-    srcPath = ((GraphView::Pin*)src)->pathString();
+    srcPath = ((GraphView::Pin*)src)->path();
   else if(src->targetType() == GraphView::TargetType_Port)
     srcPath = ((GraphView::Port*)src)->path();
   std::string dstPath;
   if(dst->targetType() == GraphView::TargetType_Pin)
-    dstPath = ((GraphView::Pin*)dst)->pathString();
+    dstPath = ((GraphView::Pin*)dst)->path();
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
   return addConnection(srcPath.c_str(), dstPath.c_str());
@@ -571,12 +575,12 @@ bool DFGController::removeConnection(GraphView::ConnectionTarget * src, GraphVie
 {
   std::string srcPath;
   if(src->targetType() == GraphView::TargetType_Pin)
-    srcPath = ((GraphView::Pin*)src)->pathString();
+    srcPath = ((GraphView::Pin*)src)->path();
   else if(src->targetType() == GraphView::TargetType_Port)
     srcPath = ((GraphView::Port*)src)->path();
   std::string dstPath;
   if(dst->targetType() == GraphView::TargetType_Pin)
-    dstPath = ((GraphView::Pin*)dst)->pathString();
+    dstPath = ((GraphView::Pin*)dst)->path();
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
   return removeConnection(srcPath.c_str(), dstPath.c_str());
