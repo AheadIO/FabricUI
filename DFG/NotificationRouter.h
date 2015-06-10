@@ -79,7 +79,10 @@ namespace FabricUI
         FTL::JSONObject const *execPortJSONObject
         ) = 0;
       virtual void onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath) = 0;
-      virtual void onExecMetadataChanged(FabricCore::DFGExec exec, FTL::CStrRef key, FTL::CStrRef metadata) = 0;
+      virtual void onExecMetadataChanged(
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        ) = 0;
       virtual void onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version) = 0;
       virtual void onExtDepRemoved(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version) = 0;
       virtual void onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::CStrRef path, FTL::CStrRef rule) = 0;

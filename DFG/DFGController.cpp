@@ -298,7 +298,7 @@ std::string DFGController::addPort(
     // if this port is on the binding graph
     if(isViewingRootGraph() && setArgValue)
     {
-      if(dataType[0] != '$')
+      if(!dataType.empty() && dataType[0] != '$')
       {
         DFGSetArgCommand * argCommand =
           new DFGSetArgCommand(this, command->getPortPath(), dataType);

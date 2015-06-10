@@ -129,7 +129,6 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execMetadataChanged"))
     {
       onExecMetadataChanged(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );

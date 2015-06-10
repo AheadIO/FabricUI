@@ -104,13 +104,20 @@ void DFGNotificationRouter::onGraphSet()
       }
     }
 
-  // // update the graph's pan and zoom
-  // std::string metaData = m_graph->getMetadata("uiGraphPan");
-  // if(metaData.length())
-  //   onExecMetadataChanged(m_graph, "uiGraphPan", metaData.c_str());
-  // metaData = m_graph->getMetadata("uiGraphZoom");
-  // if(metaData.length())
-  //   onExecMetadataChanged(m_graph, "uiGraphZoom", metaData.c_str());
+    FTL::JSONValue const *metadatasValue =
+      rootObject->maybeGet( FTL_STR("metadata") );
+    if ( metadatasValue )
+    {
+      FTL::JSONObject const *metadatasObject =
+        metadatasValue->cast<FTL::JSONObject>();
+      for ( FTL::JSONObject::const_iterator it = metadatasObject->begin();
+        it != metadatasObject->end(); ++it )
+      {
+        FTL::CStrRef key = it->first;
+        FTL::CStrRef value = it->second->getStringValue();
+        onExecMetadataChanged( key, value );
+      }
+    }
   }
   catch ( FTL::JSONException je )
   {
@@ -572,29 +579,35 @@ void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::C
   // this shouldn't happen for us for now
 }
 
-void DFGNotificationRouter::onExecMetadataChanged(FabricCore::DFGExec exec, FTL::CStrRef key, FTL::CStrRef metadata)
+void DFGNotificationRouter::onExecMetadataChanged(
+  FTL::CStrRef key,
+  FTL::CStrRef value
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
+    return;
 
   // printf("'%s' metadata changed for '%s'\n", key, exec->getExecPath());
 
   if(key == "uiGraphPan")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
-    const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
-    const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
-    float x = getFloatFromVariant(xVar);
-    float y = getFloatFromVariant(yVar);
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    float x = jsonObject->getFloat64( FTL_STR("x") );
+    float y = jsonObject->getFloat64( FTL_STR("y") );
     uiGraph->mainPanel()->setCanvasPan(QPointF(x, y), false);
   }
   else if(key == "uiGraphZoom")
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(metadata.data());
-    const FabricCore::Variant * valueVar = metadataVar.getDictValue("value");
-    const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
-    float value = getFloatFromVariant(valueVar);
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    float value = jsonObject->getFloat64( FTL_STR("value") );
+    // float y = jsonObject->getFloat64( FTL_STR("y") );
     uiGraph->mainPanel()->setCanvasZoom(value, false);
   }
 }
