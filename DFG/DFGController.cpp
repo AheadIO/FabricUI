@@ -60,6 +60,10 @@ DFGController::DFGController(
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
 }
 
+DFGController::~DFGController()
+{
+}
+
 void DFGController::setClient( FabricCore::Client const &coreClient )
 {
   m_coreClient = coreClient;
@@ -1410,7 +1414,7 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char con
 
 void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
 {
-  printf("bindingNotif = %s\n", jsonStr.c_str());
+  // printf("bindingNotif = %s\n", jsonStr.c_str());
 
   try
   {

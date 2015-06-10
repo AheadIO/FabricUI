@@ -44,6 +44,7 @@ namespace FabricUI
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
         );
+      ~DFGController();
 
       FabricCore::Client const &getClient()
         { return m_coreClient; }
