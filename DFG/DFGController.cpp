@@ -19,7 +19,6 @@
 #include "Commands/DFGRenameNodeCommand.h"
 #include "Commands/DFGAddConnectionCommand.h"
 #include "Commands/DFGRemoveConnectionCommand.h"
-#include "Commands/DFGRemoveAllConnectionsCommand.h"
 #include "Commands/DFGAddPortCommand.h"
 #include "Commands/DFGRemovePortCommand.h"
 #include "Commands/DFGRenamePortCommand.h"
@@ -509,16 +508,6 @@ bool DFGController::addConnection(char const * srcPath, char const * dstPath)
   beginInteraction();
   try
   {
-    {
-      Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
-        dstPath
-      );
-      if(!addCommand(command))
-      {
-        delete(command);
-        return false;
-      }
-    }
     Commands::Command * command = new DFGAddConnectionCommand(this, 
       srcPath, 
       dstPath
@@ -595,28 +584,6 @@ bool DFGController::removeConnection(GraphView::ConnectionTarget * src, GraphVie
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
   return removeConnection(srcPath.c_str(), dstPath.c_str());
-}
-
-bool DFGController::removeAllConnections(const char * path)
-{
-  try
-  {
-    Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, path);
-
-    if(addCommand(command))
-    {
-      emit argsChanged();
-      emit structureChanged();
-      emit recompiled();
-      return true;
-    }
-    delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
 }
 
 bool DFGController::addExtensionDependency(char const * extension, char const * execPath, std::string & errorMessage)
