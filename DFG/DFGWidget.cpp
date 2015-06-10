@@ -41,7 +41,7 @@ DFGWidget::DFGWidget(
   m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", dfgConfig.graphConfig);
   m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, m_uiFactory, NULL);
   m_uiController = new DFGController(NULL, m_coreClient, m_manager, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, stack, overTakeBindingNotifications);
-  m_klEditor = new DFGKLEditorWidget(this, m_uiController, m_manager, m_dfgConfig);
+  m_klEditor = new DFGKLEditorWidget(this, m_uiController.get(), m_manager, m_dfgConfig);
   m_klEditor->hide();
   m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
   m_tabSearchWidget->hide();
@@ -64,14 +64,13 @@ DFGWidget::DFGWidget(
   QObject::connect(m_uiHeader, SIGNAL(goUpPressed()), this, SLOT(onGoUpPressed()));
 
   QObject::connect(
-    m_uiController, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
+    m_uiController.get(), SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
     this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
   );  
 }
 
 DFGWidget::~DFGWidget()
 {
-
 }
 
 void DFGWidget::setGraph(
@@ -98,7 +97,7 @@ void DFGWidget::setGraph(
   if(m_coreDFGExec.isValid())
   {
     m_uiGraph = new DFGGraph(NULL, m_dfgConfig.graphConfig, m_uiFactory);
-    m_uiGraph->setController(m_uiController);
+    m_uiGraph->setController(m_uiController.get());
     m_uiController->setGraph(m_uiGraph);
     m_uiGraphViewWidget->setGraph(m_uiGraph);
 
@@ -150,7 +149,7 @@ DFGGraph * DFGWidget::getUIGraph()
 
 DFGController * DFGWidget::getUIController()
 {
-  return m_uiController;
+  return m_uiController.get();
 }
 
 DFGTabSearchWidget * DFGWidget::getTabSearchWidget()

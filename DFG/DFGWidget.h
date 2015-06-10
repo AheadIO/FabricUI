@@ -16,6 +16,8 @@
 #include "DFGKLEditorWidget.h"
 #include "DFGTabSearchWidget.h"
 
+#include <FTL/OwnedPtr.h>
+
 namespace FabricUI
 {
   namespace DFG
@@ -87,7 +89,7 @@ namespace FabricUI
       DFGGraphViewWidget * m_uiGraphViewWidget;
       GraphView::GraphHeaderWidget * m_uiHeader;
       DFGGraph * m_uiGraph;
-      DFGController * m_uiController;
+      FTL::OwnedPtr<DFGController> m_uiController;
       DFGFactory * m_uiFactory;
       DFGNotificationRouter * m_router;
       DFGKLEditorWidget * m_klEditor;
