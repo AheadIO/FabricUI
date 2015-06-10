@@ -18,6 +18,8 @@ namespace FabricUI
 
       DFGCommand(DFGController * controller);
 
+      virtual const char * DFGCommand::getExecPath();
+
     protected:
       
       virtual bool undo();

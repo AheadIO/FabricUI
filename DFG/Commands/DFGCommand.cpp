@@ -11,6 +11,12 @@ DFGCommand::DFGCommand(DFGController * controller)
 {
 }
 
+const char * DFGCommand::getExecPath()
+{
+  DFGController * ctrl = (DFGController*)controller();
+  return ctrl->getExecPath();
+}
+
 bool DFGCommand::undo()
 {
   DFGController * ctrl = (DFGController*)controller();
