@@ -31,6 +31,7 @@ Node::Node(
   m_errorPen = m_graph->config().nodeErrorPen;
   m_cornerRadius = m_graph->config().nodeCornerRadius;
   m_collapsedState = CollapseState_Expanded;
+  m_col = 0;
 
   if(color.isValid())
     setColor(color);
