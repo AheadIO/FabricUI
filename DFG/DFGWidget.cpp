@@ -190,7 +190,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     return NULL;
   graphWidget->m_contextNode = uiNode;
 
-  char const * nodeName = uiNode->name();
+  char const * nodeName = uiNode->name().c_str();
 
   if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
     return NULL;
@@ -334,7 +334,7 @@ void DFGWidget::onGraphAction(QAction * action)
     GraphView::Node * uiNode = m_uiGraph->node(nodePath.c_str());
     if(uiNode)
     {
-      char const * nodeName = uiNode->name();
+      char const * nodeName = uiNode->name().c_str();
       FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
       editNode(subExec, nodeName, true);
     }
@@ -359,7 +359,7 @@ void DFGWidget::onNodeAction(QAction * action)
   if(m_contextNode == NULL)
     return;
 
-  char const * nodeName = m_contextNode->name();
+  char const * nodeName = m_contextNode->name().c_str();
   if(action->text() == "Edit")
   {
     if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
@@ -485,7 +485,7 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
 {
   try
   {
-    char const * nodeName = node->name();
+    char const * nodeName = node->name().c_str();
     if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
       return;
     FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);

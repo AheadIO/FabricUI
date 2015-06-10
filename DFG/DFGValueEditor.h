@@ -28,9 +28,9 @@ namespace FabricUI
         );
       virtual ~DFGValueEditor();
 
-      char const *getNodeName()
+      FTL::CStrRef getNodeName()
         { return m_nodeName; }
-      void setNodeName( char const *nodeName );
+      void setNodeName( FTL::StrRef nodeName );
 
     public slots:
 
@@ -39,7 +39,7 @@ namespace FabricUI
 
     private:
 
-      char const *m_nodeName;
+      std::string m_nodeName;
       DFGConfig m_config;
       DFGController * m_controller;
     };

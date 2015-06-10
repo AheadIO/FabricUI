@@ -101,7 +101,8 @@ Node * Controller::addNodeFromPreset(FTL::CStrRef preset, QPointF pos)
       path += presetStr.substr(pos+1, presetStr.length());
   }
 
-  AddNodeCommand * command = new AddNodeCommand(this, path.c_str(), preset.data(), pos);
+  AddNodeCommand * command =
+    new AddNodeCommand(this, path.c_str(), preset.data(), pos);
   if(!addCommand(command))
   {
     delete(command);
@@ -112,7 +113,8 @@ Node * Controller::addNodeFromPreset(FTL::CStrRef preset, QPointF pos)
 
 bool Controller::removeNode(Node * node)
 {
-  RemoveNodeCommand * command = new RemoveNodeCommand(this, node->name());
+  RemoveNodeCommand * command =
+    new RemoveNodeCommand(this, node->name().c_str());
   if(!addCommand(command))
   {
     delete(command);

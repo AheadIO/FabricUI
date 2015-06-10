@@ -57,10 +57,9 @@ namespace FabricUI
       NodeHeader * header();
       const NodeHeader * header() const;
 
-      char const *name() const
-        { return m_name.c_str(); }
-      std::string const &nameString() const
+      FTL::CStrRef name() const
         { return m_name; }
+      
       FTL::CStrRef title() const
         { return m_labelCaption; }
       void setTitle( FTL::CStrRef title );

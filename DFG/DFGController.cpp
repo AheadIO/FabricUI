@@ -222,7 +222,7 @@ bool DFGController::removeNode(char const * path)
 
 bool DFGController::removeNode(GraphView::Node * node)
 {
-  return removeNode(node->name());
+  return removeNode(node->name().c_str());
 }
 
 bool DFGController::renameNode(char const * path, char const * title)
@@ -248,7 +248,7 @@ bool DFGController::renameNode(GraphView::Node * node, char const * title)
 {
   if(node->title() == title)
     return false;
-  return renameNode(node->name(), title);
+  return renameNode(node->name().c_str(), title);
 }
 
 GraphView::Pin * DFGController::addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType)
@@ -348,7 +348,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
 
     // copy the default value into the port
     FabricCore::DFGExec exec = getCoreDFGExec();
-    FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name());
+    FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name().c_str());
     if(subExec.isValid() && portPath.length() > 0)
     {
       if(subExec.getExecPortType(pin->name().c_str()) == FabricCore::DFGPortType_In)
@@ -842,7 +842,7 @@ bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLe
     pos = uiNode->centralPosToTopLeftPos(pos);
     isTopLeftPos = true;
   }
-  return moveNode(uiNode->name(), pos, isTopLeftPos);
+  return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
 }
 
 bool DFGController::zoomCanvas(float zoom)
@@ -883,7 +883,7 @@ bool DFGController::relaxNodes(QStringList paths)
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
     for(unsigned int i=0;i<nodes.size();i++)
-      paths.append(nodes[i]->name());
+      paths.append(nodes[i]->name().c_str());
   }
 
   std::vector<GraphView::Node*> allNodes = graph()->nodes();
@@ -913,7 +913,7 @@ bool DFGController::relaxNodes(QStringList paths)
   for(unsigned int i=0;i<nodes.size();i++)
   {
     QRectF rect = nodes[i]->boundingRect();
-    relaxer.addNode(nodes[i]->name(), nodes[i]->topLeftGraphPos(), nodes[i]->col(), nodes[i]->row(), rect.width(), rect.height());
+    relaxer.addNode(nodes[i]->name().c_str(), nodes[i]->topLeftGraphPos(), nodes[i]->col(), nodes[i]->row(), rect.width(), rect.height());
   }
 
   std::vector<GraphView::Connection*> connections = graph()->connections();
@@ -933,7 +933,7 @@ bool DFGController::relaxNodes(QStringList paths)
     GraphView::Node * srcNode = srcPin->node();
     GraphView::Node * dstNode = dstPin->node();
 
-    relaxer.addSpring(srcNode->name(), dstNode->name());
+    relaxer.addSpring(srcNode->name().c_str(), dstNode->name().c_str());
   }
 
   relaxer.relax(50);
@@ -954,7 +954,7 @@ std::string DFGController::copy(QStringList paths)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
-        paths.append(nodes[i]->name());
+        paths.append(nodes[i]->name().c_str());
     }
 
     DFGCopyCommand * command = new DFGCopyCommand(this, paths);
@@ -1039,7 +1039,7 @@ std::string DFGController::implodeNodes(char const * desiredName, QStringList pa
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
-        paths.append(nodes[i]->name());
+        paths.append(nodes[i]->name().c_str());
     }
 
     QRectF bounds;
@@ -1090,7 +1090,7 @@ QStringList DFGController::explodeNode(char const * path)
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
       {
-        path = nodes[i]->name();
+        path = nodes[i]->name().c_str();
         break;
       }
     }
@@ -1392,7 +1392,7 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char con
     int collapsedState = (int)node->collapsedState();
     FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
     FabricCore::DFGExec exec = getCoreDFGExec();
-    exec.setNodeMetadata(node->name(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
+    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
   }
   else if(toolName == "node_edit")
   {

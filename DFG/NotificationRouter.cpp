@@ -98,7 +98,7 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodeMetadataChanged"))
     {
       onNodeMetadataChanged(
-        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );
@@ -106,7 +106,7 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodeTitleChanged"))
     {
       onNodeTitleChanged(
-        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("title") )
         );
     }

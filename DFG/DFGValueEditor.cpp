@@ -15,7 +15,6 @@ DFGValueEditor::DFGValueEditor(
     parent,
     controller->getClient()
     )
-  , m_nodeName( 0 )
   , m_config( config )
   , m_controller( controller )
 {
@@ -28,7 +27,7 @@ DFGValueEditor::~DFGValueEditor()
 {
 }
 
-void DFGValueEditor::setNodeName( char const *nodeName )
+void DFGValueEditor::setNodeName( FTL::StrRef nodeName )
 {
   m_nodeName = nodeName;
   onArgsChanged();
@@ -40,7 +39,7 @@ void DFGValueEditor::onArgsChanged()
 
   try
   {
-    if(!m_nodeName)
+    if(m_nodeName.empty())
     {
       if(!m_controller->getRouter())
         return;
@@ -92,10 +91,16 @@ void DFGValueEditor::onArgsChanged()
     else
     {
       // add an item for the node
-      ValueItem * nodeItem = addValue(m_nodeName, FabricCore::RTVal(), m_nodeName, false);
+      ValueItem * nodeItem =
+        addValue(
+          m_nodeName.c_str(),
+          FabricCore::RTVal(),
+          m_nodeName.c_str(),
+          false
+          );
 
       FabricCore::DFGExec exec = m_controller->getCoreDFGExec();
-      FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName);
+      FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
       std::string prefix = m_nodeName;
       prefix += ".";
@@ -170,7 +175,7 @@ void DFGValueEditor::onArgsChanged()
 
 void DFGValueEditor::updateOutputs()
 {
-  if(m_nodeName == NULL)
+  if(!m_nodeName.empty())
     return;
 
   if(!m_controller->getRouter())
