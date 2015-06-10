@@ -150,7 +150,7 @@ void DFGValueEditor::onArgsChanged()
         if(!value.isValid())
           continue;
         
-        ValueItem * item = addValue(portName.data(), value, portName.data(), true);
+        ValueItem * item = addValue(pinPath.data(), value, portName.data(), true);
         if(item)
         {
           item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));

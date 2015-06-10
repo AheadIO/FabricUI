@@ -41,14 +41,21 @@ namespace FabricUI
 
       virtual void onNotification(FTL::CStrRef json) = 0;
       virtual void onNodeInserted(
-        FTL::JSONObject const *jsonObject
-        ) = 0;
-      virtual void onNodeRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePath) = 0;
-      virtual void onNodePortInserted(
         FTL::CStrRef nodeName,
         FTL::JSONObject const *jsonObject
         ) = 0;
-      virtual void onNodePortRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath) = 0;
+      virtual void onNodeRemoved(
+        FTL::CStrRef nodeName
+        ) = 0;
+      virtual void onNodePortInserted(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::JSONObject const *jsonObject
+        ) = 0;
+      virtual void onNodePortRemoved(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName
+        ) = 0;
       virtual void onExecPortInserted(
         FTL::JSONObject const *jsonObject
         ) = 0;

@@ -79,7 +79,10 @@ void DFGNotificationRouter::onGraphSet()
     {
       FTL::JSONObject const *nodeObject =
         nodesArray->get( i )->cast<FTL::JSONObject>();
-      onNodeInserted( nodeObject );
+      onNodeInserted(
+        nodeObject->getString( FTL_STR("name") ),
+        nodeObject
+        );
     }
 
     FTL::JSONObject const *connectionsObject =
@@ -124,16 +127,17 @@ void DFGNotificationRouter::onNotification(FTL::CStrRef json)
   // }
 }
 
-void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
+void DFGNotificationRouter::onNodeInserted(
+  FTL::CStrRef nodeName,
+  FTL::JSONObject const *jsonObject
+  )
 {
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
   if(!graph)
     return;
 
-  FTL::CStrRef nodeName =
-    jsonObject->get( FTL_STR("name") )->cast<FTL::JSONString>()->getValue();
-
-  GraphView::Node * uiNode = graph->addNodeFromPreset( nodeName, FTL::CStrRef() );
+  GraphView::Node * uiNode =
+    graph->addNodeFromPreset( nodeName, FTL::CStrRef() );
   if(!uiNode)
     return;
 
@@ -147,7 +151,11 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
   {
     FTL::JSONObject const *portJSONObject =
       portsJSONArray->get( i )->cast<FTL::JSONObject>();
-    onNodePortInserted( nodeName, portJSONObject );
+    onNodePortInserted(
+      nodeName,
+      portJSONObject->getString( FTL_STR("name") ),
+      portJSONObject
+      );
   }
 
   if ( FTL::JSONValue const *metadataJSONValue =
@@ -171,12 +179,14 @@ void DFGNotificationRouter::onNodeInserted(FTL::JSONObject const *jsonObject)
   }
 }
 
-void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePath)
+void DFGNotificationRouter::onNodeRemoved(
+  FTL::CStrRef nodeName
+  )
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  GraphView::Node * uiNode = graph->node(nodePath.data());
+  GraphView::Node * uiNode = graph->node(nodeName);
   if(!uiNode)
     return;
   graph->removeNode(uiNode);
@@ -189,6 +199,7 @@ void DFGNotificationRouter::onNodeRemoved(FabricCore::DFGExec parent, FTL::CStrR
 
 void DFGNotificationRouter::onNodePortInserted(
   FTL::CStrRef nodeName,
+  FTL::CStrRef portName,
   FTL::JSONObject const *jsonObject
   )
 {
@@ -198,8 +209,6 @@ void DFGNotificationRouter::onNodePortInserted(
   GraphView::Node * uiNode = graph->node(nodeName);
   if(!uiNode)
     return;
-
-  FTL::CStrRef portName = jsonObject->getString( FTL_STR("name") );
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
@@ -221,25 +230,19 @@ void DFGNotificationRouter::onNodePortInserted(
   uiNode->addPin(uiPin, false);
 }
 
-void DFGNotificationRouter::onNodePortRemoved(FabricCore::DFGExec parent, FTL::CStrRef nodePortPath)
+void DFGNotificationRouter::onNodePortRemoved(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName
+  )
 {
   if(m_controller->graph() == NULL)
     return;
   DFGGraph * graph = (DFGGraph*)m_controller->graph();
 
-  int delimPos = nodePortPath.find('.') - nodePortPath.data();
-  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
-  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
-
-  // the first part of the substr won't 
-  // work since there is no \0 char. 
-  // casting it to a std::string does
-  std::string nodeNameStr(nodeName);
-
-  GraphView::Node * uiNode = graph->nodeFromPath(nodeNameStr.c_str());
+  GraphView::Node * uiNode = graph->node(nodeName);
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(portName.data());
+  GraphView::Pin * uiPin = uiNode->pin(portName);
   if(!uiPin)
     return;
   uiNode->removePin(uiPin, false);

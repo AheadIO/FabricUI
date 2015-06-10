@@ -43,28 +43,29 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     if(descStr == FTL_STR("nodeInserted"))
     {
       onNodeInserted(
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->get( FTL_STR("nodeDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("nodeRemoved"))
     {
       onNodeRemoved(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") )
+        jsonObject->getString( FTL_STR("nodeName") )
         );
     }
     else if(descStr == FTL_STR("nodePortInserted"))
     {
       onNodePortInserted(
         jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
         jsonObject->get( FTL_STR("nodePortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("nodePortRemoved"))
     {
       onNodePortRemoved(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") )
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") )
         );
     }
     else if(descStr == FTL_STR("execPortInserted"))
