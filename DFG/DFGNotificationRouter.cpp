@@ -471,11 +471,12 @@ void DFGNotificationRouter::onNodeMetadataChanged(
 
   if(key == FTL_STR("uiGraphPos"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
-    const FabricCore::Variant * xVar = metadataVar.getDictValue("x");
-    const FabricCore::Variant * yVar = metadataVar.getDictValue("y");
-    float x = getFloatFromVariant(xVar);
-    float y = getFloatFromVariant(yVar);
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    float x = jsonObject->getFloat64( FTL_STR("x") );
+    float y = jsonObject->getFloat64( FTL_STR("y") );
     uiNode->setTopLeftGraphPos(QPointF(x, y), false);
   }
   else if(key == FTL_STR("uiCollapsedState"))

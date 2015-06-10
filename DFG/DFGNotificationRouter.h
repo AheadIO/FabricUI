@@ -72,8 +72,15 @@ namespace FabricUI
         FTL::CStrRef srcPath,
         FTL::CStrRef dstPath
         );
-      virtual void onNodeMetadataChanged(FTL::CStrRef nodePath, FTL::CStrRef key, FTL::CStrRef metadata);
-      virtual void onNodeTitleChanged(FTL::CStrRef nodePath, FTL::CStrRef title);
+      virtual void onNodeMetadataChanged(
+        FTL::CStrRef nodePath,
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        );
+      virtual void onNodeTitleChanged(
+        FTL::CStrRef nodePath,
+        FTL::CStrRef title
+        );
       virtual void onExecPortRenamed(
         FTL::CStrRef oldPortName,
         FTL::CStrRef newPortName,
