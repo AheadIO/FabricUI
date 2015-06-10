@@ -83,7 +83,6 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("portsConnected"))
     {
       onPortsConnected(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("srcPath") ),
         jsonObject->getString( FTL_STR("dstPath") )
         );

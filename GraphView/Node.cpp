@@ -470,12 +470,11 @@ Pin * Node::pin(unsigned int index)
   return m_pins[index];
 }
 
-Pin * Node::pin(char const * name)
+Pin * Node::pin(FTL::StrRef name)
 {
-  FTL::StrRef nameRef = name;
   for(unsigned int i=0;i<m_pins.size();i++)
   {
-    if(nameRef == m_pins[i]->name())
+    if(name == m_pins[i]->name())
       return m_pins[i];
   }
   return NULL;

@@ -111,13 +111,11 @@ Port * SidePanel::port(unsigned int index)
   return m_ports[index];
 }
 
-Port * SidePanel::port(QString nameOrPath)
+Port * SidePanel::port(FTL::StrRef name)
 {
   for(size_t i=0;i<m_ports.size();i++)
   {
-    if(m_ports[i]->name() == nameOrPath)
-      return m_ports[i];
-    if(m_ports[i]->path() == nameOrPath)
+    if(m_ports[i]->name() == name)
       return m_ports[i];
   }
   return NULL;

@@ -82,17 +82,21 @@ void DFGNotificationRouter::onGraphSet()
       onNodeInserted( nodeObject );
     }
 
-  // DFGWrapper::ExecPortList ports = m_graph->getExecPorts();
-  // for(size_t i=0;i<ports.size();i++)
-  // {
-  //   onExecPortInserted(ports[i]);
-  // }
-
-  // DFGWrapper::ConnectionList connections = m_graph->getConnections();
-  // for(size_t i=0;i<connections.size();i++)
-  // {
-  //   onPortsConnected(connections[i]->getSrc(), connections[i]->getDst());
-  // }
+    FTL::JSONObject const *connectionsObject =
+      rootObject->get( FTL_STR("connections") )->cast<FTL::JSONObject>();
+    for ( FTL::JSONObject::const_iterator it = connectionsObject->begin();
+      it != connectionsObject->end(); ++it )
+    {
+      FTL::CStrRef srcPath = it->first;
+      FTL::JSONArray const *dstsArray = it->second->cast<FTL::JSONArray>();
+      for ( FTL::JSONArray::const_iterator it = dstsArray->begin();
+        it != dstsArray->end(); ++it )
+      {
+        FTL::JSONValue const *dstValue = *it;
+        FTL::CStrRef dstPath = dstValue->getStringValue();
+        onPortsConnected( srcPath, dstPath );
+      }
+    }
 
   // // update the graph's pan and zoom
   // std::string metaData = m_graph->getMetadata("uiGraphPan");
@@ -200,7 +204,8 @@ void DFGNotificationRouter::onNodePortInserted(
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
   FabricCore::DFGExec exec = getCoreDFGExec();
-  QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
+  FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+  QColor color = m_config.getColorForDataType(dataType, &subExec, portName.c_str());
 
   FTL::CStrRef nodePortType =
     jsonObject->getStringOrEmpty( FTL_STR("nodePortType") );
@@ -330,51 +335,46 @@ void DFGNotificationRouter::onExecPortRemoved(FabricCore::DFGExec exec, FTL::CSt
   }
 }
 
-void DFGNotificationRouter::onPortsConnected(FabricCore::DFGExec exec, FTL::CStrRef srcPath, FTL::CStrRef dstPath)
+void DFGNotificationRouter::onPortsConnected(
+  FTL::CStrRef srcPath,
+  FTL::CStrRef dstPath
+  )
 {
-  if(m_controller->graph() == NULL)
-    return;
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  if(!uiGraph)
+    return;
 
   GraphView::ConnectionTarget * uiSrcTarget = NULL;
   GraphView::ConnectionTarget * uiDstTarget = NULL;
 
-  if(srcPath.contains('.'))
+  std::pair<FTL::StrRef, FTL::CStrRef> srcSplit = srcPath.split('.');
+  if(!srcSplit.second.empty())
   {
-    int delimPos = srcPath.find('.') - srcPath.data();
-    FTL::StrRef nodeName = srcPath.substr(0, delimPos);
-    FTL::StrRef portName = srcPath.substr(delimPos+1);
-    std::string nodeNameStr(nodeName);
-
-    GraphView::Node * uiSrcNode = uiGraph->node(nodeNameStr.c_str());
+    GraphView::Node * uiSrcNode = uiGraph->node(srcSplit.first);
     if(!uiSrcNode)
       return;
-    uiSrcTarget = uiSrcNode->pin(portName.data());
+    uiSrcTarget = uiSrcNode->pin(srcSplit.second);
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
     if(uiPanel)
-      uiSrcTarget = uiPanel->port(srcPath.data());
+      uiSrcTarget = uiPanel->port(srcSplit.first);
   }
 
-  if(dstPath.contains('.'))
+  std::pair<FTL::StrRef, FTL::CStrRef> dstSplit = dstPath.split('.');
+  if(!dstSplit.second.empty())
   {
-    int delimPos = dstPath.find('.') - dstPath.data();
-    FTL::StrRef nodeName = dstPath.substr(0, delimPos);
-    FTL::StrRef portName = dstPath.substr(delimPos+1);
-    std::string nodeNameStr(nodeName);
-
-    GraphView::Node * uiDstNode = uiGraph->node(nodeNameStr.c_str());
+    GraphView::Node * uiDstNode = uiGraph->node(dstSplit.first);
     if(!uiDstNode)
       return;
-    uiDstTarget = uiDstNode->pin(portName.data());
+    uiDstTarget = uiDstNode->pin(dstSplit.second);
   }
   else
   {
     GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
     if(uiPanel)
-      uiDstTarget = uiPanel->port(dstPath.data());
+      uiDstTarget = uiPanel->port(dstSplit.first);
   }
 
   if(!uiSrcTarget || !uiDstTarget)

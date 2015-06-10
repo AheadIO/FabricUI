@@ -94,7 +94,7 @@ namespace FabricUI
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
-      virtual Pin * pin(char const * name);
+      virtual Pin * pin(FTL::StrRef name);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);

@@ -38,7 +38,7 @@ namespace FabricUI
       
       virtual unsigned int portCount() const;
       virtual Port * port(unsigned int index);
-      virtual Port * port(QString nameOrPath);
+      virtual Port * port(FTL::StrRef name);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
