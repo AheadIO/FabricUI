@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGFactory__
 #define __UI_DFG_DFGFactory__
 
-#include <GraphView/GraphFactory.h>
+#include <FabricUI/GraphView/GraphFactory.h>
 #include "DFGConfig.h"
 
 namespace FabricUI

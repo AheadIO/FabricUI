@@ -3,7 +3,7 @@
 #include "DFGSetDefaultValueCommand.h"
 
 #include <CodeCompletion/KLTypeDesc.h>
-#include <GraphView/Graph.h>
+#include <FabricUI/GraphView/Graph.h>
 
 using namespace FabricServices;
 using namespace FabricUI;

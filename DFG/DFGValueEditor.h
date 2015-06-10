@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGValueEditor__
 #define __UI_DFG_DFGValueEditor__
 
-#include <ValueEditor/ValueEditorWidget.h>
+#include <FabricUI/ValueEditor/ValueEditorWidget.h>
 
 #include "DFGWrapper/Node.h"
 #include "DFGConfig.h"

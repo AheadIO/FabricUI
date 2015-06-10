@@ -6,7 +6,7 @@
 #include <QtGui/QMenu>
 #include <QtCore/QSettings>
 
-#include <GraphView/Graph.h>
+#include <FabricUI/GraphView/Graph.h>
 
 namespace FabricUI
 {

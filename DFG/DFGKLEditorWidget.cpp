@@ -7,8 +7,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QMessageBox>
 
-#include <GraphView/Graph.h>
-#include <GraphView/SidePanel.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/SidePanel.h>
 
 #include "DFGKLEditorWidget.h"
 

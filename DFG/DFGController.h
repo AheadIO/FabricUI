@@ -3,11 +3,11 @@
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
 
-#include <GraphView/Controller.h>
-#include <GraphView/Node.h>
-#include <GraphView/Pin.h>
-#include <GraphView/Port.h>
-#include <ValueEditor/ValueItem.h>
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/ValueEditor/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>

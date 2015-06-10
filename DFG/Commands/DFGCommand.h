@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGCommand__
 #define __UI_DFG_DFGCommand__
 
-#include <GraphView/Commands/ControllerCommand.h>
+#include <FabricUI/GraphView/Commands/ControllerCommand.h>
 
 #include "../DFGController.h"
 

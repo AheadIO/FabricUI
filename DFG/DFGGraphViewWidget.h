@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGGraphViewWidget__
 #define __UI_DFG_DFGGraphViewWidget__
 
-#include <GraphView/GraphViewWidget.h>
+#include <FabricUI/GraphView/GraphViewWidget.h>
 
 namespace FabricUI
 {

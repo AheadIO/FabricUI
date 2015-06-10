@@ -6,7 +6,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
-#include <GraphView/GraphHeaderWidget.h>
+#include <FabricUI/GraphView/GraphHeaderWidget.h>
 #include "DFGGraphViewWidget.h"
 #include "DFGGraph.h"
 #include "DFGController.h"

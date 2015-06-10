@@ -11,7 +11,7 @@
 #include "DFGController.h"
 #include "DFGLogWidget.h"
 #include "DFGNotificationRouter.h"
-#include <GraphView/GraphRelaxer.h>
+#include <FabricUI/GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
 #include "Commands/DFGAddEmptyFuncCommand.h"

@@ -3,7 +3,7 @@
 #ifndef __UI_SceneHub_SGObjectTreeItem__
 #define __UI_SceneHub_SGObjectTreeItem__
 
-#include <TreeView/TreeItem.h>
+#include <FabricUI/TreeView/TreeItem.h>
 #include <FabricCore.h>
 
 namespace FabricUI

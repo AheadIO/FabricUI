@@ -6,9 +6,9 @@
 #include <QtGui/QLabel> 
 #include <QtGui/QWidget>
 
-#include <TreeView/TreeViewWidget.h>
-#include <TreeView/TreeModel.h>
-#include <TreeView/TreeEditorFactory.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeEditorFactory.h>
 
 #include <FabricCore.h>
 

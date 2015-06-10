@@ -5,8 +5,8 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QLineEdit>
-#include <TreeView/TreeViewWidget.h>
-#include <TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeModel.h>
 #include "DFGConfig.h"
 #include <SplitSearch/SplitSearch.hpp>
 

@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGRemovePortCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 

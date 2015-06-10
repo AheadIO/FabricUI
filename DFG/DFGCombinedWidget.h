@@ -7,9 +7,9 @@
 
 #include <map>
 
-#include <DFG/DFGUI.h>
-#include <DFG/DFGValueEditor.h>
-#include <DFG/DFGLogWidget.h>
+#include <FabricUI/DFG/DFGUI.h>
+#include <FabricUI/DFG/DFGValueEditor.h>
+#include <FabricUI/DFG/DFGLogWidget.h>
 #include <Commands/CommandStack.h>
 
 using namespace FabricServices;

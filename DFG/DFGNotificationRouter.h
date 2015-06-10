@@ -5,8 +5,8 @@
 
 #include <FTL/JSONValue.h>
 #include <FTL/StrRef.h>
-#include <GraphView/Controller.h>
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Port.h>
 #include "NotificationRouter.h"
 #include "DFGConfig.h"
 

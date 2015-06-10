@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_NameSpaceTreeItem__
 #define __UI_DFG_NameSpaceTreeItem__
 
-#include <TreeView/TreeItem.h>
+#include <FabricUI/TreeView/TreeItem.h>
 #include <FabricCore.h>
 
 namespace FabricUI
