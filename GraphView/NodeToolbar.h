@@ -50,7 +50,7 @@ namespace FabricUI
 
     signals:
 
-      void toolTriggered(FabricUI::GraphView::Node *, QString);
+      void toolTriggered(FabricUI::GraphView::Node *, char const *);
 
     protected:
 

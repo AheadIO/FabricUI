@@ -358,9 +358,10 @@ bool Controller::clearCommands()
   return true;
 }
 
-void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, QString toolName)
+void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
 {
-  if(toolName == "node_collapse")
+  FTL::StrRef toolNameRef(toolName);
+  if(toolNameRef == "node_collapse")
   {
     node->toggleCollapsedState();
     if(m_graph)

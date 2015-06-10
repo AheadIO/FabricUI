@@ -128,8 +128,8 @@ void Graph::reset(bool createSidePanels)
   m_nodeToolbar->hide();
   if(m_controller)
   {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, QString)), 
-      m_controller, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, QString)));
+    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
+      m_controller, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
   }
 }
 
@@ -147,8 +147,8 @@ void Graph::setController(Controller * c)
 {
   if(!m_controller && c && m_nodeToolbar)
   {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, QString)), 
-      c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, QString)));
+    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
+      c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
   }
   m_controller = c;
 }

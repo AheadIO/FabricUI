@@ -195,7 +195,7 @@ void NodeToolbar::mousePressEvent(QGraphicsSceneMouseEvent * event)
     {
       if(toolRect(i).contains(event->pos()))
       {
-        emit toolTriggered(m_node, m_tools[i].name);
+        emit toolTriggered(m_node, m_tools[i].name.toUtf8().constData());
         break;
       }
     }

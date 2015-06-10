@@ -74,7 +74,7 @@ namespace FabricUI
 
     public slots:
 
-      void nodeToolTriggered(FabricUI::GraphView::Node *, QString);
+      void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
 
     private:
 
