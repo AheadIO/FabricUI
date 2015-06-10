@@ -34,7 +34,7 @@ bool DFGCopyCommand::invoke()
 
   DFGController * ctrl = (DFGController*)controller();
   FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
-  m_json = graph.exportNodesJSON(m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
+  m_json = graph.exportNodesJSON(m_nodePathsPtr.size(), &m_nodePathsPtr[0]).getCString();
 
   QClipboard *clipboard = QApplication::clipboard();
   clipboard->setText(m_json.c_str());
