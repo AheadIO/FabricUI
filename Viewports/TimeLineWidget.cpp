@@ -21,8 +21,11 @@ TimeLineWidget::TimeLineWidget(QWidget * parent)
 	// default looping ( 0 )
 	m_looping = 1;
 	
+  //QTimer is not precise at all; just make it call often as 
+  //possible (1 ms) and we will compute the actual elapsed time
 	m_timer = new QTimer(this);
-	m_timer->setInterval(0);
+	m_timer->setInterval(1);
+  m_fps = 1000;//max
 
   // layout
   setLayout(new QHBoxLayout());
@@ -200,6 +203,8 @@ int TimeLineWidget::getRangeEnd()
 void TimeLineWidget::sliderChanged(int frame)
 {
 	setTime( frame );
+  // Force a repaint of the slider, else it's dragging a lot behind the mouse
+  m_frameSlider->repaint();
 }
 
 void TimeLineWidget::frameChangedBy(int frame)
@@ -257,6 +262,7 @@ void TimeLineWidget::play()
 	else
 	{
 		m_timer->start();
+    m_lastFrameTime.start();
 		m_playButton->setText("||");
     emit playbackChanged(true);
 	}
@@ -293,6 +299,15 @@ void TimeLineWidget::goToEndFrame()
 
 void TimeLineWidget::timerUpdate()
 {
+  // We will be getting about 1 call per milli-second,
+  // however QTimer is really not precise so we cannot rely
+  // on its delay.
+  double ms = m_lastFrameTime.elapsed();
+  if( m_fps > 0 && ms + 0.5 < 1000.0 / m_fps ) // Add 0.5 so we have a better average framerate (else we are always above)
+    return; // Wait longer
+
+  m_lastFrameTime.start();
+
 	int newTime = getTime()+m_direction;
 	if ( newTime > m_endSpinBox->value() )
 	{
@@ -329,19 +344,33 @@ void TimeLineWidget::timerUpdate()
 	
 }
 
+void TimeLineWidget::setFrameRate( float framesPerSecond ) {
+  // For now just clamp to existing options
+  int index = 0; // max fps
+  if( framesPerSecond <= 15 )
+    index = 1; // 12 fps
+  else if( framesPerSecond <= 30 )
+    index = 2; // 24 fps
+  else if( framesPerSecond <= 50 )
+    index = 3; // 48 fps
+  else if( framesPerSecond <= 70 )
+    index = 4; // 60 fps
+  frameRateChanged( index );
+  m_frameRateComboBox->setCurrentIndex( index );
+}
+
 void TimeLineWidget::frameRateChanged(int index)
 {
 	if (index == 0)
-		m_timer->setInterval(1); // max fps
+		m_fps = 1000; // max fps
 	else if (index == 1)
-		m_timer->setInterval(83); // 12 fps
+		m_fps = 12; // 12 fps
 	else if (index == 2)
-		m_timer->setInterval(42); // 24 fps
+		m_fps = 24; // 24 fps
   else if ( index == 3 )
-    m_timer->setInterval(21); // 48 fps
+    m_fps = 48; // 48 fps
   else if ( index == 4 )
-    m_timer->setInterval(17); // 60 fps
-	
+    m_fps = 60; // 60 fps
 }
 
 void TimeLineWidget::loopingChanged(int index)

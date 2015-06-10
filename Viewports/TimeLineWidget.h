@@ -7,6 +7,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QHBoxLayout>
 #include <QtCore/QTimer>
+#include <QtCore/QTime>
 
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QSlider>
@@ -46,6 +47,9 @@ namespace FabricUI
   			/// setup the time range
   			void setTimeRange(int start , int end);
   			
+  			/// setup the frame rate (will clamp to combo box options)
+        void setFrameRate( float framesPerSecond );
+
   		signals :
   			/// this signal is emited when ever the time on the widget changed
   			/// client would connect this slight to any slots that need to know about the time
@@ -102,6 +106,8 @@ namespace FabricUI
   		
   			/// the timer in charge of the playback . this is paused when not active
   			QTimer * m_timer;
+        QTime m_lastFrameTime;
+        double m_fps;
   			
   			/// direction of play 
   			int m_direction;
