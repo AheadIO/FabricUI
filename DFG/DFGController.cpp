@@ -1410,7 +1410,7 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char con
 
 void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
 {
-  printf("bindingNotif = %s\n", jsonStr.c_str());
+  // printf("bindingNotif = %s\n", jsonStr.c_str());
 
   try
   {
