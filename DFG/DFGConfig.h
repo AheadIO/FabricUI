@@ -8,8 +8,8 @@
 #include <QtGui/QTextCharFormat>
 #include <string>
 #include <map>
-#include <KLEditor/EditorConfig.h>
-#include <GraphView/GraphConfig.h>
+#include <FabricUI/KLEditor/EditorConfig.h>
+#include <FabricUI/GraphView/GraphConfig.h>
 #include <FTL/StrRef.h>
 #include <FabricCore.h>
 
