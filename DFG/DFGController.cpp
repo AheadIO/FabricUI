@@ -101,7 +101,9 @@ void DFGController::setRouter(DFGNotificationRouter * router)
     }
 
     if(m_overTakeBindingNotifications)
-      m_coreDFGBinding.setNotificationCallback(bindingNotificationCallback, this);
+      m_coreDFGBinding.setNotificationCallback(
+        &BindingNotificationCallback, this
+        );
   }
 }
 
@@ -1400,28 +1402,46 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char con
   }
 }
 
-void DFGController::bindingNotificationCallback(void * userData, char const *jsonCString, uint32_t jsonLength)
+void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
 {
-  if(!jsonCString)
-    return;
-  DFGController * ctrl = (DFGController *)userData;
+  printf("bindingNotif = %s\n", jsonStr.c_str());
 
-  FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
-
-  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  if(!descVar)
-    return;
-
-  std::string descStr = descVar->getStringData();
-
-  // if(descStr == "argTypeChanged")
-  // {
-  //   ctrl->m_router->updateDataTypesOnPorts();
-  // }
-  if(descStr == "argChanged")
+  try
   {
-    const FabricCore::Variant * nameVar = notificationVar.getDictValue("name");
-    emit ctrl->argValueChanged(nameVar->getStringData());
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+
+    FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
+    if(descStr == FTL_STR("argChanged"))
+    {
+      emit argValueChanged(
+        jsonObject->getString( FTL_STR("name") ).c_str()
+        );
+    }
+    // [pzion 20150609] Why doesn't this work?
+    //
+    // else if ( descStr == FTL_STR("argTypeChanged")
+    //   || descStr == FTL_STR("argInserted")
+    //   || descStr == FTL_STR("argRemoved") )
+    // {
+    //   emit argsChanged();
+    // }
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf(
+      "DFGController::bindingNotificationCallback: caught Core exception: %s\n",
+      e.getDesc_cstr()
+      );
+  }
+  catch ( FTL::JSONException e )
+  {
+    printf(
+      "DFGController::bindingNotificationCallback: caught FTL::JSONException: %s\n",
+      e.getDescCStr()
+      );
   }
 }
 

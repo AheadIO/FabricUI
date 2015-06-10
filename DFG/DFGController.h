@@ -155,7 +155,18 @@ namespace FabricUI
 
     private:
 
-      static void bindingNotificationCallback(void * userData, char const *jsonCString, uint32_t jsonLength);
+      void bindingNotificationCallback( FTL::CStrRef jsonStr );
+      static void BindingNotificationCallback(
+        void * userData,
+        char const *jsonCString,
+        uint32_t jsonLength
+        )
+      {
+        static_cast<DFGController *>( userData )->bindingNotificationCallback(
+          FTL::CStrRef( jsonCString, jsonLength )
+          );
+      }
+
       void updatePresetPathDB();
 
       FabricCore::Client m_coreClient;
