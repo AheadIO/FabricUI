@@ -79,7 +79,7 @@ namespace FabricUI
 
       // ports
       virtual std::vector<Port *> ports() const;
-      virtual Port * port(char const * name) const;
+      virtual Port * port(FTL::StrRef name) const;
 
       // connections
       virtual std::vector<Connection *> connections() const;

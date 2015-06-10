@@ -86,22 +86,63 @@ namespace FabricUI
         FTL::CStrRef newPortName,
         FTL::JSONObject const *execPortJSONObject
         );
-      virtual void onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath);
+      virtual void onNodePortRenamed(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef oldPortName,
+        FTL::CStrRef newPortName
+        );
       virtual void onExecMetadataChanged(
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      virtual void onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version);
-      virtual void onExtDepRemoved(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version);
-      virtual void onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::CStrRef path, FTL::CStrRef rule);
-      virtual void onExecCacheRuleChanged(FabricCore::DFGExec exec, FTL::CStrRef rule);
-      virtual void onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef resolvedType);
-      virtual void onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef typeSpec);
-      virtual void onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef nodePortPath, FTL::CStrRef resolvedType);
-      virtual void onExecPortMetadataChanged(FTL::CStrRef portPath, FTL::CStrRef key, FTL::CStrRef metadata);
-      virtual void onNodePortMetadataChanged(FTL::CStrRef nodePortPath, FTL::CStrRef key, FTL::CStrRef metadata);
-      virtual void onExecPortTypeChanged(FTL::CStrRef portPath, FTL::CStrRef portType);
-      virtual void onNodePortTypeChanged(FTL::CStrRef nodePortPath, FTL::CStrRef portType);
+      virtual void onExtDepAdded(
+        FTL::CStrRef extension,
+        FTL::CStrRef version
+        );
+      virtual void onExtDepRemoved(
+        FTL::CStrRef extension,
+        FTL::CStrRef version
+        );
+      virtual void onNodeCacheRuleChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef newCacheRule
+        );
+      virtual void onExecCacheRuleChanged(
+        FTL::CStrRef newCacheRule
+        );
+      virtual void onExecPortResolvedTypeChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef newResolvedType
+        );
+      virtual void onExecPortTypeSpecChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef typeSpec
+        );
+      virtual void onNodePortResolvedTypeChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::CStrRef newResolvedType
+        );
+      virtual void onExecPortMetadataChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        );
+      virtual void onNodePortMetadataChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        );
+      virtual void onExecPortTypeChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef execPortType
+        );
+      virtual void onNodePortTypeChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::CStrRef nodePortType
+        );
 
     private:
 

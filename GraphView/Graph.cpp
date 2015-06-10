@@ -341,20 +341,19 @@ std::vector<Port *> Graph::ports() const
   return result;
 }
 
-Port * Graph::port(char const * name) const
+Port * Graph::port(FTL::StrRef name) const
 {
   if(!hasSidePanels())
     return NULL;
 
-  FTL::StrRef nameRef = name;
   for(unsigned int i=0;i<m_leftPanel->portCount();i++)
   {
-    if(nameRef == m_leftPanel->port(i)->name())
+    if(name == m_leftPanel->port(i)->name())
       return m_leftPanel->port(i);
   }
   for(unsigned int i=0;i<m_rightPanel->portCount();i++)
   {
-    if(nameRef == m_rightPanel->port(i)->name())
+    if(name == m_rightPanel->port(i)->name())
       return m_rightPanel->port(i);
   }
 

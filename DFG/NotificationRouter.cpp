@@ -121,9 +121,9 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodePortRenamed"))
     {
       onNodePortRenamed(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("oldPath") ),
-        jsonObject->getString( FTL_STR("newPath") )
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("oldPortName") ),
+        jsonObject->getString( FTL_STR("newPortName") )
         );
     }
     else if(descStr == FTL_STR("execMetadataChanged"))
@@ -136,7 +136,6 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("extDepAdded"))
     {
       onExtDepAdded(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("name") ),
         jsonObject->getString( FTL_STR("versionRange") )
         );
@@ -144,7 +143,6 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("extDepRemoved"))
     {
       onExtDepRemoved(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("name") ),
         jsonObject->getString( FTL_STR("versionRange") )
         );
@@ -152,46 +150,42 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodeCacheRuleChanged"))
     {
       onNodeCacheRuleChanged(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("cacheRule") )
         );
     }
     else if(descStr == FTL_STR("execCacheRuleChanged"))
     {
       onExecCacheRuleChanged(
-        m_coreDFGExec,
         jsonObject->getString( FTL_STR("cacheRule") )
         );
     }
-    else if(descStr == FTL_STR("portResolvedTypeChanged"))
+    else if(descStr == FTL_STR("execPortResolvedTypeChanged"))
     {
       onExecPortResolvedTypeChanged(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") ),
-        jsonObject->getStringOrEmpty( FTL_STR("resolvedType") )
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
         );
     }
-    else if(descStr == FTL_STR("portTypeSpecChanged"))
+    else if(descStr == FTL_STR("execPortTypeSpecChanged"))
     {
       onExecPortTypeSpecChanged(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") ),
-        jsonObject->getStringOrEmpty( FTL_STR("typeSpec") )
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newTypeSpec") )
         );
     }
     else if(descStr == FTL_STR("nodePortResolvedTypeChanged"))
     {
       onNodePortResolvedTypeChanged(
-        m_coreDFGExec,
-        jsonObject->getString( FTL_STR("path") ),
-        jsonObject->getStringOrEmpty( FTL_STR("resolvedType") )
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
         );
     }
     else if(descStr == FTL_STR("portMetadataChanged"))
     {
       onExecPortMetadataChanged(
-        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );
@@ -199,23 +193,25 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("nodePortMetadataChanged"))
     {
       onNodePortMetadataChanged(
-        jsonObject->getString( FTL_STR("path") ),
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );
     }
-    else if(descStr == FTL_STR("execPortOutsidePortTypeChanged"))
+    else if(descStr == FTL_STR("execPortTypeChanged"))
     {
       onExecPortTypeChanged(
-        jsonObject->getString( FTL_STR("path") ),
-        jsonObject->getString( FTL_STR("newPortType") )
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("newExecPortType") )
         );
     }
     else if(descStr == FTL_STR("nodePortTypeChanged"))
     {
       onNodePortTypeChanged(
-        jsonObject->getString( FTL_STR("path") ),
-        jsonObject->getString( FTL_STR("newPortType") )
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("newNodePortType") )
         );
     }
     else

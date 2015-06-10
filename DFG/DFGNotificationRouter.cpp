@@ -575,7 +575,11 @@ void DFGNotificationRouter::onExecPortRenamed(
   }
 }
 
-void DFGNotificationRouter::onNodePortRenamed(FabricCore::DFGExec parent, FTL::CStrRef oldPath, FTL::CStrRef newPath)
+void DFGNotificationRouter::onNodePortRenamed(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef oldPortName,
+  FTL::CStrRef newPortName
+  )
 {
   // this shouldn't happen for us for now
 }
@@ -613,7 +617,10 @@ void DFGNotificationRouter::onExecMetadataChanged(
   }
 }
 
-void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version)
+void DFGNotificationRouter::onExtDepAdded(
+  FTL::CStrRef extension,
+  FTL::CStrRef version
+  )
 {
   if(m_controller->graph() == NULL)
     return;
@@ -628,101 +635,114 @@ void DFGNotificationRouter::onExtDepAdded(FabricCore::DFGExec exec, FTL::CStrRef
   }
 }
 
-void DFGNotificationRouter::onExtDepRemoved(FabricCore::DFGExec exec, FTL::CStrRef extension, FTL::CStrRef version)
+void DFGNotificationRouter::onExtDepRemoved(
+  FTL::CStrRef extension,
+  FTL::CStrRef version
+  )
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodeCacheRuleChanged(FabricCore::DFGExec parent, FTL::CStrRef path, FTL::CStrRef rule)
+void DFGNotificationRouter::onNodeCacheRuleChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newCacheRule
+  )
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecCacheRuleChanged(FabricCore::DFGExec exec, FTL::CStrRef rule)
+void DFGNotificationRouter::onExecCacheRuleChanged(
+  FTL::CStrRef newCacheRule
+  )
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onExecPortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef resolvedType)
+void DFGNotificationRouter::onExecPortResolvedTypeChanged(
+  FTL::CStrRef portName,
+  FTL::CStrRef newResolvedType
+  )
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
-  GraphView::Port * uiPort = uiGraph->port(portPath.data());
+  GraphView::Port * uiPort = uiGraph->port(portName);
   if(!uiPort)
     return;
 
-  if(resolvedType != uiPort->dataType())
+  if(newResolvedType != uiPort->dataType())
   {
-    uiPort->setDataType(resolvedType.data());
-    uiPort->setColor(m_config.getColorForDataType(resolvedType, &exec, portPath.data()));
+    uiPort->setDataType(newResolvedType.data());
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    uiPort->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.data()));
     uiGraph->updateColorForConnections(uiPort);
   }
 }
 
-void DFGNotificationRouter::onExecPortTypeSpecChanged(FabricCore::DFGExec exec,  FTL::CStrRef portPath, FTL::CStrRef typeSpec)
+void DFGNotificationRouter::onExecPortTypeSpecChanged(
+  FTL::CStrRef portPath,
+  FTL::CStrRef newTypeSpec
+  )
 {
   // todo: we don't do anything here...
 }
 
-void DFGNotificationRouter::onNodePortResolvedTypeChanged(FabricCore::DFGExec exec,  FTL::CStrRef nodePortPath, FTL::CStrRef resolvedType)
+void DFGNotificationRouter::onNodePortResolvedTypeChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName,
+  FTL::CStrRef newResolvedType
+  )
 {
   DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
   if(!uiGraph)
     return;
 
-  int delimPos = nodePortPath.find('.') - nodePortPath.data();
-  FTL::StrRef nodeName = nodePortPath.substr(0, delimPos);
-  FTL::StrRef portName = nodePortPath.substr(delimPos+1);
-
-  // the first part of the substr won't 
-  // work since there is no \0 char. 
-  // casting it to a std::string does
-  std::string nodeNameStr(nodeName);
- 
-  GraphView::Node * uiNode = uiGraph->node(nodeNameStr.c_str());
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
-  GraphView::Pin * uiPin = uiNode->pin(portName.data());
+  GraphView::Pin * uiPin = uiNode->pin(portName);
   if(!uiPin)
     return;
 
-  if(resolvedType != uiPin->dataType())
+  if(newResolvedType != uiPin->dataType())
   {
-    FabricCore::DFGExec subExec = exec.getSubExec(nodeNameStr.c_str());
-    uiPin->setDataType(resolvedType.data());
-    uiPin->setColor(m_config.getColorForDataType(resolvedType, &subExec, portName.data()));
+    FabricCore::DFGExec subExec =
+      getCoreDFGExec().getSubExec(nodeName.c_str());
+    uiPin->setDataType(newResolvedType.data());
+    uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
     uiGraph->updateColorForConnections(uiPin);
   }
 }
 
 void DFGNotificationRouter::onExecPortMetadataChanged(
-  FTL::CStrRef portPath,
+  FTL::CStrRef portName,
   FTL::CStrRef key,
-  FTL::CStrRef metadata)
+  FTL::CStrRef value)
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
-  FTL::CStrRef nodePortPath,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName,
   FTL::CStrRef key,
-  FTL::CStrRef metadata)
+  FTL::CStrRef value)
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onExecPortTypeChanged(
-  FTL::CStrRef portPath,
-  FTL::CStrRef portType
+  FTL::CStrRef portName,
+  FTL::CStrRef execPortType
   )
 {
   // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortTypeChanged(
-  FTL::CStrRef nodePortPath,
-  FTL::CStrRef portType
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName,
+  FTL::CStrRef nodePortType
   )
 {
   // todo: we don't do anything here...
