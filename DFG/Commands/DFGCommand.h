@@ -18,7 +18,7 @@ namespace FabricUI
 
       DFGCommand(DFGController * controller);
 
-      virtual const char * DFGCommand::getExecPath();
+      virtual const char * getExecPath();
 
     protected:
       
