@@ -373,3 +373,12 @@ void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, char const 
     }    
   }
 }
+
+bool Controller::canConnectTo(
+  char const *pathA,
+  char const *pathB,
+  std::string &failureReason
+  )
+{
+  return true;
+}

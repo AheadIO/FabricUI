@@ -67,7 +67,7 @@ namespace FabricUI
         char const *pathA,
         char const *pathB,
         std::string &failureReason
-        ) = 0;
+        );
 
       bool addCommand(FabricServices::Commands::Command * command);
       bool clearCommands();
