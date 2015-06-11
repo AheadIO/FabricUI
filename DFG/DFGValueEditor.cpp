@@ -110,34 +110,36 @@ void DFGValueEditor::onArgsChanged()
         if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
           continue;
 
-        FTL::StrRef portName = subExec.getExecPortName(i);
+        FTL::CStrRef portName = subExec.getExecPortName(i);
         std::string pinPath = prefix + portName.data();
         if(exec.isConnectedToAny(pinPath.c_str()))
           continue;
 
-        std::string dataType = exec.getNodePortResolvedType(pinPath.c_str());
-        if(dataType == "" || dataType.find('$') != std::string::npos)
+        FTL::CStrRef dataType = exec.getNodePortResolvedType(pinPath.c_str());
+        if(dataType.empty() || dataType.find('$') !=dataType.end())
           continue;
 
-        FTL::StrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
-        if(hidden == "true")
+        FTL::CStrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
+        if(hidden == FTL_STR("true"))
           continue;
 
         FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), dataType.c_str());
         if(!value.isValid())
         {
-          std::string aliasedDataType;
-          if(dataType == "Integer")
-            aliasedDataType = "SInt32";
-          else if(dataType == "Byte")
-            aliasedDataType = "UInt8";
-          else if(dataType == "Size" || dataType == "Count" || dataType == "Index")
-            aliasedDataType = "UInt32";
-          else if(dataType == "Scalar")
-            aliasedDataType = "Float32";
+          FTL::CStrRef aliasedDataType;
+          if(dataType == FTL_STR("Integer"))
+            aliasedDataType = FTL_STR("SInt32");
+          else if(dataType == FTL_STR("Byte"))
+            aliasedDataType = FTL_STR("UInt8");
+          else if(dataType == FTL_STR("Size") || dataType == FTL_STR("Count") || dataType == FTL_STR("Index"))
+            aliasedDataType = FTL_STR("UInt32");
+          else if(dataType == FTL_STR("Scalar"))
+            aliasedDataType = FTL_STR("Float32");
 
-          if(aliasedDataType.length() > 0)
-            value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), aliasedDataType.c_str());
+          if(!aliasedDataType.empty())
+            value = exec.getInstPortResolvedDefaultValue(
+              pinPath.c_str(), aliasedDataType.c_str()
+              );
         }
 
         if(!value.isValid())

@@ -35,7 +35,7 @@ bool AddPinCommand::invoke()
     return false;
 
   Pin * pin = new Pin(node, m_name.c_str(), m_pType, m_color);
-  pin->setDataType(m_dataType.c_str());
+  pin->setDataType(m_dataType);
 
   if(node->addPin(pin, false))
   {

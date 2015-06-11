@@ -128,14 +128,9 @@ PortType Port::portType() const
   return m_portType;
 }
 
-char const * Port::dataType() const
+void Port::setDataType(FTL::CStrRef dataType)
 {
-  return m_dataType.c_str();
-}
-
-void Port::setDataType(char const * dt)
-{
-  m_dataType = dt;
+  m_dataType = dataType;
   setToolTip(m_dataType.c_str());
 }
 

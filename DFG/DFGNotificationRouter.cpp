@@ -236,7 +236,7 @@ void DFGNotificationRouter::onNodePortInserted(
 
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
   if ( !dataType.empty() )
-    uiPin->setDataType(dataType.c_str());
+    uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
 }
 
@@ -684,7 +684,7 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
 
   if(newResolvedType != uiPort->dataType())
   {
-    uiPort->setDataType(newResolvedType.data());
+    uiPort->setDataType(newResolvedType);
     FabricCore::DFGExec exec = getCoreDFGExec();
     uiPort->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.data()));
     uiGraph->updateColorForConnections(uiPort);
@@ -720,7 +720,7 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(
   {
     FabricCore::DFGExec subExec =
       getCoreDFGExec().getSubExec(nodeName.c_str());
-    uiPin->setDataType(newResolvedType.data());
+    uiPin->setDataType(newResolvedType);
     uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
     uiGraph->updateColorForConnections(uiPin);
   }
