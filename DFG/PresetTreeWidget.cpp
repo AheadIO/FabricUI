@@ -3,6 +3,7 @@
 #include "PresetTreeWidget.h"
 #include "NameSpaceTreeItem.h"
 #include "PresetTreeItem.h"
+#include "VariableListTreeItem.h"
 
 #include <FTL/JSONValue.h>
 #include <FTL/MapCharSingle.h>
@@ -55,6 +56,13 @@ PresetTreeWidget::~PresetTreeWidget()
 void PresetTreeWidget::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
   m_coreDFGHost = coreDFGHost;
+  refresh();
+}
+
+void PresetTreeWidget::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
+{
+  m_coreDFGBinding = coreDFGBinding;
+  refresh();
 }
 
 void PresetTreeWidget::refresh()
@@ -94,6 +102,9 @@ void PresetTreeWidget::refresh()
         nameSpaceLookup.insert(std::pair<std::string, std::string>(name, name));
       }
     }
+
+    // also add the variable list item
+    m_treeModel->addItem(new VariableListTreeItem(m_coreDFGHost, m_coreDFGBinding));
 
     for(std::map<std::string, std::string>::iterator it=nameSpaceLookup.begin();it!=nameSpaceLookup.end();it++)
       m_treeModel->addItem(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str()));
@@ -148,6 +159,9 @@ void PresetTreeWidget::refresh()
 
       if(filters.length() == 0)
         continue;
+
+      // also add the variable list item
+      m_treeModel->addItem(new VariableListTreeItem(m_coreDFGHost, m_coreDFGBinding, filters));
 
       const FabricCore::Variant * memberVar = memberIter.getValue();
       const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");

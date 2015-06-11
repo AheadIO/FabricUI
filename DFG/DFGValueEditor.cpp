@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGValueEditor.h"
+#include <QtGui/QMessageBox>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -100,44 +101,73 @@ void DFGValueEditor::onArgsChanged()
           );
 
       FabricCore::DFGExec exec = m_controller->getCoreDFGExec();
-      FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
-      std::string prefix = m_nodeName;
-      prefix += ".";
-
-      for(size_t i=0;i<subExec.getExecPortCount();i++)
+      if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
       {
-        if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
-          continue;
+        FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
-        FTL::StrRef portName = subExec.getExecPortName(i);
-        std::string pinPath = prefix + portName.data();
-        if(exec.isConnectedToAny(pinPath.c_str()))
-          continue;
+        std::string prefix = m_nodeName;
+        prefix += ".";
 
-        std::string dataType = exec.getNodePortResolvedType(pinPath.c_str());
-        if(dataType == "" || dataType.find('$') != std::string::npos)
-          continue;
+        for(size_t i=0;i<subExec.getExecPortCount();i++)
+        {
+          if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
+            continue;
 
-        FTL::StrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
-        if(hidden == "true")
-          continue;
+          FTL::StrRef portName = subExec.getExecPortName(i);
+          std::string portPath = prefix + portName.data();
+          if(exec.isConnectedToAny(portPath.c_str()))
+            continue;
 
-        FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), dataType.c_str());
+          std::string dataType = exec.getNodePortResolvedType(portPath.c_str());
+          if(dataType == "" || dataType.find('$') != std::string::npos)
+            continue;
+
+          FTL::StrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
+          if(hidden == "true")
+            continue;
+
+          FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), dataType.c_str());
+          if(!value.isValid())
+          {
+            std::string aliasedDataType = unAliasType(dataType);
+            if(aliasedDataType != dataType)
+              value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
+          }
+
+          if(!value.isValid())
+          {
+            bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
+            if(isObject)
+            {
+              value = FabricCore::RTVal::Create(m_controller->getClient(), dataType.c_str(), 0, 0);
+            }
+            else
+            {
+              value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
+            }
+          }
+          if(!value.isValid())
+            continue;
+          
+          ValueItem * item = addValue(portPath.data(), value, portName.data(), true);
+          if(item)
+          {
+            item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));
+            item->setMetaData("uiCombo", subExec.getExecPortMetadata(portName.data(), "uiCombo"));
+          }
+        }
+      }
+      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Var)
+      {
+        std::string portPath = m_nodeName + ".value";
+        std::string dataType = exec.getNodePortResolvedType(portPath.c_str());
+        FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
         if(!value.isValid())
         {
-          std::string aliasedDataType;
-          if(dataType == "Integer")
-            aliasedDataType = "SInt32";
-          else if(dataType == "Byte")
-            aliasedDataType = "UInt8";
-          else if(dataType == "Size" || dataType == "Count" || dataType == "Index")
-            aliasedDataType = "UInt32";
-          else if(dataType == "Scalar")
-            aliasedDataType = "Float32";
-
-          if(aliasedDataType.length() > 0)
-            value = exec.getInstPortResolvedDefaultValue(pinPath.c_str(), aliasedDataType.c_str());
+          std::string aliasedDataType = unAliasType(dataType);
+          if(aliasedDataType != dataType)
+            value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
         }
 
         if(!value.isValid())
@@ -152,15 +182,21 @@ void DFGValueEditor::onArgsChanged()
             value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
           }
         }
-        if(!value.isValid())
-          continue;
-        
-        ValueItem * item = addValue(pinPath.data(), value, portName.data(), true);
-        if(item)
-        {
-          item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));
-          item->setMetaData("uiCombo", subExec.getExecPortMetadata(portName.data(), "uiCombo"));
-        }
+
+        if(value.isValid())
+          addValue(portPath.c_str(), value, "value", true);
+      }
+      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Get)
+      {
+        QMessageBox msg(QMessageBox::Warning, "Fabric Code", "DFGValueEditor: To be implemented: DFGNodeType_Get");
+        msg.addButton("Ok", QMessageBox::AcceptRole);
+        msg.exec();
+      }
+      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
+      {
+        QMessageBox msg(QMessageBox::Warning, "Fabric Code", "DFGValueEditor: To be implemented: DFGNodeType_Set");
+        msg.addButton("Ok", QMessageBox::AcceptRole);
+        msg.exec();
       }
 
       // expand the node level tree item
@@ -191,4 +227,17 @@ void DFGValueEditor::updateOutputs()
     item->setValue(binding.getArgValue(item->name().toUtf8().constData()));
     m_treeModel->invalidateItem(item);
   }
+}
+
+std::string DFGValueEditor::unAliasType(const std::string & type)
+{
+  if(type == "Integer")
+    return "SInt32";
+  else if(type == "Byte")
+    return "UInt8";
+  else if(type == "Size" || type == "Count" || type == "Index")
+    return "UInt32";
+  else if(type == "Scalar")
+    return "Float32";
+  return type;
 }

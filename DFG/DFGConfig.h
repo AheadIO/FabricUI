@@ -33,6 +33,9 @@ namespace FabricUI
 
       std::map<std::string, QColor> colorForDataType;
 
+      QColor varNodeDefaultColor;
+      QColor varLabelDefaultColor;
+
       KLEditor::EditorConfig klEditorConfig;
       GraphView::GraphConfig graphConfig;
 

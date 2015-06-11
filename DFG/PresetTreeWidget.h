@@ -30,6 +30,7 @@ namespace FabricUI
       virtual ~PresetTreeWidget();
 
       void setHost( FabricCore::DFGHost const &coreDFGHost );
+      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
 
     public slots:
 
@@ -41,6 +42,7 @@ namespace FabricUI
 
       QLineEdit * m_searchEdit;
       FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       FabricServices::SplitSearch::Dict m_presetPathDict;

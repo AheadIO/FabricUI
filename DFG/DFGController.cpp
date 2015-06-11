@@ -13,6 +13,7 @@
 #include "DFGNotificationRouter.h"
 #include <FabricUI/GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
+#include "Commands/DFGAddVarCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
 #include "Commands/DFGAddEmptyFuncCommand.h"
 #include "Commands/DFGRemoveNodeCommand.h"
@@ -134,6 +135,27 @@ std::string DFGController::addDFGNodeFromPreset(
     emit structureChanged();
     emit recompiled();
     return command->getInstPath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string  DFGController::addDFGVar(FTL::StrRef varName, QPointF pos)
+{
+  try
+  {
+    DFGAddVarCommand * command = new DFGAddVarCommand(this, varName, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getNodePath();
   }
   catch(FabricCore::Exception e)
   {
@@ -351,14 +373,13 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
 
     // copy the default value into the port
     FabricCore::DFGExec exec = getCoreDFGExec();
-    FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name().c_str());
-    if(subExec.isValid() && portPath.length() > 0)
+    if(portPath.length() > 0)
     {
-      if(subExec.getExecPortType(pin->name().c_str()) == FabricCore::DFGPortType_In)
+      if(exec.getNodePortType(pin->path().c_str()) == FabricCore::DFGPortType_In)
       {
         // if this is the graph on the binding, we need to set the arg value
         FTL::CStrRef resolvedType =
-          subExec.getExecPortResolvedType(pin->name().c_str());
+          exec.getNodePortResolvedType(pin->path().c_str());
         if(!resolvedType.empty())
         {
           if(resolvedType == "Integer")
@@ -386,34 +407,40 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
           }
         }
 
-        // copy all of the metadata
-        const char * uiRange =
-          subExec.getExecPortMetadata(pin->name().c_str(), "uiRange");
-        if(uiRange)
+        if(exec.getNodeType(pin->node()->name().c_str()) == FabricCore::DFGNodeType_Inst)
         {
-          if(strlen(uiRange) > 0)
+          FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name().c_str());
+
+          // copy all of the metadata
+          const char * uiRange =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiRange");
+          if(uiRange)
           {
-            exec.setExecPortMetadata(portPath.c_str(), "uiRange", uiRange, false);
+            if(strlen(uiRange) > 0)
+            {
+              exec.setExecPortMetadata(portPath.c_str(), "uiRange", uiRange, false);
+            }
+          }
+          const char * uiCombo =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiCombo");
+          if(uiCombo)
+          {
+            if(strlen(uiCombo) > 0)
+            {
+              exec.setExecPortMetadata(portPath.c_str(), "uiCombo", uiCombo, false);
+            }
+          }
+          const char * uiHidden =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiHidden");
+          if(uiHidden)
+          {
+            if(strlen(uiHidden) > 0)
+            {
+              exec.setExecPortMetadata(portPath.c_str(), "uiHidden", uiHidden, false);
+            }
           }
         }
-        const char * uiCombo =
-          subExec.getExecPortMetadata(pin->name().c_str(), "uiCombo");
-        if(uiCombo)
-        {
-          if(strlen(uiCombo) > 0)
-          {
-            exec.setExecPortMetadata(portPath.c_str(), "uiCombo", uiCombo, false);
-          }
-        }
-        const char * uiHidden =
-          subExec.getExecPortMetadata(pin->name().c_str(), "uiHidden");
-        if(uiHidden)
-        {
-          if(strlen(uiHidden) > 0)
-          {
-            exec.setExecPortMetadata(portPath.c_str(), "uiHidden", uiHidden, false);
-          }
-        }
+
       }
     }
 
@@ -1383,7 +1410,12 @@ bool DFGController::canConnectTo(
 void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node)
 {
   Controller::populateNodeToolbar(toolbar, node);
-  toolbar->addTool("node_edit", "node_edit.png");
+
+  FabricCore::DFGExec exec = getCoreDFGExec();
+  if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
+  {
+    toolbar->addTool("node_edit", "node_edit.png");
+  }
 }
 
 void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)

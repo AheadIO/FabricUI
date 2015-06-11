@@ -5,7 +5,6 @@
 
 #include <FabricUI/ValueEditor/ValueEditorWidget.h>
 
-#include "DFGWrapper/Node.h"
 #include "DFGConfig.h"
 #include "DFGController.h"
 
@@ -38,6 +37,8 @@ namespace FabricUI
       void onArgsChanged();
 
     private:
+
+      std::string unAliasType(const std::string & type);
 
       std::string m_nodeName;
       DFGConfig m_config;

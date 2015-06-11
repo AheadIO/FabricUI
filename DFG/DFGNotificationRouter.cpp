@@ -127,14 +127,6 @@ void DFGNotificationRouter::onGraphSet()
 
 void DFGNotificationRouter::onNotification(FTL::CStrRef json)
 {
-  // // todo: remove this
-  // FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(json);
-  // const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  // std::string descStr = descVar->getStringData();
-  // if(descStr != "nodeMetadataChanged" && descStr != "execMetadataChanged")
-  // {
-  //   m_controller->log(("View::callback "+std::string(json)).c_str());    
-  // }
 }
 
 void DFGNotificationRouter::onNodeInserted(
@@ -151,9 +143,32 @@ void DFGNotificationRouter::onNodeInserted(
   if(!uiNode)
     return;
 
+  FabricCore::DFGNodeType nodeType = m_coreDFGExec.getNodeType(nodeName.c_str());
+  if(nodeType == FabricCore::DFGNodeType_Var ||
+    nodeType == FabricCore::DFGNodeType_Get ||
+    nodeType == FabricCore::DFGNodeType_Set)
+  {
+    uiNode->setColor(m_config.varNodeDefaultColor);
+    uiNode->setLabelColor(m_config.varLabelDefaultColor);
+  }
+
   FTL::CStrRef title;
-  if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
-    onNodeTitleChanged( nodeName, title );
+  if(nodeType == FabricCore::DFGNodeType_Inst)
+  {
+    if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
+      onNodeTitleChanged( nodeName, title );
+  }
+  else if(nodeType == FabricCore::DFGNodeType_Var)
+  {
+    if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
+      onNodeTitleChanged( nodeName, title );
+  }
+  else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
+  {
+    // todo
+    if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
+      onNodeTitleChanged( nodeName, title );
+  }
 
   FTL::JSONArray const *portsJSONArray =
     jsonObject->get( FTL_STR("ports") )->cast<FTL::JSONArray>();
@@ -223,8 +238,15 @@ void DFGNotificationRouter::onNodePortInserted(
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
   FabricCore::DFGExec exec = getCoreDFGExec();
-  FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
-  QColor color = m_config.getColorForDataType(dataType, &subExec, portName.c_str());
+
+  QColor color;
+  if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+  {
+    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+    color = m_config.getColorForDataType(dataType, &subExec, portName.c_str());
+  }
+  else
+    color = m_config.getColorForDataType(dataType);
 
   FTL::CStrRef nodePortType =
     jsonObject->getStringOrEmpty( FTL_STR("nodePortType") );
@@ -718,10 +740,15 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(
 
   if(newResolvedType != uiPin->dataType())
   {
-    FabricCore::DFGExec subExec =
-      getCoreDFGExec().getSubExec(nodeName.c_str());
     uiPin->setDataType(newResolvedType.data());
-    uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
+    if(getCoreDFGExec().getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+    {
+      FabricCore::DFGExec subExec =
+        getCoreDFGExec().getSubExec(nodeName.c_str());
+      uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
+    }
+    else
+      uiPin->setColor(m_config.getColorForDataType(newResolvedType));
     uiGraph->updateColorForConnections(uiPin);
   }
 }

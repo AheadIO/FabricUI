@@ -2,6 +2,7 @@
 
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
+#include "Dialogs/DFGGetStringDialog.h"
 #include <FabricCore.h>
 
 using namespace FabricUI;
@@ -44,6 +45,35 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
                   );
                 pos += QPointF(30, 30);
               }
+            }
+            // else if(std::string(typeVar->getStringData()) == "DFGGet")
+            // {
+            //   ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
+            //     typeVar->getStringData(), pos
+            //     );
+            //     pos += QPointF(30, 30);
+            // }
+            // else if(std::string(typeVar->getStringData()) == "DFGSet")
+            // {
+            //   ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
+            //     typeVar->getStringData(), pos
+            //     );
+            //     pos += QPointF(30, 30);
+            // }
+            else if(std::string(typeVar->getStringData()) == "DFGVar")
+            {
+              DFGGetStringDialog dialog(this, "Variable", DFGConfig());
+              if(dialog.exec() != QDialog::Accepted)
+                return;
+
+              QString name = dialog.text();
+              if(name.length() == 0)
+                return;
+
+              ((DFGController*)graph()->controller())->addDFGVar(
+                name.toUtf8().constData(), pos
+                );
+                pos += QPointF(30, 30);
             }
           }
         }

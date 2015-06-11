@@ -63,6 +63,7 @@ namespace FabricUI
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
       virtual std::string addDFGNodeFromPreset(FTL::StrRef preset, QPointF pos);
+      virtual std::string addDFGVar(FTL::StrRef varName, QPointF pos);
       virtual std::string addEmptyGraph(char const * title, QPointF pos);
       virtual std::string addEmptyFunc(char const * title, QPointF pos);
       virtual bool removeNode(char const * path);
