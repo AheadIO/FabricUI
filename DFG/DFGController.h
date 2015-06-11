@@ -90,6 +90,7 @@ namespace FabricUI
       virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
       virtual bool removeConnection(char const *srcPath, char const *dstPath);
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
+      virtual bool removeAllConnections(char const *  path);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual bool setCode(char const *  path, char const *  code);
       virtual std::string reloadCode(char const *  path);
