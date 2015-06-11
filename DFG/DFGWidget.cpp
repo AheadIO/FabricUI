@@ -141,7 +141,23 @@ void DFGWidget::setGraph(
     m_uiGraph = NULL;
     m_uiController->setGraph(NULL);
   }
+
   m_uiGraphViewWidget->setGraph(m_uiGraph);
+
+  if ( m_uiGraph )
+  {
+    try
+    {
+      m_router->onGraphSet();
+    }
+    catch(FabricCore::Exception e)
+    {
+      printf( "%s\n", e.getDesc_cstr() );
+    }
+
+    // FE-4277
+    emit onGraphSet(m_uiGraph);
+  }
 }
 
 GraphView::Graph * DFGWidget::getUIGraph()

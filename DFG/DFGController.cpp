@@ -100,14 +100,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
   if(m_router)
   {
     m_router->setController(this);
-    try
-    {
-      m_router->onGraphSet();
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-    }
 
     if(m_overTakeBindingNotifications)
       m_coreDFGBinding.setNotificationCallback(
