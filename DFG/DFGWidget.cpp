@@ -99,7 +99,6 @@ void DFGWidget::setGraph(
     m_uiGraph = new DFGGraph(NULL, m_dfgConfig.graphConfig, m_uiFactory);
     m_uiGraph->setController(m_uiController.get());
     m_uiController->setGraph(m_uiGraph);
-    m_uiGraphViewWidget->setGraph(m_uiGraph);
 
     QObject::connect(
       m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
@@ -111,7 +110,7 @@ void DFGWidget::setGraph(
     );  
     m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
 
-    m_uiGraph->reset(true);
+    m_uiGraph->initialize();
 
     m_router =
       static_cast<DFGNotificationRouter *>(
@@ -137,9 +136,8 @@ void DFGWidget::setGraph(
   {
     m_uiGraph = NULL;
     m_uiController->setGraph(NULL);
-    m_uiGraphViewWidget->setGraph(NULL);
-    m_uiGraphViewWidget->setGraph(NULL);
   }
+  m_uiGraphViewWidget->setGraph(m_uiGraph);
 }
 
 DFGGraph * DFGWidget::getUIGraph()

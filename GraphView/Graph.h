@@ -55,7 +55,7 @@ namespace FabricUI
         );
       virtual ~Graph() {}
 
-      virtual void reset(bool createSidePanels = false);
+      virtual void initialize();
 
       virtual const GraphConfig & config() const;
       QGraphicsWidget * itemGroup();
@@ -174,7 +174,6 @@ namespace FabricUI
         }
       };
 
-      bool m_constructed;
       GraphFactory * m_factory;
       GraphConfig m_config;
       Controller * m_controller;

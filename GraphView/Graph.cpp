@@ -13,6 +13,7 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
+  setContentsMargins(0, 0, 0, 0);
 
   m_controller = NULL;
   m_mouseGrabber = NULL;
@@ -32,93 +33,27 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
   m_nodeToolbar = NULL;
-
-  m_constructed = false;
-  reset(false);
-  m_constructed = true;
 }
 
-void Graph::reset(bool createSidePanels)
+void Graph::initialize()
 {
-  if(m_nodeToolbar)
-    m_nodeToolbar->deattach(false);
-
-  if(m_constructed)
-  {
-    for(size_t i=0;i<m_connections.size();i++)
-    {
-      scene()->removeItem(m_connections[i]);
-      delete(m_connections[i]);
-    }
-    m_connections.clear();
-
-    for(size_t i=0;i<m_nodes.size();i++)
-    {
-      scene()->removeItem(m_nodes[i]);
-      delete(m_nodes[i]);
-    }
-    m_nodes.clear();
-    m_nodeMap.clear();
-
-    if(m_mouseGrabber)
-    {
-      scene()->removeItem(m_mouseGrabber);
-      delete(m_mouseGrabber);
-      m_mouseGrabber = NULL;
-    }
-    if(m_nodeToolbar)
-    {
-      scene()->removeItem(m_nodeToolbar);
-      delete(m_nodeToolbar);
-      m_nodeToolbar = NULL;
-    }
-    if(m_mainPanel)
-    {
-      scene()->removeItem(m_mainPanel);
-      delete(m_mainPanel);
-      m_mainPanel = NULL;
-    }
-    if(m_leftPanel)
-    {
-      scene()->removeItem(m_leftPanel);
-      delete(m_leftPanel);
-      m_leftPanel = NULL;
-    }
-    if(m_rightPanel)
-    {
-      scene()->removeItem(m_rightPanel);
-      delete(m_rightPanel);
-      m_rightPanel = NULL;
-    }
-  }
-
   m_mainPanel = new MainPanel(this);
 
-  if(createSidePanels)
-  {
-    m_leftPanel = new SidePanel(this, PortType_Output);
-    m_rightPanel = new SidePanel(this, PortType_Input);
-  }
+  m_leftPanel = new SidePanel(this, PortType_Output);
+  QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
 
-  setContentsMargins(0, 0, 0, 0);
+  m_rightPanel = new SidePanel(this, PortType_Input);
+  QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
 
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   layout->setSpacing(0);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setOrientation(Qt::Horizontal);
-  if(m_leftPanel)
-  {
-    layout->addItem(m_leftPanel);
-    QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-      this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
-  }
+  layout->addItem(m_leftPanel);
   layout->addItem(m_mainPanel);
-  if(m_rightPanel)
-  {
-    layout->addItem(m_rightPanel);
-    QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-      this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
-  }
+  layout->addItem(m_rightPanel);
   setLayout(layout);
 
   m_nodeToolbar = new NodeToolbar(this, m_config);
