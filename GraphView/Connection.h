@@ -26,7 +26,12 @@ namespace FabricUI
 
     public:
 
-      Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget * dst, bool forceUseOfPinColor = false);
+      Connection(
+        Graph * parent,
+        ConnectionTarget * src,
+        ConnectionTarget * dst,
+        bool forceUseOfPinColor = false
+        );
 
       virtual int type() const { return QGraphicsItemType_Connection; }
 
@@ -37,15 +42,12 @@ namespace FabricUI
       ConnectionTarget * dst();
       const ConnectionTarget * dst() const;
 
-      virtual QColor color() const;
+      virtual QColor color() const
+        { return m_color; }
       virtual void setColor(QColor color);
-      virtual QPen defaultPen() const;
-      virtual QPen hoverPen() const;
 
       QPointF srcPoint() const;
       QPointF dstPoint() const;
-
-      virtual QRectF boundingRect() const;
 
       virtual void invalidate();
       
@@ -53,8 +55,6 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
-      
-      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
     public slots:
 
@@ -62,7 +62,6 @@ namespace FabricUI
 
     private:
 
-      void updateBbox();
       float computeTangentLength() const;
 
       Graph * m_graph;
@@ -75,7 +74,6 @@ namespace FabricUI
 
       bool m_dragging;
       QPointF m_lastDragPoint;
-      QRectF m_boundingBox;
       bool m_aboutToBeDeleted;
     };
 
