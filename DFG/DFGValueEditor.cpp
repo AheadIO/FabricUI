@@ -114,23 +114,23 @@ void DFGValueEditor::onArgsChanged()
           if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
             continue;
 
-          FTL::StrRef portName = subExec.getExecPortName(i);
+          FTL::CStrRef portName = subExec.getExecPortName(i);
           std::string portPath = prefix + portName.data();
           if(exec.isConnectedToAny(portPath.c_str()))
             continue;
 
-          std::string dataType = exec.getNodePortResolvedType(portPath.c_str());
-          if(dataType == "" || dataType.find('$') != std::string::npos)
+          FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
+          if(dataType.empty() || dataType.find('$') != dataType.end())
             continue;
 
-          FTL::StrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
+          FTL::CStrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
           if(hidden == "true")
             continue;
 
           FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), dataType.c_str());
           if(!value.isValid())
           {
-            std::string aliasedDataType = unAliasType(dataType);
+            FTL::CStrRef aliasedDataType = unAliasType(dataType);
             if(aliasedDataType != dataType)
               value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
           }
@@ -161,11 +161,11 @@ void DFGValueEditor::onArgsChanged()
       else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Var)
       {
         std::string portPath = m_nodeName + ".value";
-        std::string dataType = exec.getNodePortResolvedType(portPath.c_str());
+        FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
         FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
         if(!value.isValid())
         {
-          std::string aliasedDataType = unAliasType(dataType);
+          FTL::CStrRef aliasedDataType = unAliasType(dataType);
           if(aliasedDataType != dataType)
             value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
         }
@@ -229,15 +229,15 @@ void DFGValueEditor::updateOutputs()
   }
 }
 
-std::string DFGValueEditor::unAliasType(const std::string & type)
+FTL::CStrRef DFGValueEditor::unAliasType(FTL::CStrRef dataType)
 {
-  if(type == "Integer")
-    return "SInt32";
-  else if(type == "Byte")
-    return "UInt8";
-  else if(type == "Size" || type == "Count" || type == "Index")
-    return "UInt32";
-  else if(type == "Scalar")
-    return "Float32";
-  return type;
+  if(dataType == FTL_STR("Integer"))
+    return FTL_STR("SInt32");
+  else if(dataType == FTL_STR("Byte"))
+    return FTL_STR("UInt8");
+  else if(dataType == FTL_STR("Size") || dataType == FTL_STR("Count") || dataType == FTL_STR("Index"))
+    return FTL_STR("UInt32");
+  else if(dataType == FTL_STR("Scalar"))
+    return FTL_STR("Float32");
+  else return dataType;
 }

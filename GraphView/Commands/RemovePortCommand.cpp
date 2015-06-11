@@ -46,7 +46,7 @@ bool RemovePortCommand::undo()
     return false;
 
   Port * port = new Port(panel, m_name.c_str(), m_pType, m_dataType.c_str(), m_color);
-  port->setDataType(m_dataType.c_str());
+  port->setDataType(m_dataType);
 
   if(panel->addPort(port))
     return true;

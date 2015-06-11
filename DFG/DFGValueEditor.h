@@ -38,7 +38,7 @@ namespace FabricUI
 
     private:
 
-      std::string unAliasType(const std::string & type);
+      FTL::CStrRef unAliasType(FTL::CStrRef type);
 
       std::string m_nodeName;
       DFGConfig m_config;

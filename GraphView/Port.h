@@ -64,8 +64,11 @@ namespace FabricUI
       virtual QColor color() const;
       void setColor(QColor color);
       virtual PortType portType() const;
-      virtual char const * dataType() const;
-      virtual void setDataType(char const * dt);
+
+      virtual FTL::CStrRef dataType() const
+        { return m_dataType; }
+      virtual void setDataType(FTL::CStrRef dataType);
+
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
 
