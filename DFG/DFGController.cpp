@@ -29,6 +29,7 @@
 #include "Commands/DFGSetCodeCommand.h"
 #include "Commands/DFGSetArgCommand.h"
 #include "Commands/DFGSetDefaultValueCommand.h"
+#include "Commands/DFGSetRefVarPathCommand.h"
 #include "Commands/DFGSetNodeCacheRuleCommand.h"
 #include "Commands/DFGCopyCommand.h"
 #include "Commands/DFGPasteCommand.h"
@@ -1347,12 +1348,26 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
     Commands::Command * command = NULL;
     if(portOrPinPath.find('.') != std::string::npos)
     {
-      command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
+      std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
+      FabricCore::DFGNodeType nodeType = getCoreDFGExec().getNodeType(nodeName.c_str());
+      if(nodeType == FabricCore::DFGNodeType_Inst || 
+        nodeType == FabricCore::DFGNodeType_Var ||
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
+      {
+        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
+      }
+      else if((nodeType == FabricCore::DFGNodeType_Get || 
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
+      {
+        command = new DFGSetRefVarPathCommand(this, portOrPinPath.c_str(), item->value().getStringCString());
+      }
     }
     else
     {
       command = new DFGSetArgCommand(this, item->name().toUtf8().constData(), item->value());
     }
+    if(command == NULL)
+      return;
     if(addCommand(command))
       return;
     delete(command);

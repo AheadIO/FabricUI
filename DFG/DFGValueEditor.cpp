@@ -188,9 +188,9 @@ void DFGValueEditor::onArgsChanged()
       }
       else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Get)
       {
-        QMessageBox msg(QMessageBox::Warning, "Fabric Code", "DFGValueEditor: To be implemented: DFGNodeType_Get");
-        msg.addButton("Ok", QMessageBox::AcceptRole);
-        msg.exec();
+        std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
+        FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
+        addValue((m_nodeName+".variable").c_str(), varPathVal, "variable", true);
       }
       else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
       {
