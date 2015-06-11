@@ -115,6 +115,17 @@ namespace FabricUI
       MouseGrabber * constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType);
       MouseGrabber * getMouseGrabber();
 
+      // interaction
+      virtual Node * addNode(Node * node, bool quiet = false);
+      virtual Node * addNodeFromPreset(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
+      virtual bool removeNode(Node * node, bool quiet = false);
+      virtual bool addPort(Port * port, bool quiet = false);
+      virtual bool removePort(Port * port, bool quiet = false);
+      virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(Connection * connection, bool quiet = false);
+      virtual void resetMouseGrabber();
+
     public slots:
 
       virtual bool pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
@@ -136,19 +147,6 @@ namespace FabricUI
       void connectionRemoved(FabricUI::GraphView::Connection * connection);
       void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       void hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString);
-
-    protected:
-
-      // interaction - only possible through controller
-      virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
-      virtual bool removeNode(Node * node, bool quiet = false);
-      virtual bool addPort(Port * port, bool quiet = false);
-      virtual bool removePort(Port * port, bool quiet = false);
-      virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
-      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
-      virtual bool removeConnection(Connection * connection, bool quiet = false);
-      virtual void resetMouseGrabber();
 
     private:
 

@@ -7,7 +7,6 @@
 #include "DFGController.h"
 #include "DFGFactory.h"
 #include "DFGNotificationRouter.h"
-#include "DFGGraph.h"
 #include "DFGGraphViewWidget.h"
 #include "PresetTreeWidget.h"
 #include "PresetTreeItem.h"

@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <FabricUI/GraphView/Graph.h>
 #include "DFGNotificationRouter.h"
-#include "DFGGraph.h"
 #include "DFGController.h"
 
 #include <FTL/JSONValue.h>
@@ -142,12 +142,12 @@ void DFGNotificationRouter::onNodeInserted(
   FTL::JSONObject const *jsonObject
   )
 {
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  if(!graph)
+  GraphView::Graph * uiGraph = m_controller->graph();
+  if(!uiGraph)
     return;
 
   GraphView::Node * uiNode =
-    graph->addNodeFromPreset( nodeName, FTL::CStrRef() );
+    uiGraph->addNodeFromPreset( nodeName, FTL::CStrRef() );
   if(!uiNode)
     return;
 
@@ -193,13 +193,13 @@ void DFGNotificationRouter::onNodeRemoved(
   FTL::CStrRef nodeName
   )
 {
-  if(m_controller->graph() == NULL)
+  GraphView::Graph * uiGraph = m_controller->graph();
+  if(!uiGraph)
     return;
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
-  GraphView::Node * uiNode = graph->node(nodeName);
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
-  graph->removeNode(uiNode);
+  uiGraph->removeNode(uiNode);
 
   if(m_performChecks)
   {
@@ -213,7 +213,7 @@ void DFGNotificationRouter::onNodePortInserted(
   FTL::JSONObject const *jsonObject
   )
 {
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * graph = m_controller->graph();
   if(!graph)
     return;
   GraphView::Node * uiNode = graph->node(nodeName);
@@ -245,11 +245,11 @@ void DFGNotificationRouter::onNodePortRemoved(
   FTL::CStrRef portName
   )
 {
-  if(m_controller->graph() == NULL)
+  GraphView::Graph * uiGraph = m_controller->graph();
+  if(!uiGraph)
     return;
-  DFGGraph * graph = (DFGGraph*)m_controller->graph();
 
-  GraphView::Node * uiNode = graph->node(nodeName);
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
   GraphView::Pin * uiPin = uiNode->pin(portName);
@@ -268,7 +268,7 @@ void DFGNotificationRouter::onExecPortInserted(
   FTL::JSONObject const *jsonObject
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -316,7 +316,7 @@ void DFGNotificationRouter::onExecPortRemoved(
   FTL::CStrRef portName
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -353,7 +353,7 @@ void DFGNotificationRouter::onPortsConnected(
   FTL::CStrRef dstPath
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -406,7 +406,7 @@ void DFGNotificationRouter::onPortsDisconnected(
   FTL::CStrRef dstPath
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -462,7 +462,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
 {
   if(m_controller->graph() == NULL)
     return;
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   GraphView::Node * uiNode = uiGraph->node(nodeName.data());
   if(!uiNode)
     return;
@@ -530,7 +530,7 @@ void DFGNotificationRouter::onNodeTitleChanged(
 {
   if(m_controller->graph() == NULL)
     return;
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
@@ -545,7 +545,7 @@ void DFGNotificationRouter::onExecPortRenamed(
   FTL::JSONObject const *execPortJSONObject
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -593,7 +593,7 @@ void DFGNotificationRouter::onExecMetadataChanged(
   FTL::CStrRef value
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 
@@ -675,7 +675,7 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   FTL::CStrRef newResolvedType
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
   GraphView::Port * uiPort = uiGraph->port(portName);
@@ -705,7 +705,7 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(
   FTL::CStrRef newResolvedType
   )
 {
-  DFGGraph * uiGraph = (DFGGraph*)m_controller->graph();
+  GraphView::Graph * uiGraph = m_controller->graph();
   if(!uiGraph)
     return;
 

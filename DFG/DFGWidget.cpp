@@ -17,6 +17,8 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
+QSettings * DFGWidget::g_settings = NULL;
+
 DFGWidget::DFGWidget(
   QWidget * parent, 
   FabricCore::Client const &coreClient,
@@ -96,7 +98,9 @@ void DFGWidget::setGraph(
 
   if(m_coreDFGExec.isValid())
   {
-    m_uiGraph = new DFGGraph(NULL, m_dfgConfig.graphConfig, m_uiFactory);
+    m_uiGraph = new GraphView::Graph(
+      NULL, m_dfgConfig.graphConfig, m_uiFactory
+      );
     m_uiGraph->setController(m_uiController.get());
     m_uiController->setGraph(m_uiGraph);
 
@@ -140,7 +144,7 @@ void DFGWidget::setGraph(
   m_uiGraphViewWidget->setGraph(m_uiGraph);
 }
 
-DFGGraph * DFGWidget::getUIGraph()
+GraphView::Graph * DFGWidget::getUIGraph()
 {
   return m_uiGraph;
 }
@@ -183,7 +187,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
-  DFGGraph * graph = graphWidget->m_uiGraph;
+  GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
   graphWidget->m_contextNode = uiNode;
@@ -252,7 +256,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
-  DFGGraph * graph = graphWidget->m_uiGraph;
+  GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
   graphWidget->m_contextPort = port;
@@ -267,7 +271,7 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
 QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
-  DFGGraph * graph = graphWidget->m_uiGraph;
+  GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
   graphWidget->m_contextPortType = panel->portType();
@@ -384,9 +388,9 @@ void DFGWidget::onNodeAction(QAction * action)
       title = title.left(title.length() - 9);
 
     QString lastPresetFolder = title;
-    if(DFGGraph::getSettings())
+    if(getSettings())
     {
-      lastPresetFolder = DFGGraph::getSettings()->value("DFGWidget/lastPresetFolder").toString();
+      lastPresetFolder = getSettings()->value("DFGWidget/lastPresetFolder").toString();
       lastPresetFolder += "/" + title;
     }
 
@@ -397,11 +401,11 @@ void DFGWidget::onNodeAction(QAction * action)
     if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
       filePath = filePath.left(filePath.length() - 9);
 
-    if(DFGGraph::getSettings())
+    if(getSettings())
     {
       QDir dir(filePath);
       dir.cdUp();
-      DFGGraph::getSettings()->setValue( "DFGWidget/lastPresetFolder", dir.path() );
+      getSettings()->setValue( "DFGWidget/lastPresetFolder", dir.path() );
     }
 
     std::string filePathStr = filePath.toUtf8().constData();
@@ -818,4 +822,14 @@ bool DFGWidget::editNode(FabricCore::DFGExec exec, char const * name, bool pushE
     return false;
   }
   return true;  
+}
+
+QSettings * DFGWidget::getSettings()
+{
+  return g_settings;
+}
+
+void DFGWidget::setSettings(QSettings * settings)
+{
+  g_settings = settings;
 }

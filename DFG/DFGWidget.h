@@ -3,12 +3,12 @@
 #ifndef __UI_DFG_DFGWidget__
 #define __UI_DFG_DFGWidget__
 
+#include <QtCore/QSettings>
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
 #include <FabricUI/GraphView/GraphHeaderWidget.h>
 #include "DFGGraphViewWidget.h"
-#include "DFGGraph.h"
 #include "DFGController.h"
 #include "DFGFactory.h"
 #include "DFGNotificationRouter.h"
@@ -49,10 +49,13 @@ namespace FabricUI
         bool clear = true
         );
 
-      DFGGraph * getUIGraph();
+      GraphView::Graph * getUIGraph();
       DFGController * getUIController();
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
+
+      static QSettings * getSettings();
+      static void setSettings(QSettings * settings);
 
     signals:
 
@@ -88,7 +91,7 @@ namespace FabricUI
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
       GraphView::GraphHeaderWidget * m_uiHeader;
-      DFGGraph * m_uiGraph;
+      GraphView::Graph * m_uiGraph;
       FTL::OwnedPtr<DFGController> m_uiController;
       DFGFactory * m_uiFactory;
       DFGNotificationRouter * m_router;
@@ -103,6 +106,8 @@ namespace FabricUI
 
       std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
       std::string m_coreDFGExecPath;
+
+      static QSettings * g_settings;
     };
 
   };
