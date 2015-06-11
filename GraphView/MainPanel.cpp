@@ -6,12 +6,12 @@
 #include <QtGui/QCursor>
 #include <QtGui/QGraphicsView>
 
-#include "MainPanel.h"
-#include "Pin.h"
-#include "Node.h"
-#include "Graph.h"
-#include "GraphConfig.h"
-#include "CachingEffect.h"
+#include <FabricUI/GraphView/MainPanel.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FabricUI/GraphView/CachingEffect.h>
 
 using namespace FabricUI::GraphView;
 

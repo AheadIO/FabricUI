@@ -3,8 +3,8 @@
 #ifndef __UI_GraphView_AddConnectionCommand__
 #define __UI_GraphView_AddConnectionCommand__
 
-#include "../Controller.h"
-#include "ControllerCommand.h"
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Commands/ControllerCommand.h>
 
 namespace FabricUI
 {

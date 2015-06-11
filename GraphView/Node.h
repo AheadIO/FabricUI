@@ -10,11 +10,11 @@
 
 #include <FTL/CStrRef.h>
 
-#include "NodeRectangle.h"
-#include "NodeHeader.h"
-#include "Pin.h"
-#include "GraphicItemTypes.h"
-#include "CachingEffect.h"
+#include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/NodeHeader.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/GraphicItemTypes.h>
+#include <FabricUI/GraphView/CachingEffect.h>
 
 namespace FabricUI
 {

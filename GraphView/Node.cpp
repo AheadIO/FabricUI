@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Node.h"
-#include "NodeToolbar.h"
-#include "NodeRectangle.h"
-#include "Graph.h"
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeToolbar.h>
+#include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneMouseEvent>

@@ -1,6 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "AddConnectionCommand.h"
+#include <FabricUI/GraphView/Commands/AddConnectionCommand.h>
 
 using namespace FabricUI::GraphView;
 

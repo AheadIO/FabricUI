@@ -11,16 +11,16 @@
 
 #include <FTL/StrRef.h>
 
-#include "GraphConfig.h"
-#include "Controller.h"
-#include "GraphFactory.h"
-#include "Node.h"
-#include "NodeToolbar.h"
-#include "Pin.h"
-#include "Connection.h"
-#include "MouseGrabber.h"
-#include "MainPanel.h"
-#include "SidePanel.h"
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/GraphFactory.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeToolbar.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/MouseGrabber.h>
+#include <FabricUI/GraphView/MainPanel.h>
+#include <FabricUI/GraphView/SidePanel.h>
 
 #if QT_VERSION > 0x040602
 # define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton

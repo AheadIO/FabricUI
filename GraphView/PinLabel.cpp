@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "PinLabel.h"
-#include "Pin.h"
-#include "Graph.h"
-#include "GraphConfig.h"
+#include <FabricUI/GraphView/PinLabel.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/GraphConfig.h>
 
 using namespace FabricUI::GraphView;
 

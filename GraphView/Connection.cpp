@@ -4,10 +4,10 @@
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QPainter>
 
-#include "Connection.h"
-#include "Graph.h"
-#include "Pin.h"
-#include "Port.h"
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include <algorithm>
 #include <cstdlib>

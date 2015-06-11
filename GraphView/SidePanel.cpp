@@ -1,10 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "SidePanel.h"
-#include "Pin.h"
-#include "Graph.h"
-#include "Connection.h"
-#include "CachingEffect.h"
+#include <FabricUI/GraphView/SidePanel.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/CachingEffect.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QGraphicsSceneMouseEvent>

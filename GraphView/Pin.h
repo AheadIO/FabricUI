@@ -54,8 +54,9 @@ namespace FabricUI
       virtual void setIndex(int i);
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
-      virtual char const * dataType() const;
-      virtual void setDataType(char const * type);
+      virtual FTL::CStrRef dataType() const
+        { return m_dataType; }
+      virtual void setDataType(FTL::CStrRef dataType);
 
       PinCircle * inCircle();
       const PinCircle * inCircle() const;
