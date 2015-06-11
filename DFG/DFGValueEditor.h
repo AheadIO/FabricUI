@@ -5,7 +5,6 @@
 
 #include <FabricUI/ValueEditor/ValueEditorWidget.h>
 
-#include "DFGWrapper/Node.h"
 #include "DFGConfig.h"
 #include "DFGController.h"
 
