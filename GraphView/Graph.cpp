@@ -43,9 +43,6 @@ void Graph::reset(bool createSidePanels)
   if(m_nodeToolbar)
     m_nodeToolbar->deattach(false);
 
-  prepareGeometryChange();
-
-
   if(m_constructed)
   {
     for(size_t i=0;i<m_connections.size();i++)
@@ -104,12 +101,11 @@ void Graph::reset(bool createSidePanels)
   }
 
   setContentsMargins(0, 0, 0, 0);
+
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   layout->setSpacing(0);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setOrientation(Qt::Horizontal);
-  setLayout(layout);
-
   if(m_leftPanel)
   {
     layout->addItem(m_leftPanel);
@@ -123,6 +119,7 @@ void Graph::reset(bool createSidePanels)
     QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
       this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
   }
+  setLayout(layout);
 
   m_nodeToolbar = new NodeToolbar(this, m_config);
   m_nodeToolbar->hide();
