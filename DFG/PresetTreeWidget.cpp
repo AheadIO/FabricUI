@@ -3,8 +3,10 @@
 #include "PresetTreeWidget.h"
 #include "NameSpaceTreeItem.h"
 #include "PresetTreeItem.h"
-#include <FTL/Str.h>
+
+#include <FTL/JSONValue.h>
 #include <FTL/MapCharSingle.h>
+#include <FTL/Str.h>
 
 #include <QtGui/QVBoxLayout>
 
@@ -177,25 +179,37 @@ void PresetTreeWidget::updatePresetPathDB()
   std::vector<std::string> paths;
   paths.push_back("");
 
-  for(unsigned int i=0;i<paths.size();i++)
+  unsigned oldSize = paths.size() + 1;
+  for(unsigned int i=0;i<oldSize;i++)
   {
-    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc("");
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
-    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc("");
+    char const *jsonCStr;
+    uint32_t jsonSize;
+    jsonStringResult.getStringDataAndLength( jsonCStr, jsonSize );
+    FTL::CStrRef jsonStr( jsonCStr, jsonSize );
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
 
-    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    FTL::JSONObject const *membersObject =
+      jsonObject->get( FTL_STR("members") )->cast<FTL::JSONObject>();
+
+    for ( FTL::JSONObject::const_iterator it = membersObject->begin();
+      it != membersObject->end(); ++it )
     {
-      std::string name = memberIter.getKey()->getStringData();
-      const FabricCore::Variant * memberVar = memberIter.getValue();
-      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
-      std::string objectType = objectTypeVar->getStringData();
-      if(objectType == "Preset")
+      FTL::CStrRef name = it->first;
+      FTL::JSONObject const *memberObject =
+        it->second->cast<FTL::JSONObject>();
+      FTL::CStrRef objectType =
+        memberObject->getString( FTL_STR("objectType") );
+      if(objectType == FTL_STR("Preset"))
       {
-        m_presetPathDictSTL.push_back(paths[i] + "." + name);
+        m_presetPathDictSTL.push_back(paths[i] + std::string(".") + name.c_str());
       }
-      else if(objectType == "NameSpace")
+      else if(objectType == FTL_STR("NameSpace"))
       {
-        paths.push_back(paths[i] + "." + name);
+        paths.push_back(paths[i] + std::string(".") + name.c_str());
       }
     }
   }
