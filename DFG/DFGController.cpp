@@ -14,6 +14,8 @@
 #include <FabricUI/GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
 #include "Commands/DFGAddVarCommand.h"
+#include "Commands/DFGAddGetCommand.h"
+#include "Commands/DFGAddSetCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
 #include "Commands/DFGAddEmptyFuncCommand.h"
 #include "Commands/DFGRemoveNodeCommand.h"
@@ -148,6 +150,48 @@ std::string  DFGController::addDFGVar(FTL::StrRef varName, QPointF pos)
   try
   {
     DFGAddVarCommand * command = new DFGAddVarCommand(this, varName, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getNodePath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string  DFGController::addDFGGet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos)
+{
+  try
+  {
+    DFGAddGetCommand * command = new DFGAddGetCommand(this, varName, varPath, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getNodePath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string  DFGController::addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos)
+{
+  try
+  {
+    DFGAddSetCommand * command = new DFGAddSetCommand(this, varName, varPath, pos);
     if(!addCommand(command))
     {
       delete(command);
