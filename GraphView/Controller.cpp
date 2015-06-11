@@ -1,23 +1,22 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Controller.h"
-#include "Graph.h"
-#include "Node.h"
-#include "Pin.h"
-#include "Port.h"
-#include "Connection.h"
-#include "ConnectionTarget.h"
-#include "Commands/AddNodeCommand.h"
-#include "Commands/RemoveNodeCommand.h"
-#include "Commands/RenameNodeCommand.h"
-#include "Commands/Command.h"
-#include "Commands/AddPinCommand.h"
-#include "Commands/RemovePinCommand.h"
-#include "Commands/AddConnectionCommand.h"
-#include "Commands/RemoveConnectionCommand.h"
-#include "Commands/AddPortCommand.h"
-#include "Commands/RemovePortCommand.h"
-#include "Commands/RenamePortCommand.h"
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/ConnectionTarget.h>
+#include <FabricUI/GraphView/Commands/AddNodeCommand.h>
+#include <FabricUI/GraphView/Commands/RemoveNodeCommand.h>
+#include <FabricUI/GraphView/Commands/RenameNodeCommand.h>
+#include <FabricUI/GraphView/Commands/AddPinCommand.h>
+#include <FabricUI/GraphView/Commands/RemovePinCommand.h>
+#include <FabricUI/GraphView/Commands/AddConnectionCommand.h>
+#include <FabricUI/GraphView/Commands/RemoveConnectionCommand.h>
+#include <FabricUI/GraphView/Commands/AddPortCommand.h>
+#include <FabricUI/GraphView/Commands/RemovePortCommand.h>
+#include <FabricUI/GraphView/Commands/RenamePortCommand.h>
 
 using namespace FabricUI::GraphView;
 using namespace FabricServices::Commands;

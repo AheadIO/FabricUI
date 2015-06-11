@@ -1,10 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Port.h"
-#include "SidePanel.h"
-#include "Graph.h"
-#include "Pin.h"
-#include "GraphConfig.h"
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/SidePanel.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/GraphConfig.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 

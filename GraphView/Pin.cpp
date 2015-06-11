@@ -1,10 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Pin.h"
-#include "Node.h"
-#include "Graph.h"
-#include "GraphConfig.h"
-#include "ProxyPort.h"
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FabricUI/GraphView/ProxyPort.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 
@@ -142,15 +142,10 @@ void Pin::setHighlighted(bool state)
   setColor(m_color, true);
 }
 
-char const * Pin::dataType() const
+void Pin::setDataType(FTL::CStrRef dataType)
 {
-  return m_dataType.c_str();
-}
-
-void Pin::setDataType(char const * type)
-{
-  m_dataType = type;
-  setToolTip(type);
+  m_dataType = dataType;
+  setToolTip(dataType.c_str());
 }
 
 PinCircle * Pin::inCircle()

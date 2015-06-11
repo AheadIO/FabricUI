@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "NodeHeader.h"
-#include "Node.h"
-#include "NodeLabel.h"
-#include "Graph.h"
+#include <FabricUI/GraphView/NodeHeader.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeLabel.h>
+#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QPushButton>
