@@ -9,7 +9,6 @@
 #include <QtOpenGL/QGLWidget>
 
 #include <FabricCore.h>
-#include <DFGWrapper/Binding.h>
 
 namespace FabricUI
 {
@@ -24,7 +23,7 @@ namespace FabricUI
     	ImageViewportWidget(FabricCore::Client * client, QString argumentName, QWidget *parent = NULL);
     	virtual ~ImageViewportWidget();
 
-      void setBinding(FabricServices::DFGWrapper::Binding binding);
+      void setBinding(FabricCore::DFGBinding binding);
 
       double fps() const { return m_fps; }
 
@@ -45,7 +44,7 @@ namespace FabricUI
       QString m_argumentName;
       FabricCore::RTVal m_imageSeq;
       FabricCore::RTVal m_workData;
-      FabricServices::DFGWrapper::Binding m_binding;
+      FabricCore::DFGBinding m_binding;
 
       QTime m_fpsTimer;
       double m_fps;

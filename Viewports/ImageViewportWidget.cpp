@@ -34,7 +34,7 @@ ImageViewportWidget::~ImageViewportWidget()
 {
 }
 
-void ImageViewportWidget::setBinding(FabricServices::DFGWrapper::Binding binding)
+void ImageViewportWidget::setBinding(FabricCore::DFGBinding binding)
 {
   m_binding = binding;
   m_imageSeq = FabricCore::RTVal();

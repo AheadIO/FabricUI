@@ -9,7 +9,6 @@
 #include <QtOpenGL/QGLWidget>
 
 #include <FabricCore.h>
-#include <DFGWrapper/Binding.h>
 
 namespace FabricUI
 {
