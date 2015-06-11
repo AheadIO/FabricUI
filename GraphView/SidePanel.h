@@ -62,7 +62,6 @@ namespace FabricUI
       QPen m_pen;
       PortType m_portType;
 
-      QGraphicsLinearLayout * m_portsLayout;
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;
     };

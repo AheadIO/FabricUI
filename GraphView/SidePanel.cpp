@@ -29,7 +29,6 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 
   m_proxyPort = new ProxyPort(this, m_portType);
 
-  m_portsLayout = NULL;
   resetLayout();
 
   // todo: this is causing wrong drawing for some reason
@@ -90,8 +89,6 @@ bool SidePanel::removePort(Port * port)
     return false;
 
   m_ports.erase(m_ports.begin() + index);
-
-  prepareGeometryChange();
 
   scene()->removeItem(port);
   delete(port);
@@ -172,24 +169,24 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
 
 void SidePanel::resetLayout()
 {
-  prepareGeometryChange();
-  
   const GraphConfig & config = graph()->config();
   float contentMargins = config.sidePanelContentMargins;
-  m_portsLayout = new QGraphicsLinearLayout();
-  m_portsLayout->setContentsMargins(contentMargins, contentMargins, contentMargins, contentMargins);
-  m_portsLayout->setSpacing(config.sidePanelSpacing);
-  m_portsLayout->setOrientation(Qt::Vertical);
-  setLayout(m_portsLayout);
 
-  m_portsLayout->addItem(m_proxyPort);
-  m_portsLayout->setAlignment(m_proxyPort, Qt::AlignRight | Qt::AlignTop);
-  m_portsLayout->setItemSpacing(0, 20);
+  QGraphicsLinearLayout *portsLayout = new QGraphicsLinearLayout();
+  portsLayout->setContentsMargins(contentMargins, contentMargins, contentMargins, contentMargins);
+  portsLayout->setSpacing(config.sidePanelSpacing);
+  portsLayout->setOrientation(Qt::Vertical);
+
+  portsLayout->addItem(m_proxyPort);
+  portsLayout->setAlignment(m_proxyPort, Qt::AlignRight | Qt::AlignTop);
+  portsLayout->setItemSpacing(0, 20);
 
   for(size_t i=0;i<m_ports.size();i++)
   {
-    m_portsLayout->addItem(m_ports[i]);
-    m_portsLayout->setAlignment(m_ports[i], Qt::AlignRight | Qt::AlignTop);
+    portsLayout->addItem(m_ports[i]);
+    portsLayout->setAlignment(m_ports[i], Qt::AlignRight | Qt::AlignTop);
   }
-  m_portsLayout->addStretch(2);
+  portsLayout->addStretch(2);
+
+  setLayout(portsLayout);
 }
