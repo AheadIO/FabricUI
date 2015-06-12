@@ -390,10 +390,13 @@ void DFGWidget::onGraphAction(QAction * action)
   else if(action->text() == "Read Variable (Get)")
   {
     // todo: show an auto completing text field
-    getUIController()->addDFG(name.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+    getUIController()->addDFGGet("get", "", QPointF(pos.x(), pos.y()));
   }
-
-  // result->addAction("Write Variable (Set)");
+  else if(action->text() == "Write Variable (Set)")
+  {
+    // todo: show an auto completing text field
+    getUIController()->addDFGSet("set", "", QPointF(pos.x(), pos.y()));
+  }
 }
 
 void DFGWidget::onNodeAction(QAction * action)
