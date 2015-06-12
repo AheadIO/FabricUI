@@ -96,6 +96,11 @@ Connection::Connection(
       MouseGrabber * grabber = (MouseGrabber*)target;
       QObject::connect(grabber, SIGNAL(positionChanged(QPointF)), this, SLOT(dependencyMoved()));
     }
+    else if(target->targetType() == TargetType_Port)
+    {
+      Port * port = (Port*)target;
+      QObject::connect(port, SIGNAL(positionChanged()), this, SLOT(dependencyMoved()));
+    }
   }
 }
 

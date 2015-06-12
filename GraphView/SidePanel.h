@@ -61,6 +61,7 @@ namespace FabricUI
       QColor m_color;
       QPen m_pen;
       PortType m_portType;
+      bool m_requiresToSendSignalsForPorts;
 
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;

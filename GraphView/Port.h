@@ -30,6 +30,7 @@ namespace FabricUI
       Q_OBJECT
 
       friend class Graph;
+      friend class SidePanel;
 
     public:
 
@@ -79,6 +80,10 @@ namespace FabricUI
       
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
+
+    signals:
+
+      void positionChanged();
 
     private:
 

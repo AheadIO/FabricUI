@@ -22,6 +22,7 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
     m_color = config.sidePanelBackgroundColor;
   m_pen = config.sidePanelPen;
   m_portType = portType;
+  m_requiresToSendSignalsForPorts = false;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
   setMinimumWidth(config.sidePanelCollapsedWidth);
@@ -165,6 +166,15 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
   painter->drawRect(rect);  
 
   QGraphicsWidget::paint(painter, option, widget);
+
+  if(m_requiresToSendSignalsForPorts)
+  {
+    for(size_t i=0;i<m_ports.size();i++)
+    {
+      emit m_ports[i]->positionChanged();
+    }
+    m_requiresToSendSignalsForPorts = false;
+  }
 }
 
 void SidePanel::resetLayout()
@@ -189,4 +199,6 @@ void SidePanel::resetLayout()
   portsLayout->addStretch(2);
 
   setLayout(portsLayout);
+
+  m_requiresToSendSignalsForPorts = true;
 }
