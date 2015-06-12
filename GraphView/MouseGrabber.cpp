@@ -180,6 +180,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     scene->removeItem(m_connection);
     scene->removeItem(this);
     scene->update();
+    this->deleteLater();
   }
 
   if(m_targetUnderMouse)
