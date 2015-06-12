@@ -142,6 +142,10 @@ namespace FabricUI
         FTL::CStrRef portName,
         FTL::CStrRef nodePortType
         ) = 0;
+      virtual void onRefVarPathChanged(
+        FTL::CStrRef refName,
+        FTL::CStrRef newVarPath
+        ) = 0;
 
     private:
 

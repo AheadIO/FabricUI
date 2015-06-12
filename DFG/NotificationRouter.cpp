@@ -213,6 +213,13 @@ void NotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("newNodePortType") )
         );
     }
+    else if(descStr == FTL_STR("refVarPathChanged"))
+    {
+      onRefVarPathChanged(
+        jsonObject->getString( FTL_STR("refName") ),
+        jsonObject->getString( FTL_STR("newVarPath") )
+        );
+    }
     else
     {
       printf(

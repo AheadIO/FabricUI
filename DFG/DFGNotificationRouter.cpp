@@ -786,3 +786,17 @@ void DFGNotificationRouter::onNodePortTypeChanged(
 {
   // todo: we don't do anything here...
 }
+
+void DFGNotificationRouter::onRefVarPathChanged(
+  FTL::CStrRef refName,
+  FTL::CStrRef newVarPath
+  )
+{
+  FabricCore::DFGNodeType nodeType = m_coreDFGExec.getNodeType(refName.c_str());
+  std::string title = newVarPath;
+  if(nodeType == FabricCore::DFGNodeType_Get)
+    title = "get "+title;
+  else if(nodeType == FabricCore::DFGNodeType_Set)
+    title = "set "+title;
+  onNodeTitleChanged(refName, title.c_str());
+}
