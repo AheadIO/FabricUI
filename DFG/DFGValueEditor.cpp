@@ -1,6 +1,8 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGValueEditor.h"
+#include "VariablePathValueItem.h"
+#include "VariablePathValueWidget.h"
 #include <QtGui/QMessageBox>
 
 using namespace FabricServices;
@@ -22,6 +24,9 @@ DFGValueEditor::DFGValueEditor(
   // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
+
+  // register the extra widgets
+  m_factory->registerEditor(&VariablePathValueWidget::creator, &VariablePathValueWidget::canDisplay);
 }
 
 DFGValueEditor::~DFGValueEditor()
@@ -164,8 +169,22 @@ void DFGValueEditor::onArgsChanged()
         if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
         {
           std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
+
           FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
-          addValue((m_nodeName+".variable").c_str(), varPathVal, "variable", true);
+
+          VariablePathValueItem * item = new VariablePathValueItem(
+            "variable",
+            m_factory,
+            &m_client,
+            m_controller->getCoreDFGBinding(),
+            m_treeView,
+            varPathVal
+            );
+          addValue((m_nodeName+".variable").c_str(), item, true);
+        }
+        else
+        {
+
         }
 
         std::string portPath = m_nodeName + ".value";
@@ -203,7 +222,16 @@ void DFGValueEditor::onArgsChanged()
       {
         std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
         FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
-        addValue((m_nodeName+".variable").c_str(), varPathVal, "variable", true);
+
+        VariablePathValueItem * item = new VariablePathValueItem(
+          "variable",
+          m_factory,
+          &m_client,
+          m_controller->getCoreDFGBinding(),
+          m_treeView,
+          varPathVal
+          );
+        addValue((m_nodeName+".variable").c_str(), item, true);
       }
 
       // expand the node level tree item

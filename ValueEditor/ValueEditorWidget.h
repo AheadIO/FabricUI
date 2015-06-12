@@ -31,6 +31,7 @@ namespace FabricUI
       EditorConfig & config();
 
       virtual ValueItem * addValue(QString path, FabricCore::RTVal value, QString label = "", bool enabled = true);
+      virtual ValueItem * addValue(QString path, ValueItem * item, bool enabled = true);
       virtual bool removeValue(QString path);
       virtual FabricCore::RTVal getValue(QString path);
       virtual void clear();
