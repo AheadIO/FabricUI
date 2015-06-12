@@ -196,6 +196,11 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
     result->addAction("Implode nodes");
   }
 
+  result->addSeparator();
+  result->addAction("New Variable");
+  result->addAction("Read Variable (Get)");
+  result->addAction("Write Variable (Set)");
+
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
   return result;
 }
@@ -370,6 +375,25 @@ void DFGWidget::onGraphAction(QAction * action)
 
     m_uiController->implodeNodes(text.toUtf8().constData());
   }
+  else if(action->text() == "New Variable")
+  {
+    DFGGetStringDialog dialog(this, "Variable", m_dfgConfig);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString name = dialog.text();
+    if(name.length() == 0)
+      return;
+
+    getUIController()->addDFGVar(name.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+  }
+  else if(action->text() == "Read Variable (Get)")
+  {
+    // todo: show an auto completing text field
+    getUIController()->addDFG(name.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+  }
+
+  // result->addAction("Write Variable (Set)");
 }
 
 void DFGWidget::onNodeAction(QAction * action)
