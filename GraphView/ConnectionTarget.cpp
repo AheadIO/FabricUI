@@ -12,10 +12,20 @@
 using namespace FabricUI::GraphView;
 
 ConnectionTarget::ConnectionTarget(QGraphicsWidget * parent)
- : QGraphicsWidget(parent) 
+  : QGraphicsWidget(parent) 
+  , m_lastPinCircle( 0 )
+#if defined(FTL_BUILD_DEBUG)
+  , m_deleted( false )
+#endif
 {
   setAcceptHoverEvents(true);
-  m_lastPinCircle = NULL;
+}
+
+ConnectionTarget::~ConnectionTarget()
+{
+#if defined(FTL_BUILD_DEBUG)
+  m_deleted = true;
+#endif
 }
 
 bool ConnectionTarget::isConnected() const

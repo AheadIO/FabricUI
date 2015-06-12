@@ -177,7 +177,9 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     ungrabMouse();
     QGraphicsScene * scene = graph()->scene();
     graph()->resetMouseGrabber();
+    m_connection->invalidate();
     scene->removeItem(m_connection);
+    m_connection->deleteLater();
     scene->removeItem(this);
     scene->update();
     this->deleteLater();
@@ -230,9 +232,11 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
             prepareGeometryChange();
             ungrabMouse();
             QGraphicsScene * scene = graph()->scene();
+            m_connection->invalidate();
             scene->removeItem(m_connection);
+            m_connection->deleteLater();
             scene->removeItem(this);
-            scene->update();
+            this->deleteLater();
             return;
           }
           break;
