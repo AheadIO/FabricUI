@@ -55,6 +55,7 @@ void DFGNotificationRouter::onGraphSet()
   char const *descData;
   uint32_t descSize;
   desc.getStringDataAndLength( descData, descSize );
+
   FTL::JSONStrWithLoc jsonSrcWithLoc( FTL::StrRef( descData, descSize ) );
   FTL::OwnedPtr<FTL::JSONValue const> rootValue(
     FTL::JSONValue::Decode( jsonSrcWithLoc )
@@ -165,9 +166,8 @@ void DFGNotificationRouter::onNodeInserted(
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
-    // todo
-    if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
-      onNodeTitleChanged( nodeName, title );
+    FTL::CStrRef varPath = m_coreDFGExec.getRefVarPath(nodeName.c_str());
+    onRefVarPathChanged(nodeName, varPath);
   }
 
   FTL::JSONArray const *portsJSONArray =
