@@ -3,6 +3,7 @@
 #include "DFGTabSearchWidget.h"
 #include "DFGWidget.h"
 #include "DFGLogWidget.h"
+#include "Dialogs/DFGGetStringDialog.h"
 
 #include <QtGui/QCursor>
 
@@ -115,11 +116,7 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
   {
     if(m_currentIndex > -1 && m_currentIndex < m_results.length())
     {
-      QPoint localPos = geometry().topLeft();
-      QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addDFGNodeFromPreset(
-        m_results[m_currentIndex].toUtf8().constData(), scenePos
-        );
+      addNodeFromPath(m_results[m_currentIndex]);
     }
     hide();
     event->accept();
@@ -311,4 +308,58 @@ int DFGTabSearchWidget::widthFromResults() const
 int DFGTabSearchWidget::heightFromResults() const
 {
   return (m_results.length() + 1) * m_metrics.lineSpacing() + 2 * margin();
+}
+
+void DFGTabSearchWidget::addNodeFromPath(QString path)
+{
+  QPoint localPos = geometry().topLeft();
+  QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
+
+  // deal with special case
+  if(path == "var")
+  {
+    DFGGetStringDialog dialog(this, "Variable", DFGConfig());
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString name = dialog.text();
+    if(name.length() == 0)
+      return;
+
+    m_parent->getUIController()->addDFGVar(
+      name.toUtf8().constData(), scenePos
+      );
+  }
+  else if(path == "get")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "get", "", scenePos
+      );
+  }
+  else if(path == "set")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "set", "", scenePos
+      );
+  }
+  else if(path.left(4) == "get ")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "get",
+      path.mid(4).toUtf8().constData(), scenePos
+      );
+  }
+  else if(path.left(4) == "set ")
+  {
+    m_parent->getUIController()->addDFGSet(
+      "set",
+      path.mid(4).toUtf8().constData(), scenePos
+      );
+  }
+  else
+  {
+    m_parent->getUIController()->addDFGNodeFromPreset(
+      path.toUtf8().constData(), scenePos
+      );
+  }
 }

@@ -47,6 +47,8 @@ namespace FabricUI
 
     private:
 
+      void addNodeFromPath(QString path);
+
       DFGWidget * m_parent;
       DFGConfig m_config;
       QFontMetrics m_metrics;

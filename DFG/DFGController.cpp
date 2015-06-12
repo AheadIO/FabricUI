@@ -1605,6 +1605,15 @@ void DFGController::updatePresetPathDB()
   m_presetNameSpaceDictSTL.clear();
   m_presetPathDictSTL.clear();
 
+  // insert fixed results for special nodes
+  m_presetPathDictSTL.push_back("var");
+  m_presetPathDictSTL.push_back("get");
+  m_presetPathDictSTL.push_back("set");
+
+  // todo: insert all variables as gets and set
+  // also do this in the preset tree view
+  // also - if there's a new variable - we need to refresh this!
+
   std::vector<std::string> paths;
   paths.push_back("");
 
