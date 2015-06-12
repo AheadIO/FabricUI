@@ -49,7 +49,7 @@ namespace FabricUI
       virtual char const * label() const;
       virtual PortType portType() const;
       QColor color() const;
-      void setColor(QColor color, bool quiet = false);
+      void setColor(QColor color, bool quiet = false, bool performUpdate = true);
       virtual int index() const;
       virtual void setIndex(int i);
       virtual bool highlighted() const;

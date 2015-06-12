@@ -99,7 +99,7 @@ if uiLibPrefix == 'ui':
   env.Depends(uiLib, icons)
 
 locals()[uiLibPrefix + 'Lib'] = uiLib
-locals()[uiLibPrefix + 'IncludeDir'] = env.Dir('.').srcnode()
+locals()[uiLibPrefix + 'IncludeDir'] = env.Dir('#').Dir('Native').srcnode()
 locals()[uiLibPrefix + 'Flags'] = {
   'CPPPATH': [locals()[uiLibPrefix + 'IncludeDir']],
   'LIBS': [locals()[uiLibPrefix + 'Lib']]
