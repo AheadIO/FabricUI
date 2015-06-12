@@ -6,8 +6,12 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGVariablePathLineEdit::DFGVariablePathLineEdit(QWidget * parent, FabricCore::DFGBinding & binding, QString text)
-: DFGAutoCompleteLineEdit(parent, text)
+DFGVariablePathLineEdit::DFGVariablePathLineEdit(
+  QWidget * parent,
+  FabricCore::DFGBinding const &binding,
+  QString text
+  )
+  : DFGAutoCompleteLineEdit(parent, text)
 {
   QStringList words;
   // todo: variables API

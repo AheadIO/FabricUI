@@ -17,7 +17,11 @@ namespace FabricUI
 
     public:
 
-      DFGVariablePathLineEdit(QWidget * parent, FabricCore::DFGBinding & binding, QString text = "");
+      DFGVariablePathLineEdit(
+        QWidget * parent,
+        FabricCore::DFGBinding const &binding,
+        QString text = ""
+        );
     };
 
   };
