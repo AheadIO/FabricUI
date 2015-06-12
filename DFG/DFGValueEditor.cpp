@@ -158,16 +158,26 @@ void DFGValueEditor::onArgsChanged()
           }
         }
       }
-      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Var)
+      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Var ||
+        exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
       {
+        if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
+        {
+          std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
+          FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
+          addValue((m_nodeName+".variable").c_str(), varPathVal, "variable", true);
+        }
+
         std::string portPath = m_nodeName + ".value";
         FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
+
         FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
         if(!value.isValid())
         {
           FTL::CStrRef aliasedDataType = unAliasType(dataType);
+
           if(aliasedDataType != dataType)
-            value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
+            value = exec.getPortDefaultValue(portPath.c_str(), aliasedDataType.c_str());
         }
 
         if(!value.isValid())
@@ -191,12 +201,6 @@ void DFGValueEditor::onArgsChanged()
         std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
         FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
         addValue((m_nodeName+".variable").c_str(), varPathVal, "variable", true);
-      }
-      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
-      {
-        QMessageBox msg(QMessageBox::Warning, "Fabric Code", "DFGValueEditor: To be implemented: DFGNodeType_Set");
-        msg.addButton("Ok", QMessageBox::AcceptRole);
-        msg.exec();
       }
 
       // expand the node level tree item

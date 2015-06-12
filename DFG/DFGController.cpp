@@ -1359,7 +1359,7 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, portOrPinPath.c_str(), item->value().getStringCString());
+        command = new DFGSetRefVarPathCommand(this, nodeName.c_str(), item->value().getStringCString());
       }
     }
     else
