@@ -65,6 +65,8 @@ Pin::Pin(
   m_outCircle = new PinCircle(this, PortType_Output, m_color);
   layout->addItem(m_outCircle);
   layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
+  if(portType() == PortType_Input)
+    m_outCircle->setClipping(true);
 }
 
 Graph * Pin::graph()
@@ -100,7 +102,7 @@ QColor Pin::color() const
   return m_color;
 }
 
-void Pin::setColor(QColor color, bool quiet)
+void Pin::setColor(QColor color, bool quiet, bool performUpdate)
 {
   if(inCircle())
     inCircle()->setColor(color);
@@ -112,7 +114,8 @@ void Pin::setColor(QColor color, bool quiet)
     if(!quiet)
       emit colorChanged(this, color);
   }
-  update();
+  if(performUpdate)
+    update();
 }
 
 int Pin::index() const

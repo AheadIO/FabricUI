@@ -190,3 +190,17 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
   else
     QGraphicsWidget::mousePressEvent(event);
 }
+
+void PinCircle::setClipping(bool state)
+{
+  if(state)
+  {
+    m_ellipse->setStartAngle(90 * 16);
+    m_ellipse->setSpanAngle(180 * 16);
+  }
+  else
+  {
+    m_ellipse->setStartAngle(0);
+    m_ellipse->setSpanAngle(5760);
+  }
+}
