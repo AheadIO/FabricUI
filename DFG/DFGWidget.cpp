@@ -11,6 +11,7 @@
 #include "DFGMainWindow.h"
 #include "Dialogs/DFGGetStringDialog.h"
 #include "Dialogs/DFGEditPortDialog.h"
+#include "Dialogs/DFGNewVariableDialog.h"
 #include <assert.h>
 
 using namespace FabricServices;
@@ -377,15 +378,29 @@ void DFGWidget::onGraphAction(QAction * action)
   }
   else if(action->text() == "New Variable")
   {
-    DFGGetStringDialog dialog(this, "Variable", m_dfgConfig);
+    DFGController * controller = getUIController();
+    FabricCore::Client client = controller->getClient();
+    FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+
+    DFGNewVariableDialog dialog(this, client, binding);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
-    QString name = dialog.text();
+    QString name = dialog.name();
     if(name.length() == 0)
       return;
+    QString dataType = dialog.dataType();
+    QString extension = dialog.extension();
 
-    getUIController()->addDFGVar(name.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+
+    controller->addDFGVar(
+      name.toUtf8().constData(), 
+      dataType.toUtf8().constData(), 
+      extension.toUtf8().constData(), 
+      pos
+      );
+
+    pos += QPointF(30, 30);
   }
   else if(action->text() == "Read Variable (Get)")
   {
@@ -556,7 +571,7 @@ void DFGWidget::onExecPortAction(QAction * action)
   {
     try
     {
-      DFGEditPortDialog dialog(this, false, m_dfgConfig);
+      DFGEditPortDialog dialog(this, m_coreClient, false, m_dfgConfig);
 
       dialog.setTitle(portName);
       dialog.setDataType(m_coreDFGExec.getExecPortResolvedType(portName));
@@ -687,7 +702,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
 {
   if(action->text() == "Create Port")
   {
-    DFGEditPortDialog dialog(this, true, m_dfgConfig);
+    DFGEditPortDialog dialog(this, m_coreClient, true, m_dfgConfig);
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
     else

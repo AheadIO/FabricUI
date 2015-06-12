@@ -3,7 +3,7 @@
 #include "DFGTabSearchWidget.h"
 #include "DFGWidget.h"
 #include "DFGLogWidget.h"
-#include "Dialogs/DFGGetStringDialog.h"
+#include "Dialogs/DFGNewVariableDialog.h"
 
 #include <QtGui/QCursor>
 
@@ -318,16 +318,25 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   // deal with special case
   if(path == "var")
   {
-    DFGGetStringDialog dialog(this, "Variable", DFGConfig());
+    DFGController * controller = m_parent->getUIController();
+    FabricCore::Client client = controller->getClient();
+    FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+
+    DFGNewVariableDialog dialog(this, client, binding);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
-    QString name = dialog.text();
+    QString name = dialog.name();
     if(name.length() == 0)
       return;
+    QString dataType = dialog.dataType();
+    QString extension = dialog.extension();
 
-    m_parent->getUIController()->addDFGVar(
-      name.toUtf8().constData(), scenePos
+    controller->addDFGVar(
+      name.toUtf8().constData(), 
+      dataType.toUtf8().constData(), 
+      extension.toUtf8().constData(), 
+      scenePos
       );
   }
   else if(path == "get")

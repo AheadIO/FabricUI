@@ -146,11 +146,11 @@ std::string DFGController::addDFGNodeFromPreset(
   return "";
 }
 
-std::string  DFGController::addDFGVar(FTL::StrRef varName, QPointF pos)
+std::string  DFGController::addDFGVar(FTL::StrRef varName, FTL::StrRef dataType, FTL::StrRef extension, QPointF pos)
 {
   try
   {
-    DFGAddVarCommand * command = new DFGAddVarCommand(this, varName, pos);
+    DFGAddVarCommand * command = new DFGAddVarCommand(this, varName, dataType, extension, pos);
     if(!addCommand(command))
     {
       delete(command);

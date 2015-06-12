@@ -19,6 +19,8 @@ namespace FabricUI
       DFGAddVarCommand(
         DFGController * controller,
         FTL::StrRef name,
+        FTL::StrRef dataType,
+        FTL::StrRef extDep,
         QPointF pos
         );
 
@@ -27,6 +29,8 @@ namespace FabricUI
       virtual const char * getFullDesc() const { return "Adds a variable to the graph using a given variable name and a path."; }
 
       char const * getVarName() const;
+      char const * getDataType() const;
+      char const * getExtDep() const;
       char const * getNodePath() const;
       QPointF getPos() const;
       GraphView::Node * getNode();
@@ -38,6 +42,8 @@ namespace FabricUI
     private:
 
       std::string m_varName;
+      std::string m_dataType;
+      std::string m_extDep;
       std::string m_nodePath;
       QPointF m_pos;
     };
