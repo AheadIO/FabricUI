@@ -171,30 +171,33 @@ void DFGValueEditor::onArgsChanged()
         std::string portPath = m_nodeName + ".value";
         FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
 
-        FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
-        if(!value.isValid())
+        if(!dataType.empty() && dataType.find('$') == dataType.end())
         {
-          FTL::CStrRef aliasedDataType = unAliasType(dataType);
-
-          if(aliasedDataType != dataType)
-            value = exec.getPortDefaultValue(portPath.c_str(), aliasedDataType.c_str());
-        }
-
-        if(!value.isValid())
-        {
-          bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
-          if(isObject)
+          FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
+          if(!value.isValid())
           {
-            value = FabricCore::RTVal::Create(m_controller->getClient(), dataType.c_str(), 0, 0);
-          }
-          else
-          {
-            value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
-          }
-        }
+            FTL::CStrRef aliasedDataType = unAliasType(dataType);
 
-        if(value.isValid())
-          addValue(portPath.c_str(), value, "value", true);
+            if(aliasedDataType != dataType)
+              value = exec.getPortDefaultValue(portPath.c_str(), aliasedDataType.c_str());
+          }
+
+          if(!value.isValid())
+          {
+            bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
+            if(isObject)
+            {
+              value = FabricCore::RTVal::Create(m_controller->getClient(), dataType.c_str(), 0, 0);
+            }
+            else
+            {
+              value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
+            }
+          }
+
+          if(value.isValid())
+            addValue(portPath.c_str(), value, "value", true);
+        }
       }
       else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Get)
       {
