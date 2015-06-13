@@ -17,14 +17,14 @@ using namespace FabricUI::GraphView;
 Node::Node(
   Graph * parent,
   FTL::CStrRef name,
-  FTL::CStrRef label,
+  FTL::CStrRef title,
   QColor color,
-  QColor labelColor
+  QColor titleColor
   )
   : QGraphicsWidget( parent->itemGroup() )
   , m_graph( parent )
   , m_name( name )
-  , m_labelCaption( label )
+  , m_title( title )
 {
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
@@ -37,10 +37,10 @@ Node::Node(
     setColor(color);
   else
     setColor(m_graph->config().nodeDefaultColor);
-  if(labelColor.isValid())
-    setLabelColor(labelColor);
+  if(titleColor.isValid())
+    setTitleColor(titleColor);
   else
-    setLabelColor(m_graph->config().nodeDefaultLabelColor);
+    setTitleColor(m_graph->config().nodeDefaultLabelColor);
 
   float contentMargins = m_graph->config().nodeContentMargins;
 
@@ -65,7 +65,7 @@ Node::Node(
   layout->setOrientation(Qt::Vertical);
   m_mainWidget->setLayout(layout);
 
-  m_header = new NodeHeader(this, QString( label.c_str() ));
+  m_header = new NodeHeader(this, QString( title.c_str() ));
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
@@ -130,7 +130,7 @@ const NodeHeader * Node::header() const
 
 void Node::setTitle( FTL::CStrRef title )
 {
-  m_labelCaption = title;
+  m_title = title;
   m_header->setTitle( QString( title.c_str() ) );
 }
 
@@ -152,14 +152,14 @@ void Node::setColorAsGradient(QColor a, QColor b)
     m_defaultPen.setBrush(m_colorB.darker());
 }
 
-QColor Node::labelColor() const
+QColor Node::titleColor() const
 {
-  return m_labelColor;
+  return m_titleColor;
 }
 
-void Node::setLabelColor(QColor col)
+void Node::setTitleColor(QColor col)
 {
-  m_labelColor = col;
+  m_titleColor = col;
 }
 
 QPen Node::defaultPen() const
@@ -216,11 +216,6 @@ void Node::setCollapsedState(Node::CollapseState state)
 void Node::toggleCollapsedState()
 {
   setCollapsedState(CollapseState((int(m_collapsedState) + 1) % int(CollapseState_NumStates)));
-}
-
-void Node::setPreset( FTL::StrRef preset )
-{
-  m_preset = preset;
 }
 
 void Node::setSelected(bool state, bool quiet)

@@ -4,13 +4,18 @@
 
 using namespace FabricUI::GraphView;
 
-AddNodeCommand::AddNodeCommand(Controller * controller, char const * path, char const * preset, QPointF pos)
-: ControllerCommand(controller)
+AddNodeCommand::AddNodeCommand(
+  Controller * controller,
+  FTL::CStrRef name,
+  FTL::CStrRef title,
+  QPointF pos
+  )
+  : ControllerCommand(controller)
+  , m_name( name )
+  , m_title( title )
+  , m_graphPos( pos )
+  , m_useTopLeftPos( false )
 {
-  m_path = path;
-  m_preset = preset;
-  m_graphPos = pos;
-  m_useTopLeftPos = false;
 }
 
 AddNodeCommand::~AddNodeCommand()
@@ -19,15 +24,15 @@ AddNodeCommand::~AddNodeCommand()
 
 Node * AddNodeCommand::getNode()
 {
-  return controller()->graph()->nodeFromPath(m_path.c_str());
+  return controller()->graph()->nodeFromPath(m_name);
 }
 
 bool AddNodeCommand::invoke()
 {
-  Node * node = controller()->graph()->addNodeFromPreset(m_path, m_preset);
+  Node * node = controller()->graph()->addNode(m_name, m_title);
   if(!node)
     return false;
-  m_path = node->name();
+  m_name = node->name();
   controller()->moveNode(node, m_graphPos, m_useTopLeftPos);
   return true;
 }

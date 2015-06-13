@@ -5,12 +5,13 @@
 
 using namespace FabricUI::GraphView;
 
-Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * factory)
-: QGraphicsWidget(parent)
+Graph::Graph(
+  QGraphicsItem * parent,
+  const GraphConfig & config
+  )
+  : QGraphicsWidget(parent)
+  , m_config( config )
 {
-  m_config = config;
-  m_factory = factory;
-
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
   setContentsMargins(0, 0, 0, 0);
@@ -148,23 +149,13 @@ Node * Graph::addNode(Node * node, bool quiet)
   return node;
 }
 
-Node * Graph::addNodeFromPreset(
+Node * Graph::addNode(
   FTL::CStrRef name,
-  FTL::CStrRef preset,
+  FTL::CStrRef title,
   bool quiet
   )
 {
-  if(!m_factory)
-  {
-    if ( preset.empty() )
-      return addNode(new Node(this, name), quiet);
-    return NULL;
-  }
-  Node * node = m_factory->constructNodeFromPreset(this, name, preset);
-  if(!node)
-    return NULL;
-  node->setPreset(preset);
-  return addNode(node, quiet);
+  return addNode(new Node(this, name, title), quiet);
 }
 
 bool Graph::removeNode(Node * node, bool quiet)

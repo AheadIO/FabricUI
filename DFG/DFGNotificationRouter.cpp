@@ -140,7 +140,7 @@ void DFGNotificationRouter::onNodeInserted(
     return;
 
   GraphView::Node * uiNode =
-    uiGraph->addNodeFromPreset( nodeName, FTL::CStrRef() );
+    uiGraph->addNode( nodeName, FTL::CStrRef() );
   if(!uiNode)
     return;
 
@@ -150,7 +150,7 @@ void DFGNotificationRouter::onNodeInserted(
     nodeType == FabricCore::DFGNodeType_Set)
   {
     uiNode->setColor(m_config.varNodeDefaultColor);
-    uiNode->setLabelColor(m_config.varLabelDefaultColor);
+    uiNode->setTitleColor(m_config.varLabelDefaultColor);
   }
 
   FTL::CStrRef title;
@@ -523,7 +523,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
 
     QColor color(r, g, b);
     uiNode->setColor(color);
-    uiNode->setLabelColor(color.darker(130));
+    uiNode->setTitleColor(color.darker(130));
   }
   else if(key == FTL_STR("uiHeaderColor"))
   {
@@ -536,7 +536,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     int b = (int)getFloatFromVariant(bVar);
 
     QColor color(r, g, b);
-    uiNode->setLabelColor(color);
+    uiNode->setTitleColor(color);
   }
   else if(key == FTL_STR("uiTooltip"))
   {

@@ -44,9 +44,9 @@ namespace FabricUI
       Node(
         Graph * parent,
         FTL::CStrRef name,
-        FTL::CStrRef label = FTL::CStrRef(),
+        FTL::CStrRef title,
         QColor color = QColor(),
-        QColor labelColor = QColor()
+        QColor titleColor = QColor()
         );
       virtual ~Node();
 
@@ -61,15 +61,13 @@ namespace FabricUI
         { return m_name; }
       
       FTL::CStrRef title() const
-        { return m_labelCaption; }
+        { return m_title; }
       void setTitle( FTL::CStrRef title );
-      char const *preset() const
-        { return m_preset.c_str(); }
       QColor color() const;
       void setColor(QColor col);
       void setColorAsGradient(QColor a, QColor b);
-      QColor labelColor() const;
-      void setLabelColor(QColor col);
+      QColor titleColor() const;
+      void setTitleColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
 
@@ -103,7 +101,6 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
       // accessed by controller
-      virtual void setPreset( FTL::StrRef preset );
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
       virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
@@ -139,12 +136,11 @@ namespace FabricUI
 
       Graph * m_graph;
       std::string m_name;
-      std::string m_preset;
-      std::string m_labelCaption;
+      std::string m_title;
 
       QColor m_colorA;
       QColor m_colorB;
-      QColor m_labelColor;
+      QColor m_titleColor;
       QPen m_defaultPen;
       QPen m_selectedPen;
       QPen m_errorPen;

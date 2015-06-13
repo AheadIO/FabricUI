@@ -15,7 +15,11 @@ namespace FabricUI
 
     public:
 
-      DFGGraphViewWidget(QWidget * parent, const GraphView::GraphConfig & config = GraphView::GraphConfig(), GraphView::GraphFactory * factory = NULL, GraphView::Graph * graph = NULL);
+      DFGGraphViewWidget(
+        QWidget * parent,
+        const GraphView::GraphConfig & config = GraphView::GraphConfig(),
+        GraphView::Graph * graph = NULL
+        );
 
       virtual void dropEvent(QDropEvent *event);
 

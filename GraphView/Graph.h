@@ -13,7 +13,6 @@
 
 #include <FabricUI/GraphView/GraphConfig.h>
 #include <FabricUI/GraphView/Controller.h>
-#include <FabricUI/GraphView/GraphFactory.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/Pin.h>
@@ -50,8 +49,7 @@ namespace FabricUI
 
       Graph(
         QGraphicsItem * parent,
-        const GraphConfig & config = GraphConfig(),
-        GraphFactory * factory = NULL
+        const GraphConfig & config = GraphConfig()
         );
       virtual ~Graph() {}
 
@@ -117,7 +115,7 @@ namespace FabricUI
 
       // interaction
       virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
+      virtual Node * addNode(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
       virtual bool removeNode(Node * node, bool quiet = false);
       virtual bool addPort(Port * port, bool quiet = false);
       virtual bool removePort(Port * port, bool quiet = false);
@@ -172,7 +170,6 @@ namespace FabricUI
         }
       };
 
-      GraphFactory * m_factory;
       GraphConfig m_config;
       Controller * m_controller;
       NodeToolbar * m_nodeToolbar;

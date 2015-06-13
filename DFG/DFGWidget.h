@@ -10,7 +10,6 @@
 #include <FabricUI/GraphView/GraphHeaderWidget.h>
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
-#include "DFGFactory.h"
 #include "DFGNotificationRouter.h"
 #include "DFGConfig.h"
 #include "DFGKLEditorWidget.h"
@@ -93,7 +92,6 @@ namespace FabricUI
       GraphView::GraphHeaderWidget * m_uiHeader;
       GraphView::Graph * m_uiGraph;
       FTL::OwnedPtr<DFGController> m_uiController;
-      DFGFactory * m_uiFactory;
       DFGNotificationRouter * m_router;
       DFGKLEditorWidget * m_klEditor;
       DFGTabSearchWidget * m_tabSearchWidget;

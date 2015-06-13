@@ -9,8 +9,16 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGGraphViewWidget::DFGGraphViewWidget(QWidget * parent, const GraphView::GraphConfig & config, GraphView::GraphFactory * factory, GraphView::Graph * graph)
-: GraphView::GraphViewWidget(parent, config, factory, graph)
+DFGGraphViewWidget::DFGGraphViewWidget(
+  QWidget * parent,
+  const GraphView::GraphConfig & config,
+  GraphView::Graph * graph
+  )
+  : GraphView::GraphViewWidget(
+    parent,
+    config,
+    graph
+    )
 {
 }
 

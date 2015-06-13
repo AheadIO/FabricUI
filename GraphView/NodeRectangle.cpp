@@ -60,7 +60,7 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
   QRectF labelRect(rect.left(), rect.top(), rect.width(), m_node->m_header->size().height());
   painter->setClipPath(rounded_rect);
   painter->setClipRect(labelRect, Qt::IntersectClip);
-  painter->setBrush(m_node->m_labelColor);
+  painter->setBrush(m_node->m_titleColor);
   painter->fillPath(rounded_rect,painter->brush());     
 
   // remove the clipping

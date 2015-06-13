@@ -15,7 +15,7 @@ namespace FabricUI
     {
     public:
 
-      RemoveNodeCommand(Controller * controller, char const * path);
+      RemoveNodeCommand(Controller * controller, FTL::StrRef name);
       virtual ~RemoveNodeCommand();
 
       virtual const char * getName() const { return "RemoveNode"; }
@@ -29,8 +29,8 @@ namespace FabricUI
 
       virtual Node * getNode();
 
-      std::string m_path;
-      std::string m_preset;
+      std::string m_name;
+      std::string m_title;
       QPointF m_graphPos;
 
     };

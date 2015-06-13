@@ -15,7 +15,12 @@ namespace FabricUI
     {
     public:
 
-      AddNodeCommand(Controller * controller, char const * path, char const * preset, QPointF pos);
+      AddNodeCommand(
+        Controller * controller,
+        FTL::CStrRef path,
+        FTL::CStrRef preset,
+        QPointF pos
+        );
       virtual ~AddNodeCommand();
 
       virtual const char * getName() const { return "AddNode"; }
@@ -29,8 +34,8 @@ namespace FabricUI
       virtual bool invoke();
       virtual bool undo();
 
-      std::string m_path;
-      std::string m_preset;
+      std::string m_name;
+      std::string m_title;
       QPointF m_graphPos;
       bool m_useTopLeftPos;
 

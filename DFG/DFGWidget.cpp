@@ -40,9 +40,8 @@ DFGWidget::DFGWidget(
 {
   m_dfgConfig = dfgConfig;
   m_uiGraph = NULL;
-  m_uiFactory = new DFGFactory(dfgConfig);
   m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", dfgConfig.graphConfig);
-  m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, m_uiFactory, NULL);
+  m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, NULL);
   m_uiController = new DFGController(NULL, m_coreClient, m_manager, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, stack, overTakeBindingNotifications);
   m_klEditor = new DFGKLEditorWidget(this, m_uiController.get(), m_manager, m_dfgConfig);
   m_klEditor->hide();
@@ -99,9 +98,7 @@ void DFGWidget::setGraph(
 
   if(m_coreDFGExec.isValid())
   {
-    m_uiGraph = new GraphView::Graph(
-      NULL, m_dfgConfig.graphConfig, m_uiFactory
-      );
+    m_uiGraph = new GraphView::Graph( NULL, m_dfgConfig.graphConfig );
     m_uiGraph->setController(m_uiController.get());
     m_uiController->setGraph(m_uiGraph);
 

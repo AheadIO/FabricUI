@@ -11,8 +11,12 @@
 
 using namespace FabricUI::GraphView;
 
-GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, GraphFactory * factory, Graph * graph)
-: QGraphicsView(parent)
+GraphViewWidget::GraphViewWidget(
+  QWidget * parent,
+  const GraphConfig & config,
+  Graph * graph
+  )
+  : QGraphicsView(parent)
 {
   setRenderHint(QPainter::Antialiasing);
   // setRenderHint(QPainter::HighQualityAntialiasing);
