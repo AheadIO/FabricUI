@@ -55,20 +55,6 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
                 pos += QPointF(30, 30);
               }
             }
-            // else if(std::string(typeVar->getStringData()) == "DFGGet")
-            // {
-            //   ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
-            //     typeVar->getStringData(), pos
-            //     );
-            //     pos += QPointF(30, 30);
-            // }
-            // else if(std::string(typeVar->getStringData()) == "DFGSet")
-            // {
-            //   ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
-            //     typeVar->getStringData(), pos
-            //     );
-            //     pos += QPointF(30, 30);
-            // }
             else if(std::string(typeVar->getStringData()) == "DFGVar")
             {
               DFGController* controller = (DFGController*)graph()->controller();
