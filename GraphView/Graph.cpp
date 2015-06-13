@@ -362,11 +362,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
   prepareGeometryChange();
   controller()->beginInteraction();
 
-  Connection * connection;
-  if(m_factory)
-    connection = m_factory->constructConnection(this, src, dst);
-  else
-    connection = new Connection(this, src, dst);
+  Connection * connection = new Connection(this, src, dst);
   m_connections.push_back(connection);
 
   if(connection->src()->targetType() == TargetType_Pin)

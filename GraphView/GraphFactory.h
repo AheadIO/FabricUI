@@ -39,12 +39,6 @@ namespace FabricUI
         FTL::CStrRef name,
         FTL::CStrRef preset
         ) = 0;
-
-      virtual Connection * constructConnection(
-        Graph * graph,
-        ConnectionTarget * src,
-        ConnectionTarget * dst
-        );
     };
 
   };

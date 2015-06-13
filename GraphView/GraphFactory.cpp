@@ -14,12 +14,3 @@ Node * GraphFactory::constructNode(
 {
   return new Node(graph, name, label);
 }
-
-Connection * GraphFactory::constructConnection(
-  Graph * graph,
-  ConnectionTarget * src,
-  ConnectionTarget * dst
-  )
-{
-  return new Connection(graph, src, dst);
-}
