@@ -186,7 +186,7 @@ bool Graph::removeNode(Node * node, bool quiet)
     }
 
     if(found)
-      controller()->removeConnection(con);
+      controller()->gvcDoRemoveConnection(con);
   }
 
   if(m_nodeToolbar->node() == node)
@@ -239,6 +239,12 @@ std::vector<Node *> Graph::selectedNodes() const
       result.push_back(m_nodes[i]);
   }
   return result;
+}
+
+void Graph::clearSelection() const
+{
+  for (size_t i=0;i<m_nodes.size();i++)
+    m_nodes[i]->setSelected( false );
 }
 
 bool Graph::addPort(Port * port, bool quiet)
@@ -343,7 +349,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
             continue;
         }
 
-        if(!controller()->removeConnection(m_connections[i]))
+        if(!controller()->gvcDoRemoveConnection(m_connections[i]))
           return NULL;
         break;
       }

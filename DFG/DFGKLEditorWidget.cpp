@@ -158,16 +158,14 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         char const * name = m_func.getExecPortName(i);
 
-        if(m_controller->removePort(name))
-        {
-          m_controller->addPort(
-            name,
-            infos[i].portType,
-            infos[i].dataType.c_str(),
-            false
-            ); 
-          modified = true;
-        }
+        m_controller->cmdRemovePort( name );
+        m_controller->cmdAddPort(
+          name,
+          infos[i].portType,
+          infos[i].dataType.c_str(),
+          FTL::CStrRef() // portToConnectWith
+          ); 
+        modified = true;
       }
       else if(setPortType)
       {
@@ -209,7 +207,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
     }
 
     char const * name = m_func.getExecPortName(indexToRemove);
-    m_controller->removePort(name);
+    m_controller->cmdRemovePort( name );
     modified = true;
   }
   else if(m_func.getExecPortCount() < infos.size())
@@ -224,11 +222,11 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
 
-    m_controller->addPort(
+    m_controller->cmdAddPort(
       infos[indexToAdd].portName,
       infos[indexToAdd].portType,
       infos[indexToAdd].dataType,
-      false
+      FTL::CStrRef() // portToConnectWith
       );
     
     modified = true;

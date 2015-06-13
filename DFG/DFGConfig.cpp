@@ -1,4 +1,6 @@
+//
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+//
 
 #include "DFGConfig.h"
 #include <CodeCompletion/KLTypeDesc.h>

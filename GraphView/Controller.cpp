@@ -8,12 +8,9 @@
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/ConnectionTarget.h>
 #include <FabricUI/GraphView/Commands/AddNodeCommand.h>
-#include <FabricUI/GraphView/Commands/RemoveNodeCommand.h>
 #include <FabricUI/GraphView/Commands/RenameNodeCommand.h>
 #include <FabricUI/GraphView/Commands/AddPinCommand.h>
 #include <FabricUI/GraphView/Commands/RemovePinCommand.h>
-#include <FabricUI/GraphView/Commands/AddConnectionCommand.h>
-#include <FabricUI/GraphView/Commands/RemoveConnectionCommand.h>
 #include <FabricUI/GraphView/Commands/AddPortCommand.h>
 #include <FabricUI/GraphView/Commands/RemovePortCommand.h>
 #include <FabricUI/GraphView/Commands/RenamePortCommand.h>
@@ -98,18 +95,6 @@ Node * Controller::addNode(
   return command->getNode();
 }
 
-bool Controller::removeNode(Node * node)
-{
-  RemoveNodeCommand * command =
-    new RemoveNodeCommand(this, node->name().c_str());
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
-}
-
 bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
 {
   if(isTopLeftPos)
@@ -176,74 +161,6 @@ bool Controller::removePin(Pin * pin)
   return false;
 }
 
-Port * Controller::addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
-{
-  AddPortCommand * command = new AddPortCommand(this, name.data(), pType, color, dataType.data());
-
-  if(addCommand(command))
-    return command->getPort();
-
-  delete(command);
-  return NULL;
-}
-
-bool Controller::removePort(Port * port)
-{
-  RemovePortCommand * command = new RemovePortCommand(this, port);
-
-  if(addCommand(command))
-    return true;
-
-  delete(command);
-  return false;
-}
-
-Port * Controller::addPortFromPin(Pin * pin, PortType pType)
-{
-  if(!m_graph)
-    return NULL;
-  beginInteraction();
-  Port * port = addPort(pin->name(), pType, pin->color(), pin->dataType());
-  if(port)
-  {
-    std::vector<Connection*> connections = m_graph->connections();
-    if(pType == PortType_Output)
-    {
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == pin)
-        {
-          if(!removeConnection(connections[i]))
-          {
-            endInteraction();
-            return NULL;
-          }
-          break;
-        }
-      }
-      addConnection(port, pin);
-    }
-    else if(pType == PortType_Input)
-    {
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == port)
-        {
-          if(!removeConnection(connections[i]))
-          {
-            endInteraction();
-            return NULL;
-          }
-          break;
-        }
-      }
-      addConnection(pin, port);
-    }
-  }
-  endInteraction();
-  return port;
-}
-
 bool Controller::renamePort(Port * port, FTL::StrRef title)
 {
   if(title == port->name())
@@ -257,27 +174,9 @@ bool Controller::renamePort(Port * port, FTL::StrRef title)
   return true;
 }
 
-bool Controller::addConnection(ConnectionTarget * src, ConnectionTarget * dst)
+bool Controller::gvcDoRemoveConnection(Connection * conn)
 {
-  Command * command = new AddConnectionCommand(this, src, dst);;
-  if(addCommand(command))
-    return true;
-  delete(command);
-  return false;
-}
-
-bool Controller::removeConnection(ConnectionTarget * src, ConnectionTarget * dst)
-{
-  Command * command = new RemoveConnectionCommand(this, src, dst);;
-  if(addCommand(command))
-    return true;
-  delete(command);
-  return false;
-}
-
-bool Controller::removeConnection(Connection * conn)
-{
-  return removeConnection(conn->src(), conn->dst());  
+  return gvcDoRemoveConnection(conn->src(), conn->dst());  
 }
 
 bool Controller::zoomCanvas(float zoom)

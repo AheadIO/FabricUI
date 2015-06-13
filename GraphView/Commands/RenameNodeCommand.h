@@ -3,6 +3,8 @@
 #ifndef __UI_GraphView_RenameNodeCommand__
 #define __UI_GraphView_RenameNodeCommand__
 
+#include <FTL/ArrayRef.h>
+
 #include "../Controller.h"
 #include "ControllerCommand.h"
 

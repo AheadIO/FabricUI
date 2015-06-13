@@ -11,15 +11,15 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGNotificationRouter::DFGNotificationRouter(
-  FabricCore::DFGBinding coreDFGBinding,
-  FabricCore::DFGExec coreDFGExec,
+  FabricCore::DFGBinding &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec &exec,
   const DFGConfig & config
   )
-  : m_coreDFGBinding( coreDFGBinding )
-  , m_coreDFGExec( coreDFGExec )
-  , m_coreDFGView(
-    coreDFGExec.createView( &Callback, this )
-    )
+  : m_binding( binding )
+  , m_execPath( execPath )
+  , m_exec( exec )
+  , m_view( exec.createView( &Callback, this ) )
   , m_controller(NULL)
   , m_config( config )
   , m_performChecks( true )
@@ -32,7 +32,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
   {
     // printf( "notif = %s\n", jsonStr.c_str() );
     
-    // FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+    // FabricCore::DFGStringResult desc = m_exec.getDesc();
     // printf( "exec = %s\n", desc.getCString() );
 
     onNotification(jsonStr);
@@ -250,10 +250,10 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 
 void DFGNotificationRouter::onGraphSet()
 {
-  if(!m_coreDFGExec)
+  if(!m_exec)
     return;
 
-  FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+  FabricCore::DFGStringResult desc = m_exec.getDesc();
   char const *descData;
   uint32_t descSize;
   desc.getStringDataAndLength( descData, descSize );
@@ -321,6 +321,9 @@ void DFGNotificationRouter::onGraphSet()
         onExecMetadataChanged( key, value );
       }
     }
+
+    m_controller->emitStructureChanged();
+    m_controller->emitRecompiled();
   }
   catch ( FTL::JSONException je )
   {
@@ -346,7 +349,7 @@ void DFGNotificationRouter::onNodeInserted(
   if(!uiNode)
     return;
 
-  FabricCore::DFGNodeType nodeType = m_coreDFGExec.getNodeType(nodeName.c_str());
+  FabricCore::DFGNodeType nodeType = m_exec.getNodeType(nodeName.c_str());
   if(nodeType == FabricCore::DFGNodeType_Var ||
     nodeType == FabricCore::DFGNodeType_Get ||
     nodeType == FabricCore::DFGNodeType_Set)
@@ -368,7 +371,7 @@ void DFGNotificationRouter::onNodeInserted(
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
-    FTL::CStrRef varPath = m_coreDFGExec.getRefVarPath(nodeName.c_str());
+    FTL::CStrRef varPath = m_exec.getRefVarPath(nodeName.c_str());
     onRefVarPathChanged(nodeName, varPath);
   }
 
@@ -404,6 +407,9 @@ void DFGNotificationRouter::onNodeInserted(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodeRemoved(
@@ -425,6 +431,9 @@ void DFGNotificationRouter::onNodeRemoved(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodePortInserted(
@@ -442,7 +451,7 @@ void DFGNotificationRouter::onNodePortInserted(
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
-  FabricCore::DFGExec exec = getCoreDFGExec();
+  FabricCore::DFGExec exec = getExec();
 
   QColor color;
   if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
@@ -465,6 +474,9 @@ void DFGNotificationRouter::onNodePortInserted(
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodePortRemoved(
@@ -488,6 +500,9 @@ void DFGNotificationRouter::onNodePortRemoved(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onExecPortInserted(
@@ -501,7 +516,7 @@ void DFGNotificationRouter::onExecPortInserted(
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
-  FabricCore::DFGExec exec = getCoreDFGExec();
+  FabricCore::DFGExec exec = getExec();
   QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
 
   GraphView::Port * uiOutPort = NULL;
@@ -535,6 +550,9 @@ void DFGNotificationRouter::onExecPortInserted(
   {
     uiGraph->addConnection(uiOutPort, uiInPort, false);
   }
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
@@ -571,6 +589,9 @@ void DFGNotificationRouter::onExecPortRemoved(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onPortsConnected(
@@ -624,6 +645,11 @@ void DFGNotificationRouter::onPortsConnected(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->bindUnboundRTVals();
+  m_controller->emitArgsChanged();
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -677,6 +703,10 @@ void DFGNotificationRouter::onPortsDisconnected(
   {
     ((DFGController*)m_controller)->checkErrors();
   }
+
+  m_controller->emitArgsChanged();
+  m_controller->emitStructureChanged();
+  m_controller->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
@@ -916,7 +946,7 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   if(newResolvedType != uiPort->dataType())
   {
     uiPort->setDataType(newResolvedType);
-    FabricCore::DFGExec exec = getCoreDFGExec();
+    FabricCore::DFGExec exec = getExec();
     uiPort->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.data()));
     uiGraph->updateColorForConnections(uiPort);
   }
@@ -950,10 +980,9 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(
   if(newResolvedType != uiPin->dataType())
   {
     uiPin->setDataType(newResolvedType);
-    if(getCoreDFGExec().getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+    if(getExec().getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
     {
-      FabricCore::DFGExec subExec =
-        getCoreDFGExec().getSubExec(nodeName.c_str());
+      FabricCore::DFGExec subExec = getExec().getSubExec( nodeName.c_str() );
       uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
     }
     else
@@ -1001,7 +1030,7 @@ void DFGNotificationRouter::onRefVarPathChanged(
   FTL::CStrRef newVarPath
   )
 {
-  FabricCore::DFGNodeType nodeType = m_coreDFGExec.getNodeType(refName.c_str());
+  FabricCore::DFGNodeType nodeType = m_exec.getNodeType(refName.c_str());
   std::string title = newVarPath;
   if(nodeType == FabricCore::DFGNodeType_Get)
     title = "get "+title;

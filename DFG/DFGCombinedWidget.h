@@ -20,6 +20,9 @@ namespace FabricUI
 
   namespace DFG
   {
+
+    class DFGUICmdHandler;
+    
     class DFGCombinedWidget : public QSplitter
     {
 
@@ -31,26 +34,28 @@ namespace FabricUI
       ~DFGCombinedWidget();
 
       virtual void init(      
-        FabricCore::Client client,
+        FabricCore::Client const &client,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricCore::DFGHost host,
-        FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec,
+        FabricCore::DFGHost const &host,
+        FabricCore::DFGBinding const &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec const &exec,
+        DFGUICmdHandler *cmdHandler,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true,
         DFGConfig config = DFGConfig()
-      );
+        );
 
       static void setLogFunc(DFGController::LogFunc func);
 
-      FabricCore::Client const &getClient()
-        { return m_coreClient; }
-      FabricCore::DFGHost const &getCoreDFGHost()
-        { return m_coreDFGHost; }
-      FabricCore::DFGBinding const &getCoreDFGBinding()
-        { return m_coreDFGBinding; }
-      FabricCore::DFGExec const &getCoreDFGExec()
-        { return m_coreDFGExec; }
+      FabricCore::Client &getClient()
+        { return m_client; }
+      FabricCore::DFGHost &getCoreDFGHost()
+        { return m_host; }
+      FabricCore::DFGBinding &getCoreDFGBinding()
+        { return m_binding; }
+      FabricCore::DFGExec &getCoreDFGExec()
+        { return m_exec; }
 
       virtual ASTWrapper::KLASTManager * getManager() { return m_manager; }
       virtual PresetTreeWidget * getTreeWidget() { return m_treeWidget; }
@@ -77,11 +82,12 @@ namespace FabricUI
       void log(const char * message);
 
       QSplitter * m_hSplitter;
-      FabricCore::Client m_coreClient;
+      FabricCore::Client m_client;
       ASTWrapper::KLASTManager * m_manager;
-      FabricCore::DFGHost m_coreDFGHost;
-      FabricCore::DFGBinding m_coreDFGBinding;
-      FabricCore::DFGExec m_coreDFGExec;
+      FabricCore::DFGHost m_host;
+      FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
+      FabricCore::DFGExec m_exec;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;
       DFGValueEditor * m_dfgValueEditor;

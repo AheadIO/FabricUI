@@ -43,6 +43,8 @@ namespace FabricUI
       PinCircle * circle();
       const PinCircle * circle() const;
 
+      virtual std::string path() const { return "***ASSERT***"; }
+
       virtual PortType portType() const;
       QColor color() const;
       virtual bool highlighted() const;

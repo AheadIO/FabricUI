@@ -50,7 +50,7 @@ void DFGValueEditor::onArgsChanged()
       if(!m_controller->getRouter())
         return;
 
-      FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
+      FabricCore::DFGBinding binding = m_controller->getBinding();
       FabricCore::DFGExec exec = binding.getExec();
 
       for(size_t i=0;i<exec.getExecPortCount();i++)
@@ -105,7 +105,7 @@ void DFGValueEditor::onArgsChanged()
           false
           );
 
-      FabricCore::DFGExec exec = m_controller->getCoreDFGExec();
+      FabricCore::DFGExec exec = m_controller->getExec();
 
       if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
       {
@@ -176,7 +176,7 @@ void DFGValueEditor::onArgsChanged()
             "variable",
             m_factory,
             &m_client,
-            m_controller->getCoreDFGBinding(),
+            m_controller->getBinding(),
             m_controller->getExecPath(),
             m_treeView,
             varPathVal
@@ -228,7 +228,7 @@ void DFGValueEditor::onArgsChanged()
           "variable",
           m_factory,
           &m_client,
-          m_controller->getCoreDFGBinding(),
+          m_controller->getBinding(),
           m_controller->getExecPath(),
           m_treeView,
           varPathVal
@@ -254,7 +254,7 @@ void DFGValueEditor::updateOutputs()
   if(!m_controller->getRouter())
     return;
 
-  FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
+  FabricCore::DFGBinding &binding = m_controller->getBinding();
 
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {

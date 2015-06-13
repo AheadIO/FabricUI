@@ -1,4 +1,6 @@
+//
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+//
 
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
@@ -20,6 +22,7 @@ namespace FabricUI
   namespace DFG
   {
 
+    class DFGUICmdHandler;
     class DFGNotificationRouter;
 
     class DFGController : public GraphView::Controller
@@ -40,60 +43,130 @@ namespace FabricUI
         FabricServices::ASTWrapper::KLASTManager * manager,
         FabricCore::DFGHost host,
         FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec,
+        DFGUICmdHandler *cmdHandler,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
         );
       ~DFGController();
 
-      FabricCore::Client const &getClient()
-        { return m_coreClient; }
-      FabricCore::DFGHost const &getCoreDFGHost()
-        { return m_coreDFGHost; }
-      FabricCore::DFGBinding const &getCoreDFGBinding()
-        { return m_coreDFGBinding; }
-      FabricCore::DFGExec getCoreDFGExec();
+      FabricCore::Client &getClient()
+        { return m_client; }
+      FabricCore::DFGHost &getHost()
+        { return m_host; }
+      FabricCore::DFGBinding &getBinding()
+        { return m_binding; }
+      FTL::CStrRef getExecPath();
+      FabricCore::DFGExec &getExec();
 
       void setHost( FabricCore::DFGHost const &coreDFGHost );
       void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
       void setClient( FabricCore::Client const &coreClient );
+      DFGUICmdHandler *getCmdHandler() const
+        { return m_cmdHandler; }
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
-      virtual std::string addDFGNodeFromPreset(FTL::StrRef preset, QPointF pos);
-      virtual std::string addDFGVar(FTL::StrRef varName, FTL::StrRef dataType, FTL::StrRef extDep, QPointF pos);
-      virtual std::string addDFGGet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
-      virtual std::string addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
-      virtual std::string addEmptyGraph(char const * title, QPointF pos);
-      virtual std::string addEmptyFunc(char const * title, QPointF pos);
-      virtual bool removeNode(char const * path);
-      virtual bool removeNode(GraphView::Node * node);
+      // Parent virtual functions
+
+      virtual bool gvcDoRemoveNodes(
+        FTL::ArrayRef<GraphView::Node *> nodes
+        );
+
+      virtual bool gvcDoAddConnection(
+        GraphView::ConnectionTarget * src,
+        GraphView::ConnectionTarget * dst
+        );
+
+      virtual bool gvcDoRemoveConnection(
+        GraphView::ConnectionTarget * src,
+        GraphView::ConnectionTarget * dst
+        );
+      
+      virtual void gvcDoAddPort(
+        FTL::CStrRef desiredPortName,
+        GraphView::PortType portType,
+        FTL::CStrRef typeSpec = FTL::CStrRef(),
+        GraphView::ConnectionTarget *connectWith = 0
+        );
+
+      // Commands
+
+      void cmdRemoveNodes(
+        FTL::ArrayRef<FTL::StrRef> nodeNames
+        );
+
+      void cmdConnect(
+        FTL::StrRef srcPath, 
+        FTL::StrRef dstPath
+        );
+
+      void cmdDisconnect(
+        FTL::StrRef srcPath, 
+        FTL::StrRef dstPath
+        );
+
+      std::string cmdAddInstWithEmptyGraph(
+        FTL::CStrRef title,
+        QPointF pos
+        );
+
+      std::string cmdAddInstWithEmptyFunc(
+        FTL::CStrRef title,
+        FTL::CStrRef initialCode,
+        QPointF pos
+        );
+
+      std::string cmdAddInstFromPreset(
+        FTL::CStrRef presetPath,
+        QPointF pos
+        );
+
+      std::string cmdAddVar(
+        FTL::CStrRef desiredNodeName,
+        FTL::StrRef dataType,
+        FTL::StrRef extDep,
+        QPointF pos
+        );
+
+      std::string cmdAddGet(
+        FTL::CStrRef desiredNodeName,
+        FTL::StrRef varPath,
+        QPointF pos
+        );
+
+      std::string cmdAddSet(
+        FTL::CStrRef desiredNodeName,
+        FTL::StrRef varPath,
+        QPointF pos
+        );
+
+      std::string cmdAddPort(
+        FTL::CStrRef desiredPortName,
+        FabricCore::DFGPortType dfgPortType,
+        FTL::CStrRef typeSpec,
+        FTL::CStrRef portToConnect
+        );
+
+      void cmdRemovePort(
+        FTL::CStrRef portName
+        );
+
+      std::string cmdImplodeNodes(
+        FTL::CStrRef desiredNodeName,
+        FTL::ArrayRef<FTL::CStrRef> nodeNames
+        );
+
+      std::vector<std::string> cmdExplodeNode(
+        FTL::CStrRef nodeName
+        );
+
       virtual bool renameNode(char const * path, char const * title);
       virtual bool renameNode(GraphView::Node * node, char const * title);
       virtual GraphView::Pin * addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
-      virtual std::string addPort(
-        FTL::StrRef name,
-        FabricCore::DFGPortType pType,
-        FTL::StrRef dataType = FTL::StrRef(),
-        bool setArgValue = true
-        );
-      virtual std::string addPort(
-        FTL::StrRef name,
-        GraphView::PortType pType,
-        FTL::StrRef dataType = FTL::StrRef(),
-        bool setArgValue = true
-        );
-      virtual bool removePort(char const *  name);
-      virtual GraphView::Port * addPortFromPin(GraphView::Pin * pin, GraphView::PortType pType);
       virtual std::string renamePort(char const *  path, char const *  title);
-      virtual bool addConnection(char const *  srcPath, char const *  dstPath);
-      virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeConnection(char const *srcPath, char const *dstPath);
-      virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeAllConnections(char const *  path);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual bool setCode(char const *  path, char const *  code);
       virtual std::string reloadCode(char const *  path);
@@ -113,8 +186,6 @@ namespace FabricUI
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();
-      virtual std::string implodeNodes(char const * desiredName, QStringList paths = QStringList());
-      virtual QStringList explodeNode(char const * path);
 
       virtual bool reloadExtensionDependencies(char const * path);
 
@@ -122,11 +193,6 @@ namespace FabricUI
       virtual void logError(const char * message);
 
       virtual void setLogFunc(LogFunc func);
-
-      virtual char const * getExecPath()
-        { return m_execPath.c_str(); }
-      virtual void setExecPath(char const * execPath)
-        { m_execPath = execPath; }
 
       virtual bool execute();
       bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
@@ -142,11 +208,19 @@ namespace FabricUI
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
       virtual DFGNotificationRouter * createRouter(
-        FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec
+        FabricCore::DFGBinding &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec
         );
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
+
+      void emitArgsChanged()
+        { emit argsChanged(); }
+      void emitStructureChanged()
+        { emit structureChanged(); }
+      void emitRecompiled()
+        { emit recompiled(); }
 
     signals:
 
@@ -181,10 +255,11 @@ namespace FabricUI
 
       void updatePresetPathDB();
 
-      FabricCore::Client m_coreClient;
-      FabricCore::DFGHost m_coreDFGHost;
-      FabricCore::DFGBinding m_coreDFGBinding;
+      FabricCore::Client m_client;
+      FabricCore::DFGHost m_host;
+      FabricCore::DFGBinding m_binding;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
+      DFGUICmdHandler *m_cmdHandler;
       DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
       bool m_overTakeBindingNotifications;
@@ -193,7 +268,6 @@ namespace FabricUI
       std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
-      std::string m_execPath;
     };
 
   };

@@ -205,11 +205,23 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 
     if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_Pin)
     {
-      graph()->controller()->addPortFromPin((Pin*)target, PortType_Output);
+      Pin *pinToConnectWith = static_cast<Pin *>( target );
+      graph()->controller()->gvcDoAddPort(
+        pinToConnectWith->name(),
+        PortType_Output,
+        pinToConnectWith->dataType(),
+        pinToConnectWith
+        );
     }
     else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_Pin)
     {
-      graph()->controller()->addPortFromPin((Pin*)source, PortType_Input);
+      Pin *pinToConnectWith = static_cast<Pin *>( source );
+      graph()->controller()->gvcDoAddPort(
+        pinToConnectWith->name(),
+        PortType_Input,
+        pinToConnectWith->dataType(),
+        pinToConnectWith
+        );
     }
     else
     {
@@ -225,7 +237,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
               continue;
           }
 
-          if(!graph()->controller()->removeConnection(connections[i]))
+          if(!graph()->controller()->gvcDoRemoveConnection(connections[i]))
           {
             graph()->controller()->endInteraction();
         
@@ -242,7 +254,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
           break;
         }
       }
-      graph()->controller()->addConnection(source, target);
+      graph()->controller()->gvcDoAddConnection(source, target);
     }
   }
 

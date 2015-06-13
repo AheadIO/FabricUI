@@ -33,6 +33,8 @@ namespace FabricUI
       ConnectionTarget(QGraphicsWidget * parent);
       ~ConnectionTarget();
 
+      virtual std::string path() const = 0;
+
       virtual bool canConnectTo(
         ConnectionTarget * other,
         std::string &failureReason

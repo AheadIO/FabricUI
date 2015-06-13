@@ -4,7 +4,7 @@
 #include <QtGui/QLabel>
 
 #include "DFGCombinedWidget.h"
-#include <Style/FabricStyle.h>
+#include <FabricUI/Style/FabricStyle.h>
 
 using namespace FabricUI::DFG;
 
@@ -23,30 +23,46 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
 };
 
 void DFGCombinedWidget::init(
-  FabricCore::Client client,
+  FabricCore::Client const &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  FabricCore::DFGHost host,
-  FabricCore::DFGBinding binding,
-  FabricCore::DFGExec exec,
+  FabricCore::DFGHost const &host,
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  DFGUICmdHandler *cmdHandler,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
   DFGConfig config
-) {
+  )
+{
 
   if(m_dfgWidget)
     return;
 
   try
   {
-    m_coreClient = client;
+    m_client = client;
     m_manager = manager;
-    m_coreDFGHost = host;
-    m_coreDFGBinding = binding;
-    m_coreDFGExec = exec;
+    m_host = host;
+    m_binding = binding;
+    m_execPath = execPath;
+    m_exec = exec;
 
-    m_treeWidget = new DFG::PresetTreeWidget(this, m_coreDFGHost, config);
-    m_treeWidget->setBinding(m_coreDFGBinding);
-    m_dfgWidget = new DFG::DFGWidget(this, m_coreClient, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, m_manager, stack, config, overTakeBindingNotifications);
+    m_treeWidget = new DFG::PresetTreeWidget(this, m_host, config);
+    m_treeWidget->setBinding(m_binding);
+    m_dfgWidget = new DFG::DFGWidget(
+      this,
+      m_client,
+      m_host,
+      m_binding,
+      m_execPath,
+      m_exec,
+      m_manager,
+      cmdHandler,
+      stack,
+      config,
+      overTakeBindingNotifications
+      );
     m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
@@ -127,11 +143,9 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
 {
   if(hotkey == "delete" || hotkey == "delete2")
   {
-    std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
-    m_dfgWidget->getUIController()->beginInteraction();
-    for(size_t i=0;i<nodes.size();i++)
-      m_dfgWidget->getUIController()->removeNode(nodes[i]);
-    m_dfgWidget->getUIController()->endInteraction();
+    m_dfgWidget->getUIController()->gvcDoRemoveNodes(
+      m_dfgWidget->getUIGraph()->selectedNodes()
+      );
   }
   else if(hotkey == "frameSelected")
   {

@@ -19,7 +19,7 @@ qtMOCBuilder = Builder(
 # create the build environment
 env = parentEnv.Clone()
 env.Append(BUILDERS = {'QTMOC': qtMOCBuilder})
-env.Append(CPPPATH = [env.Dir('.').srcnode()])
+env.Append(CPPPATH = [env.Dir('#').Dir('Native').srcnode()])
 
 if buildOS == 'Darwin':
   env.Append(CXXFLAGS = ['-std=c++03'])
@@ -74,7 +74,7 @@ dirs = [
   'GraphView/Commands',
   'KLEditor',
   'DFG',
-  'DFG/Commands',
+  'DFG/DFGUICmd_QUndo',
   'DFG/Dialogs',
   'SceneHub',
   'Viewports',

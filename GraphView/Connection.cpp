@@ -211,10 +211,7 @@ void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
     else if(graph()->config().rightClickDeletesConnections)
     {
-      Graph * g = graph();
-      g->controller()->beginInteraction();
-      g->controller()->removeConnection(this);
-      g->controller()->endInteraction();
+      graph()->controller()->gvcDoRemoveConnection(this);
       event->accept();
       return;
     }
@@ -243,7 +240,7 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
       graph->controller()->beginInteraction();
 
-      if(graph->controller()->removeConnection(this))
+      if(graph->controller()->gvcDoRemoveConnection(this))
       {
         // todo: review the features for disconnecting input vs output based on gesture
         if(delta.x() < 0)

@@ -1,9 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "DFGTabSearchWidget.h"
-#include "DFGWidget.h"
-#include "DFGLogWidget.h"
-#include "Dialogs/DFGNewVariableDialog.h"
+#include <FabricUI/DFG/DFGTabSearchWidget.h>
+#include <FabricUI/DFG/DFGWidget.h>
+#include <FabricUI/DFG/DFGLogWidget.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
+#include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
 
 #include <QtGui/QCursor>
 
@@ -38,8 +39,12 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
     {
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addDFGNodeFromPreset(
-        m_results[index].toUtf8().constData(), scenePos
+      
+      DFGController *controller = m_parent->getUIController();
+      DFGUICmdHandler *cmdHandler = controller->getCmdHandler();
+      controller->cmdAddInstFromPreset(
+        m_results[index].toUtf8().constData(),
+        scenePos
         );
 
       hide();
@@ -312,15 +317,16 @@ int DFGTabSearchWidget::heightFromResults() const
 
 void DFGTabSearchWidget::addNodeFromPath(QString path)
 {
+  DFGController *controller = m_parent->getUIController();
+  
   QPoint localPos = geometry().topLeft();
   QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
 
   // deal with special case
   if(path == "var")
   {
-    DFGController * controller = m_parent->getUIController();
     FabricCore::Client client = controller->getClient();
-    FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+    FabricCore::DFGBinding binding = controller->getBinding();
 
     DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
     if(dialog.exec() != QDialog::Accepted)
@@ -332,7 +338,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 
-    controller->addDFGVar(
+    controller->cmdAddVar(
       name.toUtf8().constData(), 
       dataType.toUtf8().constData(), 
       extension.toUtf8().constData(), 
@@ -341,34 +347,41 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "get")
   {
-    m_parent->getUIController()->addDFGGet(
-      "get", "", scenePos
+    controller->cmdAddGet(
+      "get",
+      "",
+      scenePos
       );
   }
   else if(path == "set")
   {
-    m_parent->getUIController()->addDFGGet(
-      "set", "", scenePos
+    controller->cmdAddSet(
+      "set",
+      "",
+      scenePos
       );
   }
   else if(path.left(4) == "get.")
   {
-    m_parent->getUIController()->addDFGGet(
+    controller->cmdAddGet(
       "get",
-      path.mid(4).toUtf8().constData(), scenePos
+      path.mid(4).toUtf8().constData(),
+      scenePos
       );
   }
   else if(path.left(4) == "set.")
   {
-    m_parent->getUIController()->addDFGSet(
+    controller->cmdAddSet(
       "set",
-      path.mid(4).toUtf8().constData(), scenePos
+      path.mid(4).toUtf8().constData(),
+      scenePos
       );
   }
   else
   {
-    m_parent->getUIController()->addDFGNodeFromPreset(
-      path.toUtf8().constData(), scenePos
+    controller->cmdAddInstFromPreset(
+      path.toUtf8().constData(),
+      scenePos
       );
   }
 }

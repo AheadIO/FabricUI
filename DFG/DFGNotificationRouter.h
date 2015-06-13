@@ -24,16 +24,18 @@ namespace FabricUI
     public:
 
       DFGNotificationRouter(
-        FabricCore::DFGBinding coreDFGBinding,
-        FabricCore::DFGExec coreDFGGraph,
+        FabricCore::DFGBinding &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec,
         const DFGConfig & config = DFGConfig()
         );
 
-      FabricCore::DFGBinding const &getCoreDFGBinding()
-        { return m_coreDFGBinding; }
-
-      FabricCore::DFGExec const &getCoreDFGExec()
-        { return m_coreDFGExec; }
+      FabricCore::DFGBinding &getBinding()
+        { return m_binding; }
+      FTL::CStrRef getExecPath()
+        { return m_execPath; }
+      FabricCore::DFGExec &getExec()
+        { return m_exec; }
 
       DFGController * getController()
         { return m_controller; }
@@ -167,9 +169,10 @@ namespace FabricUI
           );
       }
 
-      FabricCore::DFGBinding m_coreDFGBinding;
-      FabricCore::DFGExec m_coreDFGExec;
-      FabricCore::DFGView m_coreDFGView;
+      FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
+      FabricCore::DFGExec m_exec;
+      FabricCore::DFGView m_view;
       DFGController * m_controller;
       DFGConfig m_config;
       bool m_performChecks;
