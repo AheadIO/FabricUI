@@ -608,7 +608,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       {
         if(uiCombo[0] == '(');
           uiCombo = uiCombo.substr(1);
-        if(uiCombo[uiCombo.size()-1] == ')');
+        if(uiCombo[uiCombo.size()-1] == ')')
           uiCombo = uiCombo.substr(0, uiCombo.size()-1);
 
         QStringList parts = QString(uiCombo.data()).split(',');

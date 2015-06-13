@@ -3,24 +3,21 @@
 #ifndef __UI_DFG_DFGNotificationRouter__
 #define __UI_DFG_DFGNotificationRouter__
 
+#include <FabricCore.h>
+#include <FTL/CStrRef.h>
 #include <FTL/JSONValue.h>
-#include <FTL/StrRef.h>
-#include <FabricUI/GraphView/Controller.h>
-#include <FabricUI/GraphView/Port.h>
-#include "NotificationRouter.h"
-#include "DFGConfig.h"
+#include <FabricUI/DFG/DFGConfig.h>
 
 namespace FabricUI
 {
 
   namespace DFG
   {
-    // forward decl
     class DFGController;
+    class DFGWidget;
 
-    class DFGNotificationRouter : public NotificationRouter
+    class DFGNotificationRouter
     {
-
       friend class DFGController;
       friend class DFGWidget;
 
@@ -32,10 +29,17 @@ namespace FabricUI
         const DFGConfig & config = DFGConfig()
         );
 
-      GraphView::Port * getLastPortInserted();
+      FabricCore::DFGBinding const &getCoreDFGBinding()
+        { return m_coreDFGBinding; }
 
-      static float getFloatFromVariant(const FabricCore::Variant * variant);
+      FabricCore::DFGExec const &getCoreDFGExec()
+        { return m_coreDFGExec; }
 
+      DFGController * getController()
+        { return m_controller; }
+
+      void setController(DFGController * controller)
+        { m_controller = controller; }
 
     protected:
 
@@ -150,8 +154,24 @@ namespace FabricUI
 
     private:
 
+      void callback( FTL::CStrRef jsonStr );
+
+      static void Callback(
+        void *thisVoidPtr,
+        char const *jsonCStr,
+        uint32_t jsonSize
+        )
+      {
+        static_cast<DFGNotificationRouter *>( thisVoidPtr )->callback(
+          FTL::CStrRef( jsonCStr, jsonSize )
+          );
+      }
+
+      FabricCore::DFGBinding m_coreDFGBinding;
+      FabricCore::DFGExec m_coreDFGExec;
+      FabricCore::DFGView m_coreDFGView;
+      DFGController * m_controller;
       DFGConfig m_config;
-      GraphView::Port * m_lastPortInserted;
       bool m_performChecks;
     };
 

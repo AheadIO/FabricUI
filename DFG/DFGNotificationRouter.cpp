@@ -12,38 +12,240 @@ using namespace FabricUI::DFG;
 
 DFGNotificationRouter::DFGNotificationRouter(
   FabricCore::DFGBinding coreDFGBinding,
-  FabricCore::DFGExec coreDFGGraph,
+  FabricCore::DFGExec coreDFGExec,
   const DFGConfig & config
   )
-  : NotificationRouter( coreDFGBinding, coreDFGGraph )
+  : m_coreDFGBinding( coreDFGBinding )
+  , m_coreDFGExec( coreDFGExec )
+  , m_coreDFGView(
+    coreDFGExec.createView( &Callback, this )
+    )
+  , m_controller(NULL)
+  , m_config( config )
+  , m_performChecks( true )
 {
-  m_config = config;
-  m_lastPortInserted = NULL;
-  m_performChecks = true;
 }
 
-GraphView::Port * DFGNotificationRouter::getLastPortInserted()
+void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 {
-  return m_lastPortInserted;
-}
+  try
+  {
+    // printf( "notif = %s\n", jsonStr.c_str() );
+    
+    // FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+    // printf( "exec = %s\n", desc.getCString() );
 
-float DFGNotificationRouter::getFloatFromVariant(const FabricCore::Variant * variant)
-{
-  if(variant == 0)
-    return 0.0f;
-  if(variant->isSInt8())
-    return variant->getSInt8();
-  else if(variant->isSInt16())
-    return variant->getSInt16();
-  else if(variant->isSInt32())
-    return variant->getSInt32();
-  else if(variant->isSInt64())
-    return variant->getSInt64();
-  else if(variant->isFloat32())
-    return variant->getFloat32();
-  else if(variant->isFloat64())
-    return variant->getFloat64();
-  return 0.0f;
+    onNotification(jsonStr);
+
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+    FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    FTL::StrRef descStr = jsonObject->getString( FTL_STR("desc") );
+
+    if(descStr == FTL_STR("nodeInserted"))
+    {
+      onNodeInserted(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->get( FTL_STR("nodeDesc") )->cast<FTL::JSONObject>()
+        );
+    }
+    else if(descStr == FTL_STR("nodeRemoved"))
+    {
+      onNodeRemoved(
+        jsonObject->getString( FTL_STR("nodeName") )
+        );
+    }
+    else if(descStr == FTL_STR("nodePortInserted"))
+    {
+      onNodePortInserted(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->get( FTL_STR("nodePortDesc") )->cast<FTL::JSONObject>()
+        );
+    }
+    else if(descStr == FTL_STR("nodePortRemoved"))
+    {
+      onNodePortRemoved(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") )
+        );
+    }
+    else if(descStr == FTL_STR("execPortInserted"))
+    {
+      onExecPortInserted(
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
+        );
+    }
+    else if(descStr == FTL_STR("execPortRemoved"))
+    {
+      onExecPortRemoved(
+        jsonObject->getString( FTL_STR("portName") )
+        );
+    }
+    else if(descStr == FTL_STR("portsConnected"))
+    {
+      onPortsConnected(
+        jsonObject->getString( FTL_STR("srcPath") ),
+        jsonObject->getString( FTL_STR("dstPath") )
+        );
+    }
+    else if(descStr == FTL_STR("portsDisconnected"))
+    {
+      onPortsDisconnected(
+        jsonObject->getString( FTL_STR("srcPath") ),
+        jsonObject->getString( FTL_STR("dstPath") )
+        );
+    }
+    else if(descStr == FTL_STR("nodeMetadataChanged"))
+    {
+      onNodeMetadataChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
+    }
+    else if(descStr == FTL_STR("nodeTitleChanged"))
+    {
+      onNodeTitleChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("title") )
+        );
+    }
+    else if(descStr == FTL_STR("execPortRenamed"))
+    {
+      onExecPortRenamed(
+        jsonObject->getString( FTL_STR("oldPortName") ),
+        jsonObject->getString( FTL_STR("newPortName") ),
+        jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
+        );
+    }
+    else if(descStr == FTL_STR("nodePortRenamed"))
+    {
+      onNodePortRenamed(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("oldPortName") ),
+        jsonObject->getString( FTL_STR("newPortName") )
+        );
+    }
+    else if(descStr == FTL_STR("execMetadataChanged"))
+    {
+      onExecMetadataChanged(
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
+    }
+    else if(descStr == FTL_STR("extDepAdded"))
+    {
+      onExtDepAdded(
+        jsonObject->getString( FTL_STR("name") ),
+        jsonObject->getString( FTL_STR("versionRange") )
+        );
+    }
+    else if(descStr == FTL_STR("extDepRemoved"))
+    {
+      onExtDepRemoved(
+        jsonObject->getString( FTL_STR("name") ),
+        jsonObject->getString( FTL_STR("versionRange") )
+        );
+    }
+    else if(descStr == FTL_STR("nodeCacheRuleChanged"))
+    {
+      onNodeCacheRuleChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("cacheRule") )
+        );
+    }
+    else if(descStr == FTL_STR("execCacheRuleChanged"))
+    {
+      onExecCacheRuleChanged(
+        jsonObject->getString( FTL_STR("cacheRule") )
+        );
+    }
+    else if(descStr == FTL_STR("execPortResolvedTypeChanged"))
+    {
+      onExecPortResolvedTypeChanged(
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
+        );
+    }
+    else if(descStr == FTL_STR("execPortTypeSpecChanged"))
+    {
+      onExecPortTypeSpecChanged(
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newTypeSpec") )
+        );
+    }
+    else if(descStr == FTL_STR("nodePortResolvedTypeChanged"))
+    {
+      onNodePortResolvedTypeChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
+        );
+    }
+    else if(descStr == FTL_STR("portMetadataChanged"))
+    {
+      onExecPortMetadataChanged(
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
+    }
+    else if(descStr == FTL_STR("nodePortMetadataChanged"))
+    {
+      onNodePortMetadataChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("key") ),
+        jsonObject->getString( FTL_STR("value") )
+        );
+    }
+    else if(descStr == FTL_STR("execPortTypeChanged"))
+    {
+      onExecPortTypeChanged(
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("newExecPortType") )
+        );
+    }
+    else if(descStr == FTL_STR("nodePortTypeChanged"))
+    {
+      onNodePortTypeChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getString( FTL_STR("newNodePortType") )
+        );
+    }
+    else if(descStr == FTL_STR("refVarPathChanged"))
+    {
+      onRefVarPathChanged(
+        jsonObject->getString( FTL_STR("refName") ),
+        jsonObject->getString( FTL_STR("newVarPath") )
+        );
+    }
+    else
+    {
+      printf(
+        "NotificationRouter::callback: Unhandled notification:\n%s\n",
+        jsonStr.data()
+        );
+    }
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf(
+      "NotificationRouter::callback: caught Core exception: %s\n",
+      e.getDesc_cstr()
+      );
+  }
+  catch ( FTL::JSONException e )
+  {
+    printf(
+      "NotificationRouter::callback: caught FTL::JSONException: %s\n",
+      e.getDescCStr()
+      );
+  }
 }
 
 void DFGNotificationRouter::onGraphSet()
@@ -314,7 +516,6 @@ void DFGNotificationRouter::onExecPortInserted(
       uiPanel, portName, GraphView::PortType_Input, dataType, color, portName
       );
     uiPanel->addPort(uiInPort);
-    m_lastPortInserted = uiInPort;
   }
   if(execPortType != FTL_STR("Out"))
   {
@@ -326,7 +527,6 @@ void DFGNotificationRouter::onExecPortInserted(
       uiPanel, portName, GraphView::PortType_Output, dataType, color, portName
       );
     uiPanel->addPort(uiOutPort);
-    m_lastPortInserted = uiOutPort;
   }
   if(uiOutPort && uiInPort)
   {
@@ -513,30 +713,36 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
   else if(key == FTL_STR("uiNodeColor"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
-    const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
-    const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
-    const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
-    int r = (int)getFloatFromVariant(rVar);
-    int g = (int)getFloatFromVariant(gVar);
-    int b = (int)getFloatFromVariant(bVar);
-
-    QColor color(r, g, b);
-    uiNode->setColor(color);
-    uiNode->setTitleColor(color.darker(130));
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
+      );
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float r = jsonObject->getFloat64( FTL_STR("r") );
+      float g = jsonObject->getFloat64( FTL_STR("g") );
+      float b = jsonObject->getFloat64( FTL_STR("b") );
+      QColor color(r, g, b);
+      uiNode->setColor(color);
+      uiNode->setTitleColor(color.darker(130));
+    }
   }
   else if(key == FTL_STR("uiHeaderColor"))
   {
-    FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
-    const FabricCore::Variant * rVar = metadataVar.getDictValue("r");
-    const FabricCore::Variant * gVar = metadataVar.getDictValue("g");
-    const FabricCore::Variant * bVar = metadataVar.getDictValue("b");
-    int r = (int)getFloatFromVariant(rVar);
-    int g = (int)getFloatFromVariant(gVar);
-    int b = (int)getFloatFromVariant(bVar);
-
-    QColor color(r, g, b);
-    uiNode->setTitleColor(color);
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
+      );
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float r = jsonObject->getFloat64( FTL_STR("r") );
+      float g = jsonObject->getFloat64( FTL_STR("g") );
+      float b = jsonObject->getFloat64( FTL_STR("b") );
+      QColor color(r, g, b);
+      uiNode->setTitleColor(color);
+    }
   }
   else if(key == FTL_STR("uiTooltip"))
   {
