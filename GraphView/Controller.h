@@ -41,7 +41,11 @@ namespace FabricUI
 
       virtual bool beginInteraction();
       virtual bool endInteraction();
-      virtual Node * addNodeFromPreset(FTL::CStrRef preset, QPointF pos);
+      virtual Node * addNode(
+        FTL::CStrRef name,
+        FTL::CStrRef title,
+        QPointF pos
+        );
       virtual bool removeNode(Node * node);
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool renameNode(Node * node, FTL::StrRef title);

@@ -83,25 +83,13 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNodeFromPreset(FTL::CStrRef preset, QPointF pos)
+Node * Controller::addNode(
+  FTL::CStrRef name,
+  FTL::CStrRef title,
+  QPointF pos
+  )
 {
-  std::string presetStr(preset);
-  std::string path;
-  if(presetStr.length() == 0)
-  {
-    path += "Node";
-  }
-  else
-  {
-    int pos =  presetStr.find(graph()->config().pathSep);
-    if(pos == std::string::npos)
-      path += presetStr;
-    else
-      path += presetStr.substr(pos+1, presetStr.length());
-  }
-
-  AddNodeCommand * command =
-    new AddNodeCommand(this, path.c_str(), preset.data(), pos);
+  AddNodeCommand * command = new AddNodeCommand(this, name, title, pos);
   if(!addCommand(command))
   {
     delete(command);
