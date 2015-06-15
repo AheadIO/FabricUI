@@ -25,13 +25,18 @@ namespace FabricUI
       virtual QString type() const;
       virtual unsigned int numChildren();
 
+      virtual TreeItem * child(unsigned int i);
+      virtual TreeItem * child(QString path);
+
     protected:
 
       SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
+      void createChildrenIfNotDone();
 
       FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;
       SGObjectTreeView * m_view;
+      bool m_childrenCreated;
     };
 
   };

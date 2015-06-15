@@ -26,6 +26,7 @@ SGObjectTreeItem::SGObjectTreeItem(SGObjectTreeView * view, QString name, Fabric
   m_view = view;
   m_client = client;
   m_rtVal = browser;
+  m_childrenCreated = false;
 }
 
 SGObjectTreeItem::~SGObjectTreeItem()
@@ -37,11 +38,13 @@ QString SGObjectTreeItem::type() const
   return "SGObject";
 }
 
-unsigned int SGObjectTreeItem::numChildren()
+void SGObjectTreeItem::createChildrenIfNotDone()
 {
+  if( m_childrenCreated )
+    return;
   try
   {
-    unsigned int count = m_rtVal.callMethod("UInt32", "getNumChildSGObjects", 0, 0).getUInt32();
+    unsigned int count = numChildren();
     if(count != TreeView::TreeItem::numChildren())
     {
       // clear previous children
@@ -63,6 +66,38 @@ unsigned int SGObjectTreeItem::numChildren()
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
+}
 
-  return TreeView::TreeItem::numChildren();
+unsigned int SGObjectTreeItem::numChildren()
+{
+  unsigned int count = 0;
+  try
+  {
+    count = m_rtVal.callMethod("UInt32", "getNumChildSGObjects", 0, 0).getUInt32();
+
+    // Delay the actual creation of the children items as much as possible
+    if(count != TreeView::TreeItem::numChildren())
+      m_childrenCreated = false;
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+
+  return count;
+}
+
+
+TreeView::TreeItem * SGObjectTreeItem::child( unsigned int i )
+{
+  // Actual creation of the children items is delayed until requested
+  createChildrenIfNotDone();
+  return TreeView::TreeItem::child(i);
+}
+
+TreeView::TreeItem * SGObjectTreeItem::child( QString path )
+{
+  // Actual creation of the children items is delayed until requested
+  createChildrenIfNotDone();
+  return TreeView::TreeItem::child(path);
 }
