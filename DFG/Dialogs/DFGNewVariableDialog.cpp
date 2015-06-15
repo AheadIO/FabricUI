@@ -10,6 +10,7 @@ DFGNewVariableDialog::DFGNewVariableDialog(
   QWidget * parent,
   FabricCore::Client & client,
   FabricCore::DFGBinding & binding,
+  FTL::CStrRef currentExecPath,
   QString name,
   QString dataType,
   QString extension,
@@ -17,7 +18,7 @@ DFGNewVariableDialog::DFGNewVariableDialog(
   )
 : DFGBaseDialog(parent, true, dfgConfig)
 {
-  m_nameEdit = new DFGVariablePathLineEdit(this, binding, name);
+  m_nameEdit = new DFGVariablePathLineEdit(this, binding, currentExecPath, name);
   addInput(m_nameEdit, "name");
   m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, dataType);
   addInput(m_dataTypeEdit, "type");

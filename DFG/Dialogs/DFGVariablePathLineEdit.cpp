@@ -1,7 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGVariablePathLineEdit.h"
+#include "../DFGController.h"
 #include <FTL/CStrRef.h>
+#include <FTL/JSONValue.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -9,11 +11,12 @@ using namespace FabricUI::DFG;
 DFGVariablePathLineEdit::DFGVariablePathLineEdit(
   QWidget * parent,
   FabricCore::DFGBinding const &binding,
+  FTL::CStrRef currentExecPath,
   QString text
   )
   : DFGAutoCompleteLineEdit(parent, text)
 {
-  QStringList words;
-  // todo: variables API
+  FabricCore::DFGBinding localBinding = binding;
+  QStringList words = DFGController::getVariableWordsFromBinding(localBinding, currentExecPath);
   setWords(words);
 }

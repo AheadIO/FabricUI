@@ -24,6 +24,7 @@ namespace FabricUI
         QWidget * parent,
         FabricCore::Client & client,
         FabricCore::DFGBinding & binding,
+        FTL::CStrRef currentExecPath,
         QString name = "",
         QString dataType = "",
         QString extension = "",

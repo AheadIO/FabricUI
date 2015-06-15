@@ -7,6 +7,7 @@
 #include <map>
 
 #include <FabricCore.h>
+#include <FTL/CStrRef.h>
 
 namespace FabricUI
 {
@@ -19,15 +20,25 @@ namespace FabricUI
 
     public:
 
-      VariablePathValueItem(QString name, TreeView::TreeEditorFactory * factory, FabricCore::Client * client, FabricCore::DFGBinding binding, QWidget * parent, FabricCore::RTVal value, QString label = "", bool enabled = true);
+      VariablePathValueItem(QString name,
+        TreeView::TreeEditorFactory * factory,
+        FabricCore::Client * client,
+        FabricCore::DFGBinding binding,
+        FTL::CStrRef execPath,
+        QWidget * parent,
+        FabricCore::RTVal value,
+        QString label = "",
+        bool enabled = true);
 
       virtual QString type() const { return "VariablePath"; }
 
       FabricCore::DFGBinding getDFGBinding() { return m_binding; }
+      FTL::CStrRef getDFGExecPath() { return m_execPath.c_str(); }
 
     private:
 
       FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
     };
 
   };

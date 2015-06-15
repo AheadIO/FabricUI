@@ -317,6 +317,7 @@ void DFGWidget::onGoUpPressed()
       m_coreDFGExecPath = m_coreDFGExecPath.substr(0, pos);
     else
       m_coreDFGExecPath = "";
+    m_uiController->setExecPath(m_coreDFGExecPath.c_str());
   }
 }
 
@@ -379,7 +380,7 @@ void DFGWidget::onGraphAction(QAction * action)
     FabricCore::Client client = controller->getClient();
     FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
 
-    DFGNewVariableDialog dialog(this, client, binding);
+    DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -826,6 +827,7 @@ bool DFGWidget::editNode(FabricCore::DFGExec exec, char const * name, bool pushE
       if(m_coreDFGExecPath.length() > 0)
         m_coreDFGExecPath += ".";
       m_coreDFGExecPath += name;
+      m_uiController->setExecPath(m_coreDFGExecPath.c_str());
     }
 
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())

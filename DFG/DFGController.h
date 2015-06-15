@@ -123,7 +123,9 @@ namespace FabricUI
       virtual void setLogFunc(LogFunc func);
 
       virtual char const * getExecPath()
-        {  return m_execPath.c_str(); }
+        { return m_execPath.c_str(); }
+      virtual void setExecPath(char const * execPath)
+        { m_execPath = execPath; }
 
       virtual bool execute();
       bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
@@ -142,6 +144,8 @@ namespace FabricUI
         FabricCore::DFGBinding binding,
         FabricCore::DFGExec exec
         );
+
+      static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
     signals:
 

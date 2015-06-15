@@ -5,6 +5,7 @@
 
 #include "DFGAutoCompleteLineEdit.h"
 #include <FabricCore.h>
+#include <FTL/CStrRef.h>
 
 namespace FabricUI
 {
@@ -20,6 +21,7 @@ namespace FabricUI
       DFGVariablePathLineEdit(
         QWidget * parent,
         FabricCore::DFGBinding const &binding,
+        FTL::CStrRef currentExecPath,
         QString text = ""
         );
     };

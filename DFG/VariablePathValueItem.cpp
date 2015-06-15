@@ -10,6 +10,7 @@ VariablePathValueItem::VariablePathValueItem(
   TreeView::TreeEditorFactory * factory,
   FabricCore::Client * client,
   FabricCore::DFGBinding binding,
+  FTL::CStrRef execPath,
   QWidget * parent,
   FabricCore::RTVal value,
   QString label,
@@ -18,4 +19,5 @@ VariablePathValueItem::VariablePathValueItem(
 : ValueEditor::ValueItem(name, factory, client, parent, value, label, enabled)
 {
   m_binding = binding;
+  m_execPath = execPath.c_str();
 }

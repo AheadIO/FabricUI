@@ -322,7 +322,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
     FabricCore::Client client = controller->getClient();
     FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
 
-    DFGNewVariableDialog dialog(this, client, binding);
+    DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
     if(dialog.exec() != QDialog::Accepted)
       return;
 

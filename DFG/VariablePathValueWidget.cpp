@@ -30,7 +30,7 @@ void VariablePathValueWidget::setValue(FabricCore::RTVal v)
     QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
     VariablePathValueItem * varPathItem = (VariablePathValueItem*)item();
-    m_lineEdit = new DFGVariablePathLineEdit(this, varPathItem->getDFGBinding());
+    m_lineEdit = new DFGVariablePathLineEdit(this, varPathItem->getDFGBinding(), varPathItem->getDFGExecPath());
     hbox->addWidget(m_lineEdit);
     QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
   }
