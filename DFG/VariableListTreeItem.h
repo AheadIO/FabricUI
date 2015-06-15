@@ -3,8 +3,9 @@
 #ifndef __UI_DFG_VariableListTreeItem__
 #define __UI_DFG_VariableListTreeItem__
 
-#include <FabricUI/TreeView/TreeItem.h>
+#include "VariableGroupTreeItem.h"
 #include <FabricCore.h>
+#include <FTL/OwnedPtr.h>
 
 namespace FabricUI
 {
@@ -12,26 +13,15 @@ namespace FabricUI
   namespace DFG
   {
 
-    class VariableListTreeItem : public TreeView::TreeItem
+    class VariableListTreeItem : public VariableGroupTreeItem
     {
 
     public:
 
-      VariableListTreeItem(FabricCore::DFGHost const &coreDFGHost, FabricCore::DFGBinding const &coreDFGBinding, QStringList filters = QStringList());
+      VariableListTreeItem(FabricCore::DFGBinding const &coreDFGBinding, QStringList filters = QStringList());
 
-      virtual unsigned int numChildren();
-
-      // filtering
-      virtual QStringList filters() const;
-      virtual void setFilters(QStringList f);
-
-    private:
-
-      bool includeChildName(QString name);
-
-      FabricCore::DFGHost m_coreDFGHost;
+      FTL::OwnedPtr<FTL::JSONObject> m_json;
       FabricCore::DFGBinding m_coreDFGBinding;
-      QStringList m_filters;
     };
 
   };

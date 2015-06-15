@@ -148,8 +148,6 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
-      void updatePresetPathDB(bool force = false);
-
     signals:
 
       void argsChanged();
@@ -158,12 +156,14 @@ namespace FabricUI
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
       void argValueChanged(const char * argName);
+      void variablesChanged();
 
     public slots:
 
       void onValueChanged(ValueItem * item);
       void checkErrors();
       void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
+      void onVariablesChanged();
 
     private:
 
@@ -178,6 +178,8 @@ namespace FabricUI
           FTL::CStrRef( jsonCString, jsonLength )
           );
       }
+
+      void updatePresetPathDB();
 
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;

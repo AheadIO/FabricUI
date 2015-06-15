@@ -62,6 +62,7 @@ DFGController::DFGController(
   m_presetDictsUpToDate = false;
 
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
+  QObject::connect(this, SIGNAL(variablesChanged()), this, SLOT(onVariablesChanged()));
 }
 
 DFGController::~DFGController()
@@ -81,6 +82,7 @@ void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
 void DFGController::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
 {
   m_coreDFGBinding = coreDFGBinding;
+  m_presetDictsUpToDate = false;
 }
 
 DFGNotificationRouter * DFGController::getRouter()
@@ -158,6 +160,7 @@ std::string  DFGController::addDFGVar(FTL::StrRef varName, FTL::StrRef dataType,
     }
     emit structureChanged();
     emit recompiled();
+    emit variablesChanged();
     return command->getNodePath();
   }
   catch(FabricCore::Exception e)
@@ -273,6 +276,10 @@ bool DFGController::removeNode(char const * path)
 {
   try
   {
+    bool emitVarChanged = false;
+    if(getCoreDFGExec().getNodeType(path) == FabricCore::DFGNodeType_Var)
+      emitVarChanged = true;
+
     DFGRemoveNodeCommand * removeCommand = new DFGRemoveNodeCommand(this, path);
     if(!addCommand(removeCommand))
     {
@@ -281,6 +288,7 @@ bool DFGController::removeNode(char const * path)
     }
     emit structureChanged();
     emit recompiled();
+    emit variablesChanged();
   }
   catch(FabricCore::Exception e)
   {
@@ -1513,6 +1521,12 @@ void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char con
   }
 }
 
+void DFGController::onVariablesChanged()
+{
+  m_presetDictsUpToDate = false;
+  updatePresetPathDB();
+}
+
 void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
 {
   // printf("bindingNotif = %s\n", jsonStr.c_str());
@@ -1612,9 +1626,9 @@ QStringList DFGController::getPresetPathsFromSearch(char const * search, bool in
   return results;
 }
 
-void DFGController::updatePresetPathDB(bool force)
+void DFGController::updatePresetPathDB()
 {
-  if((m_presetDictsUpToDate && !force) || !m_coreDFGHost.isValid())
+  if(m_presetDictsUpToDate || !m_coreDFGHost.isValid())
     return;
   m_presetDictsUpToDate = true;
 
@@ -1698,19 +1712,22 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
 
   for(size_t i=0;i<objects.size();i++)
   {
-    FTL::JSONObject const * varsObject = objects[i]->getObject( FTL_STR("vars") );
-    for(FTL::JSONObject::const_iterator it = varsObject->begin();
-      it != varsObject->end(); it++
-      )
+    FTL::JSONObject const * varsObject = objects[i]->maybeGetObject( FTL_STR("vars") );
+    if(varsObject)
     {
-      FTL::CStrRef key = it->first;
-      std::string path = prefixes[i];
-      if(path.length() > 0)
-        path += ".";
-      path += key.c_str();
-      if(words.contains(path.c_str()))
-        continue;
-      words.append(path.c_str());
+      for(FTL::JSONObject::const_iterator it = varsObject->begin();
+        it != varsObject->end(); it++
+        )
+      {
+        FTL::CStrRef key = it->first;
+        std::string path = prefixes[i];
+        if(path.length() > 0)
+          path += ".";
+        path += key.c_str();
+        if(words.contains(path.c_str()))
+          continue;
+        words.append(path.c_str());
+      }
     }
 
     FTL::JSONObject const * subsObject = objects[i]->maybeGetObject( FTL_STR("subs") );

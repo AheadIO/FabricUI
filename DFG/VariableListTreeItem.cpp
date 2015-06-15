@@ -7,49 +7,15 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-VariableListTreeItem::VariableListTreeItem(FabricCore::DFGHost const &coreDFGHost, FabricCore::DFGBinding const &coreDFGBinding, QStringList filters)
-: TreeView::TreeItem("Variables", "VariableList")
-, m_coreDFGHost(coreDFGHost)
+VariableListTreeItem::VariableListTreeItem(FabricCore::DFGBinding const &coreDFGBinding, QStringList filters)
+: VariableGroupTreeItem("Variables", "", NULL, filters)
 , m_coreDFGBinding(coreDFGBinding)
-, m_filters(filters)
 {
-}
-
-unsigned int VariableListTreeItem::numChildren()
-{
-  if(TreeView::TreeItem::numChildren() == 0)
+  if(m_coreDFGBinding.isValid())
   {
-    // add the default items
-    addChild(new VariableTreeItem("New Var", "DFGVar"));
-    addChild(new VariableTreeItem("Get Var", "DFGGet"));
-    addChild(new VariableTreeItem("Set Var", "DFGSet"));
+    FabricCore::DFGStringResult jsonStr =  m_coreDFGBinding.getVars();
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr.getCString() );
+    m_json = FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>();
+    m_jsonObject = m_json.get();
   }
-  return TreeView::TreeItem::numChildren();
-}
-
-QStringList VariableListTreeItem::filters() const
-{
-  return m_filters;
-}
-
-void VariableListTreeItem::setFilters(QStringList f)
-{
-  m_filters = f;
-}
-
-bool VariableListTreeItem::includeChildName(QString name)
-{
-  QString start = name + ".";
-  QString end = "." + name;
-
-  for(unsigned int i=0;i<m_filters.length();i++)
-  {
-    if(m_filters[i] == name)
-      return true;
-    if(m_filters[i].startsWith(start))
-      return true;
-    if(m_filters[i].endsWith(end))
-      return true;
-  }
-  return m_filters.length() == 0;
 }

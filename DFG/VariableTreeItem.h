@@ -16,7 +16,7 @@ namespace FabricUI
 
     public:
 
-      VariableTreeItem(char const * name, char const * type);
+      VariableTreeItem(char const * name, char const * path);
 
       virtual Qt::ItemFlags flags();
       virtual QString mimeDataAsText();
@@ -24,7 +24,7 @@ namespace FabricUI
     private:
 
       std::string m_name;
-      std::string m_type;
+      std::string m_path;
     };
 
   };

@@ -365,7 +365,6 @@ void DFGNotificationRouter::onNodeInserted(
   {
     if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
       onNodeTitleChanged( nodeName, title );
-    m_controller->updatePresetPathDB(true);
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {

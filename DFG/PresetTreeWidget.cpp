@@ -104,7 +104,7 @@ void PresetTreeWidget::refresh()
     }
 
     // also add the variable list item
-    m_treeModel->addItem(new VariableListTreeItem(m_coreDFGHost, m_coreDFGBinding));
+    m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding));
 
     for(std::map<std::string, std::string>::iterator it=nameSpaceLookup.begin();it!=nameSpaceLookup.end();it++)
       m_treeModel->addItem(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str()));
@@ -161,7 +161,7 @@ void PresetTreeWidget::refresh()
         continue;
 
       // also add the variable list item
-      m_treeModel->addItem(new VariableListTreeItem(m_coreDFGHost, m_coreDFGBinding, filters));
+      m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding, filters));
 
       const FabricCore::Variant * memberVar = memberIter.getValue();
       const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");

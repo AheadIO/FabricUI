@@ -45,6 +45,7 @@ void DFGCombinedWidget::init(
     m_coreDFGExec = exec;
 
     m_treeWidget = new DFG::PresetTreeWidget(this, m_coreDFGHost, config);
+    m_treeWidget->setBinding(m_coreDFGBinding);
     m_dfgWidget = new DFG::DFGWidget(this, m_coreClient, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, m_manager, stack, config, overTakeBindingNotifications);
     m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
 
@@ -71,6 +72,7 @@ void DFGCombinedWidget::init(
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(execPortRenamed(QString, QString)), this, SLOT(onExecPortRenamed(QString, QString)));
     QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
       this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(variablesChanged()), m_treeWidget, SLOT(refresh()));
 
     onGraphSet(m_dfgWidget->getUIGraph());
   }

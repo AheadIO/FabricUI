@@ -55,43 +55,58 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
                 pos += QPointF(30, 30);
               }
             }
-            else if(std::string(typeVar->getStringData()) == "DFGVar")
+            else if(std::string(typeVar->getStringData()) == "DFGVariable")
             {
               DFGController* controller = (DFGController*)graph()->controller();
               FabricCore::Client client = controller->getClient();
               FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
 
-              DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
-              if(dialog.exec() != QDialog::Accepted)
-                return;
+              const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
+              std::string path = pathVar->getStringData();
+              std::string execPath = controller->getExecPath();
 
-              QString name = dialog.name();
-              if(name.length() == 0)
-                return;
-              QString dataType = dialog.dataType();
-              QString extension = dialog.extension();
+              while(execPath.length() > 0)
+              {
+                int delimPos = execPath.find('.');
+                if(delimPos != std::string::npos)
+                {
+                  std::string prefix = execPath.substr(0, delimPos+1);
+                  execPath = execPath.substr(delimPos+1);
+                  if(path.substr(0, prefix.length()) == prefix)
+                  {
+                    path = path.substr(delimPos+1);
+                  }
+                  else
+                    break;
+                }
+                else if(execPath + "." == path.substr(0, execPath.length() + 1))
+                {
+                  path = path.substr(execPath.length() + 1);
+                  execPath = "";
+                }
+                else
+                  break;
+              }
 
-              ((DFGController*)graph()->controller())->addDFGVar(
-                name.toUtf8().constData(), 
-                dataType.toUtf8().constData(), 
-                extension.toUtf8().constData(), 
-                pos
-                );
-                pos += QPointF(30, 30);
-            }
-            else if(std::string(typeVar->getStringData()) == "DFGGet")
-            {
-              ((DFGController*)graph()->controller())->addDFGGet(
-                "", "", pos
-                );
-                pos += QPointF(30, 30);
-            }
-            else if(std::string(typeVar->getStringData()) == "DFGSet")
-            {
-              ((DFGController*)graph()->controller())->addDFGSet(
-                "", "", pos
-                );
-                pos += QPointF(30, 30);
+              if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
+                event->mouseButtons().testFlag(Qt::RightButton))
+              {
+                ((DFGController*)graph()->controller())->addDFGSet(
+                  "", 
+                  path.c_str(),
+                  pos
+                  );
+                  pos += QPointF(30, 30);
+              }
+              else
+              {
+                ((DFGController*)graph()->controller())->addDFGGet(
+                  "", 
+                  path.c_str(),
+                  pos
+                  );
+                  pos += QPointF(30, 30);
+              }
             }
           }
         }

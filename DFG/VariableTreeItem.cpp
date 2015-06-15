@@ -5,11 +5,11 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-VariableTreeItem::VariableTreeItem(char const * name, char const * type)
-: TreeView::TreeItem(name, "Variable")
+VariableTreeItem::VariableTreeItem(char const * name, char const * path)
+: TreeView::TreeItem(name, "DFGVariable")
 {
   m_name = name;
-  m_type = type;
+  m_path = path;
 }
 
 Qt::ItemFlags VariableTreeItem::flags()
@@ -21,5 +21,5 @@ Qt::ItemFlags VariableTreeItem::flags()
 
 QString VariableTreeItem::mimeDataAsText()
 {
-  return ("{\"type\": \""+m_type+"\", \"name\": \""+m_name+"\"}").c_str();
+  return ("{\"type\": \"DFGVariable\", \"name\": \""+m_name+"\", \"path\": \""+m_path+"\"}").c_str();
 }
