@@ -351,14 +351,14 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
       "set", "", scenePos
       );
   }
-  else if(path.left(4) == "get ")
+  else if(path.left(4) == "get.")
   {
     m_parent->getUIController()->addDFGGet(
       "get",
       path.mid(4).toUtf8().constData(), scenePos
       );
   }
-  else if(path.left(4) == "set ")
+  else if(path.left(4) == "set.")
   {
     m_parent->getUIController()->addDFGSet(
       "set",

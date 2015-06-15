@@ -1610,9 +1610,12 @@ void DFGController::updatePresetPathDB()
   m_presetPathDictSTL.push_back("get");
   m_presetPathDictSTL.push_back("set");
 
-  // todo: insert all variables as gets and set
-  // also do this in the preset tree view
-  // also - if there's a new variable - we need to refresh this!
+  QStringList variables = getVariableWordsFromBinding(m_coreDFGBinding, m_execPath.c_str());
+  for(unsigned int i=0;i<variables.length();i++)
+  {
+    m_presetPathDictSTL.push_back("get." + std::string(variables[i].toUtf8().constData()));
+    m_presetPathDictSTL.push_back("set." + std::string(variables[i].toUtf8().constData()));
+  }
 
   std::vector<std::string> paths;
   paths.push_back("");
