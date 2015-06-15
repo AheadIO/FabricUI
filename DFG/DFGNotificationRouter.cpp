@@ -365,6 +365,7 @@ void DFGNotificationRouter::onNodeInserted(
   {
     if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
       onNodeTitleChanged( nodeName, title );
+    m_controller->updatePresetPathDB(true);
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
@@ -417,6 +418,9 @@ void DFGNotificationRouter::onNodeRemoved(
   if(!uiNode)
     return;
   uiGraph->removeNode(uiNode);
+
+  // todo - the notif should provide the node type
+  // m_controller->updatePresetDB(true);
 
   if(m_performChecks)
   {

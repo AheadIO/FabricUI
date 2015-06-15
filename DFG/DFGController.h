@@ -103,6 +103,7 @@ namespace FabricUI
       virtual bool setDefaultValue(char const *  path, char const *  dataType, char const *  json);
       virtual std::string exportJSON(char const *  path);
       virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
+      virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
@@ -147,6 +148,8 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
+      void updatePresetPathDB(bool force = false);
+
     signals:
 
       void argsChanged();
@@ -175,8 +178,6 @@ namespace FabricUI
           FTL::CStrRef( jsonCString, jsonLength )
           );
       }
-
-      void updatePresetPathDB();
 
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;

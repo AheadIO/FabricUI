@@ -894,6 +894,25 @@ bool DFGController::setNodeCacheRule(char const * path, FEC_DFGCacheRule rule)
   return false;
 }
 
+bool DFGController::setRefVarPath(char const *  path, char const * varPath)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    
+    Commands::Command * command = new DFGSetRefVarPathCommand(this, path, varPath);;
+    if(addCommand(command))
+      return true;
+    else
+      delete(command);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return false;
+}
+
 bool DFGController::moveNode(char const * path, QPointF pos, bool isTopLeftPos)
 {
   try
@@ -1368,9 +1387,8 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
     }
     if(command == NULL)
       return;
-    if(addCommand(command))
-      return;
-    delete(command);
+    if(!addCommand(command))
+      delete(command);
   }
   catch(FabricCore::Exception e)
   {
@@ -1594,9 +1612,9 @@ QStringList DFGController::getPresetPathsFromSearch(char const * search, bool in
   return results;
 }
 
-void DFGController::updatePresetPathDB()
+void DFGController::updatePresetPathDB(bool force)
 {
-  if(m_presetDictsUpToDate || !m_coreDFGHost.isValid())
+  if((m_presetDictsUpToDate && !force) || !m_coreDFGHost.isValid())
     return;
   m_presetDictsUpToDate = true;
 
