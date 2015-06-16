@@ -4,13 +4,13 @@
 #include "PresetTreeItem.h"
 #include <map>
 
-using namespace FabricServices::DFGWrapper;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-NameSpaceTreeItem::NameSpaceTreeItem(NameSpace nameSpace, QStringList filters)
-: TreeView::TreeItem(nameSpace.getName().c_str(), "NameSpace")
-, m_nameSpace(nameSpace)
+NameSpaceTreeItem::NameSpaceTreeItem(FabricCore::DFGHost const &coreDFGHost, char const * name, char const * ns, QStringList filters)
+: TreeView::TreeItem(name, "NameSpace")
+, m_coreDFGHost(coreDFGHost)
+, m_nameSpace(ns)
 , m_filters(filters)
 {
   m_validated = false;
@@ -20,51 +20,45 @@ unsigned int NameSpaceTreeItem::numChildren()
 {
   if(!m_validated)
   {
-    {
-      std::vector<NameSpace> & nameSpaces = m_nameSpace.getNameSpaces();
-      std::map<std::string, NameSpace> lookup;
-      for(size_t i=0;i<nameSpaces.size();i++)
-      {
-        if(!includeChildName(nameSpaces[i].getName().c_str()))
-          continue;
-        lookup.insert(std::pair<std::string, NameSpace>(nameSpaces[i].getName(), nameSpaces[i]));
-      }
+    std::string prefix = m_nameSpace + ".";
+    std::map<std::string, std::string> nameSpaceLookup;
+    std::map<std::string, std::string> presetLookup;
 
-      for(std::map<std::string, NameSpace>::iterator it=lookup.begin();it!=lookup.end();it++)
+    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(m_nameSpace.c_str());
+    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+
+    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    {
+      std::string name = memberIter.getKey()->getStringData();
+      const FabricCore::Variant * memberVar = memberIter.getValue();
+      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+      std::string objectType = objectTypeVar->getStringData();
+      if(objectType == "Preset")
       {
-        QStringList filters;
-        QString search = QString(it->first.c_str()) + ".";
-        for(size_t i=0;i<m_filters.length();i++)
-        {
-          if(!m_filters[i].startsWith(search))
-            continue;
-          filters.append(m_filters[i].right(m_filters[i].length() - search.length()));
-        }
-        addChild(new NameSpaceTreeItem(it->second, filters));
+        presetLookup.insert(std::pair<std::string, std::string>(name, prefix + name));
+      }
+      else if(objectType == "NameSpace")
+      {
+        nameSpaceLookup.insert(std::pair<std::string, std::string>(name, prefix + name));
       }
     }
 
+    for(std::map<std::string, std::string>::iterator it=nameSpaceLookup.begin();it!=nameSpaceLookup.end();it++)
     {
-      std::vector<Func> & funcs = m_nameSpace.getFuncs();
-      std::vector<Graph> & graphs = m_nameSpace.getGraphs();
-      std::map<std::string, Object> lookup;
-      for(size_t i=0;i<funcs.size();i++)
+      QStringList filters;
+      QString search = QString(it->first.c_str()) + ".";
+      for(size_t i=0;i<m_filters.length();i++)
       {
-        if(!includeChildName(funcs[i].getName().c_str()))
+        if(!m_filters[i].startsWith(search))
           continue;
-        lookup.insert(std::pair<std::string, Object>(funcs[i].getName(), funcs[i]));
+        filters.append(m_filters[i].right(m_filters[i].length() - search.length()));
       }
-      for(size_t i=0;i<graphs.size();i++)
-      {
-        if(!includeChildName(graphs[i].getName().c_str()))
-          continue;
-        lookup.insert(std::pair<std::string, Object>(graphs[i].getName(), graphs[i]));
-      }
-
-      for(std::map<std::string, Object>::iterator it=lookup.begin();it!=lookup.end();it++)
-        addChild(new PresetTreeItem(it->second));
+      addChild(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str(), filters));
     }
 
+    for(std::map<std::string, std::string>::iterator it=presetLookup.begin();it!=presetLookup.end();it++)
+      addChild(new PresetTreeItem(it->second.c_str(), it->first.c_str()));
 
     m_validated = true;
   }

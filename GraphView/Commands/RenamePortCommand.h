@@ -15,7 +15,7 @@ namespace FabricUI
     {
     public:
 
-      RenamePortCommand(Controller * controller, Port * port, QString title);
+      RenamePortCommand(Controller * controller, Port * port, char const * title);
       virtual ~RenamePortCommand();
 
       virtual const char * getName() const { return "RenamePort"; }
@@ -29,10 +29,10 @@ namespace FabricUI
       virtual bool invoke();
       virtual bool undo();
 
-      QString m_path;
+      std::string m_path;
       PortType m_portType;
-      QString m_newTitle;
-      QString m_oldTitle;
+      std::string m_newTitle;
+      std::string m_oldTitle;
 
     };
 

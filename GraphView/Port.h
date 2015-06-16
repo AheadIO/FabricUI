@@ -7,6 +7,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
+#include <FTL/CStrRef.h>
+
 #include "PortType.h"
 #include "TextContainer.h"
 #include "PinCircle.h"
@@ -28,10 +30,18 @@ namespace FabricUI
       Q_OBJECT
 
       friend class Graph;
+      friend class SidePanel;
 
     public:
 
-      Port(SidePanel * parent, QString name, PortType portType, QString dataType, QColor color, QString label = "");
+      Port(
+        SidePanel * parent,
+        FTL::StrRef name,
+        PortType portType,
+        FTL::StrRef dataType,
+        QColor color,
+        FTL::StrRef label = FTL::StrRef()
+        );
       virtual ~Port() {}
 
       virtual int type() const { return QGraphicsItemType_Port; }
@@ -43,34 +53,48 @@ namespace FabricUI
       PinCircle * circle();
       const PinCircle * circle() const;
 
-      virtual QString name() const;
-      void setName(QString n);
-      virtual QString path() const;
-      virtual QString label() const;
-      void setLabel(QString n);
+      FTL::CStrRef name() const
+        { return m_name; }
+      void setName( FTL::CStrRef name );
+
+      FTL::CStrRef path() const
+        { return name(); }
+
+      virtual char const * label() const;
+      void setLabel(char const * n);
       virtual QColor color() const;
       void setColor(QColor color);
       virtual PortType portType() const;
-      virtual QString dataType() const;
-      virtual void setDataType(QString dt);
+
+      virtual FTL::CStrRef dataType() const
+        { return m_dataType; }
+      virtual void setDataType(FTL::CStrRef dataType);
+
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
 
-      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const;
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const;
+      
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
+
+    signals:
+
+      void positionChanged();
 
     private:
 
       void init();
 
       SidePanel * m_sidePanel;
-      QString m_name;
-      QString m_path;
+      std::string m_name;
       PortType m_portType;
-      QString m_labelCaption;
+      std::string m_labelCaption;
       QColor m_color;
-      QString m_dataType;
+      std::string m_dataType;
       bool m_highlighted;
       TextContainer * m_label;
       PinCircle * m_circle;

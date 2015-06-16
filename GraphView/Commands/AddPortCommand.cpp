@@ -4,7 +4,7 @@
 
 using namespace FabricUI::GraphView;
 
-AddPortCommand::AddPortCommand(Controller * controller, QString name, PortType pType, QColor color, QString dataType)
+AddPortCommand::AddPortCommand(Controller * controller, char const * name, PortType pType, QColor color, char const * dataType)
 : ControllerCommand(controller)
 {
   m_name = name;
@@ -22,7 +22,7 @@ Port * AddPortCommand::getPort()
   SidePanel * panel = controller()->graph()->sidePanel(m_pType);
   if(!panel)
     return NULL;
-  return panel->port(m_name);
+  return panel->port(m_name.c_str());
 }
 
 bool AddPortCommand::invoke()
@@ -31,7 +31,7 @@ bool AddPortCommand::invoke()
   if(!panel)
     return false;
 
-  Port * port = new Port(panel, m_name, m_pType, m_dataType, m_color);
+  Port * port = new Port(panel, m_name.c_str(), m_pType, m_dataType.c_str(), m_color);
   if(panel->addPort(port))
   {
     m_name = port->name();

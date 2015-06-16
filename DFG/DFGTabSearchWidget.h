@@ -3,7 +3,6 @@
 #ifndef __UI_DFG_DFGTabSearchWidget__
 #define __UI_DFG_DFGTabSearchWidget__
 
-#include <DFGWrapper/Host.h>
 #include "DFGConfig.h"
 
 #include <QtGui/QWidget>
@@ -47,6 +46,8 @@ namespace FabricUI
       void updateGeometry();
 
     private:
+
+      void addNodeFromPath(QString path);
 
       DFGWidget * m_parent;
       DFGConfig m_config;

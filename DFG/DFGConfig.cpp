@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGConfig.h"
-#include <DFGWrapper/KLTypeDesc.h>
+#include <CodeCompletion/KLTypeDesc.h>
 
 using namespace FabricServices;
 using namespace FabricUI::DFG;
@@ -20,6 +20,8 @@ DFGConfig::DFGConfig()
   searchBackgroundColor = QColor(135, 135, 135);
   searchHighlightColor = QColor(137, 181, 202);
   searchFontColor = QColor(0, 0, 0);
+  varNodeDefaultColor = QColor(214, 191, 103);
+  varLabelDefaultColor = QColor(188, 129, 83);
 
   klEditorConfig.codeBackgroundColor = defaultFontColor;
   klEditorConfig.codeFontColor = defaultBackgroundColor;
@@ -65,27 +67,27 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("PolygonMesh", QColor(51, 1, 106));
 }
 
-void DFGConfig::registerDataTypeColor(const std::string & dataType, QColor color)
+void DFGConfig::registerDataTypeColor(FTL::StrRef dataType, QColor color)
 {
-  std::string baseType = DFGWrapper::KLTypeDesc(dataType).getBaseType();
+  std::string baseType = CodeCompletion::KLTypeDesc(dataType).getBaseType();
   std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
   if(it != colorForDataType.end())
     it->second = color;
   colorForDataType.insert(std::pair<std::string, QColor>(baseType, color));
 }
 
-QColor DFGConfig::getColorForDataType(const std::string & dataType, DFGWrapper::ExecPortPtr port)
+QColor DFGConfig::getColorForDataType(FTL::StrRef dataType, FabricCore::DFGExec * exec, char const * portName)
 {
-  if(dataType.length() > 0)
+  if(dataType.size() > 0)
   {
-    if(dataType[0] == '$')
+    if(dataType.data()[0] == '$')
       return QColor(0, 0, 0);
-    std::string baseType = DFGWrapper::KLTypeDesc(dataType).getBaseType();
+    std::string baseType = CodeCompletion::KLTypeDesc(dataType.data()).getBaseType();
     std::map<std::string, QColor>::iterator it = colorForDataType.find(baseType);
 
-    if(it == colorForDataType.end() && port)
+    if(it == colorForDataType.end() && exec != NULL && portName != NULL)
     {
-      QString uiColor = port->getMetadata("uiColor");
+      QString uiColor = exec->getExecPortMetadata(portName, "uiColor");
       if(uiColor.length() > 0)
       {
         FabricCore::Variant uiColorVar = FabricCore::Variant::CreateFromJSON(uiColor.toUtf8().constData());

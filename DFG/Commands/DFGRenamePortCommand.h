@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGRenamePortCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGRenamePortCommand(DFGController * controller, QString path, QString name);
+      DFGRenamePortCommand(DFGController * controller, char const * path, char const * name);
 
       virtual const char * getName() const { return "dfgRenamePort"; }
       virtual const char * getShortDesc() const { return "Renames a port to from the graph."; }
@@ -30,8 +30,6 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

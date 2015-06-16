@@ -2,14 +2,13 @@
 
 #include "PresetTreeItem.h"
 
-using namespace FabricServices::DFGWrapper;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-PresetTreeItem::PresetTreeItem(Object preset)
-: TreeView::TreeItem(preset.getName().c_str(), "Preset")
+PresetTreeItem::PresetTreeItem(char const * path, char const * name)
+: TreeView::TreeItem(name, "Preset")
 {
-  m_path = preset.getPath().c_str();
+  m_path = path;
 }
 
 Qt::ItemFlags PresetTreeItem::flags()
@@ -21,5 +20,5 @@ Qt::ItemFlags PresetTreeItem::flags()
 
 QString PresetTreeItem::mimeDataAsText()
 {
-  return "{\"type\": \"DFGPreset\", \"path\": \""+m_path+"\"}";
+  return ("{\"type\": \"DFGPreset\", \"path\": \""+m_path+"\"}").c_str();
 }

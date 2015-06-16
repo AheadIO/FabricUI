@@ -1,7 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGImplodeNodesCommand.h"
-#include <DFGWrapper/Inst.h>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <assert.h>
@@ -25,14 +24,14 @@ std::vector<std::string> DFGImplodeNodesCommand::getNodePaths() const
   return m_nodePaths;
 }
 
-std::string DFGImplodeNodesCommand::getDesiredName() const
+char const * DFGImplodeNodesCommand::getDesiredName() const
 {
-  return m_desiredName;
+  return m_desiredName.c_str();
 }
 
-std::string DFGImplodeNodesCommand::getInstName() const
+char const * DFGImplodeNodesCommand::getInstName() const
 {
-  return m_instName;
+  return m_instName.c_str();
 }
 
 bool DFGImplodeNodesCommand::invoke()
@@ -41,26 +40,10 @@ bool DFGImplodeNodesCommand::invoke()
     return false;
 
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
 
-  m_instName = graph->implodeNodes(m_desiredName.c_str(), m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
-  DFGWrapper::NodePtr newNode = graph->getNode(m_instName.c_str());
-  assert( newNode->isInst() );
-  DFGWrapper::InstPtr newInst = DFGWrapper::InstPtr::StaticCast( newNode );
-  if(newInst)
-    newInst->getExecutable()->setTitle(m_instName.c_str());
+  m_instName = graph.implodeNodes(m_desiredName.c_str(), m_nodePathsPtr.size(), &m_nodePathsPtr[0]);
+  graph.setInstTitle(m_instName.c_str(), m_desiredName.c_str());
 
   return true;
-}
-
-bool DFGImplodeNodesCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGImplodeNodesCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();
 }

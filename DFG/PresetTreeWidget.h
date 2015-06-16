@@ -3,12 +3,10 @@
 #ifndef __UI_DFG_PresetTreeWidget__
 #define __UI_DFG_PresetTreeWidget__
 
-#include <DFGWrapper/Host.h>
-
 #include <QtGui/QWidget>
 #include <QtGui/QLineEdit>
-#include <TreeView/TreeViewWidget.h>
-#include <TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeModel.h>
 #include "DFGConfig.h"
 #include <SplitSearch/SplitSearch.hpp>
 
@@ -24,10 +22,15 @@ namespace FabricUI
 
     public:
 
-      PresetTreeWidget(QWidget * parent, FabricServices::DFGWrapper::Host * host, const DFGConfig & config = DFGConfig());
+      PresetTreeWidget(
+        QWidget * parent,
+        FabricCore::DFGHost const &coreDFGHost,
+        const DFGConfig & config = DFGConfig()
+        );
       virtual ~PresetTreeWidget();
 
-      void setHost(FabricServices::DFGWrapper::Host * host);
+      void setHost( FabricCore::DFGHost const &coreDFGHost );
+      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
 
     public slots:
 
@@ -38,7 +41,8 @@ namespace FabricUI
       void updatePresetPathDB();
 
       QLineEdit * m_searchEdit;
-      FabricServices::DFGWrapper::Host * m_host;
+      FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       FabricServices::SplitSearch::Dict m_presetPathDict;

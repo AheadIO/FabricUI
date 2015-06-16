@@ -6,9 +6,9 @@
 #include <QtGui/QLabel> 
 #include <QtGui/QWidget>
 
-#include <TreeView/TreeViewWidget.h>
-#include <TreeView/TreeModel.h>
-#include <TreeView/TreeEditorFactory.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeEditorFactory.h>
 
 #include <FabricCore.h>
 
@@ -26,11 +26,12 @@ namespace FabricUI
 
     public:
 
-      ValueEditorWidget(QWidget * parent, FabricCore::Client * client, const EditorConfig & config = EditorConfig());
+      ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config = EditorConfig());
       virtual ~ValueEditorWidget();
       EditorConfig & config();
 
       virtual ValueItem * addValue(QString path, FabricCore::RTVal value, QString label = "", bool enabled = true);
+      virtual ValueItem * addValue(QString path, ValueItem * item, bool enabled = true);
       virtual bool removeValue(QString path);
       virtual FabricCore::RTVal getValue(QString path);
       virtual void clear();
@@ -44,7 +45,7 @@ namespace FabricUI
     protected:
     
       EditorConfig m_config;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_client;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       TreeView::TreeEditorFactory * m_factory;

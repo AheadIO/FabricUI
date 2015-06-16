@@ -26,7 +26,7 @@ namespace FabricUI
 
     public:
 
-      SidePanel(Graph * parent, QString path, PortType portType, QColor color = QColor());
+      SidePanel(Graph * parent, PortType portType, QColor color = QColor());
 
       Graph * graph();
       const Graph * graph() const;
@@ -35,12 +35,10 @@ namespace FabricUI
       QString name() const;
       QColor color() const;
       PortType portType() const;
-
-      virtual QString getUniqueName(QString name, bool isLabel = false) const;
-
+      
       virtual unsigned int portCount() const;
       virtual Port * port(unsigned int index);
-      virtual Port * port(QString nameOrPath);
+      virtual Port * port(FTL::StrRef name);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
@@ -60,12 +58,11 @@ namespace FabricUI
       void resetLayout();
 
       Graph * m_graph;
-      QString m_path;
       QColor m_color;
       QPen m_pen;
       PortType m_portType;
+      bool m_requiresToSendSignalsForPorts;
 
-      QGraphicsLinearLayout * m_portsLayout;
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;
     };

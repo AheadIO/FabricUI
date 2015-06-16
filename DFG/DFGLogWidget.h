@@ -3,9 +3,6 @@
 #ifndef __UI_DFG_DFGLogWidget__
 #define __UI_DFG_DFGLogWidget__
 
-#include <DFGWrapper/Host.h>
-#include <DFGWrapper/Executable.h>
-
 #include <QtGui/QWidget>
 #include <QtGui/QPlainTextEdit>
 

@@ -10,10 +10,12 @@
 
 #include "DFGController.h"
 #include "DFGLogWidget.h"
-#include <DFGWrapper/Inst.h>
-#include <DFGWrapper/InstPort.h>
-#include <GraphView/GraphRelaxer.h>
+#include "DFGNotificationRouter.h"
+#include <FabricUI/GraphView/GraphRelaxer.h>
 #include "Commands/DFGAddNodeCommand.h"
+#include "Commands/DFGAddVarCommand.h"
+#include "Commands/DFGAddGetCommand.h"
+#include "Commands/DFGAddSetCommand.h"
 #include "Commands/DFGAddEmptyGraphCommand.h"
 #include "Commands/DFGAddEmptyFuncCommand.h"
 #include "Commands/DFGRemoveNodeCommand.h"
@@ -27,6 +29,7 @@
 #include "Commands/DFGSetCodeCommand.h"
 #include "Commands/DFGSetArgCommand.h"
 #include "Commands/DFGSetDefaultValueCommand.h"
+#include "Commands/DFGSetRefVarPathCommand.h"
 #include "Commands/DFGSetNodeCacheRuleCommand.h"
 #include "Commands/DFGCopyCommand.h"
 #include "Commands/DFGPasteCommand.h"
@@ -37,85 +40,83 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGController::DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications)
-: GraphView::Controller(graph, stack)
-, m_client(client)
-, m_host(host)
-, m_manager(manager)
+DFGController::DFGController(
+  GraphView::Graph * graph,
+  FabricCore::Client client,
+  FabricServices::ASTWrapper::KLASTManager * manager,
+  FabricCore::DFGHost host,
+  FabricCore::DFGBinding binding,
+  FabricCore::DFGExec exec,
+  FabricServices::Commands::CommandStack * stack,
+  bool overTakeBindingNotifications
+  )
+  : GraphView::Controller(graph, stack)
+  , m_coreClient( client )
+  , m_coreDFGHost( host )
+  , m_coreDFGBinding( binding )
+  , m_manager(manager)
 {
-  m_view = NULL;
-  m_host = host;
+  m_router = NULL;
   m_logFunc = NULL;
   m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
 
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
+  QObject::connect(this, SIGNAL(variablesChanged()), this, SLOT(onVariablesChanged()));
 }
 
-FabricCore::Client * DFGController::getClient()
+DFGController::~DFGController()
 {
-  return m_client;
 }
 
-void DFGController::setClient(FabricCore::Client * client)
+void DFGController::setClient( FabricCore::Client const &coreClient )
 {
-  m_client = client;
+  m_coreClient = coreClient;
 }
 
-DFGWrapper::Host * DFGController::getHost()
+void DFGController::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
-  return m_host;
+  m_coreDFGHost = coreDFGHost;
 }
 
-DFGWrapper::Binding DFGController::getBinding()
+void DFGController::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
 {
-  return getView()->getGraph()->getDFGBinding();
+  m_coreDFGBinding = coreDFGBinding;
+  m_presetDictsUpToDate = false;
 }
 
-DFGWrapper::GraphExecutablePtr DFGController::getGraphExec()
+DFGNotificationRouter * DFGController::getRouter()
 {
-  return getView()->getGraph();
+  return m_router;
 }
 
-void DFGController::setHost(FabricServices::DFGWrapper::Host * host)
+FabricCore::DFGExec DFGController::getCoreDFGExec()
 {
-  m_host = host;
+  if(this->getRouter() == NULL)
+    return FabricCore::DFGExec();
+  return this->getRouter()->getCoreDFGExec();
 }
 
-DFGView * DFGController::getView()
+void DFGController::setRouter(DFGNotificationRouter * router)
 {
-  return m_view;
-}
+  if(m_router && m_overTakeBindingNotifications)
+    m_coreDFGBinding.setNotificationCallback(NULL, NULL);
 
-void DFGController::setView(DFGView * view)
-{
-  if(m_view && m_overTakeBindingNotifications)
-    getBinding().setNotificationCallback(NULL, NULL);
-
-  m_view = view;
-  if(m_view)
+  m_router = router;
+  if(m_router)
   {
-    m_view->setController(this);
-    try
-    {
-      m_view->onGraphSet();
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-    }
+    m_router->setController(this);
 
     if(m_overTakeBindingNotifications)
-      getBinding().setNotificationCallback(bindingNotificationCallback, this);
+      m_coreDFGBinding.setNotificationCallback(
+        &BindingNotificationCallback, this
+        );
   }
 }
 
 bool DFGController::isViewingRootGraph()
 {
-  DFGWrapper::GraphExecutablePtr graphExec = getGraphExec();
-  if(!graphExec)
-    return false;
-  return std::string(graphExec->getExecPath()) == "";
+  return m_execPath.empty();
 }
 
 ASTWrapper::KLASTManager * DFGController::astManager()
@@ -123,11 +124,14 @@ ASTWrapper::KLASTManager * DFGController::astManager()
   return m_manager;
 }
 
-QString DFGController::addNodeFromPreset(QString path, QString preset, QPointF pos)
+std::string DFGController::addDFGNodeFromPreset(
+  FTL::StrRef preset,
+  QPointF pos
+  )
 {
   try
   {
-    DFGAddNodeCommand * command = new DFGAddNodeCommand(this, path, preset, pos);
+    DFGAddNodeCommand * command = new DFGAddNodeCommand(this, preset, pos);
     if(!addCommand(command))
     {
       delete(command);
@@ -135,7 +139,7 @@ QString DFGController::addNodeFromPreset(QString path, QString preset, QPointF p
     }
     emit structureChanged();
     emit recompiled();
-    return command->getInstPath().c_str();
+    return command->getInstPath();
   }
   catch(FabricCore::Exception e)
   {
@@ -144,11 +148,11 @@ QString DFGController::addNodeFromPreset(QString path, QString preset, QPointF p
   return "";
 }
 
-QString DFGController::addEmptyGraph(QString path, QString title, QPointF pos)
+std::string  DFGController::addDFGVar(FTL::StrRef varName, FTL::StrRef dataType, FTL::StrRef extension, QPointF pos)
 {
   try
   {
-    DFGAddEmptyGraphCommand * command = new DFGAddEmptyGraphCommand(this, path, title, pos);
+    DFGAddVarCommand * command = new DFGAddVarCommand(this, varName, dataType, extension, pos);
     if(!addCommand(command))
     {
       delete(command);
@@ -156,7 +160,8 @@ QString DFGController::addEmptyGraph(QString path, QString title, QPointF pos)
     }
     emit structureChanged();
     emit recompiled();
-    return command->getInstPath().c_str();
+    emit variablesChanged();
+    return command->getNodePath();
   }
   catch(FabricCore::Exception e)
   {
@@ -165,34 +170,99 @@ QString DFGController::addEmptyGraph(QString path, QString title, QPointF pos)
   return "";
 }
 
-QString DFGController::addEmptyFunc(QString path, QString title, QPointF pos)
+std::string  DFGController::addDFGGet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos)
 {
   try
   {
-    DFGAddEmptyFuncCommand * command = new DFGAddEmptyFuncCommand(this, path, title, pos);
+    DFGAddGetCommand * command = new DFGAddGetCommand(this, varName, varPath, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getNodePath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string  DFGController::addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos)
+{
+  try
+  {
+    DFGAddSetCommand * command = new DFGAddSetCommand(this, varName, varPath, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getNodePath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string DFGController::addEmptyGraph(char const * title, QPointF pos)
+{
+  try
+  {
+    DFGAddEmptyGraphCommand * command =
+      new DFGAddEmptyGraphCommand(this, title, pos);
+    if(!addCommand(command))
+    {
+      delete(command);
+      return "";
+    }
+    emit structureChanged();
+    emit recompiled();
+    return command->getInstPath();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
+std::string DFGController::addEmptyFunc(char const * title, QPointF pos)
+{
+  try
+  {
+    DFGAddEmptyFuncCommand * command =
+      new DFGAddEmptyFuncCommand(this, title, pos);
     if(!addCommand(command))
     {
       delete(command);
       return "";
     }
 
-    std::string path = command->getInstPath();
+    std::string instPath = command->getInstPath();
 
     std::string code;
     code += "dfgEntry {\n";
     code += "  // result = a + b;\n";
     code += "}\n";
 
-    DFGSetCodeCommand * setCodeCommand = new DFGSetCodeCommand(this, path.c_str(), code.c_str());
+    DFGSetCodeCommand * setCodeCommand = new DFGSetCodeCommand(this, instPath.c_str(), code.c_str());
     if(!addCommand(setCodeCommand))
     {
       delete(setCodeCommand);
-      return path.c_str();
+      return instPath.c_str();
     }
 
     emit structureChanged();
     emit recompiled();
-    return path.c_str();
+    return instPath.c_str();
   }
   catch(FabricCore::Exception e)
   {
@@ -202,10 +272,14 @@ QString DFGController::addEmptyFunc(QString path, QString title, QPointF pos)
   return "";
 }
 
-bool DFGController::removeNode(QString path)
+bool DFGController::removeNode(char const * path)
 {
   try
   {
+    bool emitVarChanged = false;
+    if(getCoreDFGExec().getNodeType(path) == FabricCore::DFGNodeType_Var)
+      emitVarChanged = true;
+
     DFGRemoveNodeCommand * removeCommand = new DFGRemoveNodeCommand(this, path);
     if(!addCommand(removeCommand))
     {
@@ -214,6 +288,7 @@ bool DFGController::removeNode(QString path)
     }
     emit structureChanged();
     emit recompiled();
+    emit variablesChanged();
   }
   catch(FabricCore::Exception e)
   {
@@ -225,10 +300,10 @@ bool DFGController::removeNode(QString path)
 
 bool DFGController::removeNode(GraphView::Node * node)
 {
-  return removeNode(node->path());
+  return removeNode(node->name().c_str());
 }
 
-bool DFGController::renameNode(QString path, QString title)
+bool DFGController::renameNode(char const * path, char const * title)
 {
   try
   {
@@ -247,41 +322,52 @@ bool DFGController::renameNode(QString path, QString title)
   return true;
 }
 
-bool DFGController::renameNode(GraphView::Node * node, QString title)
+bool DFGController::renameNode(GraphView::Node * node, char const * title)
 {
   if(node->title() == title)
     return false;
-  return renameNode(node->path(), title);
+  return renameNode(node->name().c_str(), title);
 }
 
-GraphView::Pin * DFGController::addPin(GraphView::Node * node, QString name, GraphView::PortType pType, QColor color, QString dataType)
+GraphView::Pin * DFGController::addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType)
 {
-  // disabled, pins are created by the DFGView
+  // disabled, pins are created by the DFGNotificationRouter
   return NULL;
 }
 
 bool DFGController::removePin(GraphView::Pin * pin)
 {
-  // disabled, pins are created by the DFGView
+  // disabled, pins are created by the DFGNotificationRouter
   return false;
 }
 
-QString DFGController::addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType, bool setArgValue)
+std::string DFGController::addPort(
+  FTL::StrRef name,
+  FabricCore::DFGPortType pType,
+  FTL::StrRef dataType,
+  bool setArgValue
+  )
 {
   GraphView::PortType portType = GraphView::PortType_Input;
   if(pType == FabricCore::DFGPortType_In)
     portType = GraphView::PortType_Output;
   else if(pType == FabricCore::DFGPortType_IO)
     portType = GraphView::PortType_IO;
-  return addPort(path, name, portType, dataType, setArgValue);
+  return addPort(name, portType, dataType, setArgValue);
 }
 
-QString DFGController::addPort(QString path, QString name, GraphView::PortType pType, QString dataType, bool setArgValue)
+std::string DFGController::addPort(
+  FTL::StrRef name,
+  GraphView::PortType pType,
+  FTL::StrRef dataType,
+  bool setArgValue
+  )
 {
-  QString result;
+  std::string result;
   try
   {
-    DFGAddPortCommand * command = new DFGAddPortCommand(this, path, name, pType, dataType);
+    DFGAddPortCommand * command =
+      new DFGAddPortCommand(this, name, pType, dataType);
     if(!addCommand(command))
       delete(command);
     else
@@ -290,9 +376,10 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
     // if this port is on the binding graph
     if(isViewingRootGraph() && setArgValue)
     {
-      if(dataType[0] != '$')
+      if(!dataType.empty() && dataType[0] != '$')
       {
-        DFGSetArgCommand * argCommand = new DFGSetArgCommand(this, command->getPortPath(), dataType);
+        DFGSetArgCommand * argCommand =
+          new DFGSetArgCommand(this, command->getPortPath(), dataType);
         if(!addCommand(argCommand))
           delete(argCommand);
       }        
@@ -308,11 +395,11 @@ QString DFGController::addPort(QString path, QString name, GraphView::PortType p
   return result;
 }
 
-bool DFGController::removePort(QString path, QString name)
+bool DFGController::removePort(char const * name)
 {
   try
   {
-    DFGRemovePortCommand * command = new DFGRemovePortCommand(this, path, name);
+    DFGRemovePortCommand * command = new DFGRemovePortCommand(this, name);
     if(!addCommand(command))
       delete(command);
     emit argsChanged();
@@ -335,76 +422,81 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   try
   {
     beginInteraction();
-    QString portPath = addPort("", pin->name(), pType, pin->dataType());
+    std::string portPath = addPort(pin->name(), pType, pin->dataType());
 
     // copy the default value into the port
-    DFGWrapper::PortPtr port = getPortFromPath(pin->path().toUtf8().constData());
-    if(port && portPath.length() > 0)
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    if(portPath.length() > 0)
     {
-      if(port->getNodePortType() == FabricCore::DFGPortType_In)
+      if(exec.getNodePortType(pin->path().c_str()) == FabricCore::DFGPortType_In)
       {
         // if this is the graph on the binding, we need to set the arg value
-        DFGWrapper::InstPortPtr instPort = DFGWrapper::InstPortPtr::StaticCast(port);
-        std::string resolvedType = instPort->getResolvedType();
-        if(resolvedType.length() > 0)
+        FTL::CStrRef resolvedType =
+          exec.getNodePortResolvedType(pin->path().c_str());
+        if(!resolvedType.empty())
         {
           if(resolvedType == "Integer")
             resolvedType = "SInt32";
           else if(resolvedType == "Byte")
             resolvedType = "UInt8";
-          else if(resolvedType == "Size" || resolvedType == "Count" || resolvedType == "Index")
+          else if(resolvedType == "Size"
+            || resolvedType == "Count"
+            || resolvedType == "Index")
             resolvedType = "UInt32";
           else if(resolvedType == "Scalar")
             resolvedType = "Float32";
 
-          FabricCore::RTVal defaultValue = instPort->getDefaultValue(resolvedType.c_str());
-          if(!defaultValue.isValid())
-            defaultValue = instPort->getExecPort()->getDefaultValue(resolvedType.c_str());
-
+          FabricCore::RTVal defaultValue =
+          exec.getInstPortResolvedDefaultValue(
+            pin->path().c_str(),
+            resolvedType.c_str()
+            );
           if(defaultValue.isValid())
           {
             if(isViewingRootGraph())
-              setArg(portPath, defaultValue);
+              setArg(portPath.c_str(), defaultValue);
             else
-              setDefaultValue(portPath, defaultValue);
+              setDefaultValue(portPath.c_str(), defaultValue);
           }
         }
 
-        // copy all of the metadata
-        port = getPortFromPath(portPath.toUtf8().constData());
-        if(port)
-        { 
-          DFGWrapper::ExecPortPtr portPort = DFGWrapper::ExecPortPtr::StaticCast(port);
+        if(exec.getNodeType(pin->node()->name().c_str()) == FabricCore::DFGNodeType_Inst)
+        {
+          FabricCore::DFGExec subExec = exec.getSubExec(pin->node()->name().c_str());
 
-          const char * uiRange = instPort->getExecPort()->getMetadata("uiRange");
+          // copy all of the metadata
+          const char * uiRange =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiRange");
           if(uiRange)
           {
             if(strlen(uiRange) > 0)
             {
-              portPort->setMetadata("uiRange", uiRange, false);
+              exec.setExecPortMetadata(portPath.c_str(), "uiRange", uiRange, false);
             }
           }
-          const char * uiCombo = instPort->getExecPort()->getMetadata("uiCombo");
+          const char * uiCombo =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiCombo");
           if(uiCombo)
           {
             if(strlen(uiCombo) > 0)
             {
-              portPort->setMetadata("uiCombo", uiCombo, false);
+              exec.setExecPortMetadata(portPath.c_str(), "uiCombo", uiCombo, false);
             }
           }
-          const char * uiHidden = instPort->getExecPort()->getMetadata("uiHidden");
+          const char * uiHidden =
+            subExec.getExecPortMetadata(pin->name().c_str(), "uiHidden");
           if(uiHidden)
           {
             if(strlen(uiHidden) > 0)
             {
-              portPort->setMetadata("uiHidden", uiHidden, false);
+              exec.setExecPortMetadata(portPath.c_str(), "uiHidden", uiHidden, false);
             }
           }
         }
+
       }
     }
 
-    QString portName = GraphView::lastPathSegment(portPath);
     if(portPath.length() > 0)
     {
       std::vector<GraphView::Connection*> connections = graph()->connections();
@@ -422,7 +514,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             break;
           }
         }
-        addConnection(portPath, pin->path(), false, true);
+        addConnection(portPath.c_str(), pin->path().c_str());
       }
       else if(pType == GraphView::PortType_Input)
       {
@@ -441,11 +533,11 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             }
           }
         }
-        addConnection(pin->path(), portPath, true, false);
+        addConnection(pin->path().c_str(), portPath.c_str());
       }
     }
     endInteraction();
-    return graph()->port(portName);
+    return graph()->port(portPath.c_str());
   }
   catch(FabricCore::Exception e)
   {
@@ -455,9 +547,10 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   return NULL;
 }
 
-QString DFGController::renamePort(QString path, QString name)
+std::string DFGController::renamePort(char const * path, char const * name)
 {
-  if(GraphView::lastPathSegment(path) == name)
+  FTL::StrRef pathRef(path);
+  if(pathRef == name)
     return "";
   try
   {
@@ -471,8 +564,8 @@ QString DFGController::renamePort(QString path, QString name)
     emit structureChanged();
     emit recompiled();
 
-    QString newName = command->getResult();
-    emit execPortRenamed(path, newName);
+    std::string newName = command->getResult();
+    emit execPortRenamed(path, newName.c_str());
     return newName;
   }
   catch(FabricCore::Exception e)
@@ -483,48 +576,24 @@ QString DFGController::renamePort(QString path, QString name)
   return "";
 }
 
-bool DFGController::addConnection(QString srcPath, QString dstPath, bool srcIsPin, bool dstIsPin)
+bool DFGController::addConnection(char const * srcPath, char const * dstPath)
 {
   beginInteraction();
   try
   {
-    DFGWrapper::PortPtr endPoint = getPortFromPath(dstPath.toUtf8().constData());
-    if(endPoint->isValid())
     {
-      if(endPoint->getNodePortType() == FabricCore::DFGPortType_IO && dstIsPin)
+      Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
+        dstPath
+      );
+      if(!addCommand(command))
       {
-        std::vector<GraphView::Connection*> connections = graph()->connections();
-        for(size_t i=0;i<connections.size();i++)
-        {
-          if(((GraphView::Pin*)connections[i]->dst())->path() == dstPath)
-          {
-            if(!removeConnection(connections[i]->src(), connections[i]->dst()))
-            {
-              endInteraction();
-              return false;
-            }
-            break;
-          }
-        }
-      }
-      else if(endPoint->isConnectedToAny())
-      {
-        Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
-          endPoint->getPortPath(),
-          dstIsPin
-        );
-        if(!addCommand(command))
-        {
-          delete(command);
-          return false;
-        }
+        delete(command);
+        return false;
       }
     }
     Commands::Command * command = new DFGAddConnectionCommand(this, 
-      srcPath.toUtf8().constData(), 
-      dstPath.toUtf8().constData(),
-      srcIsPin,
-      dstIsPin
+      srcPath, 
+      dstPath
     );
     if(addCommand(command))
     {
@@ -547,38 +616,26 @@ bool DFGController::addConnection(QString srcPath, QString dstPath, bool srcIsPi
 
 bool DFGController::addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst)
 {
-  QString srcPath;
+  std::string srcPath;
   if(src->targetType() == GraphView::TargetType_Pin)
     srcPath = ((GraphView::Pin*)src)->path();
   else if(src->targetType() == GraphView::TargetType_Port)
     srcPath = ((GraphView::Port*)src)->path();
-  QString dstPath;
+  std::string dstPath;
   if(dst->targetType() == GraphView::TargetType_Pin)
     dstPath = ((GraphView::Pin*)dst)->path();
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
-  return addConnection(srcPath, dstPath,
-    src->targetType() == GraphView::TargetType_Pin,
-    dst->targetType() == GraphView::TargetType_Pin
-  );
+  return addConnection(srcPath.c_str(), dstPath.c_str());
 }
 
-bool DFGController::removeConnection(QString srcPath, QString dstPath, bool srcIsPin, bool dstIsPin)
+bool DFGController::removeConnection(char const * srcPath, char const * dstPath)
 {
-  // filter out IO ports
-  if(!srcIsPin && !dstIsPin)
-  {
-    if(srcPath == dstPath)
-      return false;
-  }
-
   try
   {
     Commands::Command * command = new DFGRemoveConnectionCommand(this, 
-      srcPath.toUtf8().constData(), 
-      dstPath.toUtf8().constData(),
-      srcIsPin,
-      dstIsPin
+      srcPath, 
+      dstPath
     );
 
     if(addCommand(command))
@@ -599,30 +656,24 @@ bool DFGController::removeConnection(QString srcPath, QString dstPath, bool srcI
 
 bool DFGController::removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst)
 {
-  QString srcPath;
+  std::string srcPath;
   if(src->targetType() == GraphView::TargetType_Pin)
     srcPath = ((GraphView::Pin*)src)->path();
   else if(src->targetType() == GraphView::TargetType_Port)
     srcPath = ((GraphView::Port*)src)->path();
-  QString dstPath;
+  std::string dstPath;
   if(dst->targetType() == GraphView::TargetType_Pin)
     dstPath = ((GraphView::Pin*)dst)->path();
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
-  return removeConnection(srcPath, dstPath,
-    src->targetType() == GraphView::TargetType_Pin,
-    dst->targetType() == GraphView::TargetType_Pin
-  );
+  return removeConnection(srcPath.c_str(), dstPath.c_str());
 }
 
-bool DFGController::removeAllConnections(QString path, bool isPin)
+bool DFGController::removeAllConnections(const char * path)
 {
   try
   {
-    Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
-      path.toUtf8().constData(), 
-      isPin
-    );
+    Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, path);
 
     if(addCommand(command))
     {
@@ -640,13 +691,17 @@ bool DFGController::removeAllConnections(QString path, bool isPin)
   return false;
 }
 
-bool DFGController::addExtensionDependency(QString extension, QString execPath, QString & errorMessage)
+bool DFGController::addExtensionDependency(char const * extension, char const * execPath, std::string & errorMessage)
 {
   try
   {
-    m_client->loadExtension(extension.toUtf8().constData(), "", false);
-    DFGWrapper::ExecutablePtr exec = getExecFromPath(execPath.toUtf8().constData());
-    exec->addExtensionDependency(extension.toUtf8().constData());
+    m_coreClient.loadExtension(extension, "", false);
+
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    FTL::StrRef execPathRef(execPath);
+    if(execPathRef.size() > 0)
+      exec = exec.getSubExec(execPathRef.data());
+    exec.addExtDep(extension);
   }
   catch(FabricCore::Exception e)
   {
@@ -657,7 +712,7 @@ bool DFGController::addExtensionDependency(QString extension, QString execPath, 
   return true;
 }
 
-bool DFGController::setCode(QString path, QString code)
+bool DFGController::setCode(char const * path, char const * code)
 {
   try
   {
@@ -676,7 +731,7 @@ bool DFGController::setCode(QString path, QString code)
 
   try
   {
-    getBinding().execute();
+    m_coreDFGBinding.execute();
   }
   catch(FabricCore::Exception e)
   {
@@ -687,56 +742,56 @@ bool DFGController::setCode(QString path, QString code)
   return true;
 }
 
-QString DFGController::reloadCode(QString path)
+std::string DFGController::reloadCode(char const * path)
 {
-  DFGWrapper::FuncExecutablePtr func = getFuncExecFromPath(path.toUtf8().constData());
-  if(func)
+  FabricCore::DFGExec func = getCoreDFGExec();
+  if(func.getType() != FabricCore::DFGExecType_Func)
+    return "";
+
+  char const * filePath = func.getImportPathname();
+  FILE * file = fopen(filePath, "rb");
+  if(file)
   {
-    std::string filePath = func->getImportPathname();
-    FILE * file = fopen(filePath.c_str(), "rb");
-    if(file)
+    fseek( file, 0, SEEK_END );
+    int fileSize = ftell( file );
+    rewind( file );
+
+    char * buffer = (char*) malloc(fileSize + 1);
+    buffer[fileSize] = '\0';
+
+    fread(buffer, 1, fileSize, file);
+
+    fclose(file);
+
+    std::string json = buffer;
+    free(buffer);
+
+    try
     {
-      fseek( file, 0, SEEK_END );
-      int fileSize = ftell( file );
-      rewind( file );
-
-      char * buffer = (char*) malloc(fileSize + 1);
-      buffer[fileSize] = '\0';
-
-      fread(buffer, 1, fileSize, file);
-
-      fclose(file);
-
-      std::string json = buffer;
-      free(buffer);
-
-      try
+      FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
+      if(jsonVar.isDict())
       {
-        FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
-        if(jsonVar.isDict())
+        const FabricCore::Variant * klCodeVar = jsonVar.getDictValue("code");
+        if(klCodeVar)
         {
-          const FabricCore::Variant * klCodeVar = jsonVar.getDictValue("code");
-          if(klCodeVar)
+          if(klCodeVar->isString())
           {
-            if(klCodeVar->isString())
-            {
-              std::string klCode = klCodeVar->getStringData();
-              if(DFGController::setCode(path, klCode.c_str()))
-                return klCode.c_str();
-            }
+            std::string klCode = klCodeVar->getStringData();
+            if(DFGController::setCode(path, klCode.c_str()))
+              return klCode.c_str();
           }
         }
       }
-      catch(FabricCore::Exception e)
-      {
-        logError(e.getDesc_cstr());
-      }
-    }    
-  }
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+    }
+  }    
   return "";
 }
 
-bool DFGController::setArg(QString argName, QString dataType, QString json)
+bool DFGController::setArg(char const * argName, char const * dataType, char const * json)
 {
   beginInteraction();
   try
@@ -744,11 +799,6 @@ bool DFGController::setArg(QString argName, QString dataType, QString json)
     Commands::Command * command = new DFGSetArgCommand(this, argName, dataType, json);;
     if(addCommand(command))
     {
-      // check other ports which have no value bound and set an arg on them too
-      DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
-      FabricCore::DFGBinding binding = exec->getDFGBinding();
-      DFGWrapper::ExecPortList ports = exec->getExecPorts();
-
       bindUnboundRTVals();
       emit argsChanged();
       endInteraction();
@@ -764,7 +814,7 @@ bool DFGController::setArg(QString argName, QString dataType, QString json)
   return false;
 }
 
-bool DFGController::setArg(QString argName, FabricCore::RTVal value)
+bool DFGController::setArg(char const * argName, FabricCore::RTVal value)
 {
   try
   {
@@ -783,7 +833,7 @@ bool DFGController::setArg(QString argName, FabricCore::RTVal value)
   return false;
 }
 
-bool DFGController::setDefaultValue(QString path, FabricCore::RTVal value)
+bool DFGController::setDefaultValue(char const * path, FabricCore::RTVal value)
 {
   try
   {
@@ -802,11 +852,11 @@ bool DFGController::setDefaultValue(QString path, FabricCore::RTVal value)
   return false;
 }
 
-bool DFGController::setDefaultValue(QString path, QString dataType, QString json)
+bool DFGController::setDefaultValue(char const * path, char const * dataType, char const * json)
 {
   try
   {
-    FabricCore::RTVal value = FabricCore::ConstructRTValFromJSON(*getClient(), dataType.toUtf8().constData(), json.toUtf8().constData());
+    FabricCore::RTVal value = FabricCore::ConstructRTValFromJSON(m_coreClient, dataType, json);
     return setDefaultValue(path, value);
   }
   catch(FabricCore::Exception e)
@@ -816,11 +866,11 @@ bool DFGController::setDefaultValue(QString path, QString dataType, QString json
   return false;
 }
 
-QString DFGController::exportJSON(QString path)
+std::string DFGController::exportJSON(char const * path)
 {
   try
   {
-    return getBinding().exportJSON().c_str();
+    return m_coreDFGBinding.exportJSON().getCString();
   }
   catch(FabricCore::Exception e)
   {
@@ -829,13 +879,16 @@ QString DFGController::exportJSON(QString path)
   return "";
 }
 
-bool DFGController::setNodeCacheRule(QString path, FEC_DFGCacheRule rule)
+bool DFGController::setNodeCacheRule(char const * path, FEC_DFGCacheRule rule)
 {
   try
   {
-    DFGWrapper::InstPtr inst = getInstFromPath(path.toUtf8().constData());
-    if(inst->getCacheRule() == rule)
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    FEC_DFGCacheRule prevRule = exec.getInstCacheRule(path);
+    
+    if(prevRule == rule)
       return false;
+    
     Commands::Command * command = new DFGSetNodeCacheRuleCommand(this, path, rule);;
     if(addCommand(command))
       return true;
@@ -849,13 +902,32 @@ bool DFGController::setNodeCacheRule(QString path, FEC_DFGCacheRule rule)
   return false;
 }
 
-bool DFGController::moveNode(QString path, QPointF pos, bool isTopLeftPos)
+bool DFGController::setRefVarPath(char const *  path, char const * varPath)
 {
   try
   {
-    DFGWrapper::NodePtr node = getNodeFromPath(path.toUtf8().constData());
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    
+    Commands::Command * command = new DFGSetRefVarPathCommand(this, path, varPath);;
+    if(addCommand(command))
+      return true;
+    else
+      delete(command);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return false;
+}
+
+bool DFGController::moveNode(char const * path, QPointF pos, bool isTopLeftPos)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
     QString metaData = "{\"x\": "+QString::number(pos.x())+", \"y\": "+QString::number(pos.y())+"}";
-    node->setMetadata("uiGraphPos", metaData.toUtf8().constData(), false);
+    exec.setNodeMetadata(path, "uiGraphPos", metaData.toUtf8().constData(), false);
   }
   catch(FabricCore::Exception e)
   {
@@ -872,16 +944,16 @@ bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLe
     pos = uiNode->centralPosToTopLeftPos(pos);
     isTopLeftPos = true;
   }
-  return moveNode(uiNode->path(), pos, isTopLeftPos);
+  return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
 }
 
 bool DFGController::zoomCanvas(float zoom)
 {
   try
   {
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
+    FabricCore::DFGExec exec = getCoreDFGExec();
     QString metaData = "{\"value\": "+QString::number(zoom)+"}";
-    exec->setMetadata("uiGraphZoom", metaData.toUtf8().constData(), false);
+    exec.setMetadata("uiGraphZoom", metaData.toUtf8().constData(), false);
   }
   catch(FabricCore::Exception e)
   {
@@ -895,9 +967,9 @@ bool DFGController::panCanvas(QPointF pan)
 {
   try
   {
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
+    FabricCore::DFGExec exec = getCoreDFGExec();
     QString metaData = "{\"x\": "+QString::number(pan.x())+", \"y\": "+QString::number(pan.y())+"}";
-    exec->setMetadata("uiGraphPan", metaData.toUtf8().constData(), false);
+    exec.setMetadata("uiGraphPan", metaData.toUtf8().constData(), false);
   }
   catch(FabricCore::Exception e)
   {
@@ -913,7 +985,7 @@ bool DFGController::relaxNodes(QStringList paths)
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
     for(unsigned int i=0;i<nodes.size();i++)
-      paths.append(nodes[i]->path());
+      paths.append(nodes[i]->name().c_str());
   }
 
   std::vector<GraphView::Node*> allNodes = graph()->nodes();
@@ -926,7 +998,7 @@ bool DFGController::relaxNodes(QStringList paths)
   std::vector<GraphView::Node*> rootNodes;
   for(unsigned int i=0;i<paths.length();i++)
   {
-    GraphView::Node * uiNode = graph()->nodeFromPath(paths[i]);
+    GraphView::Node * uiNode = graph()->node(paths[i].toUtf8().constData());
     if(!uiNode)
       continue;
     rootNodes.push_back(uiNode);
@@ -943,7 +1015,7 @@ bool DFGController::relaxNodes(QStringList paths)
   for(unsigned int i=0;i<nodes.size();i++)
   {
     QRectF rect = nodes[i]->boundingRect();
-    relaxer.addNode(nodes[i]->path(), nodes[i]->topLeftGraphPos(), nodes[i]->col(), nodes[i]->row(), rect.width(), rect.height());
+    relaxer.addNode(nodes[i]->name().c_str(), nodes[i]->topLeftGraphPos(), nodes[i]->col(), nodes[i]->row(), rect.width(), rect.height());
   }
 
   std::vector<GraphView::Connection*> connections = graph()->connections();
@@ -963,20 +1035,20 @@ bool DFGController::relaxNodes(QStringList paths)
     GraphView::Node * srcNode = srcPin->node();
     GraphView::Node * dstNode = dstPin->node();
 
-    relaxer.addSpring(srcNode->path(), dstNode->path());
+    relaxer.addSpring(srcNode->name().c_str(), dstNode->name().c_str());
   }
 
   relaxer.relax(50);
 
   for(unsigned int i=0;i<relaxer.numNodes();i++)
   {
-    moveNode(relaxer.getName(i), relaxer.getPos(i), true);
+    moveNode(relaxer.getName(i).toUtf8().constData(), relaxer.getPos(i), true);
   }
 
   return true;
 }
 
-QString DFGController::copy(QStringList paths)
+std::string DFGController::copy(QStringList paths)
 {
   try
   {
@@ -984,10 +1056,9 @@ QString DFGController::copy(QStringList paths)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
-        paths.append(nodes[i]->path());
+        paths.append(nodes[i]->name().c_str());
     }
 
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
     DFGCopyCommand * command = new DFGCopyCommand(this, paths);
     if(!addCommand(command))
     {
@@ -995,7 +1066,7 @@ QString DFGController::copy(QStringList paths)
       return "";
     }
 
-    return command->getJSON().c_str();
+    return command->getJSON();
   }
   catch(FabricCore::Exception e)
   {
@@ -1030,7 +1101,7 @@ bool DFGController::paste()
       QRectF bounds;
       for(size_t i=0;i<paths.size();i++)
       {
-        GraphView::Node * uiNode = graph()->nodeFromPath(paths[i].c_str());
+        GraphView::Node * uiNode = graph()->node(paths[i].c_str());
         if(!uiNode)
           continue;
         bounds = bounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
@@ -1044,12 +1115,11 @@ bool DFGController::paste()
 
       for(size_t i=0;i<paths.size();i++)
       {
-        GraphView::Node * uiNode = graph()->nodeFromPath(paths[i].c_str());
+        GraphView::Node * uiNode = graph()->node(paths[i].c_str());
         if(!uiNode)
           continue;
         uiNode->setSelected(true);
         moveNode(paths[i].c_str(), uiNode->topLeftGraphPos() + delta, true);
-        // uiNode->setTopLeftGraphPos(uiNode->topLeftGraphPos() + QPointF(10, 10));
       }
     }
     return true;
@@ -1062,7 +1132,7 @@ bool DFGController::paste()
   return false;
 }
 
-QString DFGController::implodeNodes(QString desiredName, QStringList paths)
+std::string DFGController::implodeNodes(char const * desiredName, QStringList paths)
 {
   beginInteraction();
   try
@@ -1071,18 +1141,17 @@ QString DFGController::implodeNodes(QString desiredName, QStringList paths)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
-        paths.append(nodes[i]->path());
+        paths.append(nodes[i]->name().c_str());
     }
 
     QRectF bounds;
     for(size_t i=0;i<paths.size();i++)
     {
-      GraphView::Node * uiNode = graph()->nodeFromPath(paths[i]);
+      GraphView::Node * uiNode = graph()->node(paths[i].toUtf8().constData());
       if(uiNode)
         bounds = bounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
     }
 
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
     DFGImplodeNodesCommand * command = new DFGImplodeNodesCommand(this, desiredName, paths);
     if(!addCommand(command))
     {
@@ -1091,10 +1160,10 @@ QString DFGController::implodeNodes(QString desiredName, QStringList paths)
       return "";
     }
 
-    QString nodePath = command->getInstName().c_str();
+    char const * nodePath = command->getInstName();
     moveNode(nodePath, bounds.center(), false);
 
-    GraphView::Node * uiNode = graph()->nodeFromPath(nodePath);
+    GraphView::Node * uiNode = graph()->node(nodePath);
     if(uiNode)
       uiNode->setSelected(true);
 
@@ -1110,29 +1179,29 @@ QString DFGController::implodeNodes(QString desiredName, QStringList paths)
   return "";
 }
 
-QStringList DFGController::explodeNode(QString path)
+QStringList DFGController::explodeNode(char const * path)
 {
   QStringList result;
 
   beginInteraction();
   try
   {
-    if(path.length() == 0)
+    FTL::StrRef pathRef(path);
+    if(pathRef.size() == 0)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
       {
-        path = nodes[i]->path();
+        path = nodes[i]->name().c_str();
         break;
       }
     }
 
     QRectF oldBound;
-    GraphView::Node * uiNode = graph()->nodeFromPath(path);
+    GraphView::Node * uiNode = graph()->node(path);
     if(uiNode)
       oldBound = oldBound.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
 
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
     DFGExplodeNodeCommand * command = new DFGExplodeNodeCommand(this, path);
     if(!addCommand(command))
     {
@@ -1148,7 +1217,7 @@ QStringList DFGController::explodeNode(QString path)
     QRectF newBounds;
     for(unsigned int i=0;i<result.length();i++)
     {
-      GraphView::Node * uiNode = graph()->nodeFromPath(result[i]);
+      GraphView::Node * uiNode = graph()->node(result[i].toUtf8().constData());
       if(uiNode)
       {
         newBounds = newBounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
@@ -1158,10 +1227,10 @@ QStringList DFGController::explodeNode(QString path)
     QPointF delta = oldBound.center() - newBounds.center();
     for(unsigned int i=0;i<result.length();i++)
     {
-      GraphView::Node * uiNode = graph()->nodeFromPath(result[i]);
+      GraphView::Node * uiNode = graph()->node(result[i].toUtf8().constData());
       if(uiNode)
       {
-        moveNode(result[i], uiNode->topLeftGraphPos() + delta, true);
+        moveNode(result[i].toUtf8().constData(), uiNode->topLeftGraphPos() + delta, true);
         uiNode->setSelected(true);
       }
     }
@@ -1178,77 +1247,85 @@ QStringList DFGController::explodeNode(QString path)
   return result;
 }
 
-bool DFGController::reloadExtensionDependencies(QString path)
+bool DFGController::reloadExtensionDependencies(char const * path)
 {
-  DFGWrapper::ExecutablePtr exec = getExecFromPath(path.toUtf8().constData());
-  if(!exec)
+  FabricCore::DFGExec exec = getCoreDFGExec();
+  FTL::StrRef pathRef(path);
+  if(pathRef.size() > 0)
+    exec = exec.getSubExec(path);
+
+  if(exec.isValid())
     return false;
 
-  bool result = false;
-  uint32_t nbExtensions = exec->getNumExtensionDependencies();
-  for(uint32_t i=0;i<nbExtensions;i++)
+  for(unsigned int i = 0; i < exec.getExtDepCount(); i++ )
   {
-    std::string ext = exec->getExtensionDependencyName(i);
-    std::string version = exec->getExtensionDependencyVersion(i);
+    char const * ext = exec.getExtDepName(i);
+    std::string version = exec.getExtDepVersion(i).getCString();
     try
     {
-      m_client->loadExtension(ext.c_str(), version.c_str(), true);
+      m_coreClient.loadExtension(ext, version.c_str(), true);
     }
     catch(FabricCore::Exception e)
     {
       logError(e.getDesc_cstr());
       return false;
     }
-    result = true;
   }
 
-  if(result)
-  {
-    result = execute();
-  }
-
-  return result;
+  return execute();
 }
 
 void DFGController::checkErrors()
 {
-  DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
-  DFGWrapper::NodeList nodes = exec->getNodes();
+  char const * execPath = getExecPath();
+  FabricCore::DFGExec const &exec = getCoreDFGExec();
 
-  std::vector<std::string> errors = exec->getErrors();
-  for(size_t i=0;i<errors.size();i++)
-    logError((std::string(exec->getExecPath()) + " : " +errors[i]).c_str());
-
-  for(size_t j=0;j<nodes.size();j++)
+  unsigned errorCount = exec.getErrorCount();
+  for(unsigned i=0;i<errorCount;i++)
   {
-    GraphView::Node * uiNode = NULL; 
-    if(graph())
+    std::string prefixedError = execPath;
+    prefixedError += " : ";
+    prefixedError += exec.getError(i);
+    logError( prefixedError.c_str() );
+  }
+
+  unsigned nodeCount = exec.getNodeCount();
+  for(size_t j=0;j<nodeCount;j++)
+  {
+    char const *nodeName = exec.getNodeName(j);
+
+    if ( !graph() )
+      continue;
+    GraphView::Node *uiNode = NULL;
+    if ( graph() )
     {
-      std::string path = GraphView::relativePathSTL(m_view->getGraph()->getExecPath(), nodes[j]->getNodeName());
-      uiNode = graph()->nodeFromPath(path.c_str());
-      if(!uiNode)
-        continue;
-      uiNode->clearError();
+      uiNode = graph()->nodeFromPath( nodeName );
+      if ( uiNode )
+        uiNode->clearError();
     }
 
-    if ( nodes[j]->isInst() )
+    if ( exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
     {
-      DFGWrapper::InstPtr inst = DFGWrapper::InstPtr::StaticCast( nodes[j] );
+      FabricCore::DFGExec instExec = exec.getSubExec( nodeName );
 
-      errors = inst->getExecutable()->getErrors();
-      std::string errorComposed;
-      for(size_t i=0;i<errors.size();i++)
+      unsigned errorCount = instExec.getErrorCount();
+      if ( errorCount > 0 )
       {
-        if(errorComposed.length() > 0)
-          errorComposed += "\n";
-        errorComposed += errors[i];
+        std::string errorComposed;
+        errorComposed += nodeName;
+        errorComposed += " : ";
+        for(size_t i=0;i<errorCount;i++)
+        {
+          if(i > 0)
+            errorComposed += "\n";
+          errorComposed += instExec.getError(i);
+        }
+  
+        logError( errorComposed.c_str() );
+        if ( uiNode )
+          uiNode->setError(errorComposed.c_str());
       }
 
-      if(errorComposed.length() > 0 && uiNode)
-      {
-        logError((std::string(inst->getNodeName()) + " : " +errorComposed).c_str());
-        uiNode->setError(errorComposed.c_str());
-      }
     }
   }
 }
@@ -1275,10 +1352,9 @@ void DFGController::setLogFunc(LogFunc func)
 
 bool DFGController::execute()
 {
-  DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
   try
   {
-    exec->getDFGBinding().execute();
+    m_coreDFGBinding.execute();
     return true;
   }
   catch(FabricCore::Exception e)
@@ -1293,23 +1369,34 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
   beginInteraction();
   try
   {
-    std::string itemPath = item->path().toUtf8().constData();
-    DFGWrapper::ExecutablePtr exec = m_view->getGraph();
-    std::string portOrPinPath = GraphView::relativePathSTL(exec->getExecPath(), itemPath);
+    std::string portOrPinPath = item->path().toUtf8().constData();
 
     // let's assume it is pin, if there's still a node name in it
     Commands::Command * command = NULL;
     if(portOrPinPath.find('.') != std::string::npos)
     {
-      command = new DFGSetDefaultValueCommand(this, itemPath.c_str(), item->value());
+      std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
+      FabricCore::DFGNodeType nodeType = getCoreDFGExec().getNodeType(nodeName.c_str());
+      if(nodeType == FabricCore::DFGNodeType_Inst || 
+        nodeType == FabricCore::DFGNodeType_Var ||
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
+      {
+        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
+      }
+      else if((nodeType == FabricCore::DFGNodeType_Get || 
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
+      {
+        command = new DFGSetRefVarPathCommand(this, nodeName.c_str(), item->value().getStringCString());
+      }
     }
     else
     {
       command = new DFGSetArgCommand(this, item->name().toUtf8().constData(), item->value());
     }
-    if(addCommand(command))
+    if(command == NULL)
       return;
-    delete(command);
+    if(!addCommand(command))
+      delete(command);
   }
   catch(FabricCore::Exception e)
   {
@@ -1318,24 +1405,22 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
   endInteraction();
 }
 
-bool DFGController::bindUnboundRTVals(std::string dataType)
+bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
 {
   try
   {
-    DFGWrapper::GraphExecutablePtr exec = m_view->getGraph();
-    FabricCore::DFGBinding binding = exec->getDFGBinding();
-    DFGWrapper::ExecPortList ports = exec->getExecPorts();
+    FabricCore::DFGExec exec = getCoreDFGExec();
 
     bool argsHaveChanged = false;
 
-    for(size_t i=0;i<ports.size();i++)
+    for(size_t i=0;i<exec.getExecPortCount();i++)
     {
-      std::string dataTypeToCheck = dataType;
-      if(dataTypeToCheck.length() == 0)
-        dataTypeToCheck = ports[i]->getResolvedType();
-      if(dataTypeToCheck.length() == 0)
+      FTL::StrRef dataTypeToCheck = dataType;
+      if(dataTypeToCheck.empty())
+        dataTypeToCheck = exec.getExecPortResolvedType(i);
+      if(dataTypeToCheck.empty())
         continue;
-      else if(ports[i]->getResolvedType() != dataTypeToCheck)
+      else if(exec.getExecPortResolvedType(i) != dataTypeToCheck)
         continue;
 
       if(dataTypeToCheck == "Integer")
@@ -1351,7 +1436,7 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
       FabricCore::RTVal value;
       try
       {
-        value = binding.getArgValue(ports[i]->getPortName());
+        value = m_coreDFGBinding.getArgValue(exec.getExecPortName(i));
       }
       catch(FabricCore::Exception e)
       {
@@ -1363,7 +1448,13 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
           continue;
       }
 
-      addCommand(new DFGSetArgCommand(this, ports[i]->getPortName(), dataTypeToCheck.c_str()));
+      addCommand(
+        new DFGSetArgCommand(
+          this,
+          exec.getExecPortName(i),
+          dataTypeToCheck.data()
+          )
+        );
       argsHaveChanged = true;
     }
     return argsHaveChanged;
@@ -1375,21 +1466,24 @@ bool DFGController::bindUnboundRTVals(std::string dataType)
   return false;
 }
 
-bool DFGController::canConnectTo( QString pathA, QString pathB, QString &failureReason )
+bool DFGController::canConnectTo(
+  char const *pathA,
+  char const *pathB,
+  std::string &failureReason
+  )
 {
   try
   {
-    std::string failureReasonStdString;
-
-    DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-    bool result =graph->canConnectTo(
-      pathA.toUtf8().constData(),
-      pathB.toUtf8().constData(),
-      failureReasonStdString
-      );
-    if ( !result )
-      failureReason = failureReasonStdString.c_str();
-    return result;
+    FabricCore::DFGStringResult result = getCoreDFGExec().canConnectTo( pathA, pathB );
+    char const *resultData;
+    uint32_t resultSize;
+    result.getStringDataAndLength( resultData, resultSize );
+    if ( resultSize > 0 )
+    {
+      failureReason = std::string( resultData, resultSize );
+      return false;
+    }
+    else return true;
   }
   catch(FabricCore::Exception e)
   {
@@ -1401,163 +1495,85 @@ bool DFGController::canConnectTo( QString pathA, QString pathB, QString &failure
 void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node)
 {
   Controller::populateNodeToolbar(toolbar, node);
-  toolbar->addTool("node_edit", "node_edit.png");
-}
 
-DFGWrapper::NodePtr DFGController::getNodeFromPath(const std::string & path)
-{
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  // std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  std::string nodeName = path;
-  int period = path.rfind('.');
-  if(period != std::string::npos)
+  FabricCore::DFGExec exec = getCoreDFGExec();
+  if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
   {
-    graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, path.length());
+    toolbar->addTool("node_edit", "node_edit.png");
   }
-  else
-    graph = getGraphExec();
-
-  return graph->getNode(nodeName.c_str());
 }
 
-DFGWrapper::InstPtr DFGController::getInstFromPath(const std::string & path)
-{
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  // std::string relPath = GraphView::relativePathSTL(graph->getGraphPath(), path);
-  std::string nodeName = path;
-  int period = path.rfind('.');
-  if(period != std::string::npos)
-  {
-    graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, path.length());
-  }
-  else
-    graph = getGraphExec();
-
-  DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
-  if ( node->isInst() )
-    return DFGWrapper::InstPtr::StaticCast( node );
-  else
-    return DFGWrapper::InstPtr();
-}
-
-DFGWrapper::ExecutablePtr DFGController::getExecFromPath(const std::string & path)
-{
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  if(path.length() == 0)
-    return graph;
-
-  std::string nodeName = path;
-  int period = path.rfind('.');
-  if(period != std::string::npos)
-  {
-    graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, path.length());
-  }
-
-  DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
-  if ( node->isInst() )
-    return DFGWrapper::InstPtr::StaticCast( node )->getExecutable();
-  else
-    return DFGWrapper::ExecutablePtr();
-}
-
-DFGWrapper::ExecutablePtr DFGController::getExecFromGlobalPath(const std::string & path)
-{
-  DFGWrapper::GraphExecutablePtr graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
-  std::string relPath = GraphView::relativePathSTL(graph->getExecPath(), path);
-  if(relPath.length() == 0)
-    return graph;
-  std::string nodeName = relPath;
-  int period = relPath.rfind('.');
-  if(period != std::string::npos)
-  {
-    graph = getGraphExecFromPath(path.substr(0, period));
-    nodeName = path.substr(period+1, relPath.length());
-  }
-  else
-    graph = DFGWrapper::GraphExecutablePtr::StaticCast(getBinding().getExecutable());
-
-  DFGWrapper::NodePtr node = graph->getNode(nodeName.c_str());
-  if ( node->isInst() )
-    return DFGWrapper::InstPtr::StaticCast( node )->getExecutable();
-  else
-    return DFGWrapper::ExecutablePtr();
-}
-
-DFGWrapper::GraphExecutablePtr DFGController::getGraphExecFromPath(const std::string & path)
-{
-  DFGWrapper::ExecutablePtr exec = getExecFromPath(path);
-  if(!exec)
-    return DFGWrapper::GraphExecutablePtr();
-  return DFGWrapper::GraphExecutablePtr::StaticCast(exec);
-}
-
-DFGWrapper::FuncExecutablePtr DFGController::getFuncExecFromPath(const std::string & path)
-{
-  DFGWrapper::ExecutablePtr exec = getExecFromPath(path);
-  if(!exec)
-    return DFGWrapper::FuncExecutablePtr();
-  return DFGWrapper::FuncExecutablePtr::StaticCast(exec);
-}
-
-DFGWrapper::PortPtr DFGController::getPortFromPath(const std::string & path)
-{
-  DFGWrapper::GraphExecutablePtr graph = getGraphExec();
-  return DFGWrapper::Port::Create(
-    graph->getDFGBinding(),
-    graph->getExecPath(),
-    graph->getDFGExec(),
-    path.c_str()
-    );
-}
-
-void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, QString toolName)
+void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
 {
   Controller::nodeToolTriggered(node, toolName);
 
-  if(toolName == "node_collapse")
+  FTL::StrRef toolNameRef(toolName);
+  if(toolNameRef == "node_collapse")
   {
     int collapsedState = (int)node->collapsedState();
     FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
-    DFGWrapper::NodePtr dfgNode = getNodeFromPath(node->path().toUtf8().constData());
-    dfgNode->setMetadata("uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
   }
-  else if(toolName == "node_edit")
+  else if(toolNameRef == "node_edit")
   {
     emit nodeEditRequested(node);
   }
 }
 
-void DFGController::bindingNotificationCallback(void * userData, char const *jsonCString, uint32_t jsonLength)
+void DFGController::onVariablesChanged()
 {
-  if(!jsonCString)
-    return;
-  DFGController * ctrl = (DFGController *)userData;
+  m_presetDictsUpToDate = false;
+  updatePresetPathDB();
+}
 
-  FabricCore::Variant notificationVar = FabricCore::Variant::CreateFromJSON(jsonCString, jsonLength);
+void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
+{
+  // printf("bindingNotif = %s\n", jsonStr.c_str());
 
-  const FabricCore::Variant * descVar = notificationVar.getDictValue("desc");
-  if(!descVar)
-    return;
-
-  std::string descStr = descVar->getStringData();
-
-  // if(descStr == "argTypeChanged")
-  // {
-  //   ctrl->m_view->updateDataTypesOnPorts();
-  // }
-  if(descStr == "argChanged")
+  try
   {
-    const FabricCore::Variant * nameVar = notificationVar.getDictValue("name");
-    emit ctrl->argValueChanged(nameVar->getStringData());
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+
+    FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
+    if(descStr == FTL_STR("argChanged"))
+    {
+      emit argValueChanged(
+        jsonObject->getString( FTL_STR("name") ).c_str()
+        );
+    }
+    // [pzion 20150609] Why doesn't this work?
+    //
+    // else if ( descStr == FTL_STR("argTypeChanged")
+    //   || descStr == FTL_STR("argInserted")
+    //   || descStr == FTL_STR("argRemoved") )
+    // {
+    //   emit argsChanged();
+    // }
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf(
+      "DFGController::bindingNotificationCallback: caught Core exception: %s\n",
+      e.getDesc_cstr()
+      );
+  }
+  catch ( FTL::JSONException e )
+  {
+    printf(
+      "DFGController::bindingNotificationCallback: caught FTL::JSONException: %s\n",
+      e.getDescCStr()
+      );
   }
 }
 
-QStringList DFGController::getPresetPathsFromSearch(QString search, bool includePresets, bool includeNameSpaces)
+QStringList DFGController::getPresetPathsFromSearch(char const * search, bool includePresets, bool includeNameSpaces)
 {
-  if(search.length() == 0)
+  FTL::StrRef searchRef(search);
+  if(searchRef.size() == 0)
     return QStringList();
 
   updatePresetPathDB();
@@ -1566,7 +1582,7 @@ QStringList DFGController::getPresetPathsFromSearch(QString search, bool include
 
   // [pzion 20150305] This is a little evil but avoids lots of copying
 
-  std::string stdString = search.toUtf8().constData();
+  std::string stdString = search;
 
   std::vector<FTL::StrRef> searchSplit;
   FTL::StrSplit<'.'>( stdString, searchSplit, true /*strict*/ );
@@ -1612,7 +1628,7 @@ QStringList DFGController::getPresetPathsFromSearch(QString search, bool include
 
 void DFGController::updatePresetPathDB()
 {
-  if(m_presetDictsUpToDate || m_host == NULL)
+  if(m_presetDictsUpToDate || !m_coreDFGHost.isValid())
     return;
   m_presetDictsUpToDate = true;
 
@@ -1621,23 +1637,142 @@ void DFGController::updatePresetPathDB()
   m_presetNameSpaceDictSTL.clear();
   m_presetPathDictSTL.clear();
 
-  std::vector<DFGWrapper::NameSpace> namespaces;
-  namespaces.push_back(m_host->getRootNameSpace());
+  // insert fixed results for special nodes
+  m_presetPathDictSTL.push_back("var");
+  m_presetPathDictSTL.push_back("get");
+  m_presetPathDictSTL.push_back("set");
 
-  for(size_t i=0;i<namespaces.size();i++)
+  QStringList variables = getVariableWordsFromBinding(m_coreDFGBinding, m_execPath.c_str());
+  for(unsigned int i=0;i<variables.length();i++)
   {
-    m_presetNameSpaceDictSTL.push_back(namespaces[i].getPath());
+    m_presetPathDictSTL.push_back("get." + std::string(variables[i].toUtf8().constData()));
+    m_presetPathDictSTL.push_back("set." + std::string(variables[i].toUtf8().constData()));
+  }
 
-    std::vector<DFGWrapper::NameSpace> childNameSpaces = namespaces[i].getNameSpaces();
-    namespaces.insert(namespaces.end(), childNameSpaces.begin(), childNameSpaces.end());
+  std::vector<std::string> paths;
+  paths.push_back("");
 
-    std::vector<DFGWrapper::Object> presets = namespaces[i].getPresets();
-    for(size_t j=0;j<presets.size();j++)
-      m_presetPathDictSTL.push_back(presets[j].getPath());
+  for(size_t i=0;i<paths.size();i++)
+  {
+    std::string prefix = paths[i];
+    if(prefix.length() > 0)
+      prefix += ".";
+
+    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
+    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    {
+      std::string name = memberIter.getKey()->getStringData();
+      const FabricCore::Variant * memberVar = memberIter.getValue();
+      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+      std::string objectType = objectTypeVar->getStringData();
+      if(objectType == "Preset")
+      {
+        m_presetPathDictSTL.push_back(prefix+name);
+      }
+      else if(objectType == "NameSpace")
+      {
+        paths.push_back(prefix+name);
+        m_presetNameSpaceDictSTL.push_back(prefix+name);
+      }
+    }
   }
 
   for(size_t i=0;i<m_presetNameSpaceDictSTL.size();i++)
     m_presetNameSpaceDict.add(m_presetNameSpaceDictSTL[i].c_str(), '.', m_presetNameSpaceDictSTL[i].c_str());
   for(size_t i=0;i<m_presetPathDictSTL.size();i++)
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
+}
+
+DFGNotificationRouter * DFGController::createRouter(
+  FabricCore::DFGBinding binding,
+  FabricCore::DFGExec exec
+  )
+{
+  return new DFGNotificationRouter(binding, exec);
+}
+
+QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath)
+{
+  QStringList words;
+
+  FabricCore::DFGStringResult json =  binding.getVars();
+  FTL::JSONStrWithLoc jsonStrWithLoc( json.getCString() );
+  FTL::OwnedPtr<FTL::JSONObject> jsonObject(
+    FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+    );
+
+  std::vector<FTL::CStrRef> execPaths;
+  std::vector<std::string> prefixes;
+  std::vector<FTL::JSONObject const *> objects;
+  execPaths.push_back(currentExecPath);
+  prefixes.push_back("");
+  objects.push_back(jsonObject.get());
+
+  for(size_t i=0;i<objects.size();i++)
+  {
+    FTL::JSONObject const * varsObject = objects[i]->maybeGetObject( FTL_STR("vars") );
+    if(varsObject)
+    {
+      for(FTL::JSONObject::const_iterator it = varsObject->begin();
+        it != varsObject->end(); it++
+        )
+      {
+        FTL::CStrRef key = it->first;
+        std::string path = prefixes[i];
+        if(path.length() > 0)
+          path += ".";
+        path += key.c_str();
+        if(words.contains(path.c_str()))
+          continue;
+        words.append(path.c_str());
+      }
+    }
+
+    FTL::JSONObject const * subsObject = objects[i]->maybeGetObject( FTL_STR("subs") );
+    if(subsObject)
+    {
+      for(FTL::JSONObject::const_iterator it = subsObject->begin();
+        it != subsObject->end(); it++
+        )
+      {
+        FTL::JSONObject const * subGraph = it->second->maybeCast<FTL::JSONObject>();
+        if(subGraph)
+        {
+          std::string path;
+          FTL::CStrRef execPath = execPaths[i];
+          FTL::CStrRef graphName = it->first;
+          if(execPath.size() > 0)
+          {
+            std::string graphNameStr(graphName);
+            std::string execPathStr(execPath);
+            if(graphNameStr == execPathStr || 
+              graphNameStr + "." == execPathStr.substr(0, graphNameStr.length() + 1))
+            {
+              execPath = execPath.substr(graphNameStr.length() + 1).data();
+            }
+            else
+            {
+              // this variable is in a different sub
+              continue;
+            }
+          }
+          else
+          {
+            path = prefixes[i];
+            if(path.length() > 0)
+              path += ".";
+            path += std::string(it->first);
+          }
+
+          execPaths.push_back(execPath);
+          prefixes.push_back(path);
+          objects.push_back(subGraph);
+        }
+      }      
+    }
+  }
+
+  return words;
 }

@@ -5,15 +5,16 @@
 
 using namespace FabricUI::GraphView;
 
-Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * factory)
-: QGraphicsWidget(parent)
+Graph::Graph(
+  QGraphicsItem * parent,
+  const GraphConfig & config
+  )
+  : QGraphicsWidget(parent)
+  , m_config( config )
 {
-  m_config = config;
-  m_factory = factory;
-  m_path = "";
-
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
+  setContentsMargins(0, 0, 0, 0);
 
   m_controller = NULL;
   m_mouseGrabber = NULL;
@@ -33,106 +34,35 @@ Graph::Graph(QGraphicsItem * parent, const GraphConfig & config, GraphFactory * 
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
   m_nodeToolbar = NULL;
-
-  m_constructed = false;
-  reset("graph", false);
-  m_constructed = true;
 }
 
-void Graph::reset(QString path, bool createSidePanels)
+void Graph::initialize()
 {
-  m_path = path;
-
-  if(m_nodeToolbar)
-    m_nodeToolbar->deattach(false);
-
-  prepareGeometryChange();
-
-
-  if(m_constructed)
-  {
-    for(size_t i=0;i<m_connections.size();i++)
-    {
-      scene()->removeItem(m_connections[i]);
-      delete(m_connections[i]);
-    }
-    m_connections.clear();
-
-    for(size_t i=0;i<m_nodes.size();i++)
-    {
-      scene()->removeItem(m_nodes[i]);
-      delete(m_nodes[i]);
-    }
-    m_nodes.clear();
-    m_nodeMap.clear();
-
-    if(m_mouseGrabber)
-    {
-      scene()->removeItem(m_mouseGrabber);
-      delete(m_mouseGrabber);
-      m_mouseGrabber = NULL;
-    }
-    if(m_nodeToolbar)
-    {
-      scene()->removeItem(m_nodeToolbar);
-      delete(m_nodeToolbar);
-      m_nodeToolbar = NULL;
-    }
-    if(m_mainPanel)
-    {
-      scene()->removeItem(m_mainPanel);
-      delete(m_mainPanel);
-      m_mainPanel = NULL;
-    }
-    if(m_leftPanel)
-    {
-      scene()->removeItem(m_leftPanel);
-      delete(m_leftPanel);
-      m_leftPanel = NULL;
-    }
-    if(m_rightPanel)
-    {
-      scene()->removeItem(m_rightPanel);
-      delete(m_rightPanel);
-      m_rightPanel = NULL;
-    }
-  }
-
   m_mainPanel = new MainPanel(this);
 
-  if(createSidePanels)
-  {
-    m_leftPanel = new SidePanel(this, path, PortType_Output);
-    m_rightPanel = new SidePanel(this, path, PortType_Input);
-  }
+  m_leftPanel = new SidePanel(this, PortType_Output);
+  QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
 
-  setContentsMargins(0, 0, 0, 0);
+  m_rightPanel = new SidePanel(this, PortType_Input);
+  QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
+
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   layout->setSpacing(0);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setOrientation(Qt::Horizontal);
-  setLayout(layout);
-
-  if(m_leftPanel)
-  {
-    layout->addItem(m_leftPanel);
-    QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-      this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
-  }
+  layout->addItem(m_leftPanel);
   layout->addItem(m_mainPanel);
-  if(m_rightPanel)
-  {
-    layout->addItem(m_rightPanel);
-    QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-      this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
-  }
+  layout->addItem(m_rightPanel);
+  setLayout(layout);
 
   m_nodeToolbar = new NodeToolbar(this, m_config);
   m_nodeToolbar->hide();
   if(m_controller)
   {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, QString)), 
-      m_controller, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, QString)));
+    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
+      m_controller, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
   }
 }
 
@@ -150,20 +80,10 @@ void Graph::setController(Controller * c)
 {
   if(!m_controller && c && m_nodeToolbar)
   {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, QString)), 
-      c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, QString)));
+    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
+      c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
   }
   m_controller = c;
-}
-
-QString Graph::path() const
-{
-  return m_path;
-}
-
-void Graph::setPath(QString path)
-{
-  m_path = path;
 }
 
 QGraphicsWidget * Graph::itemGroup()
@@ -211,11 +131,11 @@ NodeToolbar * Graph::nodeToolbar()
 
 Node * Graph::addNode(Node * node, bool quiet)
 {
-  QString key = node->path();
+  FTL::StrRef key = node->name();
   if(m_nodeMap.find(key) != m_nodeMap.end())
     return NULL;
 
-  m_nodeMap.insert(std::pair<QString, size_t>(key, m_nodes.size()));
+  m_nodeMap.insert(std::pair<FTL::StrRef, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
@@ -229,27 +149,19 @@ Node * Graph::addNode(Node * node, bool quiet)
   return node;
 }
 
-Node * Graph::addNodeFromPreset(QString path, QString preset, bool quiet)
+Node * Graph::addNode(
+  FTL::CStrRef name,
+  FTL::CStrRef title,
+  bool quiet
+  )
 {
-  if(!m_factory)
-  {
-    if(preset == "")
-    {
-      return addNode(new Node(this, path), quiet);
-    }
-    return NULL;
-  }
-  Node * node = m_factory->constructNodeFromPreset(this, path, preset);
-  if(!node)
-    return NULL;
-  node->setPreset(preset);
-  return addNode(node, quiet);
+  return addNode(new Node(this, name, title), quiet);
 }
 
 bool Graph::removeNode(Node * node, bool quiet)
 {
-  QString key = node->path();
-  std::map<QString, size_t>::iterator it = m_nodeMap.find(key);
+  FTL::StrRef key = node->name();
+  std::map<FTL::StrRef, size_t>::iterator it = m_nodeMap.find(key);
   if(it == m_nodeMap.end())
     return false;
 
@@ -310,21 +222,9 @@ std::vector<Node *> Graph::nodes() const
   return result;
 }
 
-Node * Graph::node(QString name) const
+Node * Graph::node( FTL::StrRef name ) const
 {
-  QString key = path();
-  if(key.length() > 0)
-    key += m_config.pathSep;
-  key += name;
-  std::map<QString, size_t>::const_iterator it = m_nodeMap.find(key);
-  if(it == m_nodeMap.end())
-    return NULL;
-  return m_nodes[it->second];
-}
-
-Node * Graph::nodeFromPath(QString path) const
-{
-  std::map<QString, size_t>::const_iterator it = m_nodeMap.find(path);
+  std::map<FTL::StrRef, size_t>::const_iterator it = m_nodeMap.find(name);
   if(it == m_nodeMap.end())
     return NULL;
   return m_nodes[it->second];
@@ -364,19 +264,19 @@ std::vector<Port *> Graph::ports() const
   return result;
 }
 
-Port * Graph::port(QString name) const
+Port * Graph::port(FTL::StrRef name) const
 {
   if(!hasSidePanels())
     return NULL;
 
   for(unsigned int i=0;i<m_leftPanel->portCount();i++)
   {
-    if(m_leftPanel->port(i)->name() == name)
+    if(name == m_leftPanel->port(i)->name())
       return m_leftPanel->port(i);
   }
   for(unsigned int i=0;i<m_rightPanel->portCount();i++)
   {
-    if(m_rightPanel->port(i)->name() == name)
+    if(name == m_rightPanel->port(i)->name())
       return m_rightPanel->port(i);
   }
 
@@ -439,7 +339,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
         // filter out IO ports
         if(m_connections[i]->src()->targetType() == TargetType_Port && m_connections[i]->dst()->targetType() == TargetType_Port)
         {
-          if(((Port*)m_connections[i]->src())->path() == ((Port*)m_connections[i]->dst())->path())
+          if(((Port*)m_connections[i]->src())->name() == ((Port*)m_connections[i]->dst())->name())
             continue;
         }
 
@@ -453,11 +353,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
   prepareGeometryChange();
   controller()->beginInteraction();
 
-  Connection * connection;
-  if(m_factory)
-    connection = m_factory->constructConnection(this, src, dst);
-  else
-    connection = new Connection(this, src, dst);
+  Connection * connection = new Connection(this, src, dst);
   m_connections.push_back(connection);
 
   if(connection->src()->targetType() == TargetType_Pin)
@@ -662,43 +558,4 @@ QMenu* Graph::getSidePanelContextMenu(SidePanel * sidePanel)
 void Graph::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   QGraphicsWidget::paint(painter, option, widget);
-}
-
-QString Graph::getUniquePath(QString path) const
-{
-  QString resolvedPath;
-  unsigned int suffixIndex = 0;
-  QString prefix;
-  QString middle;
-  QString suffix;
-
-  QStringList parts = path.split(config().pathSep);
-  for(int i=0;i<parts.count()-1;i++)
-  {
-    if(i>0)
-      prefix += config().pathSep;
-    prefix += parts[i].remove(" ");
-  }
-  if(prefix.length() > 0)
-    prefix += config().pathSep;
-
-  middle = parts[parts.count()-1].remove(" ");
-
-  bool found = true;
-  while(found)
-  {
-    found = false;
-    suffix = QString::number(++suffixIndex);
-    resolvedPath = prefix + middle + suffix;
-    for(size_t i=0;i<m_nodes.size();i++)
-    {
-      if(m_nodes[i]->path() == resolvedPath)
-      {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  return resolvedPath;
 }

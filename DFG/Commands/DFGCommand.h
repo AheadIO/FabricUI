@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGCommand__
 #define __UI_DFG_DFGCommand__
 
-#include <GraphView/Commands/ControllerCommand.h>
+#include <FabricUI/GraphView/Commands/ControllerCommand.h>
 
 #include "../DFGController.h"
 
@@ -17,6 +17,13 @@ namespace FabricUI
     public:
 
       DFGCommand(DFGController * controller);
+
+      virtual const char * getExecPath();
+
+    protected:
+      
+      virtual bool undo();
+      virtual bool redo();
     };
 
   };

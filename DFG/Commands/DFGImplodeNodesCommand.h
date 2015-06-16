@@ -23,14 +23,12 @@ namespace FabricUI
       virtual const char * getFullDesc() const { return "Groups nodes in graph to a new subgraph."; }
 
       std::vector<std::string> getNodePaths() const;
-      std::string getDesiredName() const;
-      std::string getInstName() const;
+      char const * getDesiredName() const;
+      char const * getInstName() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

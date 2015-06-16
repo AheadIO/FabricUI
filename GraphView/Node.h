@@ -8,11 +8,13 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 
-#include "NodeRectangle.h"
-#include "NodeHeader.h"
-#include "Pin.h"
-#include "GraphicItemTypes.h"
-#include "CachingEffect.h"
+#include <FTL/CStrRef.h>
+
+#include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/NodeHeader.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/GraphicItemTypes.h>
+#include <FabricUI/GraphView/CachingEffect.h>
 
 namespace FabricUI
 {
@@ -39,7 +41,13 @@ namespace FabricUI
         CollapseState_NumStates
       };
 
-      Node(Graph * parent, QString path, QString label = "", QColor color = QColor(), QColor labelColor = QColor());
+      Node(
+        Graph * parent,
+        FTL::CStrRef name,
+        FTL::CStrRef title,
+        QColor color = QColor(),
+        QColor titleColor = QColor()
+        );
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
@@ -49,16 +57,17 @@ namespace FabricUI
       NodeHeader * header();
       const NodeHeader * header() const;
 
-      QString path() const;
-      QString name() const;
-      QString title() const;
-      void setTitle(QString t);
-      QString preset() const;
+      FTL::CStrRef name() const
+        { return m_name; }
+      
+      FTL::CStrRef title() const
+        { return m_title; }
+      void setTitle( FTL::CStrRef title );
       QColor color() const;
       void setColor(QColor col);
       void setColorAsGradient(QColor a, QColor b);
-      QColor labelColor() const;
-      void setLabelColor(QColor col);
+      QColor titleColor() const;
+      void setTitleColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
 
@@ -82,7 +91,7 @@ namespace FabricUI
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
-      virtual Pin * pin(QString name);
+      virtual Pin * pin(FTL::StrRef name);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
@@ -92,7 +101,6 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
       // accessed by controller
-      virtual void setPreset(QString p);
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
       virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
@@ -127,13 +135,12 @@ namespace FabricUI
       void updatePinLayout();
 
       Graph * m_graph;
-      QString m_path;
-      QString m_preset;
-      QString m_labelCaption;
+      std::string m_name;
+      std::string m_title;
 
       QColor m_colorA;
       QColor m_colorB;
-      QColor m_labelColor;
+      QColor m_titleColor;
       QPen m_defaultPen;
       QPen m_selectedPen;
       QPen m_errorPen;

@@ -1,24 +1,25 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Pin.h"
-#include "Node.h"
-#include "Graph.h"
-#include "GraphConfig.h"
-#include "ProxyPort.h"
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FabricUI/GraphView/ProxyPort.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 
 using namespace FabricUI::GraphView;
 
-Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString label)
-: ConnectionTarget(parent->pinsWidget())
+Pin::Pin(
+  Node * parent, char const *name, PortType pType, QColor color, char const * label)
+  : ConnectionTarget(parent->pinsWidget())
+  , m_node( parent )
+  , m_name( name )
 {
-  m_node = parent;
-  m_name = name;
   m_portType = pType;
   m_labelCaption = label;
   if(m_labelCaption.length() == 0)
-    m_labelCaption = m_name;
+    m_labelCaption = name;
   m_color = color;
   m_index = 0;
   m_drawState = true;
@@ -52,7 +53,7 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
 
   if(m_labelCaption.length() > 0)
   {
-    m_label = new PinLabel(this, m_labelCaption, config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
+    m_label = new PinLabel(this, m_labelCaption.c_str(), config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
 
     layout->addItem(m_label);
     layout->setAlignment(m_label, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -64,16 +65,8 @@ Pin::Pin(Node * parent, QString name, PortType pType, QColor color, QString labe
   m_outCircle = new PinCircle(this, PortType_Output, m_color);
   layout->addItem(m_outCircle);
   layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
-}
-
-Node * Pin::node()
-{
-  return m_node;
-}
-
-const Node * Pin::node() const
-{
-  return m_node;
+  if(portType() == PortType_Input)
+    m_outCircle->setClipping(true);
 }
 
 Graph * Pin::graph()
@@ -86,19 +79,17 @@ const Graph * Pin::graph() const
   return node()->graph();
 }
 
-QString Pin::name() const
+std::string Pin::path() const
 {
-  return m_name;
+  std::string result = node()->name();
+  result += graph()->config().pathSep;
+  result += m_name;
+  return result;
 }
 
-QString Pin::path() const
+char const * Pin::label() const
 {
-  return node()->path() + graph()->config().pathSep + name();
-}
-
-QString Pin::label() const
-{
-  return m_labelCaption;
+  return m_labelCaption.c_str();
 }
 
 PortType Pin::portType() const
@@ -111,7 +102,7 @@ QColor Pin::color() const
   return m_color;
 }
 
-void Pin::setColor(QColor color, bool quiet)
+void Pin::setColor(QColor color, bool quiet, bool performUpdate)
 {
   if(inCircle())
     inCircle()->setColor(color);
@@ -123,7 +114,8 @@ void Pin::setColor(QColor color, bool quiet)
     if(!quiet)
       emit colorChanged(this, color);
   }
-  update();
+  if(performUpdate)
+    update();
 }
 
 int Pin::index() const
@@ -153,15 +145,10 @@ void Pin::setHighlighted(bool state)
   setColor(m_color, true);
 }
 
-QString Pin::dataType() const
+void Pin::setDataType(FTL::CStrRef dataType)
 {
-  return m_dataType;
-}
-
-void Pin::setDataType(QString type)
-{
-  m_dataType = type;
-  setToolTip(type);
+  m_dataType = dataType;
+  setToolTip(dataType.c_str());
 }
 
 PinCircle * Pin::inCircle()
@@ -186,7 +173,7 @@ const PinCircle * Pin::outCircle() const
 
 bool Pin::canConnectTo(
   ConnectionTarget * other,
-  QString &failureReason
+  std::string &failureReason
   ) const
 {
   switch(other->targetType())
@@ -199,7 +186,7 @@ bool Pin::canConnectTo(
         || otherPin->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        path(), otherPin->path(), failureReason
+        path().c_str(), otherPin->path().c_str(), failureReason
         );
     }
     case TargetType_Port:
@@ -209,7 +196,7 @@ bool Pin::canConnectTo(
         || otherPort->portType() == PortType_Output )
         return false;
       return m_node->graph()->controller()->canConnectTo(
-        path(), otherPort->path(), failureReason
+        path().c_str(), otherPort->path().c_str(), failureReason
         );
     }
     case TargetType_ProxyPort:

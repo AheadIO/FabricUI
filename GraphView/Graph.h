@@ -9,16 +9,17 @@
 #include <QtGui/QPen>
 #include <QtGui/QMenu>
 
-#include "GraphConfig.h"
-#include "Controller.h"
-#include "GraphFactory.h"
-#include "Node.h"
-#include "NodeToolbar.h"
-#include "Pin.h"
-#include "Connection.h"
-#include "MouseGrabber.h"
-#include "MainPanel.h"
-#include "SidePanel.h"
+#include <FTL/StrRef.h>
+
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeToolbar.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/MouseGrabber.h>
+#include <FabricUI/GraphView/MainPanel.h>
+#include <FabricUI/GraphView/SidePanel.h>
 
 #if QT_VERSION > 0x040602
 # define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
@@ -46,10 +47,13 @@ namespace FabricUI
 
     public:
 
-      Graph(QGraphicsItem * parent, const GraphConfig & config = GraphConfig(), GraphFactory * factory = NULL);
+      Graph(
+        QGraphicsItem * parent,
+        const GraphConfig & config = GraphConfig()
+        );
       virtual ~Graph() {}
 
-      virtual void reset(QString path, bool createSidePanels = false);
+      virtual void initialize();
 
       virtual const GraphConfig & config() const;
       QGraphicsWidget * itemGroup();
@@ -63,19 +67,17 @@ namespace FabricUI
       const SidePanel * sidePanel(PortType portType) const;
 
       NodeToolbar * nodeToolbar();
-      
-      QString path() const;
-      void setPath(QString path);
 
       // nodes
       virtual std::vector<Node *> nodes() const;
-      virtual Node * node(QString name) const;
-      virtual Node * nodeFromPath(QString path) const;
+      virtual Node * node( FTL::StrRef name ) const;
+      virtual Node * nodeFromPath( FTL::StrRef path ) const
+        { return node( path ); }
       virtual std::vector<Node *> selectedNodes() const;
 
       // ports
       virtual std::vector<Port *> ports() const;
-      virtual Port * port(QString name) const;
+      virtual Port * port(FTL::StrRef name) const;
 
       // connections
       virtual std::vector<Connection *> connections() const;
@@ -111,6 +113,17 @@ namespace FabricUI
       MouseGrabber * constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType);
       MouseGrabber * getMouseGrabber();
 
+      // interaction
+      virtual Node * addNode(Node * node, bool quiet = false);
+      virtual Node * addNode(FTL::CStrRef name, FTL::CStrRef preset, bool quiet = false);
+      virtual bool removeNode(Node * node, bool quiet = false);
+      virtual bool addPort(Port * port, bool quiet = false);
+      virtual bool removePort(Port * port, bool quiet = false);
+      virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
+      virtual bool removeConnection(Connection * connection, bool quiet = false);
+      virtual void resetMouseGrabber();
+
     public slots:
 
       virtual bool pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
@@ -132,20 +145,6 @@ namespace FabricUI
       void connectionRemoved(FabricUI::GraphView::Connection * connection);
       void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       void hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString);
-
-    protected:
-
-      // interaction - only possible through controller
-      virtual QString getUniquePath(QString path) const;
-      virtual Node * addNode(Node * node, bool quiet = false);
-      virtual Node * addNodeFromPreset(QString path, QString preset, bool quiet = false);
-      virtual bool removeNode(Node * node, bool quiet = false);
-      virtual bool addPort(Port * port, bool quiet = false);
-      virtual bool removePort(Port * port, bool quiet = false);
-      virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
-      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
-      virtual bool removeConnection(Connection * connection, bool quiet = false);
-      virtual void resetMouseGrabber();
 
     private:
 
@@ -171,14 +170,11 @@ namespace FabricUI
         }
       };
 
-      bool m_constructed;
-      GraphFactory * m_factory;
       GraphConfig m_config;
       Controller * m_controller;
       NodeToolbar * m_nodeToolbar;
-      QString m_path;
       std::vector<Node *> m_nodes;
-      std::map<QString, size_t> m_nodeMap;
+      std::map<FTL::StrRef, size_t> m_nodeMap;
       std::vector<Connection *> m_connections;
       MouseGrabber * m_mouseGrabber;
       MainPanel * m_mainPanel;
@@ -199,49 +195,6 @@ namespace FabricUI
       void * m_sidePanelContextMenuCallbackUD;
 
     };
-
-    inline std::string parentPathSTL(std::string path)
-    {
-      size_t pos = path.rfind('.');
-      if(pos == std::string::npos)
-        return "";
-      return path.substr(0, pos);
-    }
-
-    inline std::string relativePathSTL(std::string parent, std::string child)
-    {
-      if(child == parent)
-        return "";
-      if(child.length() > parent.length())
-      {
-        if(child.substr(0, parent.length()+1) == parent + ".")
-          return child.substr(parent.length() + 1, child.length());
-      }
-      return child;
-    }
-
-    inline std::string lastPathSegmentSTL(std::string path)
-    {
-      size_t pos = path.rfind('.');
-      if(pos == std::string::npos)
-        return path;
-      return path.substr(pos+1, path.length());
-    }
-
-    inline QString parentPath(QString path)
-    {
-      return parentPathSTL(std::string(path.toUtf8().constData())).c_str();
-    }
-
-    inline QString relativePath(QString parent, QString child)
-    {
-      return relativePathSTL(std::string(parent.toUtf8().constData()), std::string(child.toUtf8().constData())).c_str();
-    }
-
-    inline QString lastPathSegment(QString path)
-    {
-      return lastPathSegmentSTL(std::string(path.toUtf8().constData())).c_str();
-    }
 
   };
 

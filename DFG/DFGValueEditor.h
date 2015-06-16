@@ -3,9 +3,8 @@
 #ifndef __UI_DFG_DFGValueEditor__
 #define __UI_DFG_DFGValueEditor__
 
-#include <ValueEditor/ValueEditorWidget.h>
+#include <FabricUI/ValueEditor/ValueEditorWidget.h>
 
-#include "DFGWrapper/Node.h"
 #include "DFGConfig.h"
 #include "DFGController.h"
 
@@ -21,11 +20,16 @@ namespace FabricUI
 
     public:
 
-      DFGValueEditor(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
+      DFGValueEditor(
+        QWidget * parent,
+        DFGController * controller,
+        const DFGConfig & config = DFGConfig()
+        );
       virtual ~DFGValueEditor();
 
-      FabricServices::DFGWrapper::NodePtr getNode();
-      void setNode(FabricServices::DFGWrapper::NodePtr node);
+      FTL::CStrRef getNodeName()
+        { return m_nodeName; }
+      void setNodeName( FTL::StrRef nodeName );
 
     public slots:
 
@@ -34,7 +38,9 @@ namespace FabricUI
 
     private:
 
-      FabricServices::DFGWrapper::NodePtr m_node;
+      FTL::CStrRef unAliasType(FTL::CStrRef type);
+
+      std::string m_nodeName;
       DFGConfig m_config;
       DFGController * m_controller;
     };

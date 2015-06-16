@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGRemoveConnectionCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGRemoveConnectionCommand(DFGController * controller, const char * srcPath, const char * dstPath, bool srcAsPin, bool dstAsPin);
+      DFGRemoveConnectionCommand(DFGController * controller, const char * srcPath, const char * dstPath);
 
       virtual const char * getName() const { return "dfgRemoveConnection"; }
       virtual const char * getShortDesc() const { return "Removes a connection between two ports in the graph."; }
@@ -25,25 +25,15 @@ namespace FabricUI
 
       const char * getSrcPath() const;
       const char * getDstPath() const;
-      bool srcIsPin() const;
-      bool dstIsPin() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      bool m_srcIsPin;
-      bool m_dstIsPin;
       std::string m_srcPath;
       std::string m_dstPath;
-      std::string m_srcNodePath;
-      std::string m_dstNodePath;
-      std::string m_srcPinTitle;
-      std::string m_dstPinTitle;
 
     };
 

@@ -6,20 +6,24 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGAddPortCommand::DFGAddPortCommand(DFGController * controller, QString execPath, QString name, GraphView::PortType pType, QString dataType)
-: DFGCommand(controller)
+DFGAddPortCommand::DFGAddPortCommand(
+  DFGController * controller,
+  FTL::StrRef name,
+  GraphView::PortType pType,
+  FTL::StrRef dataType
+  )
+  : DFGCommand(controller)
+  , m_portTitle( name )
+  , m_portType( pType )
+  , m_dataType( dataType )
 {
-  m_execPath = execPath.toUtf8().constData();
-  m_portTitle = name.toUtf8().constData();
-  m_dataType = dataType.toUtf8().constData();
-  m_portType = pType;
 }
 
 
 bool DFGAddPortCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::ExecutablePtr exec = ctrl->getExecFromPath(m_execPath.c_str());
+  FabricCore::DFGExec exec = ctrl->getCoreDFGExec();
 
   FabricCore::DFGPortType portType = FabricCore::DFGPortType_In;
   if(m_portType == GraphView::PortType_Input)
@@ -27,25 +31,8 @@ bool DFGAddPortCommand::invoke()
   else if(m_portType == GraphView::PortType_IO)
     portType = FabricCore::DFGPortType_IO;
 
-  m_portPath = exec->addExecPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL)->getPortPath();
+  m_portPath = exec.addExecPort(m_portTitle.c_str(), portType, m_dataType.length() > 0 ? m_dataType.c_str() : NULL);
   return true;
-}
-
-bool DFGAddPortCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();  
-}
-
-bool DFGAddPortCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
-}
-
-const char * DFGAddPortCommand::getExecPath() const
-{
-  return m_execPath.c_str();
 }
 
 const char * DFGAddPortCommand::getPortName() const

@@ -3,6 +3,7 @@
 #include "DFGTabSearchWidget.h"
 #include "DFGWidget.h"
 #include "DFGLogWidget.h"
+#include "Dialogs/DFGNewVariableDialog.h"
 
 #include <QtGui/QCursor>
 
@@ -35,10 +36,11 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
     int index = indexFromPos(event->pos());
     if(index >= 0)
     {
-      QString graphPath = m_parent->getUIController()->graph()->path();
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[index], scenePos);
+      m_parent->getUIController()->addDFGNodeFromPreset(
+        m_results[index].toUtf8().constData(), scenePos
+        );
 
       hide();
       event->accept();
@@ -114,10 +116,7 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
   {
     if(m_currentIndex > -1 && m_currentIndex < m_results.length())
     {
-      QString graphPath = m_parent->getUIController()->graph()->path();
-      QPoint localPos = geometry().topLeft();
-      QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      m_parent->getUIController()->addNodeFromPreset(graphPath, m_results[m_currentIndex], scenePos);
+      addNodeFromPath(m_results[m_currentIndex]);
     }
     hide();
     event->accept();
@@ -202,7 +201,7 @@ bool DFGTabSearchWidget::focusNextPrevChild(bool next)
 
 void DFGTabSearchWidget::updateSearch()
 {
-  m_results = m_parent->getUIController()->getPresetPathsFromSearch(m_search);
+  m_results = m_parent->getUIController()->getPresetPathsFromSearch(m_search.toUtf8().constData());
   if(m_results.size() > 16)
   {
     QStringList lessResults;
@@ -309,4 +308,67 @@ int DFGTabSearchWidget::widthFromResults() const
 int DFGTabSearchWidget::heightFromResults() const
 {
   return (m_results.length() + 1) * m_metrics.lineSpacing() + 2 * margin();
+}
+
+void DFGTabSearchWidget::addNodeFromPath(QString path)
+{
+  QPoint localPos = geometry().topLeft();
+  QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
+
+  // deal with special case
+  if(path == "var")
+  {
+    DFGController * controller = m_parent->getUIController();
+    FabricCore::Client client = controller->getClient();
+    FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+
+    DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString name = dialog.name();
+    if(name.length() == 0)
+      return;
+    QString dataType = dialog.dataType();
+    QString extension = dialog.extension();
+
+    controller->addDFGVar(
+      name.toUtf8().constData(), 
+      dataType.toUtf8().constData(), 
+      extension.toUtf8().constData(), 
+      scenePos
+      );
+  }
+  else if(path == "get")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "get", "", scenePos
+      );
+  }
+  else if(path == "set")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "set", "", scenePos
+      );
+  }
+  else if(path.left(4) == "get.")
+  {
+    m_parent->getUIController()->addDFGGet(
+      "get",
+      path.mid(4).toUtf8().constData(), scenePos
+      );
+  }
+  else if(path.left(4) == "set.")
+  {
+    m_parent->getUIController()->addDFGSet(
+      "set",
+      path.mid(4).toUtf8().constData(), scenePos
+      );
+  }
+  else
+  {
+    m_parent->getUIController()->addDFGNodeFromPreset(
+      path.toUtf8().constData(), scenePos
+      );
+  }
 }

@@ -1,23 +1,22 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Controller.h"
-#include "Graph.h"
-#include "Node.h"
-#include "Pin.h"
-#include "Port.h"
-#include "Connection.h"
-#include "ConnectionTarget.h"
-#include "Commands/AddNodeCommand.h"
-#include "Commands/RemoveNodeCommand.h"
-#include "Commands/RenameNodeCommand.h"
-#include "Commands/Command.h"
-#include "Commands/AddPinCommand.h"
-#include "Commands/RemovePinCommand.h"
-#include "Commands/AddConnectionCommand.h"
-#include "Commands/RemoveConnectionCommand.h"
-#include "Commands/AddPortCommand.h"
-#include "Commands/RemovePortCommand.h"
-#include "Commands/RenamePortCommand.h"
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/ConnectionTarget.h>
+#include <FabricUI/GraphView/Commands/AddNodeCommand.h>
+#include <FabricUI/GraphView/Commands/RemoveNodeCommand.h>
+#include <FabricUI/GraphView/Commands/RenameNodeCommand.h>
+#include <FabricUI/GraphView/Commands/AddPinCommand.h>
+#include <FabricUI/GraphView/Commands/RemovePinCommand.h>
+#include <FabricUI/GraphView/Commands/AddConnectionCommand.h>
+#include <FabricUI/GraphView/Commands/RemoveConnectionCommand.h>
+#include <FabricUI/GraphView/Commands/AddPortCommand.h>
+#include <FabricUI/GraphView/Commands/RemovePortCommand.h>
+#include <FabricUI/GraphView/Commands/RenamePortCommand.h>
 
 using namespace FabricUI::GraphView;
 using namespace FabricServices::Commands;
@@ -84,21 +83,13 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNodeFromPreset(QString preset, QPointF pos)
+Node * Controller::addNode(
+  FTL::CStrRef name,
+  FTL::CStrRef title,
+  QPointF pos
+  )
 {
-  QString path;
-  if(preset.length() == 0)
-  {
-    path = graph()->path() + graph()->config().pathSep + "Node";
-  }
-  else
-  {
-    QStringList parts = preset.split(graph()->config().pathSep);
-    path = graph()->path() + graph()->config().pathSep + parts[parts.count()-1];
-  }
-  path = graph()->getUniquePath(path);
-
-  AddNodeCommand * command = new AddNodeCommand(this, path, preset, pos);
+  AddNodeCommand * command = new AddNodeCommand(this, name, title, pos);
   if(!addCommand(command))
   {
     delete(command);
@@ -109,7 +100,8 @@ Node * Controller::addNodeFromPreset(QString preset, QPointF pos)
 
 bool Controller::removeNode(Node * node)
 {
-  RemoveNodeCommand * command = new RemoveNodeCommand(this, node->path());
+  RemoveNodeCommand * command =
+    new RemoveNodeCommand(this, node->name().c_str());
   if(!addCommand(command))
   {
     delete(command);
@@ -127,11 +119,11 @@ bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
-bool Controller::renameNode(Node * node, QString title)
+bool Controller::renameNode(Node * node, FTL::StrRef title)
 {
-  if(node->title() == title)
+  if(title == node->title())
     return false;
-  RenameNodeCommand * command = new RenameNodeCommand(this, node, title);
+  RenameNodeCommand * command = new RenameNodeCommand(this, node, title.data());
   if(!addCommand(command))
   {
     delete(command);
@@ -162,9 +154,9 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-Pin * Controller::addPin(Node * node, QString name, PortType pType, QColor color, QString dataType)
+Pin * Controller::addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
 {
-  AddPinCommand * command = new AddPinCommand(this, node, name, pType, color, dataType);
+  AddPinCommand * command = new AddPinCommand(this, node, name.data(), pType, color, dataType.data());
 
   if(addCommand(command))
     return command->getPin();
@@ -184,9 +176,9 @@ bool Controller::removePin(Pin * pin)
   return false;
 }
 
-Port * Controller::addPort(QString name, PortType pType, QColor color, QString dataType)
+Port * Controller::addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
 {
-  AddPortCommand * command = new AddPortCommand(this, name, pType, color, dataType);
+  AddPortCommand * command = new AddPortCommand(this, name.data(), pType, color, dataType.data());
 
   if(addCommand(command))
     return command->getPort();
@@ -252,11 +244,11 @@ Port * Controller::addPortFromPin(Pin * pin, PortType pType)
   return port;
 }
 
-bool Controller::renamePort(Port * port, QString title)
+bool Controller::renamePort(Port * port, FTL::StrRef title)
 {
-  if(port->name() == title)
+  if(title == port->name())
     return false;
-  RenamePortCommand * command = new RenamePortCommand(this, port, title);
+  RenamePortCommand * command = new RenamePortCommand(this, port, title.data());
   if(!addCommand(command))
   {
     delete(command);
@@ -338,74 +330,6 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
 }
 
-bool Controller::canConnectTo(QString pathA, QString pathB, QString &failureReason)
-{
-  if(!m_graph)
-  {
-    failureReason = "no graph";
-    return false;
-  }
-  QString relPathA = GraphView::relativePath(m_graph->path(), pathA);
-  QString relPathB = GraphView::relativePath(m_graph->path(), pathB);
-  QString dataTypeA;
-  QString dataTypeB;
-
-  if(relPathA.indexOf('.') == -1)
-  {
-    GraphView::Port * port = m_graph->port(relPathA);
-    if(port)
-      dataTypeA = port->dataType();
-  }
-  else
-  {
-    QStringList parts = relPathA.split('.');
-    if(parts.length() == 2)
-    {
-      GraphView::Node * node = m_graph->node(parts[0]);
-      if(node)
-      {
-        GraphView::Pin * pin = node->pin(parts[1]);
-        if(pin)
-        {
-          dataTypeA = pin->dataType();
-        }
-      }
-    }
-  }
-
-  if(relPathB.indexOf('.') == -1)
-  {
-    GraphView::Port * port = m_graph->port(relPathB);
-    if(port)
-      dataTypeB = port->dataType();
-  }
-  else
-  {
-    QStringList parts = relPathB.split('.');
-    if(parts.length() == 2)
-    {
-      GraphView::Node * node = m_graph->node(parts[0]);
-      if(node)
-      {
-        GraphView::Pin * pin = node->pin(parts[1]);
-        if(pin)
-        {
-          dataTypeB = pin->dataType();
-        }
-      }
-    }
-  }
-
-  if(dataTypeA == dataTypeB)
-    return true;
-
-  if(dataTypeA == "" || dataTypeB == "")
-    return true;
-
-  failureReason = "type mismatch";
-  return false;
-}
-
 bool Controller::addCommand(Command * command)
 {
   if(!command)
@@ -421,9 +345,10 @@ bool Controller::clearCommands()
   return true;
 }
 
-void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, QString toolName)
+void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
 {
-  if(toolName == "node_collapse")
+  FTL::StrRef toolNameRef(toolName);
+  if(toolNameRef == "node_collapse")
   {
     node->toggleCollapsedState();
     if(m_graph)
@@ -434,4 +359,13 @@ void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, QString too
       }
     }    
   }
+}
+
+bool Controller::canConnectTo(
+  char const *pathA,
+  char const *pathB,
+  std::string &failureReason
+  )
+{
+  return true;
 }

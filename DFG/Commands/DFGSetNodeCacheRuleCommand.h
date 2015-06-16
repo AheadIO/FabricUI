@@ -16,25 +16,23 @@ namespace FabricUI
     {
     public:
 
-      DFGSetNodeCacheRuleCommand(DFGController * controller, QString path, FEC_DFGCacheRule rule);
+      DFGSetNodeCacheRuleCommand(DFGController * controller, char const * path, FEC_DFGCacheRule rule);
 
       virtual const char * getName() const { return "dfgSetNodeCacheRule"; }
       virtual const char * getShortDesc() const { return "Changes the cache rule for a given node."; }
       virtual const char * getFullDesc() const { return "Changes the cache rule for a given node."; }
 
-      QString getPath() const;
+      char const * getPath() const;
       FEC_DFGCacheRule getRule() const;
-      QString getRuleName() const;
+      char const * getRuleName() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      QString m_nodePath;
+      std::string m_nodePath;
       FEC_DFGCacheRule m_rule;
 
     };

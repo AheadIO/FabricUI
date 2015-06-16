@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGSetArgCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,8 +17,18 @@ namespace FabricUI
     {
     public:
 
-      DFGSetArgCommand(DFGController * controller, QString argName, QString dataType, QString json = "");
-      DFGSetArgCommand(DFGController * controller, QString argName, FabricCore::RTVal value);
+      DFGSetArgCommand(
+        DFGController * controller,
+        FTL::StrRef argName,
+        FTL::StrRef dataType,
+        FTL::StrRef json = FTL::StrRef()
+        );
+      
+      DFGSetArgCommand(
+        DFGController * controller,
+        FTL::StrRef argName,
+        FabricCore::RTVal value
+        );
 
       virtual const char * getName() const { return "dfgSetArg"; }
       virtual const char * getShortDesc() const { return "Binds a new value to a port."; }
@@ -32,8 +42,6 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

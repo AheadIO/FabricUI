@@ -3,19 +3,25 @@
 #include "PresetTreeWidget.h"
 #include "NameSpaceTreeItem.h"
 #include "PresetTreeItem.h"
-#include <FTL/Str.h>
+#include "VariableListTreeItem.h"
+
+#include <FTL/JSONValue.h>
 #include <FTL/MapCharSingle.h>
+#include <FTL/Str.h>
 
 #include <QtGui/QVBoxLayout>
 
 using namespace FabricServices;
-using namespace FabricServices::DFGWrapper;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-PresetTreeWidget::PresetTreeWidget(QWidget * parent, Host * host, const DFGConfig & config)
-: QWidget(parent)
-, m_host(host)
+PresetTreeWidget::PresetTreeWidget(
+  QWidget * parent,
+  FabricCore::DFGHost const &coreDFGHost,
+  const DFGConfig & config
+  )
+  : QWidget( parent )
+  , m_coreDFGHost( coreDFGHost )
 {
   m_searchEdit = new QLineEdit(this);
   m_treeView = new TreeView::TreeViewWidget(this);
@@ -47,9 +53,16 @@ PresetTreeWidget::~PresetTreeWidget()
 {
 }
 
-void PresetTreeWidget::setHost(FabricServices::DFGWrapper::Host * host)
+void PresetTreeWidget::setHost( FabricCore::DFGHost const &coreDFGHost )
 {
-  m_host = host;
+  m_coreDFGHost = coreDFGHost;
+  refresh();
+}
+
+void PresetTreeWidget::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
+{
+  m_coreDFGBinding = coreDFGBinding;
+  refresh();
 }
 
 void PresetTreeWidget::refresh()
@@ -60,32 +73,44 @@ void PresetTreeWidget::refresh()
   if(search.length() != 0 && m_state.length() == 0)
     m_state = m_treeView->state();
 
-  if(!m_host)
+  if(!m_coreDFGHost.isValid())
     return;
 
   m_treeModel->clear();
 
   if(search.length() == 0)
   {
-    std::vector<NameSpace> & nameSpaces = m_host->getRootNameSpace().getNameSpaces();
-    for(size_t i=0;i<nameSpaces.size();i++)
+    std::map<std::string, std::string> nameSpaceLookup;
+    std::map<std::string, std::string> presetLookup;
+
+    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc("");
+    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+
+    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
     {
-      m_treeModel->addItem(new NameSpaceTreeItem(nameSpaces[i]));
-    }
-    std::vector<Graph> & graphs = m_host->getRootNameSpace().getGraphs();
-    for(size_t i=0;i<graphs.size();i++)
-    {
-      m_treeModel->addItem(new PresetTreeItem(graphs[i]));
-    }
-    std::vector<Func> & functions = m_host->getRootNameSpace().getFuncs();
-    for(size_t i=0;i<functions.size();i++)
-    {
-      m_treeModel->addItem(new PresetTreeItem(functions[i]));
+      std::string name = memberIter.getKey()->getStringData();
+      const FabricCore::Variant * memberVar = memberIter.getValue();
+      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+      std::string objectType = objectTypeVar->getStringData();
+      if(objectType == "Preset")
+      {
+        presetLookup.insert(std::pair<std::string, std::string>(name, name));
+      }
+      else if(objectType == "NameSpace")
+      {
+        nameSpaceLookup.insert(std::pair<std::string, std::string>(name, name));
+      }
     }
 
-    // todo: this should really be working.
-    //m_treeView->setState(m_state);
-    //m_state = "";
+    // also add the variable list item
+    m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding));
+
+    for(std::map<std::string, std::string>::iterator it=nameSpaceLookup.begin();it!=nameSpaceLookup.end();it++)
+      m_treeModel->addItem(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str()));
+
+    for(std::map<std::string, std::string>::iterator it=presetLookup.begin();it!=presetLookup.end();it++)
+      m_treeModel->addItem(new PresetTreeItem(it->second.c_str(), it->first.c_str()));
   }
   else
   {
@@ -116,20 +141,35 @@ void PresetTreeWidget::refresh()
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);
 
-    std::vector<NameSpace> & nameSpaces = m_host->getRootNameSpace().getNameSpaces();
-    for(size_t i=0;i<nameSpaces.size();i++)
+    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc("");
+    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+
+    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
     {
-      QString name = QString(nameSpaces[i].getName().c_str()) + ".";
+      FTL::StrRef name = memberIter.getKey()->getStringData();
+
       QStringList filters;
       for(size_t j=0;j<userDatas.size();j++)
       {
         QString match(userDatas[j]);
-        if(match.startsWith(name))
-          filters.append(match.right(match.length() - name.length()));
+        if(match.startsWith(name.data()))
+          filters.append(match.right(match.length() - name.size()));
       }
 
-      if(filters.length() > 0)
-        m_treeModel->addItem(new NameSpaceTreeItem(nameSpaces[i], filters));
+      if(filters.length() == 0)
+        continue;
+
+      // also add the variable list item
+      m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding, filters));
+
+      const FabricCore::Variant * memberVar = memberIter.getValue();
+      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+      std::string objectType = objectTypeVar->getStringData();
+      if(objectType == "NameSpace")
+      {
+        m_treeModel->addItem(new NameSpaceTreeItem(m_coreDFGHost, name.data(), name.data(), filters));
+      }
     }
 
     m_treeView->expandAll();
@@ -150,11 +190,46 @@ void PresetTreeWidget::updatePresetPathDB()
   m_presetPathDict.clear();
   m_presetPathDictSTL.clear();
 
-  std::vector<Object> & presets = m_host->getRootNameSpace().getPresets(true /*recursive*/);
-  m_presetPathDictSTL.resize(presets.size());
-  for(size_t i=0;i<presets.size();i++)
+  std::vector<std::string> paths;
+  paths.push_back("");
+
+  unsigned oldSize = paths.size() + 1;
+  for(unsigned int i=0;i<oldSize;i++)
   {
-    m_presetPathDictSTL[i] = presets[i].getPath();
+    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc("");
+    char const *jsonCStr;
+    uint32_t jsonSize;
+    jsonStringResult.getStringDataAndLength( jsonCStr, jsonSize );
+    FTL::CStrRef jsonStr( jsonCStr, jsonSize );
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+
+    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    FTL::JSONObject const *membersObject =
+      jsonObject->get( FTL_STR("members") )->cast<FTL::JSONObject>();
+
+    for ( FTL::JSONObject::const_iterator it = membersObject->begin();
+      it != membersObject->end(); ++it )
+    {
+      FTL::CStrRef name = it->first;
+      FTL::JSONObject const *memberObject =
+        it->second->cast<FTL::JSONObject>();
+      FTL::CStrRef objectType =
+        memberObject->getString( FTL_STR("objectType") );
+      if(objectType == FTL_STR("Preset"))
+      {
+        m_presetPathDictSTL.push_back(paths[i] + std::string(".") + name.c_str());
+      }
+      else if(objectType == FTL_STR("NameSpace"))
+      {
+        paths.push_back(paths[i] + std::string(".") + name.c_str());
+      }
+    }
+  }
+
+  for(size_t i=0;i<m_presetPathDictSTL.size();i++)
+  {
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
   }
 }

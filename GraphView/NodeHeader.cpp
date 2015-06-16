@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "NodeHeader.h"
-#include "Node.h"
-#include "NodeLabel.h"
-#include "Graph.h"
+#include <FabricUI/GraphView/NodeHeader.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeLabel.h>
+#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QPushButton>
@@ -11,7 +11,10 @@
 
 using namespace FabricUI::GraphView;
 
-NodeHeader::NodeHeader(Node * parent, QString text)
+NodeHeader::NodeHeader(
+  Node * parent,
+  QString const &text
+  )
 : QGraphicsWidget(parent->mainWidget())
 {
   m_node = parent;
@@ -46,14 +49,9 @@ const Node * NodeHeader::node() const
   return m_node;
 }
 
-QString NodeHeader::title() const
+void NodeHeader::setTitle(QString const &title)
 {
-  return m_title->text();
-}
-
-void NodeHeader::setTitle(QString t)
-{
-  m_title->setText(t);
+  m_title->setText(title);
 }
 
 bool NodeHeader::highlighted() const

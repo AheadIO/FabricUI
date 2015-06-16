@@ -6,8 +6,8 @@
 #include <QtCore/QPoint>
 #include <QtGui/QAction>
 
-#include <TreeView/TreeViewWidget.h>
-#include <TreeView/TreeItem.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeItem.h>
 
 namespace FabricUI
 {

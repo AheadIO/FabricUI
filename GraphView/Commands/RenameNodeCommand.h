@@ -15,7 +15,7 @@ namespace FabricUI
     {
     public:
 
-      RenameNodeCommand(Controller * controller, Node * node, QString title);
+      RenameNodeCommand(Controller * controller, Node * node, char const * title);
       virtual ~RenameNodeCommand();
 
       virtual const char * getName() const { return "RenameNode"; }
@@ -29,9 +29,9 @@ namespace FabricUI
 
       virtual Node * getNode();
 
-      QString m_path;
-      QString m_newTitle;
-      QString m_oldTitle;
+      std::string m_path;
+      std::string m_newTitle;
+      std::string m_oldTitle;
 
     };
 

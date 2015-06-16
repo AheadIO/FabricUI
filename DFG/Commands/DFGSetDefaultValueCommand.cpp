@@ -2,18 +2,17 @@
 
 #include "DFGSetDefaultValueCommand.h"
 
-#include <DFGWrapper/KLTypeDesc.h>
-#include <DFGWrapper/InstPort.h>
-#include <GraphView/Graph.h>
+#include <CodeCompletion/KLTypeDesc.h>
+#include <FabricUI/GraphView/Graph.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, QString path, FabricCore::RTVal value)
+DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, char const * path, FabricCore::RTVal value)
 : DFGCommand(controller)
 {
-  m_path = path.toUtf8().constData();
+  m_path = path;
   m_value = value;
   m_dataType = m_value.getTypeName().getStringCString();
   m_json = m_value.getJSON().getStringCString();
@@ -24,40 +23,15 @@ bool DFGSetDefaultValueCommand::invoke()
   if(!m_value.isValid())
     return false;
 
-  DFGView * view = (DFGView *)((DFGController*)controller())->getView();
-  DFGWrapper::GraphExecutablePtr graph = view->getGraph();
-  DFGWrapper::PortPtr port = DFGWrapper::Port::Create(
-    graph->getDFGBinding(), graph->getExecPath(), graph->getDFGExec(), m_path.c_str());
-  if(!port)
-    return false;
-  if(port->isNodePort())
-  {
-    DFGWrapper::NodePortPtr nodePort = DFGWrapper::NodePortPtr::StaticCast(port);
-    if ( nodePort->isInstPort() )
-    {
-      DFGWrapper::InstPortPtr instPort =
-        DFGWrapper::InstPortPtr::StaticCast( nodePort);
-      instPort->setDefaultValue(m_value);
-    }
-  }
+  DFGController * ctrl = (DFGController*)controller();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+
+  if(m_path.find('.') != std::string::npos)
+    graph.setPortDefaultValue(m_path.c_str(), m_value);
   else
-  {
-    DFGWrapper::ExecPortPtr execPort = DFGWrapper::ExecPortPtr::StaticCast(port);
-    execPort->setDefaultValue(m_value);
-  }
+    graph.setPortDefaultValue(m_path.c_str(), m_value);
+
   return true;
-}
-
-bool DFGSetDefaultValueCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();  
-}
-
-bool DFGSetDefaultValueCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
 }
 
 const char * DFGSetDefaultValueCommand::getPath() const

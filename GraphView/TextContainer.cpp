@@ -6,7 +6,13 @@
 
 using namespace FabricUI::GraphView;
 
-TextContainer::TextContainer(QGraphicsWidget * parent, QString text, QColor color, QColor hlColor, QFont font)
+TextContainer::TextContainer(
+  QGraphicsWidget * parent,
+  QString const &text,
+  QColor color,
+  QColor hlColor,
+  QFont font
+  )
 : QGraphicsWidget(parent)
 {
   m_color = color;
@@ -14,7 +20,7 @@ TextContainer::TextContainer(QGraphicsWidget * parent, QString text, QColor colo
   m_highlightColor = hlColor;
   m_highlighted = false;
   
-  m_textItem = new QGraphicsSimpleTextItem(m_text, this);
+  m_textItem = new QGraphicsSimpleTextItem(text, this);
   m_textItem->setPen(QPen(Qt::NoPen));
   m_textItem->setBrush(color);
   m_textItem->setFont(font);
@@ -22,17 +28,11 @@ TextContainer::TextContainer(QGraphicsWidget * parent, QString text, QColor colo
   setWindowFrameMargins(0, 0, 0, 0);
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-  setText( text );
+  refresh();
 }
 
-QString TextContainer::text() const
+void TextContainer::setText(QString const &text)
 {
-  return m_text;
-}
-
-void TextContainer::setText(QString text)
-{
-  m_text = text;
   m_textItem->setText(text);
   refresh();
 }
@@ -40,7 +40,7 @@ void TextContainer::setText(QString text)
 void TextContainer::refresh()
 {
   QFontMetrics metrics( m_font );
-  QSize size = metrics.size( Qt::TextSingleLine, m_text );
+  QSize size = metrics.size( Qt::TextSingleLine, m_textItem->text() );
   prepareGeometryChange();
   setPreferredWidth(size.width());
   setPreferredHeight(size.height());

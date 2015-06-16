@@ -9,6 +9,8 @@
 #include <QtGui/QShowEvent>
 
 #include "DFGBaseDialog.h"
+#include "DFGRegisteredTypeLineEdit.h"
+#include "DFGExtensionLineEdit.h"
 
 namespace FabricUI
 {
@@ -21,7 +23,7 @@ namespace FabricUI
 
     public:
 
-      DFGEditPortDialog(QWidget * parent, bool showPortType, const DFGConfig & dfgConfig = DFGConfig());
+      DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, const DFGConfig & dfgConfig = DFGConfig());
       virtual ~DFGEditPortDialog();
 
       QString portType() const;
@@ -60,8 +62,8 @@ namespace FabricUI
 
       QComboBox * m_portTypeCombo;
       QLineEdit * m_titleEdit;
-      QLineEdit * m_dataTypeEdit;
-      QLineEdit * m_extensionEdit;
+      DFGRegisteredTypeLineEdit * m_dataTypeEdit;
+      DFGExtensionLineEdit * m_extensionEdit;
       QCheckBox * m_native;
       QComboBox * m_visibilityCombo;
       QCheckBox * m_hasRange;

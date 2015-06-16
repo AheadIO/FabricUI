@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGAddPortCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,13 +17,17 @@ namespace FabricUI
     {
     public:
 
-      DFGAddPortCommand(DFGController * controller, QString execPath, QString name, GraphView::PortType pType, QString dataType);
+      DFGAddPortCommand(
+        DFGController * controller,
+        FTL::StrRef name,
+        GraphView::PortType pType,
+        FTL::StrRef dataType
+        );
 
       virtual const char * getName() const { return "dfgAddPort"; }
       virtual const char * getShortDesc() const { return "Adds a port."; }
       virtual const char * getFullDesc() const { return "Adds a port on a graph as an external port."; }
 
-      const char * getExecPath() const;
       const char * getPortName() const;
       GraphView::PortType getPortType() const;
       const char * getDataType() const;
@@ -32,12 +36,9 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      std::string m_execPath;
       std::string m_portTitle;
       std::string m_portPath;
       GraphView::PortType m_portType;

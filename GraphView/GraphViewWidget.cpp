@@ -11,8 +11,12 @@
 
 using namespace FabricUI::GraphView;
 
-GraphViewWidget::GraphViewWidget(QWidget * parent, const GraphConfig & config, GraphFactory * factory, Graph * graph)
-: QGraphicsView(parent)
+GraphViewWidget::GraphViewWidget(
+  QWidget * parent,
+  const GraphConfig & config,
+  Graph * graph
+  )
+  : QGraphicsView(parent)
 {
   setRenderHint(QPainter::Antialiasing);
   // setRenderHint(QPainter::HighQualityAntialiasing);
@@ -67,8 +71,8 @@ void GraphViewWidget::setGraph(Graph * graph)
   m_graph = graph;
   if(m_graph)
   {
-    m_scene->addItem(m_graph);
     m_graph->setGeometry(0, 0, size().width(), size().height());
+    m_scene->addItem(m_graph);
   }
 }
 
@@ -97,14 +101,16 @@ void GraphViewWidget::dropEvent(QDropEvent *event)
   m_lastEventPos = event->pos();
 
   // event->mimeData()->text()
-  QString preset = event->mimeData()->text();
+  QString presetQString = event->mimeData()->text();
+  FTL::CStrRef presetCStr = presetQString.toUtf8().constData();
+  FTL::CStrRef nameCStr = presetCStr.rsplit('.').second;
 
   graph()->controller()->beginInteraction();
 
   QPointF pos(event->pos().x(), event->pos().y());
   pos = graph()->itemGroup()->mapFromScene(pos);
 
-  Node * node = graph()->controller()->addNodeFromPreset(preset, pos);
+  Node * node = graph()->controller()->addNode(nameCStr, nameCStr, pos);
 
   graph()->controller()->endInteraction();
 

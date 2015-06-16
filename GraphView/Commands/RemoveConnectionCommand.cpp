@@ -15,7 +15,7 @@ RemoveConnectionCommand::RemoveConnectionCommand(Controller * controller, Connec
   }
   else
   {
-    m_srcPath = ((Pin*)src)->node()->path();
+    m_srcPath = ((Pin*)src)->node()->name();
     m_srcName = ((Pin*)src)->name();
   }
 
@@ -27,7 +27,7 @@ RemoveConnectionCommand::RemoveConnectionCommand(Controller * controller, Connec
   }
   else
   {
-    m_dstPath = ((Pin*)dst)->node()->path();
+    m_dstPath = ((Pin*)dst)->node()->name();
     m_dstName = ((Pin*)dst)->name();
   }
 }
@@ -43,13 +43,13 @@ ConnectionTarget * RemoveConnectionCommand::getSrcTarget()
     SidePanel * panel = controller()->graph()->sidePanel(PortType_Output);
     if(!panel)
       return NULL;
-    return panel->port(m_srcName);
+    return panel->port(m_srcName.c_str());
   }
 
-  Node * node = controller()->graph()->nodeFromPath(m_srcPath);
+  Node * node = controller()->graph()->nodeFromPath(m_srcPath.c_str());
   if(!node)
     return NULL;
-  return node->pin(m_srcName);
+  return node->pin(m_srcName.c_str());
 }
 
 ConnectionTarget * RemoveConnectionCommand::getDstTarget()
@@ -59,13 +59,13 @@ ConnectionTarget * RemoveConnectionCommand::getDstTarget()
     SidePanel * panel = controller()->graph()->sidePanel(PortType_Input);
     if(!panel)
       return NULL;
-    return panel->port(m_dstName);
+    return panel->port(m_dstName.c_str());
   }
 
-  Node * node = controller()->graph()->nodeFromPath(m_dstPath);
+  Node * node = controller()->graph()->nodeFromPath(m_dstPath.c_str());
   if(!node)
     return NULL;
-  return node->pin(m_dstName);
+  return node->pin(m_dstName.c_str());
 }
 
 bool RemoveConnectionCommand::invoke()

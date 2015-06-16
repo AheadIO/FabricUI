@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Node.h"
-#include "NodeToolbar.h"
-#include "NodeRectangle.h"
-#include "Graph.h"
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeToolbar.h>
+#include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -14,34 +14,33 @@
 
 using namespace FabricUI::GraphView;
 
-Node::Node(Graph * parent, QString path, QString label, QColor color, QColor labelColor)
-: QGraphicsWidget(parent->itemGroup())
+Node::Node(
+  Graph * parent,
+  FTL::CStrRef name,
+  FTL::CStrRef title,
+  QColor color,
+  QColor titleColor
+  )
+  : QGraphicsWidget( parent->itemGroup() )
+  , m_graph( parent )
+  , m_name( name )
+  , m_title( title )
 {
-  m_graph = parent;
-  m_path = path;
-  m_labelCaption = label;
-  if(m_labelCaption.length() == 0)
-    m_labelCaption = name();
-  else
-  {
-    QStringList parts = m_labelCaption.split(m_graph->config().pathSep);
-    m_labelCaption = parts[parts.count()-1];
-  }
-
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
   m_cornerRadius = m_graph->config().nodeCornerRadius;
   m_collapsedState = CollapseState_Expanded;
+  m_col = 0;
 
   if(color.isValid())
     setColor(color);
   else
     setColor(m_graph->config().nodeDefaultColor);
-  if(labelColor.isValid())
-    setLabelColor(labelColor);
+  if(titleColor.isValid())
+    setTitleColor(titleColor);
   else
-    setLabelColor(m_graph->config().nodeDefaultLabelColor);
+    setTitleColor(m_graph->config().nodeDefaultLabelColor);
 
   float contentMargins = m_graph->config().nodeContentMargins;
 
@@ -66,7 +65,7 @@ Node::Node(Graph * parent, QString path, QString label, QColor color, QColor lab
   layout->setOrientation(Qt::Vertical);
   m_mainWidget->setLayout(layout);
 
-  m_header = new NodeHeader(this, title());
+  m_header = new NodeHeader(this, QString( title.c_str() ));
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
@@ -129,31 +128,10 @@ const NodeHeader * Node::header() const
   return m_header;
 }
 
-QString Node::path() const
+void Node::setTitle( FTL::CStrRef title )
 {
-  return m_path;
-}
-
-QString Node::name() const
-{
-  QStringList parts = m_path.split(m_graph->config().pathSep);
-  return parts[parts.count()-1];
-}
-
-QString Node::title() const
-{
-  return m_labelCaption;
-}
-
-void Node::setTitle(QString t)
-{
-  m_labelCaption = t;
-  m_header->setTitle(t);
-}
-
-QString Node::preset() const
-{
-  return m_preset;
+  m_title = title;
+  m_header->setTitle( QString( title.c_str() ) );
 }
 
 QColor Node::color() const
@@ -174,14 +152,14 @@ void Node::setColorAsGradient(QColor a, QColor b)
     m_defaultPen.setBrush(m_colorB.darker());
 }
 
-QColor Node::labelColor() const
+QColor Node::titleColor() const
 {
-  return m_labelColor;
+  return m_titleColor;
 }
 
-void Node::setLabelColor(QColor col)
+void Node::setTitleColor(QColor col)
 {
-  m_labelColor = col;
+  m_titleColor = col;
 }
 
 QPen Node::defaultPen() const
@@ -238,11 +216,6 @@ void Node::setCollapsedState(Node::CollapseState state)
 void Node::toggleCollapsedState()
 {
   setCollapsedState(CollapseState((int(m_collapsedState) + 1) % int(CollapseState_NumStates)));
-}
-
-void Node::setPreset(QString p)
-{
-  m_preset = p;
 }
 
 void Node::setSelected(bool state, bool quiet)
@@ -493,11 +466,11 @@ Pin * Node::pin(unsigned int index)
   return m_pins[index];
 }
 
-Pin * Node::pin(QString name)
+Pin * Node::pin(FTL::StrRef name)
 {
   for(unsigned int i=0;i<m_pins.size();i++)
   {
-    if(m_pins[i]->name() == name)
+    if(name == m_pins[i]->name())
       return m_pins[i];
   }
   return NULL;

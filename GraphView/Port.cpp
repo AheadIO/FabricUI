@@ -1,29 +1,33 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Port.h"
-#include "SidePanel.h"
-#include "Graph.h"
-#include "Pin.h"
-#include "GraphConfig.h"
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/SidePanel.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/GraphConfig.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 
 using namespace FabricUI::GraphView;
 
-Port::Port(SidePanel * parent, QString name, PortType portType, QString dataType, QColor color, QString label)
-: ConnectionTarget(parent)
+Port::Port(
+  SidePanel * parent,
+  FTL::StrRef name,
+  PortType portType,
+  FTL::StrRef dataType,
+  QColor color,
+  FTL::StrRef label
+  )
+  : ConnectionTarget( parent )
+  , m_sidePanel( parent )
+  , m_name( name )
+  , m_labelCaption( !label.empty()? label: name )
 {
-  m_sidePanel = parent;
-  m_name = parent->getUniqueName(name);
-  m_path = m_name;
   // if(parent->graph()->path().length() > 0)
   //   m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;
   m_portType = portType;
   m_dataType = dataType;
   m_color = color;
-  m_labelCaption = label;
-  if(m_labelCaption.length() == 0)
-    m_labelCaption = m_name;
 
   init();
 }
@@ -40,7 +44,7 @@ void Port::init()
   layout->setOrientation(Qt::Horizontal);
   setLayout(layout);
 
-  m_label = new TextContainer(this, m_labelCaption, config.sidePanelFontColor, config.sidePanelFontHighlightColor, config.sidePanelFont);
+  m_label = new TextContainer(this, m_labelCaption.c_str(), config.sidePanelFontColor, config.sidePanelFontHighlightColor, config.sidePanelFont);
   m_circle = new PinCircle(this, m_portType, color());
 
   if(m_portType == PortType_Input)
@@ -91,38 +95,26 @@ const PinCircle * Port::circle() const
   return m_circle;
 }
 
-QString Port::name() const
-{
-  return m_name;
-}
-
-void Port::setName(QString n)
+void Port::setName( FTL::CStrRef name )
 {
   if(m_name == m_labelCaption)
   {
-    m_labelCaption = m_sidePanel->getUniqueName(n, true /* isLabel */);
-    m_label->setText(m_labelCaption);
+    m_labelCaption = name;
+    m_label->setText(m_labelCaption.c_str());
   }
-  m_name = n;
-  // m_path = graph()->path() + graph()->config().pathSep + m_name;
-  m_path = m_name;
+  m_name = name;
   update();
 }
 
-QString Port::path() const
+char const * Port::label() const
 {
-  return m_path;
+  return m_labelCaption.c_str();
 }
 
-QString Port::label() const
+void Port::setLabel(char const * n)
 {
-  return m_labelCaption;
-}
-
-void Port::setLabel(QString n)
-{
-  m_labelCaption = m_sidePanel->getUniqueName(n, true /* isLabel */);
-  m_label->setText(m_labelCaption);
+  m_labelCaption = n;
+  m_label->setText(m_labelCaption.c_str());
   update();
 }
 
@@ -136,15 +128,10 @@ PortType Port::portType() const
   return m_portType;
 }
 
-QString Port::dataType() const
+void Port::setDataType(FTL::CStrRef dataType)
 {
-  return m_dataType;
-}
-
-void Port::setDataType(QString dt)
-{
-  m_dataType = dt;
-  setToolTip(dt);
+  m_dataType = dataType;
+  setToolTip(m_dataType.c_str());
 }
 
 void Port::setColor(QColor color)
@@ -170,7 +157,7 @@ void Port::setHighlighted(bool state)
 
 bool Port::canConnectTo(
   ConnectionTarget * other,
-  QString &failureReason
+  std::string &failureReason
   ) const
 {
   switch(other->targetType())
@@ -182,7 +169,11 @@ bool Port::canConnectTo(
         || portType() == PortType_Input
         || otherPin->portType() == PortType_Output )
         return false;
-      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPin->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(
+        path().c_str(),
+        otherPin->path().c_str(),
+        failureReason
+        );
     }
     case TargetType_Port:
     {
@@ -193,7 +184,11 @@ bool Port::canConnectTo(
         return false;
       if(path() == otherPort->path())
         return false;
-      return m_sidePanel->graph()->controller()->canConnectTo(path(), otherPort->path(), failureReason);
+      return m_sidePanel->graph()->controller()->canConnectTo(
+        path().c_str(),
+        otherPort->path().c_str(),
+        failureReason
+        );
     }
     default:
       return false;

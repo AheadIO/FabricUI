@@ -16,18 +16,18 @@ namespace FabricUI
     {
     public:
 
-      DFGExecPortListItem(QListWidget * parent, QString portType, QString dataType, QString name);
+      DFGExecPortListItem(QListWidget * parent, char const * portType, char const * dataType, char const * name);
       virtual ~DFGExecPortListItem();
 
-      QString portType() const;
-      QString dataType() const;
-      QString name() const;
+      char const * portType() const;
+      char const * dataType() const;
+      char const * name() const;
 
     private:
 
-      QString m_portType;
-      QString m_dataType;
-      QString m_name;
+      std::string m_portType;
+      std::string m_dataType;
+      std::string m_name;
     };
 
   };

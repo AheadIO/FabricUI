@@ -1,28 +1,25 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGAddEmptyGraphCommand.h"
-#include <DFGWrapper/Inst.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGAddEmptyGraphCommand::DFGAddEmptyGraphCommand(DFGController * controller, QString path, QString title, QPointF pos)
-: DFGCommand(controller)
+DFGAddEmptyGraphCommand::DFGAddEmptyGraphCommand(
+  DFGController * controller,
+  char const * title,
+  QPointF pos
+  )
+  : DFGCommand(controller)
+  , m_title( title )
+  , m_pos( pos )
 {
-  m_path = path.toUtf8().constData();
-  m_title = title.toUtf8().constData();
-  m_pos = pos;
 }
 
-std::string DFGAddEmptyGraphCommand::getPath() const
+char const * DFGAddEmptyGraphCommand::getTitle() const
 {
-  return m_path;
-}
-
-std::string DFGAddEmptyGraphCommand::getTitle() const
-{
-  return m_title;
+  return m_title.c_str();
 }
 
 QPointF DFGAddEmptyGraphCommand::getPos() const
@@ -30,9 +27,9 @@ QPointF DFGAddEmptyGraphCommand::getPos() const
   return m_pos;
 }
 
-std::string DFGAddEmptyGraphCommand::getInstPath() const
+char const * DFGAddEmptyGraphCommand::getInstPath() const
 {
-  return m_instPath;
+  return m_instPath.c_str();
 }
 
 GraphView::Node * DFGAddEmptyGraphCommand::getNode()
@@ -46,10 +43,9 @@ GraphView::Node * DFGAddEmptyGraphCommand::getNode()
 bool DFGAddEmptyGraphCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
-  DFGWrapper::InstPtr inst = graph->addInstWithNewGraph(m_title.c_str());
-  inst->getExecutable()->setTitle(m_title.c_str());
-  m_instPath = inst->getNodeName();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+  m_instPath = graph.addInstWithNewGraph(m_title.c_str());
+  graph.setInstTitle(m_instPath.c_str(), m_title.c_str());
   if(ctrl->graph())
   {
     GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
@@ -57,43 +53,4 @@ bool DFGAddEmptyGraphCommand::invoke()
       ctrl->moveNode(uiNode, m_pos, false);
   }
   return true;
-}
-
-bool DFGAddEmptyGraphCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  if(ctrl->getHost()->maybeUndo())
-  {
-    if(ctrl->graph())
-    {
-      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
-      if(uiNode)
-      {
-        m_pos = uiNode->topLeftGraphPos();
-      }
-    }
-    return true;
-  }
-  return false;
-}
-
-bool DFGAddEmptyGraphCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  if(ctrl->getHost()->maybeRedo())
-  {
-    if(ctrl->graph())
-    {
-      GraphView::Node * uiNode = ctrl->graph()->nodeFromPath(m_instPath.c_str());
-      if(uiNode)
-      {
-        ctrl->moveNode(uiNode, m_pos, true);
-        return true;
-      }
-    }
-    else
-      return true;
-    return false;
-  }
-  return false;
 }

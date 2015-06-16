@@ -22,7 +22,11 @@ namespace FabricUI
 
     public:
 
-      GraphViewWidget(QWidget * parent, const GraphConfig & config = GraphConfig(), GraphFactory * factory = NULL, Graph * graph = NULL);
+      GraphViewWidget(
+        QWidget * parent,
+        const GraphConfig & config = GraphConfig(),
+        Graph * graph = NULL
+        );
 
       Graph * graph();
       const Graph * graph() const;

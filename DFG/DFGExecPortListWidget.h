@@ -3,9 +3,6 @@
 #ifndef __UI_DFG_DFGExecPortListWidget__
 #define __UI_DFG_DFGExecPortListWidget__
 
-#include <DFGWrapper/Host.h>
-#include <DFGWrapper/Executable.h>
-
 #include <QtGui/QWidget>
 #include <QtGui/QListWidget>
 
@@ -27,12 +24,12 @@ namespace FabricUI
       DFGExecPortListWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
       virtual ~DFGExecPortListWidget();
 
-      void setExec(FabricServices::DFGWrapper::ExecutablePtr exec);
+      void setExec(FabricCore::DFGExec exec);
       QString selectedItem() const;
 
     private:
 
-      FabricServices::DFGWrapper::ExecutablePtr m_exec;
+      FabricCore::DFGExec m_exec;
       DFGController * m_controller;
       QListWidget * m_list;
       DFGConfig m_config;

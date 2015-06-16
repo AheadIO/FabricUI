@@ -16,20 +16,18 @@ namespace FabricUI
     {
     public:
 
-      DFGPasteCommand(DFGController * controller, QString json = "");
+      DFGPasteCommand(DFGController * controller, char const * json = "");
 
       virtual const char * getName() const { return "dfgPaste"; }
       virtual const char * getShortDesc() const { return "Pastes nodes from clipboard to the graph."; }
       virtual const char * getFullDesc() const { return "Pastes nodes from clipboard to the graph."; }
 
-      std::string getJSON() const;
+      char const * getJSON() const;
       std::vector<std::string> getNodePaths() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

@@ -3,14 +3,11 @@
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
 
-#include <DFGWrapper/Host.h>
-#include <DFGWrapper/FuncExecutable.h>
-#include <GraphView/Controller.h>
-#include <GraphView/Node.h>
-#include <GraphView/Pin.h>
-#include <GraphView/Port.h>
-#include <ValueEditor/ValueItem.h>
-#include "DFGView.h"
+#include <FabricUI/GraphView/Controller.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/ValueEditor/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
@@ -22,6 +19,8 @@ namespace FabricUI
 
   namespace DFG
   {
+
+    class DFGNotificationRouter;
 
     class DFGController : public GraphView::Controller
     {
@@ -35,82 +34,119 @@ namespace FabricUI
 
       typedef void(*LogFunc)(const char * message);
 
-      DFGController(GraphView::Graph * graph, FabricServices::Commands::CommandStack * stack, FabricCore::Client * client, FabricServices::DFGWrapper::Host * host, FabricServices::ASTWrapper::KLASTManager * manager, bool overTakeBindingNotifications = true);
+      DFGController(
+        GraphView::Graph * graph,
+        FabricCore::Client client,
+        FabricServices::ASTWrapper::KLASTManager * manager,
+        FabricCore::DFGHost host,
+        FabricCore::DFGBinding binding,
+        FabricCore::DFGExec exec,
+        FabricServices::Commands::CommandStack * stack,
+        bool overTakeBindingNotifications = true
+        );
+      ~DFGController();
 
-      FabricServices::DFGWrapper::Host * getHost();
-      FabricServices::DFGWrapper::Binding getBinding();
-      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExec();
-      void setHost(FabricServices::DFGWrapper::Host * host);
-      FabricCore::Client * getClient();
-      void setClient(FabricCore::Client * client);
-      DFGView * getView();
-      void setView(DFGView * view);
+      FabricCore::Client const &getClient()
+        { return m_coreClient; }
+      FabricCore::DFGHost const &getCoreDFGHost()
+        { return m_coreDFGHost; }
+      FabricCore::DFGBinding const &getCoreDFGBinding()
+        { return m_coreDFGBinding; }
+      FabricCore::DFGExec getCoreDFGExec();
+
+      void setHost( FabricCore::DFGHost const &coreDFGHost );
+      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
+      void setClient( FabricCore::Client const &coreClient );
+      DFGNotificationRouter * getRouter();
+      void setRouter(DFGNotificationRouter * router);
       bool isViewingRootGraph();
       FabricServices::ASTWrapper::KLASTManager * astManager();
 
-      virtual QString addNodeFromPreset(QString path, QString preset, QPointF pos);
-      virtual QString addEmptyGraph(QString path, QString title, QPointF pos);
-      virtual QString addEmptyFunc(QString path, QString title, QPointF pos);
-      virtual bool removeNode(QString path);
+      virtual std::string addDFGNodeFromPreset(FTL::StrRef preset, QPointF pos);
+      virtual std::string addDFGVar(FTL::StrRef varName, FTL::StrRef dataType, FTL::StrRef extDep, QPointF pos);
+      virtual std::string addDFGGet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
+      virtual std::string addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
+      virtual std::string addEmptyGraph(char const * title, QPointF pos);
+      virtual std::string addEmptyFunc(char const * title, QPointF pos);
+      virtual bool removeNode(char const * path);
       virtual bool removeNode(GraphView::Node * node);
-      virtual bool renameNode(QString path, QString title);
-      virtual bool renameNode(GraphView::Node * node, QString title);
-      virtual GraphView::Pin * addPin(GraphView::Node * node, QString name, GraphView::PortType pType, QColor color, QString dataType = "");
+      virtual bool renameNode(char const * path, char const * title);
+      virtual bool renameNode(GraphView::Node * node, char const * title);
+      virtual GraphView::Pin * addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
-      virtual QString addPort(QString path, QString name, FabricCore::DFGPortType pType, QString dataType = "", bool setArgValue = true);
-      virtual QString addPort(QString path, QString name, GraphView::PortType pType, QString dataType = "", bool setArgValue = true);
-      virtual bool removePort(QString path, QString name);
+      virtual std::string addPort(
+        FTL::StrRef name,
+        FabricCore::DFGPortType pType,
+        FTL::StrRef dataType = FTL::StrRef(),
+        bool setArgValue = true
+        );
+      virtual std::string addPort(
+        FTL::StrRef name,
+        GraphView::PortType pType,
+        FTL::StrRef dataType = FTL::StrRef(),
+        bool setArgValue = true
+        );
+      virtual bool removePort(char const *  name);
       virtual GraphView::Port * addPortFromPin(GraphView::Pin * pin, GraphView::PortType pType);
-      virtual QString renamePort(QString path, QString title);
-      virtual bool addConnection(QString srcPath, QString dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual std::string renamePort(char const *  path, char const *  title);
+      virtual bool addConnection(char const *  srcPath, char const *  dstPath);
       virtual bool addConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeConnection(QString srcPath, QString dstPath, bool srcIsPin = true, bool dstIsPin = true);
+      virtual bool removeConnection(char const *srcPath, char const *dstPath);
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
-      virtual bool removeAllConnections(QString path, bool isPin = true);
-      virtual bool addExtensionDependency(QString extension, QString execPath, QString & errorMessage);
-      virtual bool setCode(QString path, QString code);
-      virtual QString reloadCode(QString path);
-      virtual bool setArg(QString argName, QString dataType, QString json = "");
-      virtual bool setArg(QString argName, FabricCore::RTVal value);
-      virtual bool setDefaultValue(QString path, FabricCore::RTVal value);
-      virtual bool setDefaultValue(QString path, QString dataType, QString json);
-      virtual QString exportJSON(QString path);
-      virtual bool setNodeCacheRule(QString path, FEC_DFGCacheRule rule);
+      virtual bool removeAllConnections(char const *  path);
+      virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
+      virtual bool setCode(char const *  path, char const *  code);
+      virtual std::string reloadCode(char const *  path);
+      virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
+      virtual bool setArg(char const *  argName, FabricCore::RTVal value);
+      virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
+      virtual bool setDefaultValue(char const *  path, char const *  dataType, char const *  json);
+      virtual std::string exportJSON(char const *  path);
+      virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
+      virtual bool setRefVarPath(char const *  path, char const * varPath);
 
-      virtual bool moveNode(QString path, QPointF pos, bool isTopLeftPos = false);
+      virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
 
-      virtual QString copy(QStringList paths = QStringList());
+      virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();
-      virtual QString implodeNodes(QString desiredName, QStringList paths = QStringList());
-      virtual QStringList explodeNode(QString path);
+      virtual std::string implodeNodes(char const * desiredName, QStringList paths = QStringList());
+      virtual QStringList explodeNode(char const * path);
 
-      virtual bool reloadExtensionDependencies(QString path);
+      virtual bool reloadExtensionDependencies(char const * path);
 
       virtual void log(const char * message);
       virtual void logError(const char * message);
 
       virtual void setLogFunc(LogFunc func);
 
-      virtual bool execute();
-      bool bindUnboundRTVals(std::string dataType = "");
+      virtual char const * getExecPath()
+        { return m_execPath.c_str(); }
+      virtual void setExecPath(char const * execPath)
+        { m_execPath = execPath; }
 
-      virtual bool canConnectTo(QString pathA, QString pathB, QString &failureReason);
+      virtual bool execute();
+      bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
+
+      virtual bool canConnectTo(
+        char const *pathA,
+        char const *pathB,
+        std::string &failureReason
+        );
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
 
-      FabricServices::DFGWrapper::NodePtr getNodeFromPath(const std::string & path);
-      FabricServices::DFGWrapper::InstPtr getInstFromPath(const std::string & path);
-      FabricServices::DFGWrapper::ExecutablePtr getExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::ExecutablePtr getExecFromGlobalPath(const std::string & path);
-      FabricServices::DFGWrapper::GraphExecutablePtr getGraphExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::FuncExecutablePtr getFuncExecFromPath(const std::string & path);
-      FabricServices::DFGWrapper::PortPtr getPortFromPath(const std::string & path);
+      virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
-      virtual QStringList getPresetPathsFromSearch(QString search, bool includePresets = true, bool includeNameSpaces = false);
+      virtual DFGNotificationRouter * createRouter(
+        FabricCore::DFGBinding binding,
+        FabricCore::DFGExec exec
+        );
+
+      static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
     signals:
 
@@ -118,24 +154,38 @@ namespace FabricUI
       void structureChanged();
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void execPortRenamed(QString path, QString newName);
+      void execPortRenamed(char const * path, char const * newName);
       void argValueChanged(const char * argName);
+      void variablesChanged();
 
     public slots:
 
       void onValueChanged(ValueItem * item);
       void checkErrors();
-      void nodeToolTriggered(FabricUI::GraphView::Node *, QString);
+      void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
+      void onVariablesChanged();
 
     private:
 
-      static void bindingNotificationCallback(void * userData, char const *jsonCString, uint32_t jsonLength);
+      void bindingNotificationCallback( FTL::CStrRef jsonStr );
+      static void BindingNotificationCallback(
+        void * userData,
+        char const *jsonCString,
+        uint32_t jsonLength
+        )
+      {
+        static_cast<DFGController *>( userData )->bindingNotificationCallback(
+          FTL::CStrRef( jsonCString, jsonLength )
+          );
+      }
+
       void updatePresetPathDB();
 
-      FabricCore::Client * m_client;
-      FabricServices::DFGWrapper::Host * m_host;
+      FabricCore::Client m_coreClient;
+      FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
-      DFGView * m_view;
+      DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
       bool m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
@@ -143,6 +193,7 @@ namespace FabricUI
       std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
+      std::string m_execPath;
     };
 
   };

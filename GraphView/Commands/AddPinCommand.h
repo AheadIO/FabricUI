@@ -15,7 +15,7 @@ namespace FabricUI
     {
     public:
 
-      AddPinCommand(Controller * controller, Node * node, QString name, PortType pType, QColor color, QString dataType);
+      AddPinCommand(Controller * controller, Node * node, char const * name, PortType pType, QColor color, char const * dataType);
       virtual ~AddPinCommand();
 
       virtual const char * getName() const { return "AddPin"; }
@@ -30,11 +30,11 @@ namespace FabricUI
       virtual bool invoke();
       virtual bool undo();
 
-      QString m_path;
-      QString m_name;
+      std::string m_path;
+      std::string m_name;
       PortType m_pType;
       QColor m_color;
-      QString m_dataType;
+      std::string m_dataType;
 
     };
 

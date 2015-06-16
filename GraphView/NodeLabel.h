@@ -19,7 +19,13 @@ namespace FabricUI
 
     public:
 
-      NodeLabel(NodeHeader * parent, QString text, QColor color, QColor highlightColor, QFont font);
+      NodeLabel(
+        NodeHeader * parent,
+        QString const &text,
+        QColor color,
+        QColor highlightColor,
+        QFont font
+        );
 
     };
 

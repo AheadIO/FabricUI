@@ -2,13 +2,23 @@
 
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
+#include "Dialogs/DFGGetStringDialog.h"
+#include "Dialogs/DFGNewVariableDialog.h"
 #include <FabricCore.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGGraphViewWidget::DFGGraphViewWidget(QWidget * parent, const GraphView::GraphConfig & config, GraphView::GraphFactory * factory, GraphView::Graph * graph)
-: GraphView::GraphViewWidget(parent, config, factory, graph)
+DFGGraphViewWidget::DFGGraphViewWidget(
+  QWidget * parent,
+  const GraphView::GraphConfig & config,
+  GraphView::Graph * graph
+  )
+  : GraphView::GraphViewWidget(
+    parent,
+    config,
+    graph
+    )
 {
 }
 
@@ -39,8 +49,63 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               if(pathVar->isString())
               {
-                ((DFGController*)graph()->controller())->addNodeFromPreset(graph()->path(), pathVar->getStringData(), pos);
+                ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
+                  pathVar->getStringData(), pos
+                  );
                 pos += QPointF(30, 30);
+              }
+            }
+            else if(std::string(typeVar->getStringData()) == "DFGVariable")
+            {
+              DFGController* controller = (DFGController*)graph()->controller();
+              FabricCore::Client client = controller->getClient();
+              FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+
+              const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
+              std::string path = pathVar->getStringData();
+              std::string execPath = controller->getExecPath();
+
+              while(execPath.length() > 0)
+              {
+                int delimPos = execPath.find('.');
+                if(delimPos != std::string::npos)
+                {
+                  std::string prefix = execPath.substr(0, delimPos+1);
+                  execPath = execPath.substr(delimPos+1);
+                  if(path.substr(0, prefix.length()) == prefix)
+                  {
+                    path = path.substr(delimPos+1);
+                  }
+                  else
+                    break;
+                }
+                else if(execPath + "." == path.substr(0, execPath.length() + 1))
+                {
+                  path = path.substr(execPath.length() + 1);
+                  execPath = "";
+                }
+                else
+                  break;
+              }
+
+              if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
+                event->mouseButtons().testFlag(Qt::RightButton))
+              {
+                ((DFGController*)graph()->controller())->addDFGSet(
+                  "", 
+                  path.c_str(),
+                  pos
+                  );
+                  pos += QPointF(30, 30);
+              }
+              else
+              {
+                ((DFGController*)graph()->controller())->addDFGGet(
+                  "", 
+                  path.c_str(),
+                  pos
+                  );
+                  pos += QPointF(30, 30);
               }
             }
           }

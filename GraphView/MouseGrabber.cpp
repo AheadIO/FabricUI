@@ -1,9 +1,9 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "MouseGrabber.h"
-#include "Graph.h"
-#include "Pin.h"
-#include "Connection.h"
+#include <FabricUI/GraphView/MouseGrabber.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Connection.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QCursor>
@@ -102,7 +102,7 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     {
       PinCircle * pinCircle = (PinCircle *)items[i];
       ConnectionTarget * target = pinCircle->target();
-      QString failureReason;
+      std::string failureReason;
       bool success = false;
       if(pinCircle->portType() == PortType_Input)
         success = m_target->canConnectTo(target, failureReason);
@@ -122,7 +122,8 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
       {
         if(failureReason.length() > 0)
         {
-          if(!QToolTip::isVisible() || QToolTip::text() != failureReason)
+          QString failureReasonQString = failureReason.c_str();
+          if(!QToolTip::isVisible() || QToolTip::text() != failureReasonQString)
           {
             QGraphicsView * view = scene()->views()[0];
             if(view)
@@ -142,7 +143,7 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
               QRect rect(widgetCircleTopLeft, widgetCircleBottomRight);
               if(rect.contains(widgetPos))
-                QToolTip::showText(globalPos, failureReason, view, rect);
+                QToolTip::showText(globalPos, failureReasonQString, view, rect);
               else
                 QToolTip::hideText();
             }
@@ -176,9 +177,12 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     ungrabMouse();
     QGraphicsScene * scene = graph()->scene();
     graph()->resetMouseGrabber();
+    m_connection->invalidate();
     scene->removeItem(m_connection);
+    m_connection->deleteLater();
     scene->removeItem(this);
     scene->update();
+    this->deleteLater();
   }
 
   if(m_targetUnderMouse)
@@ -217,7 +221,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
           // filter out IO ports
           if(connections[i]->src()->targetType() == TargetType_Port && connections[i]->dst()->targetType() == TargetType_Port)
           {
-            if(((Port*)connections[i]->src())->path() == ((Port*)connections[i]->dst())->path())
+            if(((Port*)connections[i]->src())->name() == ((Port*)connections[i]->dst())->name())
               continue;
           }
 
@@ -228,9 +232,11 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
             prepareGeometryChange();
             ungrabMouse();
             QGraphicsScene * scene = graph()->scene();
+            m_connection->invalidate();
             scene->removeItem(m_connection);
+            m_connection->deleteLater();
             scene->removeItem(this);
-            scene->update();
+            this->deleteLater();
             return;
           }
           break;

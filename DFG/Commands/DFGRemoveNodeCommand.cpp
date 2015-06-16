@@ -6,33 +6,21 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGRemoveNodeCommand::DFGRemoveNodeCommand(DFGController * controller, QString path)
+DFGRemoveNodeCommand::DFGRemoveNodeCommand(DFGController * controller, char const * path)
 : DFGCommand(controller)
 {
   m_nodePath = path;
 }
 
-QString DFGRemoveNodeCommand::getNodePath() const
+char const * DFGRemoveNodeCommand::getNodePath() const
 {
-  return m_nodePath;
+  return m_nodePath.c_str();
 }
 
 bool DFGRemoveNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
-  graph->removeNode(ctrl->getNodeFromPath(m_nodePath.toUtf8().constData()));
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+  graph.removeNode(m_nodePath.c_str());
   return true;
-}
-
-bool DFGRemoveNodeCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGRemoveNodeCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();  
 }

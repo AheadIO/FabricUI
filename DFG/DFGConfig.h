@@ -8,10 +8,10 @@
 #include <QtGui/QTextCharFormat>
 #include <string>
 #include <map>
-#include <KLEditor/EditorConfig.h>
-#include <GraphView/GraphConfig.h>
-
-#include <DFGWrapper/ExecPort.h>
+#include <FabricUI/KLEditor/EditorConfig.h>
+#include <FabricUI/GraphView/GraphConfig.h>
+#include <FTL/StrRef.h>
+#include <FabricCore.h>
 
 namespace FabricUI
 {
@@ -33,13 +33,16 @@ namespace FabricUI
 
       std::map<std::string, QColor> colorForDataType;
 
+      QColor varNodeDefaultColor;
+      QColor varLabelDefaultColor;
+
       KLEditor::EditorConfig klEditorConfig;
       GraphView::GraphConfig graphConfig;
 
       DFGConfig();
 
-      void registerDataTypeColor(const std::string & dataType, QColor color);
-      QColor getColorForDataType(const std::string & dataType, FabricServices::DFGWrapper::ExecPortPtr port = NULL);
+      void registerDataTypeColor(FTL::StrRef dataType, QColor color);
+      QColor getColorForDataType(FTL::StrRef dataType, FabricCore::DFGExec * exec = NULL, char const * portName = NULL);
     };
 
   };

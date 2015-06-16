@@ -7,11 +7,10 @@
 
 #include <map>
 
-#include <DFG/DFGUI.h>
-#include <DFG/DFGValueEditor.h>
-#include <DFG/DFGLogWidget.h>
+#include <FabricUI/DFG/DFGUI.h>
+#include <FabricUI/DFG/DFGValueEditor.h>
+#include <FabricUI/DFG/DFGLogWidget.h>
 #include <Commands/CommandStack.h>
-#include <DFGWrapper/DFGWrapper.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -32,11 +31,11 @@ namespace FabricUI
       ~DFGCombinedWidget();
 
       virtual void init(      
-        FabricCore::Client * client,
+        FabricCore::Client client,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricServices::DFGWrapper::Host * host,
-        FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph,
+        FabricCore::DFGHost host,
+        FabricCore::DFGBinding binding,
+        FabricCore::DFGExec exec,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true,
         DFGConfig config = DFGConfig()
@@ -44,9 +43,16 @@ namespace FabricUI
 
       static void setLogFunc(DFGController::LogFunc func);
 
-      virtual FabricCore::Client * getClient() { return m_client; }
+      FabricCore::Client const &getClient()
+        { return m_coreClient; }
+      FabricCore::DFGHost const &getCoreDFGHost()
+        { return m_coreDFGHost; }
+      FabricCore::DFGBinding const &getCoreDFGBinding()
+        { return m_coreDFGBinding; }
+      FabricCore::DFGExec const &getCoreDFGExec()
+        { return m_coreDFGExec; }
+
       virtual ASTWrapper::KLASTManager * getManager() { return m_manager; }
-      virtual DFGWrapper::Host * getHost() { return m_host; }
       virtual PresetTreeWidget * getTreeWidget() { return m_treeWidget; }
       virtual DFGWidget * getDfgWidget() { return m_dfgWidget; }
       virtual DFGValueEditor * getDfgValueEditor() { return m_dfgValueEditor; }
@@ -71,9 +77,11 @@ namespace FabricUI
       void log(const char * message);
 
       QSplitter * m_hSplitter;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_coreClient;
       ASTWrapper::KLASTManager * m_manager;
-      DFGWrapper::Host * m_host;
+      FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
+      FabricCore::DFGExec m_coreDFGExec;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;
       DFGValueEditor * m_dfgValueEditor;

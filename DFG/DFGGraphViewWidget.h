@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_DFGGraphViewWidget__
 #define __UI_DFG_DFGGraphViewWidget__
 
-#include <GraphView/GraphViewWidget.h>
+#include <FabricUI/GraphView/GraphViewWidget.h>
 
 namespace FabricUI
 {
@@ -15,7 +15,11 @@ namespace FabricUI
 
     public:
 
-      DFGGraphViewWidget(QWidget * parent, const GraphView::GraphConfig & config = GraphView::GraphConfig(), GraphView::GraphFactory * factory = NULL, GraphView::Graph * graph = NULL);
+      DFGGraphViewWidget(
+        QWidget * parent,
+        const GraphView::GraphConfig & config = GraphView::GraphConfig(),
+        GraphView::Graph * graph = NULL
+        );
 
       virtual void dropEvent(QDropEvent *event);
 

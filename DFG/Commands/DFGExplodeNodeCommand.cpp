@@ -8,15 +8,15 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGExplodeNodeCommand::DFGExplodeNodeCommand(DFGController * controller, QString nodePath)
+DFGExplodeNodeCommand::DFGExplodeNodeCommand(DFGController * controller, char const * nodePath)
 : DFGCommand(controller)
 {
-  m_nodePath = nodePath.toUtf8().constData();
+  m_nodePath = nodePath;
 }
 
-std::string DFGExplodeNodeCommand::getNodePath() const
+char const * DFGExplodeNodeCommand::getNodePath() const
 {
-  return m_nodePath;
+  return m_nodePath.c_str();
 }
 
 std::vector<std::string> DFGExplodeNodeCommand::getNodeNames() const
@@ -27,21 +27,24 @@ std::vector<std::string> DFGExplodeNodeCommand::getNodeNames() const
 bool DFGExplodeNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  DFGWrapper::GraphExecutablePtr graph = ctrl->getGraphExec();
+  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
 
-  m_nodeNames = graph->explodeNode(m_nodePath.c_str());
+  m_nodeNames.clear();
+
+  std::string resultStr = graph.explodeNode(m_nodePath.c_str()).getCString();
+  if(resultStr.length() == 0)
+    return false;
+
+  FabricCore::Variant resultVar = FabricCore::Variant::CreateFromJSON(resultStr.c_str());
+  if(resultVar.isArray())
+  {
+    for(uint32_t i=0;i<resultVar.getArraySize();i++)
+    {
+      char const* nodeName = resultVar.getArrayElement(i)->getStringData();
+      m_nodeNames.push_back(nodeName);
+    }
+  }
 
   return true;
 }
 
-bool DFGExplodeNodeCommand::undo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeUndo();
-}
-
-bool DFGExplodeNodeCommand::redo()
-{
-  DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getHost()->maybeRedo();
-}

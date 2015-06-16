@@ -3,19 +3,19 @@
 #ifndef __UI_DFG_DFGWidget__
 #define __UI_DFG_DFGWidget__
 
+#include <QtCore/QSettings>
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
-#include <DFGWrapper/DFGWrapper.h>
 #include <Commands/CommandStack.h>
-#include <GraphView/GraphHeaderWidget.h>
+#include <FabricUI/GraphView/GraphHeaderWidget.h>
 #include "DFGGraphViewWidget.h"
-#include "DFGGraph.h"
 #include "DFGController.h"
-#include "DFGFactory.h"
-#include "DFGView.h"
+#include "DFGNotificationRouter.h"
 #include "DFGConfig.h"
 #include "DFGKLEditorWidget.h"
 #include "DFGTabSearchWidget.h"
+
+#include <FTL/OwnedPtr.h>
 
 namespace FabricUI
 {
@@ -30,28 +30,31 @@ namespace FabricUI
 
       DFGWidget(
         QWidget * parent, 
-        FabricCore::Client * client,
+        FabricCore::Client const &client,
+        FabricCore::DFGHost const &dfgHost,
+        FabricCore::DFGBinding const &binding,
+        FabricCore::DFGExec const &graph,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricServices::DFGWrapper::Host * host,
-        FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph,
         FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
         bool overTakeBindingNotifications = true
-      );
+        );
       virtual ~DFGWidget();
 
       void setGraph(
-        FabricServices::DFGWrapper::Host * host,
-        FabricServices::DFGWrapper::Binding binding,
-        FabricServices::DFGWrapper::GraphExecutablePtr graph,
+        FabricCore::DFGHost const &coreDFGHost,
+        FabricCore::DFGBinding const &coreDFGBinding,
+        FabricCore::DFGExec const &coreDFGGraph,
         bool clear = true
-      );
+        );
 
-      DFGGraph * getUIGraph();
+      GraphView::Graph * getUIGraph();
       DFGController * getUIController();
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
+
+      static QSettings * getSettings();
+      static void setSettings(QSettings * settings);
 
     signals:
 
@@ -78,7 +81,7 @@ namespace FabricUI
       static QMenu* portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData);
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
-      bool editNode(FabricServices::DFGWrapper::ExecutablePtr exec, bool pushExec = false);
+      bool editNode(FabricCore::DFGExec exec, char const * name, bool pushExec = false);
 
       QPoint m_contextPos;
       FabricUI::GraphView::Node * m_contextNode;
@@ -87,19 +90,22 @@ namespace FabricUI
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
       GraphView::GraphHeaderWidget * m_uiHeader;
-      DFGGraph * m_uiGraph;
-      DFGController * m_uiController;
-      DFGFactory * m_uiFactory;
-      DFGView * m_dfgView;
+      GraphView::Graph * m_uiGraph;
+      FTL::OwnedPtr<DFGController> m_uiController;
+      DFGNotificationRouter * m_router;
       DFGKLEditorWidget * m_klEditor;
       DFGTabSearchWidget * m_tabSearchWidget;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_coreClient;
+      FabricCore::DFGHost m_coreDFGHost;
+      FabricCore::DFGBinding m_coreDFGBinding;
+      FabricCore::DFGExec m_coreDFGExec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
-      FabricServices::DFGWrapper::Host * m_dfgHost;
-      FabricServices::DFGWrapper::Binding m_dfgBinding;
-      FabricServices::DFGWrapper::GraphExecutablePtr m_dfgGraph;
       DFGConfig m_dfgConfig;
-      std::vector<FabricServices::DFGWrapper::ExecutablePtr> m_execStack;
+
+      std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
+      std::string m_coreDFGExecPath;
+
+      static QSettings * g_settings;
     };
 
   };

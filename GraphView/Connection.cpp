@@ -4,25 +4,30 @@
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QPainter>
 
-#include "Connection.h"
-#include "Graph.h"
-#include "Pin.h"
-#include "Port.h"
+#include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include <algorithm>
 #include <cstdlib>
 
 using namespace FabricUI::GraphView;
 
-Connection::Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget * dst, bool forceUseOfPinColor)
-: QObject(parent->itemGroup())
-, QGraphicsPathItem(parent->itemGroup())
+Connection::Connection(
+  Graph * graph,
+  ConnectionTarget * src,
+  ConnectionTarget * dst,
+  bool forceUseOfPinColor
+  )
+  : QObject( graph->itemGroup() )
+  , QGraphicsPathItem( graph->itemGroup() )
+  , m_graph( graph )
+  , m_src( src )
+  , m_dst( dst )
+  , m_dragging( false )
+  , m_aboutToBeDeleted( false )
 {
-  m_graph = parent;
-  m_src = src;
-  m_dst = dst;
-  m_aboutToBeDeleted = false;
-
   m_defaultPen = m_graph->config().connectionDefaultPen;
   m_hoverPen = m_graph->config().connectionHoverPen;
 
@@ -58,8 +63,21 @@ Connection::Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget 
 
   setZValue(-1);
 
-  m_dragging = false;
-  updateBbox();
+  dependencyMoved();
+
+  MainPanel *mainPanel = graph->mainPanel();
+  QObject::connect(
+    mainPanel, SIGNAL(geometryChanged()),
+    this, SLOT(dependencyMoved())
+    );
+  QObject::connect(
+    mainPanel, SIGNAL(canvasZoomChanged(float)),
+    this, SLOT(dependencyMoved())
+    );
+  QObject::connect(
+    mainPanel, SIGNAL(canvasPanChanged(QPointF)),
+    this, SLOT(dependencyMoved())
+    );
 
   for(int i=0;i<2;i++)
   {
@@ -71,11 +89,17 @@ Connection::Connection(Graph * parent, ConnectionTarget * src, ConnectionTarget 
     {
       Node * node = ((Pin*)target)->node();
       QObject::connect(node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(dependencyMoved()));
+      QObject::connect(node, SIGNAL(geometryChanged()), this, SLOT(dependencyMoved()));
     }
     else if(target->targetType() == TargetType_MouseGrabber)
     {
       MouseGrabber * grabber = (MouseGrabber*)target;
       QObject::connect(grabber, SIGNAL(positionChanged(QPointF)), this, SLOT(dependencyMoved()));
+    }
+    else if(target->targetType() == TargetType_Port)
+    {
+      Port * port = (Port*)target;
+      QObject::connect(port, SIGNAL(positionChanged()), this, SLOT(dependencyMoved()));
     }
   }
 }
@@ -110,11 +134,6 @@ const ConnectionTarget * Connection::dst() const
   return m_dst;
 }
 
-QColor Connection::color() const
-{
-  return m_color;
-}
-
 void Connection::setColor(QColor color)
 {
   if(m_graph->config().connectionUsePinColor)
@@ -137,20 +156,10 @@ void Connection::setColor(QColor color)
   setPen(m_defaultPen);
 }
 
-QPen Connection::defaultPen() const
-{
-  return m_defaultPen;
-}
-
-QPen Connection::hoverPen() const
-{
-  return m_hoverPen;
-}
-
 QPointF Connection::srcPoint() const
 {
   if(m_aboutToBeDeleted)
-    return m_boundingBox.topLeft();
+    return boundingRect().topLeft();
 
   return mapFromScene(m_src->connectionPos(PortType_Output));
 }
@@ -158,14 +167,9 @@ QPointF Connection::srcPoint() const
 QPointF Connection::dstPoint() const
 {
   if(m_aboutToBeDeleted)
-    return m_boundingBox.bottomRight();
+    return boundingRect().bottomRight();
 
   return mapFromScene(m_dst->connectionPos(PortType_Input));
-}
-
-QRectF Connection::boundingRect() const
-{
-  return m_boundingBox;
 }
 
 void Connection::invalidate()
@@ -261,7 +265,7 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     QGraphicsPathItem::mouseMoveEvent(event);
 }
 
-void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+void Connection::dependencyMoved()
 {
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
@@ -279,14 +283,6 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
       currDstPoint
   );
   setPath(path);
-
-  QGraphicsPathItem::paint(painter, option, widget);
-}
-
-void Connection::dependencyMoved()
-{
-  updateBbox();
-  update();
 }
 
 float Connection::computeTangentLength() const
@@ -303,21 +299,4 @@ float Connection::computeTangentLength() const
     tangentLength += m_graph->config().connectionPercentualTangentLength * 0.01 * (currDstPoint.x() - currSrcPoint.x());
   }
   return tangentLength;
-}
-
-void Connection::updateBbox()
-{
-  QPointF currSrcPoint = srcPoint();
-  QPointF currDstPoint = dstPoint();
-  float penWidth = pen().width();
-  float tangentLength = computeTangentLength();
-
-  prepareGeometryChange();
-
-  m_boundingBox = QRectF(
-    std::min(currSrcPoint.x(), currDstPoint.x()) - penWidth - tangentLength,
-    std::min(currSrcPoint.y(), currDstPoint.y()) - penWidth,
-    std::abs(int(currDstPoint.x() - currSrcPoint.x())) + penWidth * 2.0 + tangentLength * 2.0,
-    std::abs(int(currDstPoint.y() - currSrcPoint.y())) + penWidth * 2.0
-  );
 }

@@ -44,6 +44,7 @@ namespace FabricUI
       PortType portType() const;
       bool isInputPortType() const;
       bool isOutputPortType() const;
+      virtual void setClipping(bool state);
 
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);

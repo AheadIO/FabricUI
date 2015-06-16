@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGSetDefaultValueCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGSetDefaultValueCommand(DFGController * controller, QString path, FabricCore::RTVal value);
+      DFGSetDefaultValueCommand(DFGController * controller, char const * path, FabricCore::RTVal value);
 
       virtual const char * getName() const { return "dfgSetDefaultValue"; }
       virtual const char * getShortDesc() const { return "Sets a new default value on a port / pin."; }
@@ -31,8 +31,6 @@ namespace FabricUI
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

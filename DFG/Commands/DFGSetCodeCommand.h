@@ -16,20 +16,18 @@ namespace FabricUI
     {
     public:
 
-      DFGSetCodeCommand(DFGController * controller, QString path, QString code);
+      DFGSetCodeCommand(DFGController * controller, char const * path, char const * code);
 
       virtual const char * getName() const { return "dfgSetCode"; }
       virtual const char * getShortDesc() const { return "Sets the code on a func node in the graph."; }
       virtual const char * getFullDesc() const { return "Sets the code on a func node in the graph."; }
 
-      std::string getPath() const;
-      std::string getCode() const;
+      char const * getPath() const;
+      char const * getCode() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 

@@ -1,10 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "PinCircle.h"
-#include "Pin.h"
-#include "Node.h"
-#include "Graph.h"
-#include "GraphConfig.h"
+#include <FabricUI/GraphView/PinCircle.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/GraphConfig.h>
 
 #include <QtGui/QGraphicsSceneHoverEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -189,4 +189,18 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
   }
   else
     QGraphicsWidget::mousePressEvent(event);
+}
+
+void PinCircle::setClipping(bool state)
+{
+  if(state)
+  {
+    m_ellipse->setStartAngle(90 * 16);
+    m_ellipse->setSpanAngle(180 * 16);
+  }
+  else
+  {
+    m_ellipse->setStartAngle(0);
+    m_ellipse->setSpanAngle(5760);
+  }
 }

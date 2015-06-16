@@ -4,7 +4,7 @@
 #define __UI_DFG_DFGRemovePortCommand__
 
 #include "DFGCommand.h"
-#include <GraphView/Port.h>
+#include <FabricUI/GraphView/Port.h>
 
 #include "../DFGController.h"
 
@@ -17,25 +17,21 @@ namespace FabricUI
     {
     public:
 
-      DFGRemovePortCommand(DFGController * controller, QString execPath, QString name);
+      DFGRemovePortCommand(DFGController * controller, char const * name);
 
       virtual const char * getName() const { return "dfgRemovePort"; }
       virtual const char * getShortDesc() const { return "Removes a port to from the graph."; }
       virtual const char * getFullDesc() const { return "Removes a port to from the graph."; }
 
-      const char * getExecPath() const;
       const char * getPortName() const;
 
     protected:
       
       virtual bool invoke();
-      virtual bool undo();
-      virtual bool redo();
 
     private:
 
-      std::string m_execPath;
-      std::string m_portTitle;
+      std::string m_portName;
 
     };
 

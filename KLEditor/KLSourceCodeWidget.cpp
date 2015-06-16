@@ -176,7 +176,7 @@ bool KLSourceCodeWidget::event(QEvent * event)
               if(member->isInternal())
                 continue;
 
-              DFGWrapper::KLTypeDesc desc(member->getType());
+              CodeCompletion::KLTypeDesc desc(member->getType());
               toolTipText += "\n  "+desc.getBaseType()+" "+member->getName()+desc.getArrayModifier();
 
             }

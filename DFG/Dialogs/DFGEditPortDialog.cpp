@@ -9,7 +9,7 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, bool showPortType, const DFGConfig & dfgConfig)
+DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, const DFGConfig & dfgConfig)
 : DFGBaseDialog(parent, true, dfgConfig)
 {
   if(showPortType)
@@ -22,8 +22,8 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, bool showPortType, const 
   else
     m_portTypeCombo = NULL;
   m_titleEdit = new QLineEdit("", this);
-  m_dataTypeEdit = new QLineEdit("$TYPE$", this);
-  m_extensionEdit = new QLineEdit("", this);
+  m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "$TYPE$");
+  m_extensionEdit = new DFGExtensionLineEdit(this, client);
 
   m_native = new QCheckBox(this);
   m_visibilityCombo = new QComboBox(this);

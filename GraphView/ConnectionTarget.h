@@ -3,6 +3,7 @@
 #ifndef __UI_GraphView_ConnectionTarget__
 #define __UI_GraphView_ConnectionTarget__
 
+#include <FTL/Config.h>
 #include <QtGui/QGraphicsWidget>
 #include <QtCore/QPointF>
 #include "PortType.h"
@@ -30,8 +31,13 @@ namespace FabricUI
     public:
 
       ConnectionTarget(QGraphicsWidget * parent);
+      ~ConnectionTarget();
 
-      virtual bool canConnectTo(ConnectionTarget * other, QString &failureReason) const = 0;
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const = 0;
+
       virtual TargetType targetType() const = 0;
       virtual QPointF connectionPos(PortType pType) const = 0;
     
@@ -52,6 +58,9 @@ namespace FabricUI
       PinCircle * findPinCircle(QPointF pos);
 
       PinCircle * m_lastPinCircle;
+#if defined(FTL_BUILD_DEBUG)
+      bool m_deleted;
+#endif
     };
 
   };
