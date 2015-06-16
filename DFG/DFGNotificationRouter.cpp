@@ -279,31 +279,34 @@ void DFGNotificationRouter::onGraphSet()
         );
     }
 
-    FTL::JSONArray const *nodesArray =
-      rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
-    for ( size_t i = 0; i < nodesArray->size(); ++i )
+    if ( rootObject->getString( FTL_STR("objectType") ) == FTL_STR("Graph") )
     {
-      FTL::JSONObject const *nodeObject =
-        nodesArray->get( i )->cast<FTL::JSONObject>();
-      onNodeInserted(
-        nodeObject->getString( FTL_STR("name") ),
-        nodeObject
-        );
-    }
-
-    FTL::JSONObject const *connectionsObject =
-      rootObject->get( FTL_STR("connections") )->cast<FTL::JSONObject>();
-    for ( FTL::JSONObject::const_iterator it = connectionsObject->begin();
-      it != connectionsObject->end(); ++it )
-    {
-      FTL::CStrRef srcPath = it->first;
-      FTL::JSONArray const *dstsArray = it->second->cast<FTL::JSONArray>();
-      for ( FTL::JSONArray::const_iterator it = dstsArray->begin();
-        it != dstsArray->end(); ++it )
+      FTL::JSONArray const *nodesArray =
+        rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
+      for ( size_t i = 0; i < nodesArray->size(); ++i )
       {
-        FTL::JSONValue const *dstValue = *it;
-        FTL::CStrRef dstPath = dstValue->getStringValue();
-        onPortsConnected( srcPath, dstPath );
+        FTL::JSONObject const *nodeObject =
+          nodesArray->get( i )->cast<FTL::JSONObject>();
+        onNodeInserted(
+          nodeObject->getString( FTL_STR("name") ),
+          nodeObject
+          );
+      }
+
+      FTL::JSONObject const *connectionsObject =
+        rootObject->get( FTL_STR("connections") )->cast<FTL::JSONObject>();
+      for ( FTL::JSONObject::const_iterator it = connectionsObject->begin();
+        it != connectionsObject->end(); ++it )
+      {
+        FTL::CStrRef srcPath = it->first;
+        FTL::JSONArray const *dstsArray = it->second->cast<FTL::JSONArray>();
+        for ( FTL::JSONArray::const_iterator it = dstsArray->begin();
+          it != dstsArray->end(); ++it )
+        {
+          FTL::JSONValue const *dstValue = *it;
+          FTL::CStrRef dstPath = dstValue->getStringValue();
+          onPortsConnected( srcPath, dstPath );
+        }
       }
     }
 
