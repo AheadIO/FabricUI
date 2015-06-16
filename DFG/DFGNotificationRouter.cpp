@@ -385,6 +385,20 @@ void DFGNotificationRouter::onNodeInserted(
       );
   }
 
+  if(m_coreDFGExec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+  {
+    FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName.c_str());
+    FTL::CStrRef uiNodeColor = subExec.getMetadata("uiNodeColor");
+    if(!uiNodeColor.empty())
+      onNodeMetadataChanged(nodeName, "uiNodeColor", uiNodeColor);
+    FTL::CStrRef uiHeaderColor = subExec.getMetadata("uiHeaderColor");
+    if(!uiHeaderColor.empty())
+      onNodeMetadataChanged(nodeName, "uiHeaderColor", uiHeaderColor);
+    FTL::CStrRef uiTooltip = subExec.getMetadata("uiTooltip");
+    if(!uiTooltip.empty())
+      onNodeMetadataChanged(nodeName, "uiTooltip", uiTooltip);
+  }
+
   if ( FTL::JSONValue const *metadataJSONValue =
     jsonObject->maybeGet( FTL_STR("metadata") ) )
   {

@@ -288,7 +288,8 @@ bool DFGController::removeNode(char const * path)
     }
     emit structureChanged();
     emit recompiled();
-    emit variablesChanged();
+    if(emitVarChanged)
+      emit variablesChanged();
   }
   catch(FabricCore::Exception e)
   {

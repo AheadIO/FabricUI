@@ -227,19 +227,19 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   action = result->addAction("Rename");
   action = result->addAction("Delete");
   action = result->addAction("Save as Preset");
-  result->addSeparator();
-  action = result->addAction("Caching - Unspecified");
-  action->setCheckable(true);
-  if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    action->setChecked(true);
-  action = result->addAction("Caching - Never");
-  action->setCheckable(true);
-  if(cacheRule == FEC_DFGCacheRule_Never)
-    action->setChecked(true);
-  action = result->addAction("Caching - Always");
-  action->setCheckable(true);
-  if(cacheRule == FEC_DFGCacheRule_Always)
-    action->setChecked(true);
+  // result->addSeparator();
+  // action = result->addAction("Caching - Unspecified");
+  // action->setCheckable(true);
+  // if(cacheRule == FEC_DFGCacheRule_Unspecified)
+  //   action->setChecked(true);
+  // action = result->addAction("Caching - Never");
+  // action->setCheckable(true);
+  // if(cacheRule == FEC_DFGCacheRule_Never)
+  //   action->setChecked(true);
+  // action = result->addAction("Caching - Always");
+  // action->setCheckable(true);
+  // if(cacheRule == FEC_DFGCacheRule_Always)
+  //   action->setChecked(true);
 
   bool hasSep = false;
   const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
