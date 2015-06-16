@@ -131,6 +131,22 @@ void DFGWidget::setGraph(
     m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
     m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
 
+
+    if(m_coreDFGExec.getType() == FabricCore::DFGExecType_Graph)
+    {
+      m_uiGraphViewWidget->show();
+      m_uiGraphViewWidget->setFocus();
+      m_klEditor->hide();      
+    }
+    else if(m_coreDFGExec.getType() == FabricCore::DFGExecType_Func)
+    {
+      m_uiGraphViewWidget->hide();
+      m_klEditor->show();      
+      m_klEditor->klEditor()->sourceCodeWidget()->setFocus();
+
+      m_klEditor->setFunc(m_coreDFGExec, m_coreDFGExecPath.c_str());
+    }
+
     // FE-4277
     emit onGraphSet(m_uiGraph);
   }
@@ -607,7 +623,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       FTL::StrRef uiCombo = m_coreDFGExec.getExecPortMetadata(portName, "uiCombo");
       if(uiCombo.size() > 0)
       {
-        if(uiCombo[0] == '(');
+        if(uiCombo[0] == '(')
           uiCombo = uiCombo.substr(1);
         if(uiCombo[uiCombo.size()-1] == ')')
           uiCombo = uiCombo.substr(0, uiCombo.size()-1);
@@ -852,26 +868,7 @@ bool DFGWidget::editNode(FabricCore::DFGExec exec, char const * name, bool pushE
       }
     }
 
-    if(exec.getType() == FabricCore::DFGExecType_Graph)
-    {
-      setGraph(m_coreDFGHost, m_coreDFGBinding, exec, false);
-      m_uiGraphViewWidget->show();
-      m_uiGraphViewWidget->setFocus();
-      m_klEditor->hide();      
-    }
-    else if(exec.getType() == FabricCore::DFGExecType_Func)
-    {
-      m_uiHeader->setCaption(name);
-      m_uiGraphViewWidget->hide();
-      m_klEditor->show();      
-      m_klEditor->klEditor()->sourceCodeWidget()->setFocus();
-
-      std::string execPath = m_coreDFGExecPath;
-      execPath += ".";
-      execPath += name;
-      setGraph(m_coreDFGHost, m_coreDFGBinding, exec, false);
-      m_klEditor->setFunc(exec, execPath.c_str());
-    }
+    setGraph(m_coreDFGHost, m_coreDFGBinding, exec, false);
   }
   catch(FabricCore::Exception e)
   {
