@@ -8,13 +8,13 @@ using namespace FabricUI::DFG;
 
 DFGAddPortCommand::DFGAddPortCommand(
   DFGController * controller,
-  FTL::StrRef path,
+  FTL::StrRef execPath,
   FTL::StrRef name,
   GraphView::PortType pType,
   FTL::StrRef dataType
   )
   : DFGCommand(controller)
-  , m_path( path )
+  , m_execPath( execPath )
   , m_portTitle( name )
   , m_portType( pType )
   , m_dataType( dataType )
@@ -25,10 +25,11 @@ DFGAddPortCommand::DFGAddPortCommand(
 bool DFGAddPortCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
-  FabricCore::DFGExec exec = ctrl->getCoreDFGExec();
+  FabricCore::DFGBinding binding = ctrl->getCoreDFGBinding();
+  FabricCore::DFGExec exec = binding.getExec();
 
-  if(m_path.length() != 0)
-    exec = exec.getSubExec(m_path.c_str());
+  if(m_execPath.length() != 0)
+    exec = exec.getSubExec(m_execPath.c_str());
 
   FabricCore::DFGPortType portType = FabricCore::DFGPortType_In;
   if(m_portType == GraphView::PortType_Input)
@@ -40,9 +41,9 @@ bool DFGAddPortCommand::invoke()
   return true;
 }
 
-const char * DFGAddPortCommand::getPath() const
+const char * DFGAddPortCommand::getExecPath() const
 {
-  return m_path.c_str();
+  return m_execPath.c_str();
 }
 
 const char * DFGAddPortCommand::getPortName() const
