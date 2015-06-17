@@ -53,7 +53,7 @@ namespace FabricUI
       virtual void paintGL();
 
       void resetRTVals();
-      bool manipulateCamera(QInputEvent *event);
+      bool manipulateCamera(QInputEvent *event, bool requireModifier = true);
 
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *event);

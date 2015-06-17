@@ -237,13 +237,13 @@ void GLViewportWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void GLViewportWidget::wheelEvent(QWheelEvent *event)
 {
-  if(!manipulateCamera(event))
+  if(!manipulateCamera(event, false))
     QGLWidget::wheelEvent(event);
 }
 
-bool GLViewportWidget::manipulateCamera(QInputEvent *event)
+bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier)
 {
-  if(!event->modifiers().testFlag(Qt::AltModifier))
+  if(!event->modifiers().testFlag(Qt::AltModifier) && requireModifier)
     return false;
 
   bool result;
