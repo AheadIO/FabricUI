@@ -758,7 +758,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
       std::string portName =
         m_uiController->addPort(
-          "",
+          m_uiController->getExecPath(),
           title.toUtf8().constData(),
           portType, 
           dataType.toUtf8().constData()

@@ -425,7 +425,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   try
   {
     beginInteraction();
-    std::string portPath = addPort("", pin->name(), pType, pin->dataType());
+    std::string portPath = addPort(getExecPath(), pin->name(), pType, pin->dataType());
 
     // copy the default value into the port
     FabricCore::DFGExec exec = getCoreDFGExec();
