@@ -698,7 +698,8 @@ bool DFGController::addExtensionDependency(char const * extension, char const * 
   {
     m_coreClient.loadExtension(extension, "", false);
 
-    FabricCore::DFGExec exec = getCoreDFGExec();
+    FabricCore::DFGBinding binding = getCoreDFGBinding();
+    FabricCore::DFGExec exec = binding.getExec();
     FTL::StrRef execPathRef(execPath);
     if(execPathRef.size() > 0)
       exec = exec.getSubExec(execPathRef.data());
