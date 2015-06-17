@@ -124,7 +124,7 @@ QRectF MainPanel::boundingRect() const
 
 void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  if(event->button() == Qt::LeftButton && !m_spaceBarDown)
+  if(event->button() == Qt::LeftButton && !m_spaceBarDown && !event->modifiers().testFlag(Qt::AltModifier))
   {
     QPointF mouseDownPos = mapToItem(m_itemGroup, event->pos());
     m_selectionRect = new SelectionRect(this, mouseDownPos);
@@ -136,7 +136,10 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     m_manipulationMode = ManipulationMode_Select;
   }
-  else if((event->button() == DFG_QT_MIDDLE_MOUSE && event->modifiers().testFlag(Qt::AltModifier)) || (event->button() == Qt::LeftButton && m_spaceBarDown))
+  else if((event->button() == DFG_QT_MIDDLE_MOUSE && event->modifiers().testFlag(Qt::AltModifier))
+    || (event->button() == Qt::LeftButton && m_spaceBarDown)
+    || (event->button() == Qt::LeftButton && event->modifiers().testFlag(Qt::AltModifier))
+    )
   {
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Pan;
