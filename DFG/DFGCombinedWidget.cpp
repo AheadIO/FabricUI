@@ -17,6 +17,7 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   m_dfgValueEditor = NULL;
   m_hSplitter = NULL;
   m_dfgLogWidget = NULL;
+  m_setGraph = NULL;
 
   setStyle(new FabricUI::Style::FabricStyle());
   setOrientation(Qt::Vertical);
@@ -186,7 +187,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 {
-  if(graph)
+  if(graph != m_setGraph)
   {
     graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
     graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
@@ -203,6 +204,8 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
       this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
     QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
       this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+
+    m_setGraph = graph;
   }
 }
 

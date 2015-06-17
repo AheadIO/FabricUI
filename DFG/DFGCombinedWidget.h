@@ -86,6 +86,7 @@ namespace FabricUI
       DFGWidget * m_dfgWidget;
       DFGValueEditor * m_dfgValueEditor;
       DFGLogWidget * m_dfgLogWidget;
+      FabricUI::GraphView::Graph * m_setGraph;
     };
 
   };
