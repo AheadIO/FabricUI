@@ -75,14 +75,14 @@ namespace FabricUI
       virtual GraphView::Pin * addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
       virtual std::string addPort(
-        FTL::StrRef path,
+        FTL::StrRef execPath,
         FTL::StrRef name,
         FabricCore::DFGPortType pType,
         FTL::StrRef dataType = FTL::StrRef(),
         bool setArgValue = true
         );
       virtual std::string addPort(
-        FTL::StrRef path,
+        FTL::StrRef execPath,
         FTL::StrRef name,
         GraphView::PortType pType,
         FTL::StrRef dataType = FTL::StrRef(),

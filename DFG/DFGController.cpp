@@ -343,7 +343,7 @@ bool DFGController::removePin(GraphView::Pin * pin)
 }
 
 std::string DFGController::addPort(
-  FTL::StrRef path,
+  FTL::StrRef execPath,
   FTL::StrRef name,
   FabricCore::DFGPortType pType,
   FTL::StrRef dataType,
@@ -355,11 +355,11 @@ std::string DFGController::addPort(
     portType = GraphView::PortType_Output;
   else if(pType == FabricCore::DFGPortType_IO)
     portType = GraphView::PortType_IO;
-  return addPort(path, name, portType, dataType, setArgValue);
+  return addPort(execPath, name, portType, dataType, setArgValue);
 }
 
 std::string DFGController::addPort(
-  FTL::StrRef path,
+  FTL::StrRef execPath,
   FTL::StrRef name,
   GraphView::PortType pType,
   FTL::StrRef dataType,
@@ -370,7 +370,7 @@ std::string DFGController::addPort(
   try
   {
     DFGAddPortCommand * command =
-      new DFGAddPortCommand(this, path, name, pType, dataType);
+      new DFGAddPortCommand(this, execPath, name, pType, dataType);
     if(!addCommand(command))
       delete(command);
     else
