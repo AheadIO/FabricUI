@@ -161,6 +161,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
         if(m_controller->removePort(name))
         {
           m_controller->addPort(
+            "",
             name,
             infos[i].portType,
             infos[i].dataType.c_str(),
@@ -225,6 +226,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
     }
 
     m_controller->addPort(
+      "",
       infos[indexToAdd].portName,
       infos[indexToAdd].portType,
       infos[indexToAdd].dataType,
