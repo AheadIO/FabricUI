@@ -214,6 +214,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   result->addAction("New Variable");
   result->addAction("Read Variable (Get)");
   result->addAction("Write Variable (Set)");
+  result->addAction("Cache Node");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
   return result;
@@ -425,6 +426,12 @@ void DFGWidget::onGraphAction(QAction * action)
   {
     // todo: show an auto completing text field
     getUIController()->addDFGSet("set", "", QPointF(pos.x(), pos.y()));
+  }
+  else if(action->text() == "Cache Node")
+  {
+    DFGController * controller = getUIController();
+    controller->addDFGNodeFromPreset("Fabric.Core.Data.Cache", QPointF(pos.x(), pos.y()));
+    pos += QPointF(30, 30);
   }
 }
 
