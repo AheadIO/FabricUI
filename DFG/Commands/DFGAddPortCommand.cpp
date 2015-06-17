@@ -14,11 +14,14 @@ DFGAddPortCommand::DFGAddPortCommand(
   FTL::StrRef dataType
   )
   : DFGCommand(controller)
-  , m_execPath( execPath )
   , m_portTitle( name )
   , m_portType( pType )
   , m_dataType( dataType )
 {
+  m_execPath = controller->getExecPath();
+  if(m_execPath.length() > 0 && execPath.size() > 0)
+    m_execPath += ".";
+  m_execPath += std::string(execPath);
 }
 
 
