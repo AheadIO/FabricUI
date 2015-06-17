@@ -8,6 +8,7 @@
 #include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
 #include <FabricUI/GraphView/GraphHeaderWidget.h>
+#include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
 #include "DFGNotificationRouter.h"
@@ -60,6 +61,8 @@ namespace FabricUI
 
       void newPresetSaved(QString presetFilePath);
       void onGraphSet(FabricUI::GraphView::Graph* graph);
+      void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
+      void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
 
     public slots:
 

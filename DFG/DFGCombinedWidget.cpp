@@ -68,6 +68,8 @@ void DFGCombinedWidget::init(
     addWidget(m_dfgLogWidget);
 
     QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
+    QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
+    QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
     QObject::connect(m_dfgWidget->getUIController(), SIGNAL(execPortRenamed(QString, QString)), this, SLOT(onExecPortRenamed(QString, QString)));
@@ -225,6 +227,16 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 void DFGCombinedWidget::setLogFunc(DFGController::LogFunc func)
 {
   DFGLogWidget::setLogFunc(func);
+}
+
+void DFGCombinedWidget::onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog)
+{
+  emit portEditDialogCreated(dialog);
+}
+
+void DFGCombinedWidget::onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog)
+{
+  emit portEditDialogInvoked(dialog);
 }
 
 void DFGCombinedWidget::log(const char * message)

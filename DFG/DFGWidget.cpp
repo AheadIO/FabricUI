@@ -597,9 +597,6 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setTitle(portName);
       dialog.setDataType(m_coreDFGExec.getExecPortResolvedType(portName));
 
-      FTL::StrRef uiNativeArray = m_coreDFGExec.getExecPortMetadata(portName, "uiNativeArray");
-      if(uiNativeArray == "true")
-        dialog.setNative(true);
       FTL::StrRef uiHidden = m_coreDFGExec.getExecPortMetadata(portName, "uiHidden");
       if(uiHidden == "true")
         dialog.setHidden();
@@ -640,13 +637,13 @@ void DFGWidget::onExecPortAction(QAction * action)
         dialog.setComboValues(parts);
       }
 
+      emit portEditDialogCreated(&dialog);
+
       if(dialog.exec() != QDialog::Accepted)
         return;
 
-      if(dialog.native())
-        m_coreDFGExec.setExecPortMetadata(portName, "uiNativeArray", "true", false);
-      else if(uiNativeArray.size() > 0)
-        m_coreDFGExec.setExecPortMetadata(portName, "uiNativeArray", NULL, false);
+      emit portEditDialogInvoked(&dialog);
+
       if(dialog.hidden())
         m_coreDFGExec.setExecPortMetadata(portName, "uiHidden", "true", false);
       else if(uiHidden.size() > 0)
@@ -728,8 +725,13 @@ void DFGWidget::onSidePanelAction(QAction * action)
       dialog.setPortType("In");
     else
       dialog.setPortType("Out");
+
+    emit portEditDialogCreated(&dialog);
+
     if(dialog.exec() != QDialog::Accepted)
       return;
+
+    emit portEditDialogInvoked(&dialog);
 
     QString title = dialog.title();
     QString dataType = dialog.dataType();
@@ -766,8 +768,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
       try
       {
-        if(dialog.native())
-          m_coreDFGExec.setExecPortMetadata(portName.c_str(), "uiNativeArray", "true", false);
         if(dialog.hidden())
           m_coreDFGExec.setExecPortMetadata(portName.c_str(), "uiHidden", "true", false);
         if(dialog.opaque())
