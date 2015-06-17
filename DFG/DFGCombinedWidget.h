@@ -10,6 +10,7 @@
 #include <FabricUI/DFG/DFGUI.h>
 #include <FabricUI/DFG/DFGValueEditor.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
+#include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include <Commands/CommandStack.h>
 
 using namespace FabricServices;
@@ -68,9 +69,15 @@ namespace FabricUI
       virtual void onGraphSet(FabricUI::GraphView::Graph * graph);
       virtual void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
 
+    private slots:
+      void onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
+      void onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
+
     signals:
 
       void valueChanged();
+      void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
+      void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
 
     private:
 

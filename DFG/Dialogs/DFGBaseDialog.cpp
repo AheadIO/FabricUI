@@ -71,6 +71,20 @@ DFGBaseDialog::~DFGBaseDialog()
 {
 }
 
+DFGWidget * DFGBaseDialog::getDFGWidget()
+{
+  DFGWidget * widget = qobject_cast<DFGWidget*>(parent());
+  return widget;
+}
+
+DFGController * DFGBaseDialog::getDFGController()
+{
+  DFGWidget * widget = getDFGWidget();
+  if(widget)
+    return widget->getUIController();
+  return NULL;
+}
+
 void DFGBaseDialog::showEvent(QShowEvent * event)
 {
   QPoint pos = QCursor().pos();
@@ -105,6 +119,7 @@ QWidget * DFGBaseDialog::buttonsWidget()
 
 void DFGBaseDialog::addInput(QWidget * widget, QString label)
 {
+  unsigned int index = m_inputs.size();
   widget->setParent(m_inputsWidget);
   m_inputs.push_back(widget);
 
@@ -124,6 +139,7 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label)
       QLabel * l = new QLabel(label, m_inputsWidget);
       ((QGridLayout*)layout)->addWidget(l, row, 0);
       layout->setAlignment(l, Qt::AlignRight | Qt::AlignVCenter);
+      m_labelToIndex.insert(std::pair<std::string,unsigned int>(label.toUtf8().constData(), index));
     }
     ((QGridLayout*)layout)->addWidget(widget, row, 1);
     layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
@@ -134,4 +150,24 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label)
     layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
   }
 
+}
+
+unsigned int DFGBaseDialog::inputCount() const
+{
+  return (unsigned int)m_inputs.size();
+}
+
+QWidget * DFGBaseDialog::input(unsigned int index)
+{
+  return m_inputs[index];
+}
+
+QWidget * DFGBaseDialog::input(QString label)
+{
+  std::map<std::string, unsigned int>::iterator it = m_labelToIndex.find(label.toUtf8().constData());
+  if(it != m_labelToIndex.end())
+  {
+    return m_inputs[it->second];
+  }
+  return NULL;
 }
