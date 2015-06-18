@@ -349,8 +349,6 @@ void DFGNotificationRouter::onNodeInserted(
   if(!uiNode)
     return;
 
-  FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName.c_str());
-
   FabricCore::DFGNodeType nodeType = m_coreDFGExec.getNodeType(nodeName.c_str());
   if(nodeType == FabricCore::DFGNodeType_Var ||
     nodeType == FabricCore::DFGNodeType_Get ||
@@ -392,6 +390,7 @@ void DFGNotificationRouter::onNodeInserted(
 
   if(m_coreDFGExec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
   {
+    FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName.c_str());
     FTL::CStrRef uiNodeColor = subExec.getMetadata("uiNodeColor");
     if(!uiNodeColor.empty())
       onNodeMetadataChanged(nodeName, "uiNodeColor", uiNodeColor);
