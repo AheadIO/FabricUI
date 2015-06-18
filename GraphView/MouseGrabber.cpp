@@ -213,35 +213,6 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     }
     else
     {
-      std::vector<Connection*> connections = graph()->connections();
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == target)
-        {
-          // filter out IO ports
-          if(connections[i]->src()->targetType() == TargetType_Port && connections[i]->dst()->targetType() == TargetType_Port)
-          {
-            if(((Port*)connections[i]->src())->name() == ((Port*)connections[i]->dst())->name())
-              continue;
-          }
-
-          if(!graph()->controller()->removeConnection(connections[i]))
-          {
-            graph()->controller()->endInteraction();
-        
-            prepareGeometryChange();
-            ungrabMouse();
-            QGraphicsScene * scene = graph()->scene();
-            m_connection->invalidate();
-            scene->removeItem(m_connection);
-            m_connection->deleteLater();
-            scene->removeItem(this);
-            this->deleteLater();
-            return;
-          }
-          break;
-        }
-      }
       graph()->controller()->addConnection(source, target);
     }
   }
