@@ -347,7 +347,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "set")
   {
-    m_parent->getUIController()->addDFGGet(
+    m_parent->getUIController()->addDFGSet(
       "set", "", scenePos
       );
   }
