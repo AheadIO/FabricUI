@@ -120,6 +120,7 @@ void ManipulationTool::toolOffCleanup()
   m_active = false;
   m_view->setMouseTracking(false);
   m_view->updateGL();
+  mEventDispatcher = FabricCore::RTVal();
 
 }
 
