@@ -91,7 +91,7 @@ FabricCore::RTVal QtToKLEvent(QEvent *event, FabricCore::Client const& client, F
       // Setup the Host
       // We cannot set an interface value via RTVals.
       FabricCore::RTVal host = FabricCore::RTVal::Create(client, "Host", 0, 0);
-      host.setMember("hostName", FabricCore::RTVal::ConstructString(client, "Splice Standalone"));
+      host.setMember("hostName", FabricCore::RTVal::ConstructString(client, "Canvas"));
       klevent.setMember("host", host);
   }
   return klevent;

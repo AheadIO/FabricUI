@@ -21,6 +21,7 @@ namespace FabricUI
     	Q_OBJECT
 
       friend class MainWindow;
+      friend class ManipulationTool;
 
     public:
 
@@ -42,6 +43,7 @@ namespace FabricUI
       FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
       FabricCore::RTVal getViewport() const { return m_viewport; }
       FabricCore::RTVal getDrawContext() const { return m_drawContext; }
+      ManipulationTool * getManipTool() { return m_manipTool; }
 
     public slots:
 
@@ -52,6 +54,7 @@ namespace FabricUI
     signals:
 
       void redrawn();
+      void portManipulationRequested(QString portName);
 
     protected:
 

@@ -75,11 +75,11 @@ void ManipulationTool::toolOnSetup()
     FabricCore::RTVal eventDispatcherHandle = FabricCore::RTVal::Create(*m_view->getClient(), "EventDispatcherHandle", 0, 0);
     if(eventDispatcherHandle.isValid())
     {
-      mEventDispatcher = eventDispatcherHandle.callMethod("EventDispatcher", "getEventDispatcher", 0, 0);
+      m_eventDispatcher = eventDispatcherHandle.callMethod("EventDispatcher", "getEventDispatcher", 0, 0);
 
-      if(mEventDispatcher.isValid())
+      if(m_eventDispatcher.isValid())
       {
-        mEventDispatcher.callMethod("", "activateManipulation", 0, 0);
+        m_eventDispatcher.callMethod("", "activateManipulation", 0, 0);
       }
     }
   }
@@ -106,9 +106,9 @@ void ManipulationTool::toolOffCleanup()
 
   try
   {
-    if(mEventDispatcher.isValid())
+    if(m_eventDispatcher.isValid())
     {
-      mEventDispatcher.callMethod("", "deactivateManipulation", 0, 0);
+      m_eventDispatcher.callMethod("", "deactivateManipulation", 0, 0);
     }
   }
   catch(FabricCore::Exception e)
@@ -120,7 +120,7 @@ void ManipulationTool::toolOffCleanup()
   m_active = false;
   m_view->setMouseTracking(false);
   m_view->updateGL();
-  mEventDispatcher = FabricCore::RTVal();
+  m_eventDispatcher = FabricCore::RTVal();
 
 }
 
@@ -131,7 +131,7 @@ bool ManipulationEventFilterObject::eventFilter(QObject *object, QEvent *event)
 
 bool ManipulationTool::onEvent(QEvent *event)
 {
-  if(!mEventDispatcher.isValid())
+  if(!m_eventDispatcher.isValid())
   {
     return false;
   }
@@ -143,30 +143,54 @@ bool ManipulationTool::onEvent(QEvent *event)
   // Now we translate the Qt events to FabricEngine events..
   FabricCore::RTVal klevent = QtToKLEvent(event, *m_view->getClient(), m_view->getViewport());
 
-  if(klevent.isValid())
+  try
   {
-    bool result = false;
-    FabricCore::RTVal host = klevent.maybeGetMember("host");
-
-    //////////////////////////
-    // Invoke the event...
-    mEventDispatcher.callMethod("Boolean", "onEvent", 1, &klevent);
-
-    result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
-    if(result)
-      event->accept();
-
-    if(host.maybeGetMember("redrawRequested").getBoolean())
-      m_view->updateGL();
-
-    if(host.callMethod("Boolean", "undoRedoCommandsAdded", 0, 0).getBoolean())
+    if(klevent.isValid())
     {
-      // Cache the rtvals in a static variable that the command will then stor in the undo stack.
-      ManipulationCmd::setStaticRTValCommands(host.callMethod("UndoRedoCommand[]", "getUndoRedoCommands", 0, 0));
-    }
+      bool result = false;
+      FabricCore::RTVal host = klevent.maybeGetMember("host");
 
-    klevent.invalidate();
-    return result;
+      //////////////////////////
+      // Invoke the event...
+      m_eventDispatcher.callMethod("Boolean", "onEvent", 1, &klevent);
+
+      result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
+      if(result)
+        event->accept();
+
+      if(host.maybeGetMember("redrawRequested").getBoolean())
+        m_view->updateGL();
+
+      if(host.callMethod("Boolean", "undoRedoCommandsAdded", 0, 0).getBoolean())
+      {
+        // Cache the rtvals in a static variable that the command will then stor in the undo stack.
+        ManipulationCmd::setStaticRTValCommands(host.callMethod("UndoRedoCommand[]", "getUndoRedoCommands", 0, 0));
+      }
+
+      std::string customCommand = host.maybeGetMember("customCommand").getStringCString();
+      if(customCommand == "setArg")
+      {
+        FabricCore::RTVal customCommandParams = host.maybeGetMember("customCommandParams");
+        FabricCore::RTVal portNameVal = FabricCore::RTVal::ConstructString(*m_view->getClient(), "portName");
+        FabricCore::RTVal xfoVal = FabricCore::RTVal::ConstructString(*m_view->getClient(), "xfo");
+        std::string portName = customCommandParams.callMethod("String", "getString", 1, &portNameVal).getStringCString();
+        m_lastManipValue = customCommandParams.callMethod("Xfo", "getXfo", 1, &xfoVal);
+
+        if(portName.length() > 0)
+        {
+          emit m_view->portManipulationRequested(portName.c_str());
+        }
+      }
+
+
+      klevent.invalidate();
+      return result;
+    }
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+    return false;
   }
   // the event was not handled by FabricEngine manipulation system. 
   return false;

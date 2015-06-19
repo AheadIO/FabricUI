@@ -50,9 +50,12 @@ namespace FabricUI
       bool onEvent(QEvent *event);
       bool isActive() { return m_active;}
 
+      FabricCore::RTVal getLastManipVal() { return m_lastManipValue; }
+
     private:
       bool  m_active;
-      FabricCore::RTVal mEventDispatcher;
+      FabricCore::RTVal m_eventDispatcher;
+      FabricCore::RTVal m_lastManipValue;
 
       GLViewportWidget * m_view;
     };
