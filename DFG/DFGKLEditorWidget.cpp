@@ -94,7 +94,10 @@ void DFGKLEditorWidget::setFunc(FabricCore::DFGExec func, char const * execPath)
 
   try
   {
-    m_klEditor->sourceCodeWidget()->setCode(m_func.getCode());
+    QString code = m_func.getCode();
+    if(code.length() == 0)
+      code = "dfgEntry {\n  //result = lhs + rhs;\n}\n";
+    m_klEditor->sourceCodeWidget()->setCode(code);
   }
   catch(FabricCore::Exception e)
   {
