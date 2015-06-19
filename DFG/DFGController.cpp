@@ -584,16 +584,6 @@ bool DFGController::addConnection(char const * srcPath, char const * dstPath)
   beginInteraction();
   try
   {
-    {
-      Commands::Command * command = new DFGRemoveAllConnectionsCommand(this, 
-        dstPath
-      );
-      if(!addCommand(command))
-      {
-        delete(command);
-        return false;
-      }
-    }
     Commands::Command * command = new DFGAddConnectionCommand(this, 
       srcPath, 
       dstPath

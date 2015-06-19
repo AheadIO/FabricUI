@@ -29,7 +29,11 @@ namespace FabricUI
       QFont logFont;
       QColor searchBackgroundColor;
       QColor searchHighlightColor;
+      QColor searchCursorColor;
       QColor searchFontColor;
+      QFont searchQueryFont;
+      QFont searchResultsFont;
+      QFont searchHelpFont;
 
       std::map<std::string, QColor> colorForDataType;
 
