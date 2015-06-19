@@ -151,6 +151,9 @@ namespace FabricUI
         FTL::CStrRef refName,
         FTL::CStrRef newVarPath
         );
+      virtual void onFuncCodeChanged(
+        FTL::CStrRef code
+        );
 
     private:
 

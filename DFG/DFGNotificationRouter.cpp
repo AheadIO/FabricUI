@@ -224,6 +224,12 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("newVarPath") )
         );
     }
+    else if(descStr == FTL_STR("funcCodeChanged"))
+    {
+      onFuncCodeChanged(
+        jsonObject->getString( FTL_STR("code") )
+        );
+    }
     else
     {
       printf(
@@ -1025,4 +1031,11 @@ void DFGNotificationRouter::onRefVarPathChanged(
   else if(nodeType == FabricCore::DFGNodeType_Set)
     title = "set "+title;
   onNodeTitleChanged(refName, title.c_str());
+}
+
+void DFGNotificationRouter::onFuncCodeChanged(
+  FTL::CStrRef code
+  )
+{
+  // todo: we don't do anything here...
 }
