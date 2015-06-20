@@ -12,6 +12,8 @@ Graph::Graph(
   : QGraphicsWidget(parent)
   , m_config( config )
 {
+  m_isEditable = true;
+
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
   setContentsMargins(0, 0, 0, 0);
@@ -423,6 +425,8 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
 
 MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType)
 {
+  if(!m_isEditable)
+    return NULL;
   m_mouseGrabber = new MouseGrabber(this, pos, target, portType);
   return m_mouseGrabber;
 }
@@ -469,12 +473,14 @@ bool Graph::releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
 
 void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
-  emit nodeDoubleClicked(node);
+  if(m_isEditable)
+    emit nodeDoubleClicked(node);
 }
 
 void Graph::onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel)
 {
-  emit sidePanelDoubleClicked(panel);
+  if(m_isEditable)
+    emit sidePanelDoubleClicked(panel);
 }
 
 void Graph::setGraphContextMenuCallback(Graph::GraphContextMenuCallback callback, void * userData)

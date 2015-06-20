@@ -54,6 +54,7 @@ namespace FabricUI
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
 
+      bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);
 
@@ -107,6 +108,7 @@ namespace FabricUI
 
       std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
       std::string m_coreDFGExecPath;
+      bool m_isEditable;
 
       static QSettings * g_settings;
     };

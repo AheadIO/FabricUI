@@ -45,9 +45,20 @@ DFGWidget::DFGWidget(
   m_uiController = new DFGController(NULL, m_coreClient, m_manager, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, stack, overTakeBindingNotifications);
   m_klEditor = new DFGKLEditorWidget(this, m_uiController.get(), m_manager, m_dfgConfig);
   m_klEditor->hide();
-  m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
-  m_tabSearchWidget->hide();
 
+  m_isEditable = true;
+  if(coreDFGBinding.isValid())
+  {
+    FTL::StrRef editable = m_coreDFGBinding.getMetadata("editable");
+    if(editable == "false")
+      m_isEditable = false;
+  }
+
+  if(m_isEditable)
+  {
+    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+    m_tabSearchWidget->hide();
+  }
 
   QVBoxLayout * layout = new QVBoxLayout();
   layout->setSpacing(0);
@@ -63,12 +74,14 @@ DFGWidget::DFGWidget(
 
   setGraph(m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec);
 
-  QObject::connect(m_uiHeader, SIGNAL(goUpPressed()), this, SLOT(onGoUpPressed()));
-
-  QObject::connect(
-    m_uiController.get(), SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
-    this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
-  );  
+  if(m_isEditable)
+  {
+    QObject::connect(m_uiHeader, SIGNAL(goUpPressed()), this, SLOT(onGoUpPressed()));
+    QObject::connect(
+      m_uiController.get(), SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
+      this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
+    );  
+  }
 }
 
 DFGWidget::~DFGWidget()
@@ -100,17 +113,21 @@ void DFGWidget::setGraph(
   {
     m_uiGraph = new GraphView::Graph( NULL, m_dfgConfig.graphConfig );
     m_uiGraph->setController(m_uiController.get());
+    m_uiGraph->setEditable(m_isEditable);
     m_uiController->setGraph(m_uiGraph);
 
-    QObject::connect(
-      m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-      this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
-    );  
-    QObject::connect(
-      m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
-      this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
-    );  
-    m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
+    if(m_isEditable)
+    {
+      QObject::connect(
+        m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
+        this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
+      );  
+      QObject::connect(
+        m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
+        this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
+      );  
+      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
+    }
 
     m_uiGraph->initialize();
 
@@ -126,11 +143,13 @@ void DFGWidget::setGraph(
     m_uiController->setRouter(m_router);
     m_uiHeader->setCaption(m_coreDFGExec.getTitle());
   
-    m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
-    m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
-    m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
-    m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
-
+    if(m_isEditable)
+    {
+      m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
+      m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
+      m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
+      m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
+    }
 
     if(m_coreDFGExec.getType() == FabricCore::DFGExecType_Graph)
     {

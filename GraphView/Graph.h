@@ -60,6 +60,9 @@ namespace FabricUI
       virtual Controller * controller();
       virtual void setController(Controller * c);
 
+      bool isEditable() const { return m_isEditable; }
+      void setEditable(bool state) { m_isEditable = state; }
+
       MainPanel * mainPanel();
       const MainPanel * mainPanel() const;
       bool hasSidePanels() const;
@@ -193,6 +196,7 @@ namespace FabricUI
       void * m_connectionContextMenuCallbackUD;
       void * m_portContextMenuCallbackUD;
       void * m_sidePanelContextMenuCallbackUD;
+      bool m_isEditable;
 
     };
 
