@@ -26,6 +26,7 @@ Node::Node(
   , m_name( name )
   , m_title( title )
 {
+  m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -93,7 +94,7 @@ Node::Node(
   }
 
   // setup caching
-  m_cache = new CachingEffect(NULL);
+  m_cache = new CachingEffect(this);
   this->setGraphicsEffect(m_cache);
 
   setAcceptHoverEvents(true);
@@ -181,18 +182,13 @@ QRectF Node::boundingRect() const
   float width = rect.width();
   float height = rect.height();
 
-  // left -= m_graph->config().pinRadius;
-  // width += m_graph->config().pinRadius * 2.0f;
-  // width += 30.0f;
-
   if(m_graph->config().nodeShadowEnabled)
   {
     width += m_graph->config().nodeShadowOffset.x() * 2.0f;
     height += m_graph->config().nodeShadowOffset.y() * 2.0f;
   }
 
-  rect = QRectF(left, top, width, height);
-  return rect;
+  return QRectF(left, top, width, height);
 }
 
 bool Node::selected() const
@@ -260,16 +256,12 @@ void Node::clearError()
 
 QPointF Node::graphPos() const
 {
-  QTransform xfo = transform();
-  QSizeF scale = size();
-  QPointF pos(xfo.dx()+(scale.width()*0.5), xfo.dy()+(scale.height()*0.5));
-  return pos;
+  return topLeftToCentralPos(topLeftGraphPos());
 }
 
 void Node::setGraphPos(QPointF pos, bool quiet)
 {
-  QSizeF scale = size();
-  setTransform(QTransform::fromTranslate(pos.x()-(scale.width()*0.5), pos.y()-(scale.height()*0.5)), false);
+  setTopLeftGraphPos(centralPosToTopLeftPos(pos));
   if(!quiet)
   {
     emit positionChanged(this, pos);
@@ -294,16 +286,16 @@ void Node::setTopLeftGraphPos(QPointF pos, bool quiet)
   }
 }
 
-QPointF Node::topLeftToCentralPos(QPointF pos)
+QPointF Node::topLeftToCentralPos(QPointF pos) const
 {
-  QSizeF scale = size();
-  return QPointF(pos.x() + scale.width() * 0.5, pos.y() + scale.height() * 0.5);
+  QRectF rect = boundingRect();
+  return QPointF(pos.x() + rect.width() * 0.5, pos.y() + rect.height() * 0.5);
 }
 
-QPointF Node::centralPosToTopLeftPos(QPointF pos)
+QPointF Node::centralPosToTopLeftPos(QPointF pos) const
 {
-  QSizeF scale = size();
-  return QPointF(pos.x() - scale.width() * 0.5, pos.y() - scale.height() * 0.5);
+  QRectF rect = boundingRect();
+  return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
 }
 
 Pin * Node::addPin(Pin * pin, bool quiet)
