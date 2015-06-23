@@ -27,6 +27,7 @@ void TreeModel::addItem(TreeItem * itemToAdd)
 {
   beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
   itemToAdd->setParent(NULL);
+  itemToAdd->setModel(this);
   itemToAdd->setIndex(m_items.size());
   m_items.push_back(itemToAdd);
   endInsertRows();

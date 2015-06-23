@@ -12,6 +12,7 @@
 #include "Dialogs/DFGGetStringDialog.h"
 #include "Dialogs/DFGEditPortDialog.h"
 #include "Dialogs/DFGNewVariableDialog.h"
+#include "Dialogs/DFGSavePresetDialog.h"
 #include <assert.h>
 
 using namespace FabricServices;
@@ -553,11 +554,69 @@ void DFGWidget::onNodeAction(QAction * action)
     {
       FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
       QString title = subExec.getTitle();
-      
+
+      DFGSavePresetDialog dialog(this, m_coreDFGHost, title);
+
+      while(true)
+      {
+        if(dialog.exec() != QDialog::Accepted)
+          return;
+  
+        QString name = dialog.name();
+        QString version = dialog.version();
+        QString location = dialog.location();
+
+        if(name.length() == 0 || location.length() == 0)
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "You need to provide a valid name and pick a valid location!");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        if(location.startsWith("Fabric.") || location.startsWith("Variables."))
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "You can't save a preset into a factory path (below Fabric).");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        std::string filePathStr = m_coreDFGHost.getPresetImportPathname(location.toUtf8().constData());
+        filePathStr += "/";
+        filePathStr += name.toUtf8().constData();
+        filePathStr += ".dfg.json";
+
+        std::string json = subExec.exportJSON().getCString();
+        FILE * file = fopen(filePathStr.c_str(), "wb");
+        if(!file)
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "The file "+QString(filePathStr.c_str())+" cannot be opened for writing.");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        fwrite(json.c_str(), json.length(), 1, file);
+        fclose(file);
+
+        subExec.setImportPathname(filePathStr.c_str());
+        subExec.attachPresetFile(location.toUtf8().constData(), name.toUtf8().constData());
+
+        emit newPresetSaved(filePathStr.c_str());
+        break;
+      }
     }
     catch(FabricCore::Exception e)
     {
-      printf("Exception: %s\n", e.getDesc_cstr());
+      QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+        e.getDesc_cstr());
+      msg.addButton("Ok", QMessageBox::AcceptRole);
+      msg.exec();
+      return;
     }
   }
   else if(action->text() == "Caching - Unspecified")

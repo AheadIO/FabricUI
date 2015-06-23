@@ -61,6 +61,7 @@ namespace FabricUI
       virtual TreeItem * child(unsigned int i);
       virtual TreeItem * child(QString path);
       virtual TreeItem * parent();
+      virtual TreeModel * model();
 
       virtual Qt::ItemFlags flags();
       virtual QVariant data(int role);
@@ -75,6 +76,7 @@ namespace FabricUI
 
       virtual void setIndex(unsigned int i);
       virtual void setParent(TreeItem * item);
+      virtual void setModel(TreeModel * model);
       virtual void setSelected(bool state);
       virtual void setExpanded(bool state);
       virtual void setModelIndex(QModelIndex modelIndex);
@@ -89,6 +91,7 @@ namespace FabricUI
       QColor m_foregroundColor;
       QPixmap m_pixmap;
       TreeItem * m_parent;
+      TreeModel * m_model;
       unsigned int m_index;
       mutable QModelIndex m_modelIndex;
       bool m_selected;

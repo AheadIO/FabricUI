@@ -25,6 +25,10 @@ namespace FabricUI
       virtual QStringList filters() const;
       virtual void setFilters(QStringList f);
 
+      // show presets
+      virtual bool showsPresets() const { return m_showsPresets; }
+      virtual void setShowsPresets(bool state) { m_showsPresets = state; }
+
     private:
 
       bool includeChildName(QString name);
@@ -32,6 +36,7 @@ namespace FabricUI
       FabricCore::DFGHost m_coreDFGHost;
       std::string m_nameSpace;
       bool m_validated;
+      bool m_showsPresets;
       QStringList m_filters;
     };
 

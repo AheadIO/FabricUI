@@ -3,6 +3,7 @@
 #include "NameSpaceTreeItem.h"
 #include "PresetTreeItem.h"
 #include <map>
+#include <FTL/JSONValue.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -24,23 +25,36 @@ unsigned int NameSpaceTreeItem::numChildren()
     std::map<std::string, std::string> nameSpaceLookup;
     std::map<std::string, std::string> presetLookup;
 
-    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(m_nameSpace.c_str());
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
-    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc(m_nameSpace.c_str());
 
-    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    char const *jsonCStr;
+    uint32_t jsonSize;
+    jsonStringResult.getStringDataAndLength( jsonCStr, jsonSize );
+    FTL::CStrRef jsonStr( jsonCStr, jsonSize );
+    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
+
+    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
+      );
+    FTL::JSONObject const *membersObject =
+      jsonObject->get( FTL_STR("members") )->cast<FTL::JSONObject>();
+
+    for ( FTL::JSONObject::const_iterator it = membersObject->begin();
+      it != membersObject->end(); ++it )
     {
-      std::string name = memberIter.getKey()->getStringData();
-      const FabricCore::Variant * memberVar = memberIter.getValue();
-      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
-      std::string objectType = objectTypeVar->getStringData();
-      if(objectType == "Preset")
+      FTL::CStrRef name = it->first;
+      FTL::JSONObject const *memberObject =
+        it->second->cast<FTL::JSONObject>();
+      FTL::CStrRef objectType =
+        memberObject->getString( FTL_STR("objectType") );
+
+      if(objectType == "Preset" && m_showsPresets)
       {
-        presetLookup.insert(std::pair<std::string, std::string>(name, prefix + name));
+        presetLookup.insert(std::pair<std::string, std::string>(name, prefix + name.c_str()));
       }
-      else if(objectType == "NameSpace")
+      else if(objectType == FTL_STR("NameSpace"))
       {
-        nameSpaceLookup.insert(std::pair<std::string, std::string>(name, prefix + name));
+        nameSpaceLookup.insert(std::pair<std::string, std::string>(name, prefix + name.c_str()));
       }
     }
 
@@ -56,14 +70,19 @@ unsigned int NameSpaceTreeItem::numChildren()
       }
       if(filters.length() == 0 && m_filters.length() > 0)
         continue;
-      addChild(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str(), filters));
+      NameSpaceTreeItem * item = new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str(), filters);
+      item->setShowsPresets(m_showsPresets);
+      addChild(item);
     }
 
-    for(std::map<std::string, std::string>::iterator it=presetLookup.begin();it!=presetLookup.end();it++)
+    if(m_showsPresets)
     {
-      if(!includeChildName(it->first.c_str()))
-        continue;
-      addChild(new PresetTreeItem(it->second.c_str(), it->first.c_str()));
+      for(std::map<std::string, std::string>::iterator it=presetLookup.begin();it!=presetLookup.end();it++)
+      {
+        if(!includeChildName(it->first.c_str()))
+          continue;
+        addChild(new PresetTreeItem(it->second.c_str(), it->first.c_str()));
+      }
     }
 
     m_validated = true;
