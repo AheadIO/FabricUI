@@ -130,7 +130,7 @@ void PresetTreeWidget::refresh()
       alloca( searchSplit.size() * sizeof( char const * ) )
       );
     for ( size_t i = 0; i < searchSplit.size(); ++i )
-      cStrs[i] = searchSplit[i].data();    
+      cStrs[i] = searchSplit[i].data();
 
     SplitSearch::Matches matches = m_presetPathDict.search( searchSplit.size(), cStrs );
 
@@ -154,14 +154,16 @@ void PresetTreeWidget::refresh()
       {
         QString match(userDatas[j]);
         if(match.startsWith(name.data()))
-          filters.append(match.right(match.length() - name.size()));
+        {
+          filters.append(match.right(match.length() - name.size() - 1));
+        }
       }
 
       if(filters.length() == 0)
         continue;
 
-      // also add the variable list item
-      m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding, filters));
+      // // also add the variable list item
+      // m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding, filters));
 
       const FabricCore::Variant * memberVar = memberIter.getValue();
       const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
@@ -193,10 +195,9 @@ void PresetTreeWidget::updatePresetPathDB()
   std::vector<std::string> paths;
   paths.push_back("");
 
-  unsigned oldSize = paths.size() + 1;
-  for(unsigned int i=0;i<oldSize;i++)
+  for(unsigned int i=0;i<paths.size();i++)
   {
-    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc("");
+    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc(paths[i].c_str());
     char const *jsonCStr;
     uint32_t jsonSize;
     jsonStringResult.getStringDataAndLength( jsonCStr, jsonSize );
@@ -217,13 +218,19 @@ void PresetTreeWidget::updatePresetPathDB()
         it->second->cast<FTL::JSONObject>();
       FTL::CStrRef objectType =
         memberObject->getString( FTL_STR("objectType") );
+
+      std::string path = paths[i];
+      if(path.length() > 0)
+        path += ".";
+      path += name;
+
       if(objectType == FTL_STR("Preset"))
       {
-        m_presetPathDictSTL.push_back(paths[i] + std::string(".") + name.c_str());
+        m_presetPathDictSTL.push_back(path);
       }
       else if(objectType == FTL_STR("NameSpace"))
       {
-        paths.push_back(paths[i] + std::string(".") + name.c_str());
+        paths.push_back(path);
       }
     }
   }

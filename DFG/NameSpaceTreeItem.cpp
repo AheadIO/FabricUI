@@ -54,11 +54,17 @@ unsigned int NameSpaceTreeItem::numChildren()
           continue;
         filters.append(m_filters[i].right(m_filters[i].length() - search.length()));
       }
+      if(filters.length() == 0 && m_filters.length() > 0)
+        continue;
       addChild(new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str(), filters));
     }
 
     for(std::map<std::string, std::string>::iterator it=presetLookup.begin();it!=presetLookup.end();it++)
+    {
+      if(!includeChildName(it->first.c_str()))
+        continue;
       addChild(new PresetTreeItem(it->second.c_str(), it->first.c_str()));
+    }
 
     m_validated = true;
   }
