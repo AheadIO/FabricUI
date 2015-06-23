@@ -15,12 +15,12 @@ DFGSavePresetDialog::DFGSavePresetDialog(
   )
 : DFGBaseDialog(parent, true, dfgConfig)
 {
+  m_presetTree = new PresetTreeWidget(this, host, dfgConfig, true, false);
+  addInput(m_presetTree, "location");
   m_nameEdit = new QLineEdit(name, this);
   addInput(m_nameEdit, "name");
   // m_versionEdit = new QLineEdit(version, this);
   // addInput(m_versionEdit, "version");
-  m_presetTree = new PresetTreeWidget(this, host, dfgConfig, true, false);
-  addInput(m_presetTree, "location");
 
   TreeView::TreeModel * model = m_presetTree->getTreeModel();
   QObject::connect(model, SIGNAL(itemSelected(FabricUI::TreeView::TreeItem*)), 
