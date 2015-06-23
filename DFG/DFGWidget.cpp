@@ -263,8 +263,9 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   action = result->addAction("Edit");
   action = result->addAction("Rename");
   action = result->addAction("Delete");
-  action = result->addAction("Export Preset");
+  result->addSeparator();
   action = result->addAction("Save Preset");
+  action = result->addAction("Export JSON");
   // result->addSeparator();
   // action = result->addAction("Caching - Unspecified");
   // action->setCheckable(true);
@@ -477,7 +478,7 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->removeNode(m_contextNode);
   }
-  else if(action->text() == "Export Preset")
+  else if(action->text() == "Export JSON")
   {
     if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
       return;
@@ -495,7 +496,7 @@ void DFGWidget::onNodeAction(QAction * action)
     }
 
     QString filter = "DFG Preset (*.dfg.json)";
-    QString filePath = QFileDialog::getSaveFileName(this, "Export Preset", lastPresetFolder, filter, &filter);
+    QString filePath = QFileDialog::getSaveFileName(this, "Export JSON", lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
     if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
@@ -535,13 +536,6 @@ void DFGWidget::onNodeAction(QAction * action)
         fwrite(json.c_str(), json.length(), 1, file);
         fclose(file);
       }
-
-      subExec.setImportPathname(filePathStr.c_str());
-      subExec.attachPresetFile("", subExec.getTitle());
-
-      emit newPresetSaved(filePathStr.c_str());
-      // update the preset search paths within the controller
-      m_uiController->onVariablesChanged();
     }
     catch(FabricCore::Exception e)
     {
