@@ -22,13 +22,13 @@ namespace FabricUI
         QWidget * parent,
         FabricCore::DFGHost & host,
         QString name = "",
-        QString version = "",
+        // QString version = "",
         const DFGConfig & dfgConfig = DFGConfig()
         );
       virtual ~DFGSavePresetDialog();
 
       QString name() const;
-      QString version() const;
+      // QString version() const;
       QString location() const;
 
     public slots:
@@ -37,7 +37,7 @@ namespace FabricUI
     private:
 
       QLineEdit * m_nameEdit;
-      QLineEdit * m_versionEdit;
+      // QLineEdit * m_versionEdit;
       PresetTreeWidget * m_presetTree;
       QString m_location;
 

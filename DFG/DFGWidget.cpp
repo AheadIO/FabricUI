@@ -540,6 +540,8 @@ void DFGWidget::onNodeAction(QAction * action)
       subExec.attachPresetFile("", subExec.getTitle());
 
       emit newPresetSaved(filePathStr.c_str());
+      // update the preset search paths within the controller
+      m_uiController->onVariablesChanged();
     }
     catch(FabricCore::Exception e)
     {
@@ -563,7 +565,7 @@ void DFGWidget::onNodeAction(QAction * action)
           return;
   
         QString name = dialog.name();
-        QString version = dialog.version();
+        // QString version = dialog.version();
         QString location = dialog.location();
 
         if(name.length() == 0 || location.length() == 0)
@@ -575,7 +577,8 @@ void DFGWidget::onNodeAction(QAction * action)
           continue;
         }
 
-        if(location.startsWith("Fabric.") || location.startsWith("Variables."))
+        if(location.startsWith("Fabric.") || location.startsWith("Variables.") ||
+          location == "Fabric" || location == "Variables")
         {
           QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
             "You can't save a preset into a factory path (below Fabric).");
@@ -589,8 +592,24 @@ void DFGWidget::onNodeAction(QAction * action)
         filePathStr += name.toUtf8().constData();
         filePathStr += ".dfg.json";
 
+        FILE * file = fopen(filePathStr.c_str(), "rb");
+        if(file)
+        {
+          fclose(file);
+          file = NULL;
+
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "The file "+QString(filePathStr.c_str())+" already exists.\nAre you sure to overwrite the file?");
+          msg.addButton("Cancel", QMessageBox::RejectRole);
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          if(msg.exec() != QDialog::Accepted)
+            continue;
+        }
+
+        subExec.setTitle(name.toUtf8().constData());
+
         std::string json = subExec.exportJSON().getCString();
-        FILE * file = fopen(filePathStr.c_str(), "wb");
+        file = fopen(filePathStr.c_str(), "wb");
         if(!file)
         {
           QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
@@ -607,6 +626,8 @@ void DFGWidget::onNodeAction(QAction * action)
         subExec.attachPresetFile(location.toUtf8().constData(), name.toUtf8().constData());
 
         emit newPresetSaved(filePathStr.c_str());
+        // update the preset search paths within the controller
+        m_uiController->onVariablesChanged();
         break;
       }
     }

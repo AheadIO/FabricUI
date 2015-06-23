@@ -10,15 +10,15 @@ DFGSavePresetDialog::DFGSavePresetDialog(
   QWidget * parent,
   FabricCore::DFGHost & host,
   QString name,
-  QString version,
+  // QString version,
   const DFGConfig & dfgConfig
   )
 : DFGBaseDialog(parent, true, dfgConfig)
 {
   m_nameEdit = new QLineEdit(name, this);
   addInput(m_nameEdit, "name");
-  m_versionEdit = new QLineEdit(version, this);
-  addInput(m_versionEdit, "version");
+  // m_versionEdit = new QLineEdit(version, this);
+  // addInput(m_versionEdit, "version");
   m_presetTree = new PresetTreeWidget(this, host, dfgConfig, true, false);
   addInput(m_presetTree, "location");
 
@@ -36,10 +36,10 @@ QString DFGSavePresetDialog::name() const
   return m_nameEdit->text();
 }
 
-QString DFGSavePresetDialog::version() const
-{
-  return m_versionEdit->text();
-}
+// QString DFGSavePresetDialog::version() const
+// {
+//   return m_versionEdit->text();
+// }
 
 QString DFGSavePresetDialog::location() const
 {
