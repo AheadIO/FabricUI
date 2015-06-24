@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/BackDropNode.h>
 #include "DFGNotificationRouter.h"
 #include "DFGController.h"
 
@@ -879,6 +880,47 @@ void DFGNotificationRouter::onExecMetadataChanged(
       float value = jsonObject->getFloat64( FTL_STR("value") );
       // float y = jsonObject->getFloat64( FTL_STR("y") );
       uiGraph->mainPanel()->setCanvasZoom(value, false);
+    }
+  }
+  else if(key == "uiBackDrops")
+  {
+    // we ignore this for now,
+    // it's just the list of names
+  }
+  else if(key.startswith("uiBackDrop_"))
+  {
+    if(value.empty())
+    {
+      FTL::CStrRef name = key.substr(11).data();
+      GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
+      if(uiNode)
+      {
+        uiGraph->removeNode(uiNode);
+      }
+    }
+    else
+    {
+      FTL::JSONStrWithLoc jsonStrWithLoc( value );
+      FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+        FTL::JSONValue::Decode( jsonStrWithLoc )
+        );
+      if ( jsonValue )
+      {
+        FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+
+        FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+
+        GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
+        if(!uiNode)
+        {
+          FTL::CStrRef title = jsonObject->getString( FTL_STR("title") );
+          uiNode = new GraphView::BackDropNode(uiGraph, name.c_str(), title.c_str());
+          uiNode->setColor(uiNode->color()); // force transparency to work
+          uiGraph->addNode(uiNode);
+        }
+
+        uiNode->updateFromJSON(jsonObject);
+      }
     }
   }
 }

@@ -16,6 +16,7 @@ namespace FabricUI
     const int QGraphicsItemType_Connection = QGraphicsItem::UserType + 9;
     const int QGraphicsItemType_PinCircle = QGraphicsItem::UserType + 10;
     const int QGraphicsItemType_NodeRectangle = QGraphicsItem::UserType + 11;
+    const int QGraphicsItemType_BackDropNode = QGraphicsItem::UserType + 12;
 
   };
 

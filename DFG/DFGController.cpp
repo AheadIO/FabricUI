@@ -272,6 +272,35 @@ std::string DFGController::addEmptyFunc(char const * title, QPointF pos)
   return "";
 }
 
+std::string DFGController::addBackDropNode(char const * title, QPointF pos)
+{
+  try
+  {
+    QString uiBackDropsStr = getCoreDFGExec().getMetadata("uiBackDrops");
+    QStringList uiBackDrops;
+    if(uiBackDropsStr.length() > 0)
+      uiBackDrops = uiBackDropsStr.split(',');
+
+    QString nameStr = QString(title) + "_" + QString::number(uiBackDrops.length());
+    QString keyStr = "uiBackDrop_"+nameStr;
+    QString jsonStr = GraphView::BackDropNode::getDefaultJSON(
+      nameStr.toUtf8().constData(), title, pos);
+
+    uiBackDrops.append(keyStr);
+    uiBackDropsStr = uiBackDrops.join(",");
+
+    getCoreDFGExec().setMetadata("uiBackDrops", uiBackDropsStr.toUtf8().constData(), false);
+    getCoreDFGExec().setMetadata(keyStr.toUtf8().constData(), jsonStr.toUtf8().constData(), false);
+
+    return nameStr.toUtf8().constData();
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return "";
+}
+
 bool DFGController::removeNode(char const * path)
 {
   try
@@ -299,9 +328,28 @@ bool DFGController::removeNode(char const * path)
   return true;
 }
 
+bool DFGController::removeBackDropNode(GraphView::BackDropNode * node)
+{
+ try
+  {
+    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+    getCoreDFGExec().setMetadata(keyStr.toUtf8().constData(), NULL, false);
+    return true;
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+  return false;
+}
+
 bool DFGController::removeNode(GraphView::Node * node)
 {
-  return removeNode(node->name().c_str());
+  if(node->type() == GraphView::QGraphicsItemType_Node)
+    return removeNode(node->name().c_str());
+  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return removeBackDropNode((GraphView::BackDropNode*)node);
+  return false;
 }
 
 bool DFGController::renameNode(char const * path, char const * title)
@@ -323,11 +371,32 @@ bool DFGController::renameNode(char const * path, char const * title)
   return true;
 }
 
+bool DFGController::renameBackDropNode(GraphView::BackDropNode * node, char const * title)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+    QString metaData = node->getJSON(QString(title));
+    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+  return true;
+}
+
 bool DFGController::renameNode(GraphView::Node * node, char const * title)
 {
   if(node->title() == title)
     return false;
-  return renameNode(node->name().c_str(), title);
+  if(node->type() == GraphView::QGraphicsItemType_Node)
+    return renameNode(node->name().c_str(), title);
+  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return renameBackDropNode((GraphView::BackDropNode*)node, title);
+  return false;
 }
 
 GraphView::Pin * DFGController::addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType)
@@ -931,6 +1000,24 @@ bool DFGController::moveNode(char const * path, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
+bool DFGController::moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
+
+    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+    QString metaData = node->getJSON(pos);
+    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+  return true;
+}
+
 bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLeftPos)
 {
   if(!isTopLeftPos)
@@ -938,7 +1025,13 @@ bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLe
     pos = uiNode->centralPosToTopLeftPos(pos);
     isTopLeftPos = true;
   }
-  return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
+
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+    return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
+  else if(uiNode->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return moveBackDropNode((GraphView::BackDropNode*)uiNode, pos, isTopLeftPos);
+
+  return false;
 }
 
 bool DFGController::zoomCanvas(float zoom)
@@ -979,7 +1072,11 @@ bool DFGController::relaxNodes(QStringList paths)
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
     for(unsigned int i=0;i<nodes.size();i++)
+    {
+      if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
+        continue;
       paths.append(nodes[i]->name().c_str());
+    }
   }
 
   std::vector<GraphView::Node*> allNodes = graph()->nodes();
@@ -1042,6 +1139,23 @@ bool DFGController::relaxNodes(QStringList paths)
   return true;
 }
 
+bool DFGController::tintBackDropNode(GraphView::BackDropNode * node, QColor color)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+    QString metaData = node->getJSON(color);
+    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+  return true;
+}
+
 std::string DFGController::copy(QStringList paths)
 {
   try
@@ -1050,7 +1164,11 @@ std::string DFGController::copy(QStringList paths)
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
+      {
+        if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
+          continue;
         paths.append(nodes[i]->name().c_str());
+      }
     }
 
     DFGCopyCommand * command = new DFGCopyCommand(this, paths);
@@ -1135,7 +1253,11 @@ std::string DFGController::implodeNodes(char const * desiredName, QStringList pa
     {
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
+      {
+        if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
+          continue;
         paths.append(nodes[i]->name().c_str());
+      }
     }
 
     QRectF bounds;
@@ -1186,6 +1308,8 @@ QStringList DFGController::explodeNode(char const * path)
       const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
       for(unsigned int i=0;i<nodes.size();i++)
       {
+        if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
+          continue;
         path = nodes[i]->name().c_str();
         break;
       }
@@ -1488,13 +1612,43 @@ bool DFGController::canConnectTo(
 
 void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node)
 {
-  Controller::populateNodeToolbar(toolbar, node);
-
-  FabricCore::DFGExec exec = getCoreDFGExec();
-  if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
+  if(node->type() == GraphView::QGraphicsItemType_Node)
   {
-    toolbar->addTool("node_edit", "node_edit.png");
+    Controller::populateNodeToolbar(toolbar, node);
+
+    try
+    {
+      FabricCore::DFGExec exec = getCoreDFGExec();
+      if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
+      {
+        toolbar->addTool("node_edit", "node_edit.png");
+      }
+    }
+    catch ( FabricCore::Exception e )
+    {
+      printf(
+        "DFGController::populateNodeToolbar: caught Core exception: %s\n",
+        e.getDesc_cstr()
+        );
+    }
   }
+}
+
+bool DFGController::setBackDropNodeSize(GraphView::BackDropNode * node, QSizeF size)
+{
+  try
+  {
+    FabricCore::DFGExec exec = getCoreDFGExec();
+    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+    QString metaData = node->getJSON(size);
+    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+  return true;
 }
 
 void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)

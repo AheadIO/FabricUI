@@ -64,10 +64,10 @@ namespace FabricUI
         { return m_title; }
       void setTitle( FTL::CStrRef title );
       QColor color() const;
-      void setColor(QColor col);
-      void setColorAsGradient(QColor a, QColor b);
+      virtual void setColor(QColor col);
+      virtual void setColorAsGradient(QColor a, QColor b);
       QColor titleColor() const;
-      void setTitleColor(QColor col);
+      virtual void setTitleColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
 

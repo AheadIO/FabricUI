@@ -104,6 +104,8 @@ namespace FabricUI
       float mouseGrabberRadius;
       float mouseWheelZoomRate;
 
+      float backDropNodeAlpha;
+
       GraphConfig();
     };
 

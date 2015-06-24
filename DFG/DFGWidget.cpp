@@ -4,6 +4,7 @@
 #include <QtGui/QCursor>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QColorDialog>
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 #include <FabricCore.h>
@@ -222,6 +223,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   QMenu* result = new QMenu(NULL);
   result->addAction("New empty graph");
   result->addAction("New empty function");
+  result->addAction("New backdrop");
 
   const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
   if(nodes.size() > 0)
@@ -250,61 +252,58 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
   char const * nodeName = uiNode->name().c_str();
 
-  if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-    return NULL;
-  FabricCore::DFGExec subExec = graphWidget->m_coreDFGExec.getSubExec(nodeName);
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  {
+    if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return NULL;
+  }
 
   QMenu* result = new QMenu(NULL);
   QAction* action;
-  FEC_DFGCacheRule cacheRule = graphWidget->m_coreDFGExec.getInstCacheRule(nodeName);
-  if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    cacheRule = subExec.getCacheRule();
 
   action = result->addAction("Edit");
   action = result->addAction("Rename");
   action = result->addAction("Delete");
-  result->addSeparator();
-  action = result->addAction("Save Preset");
-  action = result->addAction("Export JSON");
-  // result->addSeparator();
-  // action = result->addAction("Caching - Unspecified");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Unspecified)
-  //   action->setChecked(true);
-  // action = result->addAction("Caching - Never");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Never)
-  //   action->setChecked(true);
-  // action = result->addAction("Caching - Always");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Always)
-  //   action->setChecked(true);
 
-  bool hasSep = false;
-  const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
-  if(nodes.size() > 0)
-  {
-    if(!hasSep)
-    {
-      result->addSeparator();
-      hasSep = true;
-    }
-    result->addAction("Implode nodes");
-  }
-  if(subExec.getType() == FabricCore::DFGExecType_Graph)
-  {
-    if(!hasSep)
-    {
-      result->addSeparator();
-      hasSep = true;
-    }
-    result->addAction("Explode node");
-  }
-
-  if(subExec.getExtDepCount() > 0)
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
     result->addSeparator();
-    result->addAction("Reload Extension(s)");
+    action = result->addAction("Save Preset");
+    action = result->addAction("Export JSON");
+
+    FabricCore::DFGExec subExec = graphWidget->m_coreDFGExec.getSubExec(nodeName);
+
+    bool hasSep = false;
+    const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+    if(nodes.size() > 0)
+    {
+      if(!hasSep)
+      {
+        result->addSeparator();
+        hasSep = true;
+      }
+      result->addAction("Implode nodes");
+    }
+    if(subExec.getType() == FabricCore::DFGExecType_Graph)
+    {
+      if(!hasSep)
+      {
+        result->addSeparator();
+        hasSep = true;
+      }
+      result->addAction("Explode node");
+    }
+
+    if(subExec.getExtDepCount() > 0)
+    {
+      result->addSeparator();
+      result->addAction("Reload Extension(s)");
+    }
+  }
+  else if(uiNode->type() == GraphView::QGraphicsItemType_BackDropNode)
+  {
+    result->addSeparator();
+    action = result->addAction("Change color");
   }
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
@@ -400,6 +399,18 @@ void DFGWidget::onGraphAction(QAction * action)
       editNode(subExec, nodeName, true);
     }
     m_uiController->endInteraction();
+  }
+  else if(action->text() == "New backdrop")
+  {
+    DFGGetStringDialog dialog(this, "backdrop", m_dfgConfig);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString text = dialog.text();
+    if(text.length() == 0)
+      return;
+
+    m_uiController->addBackDropNode(text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
   }
   else if(action->text() == "Implode nodes")
   {
@@ -666,7 +677,12 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->reloadExtensionDependencies(nodeName);
   }
-
+  else if(action->text() == "Change color")
+  {
+    QColor color = m_contextNode->color();
+    color = QColorDialog::getColor(color, this);
+    m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
+  }
 
   m_contextNode = NULL;
 }

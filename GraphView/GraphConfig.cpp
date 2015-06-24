@@ -106,4 +106,6 @@ GraphConfig::GraphConfig()
   mouseGrabberRadius = pinRadius * 1.75;
   mouseWheelZoomRate = 0.0f; // disable zoom for now 0.0005f;
   mouseWheelZoomRate = 0.0005f;
+
+  backDropNodeAlpha = 0.45;
 }

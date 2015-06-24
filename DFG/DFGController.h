@@ -7,6 +7,7 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/ValueEditor/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
@@ -68,9 +69,12 @@ namespace FabricUI
       virtual std::string addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
       virtual std::string addEmptyGraph(char const * title, QPointF pos);
       virtual std::string addEmptyFunc(char const * title, QPointF pos);
+      virtual std::string addBackDropNode(char const * title, QPointF pos);
       virtual bool removeNode(char const * path);
       virtual bool removeNode(GraphView::Node * node);
+      virtual bool removeBackDropNode(GraphView::BackDropNode * node);
       virtual bool renameNode(char const * path, char const * title);
+      virtual bool renameBackDropNode(GraphView::BackDropNode * node, char const * title);
       virtual bool renameNode(GraphView::Node * node, char const * title);
       virtual GraphView::Pin * addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
@@ -108,10 +112,12 @@ namespace FabricUI
       virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
+      virtual bool moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
+      virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();
@@ -140,6 +146,7 @@ namespace FabricUI
         );
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
+      virtual bool setBackDropNodeSize(GraphView::BackDropNode * node, QSizeF size);
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 

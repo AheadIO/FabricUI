@@ -219,6 +219,9 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
+  if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return;
+  
   m_dfgValueEditor->setNodeName(node->name());
 
   QList<int> s = m_hSplitter->sizes();
