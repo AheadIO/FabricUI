@@ -261,7 +261,10 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   QMenu* result = new QMenu(NULL);
   QAction* action;
 
-  action = result->addAction("Edit");
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  {
+    action = result->addAction("Edit");
+  }
   action = result->addAction("Rename");
   action = result->addAction("Delete");
 
