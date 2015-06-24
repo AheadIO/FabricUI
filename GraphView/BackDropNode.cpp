@@ -282,6 +282,8 @@ std::vector<Node*> BackDropNode::getOverlappingNodes() const
   {
     if(all[i]->type() == QGraphicsItemType_BackDropNode)
       continue;
+    if(all[i]->selected())
+      continue;
 
     QPointF topLeft2 = all[i]->mapToScene(all[i]->boundingRect().topLeft());
     QPointF bottomRight2 = all[i]->mapToScene(all[i]->boundingRect().bottomRight());
