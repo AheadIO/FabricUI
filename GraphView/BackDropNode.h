@@ -3,6 +3,7 @@
 #ifndef __UI_GraphView_BackDropNode__
 #define __UI_GraphView_BackDropNode__
 
+#include <FabricUI/GraphView/GraphicItemTypes.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FTL/JSONValue.h>
 
