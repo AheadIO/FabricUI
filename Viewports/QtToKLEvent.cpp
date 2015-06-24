@@ -66,8 +66,6 @@ FabricCore::RTVal QtToKLEvent(QEvent *event, FabricCore::Client * client, Fabric
   {
     int eventType = int(event->type());
 
-    bool result = false;
-
     klevent.setMember("eventType", FabricCore::RTVal::ConstructUInt32(*client, eventType));
 
     QInputEvent *inputEvent = static_cast<QInputEvent *>(event);

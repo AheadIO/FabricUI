@@ -246,7 +246,7 @@ bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier
   if(!event->modifiers().testFlag(Qt::AltModifier) && requireModifier)
     return false;
 
-  bool result;
+  bool result = false;
   try
   {
     // Now we translate the Qt events to FabricEngine events..
