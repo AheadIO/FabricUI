@@ -121,6 +121,7 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label)
 {
   unsigned int index = m_inputs.size();
   widget->setParent(m_inputsWidget);
+  widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
   m_inputs.push_back(widget);
 
   QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget);
@@ -142,12 +143,12 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label)
       m_labelToIndex.insert(std::pair<std::string,unsigned int>(label.toUtf8().constData(), index));
     }
     ((QGridLayout*)layout)->addWidget(widget, row, 1);
-    layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
+    // layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
   }
   else
   {
     layout->addWidget(widget);
-    layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
+    // layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
   }
 
 }

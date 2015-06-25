@@ -7,6 +7,7 @@
 #include <QtGui/QLineEdit>
 #include <FabricUI/TreeView/TreeViewWidget.h>
 #include <FabricUI/TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeItem.h>
 #include "DFGConfig.h"
 #include <SplitSearch/SplitSearch.hpp>
 
@@ -25,10 +26,14 @@ namespace FabricUI
       PresetTreeWidget(
         QWidget * parent,
         FabricCore::DFGHost const &coreDFGHost,
-        const DFGConfig & config = DFGConfig()
+        const DFGConfig & config = DFGConfig(),
+        bool showsPresets = true,
+        bool showSearch = true
         );
       virtual ~PresetTreeWidget();
 
+      TreeView::TreeViewWidget * getTreeView() { return m_treeView; }
+      TreeView::TreeModel * getTreeModel() { return m_treeModel; }
       void setHost( FabricCore::DFGHost const &coreDFGHost );
       void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
 
@@ -49,6 +54,7 @@ namespace FabricUI
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
       QString m_state;
+      bool m_showsPresets;
     };
 
   };

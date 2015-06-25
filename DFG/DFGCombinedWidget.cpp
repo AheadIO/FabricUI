@@ -78,6 +78,7 @@ void DFGCombinedWidget::init(
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
         this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(variablesChanged()), m_treeWidget, SLOT(refresh()));
+      QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
     }
 
     onGraphSet(m_dfgWidget->getUIGraph());
@@ -218,6 +219,9 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
+  if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return;
+  
   m_dfgValueEditor->setNodeName(node->name());
 
   QList<int> s = m_hSplitter->sizes();

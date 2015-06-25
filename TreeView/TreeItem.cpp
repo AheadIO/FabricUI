@@ -12,6 +12,7 @@ TreeItem::TreeItem(QString name, QString type, QString label)
     m_label = m_name;
   m_type = type;
   m_parent = NULL;
+  m_model = NULL;
   m_index = 0;
   m_selected = false;
   m_expanded = false;
@@ -133,12 +134,34 @@ bool TreeItem::collapsed() const
 
 void TreeItem::setSelected(bool state)
 {
+  bool prevState = m_selected;
   m_selected = state;
+  if(m_selected != prevState)
+  {
+    if(m_model)
+    {
+      if(m_selected)
+        emit m_model->itemSelected(this);
+      else
+        emit m_model->itemDeselected(this);
+    }
+  }
 }
 
 void TreeItem::setExpanded(bool state)
 {
+  bool prevState = m_expanded;
   m_expanded = state;
+  if(m_expanded != prevState)
+  {
+    if(m_model)
+    {
+      if(m_expanded)
+        emit m_model->itemExpanded(this);
+      else
+        emit m_model->itemCollapsed(this);
+    }
+  }
 }
 
 unsigned int TreeItem::numChildren()
@@ -149,6 +172,7 @@ unsigned int TreeItem::numChildren()
 void TreeItem::addChild(TreeItem * childToAdd)
 {
   childToAdd->setParent(this);
+  childToAdd->setModel(m_model);
   childToAdd->setIndex(m_children.size());
   m_children.push_back(childToAdd);
   emit childAdded(childToAdd);
@@ -211,6 +235,16 @@ TreeItem * TreeItem::parent()
 void TreeItem::setParent(TreeItem * item)
 {
   m_parent = item;
+}
+
+TreeModel * TreeItem::model()
+{
+  return m_model;
+}
+
+void TreeItem::setModel(TreeModel * model)
+{
+  m_model = model;
 }
 
 void TreeItem::setModelIndex(QModelIndex modelIndex)

@@ -3,6 +3,7 @@
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
@@ -328,6 +329,15 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
+}
+
+bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
+{
+  node->mainWidget()->setMinimumWidth(size.width());
+  node->mainWidget()->setMinimumHeight(size.height());
+  node->mainWidget()->setMaximumWidth(size.width());
+  node->mainWidget()->setMaximumHeight(size.height());
+  return true;
 }
 
 bool Controller::addCommand(Command * command)

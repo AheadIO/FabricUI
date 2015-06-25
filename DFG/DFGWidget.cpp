@@ -4,6 +4,7 @@
 #include <QtGui/QCursor>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QColorDialog>
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 #include <FabricCore.h>
@@ -12,6 +13,7 @@
 #include "Dialogs/DFGGetStringDialog.h"
 #include "Dialogs/DFGEditPortDialog.h"
 #include "Dialogs/DFGNewVariableDialog.h"
+#include "Dialogs/DFGSavePresetDialog.h"
 #include <assert.h>
 
 using namespace FabricServices;
@@ -221,6 +223,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   QMenu* result = new QMenu(NULL);
   result->addAction("New empty graph");
   result->addAction("New empty function");
+  result->addAction("New backdrop");
 
   const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
   if(nodes.size() > 0)
@@ -249,59 +252,61 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
   char const * nodeName = uiNode->name().c_str();
 
-  if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
-    return NULL;
-  FabricCore::DFGExec subExec = graphWidget->m_coreDFGExec.getSubExec(nodeName);
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  {
+    if(graphWidget->m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return NULL;
+  }
 
   QMenu* result = new QMenu(NULL);
   QAction* action;
-  FEC_DFGCacheRule cacheRule = graphWidget->m_coreDFGExec.getInstCacheRule(nodeName);
-  if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    cacheRule = subExec.getCacheRule();
 
-  action = result->addAction("Edit");
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  {
+    action = result->addAction("Edit");
+  }
   action = result->addAction("Rename");
   action = result->addAction("Delete");
-  action = result->addAction("Save as Preset");
-  // result->addSeparator();
-  // action = result->addAction("Caching - Unspecified");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Unspecified)
-  //   action->setChecked(true);
-  // action = result->addAction("Caching - Never");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Never)
-  //   action->setChecked(true);
-  // action = result->addAction("Caching - Always");
-  // action->setCheckable(true);
-  // if(cacheRule == FEC_DFGCacheRule_Always)
-  //   action->setChecked(true);
 
-  bool hasSep = false;
-  const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
-  if(nodes.size() > 0)
-  {
-    if(!hasSep)
-    {
-      result->addSeparator();
-      hasSep = true;
-    }
-    result->addAction("Implode nodes");
-  }
-  if(subExec.getType() == FabricCore::DFGExecType_Graph)
-  {
-    if(!hasSep)
-    {
-      result->addSeparator();
-      hasSep = true;
-    }
-    result->addAction("Explode node");
-  }
-
-  if(subExec.getExtDepCount() > 0)
+  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
     result->addSeparator();
-    result->addAction("Reload Extension(s)");
+    action = result->addAction("Save Preset");
+    action = result->addAction("Export JSON");
+
+    FabricCore::DFGExec subExec = graphWidget->m_coreDFGExec.getSubExec(nodeName);
+
+    bool hasSep = false;
+    const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+    if(nodes.size() > 0)
+    {
+      if(!hasSep)
+      {
+        result->addSeparator();
+        hasSep = true;
+      }
+      result->addAction("Implode nodes");
+    }
+    if(subExec.getType() == FabricCore::DFGExecType_Graph)
+    {
+      if(!hasSep)
+      {
+        result->addSeparator();
+        hasSep = true;
+      }
+      result->addAction("Explode node");
+    }
+
+    if(subExec.getExtDepCount() > 0)
+    {
+      result->addSeparator();
+      result->addAction("Reload Extension(s)");
+    }
+  }
+  else if(uiNode->type() == GraphView::QGraphicsItemType_BackDropNode)
+  {
+    result->addSeparator();
+    action = result->addAction("Change color");
   }
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
@@ -398,6 +403,18 @@ void DFGWidget::onGraphAction(QAction * action)
     }
     m_uiController->endInteraction();
   }
+  else if(action->text() == "New backdrop")
+  {
+    DFGGetStringDialog dialog(this, "backdrop", m_dfgConfig);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString text = dialog.text();
+    if(text.length() == 0)
+      return;
+
+    m_uiController->addBackDropNode(text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+  }
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
@@ -475,7 +492,7 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->removeNode(m_contextNode);
   }
-  else if(action->text() == "Save as Preset")
+  else if(action->text() == "Export JSON")
   {
     if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
       return;
@@ -493,7 +510,7 @@ void DFGWidget::onNodeAction(QAction * action)
     }
 
     QString filter = "DFG Preset (*.dfg.json)";
-    QString filePath = QFileDialog::getSaveFileName(this, "Save preset", lastPresetFolder, filter, &filter);
+    QString filePath = QFileDialog::getSaveFileName(this, "Export JSON", lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
     if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
@@ -533,15 +550,102 @@ void DFGWidget::onNodeAction(QAction * action)
         fwrite(json.c_str(), json.length(), 1, file);
         fclose(file);
       }
-
-      subExec.setImportPathname(filePathStr.c_str());
-      subExec.attachPresetFile("", subExec.getTitle());
-
-      emit newPresetSaved(filePathStr.c_str());
     }
     catch(FabricCore::Exception e)
     {
       printf("Exception: %s\n", e.getDesc_cstr());
+    }
+  }
+  else if(action->text() == "Save Preset")
+  {
+    if(m_coreDFGExec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+      return;
+    try
+    {
+      FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName);
+      QString title = subExec.getTitle();
+
+      DFGSavePresetDialog dialog(this, m_coreDFGHost, title);
+
+      while(true)
+      {
+        if(dialog.exec() != QDialog::Accepted)
+          return;
+  
+        QString name = dialog.name();
+        // QString version = dialog.version();
+        QString location = dialog.location();
+
+        if(name.length() == 0 || location.length() == 0)
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "You need to provide a valid name and pick a valid location!");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        if(location.startsWith("Fabric.") || location.startsWith("Variables.") ||
+          location == "Fabric" || location == "Variables")
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "You can't save a preset into a factory path (below Fabric).");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        std::string filePathStr = m_coreDFGHost.getPresetImportPathname(location.toUtf8().constData());
+        filePathStr += "/";
+        filePathStr += name.toUtf8().constData();
+        filePathStr += ".dfg.json";
+
+        FILE * file = fopen(filePathStr.c_str(), "rb");
+        if(file)
+        {
+          fclose(file);
+          file = NULL;
+
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "The file "+QString(filePathStr.c_str())+" already exists.\nAre you sure to overwrite the file?");
+          msg.addButton("Cancel", QMessageBox::RejectRole);
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          if(msg.exec() != QDialog::Accepted)
+            continue;
+        }
+
+        subExec.setTitle(name.toUtf8().constData());
+
+        std::string json = subExec.exportJSON().getCString();
+        file = fopen(filePathStr.c_str(), "wb");
+        if(!file)
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "The file "+QString(filePathStr.c_str())+" cannot be opened for writing.");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          continue;
+        }
+
+        fwrite(json.c_str(), json.length(), 1, file);
+        fclose(file);
+
+        subExec.setImportPathname(filePathStr.c_str());
+        subExec.attachPresetFile(location.toUtf8().constData(), name.toUtf8().constData());
+
+        emit newPresetSaved(filePathStr.c_str());
+        // update the preset search paths within the controller
+        m_uiController->onVariablesChanged();
+        break;
+      }
+    }
+    catch(FabricCore::Exception e)
+    {
+      QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+        e.getDesc_cstr());
+      msg.addButton("Ok", QMessageBox::AcceptRole);
+      msg.exec();
+      return;
     }
   }
   else if(action->text() == "Caching - Unspecified")
@@ -576,7 +680,12 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->reloadExtensionDependencies(nodeName);
   }
-
+  else if(action->text() == "Change color")
+  {
+    QColor color = m_contextNode->color();
+    color = QColorDialog::getColor(color, this);
+    m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
+  }
 
   m_contextNode = NULL;
 }
