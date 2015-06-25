@@ -78,6 +78,7 @@ dirs = [
   'DFG/Dialogs',
   'SceneHub',
   'Viewports',
+  'Licensing',
 ]
 
 includeDir = stageDir.Dir('include').Dir('FabricServices')
