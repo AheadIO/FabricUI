@@ -68,6 +68,7 @@ namespace FabricUI
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
       virtual bool setBackDropNodeSize(BackDropNode * node, QSizeF size);
+      virtual bool setNodeComment(Node * node, char const * comment);
 
       virtual bool canConnectTo(
         char const *pathA,

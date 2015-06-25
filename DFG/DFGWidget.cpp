@@ -11,9 +11,11 @@
 #include "DFGWidget.h"
 #include "DFGMainWindow.h"
 #include "Dialogs/DFGGetStringDialog.h"
+#include "Dialogs/DFGGetTextDialog.h"
 #include "Dialogs/DFGEditPortDialog.h"
 #include "Dialogs/DFGNewVariableDialog.h"
 #include "Dialogs/DFGSavePresetDialog.h"
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <assert.h>
 
 using namespace FabricServices;
@@ -127,6 +129,10 @@ void DFGWidget::setGraph(
       QObject::connect(
         m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
         this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
+      );  
+      QObject::connect(
+        m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
+        this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
       );  
       m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
     }
@@ -308,6 +314,10 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     result->addSeparator();
     action = result->addAction("Change color");
   }
+
+  result->addSeparator();
+  action = result->addAction("Add Comment");
+  action = result->addAction("Remove Comment");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
@@ -686,6 +696,15 @@ void DFGWidget::onNodeAction(QAction * action)
     color = QColorDialog::getColor(color, this);
     m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
   }
+  else if(action->text() == "Add Comment")
+  {
+    m_uiController->setNodeComment(m_contextNode, "");
+    onBubbleEditRequested(m_contextNode);
+  }
+  else if(action->text() == "Remove Comment")
+  {
+    m_uiController->setNodeComment(m_contextNode, NULL);
+  }
 
   m_contextNode = NULL;
 }
@@ -965,6 +984,20 @@ void DFGWidget::onKeyPressed(QKeyEvent * event)
     event->accept();
   else
     keyPressEvent(event);  
+}
+
+void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
+{
+  GraphView::NodeBubble * bubble = node->bubble();
+  if(!bubble)
+    return;
+
+  QString text = bubble->text();
+  DFGGetTextDialog dialog(this, text);
+  if(dialog.exec() != QDialog::Accepted)
+    return;
+  text = dialog.text();
+  m_uiController->setNodeComment(node, text.toUtf8().constData());
 }
 
 bool DFGWidget::editNode(FabricCore::DFGExec exec, char const * name, bool pushExec)

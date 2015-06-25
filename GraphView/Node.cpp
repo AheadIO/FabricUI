@@ -3,6 +3,7 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
@@ -25,6 +26,7 @@ Node::Node(
   , m_graph( parent )
   , m_name( name )
   , m_title( title )
+  , m_bubble( NULL )
 {
   m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
@@ -107,6 +109,13 @@ Node::~Node()
     delete(m_cache);
     m_cache = NULL;
   }
+
+  if(m_bubble)
+  {
+    m_bubble->scene()->removeItem(m_bubble);
+    m_bubble->hide();
+    m_bubble->deleteLater();
+  }
 }
 
 Graph * Node::graph()
@@ -127,6 +136,21 @@ NodeHeader * Node::header()
 const NodeHeader * Node::header() const
 {
   return m_header;
+}
+
+NodeBubble * Node::bubble()
+{
+  return m_bubble;
+}
+
+const NodeBubble * Node::bubble() const
+{
+  return m_bubble;
+}
+
+void Node::setBubble(NodeBubble * bubble)
+{
+  m_bubble = bubble;
 }
 
 void Node::setTitle( FTL::CStrRef title )
@@ -599,6 +623,11 @@ void Node::onConnectionsChanged()
   {
     updatePinLayout();
   }
+}
+
+void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
+{
+  emit bubbleEditRequested(this);  
 }
 
 void Node::updatePinLayout()

@@ -105,6 +105,10 @@ namespace FabricUI
       float mouseWheelZoomRate;
 
       float backDropNodeAlpha;
+      float nodeBubbleMinWidth;
+      float nodeBubbleMinHeight;
+      QColor nodeBubbleColor;
+      QFont nodeBubbleFont;
 
       GraphConfig();
     };

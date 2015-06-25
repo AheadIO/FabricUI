@@ -77,6 +77,7 @@ namespace FabricUI
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onNodeToBeRenamed(FabricUI::GraphView::Node* node);
       void onKeyPressed(QKeyEvent * event);
+      void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
     private:
 

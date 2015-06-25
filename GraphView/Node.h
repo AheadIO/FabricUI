@@ -24,12 +24,14 @@ namespace FabricUI
 
     // forward declarations
     class Graph;
+    class NodeBubble;
 
     class Node : public QGraphicsWidget
     {
       Q_OBJECT
 
       friend class NodeRectangle;
+      friend class NodeBubble;
 
     public:
 
@@ -56,6 +58,8 @@ namespace FabricUI
       const Graph * graph() const;
       NodeHeader * header();
       const NodeHeader * header() const;
+      NodeBubble * bubble();
+      const NodeBubble * bubble() const;
 
       FTL::CStrRef name() const
         { return m_name; }
@@ -120,6 +124,7 @@ namespace FabricUI
     public slots:
 
       void onConnectionsChanged();
+      void onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble);
       
     signals:
 
@@ -129,14 +134,17 @@ namespace FabricUI
       void pinAdded(FabricUI::GraphView::Node *, Pin *);
       void pinRemoved(FabricUI::GraphView::Node *, Pin *);
       void doubleClicked(FabricUI::GraphView::Node *);
+      void bubbleEditRequested(FabricUI::GraphView::Node * node);
 
     protected:
 
       void updatePinLayout();
+      void setBubble(NodeBubble * bubble);
 
       Graph * m_graph;
       std::string m_name;
       std::string m_title;
+      NodeBubble * m_bubble;
 
       QColor m_colorA;
       QColor m_colorB;

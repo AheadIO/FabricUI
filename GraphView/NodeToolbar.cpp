@@ -22,6 +22,7 @@ NodeToolbar::NodeToolbar(Graph * parent, const GraphConfig & config)
   m_config = config;
   m_node = NULL;
   m_enabled = true;
+  setZValue(-25);
 
   setMinimumHeight(m_config.nodeToolbarHeight);
   setMaximumHeight(m_config.nodeToolbarHeight);

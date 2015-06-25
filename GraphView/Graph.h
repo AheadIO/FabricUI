@@ -133,6 +133,7 @@ namespace FabricUI
       virtual bool releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
       void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
       void onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+      void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
     signals:
 
@@ -148,6 +149,7 @@ namespace FabricUI
       void connectionRemoved(FabricUI::GraphView::Connection * connection);
       void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       void hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString);
+      void bubbleEditRequested(FabricUI::GraphView::Node * node);
 
     private:
 

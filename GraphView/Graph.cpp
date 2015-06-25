@@ -141,6 +141,7 @@ Node * Graph::addNode(Node * node, bool quiet)
   m_nodes.push_back(node);
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+  QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
 
   if(m_nodeToolbar)
     m_nodeToolbar->attach(node);
@@ -481,6 +482,11 @@ void Graph::onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel)
 {
   if(m_isEditable)
     emit sidePanelDoubleClicked(panel);
+}
+
+void Graph::onBubbleEditRequested(FabricUI::GraphView::Node * node)
+{
+  emit bubbleEditRequested(node);
 }
 
 void Graph::setGraphContextMenuCallback(Graph::GraphContextMenuCallback callback, void * userData)
