@@ -154,8 +154,11 @@ void BackDropNode::setTopLeftGraphPos(QPointF pos, bool quiet)
   Node::setTopLeftGraphPos(pos, quiet);
   QPointF delta = topLeftGraphPos() - prev;
 
-  for(size_t i=0;i<m_overlappingNodes.size();i++)
-    graph()->controller()->moveNode(m_overlappingNodes[i], m_overlappingNodes[i]->topLeftGraphPos() + delta, true);
+  if(!m_shiftPressed)
+  {
+    for(size_t i=0;i<m_overlappingNodes.size();i++)
+      graph()->controller()->moveNode(m_overlappingNodes[i], m_overlappingNodes[i]->topLeftGraphPos() + delta, true);
+  }
 }
 
 void BackDropNode::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
@@ -196,6 +199,8 @@ void BackDropNode::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 
 void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+  m_shiftPressed = event->modifiers().testFlag(Qt::ShiftModifier);
+
   int corner = getCorner(event->pos());
   if(corner != -1)
   {

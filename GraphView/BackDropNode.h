@@ -55,6 +55,7 @@ namespace FabricUI
       void setSizeFromMouse(float width, float height);
 
       float m_resizeDistance;
+      bool m_shiftPressed;
       bool m_hasCustomPointer;
       std::vector<Node*> m_overlappingNodes;
     };
