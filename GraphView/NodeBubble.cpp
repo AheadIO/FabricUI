@@ -38,6 +38,10 @@ NodeBubble::NodeBubble(Graph * parent, Node * node, const GraphConfig & config)
 NodeBubble::~NodeBubble()
 {
   delete(m_metrics);
+  if(m_node)
+  {
+    m_node->setBubble(NULL);
+  }
 }
 
 Graph * NodeBubble::graph()
