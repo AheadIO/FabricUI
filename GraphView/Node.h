@@ -53,6 +53,7 @@ namespace FabricUI
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
+      virtual bool supportsToolBar() const { return true; }
 
       Graph * graph();
       const Graph * graph() const;

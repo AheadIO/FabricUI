@@ -606,8 +606,11 @@ void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 
 void Node::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
-  graph()->nodeToolbar()->attach(this);
-  event->accept();
+  if(supportsToolBar())
+  {
+    graph()->nodeToolbar()->attach(this);
+    event->accept();
+  }
 }
 
 void Node::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)

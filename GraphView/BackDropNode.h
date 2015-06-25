@@ -28,6 +28,7 @@ namespace FabricUI
 
       virtual void setColor(QColor col);
       virtual int type() const { return QGraphicsItemType_BackDropNode; }
+      virtual bool supportsToolBar() const { return false; }
 
       static QString getDefaultJSON(char const * name, char const * title, QPointF pos);
       QString getJSON() const;
