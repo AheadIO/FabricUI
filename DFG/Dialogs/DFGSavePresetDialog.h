@@ -22,23 +22,24 @@ namespace FabricUI
         QWidget * parent,
         FabricCore::DFGHost & host,
         QString name = "",
-        // QString version = "",
         const DFGConfig & dfgConfig = DFGConfig()
         );
       virtual ~DFGSavePresetDialog();
 
       QString name() const;
-      // QString version() const;
       QString location() const;
 
     public slots:
       void onItemSelected(FabricUI::TreeView::TreeItem * item);
+      void onCustomContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item);
+      void onContextMenuAction(QAction * action);
 
     private:
 
+      FabricCore::DFGHost m_dfgHost;
       QLineEdit * m_nameEdit;
-      // QLineEdit * m_versionEdit;
       PresetTreeWidget * m_presetTree;
+      QString m_contextPath;
       QString m_location;
 
     };

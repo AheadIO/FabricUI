@@ -101,6 +101,7 @@ void TreeViewWidget::onCustomContextMenuRequested(const QPoint & point)
   if (index.isValid())
   {
     TreeItem * item = (TreeItem *)index.internalPointer();
+    emit customContextMenuRequested(mapToGlobal(point), item);
     showCustomContextMenu(mapToGlobal(point), item);
   }    
 }
