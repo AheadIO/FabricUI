@@ -35,6 +35,8 @@ namespace FabricUI
       QString getJSON(QPointF p) const;
       QString getJSON(QSizeF s) const;
       QString getJSON(QColor c) const;
+      QString getJSONForComment(QString k) const;
+      QString getJSONForComment(bool expanded) const;
       void updateFromJSON(const QString & json);
       void updateFromJSON(FTL::JSONObject const *jsonObject);
 
@@ -48,11 +50,12 @@ namespace FabricUI
 
     private:
 
-      static QString getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c);
+      static QString getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c, QString k, bool e);
 
       std::vector<Node*> getOverlappingNodes() const;
       int getCorner(QPointF pos);
       void setSizeFromMouse(float width, float height);
+      bool commentExpanded() const;
 
       float m_resizeDistance;
       bool m_shiftPressed;

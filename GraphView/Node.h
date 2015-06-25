@@ -74,6 +74,7 @@ namespace FabricUI
       virtual void setTitleColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
+      QString comment() const;
 
       virtual QRectF boundingRect() const;
       

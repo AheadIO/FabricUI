@@ -4,6 +4,7 @@
 #include <QtGui/QGraphicsSceneHoverEvent>
 
 #include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Graph.h>
 
 using namespace FabricUI::GraphView;
@@ -53,33 +54,40 @@ QString BackDropNode::getDefaultJSON(char const * name, char const * title, QPoi
 
 QString BackDropNode::getJSON() const
 {
-  QPointF pos = topLeftGraphPos();
-  QSizeF s = size();
-  QColor c = color();
-  return getJSON(name(), title(), topLeftGraphPos(), size(), color());
+  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), comment(), commentExpanded());
 }
 
 QString BackDropNode::getJSON(QString t) const
 {
-  return getJSON(name(), t.toUtf8().constData(), topLeftGraphPos(), size(), color());
+  return getJSON(name(), t.toUtf8().constData(), topLeftGraphPos(), size(), color(), comment(), commentExpanded());
 }
 
 QString BackDropNode::getJSON(QPointF p) const
 {
-  return getJSON(name(), title(), p, size(), color());
+  return getJSON(name(), title(), p, size(), color(), comment(), commentExpanded());
 }
 
 QString BackDropNode::getJSON(QSizeF s) const
 {
-  return getJSON(name(), title(), topLeftGraphPos(), s, color());
+  return getJSON(name(), title(), topLeftGraphPos(), s, color(), comment(), commentExpanded());
 }
 
 QString BackDropNode::getJSON(QColor c) const
 {
-  return getJSON(name(), title(), topLeftGraphPos(), size(), c);
+  return getJSON(name(), title(), topLeftGraphPos(), size(), c, comment(), commentExpanded());
 }
 
-QString BackDropNode::getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c)
+QString BackDropNode::getJSONForComment(QString k) const
+{
+  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), k, commentExpanded());
+}
+
+QString BackDropNode::getJSONForComment(bool e) const
+{
+  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), comment(), e);
+}
+
+QString BackDropNode::getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c, QString k, bool e)
 {
   QString keyStr = "uiBackDrop_" + QString(name.c_str());
   QString jsonStr = "{\"name\": \"" + QString(name.c_str()) + "\", " +
@@ -87,10 +95,13 @@ QString BackDropNode::getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, 
     "\"pos\": {\"x\": " + QString::number(p.x()) +", \"y\": " + QString::number(p.y()) + "}," + 
     "\"size\": {\"width\": " + QString::number(s.width()) +", \"height\": " + QString::number(s.height()) + "}," + 
     "\"color\": {\"r\": " + QString::number(c.red()) +", \"g\": " + QString::number(c.green()) + ", " + 
-      "\"b\": " + QString::number(c.blue()) +", \"a\": " + QString::number(c.alpha()) + "}" + 
+      "\"b\": " + QString::number(c.blue()) +", \"a\": " + QString::number(c.alpha()) + "}," + 
+    "\"comment\": \"" + k + "\", " +
+    "\"commentExpanded\": " + (e ? QString("true") : QString("false")) +
     QString("}");
   return jsonStr;
 }
+
 
 void BackDropNode::updateFromJSON(const QString & json)
 {
@@ -144,6 +155,33 @@ void BackDropNode::updateFromJSON(FTL::JSONObject const *jsonObject)
       colorObject->getSInt32( FTL_STR("a") )
       );
     setColor(color);
+  }
+
+  FTL::CStrRef comment = jsonObject->getStringOrEmpty( FTL_STR("comment") );
+  if(comment.empty())
+  {
+    if(m_bubble != NULL)
+    {
+      m_bubble->scene()->removeItem(m_bubble);
+      m_bubble->hide();
+      m_bubble->deleteLater();
+      m_bubble = NULL;
+    }
+  }
+  else
+  {
+    if(!m_bubble)
+      m_bubble = new NodeBubble(graph(), this, m_graph->config());
+    m_bubble->setText(comment.c_str());
+  }
+
+  bool expanded = jsonObject->getBooleanOrFalse( FTL_STR("commentExpanded") );
+  if(m_bubble != NULL)
+  {
+    if(expanded)
+      m_bubble->expand();
+    else
+      m_bubble->collapse();
   }
 
 }
@@ -327,4 +365,11 @@ void BackDropNode::setSizeFromMouse(float width, float height)
     height = graph()->config().nodeMinHeight * 2.0f;
 
   graph()->controller()->setBackDropNodeSize(this, QSizeF(width, height));
+}
+
+bool BackDropNode::commentExpanded() const
+{
+  if(m_bubble)
+    return m_bubble->expanded();
+  return false;
 }

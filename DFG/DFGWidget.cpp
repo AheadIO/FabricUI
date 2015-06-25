@@ -698,8 +698,9 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Add Comment")
   {
-    m_uiController->setNodeComment(m_contextNode, "");
+    m_uiController->setNodeComment(m_contextNode, " ");
     onBubbleEditRequested(m_contextNode);
+    m_uiController->setNodeCommentExpanded(m_contextNode, true);
   }
   else if(action->text() == "Remove Comment")
   {
@@ -997,6 +998,7 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   if(dialog.exec() != QDialog::Accepted)
     return;
   text = dialog.text();
+
   m_uiController->setNodeComment(node, text.toUtf8().constData());
 }
 

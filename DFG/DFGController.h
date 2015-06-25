@@ -118,6 +118,8 @@ namespace FabricUI
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
+      virtual bool setNodeComment(GraphView::Node * node, char const * comment);
+      virtual bool setNodeCommentExpanded(GraphView::Node * node, bool expanded);
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();

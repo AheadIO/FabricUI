@@ -2,6 +2,7 @@
 
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include "DFGNotificationRouter.h"
 #include "DFGController.h"
 
@@ -775,6 +776,37 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   {
     QString tooltip = value.c_str();
     uiNode->header()->setToolTip(tooltip.trimmed());
+  }
+  else if(key == FTL_STR("uiComment"))
+  {
+    QString text = value.c_str();
+    GraphView::NodeBubble * uiBubble = uiNode->bubble();
+    if(text.length() == 0)
+    {
+      if(uiBubble != NULL)
+      {
+        uiBubble->scene()->removeItem(uiBubble);
+        uiBubble->hide();
+        uiBubble->deleteLater();
+      }
+    }
+    else
+    {
+      if(uiBubble == NULL)
+        uiBubble = new GraphView::NodeBubble(uiNode->graph(), uiNode, uiNode->graph()->config());
+      uiBubble->setText(text);
+    }
+  }
+  else if(key == FTL_STR("uiCommentExpanded"))
+  {
+    GraphView::NodeBubble * uiBubble = uiNode->bubble();
+    if(uiBubble)
+    {
+      if(value.size() == 0 || value == "false")
+        uiBubble->collapse();
+      else
+        uiBubble->expand();
+    }
   }
 }
 

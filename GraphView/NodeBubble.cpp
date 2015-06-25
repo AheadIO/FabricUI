@@ -104,11 +104,8 @@ void NodeBubble::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   if(event->button() == Qt::RightButton)
   {
-    if(m_collapsed)
-      expand();
-    else
-      collapse();
-
+    // toggle the expanded state
+    graph()->controller()->setNodeCommentExpanded(m_node, m_collapsed);
     event->accept();
     return;
   }
@@ -118,7 +115,7 @@ void NodeBubble::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 {
   if(m_collapsed)
   {
-    expand();
+    graph()->controller()->setNodeCommentExpanded(m_node, true);
     event->accept();
     return;
   }
@@ -177,7 +174,7 @@ void NodeBubble::updateSize()
   }
   else
   {
-    width = m_node->size().width() - m_config.nodeWidthReduction;
+    width = m_config.nodeBubbleMinWidth;
     height = m_config.nodeToolbarHeight + 2.0;
     height += float(m_metrics->lineSpacing());
 

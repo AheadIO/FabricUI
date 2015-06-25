@@ -197,6 +197,13 @@ QPen Node::selectedPen() const
   return m_selectedPen;
 }
 
+QString Node::comment() const
+{
+  if(m_bubble == NULL)
+    return "";
+  return m_bubble->text();
+}
+
 QRectF Node::boundingRect() const
 {
   QRectF rect = QGraphicsWidget::boundingRect();

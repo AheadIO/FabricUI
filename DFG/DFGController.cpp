@@ -1156,6 +1156,72 @@ bool DFGController::tintBackDropNode(GraphView::BackDropNode * node, QColor colo
   return true;
 }
 
+bool DFGController::setNodeComment(GraphView::Node * node, char const * comment)
+{
+  if(node->type() == GraphView::QGraphicsItemType_Node)
+  {
+    try
+    {
+      FabricCore::DFGExec exec = getCoreDFGExec();
+      exec.setNodeMetadata(node->name().c_str(), "uiComment", comment, false);
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+      return false;
+    }
+  }
+  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+  {
+    try
+    {
+      FabricCore::DFGExec exec = getCoreDFGExec();
+      QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+      QString metaData = ((GraphView::BackDropNode*)node)->getJSONForComment(QString(comment));
+      exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+      return false;
+    }
+  }
+  return false;
+}
+
+bool DFGController::setNodeCommentExpanded(GraphView::Node * node, bool expanded)
+{
+  if(node->type() == GraphView::QGraphicsItemType_Node)
+  {
+    try
+    {
+      FabricCore::DFGExec exec = getCoreDFGExec();
+      exec.setNodeMetadata(node->name().c_str(), "uiCommentExpanded", expanded ? "true" : NULL, false);
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+      return false;
+    }
+  }
+  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+  {
+    try
+    {
+      FabricCore::DFGExec exec = getCoreDFGExec();
+      QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
+      QString metaData = ((GraphView::BackDropNode*)node)->getJSONForComment(expanded);
+      exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+    }
+    catch(FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
+      return false;
+    }
+  }
+  return false;
+}
+
 std::string DFGController::copy(QStringList paths)
 {
   try
