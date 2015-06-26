@@ -118,6 +118,7 @@ void DFGSavePresetDialog::onContextMenuAction(QAction * action)
         return;
       }
 
+      m_dfgHost.createPresetDir(m_contextPath.toUtf8().constData(), name.toUtf8().constData());
       m_presetTree->refresh();
     }
     catch(FabricCore::Exception e)
