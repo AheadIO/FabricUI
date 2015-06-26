@@ -839,7 +839,7 @@ void DFGNotificationRouter::onExecPortRenamed(
   FTL::CStrRef execPortTypeStr =
     execPortJSONObject->getString( FTL_STR("execPortType") );
 
-  if ( execPortTypeStr != FTL_STR("Out") )
+  if ( execPortTypeStr != FTL_STR("In") )
   {
     GraphView::SidePanel * uiPanel =
       uiGraph->sidePanel(GraphView::PortType_Input);
@@ -852,7 +852,7 @@ void DFGNotificationRouter::onExecPortRenamed(
     uiPort->setName(newPortName);
   }
 
-  if ( execPortTypeStr != FTL_STR("In") )
+  if ( execPortTypeStr != FTL_STR("Out") )
   {
     GraphView::SidePanel * uiPanel =
       uiGraph->sidePanel(GraphView::PortType_Output);
