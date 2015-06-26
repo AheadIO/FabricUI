@@ -112,9 +112,11 @@ Node::~Node()
 
   if(m_bubble)
   {
+    m_bubble->setNode(NULL);
     m_bubble->scene()->removeItem(m_bubble);
     m_bubble->hide();
     m_bubble->deleteLater();
+    m_bubble = NULL;
   }
 }
 

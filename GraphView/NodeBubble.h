@@ -18,6 +18,8 @@ namespace FabricUI
     {
       Q_OBJECT
 
+      friend class Node;
+
     public:
 
       NodeBubble(Graph * parent, Node * node, const GraphConfig & config = GraphConfig());
@@ -28,6 +30,7 @@ namespace FabricUI
 
       Node * node();
       const Node * node() const;
+      void setNode(Node * node);
 
       virtual void expand();
       virtual void collapse();

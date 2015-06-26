@@ -64,6 +64,11 @@ const Node * NodeBubble::node() const
   return m_node;
 }
 
+void NodeBubble::setNode(Node * node)
+{
+  m_node = node;  
+}
+
 void NodeBubble::expand()
 {
   if(!m_collapsed)

@@ -61,6 +61,7 @@ namespace FabricUI
       const NodeHeader * header() const;
       NodeBubble * bubble();
       const NodeBubble * bubble() const;
+      void setBubble(NodeBubble * bubble);
 
       FTL::CStrRef name() const
         { return m_name; }
@@ -141,7 +142,6 @@ namespace FabricUI
     protected:
 
       void updatePinLayout();
-      void setBubble(NodeBubble * bubble);
 
       Graph * m_graph;
       std::string m_name;

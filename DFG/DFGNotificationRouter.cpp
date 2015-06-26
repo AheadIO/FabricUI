@@ -785,6 +785,8 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     {
       if(uiBubble != NULL)
       {
+        uiBubble->setNode(NULL);
+        uiNode->setBubble(NULL);
         uiBubble->scene()->removeItem(uiBubble);
         uiBubble->hide();
         uiBubble->deleteLater();
