@@ -109,13 +109,16 @@ void DFGSavePresetDialog::onContextMenuAction(QAction * action)
       dirToMake += "/";
       dirToMake += name.toUtf8().constData();
 
-      if(!FTL::FSMkDir(dirToMake.c_str()))
+      if(!FTL::FSExists(dirToMake.c_str()))
       {
-        QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-          "Unexpected, cannot create '"+QString(dirToMake.c_str())+"' directory");
-        msg.addButton("Ok", QMessageBox::AcceptRole);
-        msg.exec();
-        return;
+        if(!FTL::FSMkDir(dirToMake.c_str()))
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            "Unexpected, cannot create '"+QString(dirToMake.c_str())+"' directory");
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+          return;
+        }
       }
 
       m_dfgHost.createPresetDir(m_contextPath.toUtf8().constData(), name.toUtf8().constData());
