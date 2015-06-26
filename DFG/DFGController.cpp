@@ -1473,43 +1473,46 @@ void DFGController::checkErrors()
     logError( prefixedError.c_str() );
   }
 
-  unsigned nodeCount = exec.getNodeCount();
-  for(size_t j=0;j<nodeCount;j++)
+  if(exec.getType() == FabricCore::DFGExecType_Graph)
   {
-    char const *nodeName = exec.getNodeName(j);
-
-    if ( !graph() )
-      continue;
-    GraphView::Node *uiNode = NULL;
-    if ( graph() )
+    unsigned nodeCount = exec.getNodeCount();
+    for(size_t j=0;j<nodeCount;j++)
     {
-      uiNode = graph()->nodeFromPath( nodeName );
-      if ( uiNode )
-        uiNode->clearError();
-    }
+      char const *nodeName = exec.getNodeName(j);
 
-    if ( exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
-    {
-      FabricCore::DFGExec instExec = exec.getSubExec( nodeName );
-
-      unsigned errorCount = instExec.getErrorCount();
-      if ( errorCount > 0 )
+      if ( !graph() )
+        continue;
+      GraphView::Node *uiNode = NULL;
+      if ( graph() )
       {
-        std::string errorComposed;
-        errorComposed += nodeName;
-        errorComposed += " : ";
-        for(size_t i=0;i<errorCount;i++)
-        {
-          if(i > 0)
-            errorComposed += "\n";
-          errorComposed += instExec.getError(i);
-        }
-  
-        logError( errorComposed.c_str() );
+        uiNode = graph()->nodeFromPath( nodeName );
         if ( uiNode )
-          uiNode->setError(errorComposed.c_str());
+          uiNode->clearError();
       }
 
+      if ( exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
+      {
+        FabricCore::DFGExec instExec = exec.getSubExec( nodeName );
+
+        unsigned errorCount = instExec.getErrorCount();
+        if ( errorCount > 0 )
+        {
+          std::string errorComposed;
+          errorComposed += nodeName;
+          errorComposed += " : ";
+          for(size_t i=0;i<errorCount;i++)
+          {
+            if(i > 0)
+              errorComposed += "\n";
+            errorComposed += instExec.getError(i);
+          }
+    
+          logError( errorComposed.c_str() );
+          if ( uiNode )
+            uiNode->setError(errorComposed.c_str());
+        }
+
+      }
     }
   }
 }

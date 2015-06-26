@@ -16,8 +16,17 @@ DFGRenamePortCommand::DFGRenamePortCommand(DFGController * controller, char cons
 bool DFGRenamePortCommand::invoke()
 {
   DFGController* ctrl = (DFGController*)controller();
-  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
-  m_result = graph.renameExecPort(m_path.c_str(), m_newName.c_str());
+  FabricCore::DFGExec exec = ctrl->getCoreDFGExec();
+  if(m_path.find('.') != std::string::npos)
+  {
+    std::string execName = m_path.substr(0, m_path.find('.'));
+    std::string portName = m_path.substr(m_path.find('.')+1);
+    if(exec.getType() == FabricCore::DFGExecType_Graph)
+      exec = exec.getSubExec(execName.c_str());
+    m_result = exec.renameExecPort(portName.c_str(), m_newName.c_str());
+  }
+  else
+    m_result = exec.renameExecPort(m_path.c_str(), m_newName.c_str());
   return true;
 }
 
