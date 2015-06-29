@@ -748,9 +748,9 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     if ( jsonValue )
     {
       FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-      float r = jsonObject->getFloat64( FTL_STR("r") );
-      float g = jsonObject->getFloat64( FTL_STR("g") );
-      float b = jsonObject->getFloat64( FTL_STR("b") );
+      int r = int(jsonObject->getFloat64( FTL_STR("r") ));
+      int g = int(jsonObject->getFloat64( FTL_STR("g") ));
+      int b = int(jsonObject->getFloat64( FTL_STR("b") ));
       QColor color(r, g, b);
       uiNode->setColor(color);
       uiNode->setTitleColor(color.darker(130));
@@ -765,9 +765,9 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     if ( jsonValue )
     {
       FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-      float r = jsonObject->getFloat64( FTL_STR("r") );
-      float g = jsonObject->getFloat64( FTL_STR("g") );
-      float b = jsonObject->getFloat64( FTL_STR("b") );
+      int r = int(jsonObject->getFloat64( FTL_STR("r") ));
+      int g = int(jsonObject->getFloat64( FTL_STR("g") ));
+      int b = int(jsonObject->getFloat64( FTL_STR("b") ));
       QColor color(r, g, b);
       uiNode->setTitleColor(color);
     }

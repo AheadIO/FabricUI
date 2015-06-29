@@ -23,27 +23,27 @@ void FabricStyle::polish(QPalette &palette)
   
   QColor highlightedTextColor;
   if(highlightColor.toHsv().valueF() > 0.6)
-    highlightedTextColor= baseColor.darker(spread*2);
+    highlightedTextColor= baseColor.darker(int(spread*2));
   else
-    highlightedTextColor= baseColor.lighter(spread*2);
+    highlightedTextColor= baseColor.lighter(int(spread*2));
   
   palette.setBrush(QPalette::Background, QBrush(baseColor));
   palette.setBrush(QPalette::Window, QBrush(baseColor));
-  palette.setBrush(QPalette::Foreground, baseColor.lighter(spread));
-  palette.setBrush(QPalette::WindowText, baseColor.lighter(spread));
+  palette.setBrush(QPalette::Foreground, baseColor.lighter(int(spread)));
+  palette.setBrush(QPalette::WindowText, baseColor.lighter(int(spread)));
   palette.setBrush(QPalette::Base, baseColor);
-  palette.setBrush(QPalette::AlternateBase, baseColor.darker(spread));
+  palette.setBrush(QPalette::AlternateBase, baseColor.darker(int(spread)));
   palette.setBrush(QPalette::ToolTipBase, baseColor);
-  palette.setBrush(QPalette::ToolTipText, baseColor.lighter(spread));
-  palette.setBrush(QPalette::Text, baseColor.lighter(spread*1.2));
+  palette.setBrush(QPalette::ToolTipText, baseColor.lighter(int(spread)));
+  palette.setBrush(QPalette::Text, baseColor.lighter(int(spread*1.2)));
   palette.setBrush(QPalette::Button, baseColor);
-  palette.setBrush(QPalette::ButtonText, baseColor.lighter(spread));
+  palette.setBrush(QPalette::ButtonText, baseColor.lighter(int(spread)));
   palette.setBrush(QPalette::BrightText, QColor(240, 240, 240));
-  palette.setBrush(QPalette::Light, baseColor.lighter(spread/2));
-  palette.setBrush(QPalette::Midlight, baseColor.lighter(spread/4));
-  palette.setBrush(QPalette::Dark, baseColor.darker(spread/4));
+  palette.setBrush(QPalette::Light, baseColor.lighter(int(spread/2)));
+  palette.setBrush(QPalette::Midlight, baseColor.lighter(int(spread/4)));
+  palette.setBrush(QPalette::Dark, baseColor.darker(int(spread/4)));
   palette.setBrush(QPalette::Mid, baseColor);
-  palette.setBrush(QPalette::Shadow, baseColor.darker(spread/2));
+  palette.setBrush(QPalette::Shadow, baseColor.darker(int(spread/2)));
   palette.setBrush(QPalette::Highlight, highlightColor);
   palette.setBrush(QPalette::HighlightedText, highlightedTextColor);
 }

@@ -173,7 +173,7 @@ void DFGEditPortDialog::setHasCombo(bool value)
 QStringList DFGEditPortDialog::comboValues() const
 {
   QStringList results = m_combo->text().split(',');
-  for(unsigned int i=0;i<results.length();i++)
+  for(int i=0;i<results.length();i++)
   {
     results[i] = results[i].trimmed();
     if(results[i][0] == '\'' || results[i][0] == '"')
@@ -187,7 +187,7 @@ QStringList DFGEditPortDialog::comboValues() const
 void DFGEditPortDialog::setComboValues(QStringList value)
 {
   QString flat;
-  for(unsigned int i=0;i<value.length();i++)
+  for(int i=0;i<value.length();i++)
   {
     if(i > 0)
       flat += ", ";

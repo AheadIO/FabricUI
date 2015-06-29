@@ -89,7 +89,7 @@ void DFGBaseDialog::showEvent(QShowEvent * event)
 {
   QPoint pos = QCursor().pos();
   QSize currSize = size();
-  pos -= QPoint(currSize.width() * 0.5, currSize.height() * 0.5);
+  pos -= QPoint(int(currSize.width() * 0.5), int(currSize.height() * 0.5));
 
   QRect desktop = QApplication::desktop()->screenGeometry();
   if(pos.x() < 5)

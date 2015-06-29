@@ -127,7 +127,7 @@ bool KLSourceCodeWidget::event(QEvent * event)
       std::vector<const ASTWrapper::KLError*> errors = file->getErrors();
       for(size_t i=0;i<errors.size();i++)
       {
-        if(errors[i]->getLine() == line)
+        if(errors[i]->getLine() == int(line))
         {
           toolTipText = errors[i]->getDesc();
           break;        
@@ -247,8 +247,8 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
       std::string posStr;
 
       // remove all previous lines
-      int find = klCode.rfind('\n', pos);
-      if(find > -1 && find < klCode.length()-3)
+      size_t find = klCode.rfind('\n', pos);
+      if(find != std::string::npos && find < klCode.length()-3)
       {
         if(klCode[find+1] == ' ' && klCode[find+2] == ' ')
         {
@@ -460,7 +460,7 @@ void KLSourceCodeWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void KLSourceCodeWidget::paintEvent(QPaintEvent * event)
 {
-  if(m_lineOffset != verticalScrollBar()->value())
+  if(int(m_lineOffset) != verticalScrollBar()->value())
   {
     m_lineOffset = verticalScrollBar()->value();
     emit documentScrolled(m_lineOffset);

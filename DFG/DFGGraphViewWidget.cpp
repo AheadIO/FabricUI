@@ -67,7 +67,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
 
               while(execPath.length() > 0)
               {
-                int delimPos = execPath.find('.');
+                size_t delimPos = execPath.find('.');
                 if(delimPos != std::string::npos)
                 {
                   std::string prefix = execPath.substr(0, delimPos+1);

@@ -62,7 +62,7 @@ unsigned int NameSpaceTreeItem::numChildren()
     {
       QStringList filters;
       QString search = QString(it->first.c_str()) + ".";
-      for(size_t i=0;i<m_filters.length();i++)
+      for(int i=0;i<m_filters.length();i++)
       {
         if(!m_filters[i].startsWith(search))
           continue;
@@ -105,7 +105,7 @@ bool NameSpaceTreeItem::includeChildName(QString name)
   QString start = name + ".";
   QString end = "." + name;
 
-  for(unsigned int i=0;i<m_filters.length();i++)
+  for(int i=0;i<m_filters.length();i++)
   {
     if(m_filters[i] == name)
       return true;

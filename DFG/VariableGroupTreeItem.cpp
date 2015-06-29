@@ -36,7 +36,7 @@ unsigned int VariableGroupTreeItem::numChildren()
         }      
 
         names.sort();
-        for(unsigned int i=0;i<names.length();i++)
+        for(int i=0;i<names.length();i++)
         {
           std::string name = names[i].toUtf8().constData();
           std::string path = m_path;
@@ -61,7 +61,7 @@ unsigned int VariableGroupTreeItem::numChildren()
         }
 
         names.sort();
-        for(unsigned int i=0;i<names.length();i++)
+        for(int i=0;i<names.length();i++)
         {
           std::string name = names[i].toUtf8().constData();
           std::string path = m_path;
@@ -91,7 +91,7 @@ bool VariableGroupTreeItem::includeChildName(QString name)
   QString start = name + ".";
   QString end = "." + name;
 
-  for(unsigned int i=0;i<m_filters.length();i++)
+  for(int i=0;i<m_filters.length();i++)
   {
     if(m_filters[i] == name)
       return true;

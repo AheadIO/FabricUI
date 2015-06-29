@@ -21,7 +21,7 @@ namespace FabricUI
       bool disconnectInputsAutomatically;
       bool rightClickDeletesConnections;
 
-      float headerMargins;
+      int headerMargins;
       QColor headerBackgroundColor;
       QPen headerPen;
       QFont headerFont;

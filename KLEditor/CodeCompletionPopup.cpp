@@ -91,7 +91,7 @@ std::string CodeCompletionPopup::search() const
 QString CodeCompletionPopup::currentPrefix() const
 {
   QVBoxLayout * vbox = (QVBoxLayout *)layout();
-  if(m_index < vbox->count())
+  if(int(m_index) < vbox->count())
   {
     return ((CodeCompletionEntry*)vbox->itemAt(m_index)->widget())->prefix();
   }
@@ -101,7 +101,7 @@ QString CodeCompletionPopup::currentPrefix() const
 QString CodeCompletionPopup::currentSuffix() const
 {
   QVBoxLayout * vbox = (QVBoxLayout *)layout();
-  if(m_index < vbox->count())
+  if(int(m_index) < vbox->count())
   {
     return ((CodeCompletionEntry*)vbox->itemAt(m_index)->widget())->suffix();
   }
@@ -111,7 +111,7 @@ QString CodeCompletionPopup::currentSuffix() const
 QString CodeCompletionPopup::currentLabel() const
 {
   QVBoxLayout * vbox = (QVBoxLayout *)layout();
-  if(m_index < vbox->count())
+  if(int(m_index) < vbox->count())
   {
     return ((CodeCompletionEntry*)vbox->itemAt(m_index)->widget())->label();
   }
@@ -121,7 +121,7 @@ QString CodeCompletionPopup::currentLabel() const
 QString CodeCompletionPopup::currentDesc() const
 {
   QVBoxLayout * vbox = (QVBoxLayout *)layout();
-  if(m_index < vbox->count())
+  if(int(m_index) < vbox->count())
   {
     return ((CodeCompletionEntry*)vbox->itemAt(m_index)->widget())->desc();
   }
@@ -198,7 +198,7 @@ void CodeCompletionPopup::charRemovedFromSearch()
 void CodeCompletionPopup::setPosFromCursor(QPoint cursorGlobalPos)
 {
   QFontMetrics metrics(m_config.codeCompletionFont);
-  QPoint pos = cursorGlobalPos + QPoint(0, metrics.height() * 0.5);
+  QPoint pos = cursorGlobalPos + QPoint(0, int(metrics.height() * 0.5));
   if(m_search.length() > 0)
   {
     pos -= QPoint(metrics.width(m_search.c_str()), 0);

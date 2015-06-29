@@ -79,7 +79,7 @@ void TreeViewWidget::setState(QString s)
   TreeModel * model = (TreeModel *)abstractModel;
   QStringList itemPaths = s.split(';');
 
-  for(unsigned int i=0;i<itemPaths.length();i++)
+  for(int i=0;i<itemPaths.length();i++)
   {
     if(itemPaths[i].isEmpty())
       continue;

@@ -30,7 +30,7 @@ bool ManipulationCmd::invoke()
 {
   if(m_rtval_commands.isValid())
   {
-    for(int i=0; i<m_rtval_commands.getArraySize(); i++)
+    for(uint32_t i=0; i<m_rtval_commands.getArraySize(); i++)
     {
       m_rtval_commands.getArrayElement(i).callMethod("", "doAction", 0, 0);
     }
@@ -42,7 +42,7 @@ bool ManipulationCmd::undo()
 {
   if(m_rtval_commands.isValid())
   {
-    for(int i=0; i<m_rtval_commands.getArraySize(); i++)
+    for(uint32_t i=0; i<m_rtval_commands.getArraySize(); i++)
     {
       m_rtval_commands.getArrayElement(i).callMethod("", "undoAction", 0, 0);
     }
@@ -63,7 +63,7 @@ class ManipulationEventFilterObject : public QObject
 static ManipulationEventFilterObject sEventFilterObject;
 
 ManipulationTool::ManipulationTool(GLViewportWidget * glView) 
-  : m_view(glView) , m_active(false)
+  : m_active(false), m_view(glView)
 {
 
 }

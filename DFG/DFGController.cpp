@@ -1087,7 +1087,7 @@ bool DFGController::relaxNodes(QStringList paths)
   }
 
   std::vector<GraphView::Node*> rootNodes;
-  for(unsigned int i=0;i<paths.length();i++)
+  for(int i=0;i<paths.length();i++)
   {
     GraphView::Node * uiNode = graph()->node(paths[i].toUtf8().constData());
     if(!uiNode)
@@ -1327,7 +1327,7 @@ std::string DFGController::implodeNodes(char const * desiredName, QStringList pa
     }
 
     QRectF bounds;
-    for(size_t i=0;i<paths.size();i++)
+    for(int i=0;i<paths.size();i++)
     {
       GraphView::Node * uiNode = graph()->node(paths[i].toUtf8().constData());
       if(uiNode)
@@ -1399,7 +1399,7 @@ QStringList DFGController::explodeNode(char const * path)
       result.append(nodeNames[i].c_str());
 
     QRectF newBounds;
-    for(unsigned int i=0;i<result.length();i++)
+    for(int i=0;i<result.length();i++)
     {
       GraphView::Node * uiNode = graph()->node(result[i].toUtf8().constData());
       if(uiNode)
@@ -1409,7 +1409,7 @@ QStringList DFGController::explodeNode(char const * path)
     }
 
     QPointF delta = oldBound.center() - newBounds.center();
-    for(unsigned int i=0;i<result.length();i++)
+    for(int i=0;i<result.length();i++)
     {
       GraphView::Node * uiNode = graph()->node(result[i].toUtf8().constData());
       if(uiNode)
@@ -1860,7 +1860,7 @@ void DFGController::updatePresetPathDB()
   m_presetPathDictSTL.push_back("set");
 
   QStringList variables = getVariableWordsFromBinding(m_coreDFGBinding, m_execPath.c_str());
-  for(unsigned int i=0;i<variables.length();i++)
+  for(int i=0;i<variables.length();i++)
   {
     m_presetPathDictSTL.push_back("get." + std::string(variables[i].toUtf8().constData()));
     m_presetPathDictSTL.push_back("set." + std::string(variables[i].toUtf8().constData()));

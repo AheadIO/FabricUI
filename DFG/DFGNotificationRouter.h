@@ -29,6 +29,8 @@ namespace FabricUI
         const DFGConfig & config = DFGConfig()
         );
 
+      virtual ~DFGNotificationRouter() {};
+
       FabricCore::DFGBinding const &getCoreDFGBinding()
         { return m_coreDFGBinding; }
 

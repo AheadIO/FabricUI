@@ -129,7 +129,8 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
             if(view)
             {
               // map the position
-              QPoint widgetPos = view->mapFromScene(QPoint(m_connectionPos.x(), m_connectionPos.y()));
+              QPoint widgetPos = view->mapFromScene( QPoint(
+                int( m_connectionPos.x() ), int( m_connectionPos.y() ) ) );
               QPoint globalPos = view->mapToGlobal(widgetPos);
               
               // map the exit rect. if the mouse leaves the area the tooltip will disappear
@@ -138,8 +139,12 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
               QPointF circleBottomRight = circleRect.bottomRight();
               QPointF sceneCircleTopLeft = pinCircle->mapToScene(circleTopLeft);
               QPointF sceneCircleBottomRight = pinCircle->mapToScene(circleBottomRight);
-              QPoint widgetCircleTopLeft = view->mapFromScene(QPoint(sceneCircleTopLeft.x(), sceneCircleTopLeft.y()));
-              QPoint widgetCircleBottomRight = view->mapFromScene(QPoint(sceneCircleBottomRight.x(), sceneCircleBottomRight.y()));
+              QPoint widgetCircleTopLeft =
+                view->mapFromScene( QPoint( int( sceneCircleTopLeft.x() ),
+                                            int( sceneCircleTopLeft.y() ) ) );
+              QPoint widgetCircleBottomRight = view->mapFromScene(
+                QPoint( int( sceneCircleBottomRight.x() ),
+                        int( sceneCircleBottomRight.y() ) ) );
 
               QRect rect(widgetCircleTopLeft, widgetCircleBottomRight);
               if(rect.contains(widgetPos))

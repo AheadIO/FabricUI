@@ -148,7 +148,7 @@ void NodeBubble::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
     painter->setFont(m_config.nodeBubbleFont);
 
     float offset = 0.0f;
-    for(unsigned int i=0;i<m_textLines.length();i++)
+    for(int i=0;i<m_textLines.length();i++)
     {
       offset += m_metrics->lineSpacing();
       painter->drawText(QPointF(4.0f, 4.0f + offset), m_textLines[i]);
@@ -189,7 +189,7 @@ void NodeBubble::updateSize()
 
     if(m_textLines.length() > 0)
     {
-      for(unsigned int i=0;i<m_textLines.length();i++)
+      for(int i=0;i<m_textLines.length();i++)
       {
         float lineW = (float)m_metrics->width(m_textLines[i]) + 10.0f;
         if(lineW > width)

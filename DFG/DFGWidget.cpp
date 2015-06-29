@@ -318,6 +318,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   result->addSeparator();
   action = result->addAction("Add Comment");
   action = result->addAction("Remove Comment");
+  (void)action;
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
@@ -363,7 +364,7 @@ void DFGWidget::onGoUpPressed()
   }
   else
   {
-    int pos = m_coreDFGExecPath.rfind('.');
+    size_t pos = m_coreDFGExecPath.rfind('.');
     if(pos != std::string::npos)
       m_coreDFGExecPath = m_coreDFGExecPath.substr(0, pos);
     else
@@ -813,7 +814,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       {
         QStringList combo = dialog.comboValues();
         QString flat = "(";
-        for(unsigned int i=0;i<combo.length();i++)
+        for(int i=0;i<combo.length();i++)
         {
           if(i > 0)
             flat += ", ";
@@ -929,7 +930,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
         {
           QStringList combo = dialog.comboValues();
           QString flat = "(";
-          for(unsigned int i=0;i<combo.length();i++)
+          for(int i=0;i<combo.length();i++)
           {
             if(i > 0)
               flat += ", ";

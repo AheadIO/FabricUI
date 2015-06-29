@@ -37,10 +37,10 @@ GraphConfig::GraphConfig()
   nodeDefaultPenUsesNodeColor = false;
   nodeSelectedPen = QPen(Qt::SolidLine);
   nodeSelectedPen.setColor(nodeFontHighlightColor);
-  nodeSelectedPen.setWidth(1.5);
+  nodeSelectedPen.setWidth(1);
   nodeErrorPen = QPen(Qt::SolidLine);
   nodeErrorPen.setColor(QColor(255, 0, 0, 255));
-  nodeErrorPen.setWidth(1.5);
+  nodeErrorPen.setWidth(1);
   nodeContentMargins = 2.0f;
   nodeWidthReduction = 15.0f;
   nodeHeaderContentMargins = 2.0f;
@@ -94,7 +94,7 @@ GraphConfig::GraphConfig()
   sidePanelPortLabelSpacing = 4.0f;
   sidePanelWidthReduction = 10.5f;
 
-  headerMargins = 4.0;
+  headerMargins = 4;
   headerBackgroundColor = nodeDefaultLabelColor;
   headerPen = nodeDefaultPen;
   headerFont = nodeFont;
