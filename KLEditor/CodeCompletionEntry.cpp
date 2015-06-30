@@ -78,7 +78,7 @@ void CodeCompletionEntry::paintEvent(QPaintEvent * event)
   painter.setFont(m_config.codeCompletionFont);
 
   int margins = m_config.codeCompletionMargins;
-  int height = m_metrics->lineSpacing() + margins - m_config.codeCompletionFontSize * 0.5;
+  int height = int(m_metrics->lineSpacing() + margins - m_config.codeCompletionFontSize * 0.5);
   int offset = margins;
   
   painter.setPen(m_config.codeCompletionFontColor);

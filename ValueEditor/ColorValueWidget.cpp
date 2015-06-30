@@ -34,7 +34,9 @@ void ColorPickerWidget::mousePressEvent ( QMouseEvent * event )
     QColorDialog dialog( this );
     dialog.setOptions(QColorDialog::ShowAlphaChannel);
     dialog.setModal(true);
-    dialog.setCurrentColor(QColor(m_colorR * 255.0f, m_colorG * 255.0f, m_colorB * 255.0f, m_colorA * 255.0f));
+    dialog.setCurrentColor(
+      QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
+              int( m_colorB * 255.0f ), int( m_colorA * 255.0f ) ) );
     connect(&dialog, SIGNAL(rejected()), this, SLOT(colorDialogRejected()));
     connect(&dialog, SIGNAL(currentColorChanged(const QColor &)), this, SLOT(colorDialogChanged(const QColor &)));
 
@@ -59,7 +61,10 @@ void ColorPickerWidget::paintEvent ( QPaintEvent * event )
 {
   QPainter painter;
   painter.begin(this);
-  painter.fillRect(event->rect(), QBrush(QColor(m_colorR * 255.0f, m_colorG * 255.0f, m_colorB * 255.0f)));
+  painter.fillRect(
+    event->rect(),
+    QBrush( QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
+                    int( m_colorB * 255.0f ) ) ) );
   painter.end();  
 }
 

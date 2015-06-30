@@ -17,6 +17,7 @@ CachingEffect::CachingEffect(QGraphicsWidget * parent)
 void CachingEffect::draw(QPainter * painter)
 {
   QPoint point;
-  QPixmap pixmap = sourcePixmap(Qt::LogicalCoordinates, &point, NoPad);
+  QPixmap pixmap = sourcePixmap(Qt::DeviceCoordinates, &point, NoPad);
+  painter->setWorldTransform(QTransform());
   painter->drawPixmap(point, pixmap);
 }

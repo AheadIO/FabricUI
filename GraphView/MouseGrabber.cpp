@@ -129,7 +129,8 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
             if(view)
             {
               // map the position
-              QPoint widgetPos = view->mapFromScene(QPoint(m_connectionPos.x(), m_connectionPos.y()));
+              QPoint widgetPos = view->mapFromScene( QPoint(
+                int( m_connectionPos.x() ), int( m_connectionPos.y() ) ) );
               QPoint globalPos = view->mapToGlobal(widgetPos);
               
               // map the exit rect. if the mouse leaves the area the tooltip will disappear
@@ -138,8 +139,12 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
               QPointF circleBottomRight = circleRect.bottomRight();
               QPointF sceneCircleTopLeft = pinCircle->mapToScene(circleTopLeft);
               QPointF sceneCircleBottomRight = pinCircle->mapToScene(circleBottomRight);
-              QPoint widgetCircleTopLeft = view->mapFromScene(QPoint(sceneCircleTopLeft.x(), sceneCircleTopLeft.y()));
-              QPoint widgetCircleBottomRight = view->mapFromScene(QPoint(sceneCircleBottomRight.x(), sceneCircleBottomRight.y()));
+              QPoint widgetCircleTopLeft =
+                view->mapFromScene( QPoint( int( sceneCircleTopLeft.x() ),
+                                            int( sceneCircleTopLeft.y() ) ) );
+              QPoint widgetCircleBottomRight = view->mapFromScene(
+                QPoint( int( sceneCircleBottomRight.x() ),
+                        int( sceneCircleBottomRight.y() ) ) );
 
               QRect rect(widgetCircleTopLeft, widgetCircleBottomRight);
               if(rect.contains(widgetPos))
@@ -225,35 +230,6 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     }
     else
     {
-      std::vector<Connection*> connections = graph()->connections();
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == target)
-        {
-          // filter out IO ports
-          if(connections[i]->src()->targetType() == TargetType_Port && connections[i]->dst()->targetType() == TargetType_Port)
-          {
-            if(((Port*)connections[i]->src())->name() == ((Port*)connections[i]->dst())->name())
-              continue;
-          }
-
-          if(!graph()->controller()->gvcDoRemoveConnection(connections[i]))
-          {
-            graph()->controller()->endInteraction();
-        
-            prepareGeometryChange();
-            ungrabMouse();
-            QGraphicsScene * scene = graph()->scene();
-            m_connection->invalidate();
-            scene->removeItem(m_connection);
-            m_connection->deleteLater();
-            scene->removeItem(this);
-            this->deleteLater();
-            return;
-          }
-          break;
-        }
-      }
       graph()->controller()->gvcDoAddConnection(source, target);
     }
   }

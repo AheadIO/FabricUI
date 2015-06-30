@@ -19,7 +19,9 @@ DFGTabSearchWidget::DFGTabSearchWidget(
   : QWidget(parent)
   , m_parent( parent )
   , m_config( config )
-  , m_metrics( config.fixedFont )
+  , m_queryMetrics( config.searchQueryFont )
+  , m_resultsMetrics( config.searchResultsFont )
+  , m_helpMetrics( config.searchHelpFont )
 {
   // always show on top
   setWindowFlags(windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
@@ -41,7 +43,7 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
       
       DFGController *controller = m_parent->getUIController();
-      DFGUICmdHandler *cmdHandler = controller->getCmdHandler();
+      // DFGUICmdHandler *cmdHandler = controller->getCmdHandler();
       controller->cmdAddInstFromPreset(
         m_results[index].toUtf8().constData(),
         scenePos
@@ -133,6 +135,16 @@ void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
   }
 }
 
+char const *DFGTabSearchWidget::getHelpText() const
+{
+  if ( m_search.length() == 0 )
+    return "Search for preset or variable";
+  else if ( m_results.length() == 0 )
+    return "No results found";
+  else
+    return 0;
+}
+
 void DFGTabSearchWidget::paintEvent(QPaintEvent * event)
 {
   QPainter painter(this);
@@ -141,30 +153,41 @@ void DFGTabSearchWidget::paintEvent(QPaintEvent * event)
   int height = heightFromResults();
 
   painter.fillRect(0, 0, width, height, m_config.searchBackgroundColor);
+  painter.fillRect(
+    margin() + m_queryMetrics.width( m_search ),
+    margin(),
+    m_queryMetrics.width( 'X' ),
+    m_queryMetrics.lineSpacing(),
+    m_config.searchCursorColor
+    );
 
   if(m_currentIndex > -1 && m_currentIndex < m_results.length())
   {
-    int offset = m_metrics.lineSpacing() * (m_currentIndex + 1) + margin();
-    painter.fillRect(margin(), offset, width - 2 * margin(), m_metrics.lineSpacing(), m_config.searchHighlightColor);
+    int offset = m_resultsMetrics.lineSpacing() * (m_currentIndex + 1) + margin();
+    painter.fillRect(margin(), offset, width - 2 * margin(), m_resultsMetrics.lineSpacing(), m_config.searchHighlightColor);
   }
 
   painter.setPen(m_config.searchBackgroundColor.darker());
-  painter.drawLine(QPoint(0, 0), QPoint(width-1, 0));
-  painter.drawLine(QPoint(0, 0), QPoint(0, height-1));
-  painter.setPen(m_config.searchBackgroundColor.lighter());
-  painter.drawLine(QPoint(width-1, 0), QPoint(width-1, height-1));
-  painter.drawLine(QPoint(0, height-1), QPoint(width-1, height-1));
+  painter.drawRect(0, 0, width-1, height-1);
 
-  painter.setFont(m_config.fixedFont);
+  int offset = margin() + m_queryMetrics.ascent();
+  painter.setFont(m_config.searchQueryFont);
   painter.setPen(QColor(0, 0, 0, 255));
-
-  int offset = margin() + m_metrics.ascent();
   painter.drawText(margin(), offset, m_search);
+  offset += m_queryMetrics.lineSpacing();
 
-  for(unsigned int i=0;i<m_results.length();i++)
+  painter.setFont(m_config.searchResultsFont);
+  for(int i=0;i<m_results.length();i++)
   {
-    offset += m_metrics.lineSpacing();
     painter.drawText(margin(), offset, resultLabel(i));
+    offset += m_resultsMetrics.lineSpacing();
+  }
+
+  if ( char const *helpText = getHelpText() )
+  {
+    painter.setFont(m_config.searchHelpFont);
+    painter.drawText(margin(), offset, helpText);
+    offset += m_helpMetrics.lineSpacing();
   }
 
   QWidget::paintEvent(event);  
@@ -178,11 +201,9 @@ void DFGTabSearchWidget::showForSearch( QPoint globalPos )
   setFocus(Qt::TabFocusReason);
 
   QPoint localPos = m_parent->mapFromGlobal( globalPos );
-  setGeometry(
-    localPos.x() - width() * 0.5,
-    localPos.y() - m_metrics.lineSpacing() * 0.5,
-    0, 0
-    );
+  setGeometry( int( localPos.x() - width() * 0.5 ),
+               int( localPos.y() - m_queryMetrics.lineSpacing() * 0.5 ), 0,
+               0 );
   updateGeometry();
 
   show();
@@ -285,8 +306,8 @@ int DFGTabSearchWidget::indexFromPos(QPoint pos)
 {
   int y = pos.y();
   y -= margin();
-  y /= (int)m_metrics.lineSpacing();
-  y -= 1;
+  y -= m_queryMetrics.lineSpacing();
+  y /= (int)m_resultsMetrics.lineSpacing();
   if(y < 0 || y > m_results.size())
     return -1;
   return y;
@@ -294,25 +315,36 @@ int DFGTabSearchWidget::indexFromPos(QPoint pos)
 
 int DFGTabSearchWidget::widthFromResults() const
 {
-  int width = 80 + 2 * margin();
+  int width = 80;
 
-  int w = m_metrics.width(m_search) + 2 * margin();
+  int w = m_queryMetrics.width(m_search) + m_queryMetrics.width('X');
   if(w > width)
     width = w;
 
-  for(unsigned int i=0;i<m_results.length();i++)
+  for(int i=0;i<m_results.length();i++)
   {
-    w = m_metrics.width(resultLabel(i)) + 2 * margin();
+    w = m_resultsMetrics.width(resultLabel(i));
     if(w > width)
       width = w;
   }
 
-  return width;
+  if ( char const *helpText = getHelpText() )
+  {
+    w = m_helpMetrics.width( helpText );
+    if ( w > width )
+      width = w;
+  }
+
+  return width + 2 * margin();
 }
 
 int DFGTabSearchWidget::heightFromResults() const
 {
-  return (m_results.length() + 1) * m_metrics.lineSpacing() + 2 * margin();
+  int height = m_queryMetrics.lineSpacing();
+  height += m_results.length() * m_resultsMetrics.lineSpacing();
+  if ( getHelpText() )
+    height += m_helpMetrics.lineSpacing();
+  return height + 2 * margin();
 }
 
 void DFGTabSearchWidget::addNodeFromPath(QString path)

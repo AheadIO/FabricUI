@@ -3,6 +3,8 @@
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
@@ -104,11 +106,12 @@ bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
-bool Controller::renameNode(Node * node, FTL::StrRef title)
+bool Controller::renameNode(Node * node, FTL::CStrRef title)
 {
   if(title == node->title())
     return false;
-  RenameNodeCommand * command = new RenameNodeCommand(this, node, title.data());
+  RenameNodeCommand * command =
+    new RenameNodeCommand( this, node, title.c_str() );
   if(!addCommand(command))
   {
     delete(command);
@@ -139,7 +142,13 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-Pin * Controller::addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
+Pin * Controller::addPin(
+  Node * node,
+  FTL::CStrRef name,
+  PortType pType,
+  QColor color,
+  FTL::CStrRef dataType
+  )
 {
   AddPinCommand * command = new AddPinCommand(this, node, name.data(), pType, color, dataType.data());
 
@@ -159,19 +168,6 @@ bool Controller::removePin(Pin * pin)
 
   delete(command);
   return false;
-}
-
-bool Controller::renamePort(Port * port, FTL::StrRef title)
-{
-  if(title == port->name())
-    return false;
-  RenamePortCommand * command = new RenamePortCommand(this, port, title.data());
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
 }
 
 bool Controller::gvcDoRemoveConnection(Connection * conn)
@@ -227,6 +223,53 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
+}
+
+bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
+{
+  node->mainWidget()->setMinimumWidth(size.width());
+  node->mainWidget()->setMinimumHeight(size.height());
+  node->mainWidget()->setMaximumWidth(size.width());
+  node->mainWidget()->setMaximumHeight(size.height());
+  return true;
+}
+
+bool Controller::setNodeComment(Node * node, char const * comment)
+{
+  NodeBubble * bubble = node->bubble();
+
+  if(comment == NULL)
+  {
+    if(bubble == NULL)
+      return false;
+
+    bubble->scene()->removeItem(bubble);
+    bubble->hide();
+    bubble->deleteLater();
+    return true;
+  }
+
+  if(bubble == NULL)
+  {
+    bubble = new NodeBubble(graph(), node, graph()->config());
+    bubble->expand();
+  }
+
+  bubble->setText(comment);
+  return true;
+}
+
+bool Controller::setNodeCommentExpanded(Node * node, bool expanded)
+{
+  NodeBubble * bubble = node->bubble();
+  if(bubble == NULL)
+    return false;
+
+  if(expanded)
+    bubble->expand();
+  else
+    bubble->collapse();
+  return true;
 }
 
 bool Controller::addCommand(Command * command)

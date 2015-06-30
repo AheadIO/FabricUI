@@ -11,7 +11,7 @@ using namespace FabricUI::DFG;
 DFGCopyCommand::DFGCopyCommand(DFGController * controller, QStringList nodePaths)
 : DFGCommand(controller)
 {
-  for(unsigned int i=0;i<nodePaths.length();i++)
+  for(int i=0;i<nodePaths.length();i++)
     m_nodePaths.push_back(nodePaths[i].toUtf8().constData());
   for(unsigned int i=0;i<m_nodePaths.size();i++)
     m_nodePathsPtr.push_back(m_nodePaths[i].c_str());

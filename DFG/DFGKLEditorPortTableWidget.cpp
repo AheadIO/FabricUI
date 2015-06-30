@@ -61,9 +61,6 @@ DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 
 void DFGKLEditorPortTableWidget::setExec(FabricCore::DFGExec exec)
 {
-  if(exec == m_exec)
-    return;
-
   int prevCurrentRow = currentRow();
   int prevCurrentColumn = currentColumn();
 

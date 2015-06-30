@@ -64,13 +64,8 @@ void GraphRelaxer::addSpring(QString a, QString b, float force)
 void GraphRelaxer::relax(int steps)
 {
   // todo: base this off config
-  float gravity = -30.0f;
-  float drag = 0.98f;
-  float blend = 0.25f;
-  float restLength = 120.0f;
   float rowHeightInc = 5.0f;
   float colWidthInc = 2.0f;
-  float idealForce = 1.0f;
 
   // prepare the row counters
   std::vector<int> colCount;
@@ -78,7 +73,7 @@ void GraphRelaxer::relax(int steps)
   std::vector<float> height;
   for(unsigned int i=0;i<m_nodes.size();i++)
   {
-    int col = m_nodes[i].col;
+    size_t col = m_nodes[i].col;
     while(col >= colCount.size())
     {
       colCount.push_back(0);
@@ -94,10 +89,9 @@ void GraphRelaxer::relax(int steps)
 
   // sort each row by prev row and prev pins
 
-
   for(int stepI = 0; stepI < steps; stepI++)
   {
-    for(int nodeI = 0; nodeI < m_nodes.size(); nodeI++)
+    for(size_t nodeI = 0; nodeI < m_nodes.size(); nodeI++)
     {
       RelaxNode & node = m_nodes[nodeI];
       if(node.col == 0)
@@ -134,7 +128,7 @@ void GraphRelaxer::relax(int steps)
       node.curr = idealPos;
     }
 
-    for(int nodeI = 0; nodeI < m_nodes.size(); nodeI++)
+    for(size_t nodeI = 0; nodeI < m_nodes.size(); nodeI++)
     {
       RelaxNode & node = m_nodes[nodeI];
       node.prev = node.curr;

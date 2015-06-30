@@ -12,6 +12,9 @@ DFGConfig::DFGConfig()
 : defaultFont("Lucida", 10),
   fixedFont("Courier", 12),
   logFont("Courier", 10)
+  , searchQueryFont( QFont("Courier", 12, QFont::Bold) )
+  , searchResultsFont( QFont("Courier", 12) )
+  , searchHelpFont( QFont("Courier", 12, QFont::Bold) )
 {
   defaultWindowColor = QColor(80, 98, 110);
   defaultBackgroundColor = QColor(156, 174, 187);
@@ -21,6 +24,7 @@ DFGConfig::DFGConfig()
   logFont.setStyleHint( QFont::TypeWriter );
   searchBackgroundColor = QColor(135, 135, 135);
   searchHighlightColor = QColor(137, 181, 202);
+  searchCursorColor = QColor(220, 220, 220);
   searchFontColor = QColor(0, 0, 0);
   varNodeDefaultColor = QColor(214, 191, 103);
   varLabelDefaultColor = QColor(188, 129, 83);

@@ -74,7 +74,7 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
   if(uiRange.length() > 0)
   {
     QString filteredUiRange;
-    for(unsigned int i=0;i<uiRange.length();i++)
+    for(int i=0;i<uiRange.length();i++)
     {
       char c = uiRange.toUtf8().constData()[i];
       if(isalnum(c) || c == '.' || c == ',' || c == '-')
@@ -94,7 +94,7 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
     m_maximum = f;
 
   float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
-  m_slider->setValue(10000.0f * ratio);
+  m_slider->setValue(int(10000.0f * ratio));
 
   m_lineEdit->setText(QString::number(f));
 
@@ -120,7 +120,7 @@ void ScalarValueWidget::onValueChangedInLineEdit()
     m_maximum = f;
 
   float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
-  m_slider->setValue(10000.0f * ratio);
+  m_slider->setValue(int(10000.0f * ratio));
 
   if(m_typeName == "Float32" || m_typeName == "Scalar")
     m_value = FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), f);

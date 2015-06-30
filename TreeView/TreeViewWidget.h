@@ -39,6 +39,7 @@ namespace FabricUI
     signals:
 
       void itemSelectionChanged();
+      void customContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item);
 
     protected:
 

@@ -22,6 +22,7 @@ NodeToolbar::NodeToolbar(Graph * parent, const GraphConfig & config)
   m_config = config;
   m_node = NULL;
   m_enabled = true;
+  setZValue(-25);
 
   setMinimumHeight(m_config.nodeToolbarHeight);
   setMaximumHeight(m_config.nodeToolbarHeight);
@@ -220,7 +221,7 @@ void NodeToolbar::paint(QPainter * painter, const QStyleOptionGraphicsItem * opt
     painter->setBrush(m_config.nodeToolbarColor);
 
     QPainterPath rounded_rect;
-    rounded_rect.addRoundRect(rect.adjusted(0, 0, 0, radiusH * 0.1), radiusW, radiusHH);
+    rounded_rect.addRoundRect(rect.adjusted(0, 0, 0, radiusH * 0.1), int(radiusW), int(radiusHH));
 
     // fill everything
     painter->fillPath(rounded_rect, painter->brush());     
@@ -260,7 +261,7 @@ QRectF NodeToolbar::toolRect(int index) const
   QPointF offset(m_config.nodeToolbarBaseWidth*0.5f, m_config.nodeToolbarBaseWidth*0.5f);
   for(size_t i=0;i<m_tools.size();i++)
   {
-    if(i == index)
+    if(i == size_t(index))
       return QRectF(offset.x(), offset.y(), m_tools[i].pixmap.width(), m_tools[i].pixmap.height());
     offset += QPointF(m_tools[i].pixmap.width() + m_config.nodeToolbarSeparator, 0.0f);
   }

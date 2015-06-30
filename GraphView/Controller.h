@@ -26,6 +26,7 @@ namespace FabricUI
     // forward declarations
     class Graph;
     class Node;
+    class BackDropNode;
     class Pin;
     class Port;
     class Connection;
@@ -71,18 +72,26 @@ namespace FabricUI
         QPointF pos
         );
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
-      virtual bool renameNode(Node * node, FTL::StrRef title);
+      virtual bool renameNode(Node * node, FTL::CStrRef title);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
-      virtual Pin * addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType = "");
+      virtual Pin * addPin(
+        GraphView::Node * node,
+        FTL::CStrRef name,
+        GraphView::PortType pType,
+        QColor color,
+        FTL::CStrRef dataType = ""
+        );
       virtual bool removePin(Pin * pin);
-      virtual bool renamePort(Port * port, FTL::StrRef title);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool frameNodes(const std::vector<Node*> & nodes);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
+      virtual bool setBackDropNodeSize(BackDropNode * node, QSizeF size);
+      virtual bool setNodeComment(Node * node, char const * comment);
+      virtual bool setNodeCommentExpanded(Node * node, bool expanded);
 
       virtual bool canConnectTo(
         char const *pathA,
