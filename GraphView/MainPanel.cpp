@@ -74,7 +74,7 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
   if(state > 1.0)
     state = 1.0;
   if(state < 0.05)
-    state = 0.05;
+    state = 0.05f;
   if(m_mouseWheelZoomState == state)
     return;
 

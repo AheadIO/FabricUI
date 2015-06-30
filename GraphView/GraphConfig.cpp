@@ -107,7 +107,7 @@ GraphConfig::GraphConfig()
   mouseWheelZoomRate = 0.0f; // disable zoom for now 0.0005f;
   mouseWheelZoomRate = 0.0005f;
 
-  backDropNodeAlpha = 0.45;
+  backDropNodeAlpha = 0.45f;
   nodeBubbleMinWidth = 30.0;
   nodeBubbleMinHeight = 13.0;
   nodeBubbleColor = QColor(255, 247, 155);
