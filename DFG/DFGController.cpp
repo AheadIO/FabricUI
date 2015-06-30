@@ -352,7 +352,7 @@ bool DFGController::removeNode(GraphView::Node * node)
   return false;
 }
 
-bool DFGController::renameNode(char const * path, char const * title)
+bool DFGController::renameNodeByPath(char const *path, char const *title)
 {
   try
   {
@@ -388,18 +388,18 @@ bool DFGController::renameBackDropNode(GraphView::BackDropNode * node, char cons
   return true;
 }
 
-bool DFGController::renameNode(GraphView::Node * node, char const * title)
+bool DFGController::renameNode(GraphView::Node * node, FTL::StrRef title)
 {
   if(node->title() == title)
     return false;
   if(node->type() == GraphView::QGraphicsItemType_Node)
-    return renameNode(node->name().c_str(), title);
+    return renameNodeByPath(node->name().c_str(), title.data());
   else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
-    return renameBackDropNode((GraphView::BackDropNode*)node, title);
+    return renameBackDropNode((GraphView::BackDropNode*)node, title.data());
   return false;
 }
 
-GraphView::Pin * DFGController::addPin(GraphView::Node * node, char const * name, GraphView::PortType pType, QColor color, char const * dataType)
+GraphView::Pin * DFGController::addPin(GraphView::Node * node, FTL::StrRef name, GraphView::PortType pType, QColor color, FTL::StrRef dataType)
 {
   // disabled, pins are created by the DFGNotificationRouter
   return NULL;
@@ -411,7 +411,7 @@ bool DFGController::removePin(GraphView::Pin * pin)
   return false;
 }
 
-std::string DFGController::addPort(
+std::string DFGController::addPortByPath(
   FTL::StrRef execPath,
   FTL::StrRef name,
   FabricCore::DFGPortType pType,
@@ -424,10 +424,10 @@ std::string DFGController::addPort(
     portType = GraphView::PortType_Output;
   else if(pType == FabricCore::DFGPortType_IO)
     portType = GraphView::PortType_IO;
-  return addPort(execPath, name, portType, dataType, setArgValue);
+  return addPortByPath(execPath, name, portType, dataType, setArgValue);
 }
 
-std::string DFGController::addPort(
+std::string DFGController::addPortByPath(
   FTL::StrRef execPath,
   FTL::StrRef name,
   GraphView::PortType pType,
@@ -467,7 +467,7 @@ std::string DFGController::addPort(
   return result;
 }
 
-bool DFGController::removePort(char const * name)
+bool DFGController::removePortByName(char const *name)
 {
   try
   {
@@ -494,7 +494,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   try
   {
     beginInteraction();
-    std::string portPath = addPort(getExecPath(), pin->name(), pType, pin->dataType());
+    std::string portPath = addPortByPath(getExecPath(), pin->name(), pType, pin->dataType());
 
     // copy the default value into the port
     FabricCore::DFGExec exec = getCoreDFGExec();
@@ -619,7 +619,7 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
   return NULL;
 }
 
-std::string DFGController::renamePort(char const * path, char const * name)
+std::string DFGController::renamePortByPath(char const *path, char const *name)
 {
   FTL::StrRef pathRef(path);
   if(pathRef == name)
@@ -691,7 +691,7 @@ bool DFGController::addConnection(GraphView::ConnectionTarget * src, GraphView::
   return addConnection(srcPath.c_str(), dstPath.c_str());
 }
 
-bool DFGController::removeConnection(char const * srcPath, char const * dstPath)
+bool DFGController::removeConnectionByPath(char const *srcPath, char const *dstPath)
 {
   try
   {
@@ -728,7 +728,7 @@ bool DFGController::removeConnection(GraphView::ConnectionTarget * src, GraphVie
     dstPath = ((GraphView::Pin*)dst)->path();
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
-  return removeConnection(srcPath.c_str(), dstPath.c_str());
+  return removeConnectionByPath(srcPath.c_str(), dstPath.c_str());
 }
 
 bool DFGController::removeAllConnections(const char * path)

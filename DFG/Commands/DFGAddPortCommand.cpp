@@ -41,7 +41,7 @@ bool DFGAddPortCommand::invoke()
   return true;
 }
 
-const char * DFGAddPortCommand::getExecPath() const
+const char * DFGAddPortCommand::getExecPath()
 {
   return m_execPath.c_str();
 }

@@ -135,7 +135,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
             std::string path = m_execPath;
             path += ".";
             path += m_func.getExecPortName(i);
-            m_controller->renamePort(path.c_str(), infos[i].portName.c_str());
+            m_controller->renamePortByPath(path.c_str(), infos[i].portName.c_str());
           }
           catch(FabricCore::Exception e)
           {
@@ -161,9 +161,9 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         char const * name = m_func.getExecPortName(i);
 
-        if(m_controller->removePort(name))
+        if(m_controller->removePortByName(name))
         {
-          m_controller->addPort(
+          m_controller->addPortByPath(
             m_controller->getExecPath(),
             name,
             infos[i].portType,
@@ -213,7 +213,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
     }
 
     char const * name = m_func.getExecPortName(indexToRemove);
-    m_controller->removePort(name);
+    m_controller->removePortByName(name);
     modified = true;
   }
   else if(m_func.getExecPortCount() < infos.size())
@@ -228,7 +228,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
 
-    m_controller->addPort(
+    m_controller->addPortByPath(
       m_controller->getExecPath(),
       infos[indexToAdd].portName,
       infos[indexToAdd].portType,
