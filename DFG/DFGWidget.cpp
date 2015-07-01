@@ -455,7 +455,10 @@ dfgEntry {\n\
     if(text.length() == 0)
       return;
 
-    m_uiController->addBackDropNode(text.toUtf8().constData(), QPointF(pos.x(), pos.y()));
+    m_uiController->cmdAddBackDrop(
+      text.toUtf8().constData(),
+      QPointF( pos.x(), pos.y() )
+      );
   }
   else if(action->text() == "Implode nodes")
   {

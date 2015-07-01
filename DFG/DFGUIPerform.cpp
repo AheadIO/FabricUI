@@ -3,7 +3,10 @@
 //
 
 #include <FabricUI/DFG/DFGUIPerform.h>
+#include <FabricUI/GraphView/BackDropNode.h>
 #include <FTL/JSONValue.h>
+
+#include <sstream>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -319,6 +322,54 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   }
 
   return newNodeNames;
+}
+
+void DFGUIPerform_AddBackDrop(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef title,
+  unsigned &coreUndoCount
+  )
+{
+  std::string uiBackDropsStr = exec.getMetadata( "uiBackDrops" );
+
+  FTL::OwnedPtr<FTL::JSONArray> uiBackDropsJSON;
+  if ( !uiBackDropsStr.empty() && uiBackDropsStr[0] != '[' )
+  {
+    // [pzion 20150701] Upgrade from broken old format
+    std::vector<FTL::StrRef> uiBackDrops;
+    std::pair<FTL::StrRef, FTL::CStrRef> split = uiBackDropsStr.split(',');
+    while ( !split.first.empty() )
+    {
+      uiBackDrops.push_back( split.first );
+      split = split.second.split(',');
+    }
+  }
+  else
+  {
+    FTL::JSONStrWithLoc strWithLoc( uiBackDropsStr );
+    uiBackDropsJSON = JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>();
+  }
+
+  std::stringstream nameStr;
+  nameStr << title;
+  nameStr << '_';
+  nameStr << uiBackDrops.size();
+
+  std::string keyStr = "uiBackDrop_" + nameStr.str();
+  QString jsonStr =
+    GraphView::BackDropNode::getDefaultJSON( nameStr.str(), title, pos );
+
+  if ( !uiBackDropsStr.empty() )
+    uiBackDropsStr += ',';
+  uiBackDropsStr += keyStr;
+
+  exec.setMetadata( "uiBackDrops", uiBackDropsStr.c_str(), true );
+  ++coreUndoCount;
+
+  exec.setMetadata( keyStr.c_str(), jsonStr.toUtf8().constData(), true );
+  ++coreUndoCount;
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

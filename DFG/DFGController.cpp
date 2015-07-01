@@ -137,33 +137,22 @@ bool DFGController::gvcDoRemoveNodes(
   return true;
 }
 
-std::string DFGController::addBackDropNode(char const * title, QPointF pos)
+void DFGController::cmdAddBackDrop(
+  FTL::CStrRef title,
+  QPointF pos
+  )
 {
-  try
-  {
-    QString uiBackDropsStr = getExec().getMetadata("uiBackDrops");
-    QStringList uiBackDrops;
-    if(uiBackDropsStr.length() > 0)
-      uiBackDrops = uiBackDropsStr.split(',');
+  std::string desc = FTL_STR("Canvas: Add BackDrop '");
+  desc += title;
+  desc += '\'';
 
-    QString nameStr = QString(title) + "_" + QString::number(uiBackDrops.length());
-    QString keyStr = "uiBackDrop_"+nameStr;
-    QString jsonStr = GraphView::BackDropNode::getDefaultJSON(
-      nameStr.toUtf8().constData(), title, pos);
-
-    uiBackDrops.append(keyStr);
-    uiBackDropsStr = uiBackDrops.join(",");
-
-    getExec().setMetadata("uiBackDrops", uiBackDropsStr.toUtf8().constData(), false);
-    getExec().setMetadata(keyStr.toUtf8().constData(), jsonStr.toUtf8().constData(), false);
-
-    return nameStr.toUtf8().constData();
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return "";
+  m_cmdHandler->dfgDoAddBackDrop(
+    desc,
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    title
+    );
 }
 
 bool DFGController::removeBackDropNode(GraphView::BackDropNode * node)
@@ -1487,7 +1476,7 @@ void DFGController::cmdConnect(
   desc += dstPath;
   desc += '\'';
 
- m_cmdHandler->dfgDoConnect(
+  m_cmdHandler->dfgDoConnect(
     desc,
     getBinding(),
     getExecPath(),

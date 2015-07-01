@@ -60,6 +60,14 @@ void DFGUIPerform_MoveNode(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_AddBackDrop(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef title,
+  unsigned &coreUndoCount
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__

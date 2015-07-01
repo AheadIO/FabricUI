@@ -140,6 +140,14 @@ public:
     FabricCore::DFGExec &exec,
     FTL::CStrRef nodeName
     ) = 0;
+
+  virtual void dfgDoAddBackDrop(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef title
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

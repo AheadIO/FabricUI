@@ -3,6 +3,7 @@
  */
 
 #include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_AddBackDrop_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_AddConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_AddGet_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_AddInstFromPreset_QUndo.h>
@@ -307,6 +308,25 @@ std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoExplodeNode(
       );
   m_qUndoStack->push( cmd );
   return cmd->getExplodedNodeNames();
+}
+
+void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef title
+  )
+{
+  DFGUICmd_AddBackDrop_QUndo *cmd =
+    new DFGUICmd_AddBackDrop_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      title
+      );
+  m_qUndoStack->push( cmd );
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

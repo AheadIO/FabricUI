@@ -140,6 +140,14 @@ public:
     FTL::CStrRef nodeName
     );
 
+  virtual void dfgDoAddBackDrop(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef title
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

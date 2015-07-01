@@ -163,6 +163,8 @@ namespace FabricUI
         FTL::CStrRef nodeName
         );
 
+      void cmdAddBackDrop( FTL::CStrRef title, QPointF pos );
+
       virtual bool renameNodeByPath(char const * path, char const * title);
       virtual bool renameNode(GraphView::Node * node, FTL::CStrRef title);
       virtual std::string renamePortByPath(char const *  path, char const *  title);
@@ -178,7 +180,6 @@ namespace FabricUI
       virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
-      std::string addBackDropNode(char const * title, QPointF pos);
       virtual bool moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos = false);
       bool removeBackDropNode(GraphView::BackDropNode * node);
       bool renameBackDropNode(GraphView::BackDropNode * node, char const * title);
