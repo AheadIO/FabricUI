@@ -1,7 +1,8 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "Graph.h"
-#include "Exception.h"
+#include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Exception.h>
 
 using namespace FabricUI::GraphView;
 
@@ -143,7 +144,7 @@ Node * Graph::addNode(Node * node, bool quiet)
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
 
-  if(m_nodeToolbar)
+  if ( m_nodeToolbar && node->supportsToolBar() )
     m_nodeToolbar->attach(node);
 
   if(!quiet)
@@ -159,6 +160,16 @@ Node * Graph::addNode(
   )
 {
   return addNode(new Node(this, name, title), quiet);
+}
+
+BackDropNode *Graph::addBackDropNode(
+  FTL::CStrRef name,
+  bool quiet
+  )
+{
+  BackDropNode *backDropNode = new BackDropNode( this, name );
+  addNode( backDropNode, quiet );
+  return backDropNode;
 }
 
 bool Graph::removeNode(Node * node, bool quiet)

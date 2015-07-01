@@ -366,17 +366,16 @@ bool Controller::setNodeComment(Node * node, char const * comment)
   return true;
 }
 
-bool Controller::setNodeCommentExpanded(Node * node, bool expanded)
+void Controller::setNodeCommentExpanded(Node * node, bool expanded)
 {
   NodeBubble * bubble = node->bubble();
-  if(bubble == NULL)
-    return false;
-
-  if(expanded)
-    bubble->expand();
-  else
-    bubble->collapse();
-  return true;
+  if ( bubble != NULL )
+  {
+    if(expanded)
+      bubble->expand();
+    else
+      bubble->collapse();
+  }
 }
 
 bool Controller::addCommand(Command * command)
