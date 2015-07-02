@@ -163,10 +163,16 @@ namespace FabricUI
         FTL::CStrRef nodeName
         );
 
-      void cmdAddBackDrop( FTL::CStrRef title, QPointF pos );
+      void cmdAddBackDrop(
+        FTL::CStrRef title,
+        QPointF pos
+        );
 
-      virtual bool renameNodeByPath(char const * path, char const * title);
-      virtual bool renameNode(GraphView::Node * node, FTL::CStrRef title);
+      void cmdSetNodeTitle(
+        FTL::CStrRef nodeName, 
+        FTL::CStrRef newTitle
+        );
+
       virtual std::string renamePortByPath(char const *  path, char const *  title);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual bool setCode(char const *  path, char const *  code);

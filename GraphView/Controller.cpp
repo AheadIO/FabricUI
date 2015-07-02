@@ -106,20 +106,6 @@ bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
-bool Controller::renameNode(Node * node, FTL::CStrRef title)
-{
-  if(title == node->title())
-    return false;
-  RenameNodeCommand * command =
-    new RenameNodeCommand( this, node, title.c_str() );
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
-}
-
 bool Controller::selectNode(Node * node, bool state)
 {
   if(node->selected() != state)

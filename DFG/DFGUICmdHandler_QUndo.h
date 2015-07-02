@@ -149,6 +149,15 @@ public:
     QPointF pos
     );
 
+  virtual void dfgDoSetNodeTitle(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef nodeName,
+    FTL::CStrRef newTitle
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

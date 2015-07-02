@@ -15,7 +15,6 @@
 #include "DFGLogWidget.h"
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
-#include "DFGUICmd_QUndo/DFGRenameNodeCommand.h"
 #include "DFGUICmd_QUndo/DFGRenamePortCommand.h"
 #include "DFGUICmd_QUndo/DFGSetCodeCommand.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
@@ -143,7 +142,7 @@ void DFGController::cmdAddBackDrop(
   QPointF pos
   )
 {
-  std::string desc = FTL_STR("Canvas: Create backDrop '");
+  std::string desc = FTL_STR("Canvas: Create backdrop '");
   desc += title;
   desc += '\'';
 
@@ -157,37 +156,25 @@ void DFGController::cmdAddBackDrop(
     );
 }
 
-bool DFGController::renameNodeByPath(char const *path, char const *title)
-{
-  try
-  {
-    DFGRenameNodeCommand * command =
-      new DFGRenameNodeCommand(this, path, title);
-    if(!addCommand(command))
-    {
-      delete(command);
-      return false;
-    }
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
-
-bool DFGController::renameNode(
-  GraphView::Node * node,
-  FTL::CStrRef title
+void DFGController::cmdSetNodeTitle(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newTitle
   )
 {
-  if(node->title() == title)
-    return false;
-  if(!node->isBackDropNode())
-    return renameNodeByPath(node->name().c_str(), title.data());
-  return false;
+  std::string desc = FTL_STR("Canvas: Set node '");
+  desc += nodeName;
+  desc += FTL_STR("' title to '");
+  desc += newTitle;
+  desc += '\'';
+
+  m_cmdHandler->dfgDoSetNodeTitle(
+    desc,
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    newTitle
+    );
 }
 
 void DFGController::gvcDoAddPort(

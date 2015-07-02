@@ -78,7 +78,7 @@ namespace FabricUI
       void onSidePanelAction(QAction * action);
       void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
-      void onNodeToBeRenamed(FabricUI::GraphView::Node* node);
+      void onEditNodeTitle(FabricUI::GraphView::Node* node);
       void onKeyPressed(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 

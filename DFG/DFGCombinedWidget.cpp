@@ -197,7 +197,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
     if(nodes.size() > 0)
-      m_dfgWidget->onNodeToBeRenamed(nodes[0]);
+      m_dfgWidget->onEditNodeTitle(nodes[0]);
   }
   else if(hotkey == "relax nodes")
   {

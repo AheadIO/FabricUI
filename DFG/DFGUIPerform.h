@@ -69,6 +69,15 @@ std::string DFGUIPerform_AddBackDrop(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_SetNodeTitle(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newTitle,
+  unsigned &coreUndoCount
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__

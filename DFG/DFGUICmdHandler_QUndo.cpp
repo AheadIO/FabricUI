@@ -17,6 +17,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -327,6 +328,27 @@ void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
       exec,
       title,
       pos
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetNodeTitle(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newTitle
+  )
+{
+  DFGUICmd_SetNodeTitle_QUndo *cmd =
+    new DFGUICmd_SetNodeTitle_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      nodeName,
+      newTitle
       );
   m_qUndoStack->push( cmd );
 }

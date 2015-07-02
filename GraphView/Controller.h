@@ -72,7 +72,6 @@ namespace FabricUI
         QPointF pos
         );
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
-      virtual bool renameNode(Node * node, FTL::CStrRef title);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
       virtual Pin * addPin(

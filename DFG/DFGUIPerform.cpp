@@ -368,4 +368,41 @@ std::string DFGUIPerform_AddBackDrop(
   return name;
 }
 
+void DFGUIPerform_SetNodeTitle(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newTitle,
+  unsigned &coreUndoCount
+  )
+{
+  switch ( exec.getNodeType( nodeName.c_str() ) )
+  {
+    case FabricCore::DFGNodeType_User:
+    {
+      exec.setNodeMetadata(
+        nodeName.c_str(),
+        "uiTitle",
+        newTitle.c_str(),
+        true
+        );
+      ++coreUndoCount;
+    }
+    break;
+
+    case FabricCore::DFGNodeType_Inst:
+    {
+      exec.setInstTitle(
+        nodeName.c_str(),
+        newTitle.c_str()
+        );
+      ++coreUndoCount;
+    }
+    break;
+
+    default: break;
+  }
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

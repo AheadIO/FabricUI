@@ -149,6 +149,15 @@ public:
     FTL::CStrRef title,
     QPointF pos
     ) = 0;
+
+  virtual void dfgDoSetNodeTitle(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef nodeName,
+    FTL::CStrRef newTitle
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

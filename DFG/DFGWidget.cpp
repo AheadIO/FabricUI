@@ -282,19 +282,15 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
       && dfgNodeType != FabricCore::DFGNodeType_User )
       return NULL;
   }
-  FabricCore::DFGExec subExec = graphWidget->m_exec.getSubExec(nodeName);
 
   QMenu* result = new QMenu(NULL);
   QAction* action;
-  FEC_DFGCacheRule cacheRule = graphWidget->m_exec.getInstCacheRule(nodeName);
-  if(cacheRule == FEC_DFGCacheRule_Unspecified)
-    cacheRule = subExec.getCacheRule();
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
     action = result->addAction("Edit");
   }
-  action = result->addAction("Rename");
+  action = result->addAction("Edit Title");
   action = result->addAction("Delete");
 
   if ( !uiNode->isBackDropNode() )
@@ -563,9 +559,9 @@ void DFGWidget::onNodeAction(QAction * action)
 
     maybeEditNode( newExecPath, newExec );
   }
-  else if(action->text() == "Rename")
+  else if(action->text() == "Edit Title")
   {
-    onNodeToBeRenamed(m_contextNode);
+    onEditNodeTitle(m_contextNode);
   }
   else if(action->text() == "Delete")
   {
@@ -1063,18 +1059,23 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
   }
 }
 
-void DFGWidget::onNodeToBeRenamed(FabricUI::GraphView::Node* node)
+void DFGWidget::onEditNodeTitle(
+  FabricUI::GraphView::Node *node
+  )
 {
   DFGGetStringDialog dialog(
     this,
     QString( node->title().c_str() ),
     m_dfgConfig
     );
-  if(dialog.exec() != QDialog::Accepted)
-    return;
-
-  QString text = dialog.text();
-  m_uiController->renameNode(node, text.toUtf8().constData());
+  if ( dialog.exec() == QDialog::Accepted )
+  {
+    QString text = dialog.text();
+    m_uiController->cmdSetNodeTitle(
+      node->name(),
+      text.toUtf8().constData()
+      );
+  }
 }
 
 void DFGWidget::onKeyPressed(QKeyEvent * event)
