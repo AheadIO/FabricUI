@@ -350,9 +350,7 @@ bool DFGController::renameNode(GraphView::Node * node, FTL::StrRef title)
 {
   if(node->title() == title)
     return false;
-  if(!node->isBackDropNode())
-    return renameNodeByPath(node->name().c_str(), title.data());
-  return false;
+  return renameNodeByPath(node->name().c_str(), title.data());
 }
 
 GraphView::Pin * DFGController::addPin(GraphView::Node * node, FTL::StrRef name, GraphView::PortType pType, QColor color, FTL::StrRef dataType)
