@@ -43,7 +43,7 @@ void ImageViewportWidget::setBinding(FabricCore::DFGBinding binding)
 
 void ImageViewportWidget::initializeGL()
 {
-  glClearColor(0.34, 0.34, 0.34, 1.0);
+  glClearColor(0.34f, 0.34f, 0.34f, 1.0f);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
   glDisable(GL_LIGHTING);

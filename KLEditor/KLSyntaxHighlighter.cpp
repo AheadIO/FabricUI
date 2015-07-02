@@ -30,9 +30,9 @@ void KLSyntaxHighlighter::highlightBlock(const QString &text)
 
   for(size_t i=0;i<formats.size();i++)
   {
-    if(formats[i].start + formats[i].length < start)
+    if(int(formats[i].start + formats[i].length) < start)
       continue;
-    if(formats[i].start > start + length)
+    if(int(formats[i].start) > start + length)
       continue;
 
     int localStart = formats[i].start - start;
@@ -110,6 +110,10 @@ void KLSyntaxHighlighter::highlightBlock(const QString &text)
         }
         break;
       }
+      case Token_Other:
+      case Token_EOF:
+      case Token_NumItems:
+        break;
     }
   }
 

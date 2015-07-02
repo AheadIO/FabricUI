@@ -26,7 +26,7 @@ QDockWidget * DFGMainWindow::addDockWidgetFromWidget(Qt::DockWidgetArea area, QS
 QWidget * DFGMainWindow::getWidgetFromDockWidget(QString title)
 {
   QList<QDockWidget *> dockWidgets = findChildren<QDockWidget *>();
-  for(unsigned int i=0;i<dockWidgets.count();i++)
+  for(int i=0;i<dockWidgets.count();i++)
   {
     if(dockWidgets[i]->windowTitle() == title)
       return dockWidgets[i]->widget();

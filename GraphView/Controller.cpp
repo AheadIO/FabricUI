@@ -3,6 +3,8 @@
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
@@ -328,6 +330,53 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
+}
+
+bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
+{
+  node->mainWidget()->setMinimumWidth(size.width());
+  node->mainWidget()->setMinimumHeight(size.height());
+  node->mainWidget()->setMaximumWidth(size.width());
+  node->mainWidget()->setMaximumHeight(size.height());
+  return true;
+}
+
+bool Controller::setNodeComment(Node * node, char const * comment)
+{
+  NodeBubble * bubble = node->bubble();
+
+  if(comment == NULL)
+  {
+    if(bubble == NULL)
+      return false;
+
+    bubble->scene()->removeItem(bubble);
+    bubble->hide();
+    bubble->deleteLater();
+    return true;
+  }
+
+  if(bubble == NULL)
+  {
+    bubble = new NodeBubble(graph(), node, graph()->config());
+    bubble->expand();
+  }
+
+  bubble->setText(comment);
+  return true;
+}
+
+bool Controller::setNodeCommentExpanded(Node * node, bool expanded)
+{
+  NodeBubble * bubble = node->bubble();
+  if(bubble == NULL)
+    return false;
+
+  if(expanded)
+    bubble->expand();
+  else
+    bubble->collapse();
+  return true;
 }
 
 bool Controller::addCommand(Command * command)

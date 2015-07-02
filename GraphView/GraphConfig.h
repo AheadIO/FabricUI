@@ -21,7 +21,7 @@ namespace FabricUI
       bool disconnectInputsAutomatically;
       bool rightClickDeletesConnections;
 
-      float headerMargins;
+      int headerMargins;
       QColor headerBackgroundColor;
       QPen headerPen;
       QFont headerFont;
@@ -103,6 +103,12 @@ namespace FabricUI
       QPen selectionRectPen;
       float mouseGrabberRadius;
       float mouseWheelZoomRate;
+
+      float backDropNodeAlpha;
+      float nodeBubbleMinWidth;
+      float nodeBubbleMinHeight;
+      QColor nodeBubbleColor;
+      QFont nodeBubbleFont;
 
       GraphConfig();
     };

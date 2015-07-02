@@ -17,6 +17,7 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   m_dfgValueEditor = NULL;
   m_hSplitter = NULL;
   m_dfgLogWidget = NULL;
+  m_setGraph = NULL;
 
   setStyle(new FabricUI::Style::FabricStyle());
   setOrientation(Qt::Vertical);
@@ -66,13 +67,19 @@ void DFGCombinedWidget::init(
     m_dfgLogWidget = new DFGLogWidget(this, config);
     addWidget(m_dfgLogWidget);
 
-    QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
-    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
-    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
-    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(execPortRenamed(QString, QString)), this, SLOT(onExecPortRenamed(QString, QString)));
-    QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
-      this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
-    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(variablesChanged()), m_treeWidget, SLOT(refresh()));
+    if(m_dfgWidget->isEditable())
+    {
+      QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
+      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
+      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
+      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
+      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
+      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(execPortRenamed(QString, QString)), this, SLOT(onExecPortRenamed(QString, QString)));
+      QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
+        this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(variablesChanged()), m_treeWidget, SLOT(refresh()));
+      QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
+    }
 
     onGraphSet(m_dfgWidget->getUIGraph());
   }
@@ -186,28 +193,35 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 {
-  if(graph)
+  if(graph != m_setGraph)
   {
-    graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
-    graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
-    graph->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
-    graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
-    graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
-    graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
-    graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
-    graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
-    graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
-    graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, "relax nodes");
+    if(m_dfgWidget->isEditable())
+    {
+      graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
+      graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
+      graph->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
+      graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
+      graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
+      graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
+      graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
+      graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
+      graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
+      graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, "relax nodes");
 
-    QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-      this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
-    QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
-      this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+      QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
+        this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
+      QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
+        this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+    }
+    m_setGraph = graph;
   }
 }
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
+  if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+    return;
+  
   m_dfgValueEditor->setNodeName(node->name());
 
   QList<int> s = m_hSplitter->sizes();
@@ -222,6 +236,16 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 void DFGCombinedWidget::setLogFunc(DFGController::LogFunc func)
 {
   DFGLogWidget::setLogFunc(func);
+}
+
+void DFGCombinedWidget::onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog)
+{
+  emit portEditDialogCreated(dialog);
+}
+
+void DFGCombinedWidget::onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog)
+{
+  emit portEditDialogInvoked(dialog);
 }
 
 void DFGCombinedWidget::log(const char * message)

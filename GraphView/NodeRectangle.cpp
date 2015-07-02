@@ -51,7 +51,9 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
   // painter->setRenderHint(QPainter::HighQualityAntialiasing,true);
 
   QPainterPath rounded_rect;
-  rounded_rect.addRoundRect(rect, 150.0f * m_node->m_cornerRadius / rect.width(), 150.0f * m_node->m_cornerRadius / rect.height());
+  rounded_rect.addRoundRect(
+    rect, int( 150.0f * m_node->m_cornerRadius / rect.width() ),
+    int( 150.0f * m_node->m_cornerRadius / rect.height() ) );
 
   // fill everything
   painter->fillPath(rounded_rect,painter->brush());     

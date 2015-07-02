@@ -1,6 +1,8 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include "DFGNotificationRouter.h"
 #include "DFGController.h"
 
@@ -224,6 +226,12 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("newVarPath") )
         );
     }
+    else if(descStr == FTL_STR("funcCodeChanged"))
+    {
+      onFuncCodeChanged(
+        jsonObject->getString( FTL_STR("code") )
+        );
+    }
     else
     {
       printf(
@@ -279,31 +287,34 @@ void DFGNotificationRouter::onGraphSet()
         );
     }
 
-    FTL::JSONArray const *nodesArray =
-      rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
-    for ( size_t i = 0; i < nodesArray->size(); ++i )
+    if ( rootObject->getString( FTL_STR("objectType") ) == FTL_STR("Graph") )
     {
-      FTL::JSONObject const *nodeObject =
-        nodesArray->get( i )->cast<FTL::JSONObject>();
-      onNodeInserted(
-        nodeObject->getString( FTL_STR("name") ),
-        nodeObject
-        );
-    }
-
-    FTL::JSONObject const *connectionsObject =
-      rootObject->get( FTL_STR("connections") )->cast<FTL::JSONObject>();
-    for ( FTL::JSONObject::const_iterator it = connectionsObject->begin();
-      it != connectionsObject->end(); ++it )
-    {
-      FTL::CStrRef srcPath = it->first;
-      FTL::JSONArray const *dstsArray = it->second->cast<FTL::JSONArray>();
-      for ( FTL::JSONArray::const_iterator it = dstsArray->begin();
-        it != dstsArray->end(); ++it )
+      FTL::JSONArray const *nodesArray =
+        rootObject->get( FTL_STR("nodes") )->cast<FTL::JSONArray>();
+      for ( size_t i = 0; i < nodesArray->size(); ++i )
       {
-        FTL::JSONValue const *dstValue = *it;
-        FTL::CStrRef dstPath = dstValue->getStringValue();
-        onPortsConnected( srcPath, dstPath );
+        FTL::JSONObject const *nodeObject =
+          nodesArray->get( i )->cast<FTL::JSONObject>();
+        onNodeInserted(
+          nodeObject->getString( FTL_STR("name") ),
+          nodeObject
+          );
+      }
+
+      FTL::JSONObject const *connectionsObject =
+        rootObject->get( FTL_STR("connections") )->cast<FTL::JSONObject>();
+      for ( FTL::JSONObject::const_iterator it = connectionsObject->begin();
+        it != connectionsObject->end(); ++it )
+      {
+        FTL::CStrRef srcPath = it->first;
+        FTL::JSONArray const *dstsArray = it->second->cast<FTL::JSONArray>();
+        for ( FTL::JSONArray::const_iterator it = dstsArray->begin();
+          it != dstsArray->end(); ++it )
+        {
+          FTL::JSONValue const *dstValue = *it;
+          FTL::CStrRef dstPath = dstValue->getStringValue();
+          onPortsConnected( srcPath, dstPath );
+        }
       }
     }
 
@@ -383,6 +394,20 @@ void DFGNotificationRouter::onNodeInserted(
       portJSONObject->getString( FTL_STR("name") ),
       portJSONObject
       );
+  }
+
+  if(m_coreDFGExec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+  {
+    FabricCore::DFGExec subExec = m_coreDFGExec.getSubExec(nodeName.c_str());
+    FTL::CStrRef uiNodeColor = subExec.getMetadata("uiNodeColor");
+    if(!uiNodeColor.empty())
+      onNodeMetadataChanged(nodeName, "uiNodeColor", uiNodeColor);
+    FTL::CStrRef uiHeaderColor = subExec.getMetadata("uiHeaderColor");
+    if(!uiHeaderColor.empty())
+      onNodeMetadataChanged(nodeName, "uiHeaderColor", uiHeaderColor);
+    FTL::CStrRef uiTooltip = subExec.getMetadata("uiTooltip");
+    if(!uiTooltip.empty())
+      onNodeMetadataChanged(nodeName, "uiTooltip", uiTooltip);
   }
 
   if ( FTL::JSONValue const *metadataJSONValue =
@@ -723,9 +748,9 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     if ( jsonValue )
     {
       FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-      float r = jsonObject->getFloat64( FTL_STR("r") );
-      float g = jsonObject->getFloat64( FTL_STR("g") );
-      float b = jsonObject->getFloat64( FTL_STR("b") );
+      int r = int(jsonObject->getFloat64( FTL_STR("r") ));
+      int g = int(jsonObject->getFloat64( FTL_STR("g") ));
+      int b = int(jsonObject->getFloat64( FTL_STR("b") ));
       QColor color(r, g, b);
       uiNode->setColor(color);
       uiNode->setTitleColor(color.darker(130));
@@ -740,9 +765,9 @@ void DFGNotificationRouter::onNodeMetadataChanged(
     if ( jsonValue )
     {
       FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-      float r = jsonObject->getFloat64( FTL_STR("r") );
-      float g = jsonObject->getFloat64( FTL_STR("g") );
-      float b = jsonObject->getFloat64( FTL_STR("b") );
+      int r = int(jsonObject->getFloat64( FTL_STR("r") ));
+      int g = int(jsonObject->getFloat64( FTL_STR("g") ));
+      int b = int(jsonObject->getFloat64( FTL_STR("b") ));
       QColor color(r, g, b);
       uiNode->setTitleColor(color);
     }
@@ -751,6 +776,39 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   {
     QString tooltip = value.c_str();
     uiNode->header()->setToolTip(tooltip.trimmed());
+  }
+  else if(key == FTL_STR("uiComment"))
+  {
+    QString text = value.c_str();
+    GraphView::NodeBubble * uiBubble = uiNode->bubble();
+    if(text.length() == 0)
+    {
+      if(uiBubble != NULL)
+      {
+        uiBubble->setNode(NULL);
+        uiNode->setBubble(NULL);
+        uiBubble->scene()->removeItem(uiBubble);
+        uiBubble->hide();
+        uiBubble->deleteLater();
+      }
+    }
+    else
+    {
+      if(uiBubble == NULL)
+        uiBubble = new GraphView::NodeBubble(uiNode->graph(), uiNode, uiNode->graph()->config());
+      uiBubble->setText(text);
+    }
+  }
+  else if(key == FTL_STR("uiCommentExpanded"))
+  {
+    GraphView::NodeBubble * uiBubble = uiNode->bubble();
+    if(uiBubble)
+    {
+      if(value.size() == 0 || value == "false")
+        uiBubble->collapse();
+      else
+        uiBubble->expand();
+    }
   }
 }
 
@@ -783,7 +841,7 @@ void DFGNotificationRouter::onExecPortRenamed(
   FTL::CStrRef execPortTypeStr =
     execPortJSONObject->getString( FTL_STR("execPortType") );
 
-  if ( execPortTypeStr != FTL_STR("Out") )
+  if ( execPortTypeStr != FTL_STR("In") )
   {
     GraphView::SidePanel * uiPanel =
       uiGraph->sidePanel(GraphView::PortType_Input);
@@ -796,7 +854,7 @@ void DFGNotificationRouter::onExecPortRenamed(
     uiPort->setName(newPortName);
   }
 
-  if ( execPortTypeStr != FTL_STR("In") )
+  if ( execPortTypeStr != FTL_STR("Out") )
   {
     GraphView::SidePanel * uiPanel =
       uiGraph->sidePanel(GraphView::PortType_Output);
@@ -856,6 +914,47 @@ void DFGNotificationRouter::onExecMetadataChanged(
       float value = jsonObject->getFloat64( FTL_STR("value") );
       // float y = jsonObject->getFloat64( FTL_STR("y") );
       uiGraph->mainPanel()->setCanvasZoom(value, false);
+    }
+  }
+  else if(key == "uiBackDrops")
+  {
+    // we ignore this for now,
+    // it's just the list of names
+  }
+  else if(key.startswith("uiBackDrop_"))
+  {
+    if(value.empty())
+    {
+      FTL::CStrRef name = key.substr(11).data();
+      GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
+      if(uiNode)
+      {
+        uiGraph->removeNode(uiNode);
+      }
+    }
+    else
+    {
+      FTL::JSONStrWithLoc jsonStrWithLoc( value );
+      FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+        FTL::JSONValue::Decode( jsonStrWithLoc )
+        );
+      if ( jsonValue )
+      {
+        FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+
+        FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+
+        GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
+        if(!uiNode)
+        {
+          FTL::CStrRef title = jsonObject->getString( FTL_STR("title") );
+          uiNode = new GraphView::BackDropNode(uiGraph, name.c_str(), title.c_str());
+          uiNode->setColor(uiNode->color()); // force transparency to work
+          uiGraph->addNode(uiNode);
+        }
+
+        uiNode->updateFromJSON(jsonObject);
+      }
     }
   }
 }
@@ -1008,4 +1107,11 @@ void DFGNotificationRouter::onRefVarPathChanged(
   else if(nodeType == FabricCore::DFGNodeType_Set)
     title = "set "+title;
   onNodeTitleChanged(refName, title.c_str());
+}
+
+void DFGNotificationRouter::onFuncCodeChanged(
+  FTL::CStrRef code
+  )
+{
+  // todo: we don't do anything here...
 }

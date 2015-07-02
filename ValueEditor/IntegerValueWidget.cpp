@@ -60,9 +60,9 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
     QString uiCombo = valueItem()->getMetaData("uiCombo");
     if(uiCombo.length() > 0)
     {
-      if(uiCombo[0] == '(');
+      if(uiCombo[0] == '(')
         uiCombo = uiCombo.mid(1);
-      if(uiCombo[uiCombo.length()-1] == ')');
+      if(uiCombo[uiCombo.length()-1] == ')')
         uiCombo = uiCombo.left(uiCombo.length()-1);
 
       QStringList parts = uiCombo.split(',');
@@ -71,7 +71,7 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
         m_comboBox = new QComboBox(this);
         hbox->addWidget(m_comboBox);
 
-        for(unsigned int i=0;i<parts.size();i++)
+        for(int i=0;i<parts.size();i++)
         {
           QString part = parts[i].trimmed();
           part = part.remove('"');
@@ -128,7 +128,7 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
     if(uiRange.length() > 0)
     {
       QString filteredUiRange;
-      for(unsigned int i=0;i<uiRange.length();i++)
+      for(int i=0;i<uiRange.length();i++)
       {
         char c = uiRange.toUtf8().constData()[i];
         if(isalnum(c) || c == '.' || c == ',' || c == '-')

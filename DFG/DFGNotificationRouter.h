@@ -29,6 +29,8 @@ namespace FabricUI
         const DFGConfig & config = DFGConfig()
         );
 
+      virtual ~DFGNotificationRouter() {};
+
       FabricCore::DFGBinding const &getCoreDFGBinding()
         { return m_coreDFGBinding; }
 
@@ -150,6 +152,9 @@ namespace FabricUI
       virtual void onRefVarPathChanged(
         FTL::CStrRef refName,
         FTL::CStrRef newVarPath
+        );
+      virtual void onFuncCodeChanged(
+        FTL::CStrRef code
         );
 
     private:

@@ -12,6 +12,8 @@ Graph::Graph(
   : QGraphicsWidget(parent)
   , m_config( config )
 {
+  m_isEditable = true;
+
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(400, 400);
   setContentsMargins(0, 0, 0, 0);
@@ -139,6 +141,7 @@ Node * Graph::addNode(Node * node, bool quiet)
   m_nodes.push_back(node);
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+  QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
 
   if(m_nodeToolbar)
     m_nodeToolbar->attach(node);
@@ -423,6 +426,8 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
 
 MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType)
 {
+  if(!m_isEditable)
+    return NULL;
   m_mouseGrabber = new MouseGrabber(this, pos, target, portType);
   return m_mouseGrabber;
 }
@@ -469,12 +474,19 @@ bool Graph::releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
 
 void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
-  emit nodeDoubleClicked(node);
+  if(m_isEditable)
+    emit nodeDoubleClicked(node);
 }
 
 void Graph::onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel)
 {
-  emit sidePanelDoubleClicked(panel);
+  if(m_isEditable)
+    emit sidePanelDoubleClicked(panel);
+}
+
+void Graph::onBubbleEditRequested(FabricUI::GraphView::Node * node)
+{
+  emit bubbleEditRequested(node);
 }
 
 void Graph::setGraphContextMenuCallback(Graph::GraphContextMenuCallback callback, void * userData)

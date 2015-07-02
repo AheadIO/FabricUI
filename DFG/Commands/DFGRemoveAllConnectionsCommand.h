@@ -24,7 +24,6 @@ namespace FabricUI
       virtual const char * getFullDesc() const { return "Removes all connection for an endpoint in a graph."; }
 
       const char * getPath() const;
-      bool isPin() const;
 
     protected:
       

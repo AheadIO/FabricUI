@@ -54,8 +54,6 @@ void NodeLibraryItem::mousePressEvent(QMouseEvent * event)
     render(&pixmap);
     drag->setPixmap(pixmap);
     drag->setHotSpot(event->pos());
-
-    Qt::DropAction dropAction = drag->exec();
   }
 
   QLabel::mousePressEvent(event);

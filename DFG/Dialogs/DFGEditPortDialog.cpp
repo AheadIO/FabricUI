@@ -25,7 +25,6 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "$TYPE$");
   m_extensionEdit = new DFGExtensionLineEdit(this, client);
 
-  m_native = new QCheckBox(this);
   m_visibilityCombo = new QComboBox(this);
   m_visibilityCombo->addItem("normal");
   m_visibilityCombo->addItem("opaque");
@@ -47,7 +46,6 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   addInput(m_titleEdit, "title");
   addInput(m_dataTypeEdit, "data type");
   addInput(m_extensionEdit, "extension");
-  addInput(m_native, "native DCC array");
   addInput(m_visibilityCombo, "visibility");
   addInput(m_hasRange, "use range");
   addInput(m_rangeMin, "range min");
@@ -110,16 +108,6 @@ QString DFGEditPortDialog::extension() const
 void DFGEditPortDialog::setExtension(QString value)
 {
   m_extensionEdit->setText(value);
-}
-
-bool DFGEditPortDialog::native() const
-{
-  return m_native->checkState() == Qt::Checked;
-}
-
-void DFGEditPortDialog::setNative(bool value)
-{
-  m_native->setCheckState(value ? Qt::Checked : Qt::Unchecked);
 }
 
 bool DFGEditPortDialog::hidden() const
@@ -185,7 +173,7 @@ void DFGEditPortDialog::setHasCombo(bool value)
 QStringList DFGEditPortDialog::comboValues() const
 {
   QStringList results = m_combo->text().split(',');
-  for(unsigned int i=0;i<results.length();i++)
+  for(int i=0;i<results.length();i++)
   {
     results[i] = results[i].trimmed();
     if(results[i][0] == '\'' || results[i][0] == '"')
@@ -199,7 +187,7 @@ QStringList DFGEditPortDialog::comboValues() const
 void DFGEditPortDialog::setComboValues(QStringList value)
 {
   QString flat;
-  for(unsigned int i=0;i<value.length();i++)
+  for(int i=0;i<value.length();i++)
   {
     if(i > 0)
       flat += ", ";

@@ -16,6 +16,7 @@ namespace FabricUI
     class TreeModel : public QAbstractItemModel
     {
       friend class TreeViewWidget;
+      friend class TreeItem;
 
       Q_OBJECT
 
@@ -45,6 +46,13 @@ namespace FabricUI
     public slots:
 
       void invalidateItem(TreeItem * item);
+
+    signals:
+
+      void itemSelected(FabricUI::TreeView::TreeItem * item);
+      void itemDeselected(FabricUI::TreeView::TreeItem * item);
+      void itemExpanded(FabricUI::TreeView::TreeItem * item);
+      void itemCollapsed(FabricUI::TreeView::TreeItem * item);
 
     protected:
 

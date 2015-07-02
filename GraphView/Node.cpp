@@ -3,6 +3,7 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
@@ -25,7 +26,9 @@ Node::Node(
   , m_graph( parent )
   , m_name( name )
   , m_title( title )
+  , m_bubble( NULL )
 {
+  m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -93,7 +96,7 @@ Node::Node(
   }
 
   // setup caching
-  m_cache = new CachingEffect(NULL);
+  m_cache = new CachingEffect(this);
   this->setGraphicsEffect(m_cache);
 
   setAcceptHoverEvents(true);
@@ -105,6 +108,15 @@ Node::~Node()
   {
     delete(m_cache);
     m_cache = NULL;
+  }
+
+  if(m_bubble)
+  {
+    m_bubble->setNode(NULL);
+    m_bubble->scene()->removeItem(m_bubble);
+    m_bubble->hide();
+    m_bubble->deleteLater();
+    m_bubble = NULL;
   }
 }
 
@@ -126,6 +138,21 @@ NodeHeader * Node::header()
 const NodeHeader * Node::header() const
 {
   return m_header;
+}
+
+NodeBubble * Node::bubble()
+{
+  return m_bubble;
+}
+
+const NodeBubble * Node::bubble() const
+{
+  return m_bubble;
+}
+
+void Node::setBubble(NodeBubble * bubble)
+{
+  m_bubble = bubble;
 }
 
 void Node::setTitle( FTL::CStrRef title )
@@ -172,6 +199,13 @@ QPen Node::selectedPen() const
   return m_selectedPen;
 }
 
+QString Node::comment() const
+{
+  if(m_bubble == NULL)
+    return "";
+  return m_bubble->text();
+}
+
 QRectF Node::boundingRect() const
 {
   QRectF rect = QGraphicsWidget::boundingRect();
@@ -181,18 +215,13 @@ QRectF Node::boundingRect() const
   float width = rect.width();
   float height = rect.height();
 
-  // left -= m_graph->config().pinRadius;
-  // width += m_graph->config().pinRadius * 2.0f;
-  // width += 30.0f;
-
   if(m_graph->config().nodeShadowEnabled)
   {
     width += m_graph->config().nodeShadowOffset.x() * 2.0f;
     height += m_graph->config().nodeShadowOffset.y() * 2.0f;
   }
 
-  rect = QRectF(left, top, width, height);
-  return rect;
+  return QRectF(left, top, width, height);
 }
 
 bool Node::selected() const
@@ -260,16 +289,12 @@ void Node::clearError()
 
 QPointF Node::graphPos() const
 {
-  QTransform xfo = transform();
-  QSizeF scale = size();
-  QPointF pos(xfo.dx()+(scale.width()*0.5), xfo.dy()+(scale.height()*0.5));
-  return pos;
+  return topLeftToCentralPos(topLeftGraphPos());
 }
 
 void Node::setGraphPos(QPointF pos, bool quiet)
 {
-  QSizeF scale = size();
-  setTransform(QTransform::fromTranslate(pos.x()-(scale.width()*0.5), pos.y()-(scale.height()*0.5)), false);
+  setTopLeftGraphPos(centralPosToTopLeftPos(pos));
   if(!quiet)
   {
     emit positionChanged(this, pos);
@@ -294,16 +319,16 @@ void Node::setTopLeftGraphPos(QPointF pos, bool quiet)
   }
 }
 
-QPointF Node::topLeftToCentralPos(QPointF pos)
+QPointF Node::topLeftToCentralPos(QPointF pos) const
 {
-  QSizeF scale = size();
-  return QPointF(pos.x() + scale.width() * 0.5, pos.y() + scale.height() * 0.5);
+  QRectF rect = boundingRect();
+  return QPointF(pos.x() + rect.width() * 0.5, pos.y() + rect.height() * 0.5);
 }
 
-QPointF Node::centralPosToTopLeftPos(QPointF pos)
+QPointF Node::centralPosToTopLeftPos(QPointF pos) const
 {
-  QSizeF scale = size();
-  return QPointF(pos.x() - scale.width() * 0.5, pos.y() - scale.height() * 0.5);
+  QRectF rect = boundingRect();
+  return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
 }
 
 Pin * Node::addPin(Pin * pin, bool quiet)
@@ -583,8 +608,11 @@ void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 
 void Node::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
-  graph()->nodeToolbar()->attach(this);
-  event->accept();
+  if(supportsToolBar())
+  {
+    graph()->nodeToolbar()->attach(this);
+    event->accept();
+  }
 }
 
 void Node::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
@@ -607,6 +635,11 @@ void Node::onConnectionsChanged()
   {
     updatePinLayout();
   }
+}
+
+void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
+{
+  emit bubbleEditRequested(this);  
 }
 
 void Node::updatePinLayout()

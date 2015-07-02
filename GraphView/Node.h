@@ -24,12 +24,14 @@ namespace FabricUI
 
     // forward declarations
     class Graph;
+    class NodeBubble;
 
     class Node : public QGraphicsWidget
     {
       Q_OBJECT
 
       friend class NodeRectangle;
+      friend class NodeBubble;
 
     public:
 
@@ -51,11 +53,15 @@ namespace FabricUI
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
+      virtual bool supportsToolBar() const { return true; }
 
       Graph * graph();
       const Graph * graph() const;
       NodeHeader * header();
       const NodeHeader * header() const;
+      NodeBubble * bubble();
+      const NodeBubble * bubble() const;
+      void setBubble(NodeBubble * bubble);
 
       FTL::CStrRef name() const
         { return m_name; }
@@ -64,12 +70,13 @@ namespace FabricUI
         { return m_title; }
       void setTitle( FTL::CStrRef title );
       QColor color() const;
-      void setColor(QColor col);
-      void setColorAsGradient(QColor a, QColor b);
+      virtual void setColor(QColor col);
+      virtual void setColorAsGradient(QColor a, QColor b);
       QColor titleColor() const;
-      void setTitleColor(QColor col);
+      virtual void setTitleColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
+      QString comment() const;
 
       virtual QRectF boundingRect() const;
       
@@ -86,8 +93,8 @@ namespace FabricUI
 
       virtual QPointF graphPos() const;
       virtual QPointF topLeftGraphPos() const;
-      virtual QPointF topLeftToCentralPos(QPointF pos);
-      virtual QPointF centralPosToTopLeftPos(QPointF pos);
+      virtual QPointF topLeftToCentralPos(QPointF pos) const;
+      virtual QPointF centralPosToTopLeftPos(QPointF pos) const;
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
@@ -120,6 +127,7 @@ namespace FabricUI
     public slots:
 
       void onConnectionsChanged();
+      void onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble);
       
     signals:
 
@@ -129,6 +137,7 @@ namespace FabricUI
       void pinAdded(FabricUI::GraphView::Node *, Pin *);
       void pinRemoved(FabricUI::GraphView::Node *, Pin *);
       void doubleClicked(FabricUI::GraphView::Node *);
+      void bubbleEditRequested(FabricUI::GraphView::Node * node);
 
     protected:
 
@@ -137,6 +146,7 @@ namespace FabricUI
       Graph * m_graph;
       std::string m_name;
       std::string m_title;
+      NodeBubble * m_bubble;
 
       QColor m_colorA;
       QColor m_colorB;

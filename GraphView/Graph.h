@@ -60,6 +60,9 @@ namespace FabricUI
       virtual Controller * controller();
       virtual void setController(Controller * c);
 
+      bool isEditable() const { return m_isEditable; }
+      void setEditable(bool state) { m_isEditable = state; }
+
       MainPanel * mainPanel();
       const MainPanel * mainPanel() const;
       bool hasSidePanels() const;
@@ -130,6 +133,7 @@ namespace FabricUI
       virtual bool releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
       void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
       void onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+      void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
     signals:
 
@@ -145,6 +149,7 @@ namespace FabricUI
       void connectionRemoved(FabricUI::GraphView::Connection * connection);
       void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       void hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString);
+      void bubbleEditRequested(FabricUI::GraphView::Node * node);
 
     private:
 
@@ -193,6 +198,7 @@ namespace FabricUI
       void * m_connectionContextMenuCallbackUD;
       void * m_portContextMenuCallbackUD;
       void * m_sidePanelContextMenuCallbackUD;
+      bool m_isEditable;
 
     };
 

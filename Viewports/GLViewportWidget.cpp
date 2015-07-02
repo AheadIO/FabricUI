@@ -20,6 +20,7 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
 {	
   m_client = client;
   m_bgColor = bgColor;
+  m_manipTool = new ManipulationTool(this);
 	setFocusPolicy(Qt::StrongFocus);
   setAutoBufferSwap(false);
 
@@ -45,6 +46,7 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
 
 GLViewportWidget::~GLViewportWidget()
 {
+  delete(m_manipTool);
 }
 
 QColor GLViewportWidget::backgroundColor() const
@@ -71,6 +73,21 @@ void GLViewportWidget::setBackgroundColor(QColor color)
       printf("Error: %s\n", e.getDesc_cstr());
     }
   }
+}
+
+bool GLViewportWidget::isManipulationActive() const
+{
+  return m_manipTool->isActive();
+}
+
+void GLViewportWidget::setManipulationActive(bool state)
+{
+  if(state == m_manipTool->isActive())
+    return;
+  if(state)
+    m_manipTool->toolOnSetup();
+  else
+    m_manipTool->toolOffCleanup();
 }
 
 void GLViewportWidget::clearInlineDrawing()
@@ -219,38 +236,50 @@ void GLViewportWidget::resetRTVals()
 
 void GLViewportWidget::mousePressEvent(QMouseEvent *event)
 {
-  if(!manipulateCamera(event))
-      QGLWidget::mousePressEvent(event);
+  if(manipulateCamera(event))
+    return;
+  if(m_manipTool->onEvent(event))
+    return;
+  QGLWidget::mousePressEvent(event);
 }
 
 void GLViewportWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if(!manipulateCamera(event))
-    QGLWidget::mouseMoveEvent(event);
+  if(manipulateCamera(event))
+    return;
+  if(m_manipTool->onEvent(event))
+    return;
+  QGLWidget::mouseMoveEvent(event);
 }
 
 void GLViewportWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-  if(!manipulateCamera(event))
-    QGLWidget::mouseReleaseEvent(event);
+  if(manipulateCamera(event))
+    return;
+  if(m_manipTool->onEvent(event))
+    return;
+  QGLWidget::mouseReleaseEvent(event);
 }
 
 void GLViewportWidget::wheelEvent(QWheelEvent *event)
 {
-  if(!manipulateCamera(event))
-    QGLWidget::wheelEvent(event);
+  if(manipulateCamera(event, m_manipTool->isActive()))
+    return;
+  if(m_manipTool->onEvent(event))
+    return;
+  QGLWidget::wheelEvent(event);
 }
 
-bool GLViewportWidget::manipulateCamera(QInputEvent *event)
+bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier)
 {
-  if(!event->modifiers().testFlag(Qt::AltModifier))
+  if(!event->modifiers().testFlag(Qt::AltModifier) && requireModifier)
     return false;
 
-  bool result;
+  bool result = false;
   try
   {
     // Now we translate the Qt events to FabricEngine events..
-    FabricCore::RTVal klevent = QtToKLEvent(event, m_client, m_viewport);
+    FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
 
     // And then pass the event to the camera manipulator for handling.
     m_cameraManipulator.callMethod("", "onEvent", 1, &klevent);

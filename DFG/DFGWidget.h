@@ -8,6 +8,7 @@
 #include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
 #include <FabricUI/GraphView/GraphHeaderWidget.h>
+#include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
 #include "DFGNotificationRouter.h"
@@ -53,6 +54,7 @@ namespace FabricUI
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
 
+      bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);
 
@@ -60,6 +62,8 @@ namespace FabricUI
 
       void newPresetSaved(QString presetFilePath);
       void onGraphSet(FabricUI::GraphView::Graph* graph);
+      void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
+      void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
 
     public slots:
 
@@ -73,6 +77,7 @@ namespace FabricUI
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onNodeToBeRenamed(FabricUI::GraphView::Node* node);
       void onKeyPressed(QKeyEvent * event);
+      void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
     private:
 
@@ -104,6 +109,7 @@ namespace FabricUI
 
       std::vector<FabricCore::DFGExec> m_coreDFGExecStack;
       std::string m_coreDFGExecPath;
+      bool m_isEditable;
 
       static QSettings * g_settings;
     };

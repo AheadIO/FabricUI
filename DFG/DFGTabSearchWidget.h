@@ -45,13 +45,17 @@ namespace FabricUI
       int heightFromResults() const;
       void updateGeometry();
 
+      char const *getHelpText() const;
+
     private:
 
       void addNodeFromPath(QString path);
 
       DFGWidget * m_parent;
       DFGConfig m_config;
-      QFontMetrics m_metrics;
+      QFontMetrics m_queryMetrics;
+      QFontMetrics m_resultsMetrics;
+      QFontMetrics m_helpMetrics;
 
       int m_currentIndex;
       QString m_search;

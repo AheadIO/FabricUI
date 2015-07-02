@@ -14,11 +14,14 @@ namespace FabricUI
 {
   namespace Viewports
   {
+    class ManipulationTool;
+
     class GLViewportWidget : public QGLWidget
     {
     	Q_OBJECT
 
       friend class MainWindow;
+      friend class ManipulationTool;
 
     public:
 
@@ -30,21 +33,28 @@ namespace FabricUI
       QColor backgroundColor() const;
       void setBackgroundColor(QColor color);
 
+      bool isManipulationActive() const;
+      void setManipulationActive(bool state);
+
       void clearInlineDrawing();
 
+      FabricCore::Client * getClient() { return m_client; }
       FabricCore::RTVal getCamera() const { return m_camera; }
       FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
       FabricCore::RTVal getViewport() const { return m_viewport; }
       FabricCore::RTVal getDrawContext() const { return m_drawContext; }
+      ManipulationTool * getManipTool() { return m_manipTool; }
 
     public slots:
 
       void redraw();
       void onKeyPressed(QKeyEvent * event);
+      void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
 
     signals:
 
       void redrawn();
+      void portManipulationRequested(QString portName);
 
     protected:
 
@@ -53,7 +63,7 @@ namespace FabricUI
       virtual void paintGL();
 
       void resetRTVals();
-      bool manipulateCamera(QInputEvent *event);
+      bool manipulateCamera(QInputEvent *event, bool requireModifier = true);
 
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *event);
@@ -71,6 +81,8 @@ namespace FabricUI
       FabricCore::RTVal m_viewport;
       FabricCore::RTVal m_drawContext;
 
+      ManipulationTool * m_manipTool;
+
       QTime m_fpsTimer;
       double m_fps;
       double m_fpsStack[16];
@@ -78,5 +90,7 @@ namespace FabricUI
     };
   };
 };
+
+#include "ManipulationTool.h"
 
 #endif // __GLVIEWPORT_H__

@@ -27,6 +27,7 @@ void TreeModel::addItem(TreeItem * itemToAdd)
 {
   beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
   itemToAdd->setParent(NULL);
+  itemToAdd->setModel(this);
   itemToAdd->setIndex(m_items.size());
   m_items.push_back(itemToAdd);
   endInsertRows();
@@ -120,7 +121,7 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) co
 {
   if(!parent.isValid())
   {
-    if(row >= m_items.size())
+    if(size_t(row) >= m_items.size())
       return QModelIndex();
 
     QModelIndex idx = m_items[row]->modelIndex();
@@ -133,7 +134,7 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) co
   }
 
   TreeItem * parentItem = (TreeItem *)parent.internalPointer();
-  if(row >= parentItem->numChildren())
+  if(size_t(row) >= parentItem->numChildren())
     return QModelIndex();
 
   TreeItem * item = parentItem->child(row);

@@ -94,8 +94,8 @@ void GraphHeaderWidget::paintEvent(QPaintEvent * event)
   painter.setFont(m_font);
   painter.setPen(m_fontColor);
 
-  int left = size().width() * 0.5 - metrics.width(m_caption) * 0.5;
-  int top = size().height() * 0.5 + metrics.height() * 0.5;
+  int left = int(size().width() * 0.5 - metrics.width(m_caption) * 0.5);
+  int top = int(size().height() * 0.5 + metrics.height() * 0.5);
   painter.drawText(left, top, m_caption);
 
   QWidget::paintEvent(event);
