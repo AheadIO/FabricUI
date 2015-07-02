@@ -116,7 +116,6 @@ void NodeBubble::mousePressEvent(QGraphicsSceneMouseEvent * event)
     // toggle the expanded state
     graph()->controller()->setNodeCommentExpanded(m_node, m_collapsed);
     event->accept();
-    return;
   }
 }
 
@@ -126,7 +125,6 @@ void NodeBubble::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
   {
     graph()->controller()->setNodeCommentExpanded(m_node, true);
     event->accept();
-    return;
   }
   else
   {

@@ -145,7 +145,8 @@ public:
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,
-    FTL::CStrRef title
+    FTL::CStrRef title,
+    QPointF pos
     );
 
 private:

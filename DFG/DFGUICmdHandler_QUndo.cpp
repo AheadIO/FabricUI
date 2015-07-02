@@ -315,7 +315,8 @@ void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef title
+  FTL::CStrRef title,
+  QPointF pos
   )
 {
   DFGUICmd_AddBackDrop_QUndo *cmd =
@@ -324,7 +325,8 @@ void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
       binding,
       execPath,
       exec,
-      title
+      title,
+      pos
       );
   m_qUndoStack->push( cmd );
 }

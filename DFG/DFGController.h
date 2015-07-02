@@ -180,16 +180,13 @@ namespace FabricUI
       virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
-      virtual bool moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos = false);
-      bool removeBackDropNode(GraphView::BackDropNode * node);
-      bool renameBackDropNode(GraphView::BackDropNode * node, char const * title);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
       virtual bool setNodeComment(GraphView::Node * node, char const * comment);
-      virtual bool setNodeCommentExpanded(GraphView::Node * node, bool expanded);
+      virtual void setNodeCommentExpanded(GraphView::Node * node, bool expanded);
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();

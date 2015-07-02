@@ -355,12 +355,15 @@ void DFGNotificationRouter::onNodeInserted(
   if(!uiGraph)
     return;
 
-  GraphView::Node * uiNode =
-    uiGraph->addNode( nodeName, FTL::CStrRef() );
+  FabricCore::DFGNodeType nodeType = m_exec.getNodeType( nodeName.c_str() );
+  GraphView::Node * uiNode;
+  if ( nodeType == FabricCore::DFGNodeType_User )
+    uiNode = uiGraph->addBackDropNode( nodeName );
+  else
+    uiNode = uiGraph->addNode( nodeName, FTL::CStrRef() );
   if(!uiNode)
     return;
 
-  FabricCore::DFGNodeType nodeType = m_exec.getNodeType(nodeName.c_str());
   if(nodeType == FabricCore::DFGNodeType_Var ||
     nodeType == FabricCore::DFGNodeType_Get ||
     nodeType == FabricCore::DFGNodeType_Set)
@@ -411,6 +414,18 @@ void DFGNotificationRouter::onNodeInserted(
     FTL::CStrRef uiTooltip = subExec.getMetadata("uiTooltip");
     if(!uiTooltip.empty())
       onNodeMetadataChanged(nodeName, "uiTooltip", uiTooltip);
+  }
+
+  if ( m_exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_User )
+  {
+    FTL::CStrRef uiNodeColor =
+      m_exec.getNodeMetadata( nodeName.c_str(), "uiNodeColor" );
+    if ( !uiNodeColor.empty() )
+      onNodeMetadataChanged( nodeName, "uiNodeColor", uiNodeColor );
+    FTL::CStrRef uiHeaderColor =
+      m_exec.getNodeMetadata( nodeName.c_str(), "uiHeaderColor" );
+    if ( !uiHeaderColor.empty() )
+      onNodeMetadataChanged( nodeName, "uiHeaderColor", uiHeaderColor );
   }
 
   if ( FTL::JSONValue const *metadataJSONValue =
@@ -763,6 +778,34 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       uiNode->setTopLeftGraphPos(QPointF(x, y), false);
     }
   }
+  else if(key == FTL_STR("uiGraphSize"))
+  {
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
+      );
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      float w = jsonObject->getFloat64( FTL_STR("w") );
+      float h = jsonObject->getFloat64( FTL_STR("h") );
+      if ( uiNode->isBackDropNode() )
+      {
+        GraphView::BackDropNode *uiBackDropNode =
+          static_cast<GraphView::BackDropNode *>( uiNode );
+        uiBackDropNode->setSize( QSizeF( w, h ), false );
+      }
+    }
+  }
+  else if(key == FTL_STR("uiTitle"))
+  {
+    if ( uiNode->isBackDropNode() )
+    {
+      GraphView::BackDropNode *uiBackDropNode =
+        static_cast<GraphView::BackDropNode *>( uiNode );
+      uiBackDropNode->setTitle( value );
+    }
+  }
   else if(key == FTL_STR("uiCollapsedState"))
   {
     FabricCore::Variant metadataVar = FabricCore::Variant::CreateFromJSON(value.c_str());
@@ -781,9 +824,17 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       int r = int(jsonObject->getFloat64( FTL_STR("r") ));
       int g = int(jsonObject->getFloat64( FTL_STR("g") ));
       int b = int(jsonObject->getFloat64( FTL_STR("b") ));
-      QColor color(r, g, b);
-      uiNode->setColor(color);
-      uiNode->setTitleColor(color.darker(130));
+      if ( uiNode->isBackDropNode() )
+      {
+        uiNode->setColor( QColor( r, g, b, 0xA0 ) );
+        uiNode->setTitleColor( QColor( r, g, b, 0xB0 ) );
+      }
+      else
+      {
+        QColor color( r, g, b );
+        uiNode->setColor(color);
+        uiNode->setTitleColor(color.darker(130));
+      }
     }
   }
   else if(key == FTL_STR("uiHeaderColor"))
@@ -798,8 +849,15 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       int r = int(jsonObject->getFloat64( FTL_STR("r") ));
       int g = int(jsonObject->getFloat64( FTL_STR("g") ));
       int b = int(jsonObject->getFloat64( FTL_STR("b") ));
-      QColor color(r, g, b);
-      uiNode->setTitleColor(color);
+      if ( uiNode->isBackDropNode() )
+      {
+        uiNode->setTitleColor( QColor( r, g, b, 0xB0 ) );
+      }
+      else
+      {
+        QColor color(r, g, b);
+        uiNode->setTitleColor(color);
+      }
     }
   }
   else if(key == FTL_STR("uiTooltip"))
@@ -944,47 +1002,6 @@ void DFGNotificationRouter::onExecMetadataChanged(
       float value = jsonObject->getFloat64( FTL_STR("value") );
       // float y = jsonObject->getFloat64( FTL_STR("y") );
       uiGraph->mainPanel()->setCanvasZoom(value, false);
-    }
-  }
-  else if(key == "uiBackDrops")
-  {
-    // we ignore this for now,
-    // it's just the list of names
-  }
-  else if(key.startswith("uiBackDrop_"))
-  {
-    if(value.empty())
-    {
-      FTL::CStrRef name = key.substr(11).data();
-      GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
-      if(uiNode)
-      {
-        uiGraph->removeNode(uiNode);
-      }
-    }
-    else
-    {
-      FTL::JSONStrWithLoc jsonStrWithLoc( value );
-      FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
-        FTL::JSONValue::Decode( jsonStrWithLoc )
-        );
-      if ( jsonValue )
-      {
-        FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-
-        FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-
-        GraphView::BackDropNode * uiNode = (GraphView::BackDropNode*)uiGraph->node(name.c_str());
-        if(!uiNode)
-        {
-          FTL::CStrRef title = jsonObject->getString( FTL_STR("title") );
-          uiNode = new GraphView::BackDropNode(uiGraph, name.c_str(), title.c_str());
-          uiNode->setColor(uiNode->color()); // force transparency to work
-          uiGraph->addNode(uiNode);
-        }
-
-        uiNode->updateFromJSON(jsonObject);
-      }
     }
   }
 }

@@ -324,52 +324,48 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   return newNodeNames;
 }
 
-void DFGUIPerform_AddBackDrop(
+std::string DFGUIPerform_AddBackDrop(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
   FTL::CStrRef title,
+  QPointF pos,
   unsigned &coreUndoCount
   )
 {
-  std::string uiBackDropsStr = exec.getMetadata( "uiBackDrops" );
+  std::string name = exec.addUser( title.c_str() );
+  ++coreUndoCount;
 
-  FTL::OwnedPtr<FTL::JSONArray> uiBackDropsJSON;
-  if ( !uiBackDropsStr.empty() && uiBackDropsStr[0] != '[' )
+  exec.setNodeMetadata(
+    name.c_str(),
+    "uiTitle",
+    title.c_str(),
+    true
+    );
+  ++coreUndoCount;
+
+  std::string posJSONString;
   {
-    // [pzion 20150701] Upgrade from broken old format
-    std::vector<FTL::StrRef> uiBackDrops;
-    std::pair<FTL::StrRef, FTL::CStrRef> split = uiBackDropsStr.split(',');
-    while ( !split.first.empty() )
+    FTL::JSONEnc<std::string> je( posJSONString, FTL::JSONFormat::Packed() );
+    FTL::JSONObjectEnc<std::string> joe( je );
     {
-      uiBackDrops.push_back( split.first );
-      split = split.second.split(',');
+      FTL::JSONEnc<std::string> xJE( joe, FTL_STR("x") );
+      FTL::JSONFloat64Enc<std::string> xJFE( xJE, pos.x() );
+    }
+    {
+      FTL::JSONEnc<std::string> yJE( joe, FTL_STR("y") );
+      FTL::JSONFloat64Enc<std::string> yJFE( yJE, pos.y() );
     }
   }
-  else
-  {
-    FTL::JSONStrWithLoc strWithLoc( uiBackDropsStr );
-    uiBackDropsJSON = JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>();
-  }
-
-  std::stringstream nameStr;
-  nameStr << title;
-  nameStr << '_';
-  nameStr << uiBackDrops.size();
-
-  std::string keyStr = "uiBackDrop_" + nameStr.str();
-  QString jsonStr =
-    GraphView::BackDropNode::getDefaultJSON( nameStr.str(), title, pos );
-
-  if ( !uiBackDropsStr.empty() )
-    uiBackDropsStr += ',';
-  uiBackDropsStr += keyStr;
-
-  exec.setMetadata( "uiBackDrops", uiBackDropsStr.c_str(), true );
+  exec.setNodeMetadata(
+    name.c_str(),
+    "uiGraphPos",
+    posJSONString.c_str(),
+    true
+    );
   ++coreUndoCount;
 
-  exec.setMetadata( keyStr.c_str(), jsonStr.toUtf8().constData(), true );
-  ++coreUndoCount;
+  return name;
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

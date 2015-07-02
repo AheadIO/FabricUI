@@ -5,6 +5,7 @@
 #include <QtGui/QGraphicsView>
 #include <QtGui/QGraphicsScene>
 
+#include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
 #include <FTL/MapCharSingle.h>
 
@@ -142,7 +143,7 @@ void DFGController::cmdAddBackDrop(
   QPointF pos
   )
 {
-  std::string desc = FTL_STR("Canvas: Add BackDrop '");
+  std::string desc = FTL_STR("Canvas: Create backDrop '");
   desc += title;
   desc += '\'';
 
@@ -151,23 +152,9 @@ void DFGController::cmdAddBackDrop(
     getBinding(),
     getExecPath(),
     getExec(),
-    title
+    title,
+    pos
     );
-}
-
-bool DFGController::removeBackDropNode(GraphView::BackDropNode * node)
-{
- try
-  {
-    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-    getExec().setMetadata(keyStr.toUtf8().constData(), NULL, false);
-    return true;
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
 }
 
 bool DFGController::renameNodeByPath(char const *path, char const *title)
@@ -190,22 +177,6 @@ bool DFGController::renameNodeByPath(char const *path, char const *title)
   return true;
 }
 
-bool DFGController::renameBackDropNode(GraphView::BackDropNode * node, char const * title)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-    QString metaData = node->getJSON(QString(title));
-    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
 
 bool DFGController::renameNode(
   GraphView::Node * node,
@@ -214,10 +185,8 @@ bool DFGController::renameNode(
 {
   if(node->title() == title)
     return false;
-  if(node->type() == GraphView::QGraphicsItemType_Node)
+  if(!node->isBackDropNode())
     return renameNodeByPath(node->name().c_str(), title.data());
-  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
-    return renameBackDropNode((GraphView::BackDropNode*)node, title.data());
   return false;
 }
 
@@ -569,24 +538,6 @@ bool DFGController::moveNode(char const * path, QPointF pos, bool isTopLeftPos)
   return true;
 }
 
-bool DFGController::moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-
-    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-    QString metaData = node->getJSON(pos);
-    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
 bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLeftPos)
 {
   if(!isTopLeftPos)
@@ -597,8 +548,6 @@ bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLe
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
     return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
-  else if(uiNode->type() == GraphView::QGraphicsItemType_BackDropNode)
-    return moveBackDropNode((GraphView::BackDropNode*)uiNode, pos, isTopLeftPos);
 
   return false;
 }
@@ -708,14 +657,38 @@ bool DFGController::relaxNodes(QStringList paths)
   return true;
 }
 
-bool DFGController::tintBackDropNode(GraphView::BackDropNode * node, QColor color)
+bool DFGController::tintBackDropNode(
+  GraphView::BackDropNode * node,
+  QColor color
+  )
 {
   try
   {
+    std::string uiNodeColorString;
+    {
+      FTL::JSONEnc<> enc( uiNodeColorString );
+      FTL::JSONObjectEnc<> objEnc( enc );
+      {
+        FTL::JSONEnc<> rEnc( objEnc, FTL_STR("r") );
+        FTL::JSONSInt32Enc<> rS32Enc( rEnc, color.red() );
+      }
+      {
+        FTL::JSONEnc<> gEnc( objEnc, FTL_STR("g") );
+        FTL::JSONSInt32Enc<> gS32Enc( gEnc, color.green() );
+      }
+      {
+        FTL::JSONEnc<> bEnc( objEnc, FTL_STR("b") );
+        FTL::JSONSInt32Enc<> bS32Enc( bEnc, color.blue() );
+      }
+    }
+
     FabricCore::DFGExec &exec = getExec();
-    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-    QString metaData = node->getJSON(color);
-    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+    exec.setNodeMetadata(
+      node->name().c_str(),
+      "uiNodeColor",
+      uiNodeColorString.c_str(),
+      false
+      );
   }
   catch(FabricCore::Exception e)
   {
@@ -727,68 +700,29 @@ bool DFGController::tintBackDropNode(GraphView::BackDropNode * node, QColor colo
 
 bool DFGController::setNodeComment(GraphView::Node * node, char const * comment)
 {
-  if(node->type() == GraphView::QGraphicsItemType_Node)
+  try
   {
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      exec.setNodeMetadata(node->name().c_str(), "uiComment", comment, false);
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-      return false;
-    }
+    FabricCore::DFGExec &exec = getExec();
+    exec.setNodeMetadata(node->name().c_str(), "uiComment", comment, false);
   }
-  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+  catch(FabricCore::Exception e)
   {
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-      QString metaData = ((GraphView::BackDropNode*)node)->getJSONForComment(QString(comment));
-      exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-      return false;
-    }
+    logError(e.getDesc_cstr());
   }
   return false;
 }
 
-bool DFGController::setNodeCommentExpanded(GraphView::Node * node, bool expanded)
+void DFGController::setNodeCommentExpanded(GraphView::Node * node, bool expanded)
 {
-  if(node->type() == GraphView::QGraphicsItemType_Node)
+  try
   {
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      exec.setNodeMetadata(node->name().c_str(), "uiCommentExpanded", expanded ? "true" : NULL, false);
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-      return false;
-    }
+    FabricCore::DFGExec &exec = getExec();
+    exec.setNodeMetadata(node->name().c_str(), "uiCommentExpanded", expanded ? "true" : NULL, false);
   }
-  else if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+  catch(FabricCore::Exception e)
   {
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-      QString metaData = ((GraphView::BackDropNode*)node)->getJSONForComment(expanded);
-      exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
-    }
-    catch(FabricCore::Exception e)
-    {
-      logError(e.getDesc_cstr());
-      return false;
-    }
+    logError(e.getDesc_cstr());
   }
-  return false;
 }
 
 std::string DFGController::copy(QStringList paths)
@@ -910,7 +844,7 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 void DFGController::checkErrors()
 {
   FTL::CStrRef execPath = getExecPath();
-  FabricCore::DFGExec const &exec = getExec();
+  FabricCore::DFGExec &exec = getExec();
 
   unsigned errorCount = exec.getErrorCount();
   for(unsigned i=0;i<errorCount;i++)
@@ -962,6 +896,88 @@ void DFGController::checkErrors()
 
       }
     }
+
+    // [pzion 20150701] Upgrade old backdrops scheme
+    static bool upgradingBackDrops = false;
+    if ( !upgradingBackDrops )
+    {
+      upgradingBackDrops = true;
+      FTL::CStrRef uiBackDrops = exec.getMetadata( "uiBackDrops" );
+      if ( !uiBackDrops.empty() )
+      {
+        std::pair<FTL::StrRef, FTL::CStrRef> split = uiBackDrops.split(',');
+        while ( !split.first.empty() )
+        {
+          std::string uiBackDropKey = split.first;
+          try
+          {
+            char const *nodeName = exec.addUser( uiBackDropKey.c_str() );
+
+            FTL::CStrRef uiBackDrop = exec.getMetadata( uiBackDropKey.c_str() );
+            if ( !uiBackDrop.empty() )
+            {
+              FTL::JSONStrWithLoc swl( uiBackDrop );
+              FTL::OwnedPtr<FTL::JSONObject> jo(
+                FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
+                );
+
+              exec.setNodeMetadata(
+                nodeName,
+                "uiTitle",
+                jo->getString( FTL_STR("title") ).c_str(),
+                false
+                );
+
+              exec.setNodeMetadata(
+                nodeName,
+                "uiGraphPos",
+                jo->getObject( FTL_STR("pos") )->encode().c_str(),
+                false
+                );
+
+              FTL::JSONObject const *sizeJO =
+                jo->getObject( FTL_STR("size") );
+              std::string sizeStr;
+              {
+                FTL::JSONEnc<> sizeEnc( sizeStr );
+                FTL::JSONObjectEnc<> sizeObjEnc( sizeEnc );
+                {
+                  FTL::JSONEnc<> widthEnc( sizeObjEnc, FTL_STR("w") );
+                  FTL::JSONFloat64Enc<> widthF64Enc(
+                    widthEnc, sizeJO->getFloat64( FTL_STR("width") )
+                    );
+                }
+                {
+                  FTL::JSONEnc<> heightEnc( sizeObjEnc, FTL_STR("h") );
+                  FTL::JSONFloat64Enc<> heightF64Enc(
+                    heightEnc, sizeJO->getFloat64( FTL_STR("height") )
+                    );
+                }
+              }
+              exec.setNodeMetadata(
+                nodeName, "uiGraphSize", sizeStr.c_str(), false
+                );
+
+              exec.setNodeMetadata(
+                nodeName,
+                "uiNodeColor",
+                jo->getObject( FTL_STR("color") )->encode().c_str(),
+                false
+                );
+
+              exec.setMetadata( uiBackDropKey.c_str(), "", false );
+            }
+          }
+          catch ( ... )
+          {
+          }
+          split = split.second.split(',');
+        }
+      }
+      upgradingBackDrops = false;
+    }
+
+    exec.setMetadata( "uiBackDrops", "", false );
   }
 }
 
@@ -1151,14 +1167,34 @@ void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphV
   }
 }
 
-bool DFGController::setBackDropNodeSize(GraphView::BackDropNode * node, QSizeF size)
+bool DFGController::setBackDropNodeSize(
+  GraphView::BackDropNode * node,
+  QSizeF size
+  )
 {
   try
   {
+    std::string uiNodeColorString;
+    {
+      FTL::JSONEnc<> enc( uiNodeColorString );
+      FTL::JSONObjectEnc<> objEnc( enc );
+      {
+        FTL::JSONEnc<> wEnc( objEnc, FTL_STR("w") );
+        FTL::JSONSInt32Enc<> wS32Enc( wEnc, size.width() );
+      }
+      {
+        FTL::JSONEnc<> hEnc( objEnc, FTL_STR("h") );
+        FTL::JSONSInt32Enc<> hS32Enc( hEnc, size.height() );
+      }
+    }
+
     FabricCore::DFGExec &exec = getExec();
-    QString keyStr = "uiBackDrop_" + QString(node->name().c_str());
-    QString metaData = node->getJSON(size);
-    exec.setMetadata(keyStr.toUtf8().constData(), metaData.toUtf8().constData(), false);
+    exec.setNodeMetadata(
+      node->name().c_str(),
+      "uiGraphSize",
+      uiNodeColorString.c_str(),
+      false
+      );
   }
   catch(FabricCore::Exception e)
   {

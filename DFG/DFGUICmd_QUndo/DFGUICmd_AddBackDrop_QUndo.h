@@ -18,7 +18,8 @@ public:
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef title
+    FTL::CStrRef title,
+    QPointF pos
     )
     : DFGUICmd_QUndo(
       desc,
@@ -27,7 +28,11 @@ public:
       exec
       )
     , m_title( title )
+    , m_pos( pos )
     {}
+
+  FTL::CStrRef getNodeName()
+    { return m_nodeName; }
 
 protected:
   
@@ -38,11 +43,12 @@ protected:
     unsigned &coreUndoCount
     )
   {
-    DFGUIPerform_AddBackDrop(
+    m_nodeName = DFGUIPerform_AddBackDrop(
       binding,
       execPath,
       exec,
       m_title,
+      m_pos,
       coreUndoCount
       );
   }
@@ -50,6 +56,9 @@ protected:
 private:
 
   std::string m_title;
+  QPointF m_pos;
+
+  std::string m_nodeName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

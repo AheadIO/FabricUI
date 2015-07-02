@@ -233,7 +233,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 
 void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
 {
-  if(node->type() == GraphView::QGraphicsItemType_BackDropNode)
+  if ( node->isBackDropNode() )
     return;
   
   m_dfgValueEditor->setNodeName(node->name());

@@ -276,7 +276,10 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
-    if(graphWidget->m_exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst)
+    FabricCore::DFGNodeType dfgNodeType =
+      graphWidget->m_exec.getNodeType( nodeName );
+    if ( dfgNodeType != FabricCore::DFGNodeType_Inst
+      && dfgNodeType != FabricCore::DFGNodeType_User )
       return NULL;
   }
   FabricCore::DFGExec subExec = graphWidget->m_exec.getSubExec(nodeName);
@@ -294,7 +297,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   action = result->addAction("Rename");
   action = result->addAction("Delete");
 
-  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  if ( !uiNode->isBackDropNode() )
   {
     result->addSeparator();
     action = result->addAction("Save Preset");
@@ -329,7 +332,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
       result->addAction("Reload Extension(s)");
     }
   }
-  else if(uiNode->type() == GraphView::QGraphicsItemType_BackDropNode)
+  else
   {
     result->addSeparator();
     action = result->addAction("Change color");

@@ -60,11 +60,12 @@ void DFGUIPerform_MoveNode(
   unsigned &coreUndoCount
   );
 
-void DFGUIPerform_AddBackDrop(
+std::string DFGUIPerform_AddBackDrop(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
   FTL::CStrRef title,
+  QPointF pos,
   unsigned &coreUndoCount
   );
 
