@@ -220,43 +220,6 @@ bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
   return true;
 }
 
-bool Controller::setNodeComment(Node * node, char const * comment)
-{
-  NodeBubble * bubble = node->bubble();
-
-  if(comment == NULL)
-  {
-    if(bubble == NULL)
-      return false;
-
-    bubble->scene()->removeItem(bubble);
-    bubble->hide();
-    bubble->deleteLater();
-    return true;
-  }
-
-  if(bubble == NULL)
-  {
-    bubble = new NodeBubble(graph(), node, graph()->config());
-    bubble->expand();
-  }
-
-  bubble->setText(comment);
-  return true;
-}
-
-void Controller::setNodeCommentExpanded(Node * node, bool expanded)
-{
-  NodeBubble * bubble = node->bubble();
-  if ( bubble != NULL )
-  {
-    if(expanded)
-      bubble->expand();
-    else
-      bubble->collapse();
-  }
-}
-
 bool Controller::addCommand(Command * command)
 {
   if(!command)

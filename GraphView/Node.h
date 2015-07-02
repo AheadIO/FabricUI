@@ -62,7 +62,6 @@ namespace FabricUI
       const NodeHeader * header() const;
       NodeBubble * bubble();
       const NodeBubble * bubble() const;
-      void setBubble(NodeBubble * bubble);
 
       FTL::CStrRef name() const
         { return m_name; }

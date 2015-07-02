@@ -158,6 +158,24 @@ public:
     FTL::CStrRef newTitle
     );
 
+  virtual void dfgDoSetNodeComment(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef nodeName,
+    FTL::CStrRef comment
+    );
+
+  virtual void dfgDoSetNodeCommentExpanded(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef nodeName,
+    bool expanded
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

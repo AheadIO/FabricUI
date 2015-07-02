@@ -868,35 +868,20 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   else if(key == FTL_STR("uiComment"))
   {
     QString text = value.c_str();
-    GraphView::NodeBubble * uiBubble = uiNode->bubble();
-    if(text.length() == 0)
-    {
-      if(uiBubble != NULL)
-      {
-        uiBubble->setNode(NULL);
-        uiNode->setBubble(NULL);
-        uiBubble->scene()->removeItem(uiBubble);
-        uiBubble->hide();
-        uiBubble->deleteLater();
-      }
-    }
+    GraphView::NodeBubble *uiBubble = uiNode->bubble();
+    if ( text.length() == 0 )
+      uiBubble->hide();
     else
-    {
-      if(uiBubble == NULL)
-        uiBubble = new GraphView::NodeBubble(uiNode->graph(), uiNode, uiNode->graph()->config());
-      uiBubble->setText(text);
-    }
+      uiBubble->show();
+    uiBubble->setText(text);
   }
   else if(key == FTL_STR("uiCommentExpanded"))
   {
     GraphView::NodeBubble * uiBubble = uiNode->bubble();
-    if(uiBubble)
-    {
-      if(value.size() == 0 || value == "false")
-        uiBubble->collapse();
-      else
-        uiBubble->expand();
-    }
+    if ( value.empty() || value == FTL_STR("false") )
+      uiBubble->collapse();
+    else
+      uiBubble->expand();
   }
 }
 

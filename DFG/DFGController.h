@@ -92,6 +92,11 @@ namespace FabricUI
         GraphView::ConnectionTarget *connectWith = 0
         );
 
+      virtual void gvcDoSetNodeCommentExpanded(
+        GraphView::Node *node,
+        bool expanded
+        );
+
       // Commands
 
       void cmdRemoveNodes(
@@ -173,6 +178,16 @@ namespace FabricUI
         FTL::CStrRef newTitle
         );
 
+      void cmdSetNodeComment(
+        FTL::CStrRef nodeName, 
+        FTL::CStrRef comment
+        );
+
+      void cmdSetNodeCommentExpanded(
+        FTL::CStrRef nodeName, 
+        bool expanded
+        );
+
       virtual std::string renamePortByPath(char const *  path, char const *  title);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual bool setCode(char const *  path, char const *  code);
@@ -191,8 +206,6 @@ namespace FabricUI
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
-      virtual bool setNodeComment(GraphView::Node * node, char const * comment);
-      virtual void setNodeCommentExpanded(GraphView::Node * node, bool expanded);
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();

@@ -78,6 +78,24 @@ void DFGUIPerform_SetNodeTitle(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_SetNodeComment(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef comment,
+  unsigned &coreUndoCount
+  );
+
+void DFGUIPerform_SetNodeCommentExpanded(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  bool expanded,
+  unsigned &coreUndoCount
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__

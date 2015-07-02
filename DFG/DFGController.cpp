@@ -161,11 +161,11 @@ void DFGController::cmdSetNodeTitle(
   FTL::CStrRef newTitle
   )
 {
-  std::string desc = FTL_STR("Canvas: Set node '");
-  desc += nodeName;
-  desc += FTL_STR("' title to '");
+  std::string desc = FTL_STR("Canvas: Change title to '");
   desc += newTitle;
-  desc += '\'';
+  desc += FTL_STR("' (node '");
+  desc += nodeName;
+  desc += FTL_STR("')");
 
   m_cmdHandler->dfgDoSetNodeTitle(
     desc,
@@ -174,6 +174,48 @@ void DFGController::cmdSetNodeTitle(
     getExec(),
     nodeName,
     newTitle
+    );
+}
+
+void DFGController::cmdSetNodeComment(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef comment
+  )
+{
+  std::string desc = FTL_STR("Canvas: ");
+  desc += !comment.empty()? FTL_STR("Change"): FTL_STR("Remove");
+  desc += FTL_STR(" comment (node '");
+  desc += nodeName;
+  desc += FTL_STR("')");
+
+  m_cmdHandler->dfgDoSetNodeComment(
+    desc,
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    comment
+    );
+}
+
+void DFGController::cmdSetNodeCommentExpanded(
+  FTL::CStrRef nodeName,
+  bool expanded
+  )
+{
+  std::string desc = FTL_STR("Canvas: ");
+  desc += expanded? FTL_STR("Expand"): FTL_STR("Contract");
+  desc += FTL_STR(" comment (node '");
+  desc += nodeName;
+  desc += FTL_STR("')");
+
+  m_cmdHandler->dfgDoSetNodeCommentExpanded(
+    desc,
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    expanded
     );
 }
 
@@ -206,6 +248,14 @@ void DFGController::gvcDoAddPort(
     typeSpec,
     connectWith? FTL::CStrRef( connectWith->path() ): FTL::CStrRef()
     );
+}
+
+void DFGController::gvcDoSetNodeCommentExpanded(
+  GraphView::Node *node,
+  bool expanded
+  )
+{
+  cmdSetNodeCommentExpanded( node->name(), expanded );
 }
 
 std::string DFGController::renamePortByPath(char const *path, char const *name)
@@ -683,33 +733,6 @@ bool DFGController::tintBackDropNode(
     return false;
   }
   return true;
-}
-
-bool DFGController::setNodeComment(GraphView::Node * node, char const * comment)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(node->name().c_str(), "uiComment", comment, false);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
-}
-
-void DFGController::setNodeCommentExpanded(GraphView::Node * node, bool expanded)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(node->name().c_str(), "uiCommentExpanded", expanded ? "true" : NULL, false);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
 }
 
 std::string DFGController::copy(QStringList paths)

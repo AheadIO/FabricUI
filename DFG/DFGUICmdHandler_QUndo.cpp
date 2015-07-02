@@ -17,6 +17,8 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
@@ -349,6 +351,48 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeTitle(
       exec,
       nodeName,
       newTitle
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef comment
+  )
+{
+  DFGUICmd_SetNodeComment_QUndo *cmd =
+    new DFGUICmd_SetNodeComment_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      nodeName,
+      comment
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetNodeCommentExpanded(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  bool expanded
+  )
+{
+  DFGUICmd_SetNodeCommentExpanded_QUndo *cmd =
+    new DFGUICmd_SetNodeCommentExpanded_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      nodeName,
+      expanded
       );
   m_qUndoStack->push( cmd );
 }

@@ -405,4 +405,48 @@ void DFGUIPerform_SetNodeTitle(
   }
 }
 
+void DFGUIPerform_SetNodeComment(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef comment,
+  unsigned &coreUndoCount
+  )
+{
+  exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiComment",
+    comment.c_str(),
+    true
+    );
+  ++coreUndoCount;
+
+  exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiCommentExpanded",
+    !comment.empty()? "true": "",
+    true
+    );
+  ++coreUndoCount;
+}
+
+void DFGUIPerform_SetNodeCommentExpanded(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  bool expanded,
+  unsigned &coreUndoCount
+  )
+{
+  exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiCommentExpanded",
+    expanded? "true": "",
+    true
+    );
+  ++coreUndoCount;
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

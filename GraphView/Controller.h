@@ -65,6 +65,10 @@ namespace FabricUI
         FTL::CStrRef typeSpec = FTL::CStrRef(),
         ConnectionTarget *connectWith = 0
         ) = 0;
+      virtual void gvcDoSetNodeCommentExpanded(
+        Node *node,
+        bool expanded
+        ) = 0;
 
       virtual Node * addNode(
         FTL::CStrRef name,
@@ -89,8 +93,6 @@ namespace FabricUI
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
       virtual bool setBackDropNodeSize(BackDropNode * node, QSizeF size);
-      virtual bool setNodeComment(Node * node, char const * comment);
-      virtual void setNodeCommentExpanded(Node * node, bool expanded);
 
       virtual bool canConnectTo(
         char const *pathA,

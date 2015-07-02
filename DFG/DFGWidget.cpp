@@ -788,13 +788,11 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Add Comment")
   {
-    m_uiController->setNodeComment(m_contextNode, " ");
     onBubbleEditRequested(m_contextNode);
-    m_uiController->setNodeCommentExpanded(m_contextNode, true);
   }
   else if(action->text() == "Remove Comment")
   {
-    m_uiController->setNodeComment(m_contextNode, NULL);
+    m_uiController->cmdSetNodeComment( m_contextNode->name(), NULL );
   }
 
   m_contextNode = NULL;
@@ -1089,16 +1087,27 @@ void DFGWidget::onKeyPressed(QKeyEvent * event)
 void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
 {
   GraphView::NodeBubble * bubble = node->bubble();
-  if(!bubble)
-    return;
+  bool visible = bubble->isVisible();
+  bool collapsed = bubble->collapsed();
+  bubble->show();
+  bubble->expand();
 
   QString text = bubble->text();
   DFGGetTextDialog dialog(this, text);
-  if(dialog.exec() != QDialog::Accepted)
-    return;
-  text = dialog.text();
-
-  m_uiController->setNodeComment(node, text.toUtf8().constData());
+  if ( dialog.exec() == QDialog::Accepted )
+  {
+    text = dialog.text();
+    m_uiController->cmdSetNodeComment(
+      node->name(),
+      text.toUtf8().constData()
+      );
+  }
+  else
+  {
+    if ( collapsed )
+      bubble->collapse();
+    bubble->setVisible( visible );
+  }
 }
 
 bool DFGWidget::maybeEditNode(

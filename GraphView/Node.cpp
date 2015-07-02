@@ -99,26 +99,20 @@ Node::Node(
   // setup caching
   m_cache = new CachingEffect(this);
   this->setGraphicsEffect(m_cache);
+  
+  m_bubble = new GraphView::NodeBubble( graph(), this, graph()->config() );
+  m_bubble->hide();
 
   setAcceptHoverEvents(true);
 }
 
 Node::~Node()
 {
-  if(m_cache)
-  {
-    delete(m_cache);
-    m_cache = NULL;
-  }
+  delete m_cache;
 
-  if(m_bubble)
-  {
-    m_bubble->setNode(NULL);
-    m_bubble->scene()->removeItem(m_bubble);
-    m_bubble->hide();
-    m_bubble->deleteLater();
-    m_bubble = NULL;
-  }
+  m_bubble->setNode( NULL );
+  m_bubble->scene()->removeItem( m_bubble );
+  m_bubble->deleteLater();
 }
 
 Graph * Node::graph()
@@ -149,11 +143,6 @@ NodeBubble * Node::bubble()
 const NodeBubble * Node::bubble() const
 {
   return m_bubble;
-}
-
-void Node::setBubble(NodeBubble * bubble)
-{
-  m_bubble = bubble;
 }
 
 void Node::setTitle( FTL::CStrRef title )
