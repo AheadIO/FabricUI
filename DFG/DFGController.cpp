@@ -1190,11 +1190,11 @@ bool DFGController::setBackDropNodeSize(
       FTL::JSONObjectEnc<> objEnc( enc );
       {
         FTL::JSONEnc<> wEnc( objEnc, FTL_STR("w") );
-        FTL::JSONSInt32Enc<> wS32Enc( wEnc, size.width() );
+        FTL::JSONSInt32Enc<> wS32Enc( wEnc, int(size.width()) );
       }
       {
         FTL::JSONEnc<> hEnc( objEnc, FTL_STR("h") );
-        FTL::JSONSInt32Enc<> hS32Enc( hEnc, size.height() );
+        FTL::JSONSInt32Enc<> hS32Enc( hEnc, int(size.height()) );
       }
     }
 
