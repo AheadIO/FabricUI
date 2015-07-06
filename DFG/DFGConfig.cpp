@@ -14,7 +14,7 @@ DFGConfig::DFGConfig()
   , searchResultsFont( QFont("Courier", 12) )
   , searchHelpFont( QFont("Courier", 12, QFont::Bold) )
 {
-  defaultWindowColor = QColor(80, 98, 110);
+  defaultWindowColor = QColor(25, 37, 42);
   defaultBackgroundColor = QColor(156, 174, 187);
   defaultFont.setBold(true);
   defaultFontColor = QColor(31, 43, 55, 255);

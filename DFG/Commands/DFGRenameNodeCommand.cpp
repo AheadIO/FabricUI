@@ -17,7 +17,24 @@ bool DFGRenameNodeCommand::invoke()
 {
   DFGController * ctrl = (DFGController*)controller();
   FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
-  graph.setInstTitle(m_nodePath.c_str(), m_newTitle.c_str());
+  switch ( graph.getNodeType( m_nodePath.c_str() ) )
+  {
+    case FabricCore::DFGNodeType_Inst:
+      graph.setInstTitle(m_nodePath.c_str(), m_newTitle.c_str());
+      break;
+
+    case FabricCore::DFGNodeType_User:
+      graph.setNodeMetadata(
+        m_nodePath.c_str(),
+        "uiTitle",
+        m_newTitle.c_str(),
+        true
+        );
+      break;
+
+    default:
+      break;
+  }
   return true;
 }
 

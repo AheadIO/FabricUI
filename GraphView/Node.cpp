@@ -27,6 +27,7 @@ Node::Node(
   , m_name( name )
   , m_title( title )
   , m_bubble( NULL )
+  , m_mainWidget( NULL )
 {
   m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
@@ -177,6 +178,8 @@ void Node::setColorAsGradient(QColor a, QColor b)
   m_colorB = b;
   if(m_graph->config().nodeDefaultPenUsesNodeColor)
     m_defaultPen.setBrush(m_colorB.darker());
+  if ( m_mainWidget )
+    m_mainWidget->update();
 }
 
 QColor Node::titleColor() const

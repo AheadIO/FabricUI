@@ -20,28 +20,17 @@ namespace FabricUI
       BackDropNode(
         Graph * parent,
         FTL::CStrRef name,
-        FTL::CStrRef title,
-        QColor color = QColor(),
-        QColor titleColor = QColor()
+        FTL::CStrRef title = FTL::CStrRef(),
+        QColor color = QColor( 0x62, 0x67, 0x6B, 0xA0 ),
+        QColor titleColor = QColor( 0x62, 0x67, 0x6B, 0xB0 )
         );
       virtual ~BackDropNode();
 
-      virtual void setColor(QColor col);
-      virtual int type() const { return QGraphicsItemType_BackDropNode; }
-      virtual bool supportsToolBar() const { return false; }
-
-      static QString getDefaultJSON(char const * name, char const * title, QPointF pos);
-      QString getJSON() const;
-      QString getJSON(QString t) const;
-      QString getJSON(QPointF p) const;
-      QString getJSON(QSizeF s) const;
-      QString getJSON(QColor c) const;
-      QString getJSONForComment(QString k) const;
-      QString getJSONForComment(bool expanded) const;
-      void updateFromJSON(const QString & json);
-      void updateFromJSON(FTL::JSONObject const *jsonObject);
-
       virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
+      void setSize( QSizeF size, bool quiet );
+
+      virtual bool isBackDropNode() const { return true; }
+      virtual bool supportsToolBar() const { return false; }
 
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
@@ -50,8 +39,6 @@ namespace FabricUI
       virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
 
     private:
-
-      static QString getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c, QString k, bool e);
 
       std::vector<Node*> getOverlappingNodes() const;
       int getCorner(QPointF pos);

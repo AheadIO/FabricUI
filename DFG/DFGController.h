@@ -69,12 +69,10 @@ namespace FabricUI
       virtual std::string addDFGSet(FTL::StrRef varName, FTL::StrRef varPath, QPointF pos);
       virtual std::string addEmptyGraph(char const * title, QPointF pos);
       virtual std::string addEmptyFunc(char const * title, QPointF pos);
-      virtual std::string addBackDropNode(char const * title, QPointF pos);
+      virtual void addBackDropNode( FTL::CStrRef title, QPointF pos );
       virtual bool removeNode(char const * path);
       virtual bool removeNode(GraphView::Node * node);
-      virtual bool removeBackDropNode(GraphView::BackDropNode * node);
       virtual bool renameNodeByPath(char const *path, char const *title);
-      virtual bool renameBackDropNode(GraphView::BackDropNode * node, char const * title);
       virtual bool renameNode(GraphView::Node * node, FTL::StrRef title);
       virtual GraphView::Pin * addPin(GraphView::Node * node, FTL::StrRef name, GraphView::PortType pType, QColor color, FTL::StrRef dataType = "");
       virtual bool removePin(GraphView::Pin * pin);
@@ -112,14 +110,13 @@ namespace FabricUI
       virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
-      virtual bool moveBackDropNode(GraphView::BackDropNode * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
       virtual bool setNodeComment(GraphView::Node * node, char const * comment);
-      virtual bool setNodeCommentExpanded(GraphView::Node * node, bool expanded);
+      virtual void setNodeCommentExpanded(GraphView::Node * node, bool expanded);
 
       virtual std::string copy(QStringList paths = QStringList());
       virtual bool paste();

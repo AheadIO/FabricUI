@@ -33,170 +33,29 @@ BackDropNode::~BackDropNode()
 {
 }
 
-void BackDropNode::setColor(QColor col)
-{
-  col.setAlphaF(graph()->config().backDropNodeAlpha);
-  Node::setColor(col);
-  Node::setTitleColor(col.darker(130));
-}
-
-QString BackDropNode::getDefaultJSON(char const * name, char const * title, QPointF pos)
-{
-  QString xStr = QString::number(pos.x());
-  QString yStr = QString::number(pos.y());
-  QString keyStr = "uiBackDrop_"+QString(name);
-  QString jsonStr = "{\"name\": \"" + QString(name) + "\", " + 
-    "\"title\": \"" + QString(title) + "\", " +
-    "\"pos\": {\"x\": " + xStr +", \"y\": " + yStr + "}" + 
-    QString("}");
-  return jsonStr;
-}
-
-QString BackDropNode::getJSON() const
-{
-  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), comment(), commentExpanded());
-}
-
-QString BackDropNode::getJSON(QString t) const
-{
-  return getJSON(name(), t.toUtf8().constData(), topLeftGraphPos(), size(), color(), comment(), commentExpanded());
-}
-
-QString BackDropNode::getJSON(QPointF p) const
-{
-  return getJSON(name(), title(), p, size(), color(), comment(), commentExpanded());
-}
-
-QString BackDropNode::getJSON(QSizeF s) const
-{
-  return getJSON(name(), title(), topLeftGraphPos(), s, color(), comment(), commentExpanded());
-}
-
-QString BackDropNode::getJSON(QColor c) const
-{
-  return getJSON(name(), title(), topLeftGraphPos(), size(), c, comment(), commentExpanded());
-}
-
-QString BackDropNode::getJSONForComment(QString k) const
-{
-  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), k, commentExpanded());
-}
-
-QString BackDropNode::getJSONForComment(bool e) const
-{
-  return getJSON(name(), title(), topLeftGraphPos(), size(), color(), comment(), e);
-}
-
-QString BackDropNode::getJSON(FTL::CStrRef name, FTL::CStrRef title, QPointF p, QSizeF s, QColor c, QString k, bool e)
-{
-  QString keyStr = "uiBackDrop_" + QString(name.c_str());
-  QString jsonStr = "{\"name\": \"" + QString(name.c_str()) + "\", " +
-    "\"title\": \"" + QString(title.c_str()) + "\", " +
-    "\"pos\": {\"x\": " + QString::number(p.x()) +", \"y\": " + QString::number(p.y()) + "}," + 
-    "\"size\": {\"width\": " + QString::number(s.width()) +", \"height\": " + QString::number(s.height()) + "}," + 
-    "\"color\": {\"r\": " + QString::number(c.red()) +", \"g\": " + QString::number(c.green()) + ", " + 
-      "\"b\": " + QString::number(c.blue()) +", \"a\": " + QString::number(c.alpha()) + "}," + 
-    "\"comment\": \"" + k + "\", " +
-    "\"commentExpanded\": " + (e ? QString("true") : QString("false")) +
-    QString("}");
-  return jsonStr;
-}
-
-
-void BackDropNode::updateFromJSON(const QString & json)
-{
-  FTL::CStrRef jsonStr( json.toUtf8().constData() );
-  FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr.c_str() );
-  FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
-    FTL::JSONValue::Decode( jsonStrWithLoc )
-    );
-  if ( jsonValue )
-  {
-    FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-    updateFromJSON(jsonObject);
-  }
-}
-
-void BackDropNode::updateFromJSON(FTL::JSONObject const *jsonObject)
-{
-  FTL::CStrRef title = jsonObject->getString( FTL_STR("title") );
-  setTitle(title);
-
-  FTL::JSONObject const *posObject = jsonObject->maybeGetObject( FTL_STR("pos") );
-  if(posObject)
-  {
-    QPointF pos(
-      (float)posObject->getFloat64( FTL_STR("x") ),
-      (float)posObject->getFloat64( FTL_STR("y") )
-      );
-    setTopLeftGraphPos(pos);
-  }
-
-  FTL::JSONObject const *sizeObject = jsonObject->maybeGetObject( FTL_STR("size") );
-  if(sizeObject)
-  {
-    QSizeF size(
-      (float)sizeObject->getFloat64( FTL_STR("width") ),
-      (float)sizeObject->getFloat64( FTL_STR("height") )
-      );
-    m_mainWidget->setMinimumWidth(size.width());
-    m_mainWidget->setMinimumHeight(size.height());
-    m_mainWidget->setMaximumWidth(size.width());
-    m_mainWidget->setMaximumHeight(size.height());
-  }
-
-  FTL::JSONObject const *colorObject = jsonObject->maybeGetObject( FTL_STR("color") );
-  if(colorObject)
-  {
-    QColor color(
-      colorObject->getSInt32( FTL_STR("r") ),
-      colorObject->getSInt32( FTL_STR("g") ),
-      colorObject->getSInt32( FTL_STR("b") ),
-      colorObject->getSInt32( FTL_STR("a") )
-      );
-    setColor(color);
-  }
-
-  FTL::CStrRef comment = jsonObject->getStringOrEmpty( FTL_STR("comment") );
-  if(comment.empty())
-  {
-    if(m_bubble != NULL)
-    {
-      m_bubble->scene()->removeItem(m_bubble);
-      m_bubble->hide();
-      m_bubble->deleteLater();
-      m_bubble = NULL;
-    }
-  }
-  else
-  {
-    if(!m_bubble)
-      m_bubble = new NodeBubble(graph(), this, m_graph->config());
-    m_bubble->setText(comment.c_str());
-  }
-
-  bool expanded = jsonObject->getBooleanOrFalse( FTL_STR("commentExpanded") );
-  if(m_bubble != NULL)
-  {
-    if(expanded)
-      m_bubble->expand();
-    else
-      m_bubble->collapse();
-  }
-
-}
-
-void BackDropNode::setTopLeftGraphPos(QPointF pos, bool quiet)
+void BackDropNode::setTopLeftGraphPos( QPointF pos, bool quiet )
 {
   QPointF prev = topLeftGraphPos();
   Node::setTopLeftGraphPos(pos, quiet);
   QPointF delta = topLeftGraphPos() - prev;
 
-  if(!m_shiftPressed)
+  if ( !m_shiftPressed )
   {
     for(size_t i=0;i<m_overlappingNodes.size();i++)
-      graph()->controller()->moveNode(m_overlappingNodes[i], m_overlappingNodes[i]->topLeftGraphPos() + delta, true);
+      graph()->controller()->moveNode(
+        m_overlappingNodes[i],
+        m_overlappingNodes[i]->topLeftGraphPos() + delta,
+        true
+        );
   }
+}
+
+void BackDropNode::setSize( QSizeF size, bool quiet )
+{
+  m_mainWidget->setMinimumWidth(size.width());
+  m_mainWidget->setMinimumHeight(size.height());
+  m_mainWidget->setMaximumWidth(size.width());
+  m_mainWidget->setMaximumHeight(size.height());
 }
 
 void BackDropNode::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
@@ -323,7 +182,7 @@ std::vector<Node*> BackDropNode::getOverlappingNodes() const
 
   for(size_t i=0;i<all.size();i++)
   {
-    if(all[i]->type() == QGraphicsItemType_BackDropNode)
+    if ( all[i]->isBackDropNode() )
       continue;
     if(all[i]->selected())
       continue;
@@ -365,11 +224,4 @@ void BackDropNode::setSizeFromMouse(float width, float height)
     height = graph()->config().nodeMinHeight * 2.0f;
 
   graph()->controller()->setBackDropNodeSize(this, QSizeF(width, height));
-}
-
-bool BackDropNode::commentExpanded() const
-{
-  if(m_bubble)
-    return m_bubble->expanded();
-  return false;
 }
