@@ -1438,10 +1438,10 @@ void DFGController::checkErrors()
     if ( !upgradingBackDrops )
     {
       upgradingBackDrops = true;
-      FTL::CStrRef uiBackDrops = exec.getMetadata( "uiBackDrops" );
+      std::string uiBackDrops = exec.getMetadata( "uiBackDrops" );
       if ( !uiBackDrops.empty() )
       {
-        std::pair<FTL::StrRef, FTL::CStrRef> split = uiBackDrops.split(',');
+        std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
         while ( !split.first.empty() )
         {
           std::string uiBackDropKey = split.first;
