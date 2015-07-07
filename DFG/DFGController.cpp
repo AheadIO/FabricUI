@@ -1433,7 +1433,6 @@ void DFGController::checkErrors()
 
       }
     }
-
     // [pzion 20150701] Upgrade old backdrops scheme
     static bool upgradingBackDrops = false;
     if ( !upgradingBackDrops )
