@@ -126,7 +126,7 @@ FabricCore::DFGPortType DFGKLEditorPortTableWidget::portType(unsigned int index)
   if(rowCount() == 0)
     return FabricCore::DFGPortType_In;
 
-  if(index >= rowCount())
+  if(int(index) >= rowCount())
     index = rowCount() - 1;
 
   int portTypeId = ((QComboBox*)cellWidget(index, 0))->currentIndex();
@@ -142,7 +142,7 @@ QString DFGKLEditorPortTableWidget::portName(unsigned int index) const
   if(rowCount() == 0)
     return "";
   
-  if(index >= rowCount())
+  if(int(index) >= rowCount())
     index = rowCount() - 1;
 
   return item(index, 1)->text();
@@ -153,7 +153,7 @@ QString DFGKLEditorPortTableWidget::dataType(unsigned int index) const
   if(rowCount() == 0)
     return "";
   
-  if(index >= rowCount())
+  if(int(index) >= rowCount())
     index = rowCount() - 1;
 
   return item(index, 2)->text();
@@ -164,7 +164,7 @@ QString DFGKLEditorPortTableWidget::extension(unsigned int index) const
   if(rowCount() == 0)
     return "";
   
-  if(index >= rowCount())
+  if(int(index) >= rowCount())
     index = rowCount() - 1;
 
   if(columnCount() <= 3)
