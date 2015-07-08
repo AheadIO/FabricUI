@@ -699,10 +699,17 @@ bool DFGController::relaxNodes(QStringList paths)
 
   relaxer.relax(50);
 
-  for(unsigned int i=0;i<relaxer.numNodes();i++)
+  std::vector<FTL::CStrRef> nodeNames;
+  nodeNames.reserve( relaxer.numNodes() );
+  std::vector<QPointF> newTopLeftPoss;
+  newTopLeftPoss.reserve( relaxer.numNodes() );
+  for ( unsigned i=0; i<relaxer.numNodes(); i++ )
   {
-    moveNode(relaxer.getName(i).toUtf8().constData(), relaxer.getPos(i), true);
+    nodeNames.push_back( relaxer.getName(i) );
+    newTopLeftPoss.push_back( relaxer.getPos(i) );
   }
+
+  cmdMoveNodes( nodeNames, newTopLeftPoss );
 
   return true;
 }

@@ -14,7 +14,7 @@ unsigned int GraphRelaxer::numNodes() const
   return (unsigned int)m_nodes.size(); 
 }
 
-QString GraphRelaxer::getName(int index)
+FTL::CStrRef GraphRelaxer::getName(int index)
 {
   return m_nodes[index].name;
 }
@@ -24,7 +24,14 @@ QPointF GraphRelaxer::getPos(int index)
   return m_nodes[index].curr;
 }
 
-int GraphRelaxer::addNode(QString name, QPointF pos, int col, int row, float width, float height)
+int GraphRelaxer::addNode(
+  FTL::StrRef name,
+  QPointF pos,
+  int col,
+  int row,
+  float width,
+  float height
+  )
 {
   RelaxNode node;
   node.index = (int)m_nodes.size();
@@ -36,13 +43,18 @@ int GraphRelaxer::addNode(QString name, QPointF pos, int col, int row, float wid
   node.prev = node.curr = pos;
   node.vel = QPointF(0.0f, 0.0f);
 
-  m_nodeLookup.insert(RelaxNodeLookupPair(node.name, node.index));
+  m_nodeLookup.insert(
+    RelaxNodeLookupPair(
+      node.name,
+      node.index
+      )
+    );
   m_nodes.push_back(node);
 
   return node.index;
 }
 
-void GraphRelaxer::addSpring(QString a, QString b, float force)
+void GraphRelaxer::addSpring(FTL::StrRef a, FTL::StrRef b, float force)
 {
   if(a == b)
     return;
