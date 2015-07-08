@@ -123,6 +123,12 @@ DFGKLEditorPortTableWidget::PortInfo DFGKLEditorPortTableWidget::portInfo(unsign
 
 FabricCore::DFGPortType DFGKLEditorPortTableWidget::portType(unsigned int index) const
 {
+  if(rowCount() == 0)
+    return FabricCore::DFGPortType_In;
+
+  if(int(index) >= rowCount())
+    index = rowCount() - 1;
+
   int portTypeId = ((QComboBox*)cellWidget(index, 0))->currentIndex();
   if(portTypeId == 0)
     return FabricCore::DFGPortType_In;
@@ -133,16 +139,34 @@ FabricCore::DFGPortType DFGKLEditorPortTableWidget::portType(unsigned int index)
 
 QString DFGKLEditorPortTableWidget::portName(unsigned int index) const
 {
+  if(rowCount() == 0)
+    return "";
+  
+  if(int(index) >= rowCount())
+    index = rowCount() - 1;
+
   return item(index, 1)->text();
 }
 
 QString DFGKLEditorPortTableWidget::dataType(unsigned int index) const
 {
+  if(rowCount() == 0)
+    return "";
+  
+  if(int(index) >= rowCount())
+    index = rowCount() - 1;
+
   return item(index, 2)->text();
 }
 
 QString DFGKLEditorPortTableWidget::extension(unsigned int index) const
 {
+  if(rowCount() == 0)
+    return "";
+  
+  if(int(index) >= rowCount())
+    index = rowCount() - 1;
+
   if(columnCount() <= 3)
     return "";
   return item(index, 3)->text();
@@ -266,6 +290,8 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
   else if(action->text() == "Add New Port (Ctrl+Enter)")
   {
     int index = currentRow();
+    if(index >= rowCount())
+      index = rowCount() - 1;
     index = addPort(portType(index), "", dataType(index), extension(index));
     setCurrentCell(index, 0);
     return;
