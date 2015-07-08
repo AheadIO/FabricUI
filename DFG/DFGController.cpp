@@ -1715,6 +1715,28 @@ void DFGController::cmdRemovePort(
     );
 }
 
+void DFGController::cmdMoveNodes(
+  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<QPointF> newTopLeftPoss
+  )
+{
+  std::stringstream desc;
+  desc << FTL_STR("Canvas: Move ");
+  desc << nodeNames.size();
+  desc << FTL_STR(" node");
+  if ( nodeNames.size() != 1 )
+    desc << 's';
+
+  m_cmdHandler->dfgDoMoveNodes(
+    desc.str(),
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeNames,
+    newTopLeftPoss
+    );
+}
+
 std::string DFGController::cmdImplodeNodes(
   FTL::CStrRef desiredNodeName,
   FTL::ArrayRef<FTL::CStrRef> nodeNames
@@ -1760,33 +1782,52 @@ void DFGController::gvcDoMoveNodes(
   bool allowUndo
   )
 {
-  for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
-    it != nodes.end(); ++it )
+  if ( allowUndo )
   {
-    GraphView::Node *node = *it;
-    FTL::CStrRef nodeName = node->name();
-
-    QPointF newPos = node->topLeftGraphPos() + delta;
-
-    std::string newPosJSON;
+    std::vector<FTL::CStrRef> nodeNames;
+    std::vector<QPointF> newTopLeftPoss;
+    nodeNames.reserve( nodes.size() );
+    newTopLeftPoss.reserve( nodes.size() );
+    for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
+      it != nodes.end(); ++it )
     {
-      FTL::JSONEnc<> enc( newPosJSON );
-      FTL::JSONObjectEnc<> objEnc( enc );
-      {
-        FTL::JSONEnc<> xEnc( objEnc, FTL_STR("x") );
-        FTL::JSONFloat64Enc<> xS32Enc( xEnc, newPos.x() );
-      }
-      {
-        FTL::JSONEnc<> yEnc( objEnc, FTL_STR("y") );
-        FTL::JSONFloat64Enc<> yS32Enc( yEnc, newPos.y() );
-      }
+      GraphView::Node *node = *it;
+      nodeNames.push_back( node->name() );
+      newTopLeftPoss.push_back( node->topLeftGraphPos() + delta );
     }
 
-    getExec().setNodeMetadata(
-      nodeName.c_str(),
-      "uiGraphPos",
-      newPosJSON.c_str(),
-      allowUndo
-      );
+    cmdMoveNodes( nodeNames, newTopLeftPoss );
+  }
+  else
+  {
+    for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
+      it != nodes.end(); ++it )
+    {
+      GraphView::Node *node = *it;
+      FTL::CStrRef nodeName = node->name();
+
+      QPointF newPos = node->topLeftGraphPos() + delta;
+
+      std::string newPosJSON;
+      {
+        FTL::JSONEnc<> enc( newPosJSON );
+        FTL::JSONObjectEnc<> objEnc( enc );
+        {
+          FTL::JSONEnc<> xEnc( objEnc, FTL_STR("x") );
+          FTL::JSONFloat64Enc<> xS32Enc( xEnc, newPos.x() );
+        }
+        {
+          FTL::JSONEnc<> yEnc( objEnc, FTL_STR("y") );
+          FTL::JSONFloat64Enc<> yS32Enc( yEnc, newPos.y() );
+        }
+      }
+
+      getExec().setNodeMetadata(
+        nodeName.c_str(),
+        "uiGraphPos",
+        newPosJSON.c_str(),
+        false
+        );
+    }
   }
 }

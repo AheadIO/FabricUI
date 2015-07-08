@@ -23,8 +23,13 @@ public:
     )
     : DFGUICmd_QUndo( desc, binding, execPath, exec )
     , m_desiredNodeName( desiredNodeName )
-    , m_nodeNames( nodeNames )
   {
+    m_nodeNames.reserve( nodeNames.size() );
+    for ( FTL::ArrayRef<FTL::CStrRef>::IT it = nodeNames.begin();
+      it != nodeNames.end(); ++it )
+    {
+      m_nodeNames.push_back( *it );
+    }
   }
 
   FTL::CStrRef getImplodedNodeName()
@@ -52,8 +57,8 @@ protected:
 
 private:
 
-  FTL::CStrRef m_desiredNodeName;
-  FTL::ArrayRef<FTL::CStrRef> m_nodeNames;
+  std::string m_desiredNodeName;
+  std::vector<std::string> m_nodeNames;
 
   std::string m_implodedNodeName;
 };

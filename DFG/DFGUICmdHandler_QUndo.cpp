@@ -14,6 +14,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_AddVar_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ExplodeNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ImplodeNodes_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_MoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
@@ -267,6 +268,27 @@ void DFGUICmdHandler_QUndo::dfgDoRemovePort(
       execPath,
       exec,
       portName
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<QPointF> newTopLeftPoss
+  )
+{
+  DFGUICmd_MoveNodes_QUndo *cmd =
+    new DFGUICmd_MoveNodes_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      nodeNames,
+      newTopLeftPoss
       );
   m_qUndoStack->push( cmd );
 }

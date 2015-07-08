@@ -170,6 +170,11 @@ namespace FabricUI
         FTL::CStrRef portName
         );
 
+      void cmdMoveNodes(
+        FTL::ArrayRef<FTL::CStrRef> nodeNames,
+        FTL::ArrayRef<QPointF> newTopLeftPoss
+        );
+
       std::string cmdImplodeNodes(
         FTL::CStrRef desiredNodeName,
         FTL::ArrayRef<FTL::CStrRef> nodeNames

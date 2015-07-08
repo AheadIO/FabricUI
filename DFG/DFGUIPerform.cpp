@@ -138,12 +138,12 @@ void DFGUIPerform_RemovePort(
   ++coreUndoCount;
 }
 
-static QPoint GetNodeUIGraphPos( 
+static QPointF GetNodeUIGraphPos( 
   FabricCore::DFGExec &exec,
   FTL::CStrRef nodeName
   )
 {
-  QPoint result;
+  QPointF result;
   FTL::CStrRef uiGraphPosJSON =
     exec.getNodeMetadata( nodeName.c_str(), "uiGraphPos" );
   if ( !uiGraphPosJSON.empty() )
@@ -191,30 +191,38 @@ static QPoint GetNodeUIGraphPos(
   return result;
 }
 
-void DFGUIPerform_MoveNode(
+void DFGUIPerform_MoveNodes(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef nodeName,
-  QPoint pos,
+  FTL::ArrayRef<std::string> nodeNames,
+  FTL::ArrayRef<QPointF> newTopLeftPoss,
   unsigned &coreUndoCount
   )
 {
-  std::string json;
+  for ( size_t i = 0; i < nodeNames.size(); ++i )
   {
-    FTL::JSONEnc<std::string> je( json, FTL::JSONFormat::Packed() );
-    FTL::JSONObjectEnc<std::string> joe( je );
+    FTL::CStrRef nodeName = nodeNames[i];
+    QPointF newTopLeftPos = newTopLeftPoss[i];
+
+    std::string json;
     {
-      FTL::JSONEnc<std::string> xJE( joe, FTL_STR("x") );
-      FTL::JSONFloat64Enc<std::string> xJFE( xJE, pos.x() );
+      FTL::JSONEnc<std::string> je( json, FTL::JSONFormat::Packed() );
+      FTL::JSONObjectEnc<std::string> joe( je );
+      {
+        FTL::JSONEnc<std::string> xJE( joe, FTL_STR("x") );
+        FTL::JSONFloat64Enc<std::string> xJFE( xJE, newTopLeftPos.x() );
+      }
+      {
+        FTL::JSONEnc<std::string> yJE( joe, FTL_STR("y") );
+        FTL::JSONFloat64Enc<std::string> yJFE( yJE, newTopLeftPos.y() );
+      }
     }
-    {
-      FTL::JSONEnc<std::string> yJE( joe, FTL_STR("y") );
-      FTL::JSONFloat64Enc<std::string> yJFE( yJE, pos.y() );
-    }
+    exec.setNodeMetadata(
+      nodeName.c_str(), "uiGraphPos", json.c_str(), true
+      );
+    ++coreUndoCount;
   }
-  exec.setNodeMetadata( nodeName.c_str(), "uiGraphPos", json.c_str(), true );
-  ++coreUndoCount;
 }
 
 std::string DFGUIPerform_ImplodeNodes(
@@ -222,25 +230,25 @@ std::string DFGUIPerform_ImplodeNodes(
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
   FTL::CStrRef desiredNodeName,
-  FTL::ArrayRef<FTL::CStrRef> const &nodeNames,
+  FTL::ArrayRef<std::string> nodeNames,
   unsigned &coreUndoCount
   )
 {
   size_t count = nodeNames.size();
 
-  QPoint oldCenter;
+  QPointF uiGraphPos;
   if ( count > 0 )
   {
     for ( size_t i = 0; i < count; ++i )
-      oldCenter += GetNodeUIGraphPos( exec, nodeNames[i] );
-    oldCenter /= count;
+      uiGraphPos += GetNodeUIGraphPos( exec, nodeNames[i] );
+    uiGraphPos /= count;
   }
 
   char const *nodeNameCStrs[count];
   for ( size_t i = 0; i < count; ++i )
     nodeNameCStrs[i] = nodeNames[i].c_str();
 
-  FTL::CStrRef newNodeName =
+  std::string newNodeName =
     exec.implodeNodes(
       desiredNodeName.c_str(),
       count,
@@ -255,12 +263,12 @@ std::string DFGUIPerform_ImplodeNodes(
   ++coreUndoCount;
 
   if ( count > 0 )
-    DFGUIPerform_MoveNode(
+    DFGUIPerform_MoveNodes(
       binding,
       execPath,
       exec,
       newNodeName,
-      oldCenter,
+      uiGraphPos,
       coreUndoCount
       );
 
@@ -275,7 +283,7 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   unsigned &coreUndoCount
   )
 {
-  QPoint oldPosition = GetNodeUIGraphPos( exec, nodeName );
+  QPointF oldTopLeftPos = GetNodeUIGraphPos( exec, nodeName );
 
   FabricCore::DFGStringResult newNodeNamesJSON =
     exec.explodeNode( nodeName.c_str() );
@@ -296,29 +304,33 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
     newNodeNames.push_back( newNodeNameJV->getStringValue() );
   }
 
-  if ( !newNodeNames.empty() )
+  if ( count > 0 )
   {
-    std::vector<QPoint> newPositions;
-    newPositions.reserve( newNodeNames.size() );
+    std::vector<QPointF> newTopLeftPoss;
+    newTopLeftPoss.reserve( newNodeNames.size() );
     for ( size_t i = 0; i < count; ++i )
-      newPositions.push_back(
+      newTopLeftPoss.push_back(
         GetNodeUIGraphPos( exec, newNodeNames[i] )
         );
 
-    QPoint newCenter;
+    QPointF avgTopLeftPos;
     for ( size_t i = 0; i < count; ++i )
-      newCenter += newPositions[i];
-    newCenter /= count;
+      avgTopLeftPos += newTopLeftPoss[i];
+    avgTopLeftPos /= count;
+
+    QPointF delta = oldTopLeftPos - avgTopLeftPos;
 
     for ( size_t i = 0; i < count; ++i )
-      DFGUIPerform_MoveNode(
-        binding,
-        execPath,
-        exec,
-        newNodeNames[i],
-        oldPosition + newPositions[i] - newCenter,
-        coreUndoCount
-        );
+      newTopLeftPoss[i] += delta;
+
+    DFGUIPerform_MoveNodes(
+      binding,
+      execPath,
+      exec,
+      newNodeNames,
+      newTopLeftPoss,
+      coreUndoCount
+      );
   }
 
   return newNodeNames;

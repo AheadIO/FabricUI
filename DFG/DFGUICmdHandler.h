@@ -124,6 +124,15 @@ public:
     FTL::CStrRef portName
     ) = 0;
 
+  virtual void dfgDoMoveNodes(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::ArrayRef<QPointF> newTopLeftPoss
+    ) = 0;
+
   virtual std::string dfgDoImplodeNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding &binding,

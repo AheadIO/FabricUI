@@ -34,12 +34,21 @@ void DFGUIPerform_RemovePort(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_MoveNodes(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::ArrayRef<std::string> nodeNames,
+  FTL::ArrayRef<QPointF> newTopLeftPoss, 
+  unsigned &coreUndoCount
+  );
+
 std::string DFGUIPerform_ImplodeNodes(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
   FTL::CStrRef desiredNodeName,
-  FTL::ArrayRef<FTL::CStrRef> const &nodeNames,
+  FTL::ArrayRef<std::string> nodeNames,
   unsigned &coreUndoCount
   );
 
@@ -48,15 +57,6 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
   FTL::CStrRef nodeName,
-  unsigned &coreUndoCount
-  );
-
-void DFGUIPerform_MoveNode(
-  FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
-  FTL::CStrRef nodeName,
-  QPoint pos,
   unsigned &coreUndoCount
   );
 
