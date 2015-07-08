@@ -8,7 +8,7 @@
 using namespace FabricUI::GraphView;
 
 GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const GraphConfig & config)
-: QWidget(parent)
+  : QWidget(parent)
 {
   m_config = config;
   m_caption = caption;
@@ -30,6 +30,14 @@ GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const Gr
   setFont(config.headerFont);
   setFontColor(config.headerFontColor);
 
+  m_reqExtLineEdit = new QLineEdit;
+  QObject::connect(
+    m_reqExtLineEdit, SIGNAL(editingFinished()),
+    this, SLOT(reqExtEditingFinished())
+    );
+
+  layout->addWidget( new QLabel("Required Extensions:") );
+  layout->addWidget( reqExtLineEdit );
   layout->addStretch(2);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -37,7 +45,73 @@ GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const Gr
 
 GraphHeaderWidget::~GraphHeaderWidget()
 {
+}
 
+void GraphHeaderWidget::setExec(
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec
+  )
+{
+  m_binding = binding;
+  m_execPath = execPath;
+  m_exec = exec;
+  updateReqExtLineEdit();
+}
+
+void GraphHeaderWidget::updateReqExtLineEdit()
+{
+  std::string extDepDesc;
+  unsigned extDepCount = exec.getExtDepCount();
+  for ( unsigned i = 0; i < extDepCount; ++i )
+  {
+    if ( i > 0 )
+      extDepDesc += ',';
+    extDepDesc += exec.getExtDepName( i );
+    extDepDesc += ':';
+    extDepDesc += exec.getExtDepVersion( i ).getCString();
+  }
+  m_reqExtLineEdit->setText( extDepDesc.c_str() );
+}
+
+void GraphHeaderWidget::reqExtEditingFinished()
+{
+  std::string extDepDesc = m_reqExtLineEdit.text().toUtf8().constData();
+  std::pair<FTL::StrRef, FTL::StrRef> split = extDepDesc.split(',');
+  std::vector<std::string> nameStrings;
+  std::vector<std::string> versionStrings;
+  while ( !split.first.empty() )
+  {
+    FTL::StrRef nameAndVersionStr = split.first.trim();
+    std::pair<FTL::StrRef, FTL::StrRef> nameAndVersionSplit =
+      nameAndVersionStr.split(':');
+    nameStrings.push_back( nameAndVersionSplit.first.trim() );
+    versionStrings.push_back( nameAndVersionSplit.second.trim() );
+    split = split.second.split(',');
+  }
+
+  std::vector<char const *> nameCStrs;
+  nameCStrs.reserve( nameStrings.size() );
+  std::vector<char const *> versionCStrs;
+  versionCStrs.reserve( versionStrings.size() );
+  for ( size_t i = 0; i < nameStrings.size(); ++it )
+  {
+    nameCStrs.push_back( nameStrings[i].c_str() );
+    versionCStrs.push_back( versionStrings[i].c_str() );
+  }
+
+  try
+  {
+    m_exec.setExtDeps(
+      nameCStrs.size(),
+      &nameCStrs[0],
+      &versionCStrs[0]
+      );
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf( "%s\n", e.getDesc_cstr() );
+  }
 }
 
 QString GraphHeaderWidget::caption() const

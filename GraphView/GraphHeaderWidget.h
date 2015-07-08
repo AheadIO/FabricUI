@@ -26,6 +26,12 @@ namespace FabricUI
       QFont font() const;
       QColor fontColor() const;
 
+      void setExec(
+        FabricCore::DFGBinding const &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec const &exec
+        );
+
     signals:
 
       void goUpPressed();
@@ -40,6 +46,12 @@ namespace FabricUI
 
       virtual void paintEvent(QPaintEvent * event);
 
+      void updateReqExtLineEdit();
+
+    protected slots:
+
+      void reqExtEditingFinished();
+
     private:
 
       QFont m_font;
@@ -50,6 +62,9 @@ namespace FabricUI
       QPen m_pen;
       GraphConfig m_config;
 
+      FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
+      FabricCore::DFGExec m_exec;
     };
 
   };
