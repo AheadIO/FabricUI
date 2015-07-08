@@ -516,7 +516,6 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
 
     m_dragging = 1;
-    m_lastDragPoint = mapToItem(m_graph->itemGroup(), event->pos());
     event->accept();
 
     if(!selected())
@@ -553,9 +552,9 @@ void Node::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
   if(m_dragging > 0)
   {
-    QPointF pos = mapToItem(m_graph->itemGroup(), event->pos());
-    QPointF delta = pos - m_lastDragPoint;
-    m_lastDragPoint = pos;
+    QPointF lastPos = mapToItem( m_graph->itemGroup(), event->lastPos() );
+    QPointF pos = mapToItem( m_graph->itemGroup(), event->pos() );
+    QPointF delta = pos - lastPos;
     m_dragging = 2;
 
     m_graph->controller()->beginInteraction();

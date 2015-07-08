@@ -164,7 +164,6 @@ namespace FabricUI
       QGraphicsLinearLayout * m_pinsLayout;
       bool m_selected;
       int m_dragging;
-      QPointF m_lastDragPoint;
 
       std::vector<Pin*> m_pins;
       CachingEffect * m_cache;

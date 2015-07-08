@@ -102,7 +102,6 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
   if(corner != -1)
   {
     m_dragging = 3 + corner;
-    m_lastDragPoint = mapToScene(event->pos());
     event->accept();
     return;
   }
@@ -116,42 +115,38 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
+  QPointF lastPos = mapToScene( event->lastPos() );
+  QPointF pos = mapToScene( event->pos() );
+  QPointF delta = pos - lastPos;
+
   if(m_dragging == 3) // topleft
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
     graph()->controller()->moveNode(this, topLeftGraphPos() + delta, true);
     QSizeF s = m_mainWidget->size();
     setSizeFromMouse(s.width() - delta.x(), s.height() - delta.y());
-    m_lastDragPoint += delta;
     event->accept();
     return;
   }
   else if(m_dragging == 4) // topright
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
     graph()->controller()->moveNode(this, topLeftGraphPos() + QPointF(0.0f, delta.y()), true);
     QSizeF s = m_mainWidget->size();
     setSizeFromMouse(s.width() + delta.x(), s.height() - delta.y());
-    m_lastDragPoint += delta;
     event->accept();
     return;
   }
   else if(m_dragging == 5) // bottomleft
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
     graph()->controller()->moveNode(this, topLeftGraphPos() + QPointF(delta.x(), 0.0f), true);
     QSizeF s = m_mainWidget->size();
     setSizeFromMouse(s.width() - delta.x(), s.height() + delta.y());
-    m_lastDragPoint += delta;
     event->accept();
     return;
   }
   else if(m_dragging == 6) // bottomright
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
     QSizeF s = m_mainWidget->size();
     setSizeFromMouse(s.width() + delta.x(), s.height() + delta.y());
-    m_lastDragPoint += delta;
     event->accept();
     return;
   }
