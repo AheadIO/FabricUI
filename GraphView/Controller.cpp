@@ -82,21 +82,6 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNode(
-  FTL::CStrRef name,
-  FTL::CStrRef title,
-  QPointF pos
-  )
-{
-  AddNodeCommand * command = new AddNodeCommand(this, name, title, pos);
-  if(!addCommand(command))
-  {
-    delete(command);
-    return NULL;
-  }
-  return command->getNode();
-}
-
 bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
 {
   if(isTopLeftPos)

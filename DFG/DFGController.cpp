@@ -219,6 +219,19 @@ void DFGController::cmdSetNodeCommentExpanded(
     );
 }
 
+bool DFGController::gvcDoAddInstFromPreset(
+  FTL::CStrRef presetPath,
+  QPointF pos
+  )
+{
+  cmdAddInstFromPreset(
+    presetPath,
+    pos
+    );
+
+  return true;
+}
+
 void DFGController::gvcDoAddPort(
   FTL::CStrRef desiredPortName,
   GraphView::PortType portType,

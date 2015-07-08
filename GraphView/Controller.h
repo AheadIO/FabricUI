@@ -51,30 +51,34 @@ namespace FabricUI
       virtual bool gvcDoRemoveNodes(
         FTL::ArrayRef<GraphView::Node *> nodes
         ) = 0;
+
       virtual bool gvcDoAddConnection(
         ConnectionTarget * src,
         ConnectionTarget * dst
         ) = 0;
+
       virtual bool gvcDoRemoveConnection(
         ConnectionTarget * src,
         ConnectionTarget * dst
         ) = 0;
+
+      virtual bool gvcDoAddInstFromPreset(
+        FTL::CStrRef presetPath,
+        QPointF pos
+        ) = 0;
+
       virtual void gvcDoAddPort(
         FTL::CStrRef desiredPortName,
         PortType portType,
         FTL::CStrRef typeSpec = FTL::CStrRef(),
         ConnectionTarget *connectWith = 0
         ) = 0;
+      
       virtual void gvcDoSetNodeCommentExpanded(
         Node *node,
         bool expanded
         ) = 0;
 
-      virtual Node * addNode(
-        FTL::CStrRef name,
-        FTL::CStrRef title,
-        QPointF pos
-        );
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();

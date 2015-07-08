@@ -85,6 +85,11 @@ namespace FabricUI
         GraphView::ConnectionTarget * dst
         );
       
+      virtual bool gvcDoAddInstFromPreset(
+        FTL::CStrRef presetPath,
+        QPointF pos
+        );
+
       virtual void gvcDoAddPort(
         FTL::CStrRef desiredPortName,
         GraphView::PortType portType,
