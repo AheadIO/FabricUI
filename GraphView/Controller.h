@@ -79,6 +79,12 @@ namespace FabricUI
         bool expanded
         ) = 0;
 
+      virtual void gvcDoMoveNodes(
+        std::vector<Node *> const &nodes,
+        QPointF delta,
+        bool allowUndo
+        ) = 0;
+
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();

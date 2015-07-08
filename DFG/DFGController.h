@@ -102,6 +102,12 @@ namespace FabricUI
         bool expanded
         );
 
+      virtual void gvcDoMoveNodes(
+        std::vector<GraphView::Node *> const &nodes,
+        QPointF delta,
+        bool allowUndo
+        );
+
       // Commands
 
       void cmdRemoveNodes(

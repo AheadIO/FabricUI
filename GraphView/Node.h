@@ -110,7 +110,7 @@ namespace FabricUI
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
-      virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
+      void setTopLeftGraphPos(QPointF pos, bool quiet = false);
       virtual Pin * addPin(Pin * pin, bool quiet = false);
       virtual bool removePin(Pin * pin, bool quiet = false);
 
@@ -164,6 +164,8 @@ namespace FabricUI
       QGraphicsLinearLayout * m_pinsLayout;
       bool m_selected;
       int m_dragging;
+      Qt::MouseButton m_dragButton;
+      std::vector<Node *> m_nodesToMove;
 
       std::vector<Pin*> m_pins;
       CachingEffect * m_cache;

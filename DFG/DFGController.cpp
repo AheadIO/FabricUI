@@ -1753,3 +1753,40 @@ std::vector<std::string> DFGController::cmdExplodeNode(
     nodeName
     );
 }
+
+void DFGController::gvcDoMoveNodes(
+  std::vector<GraphView::Node *> const &nodes,
+  QPointF delta,
+  bool allowUndo
+  )
+{
+  for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
+    it != nodes.end(); ++it )
+  {
+    GraphView::Node *node = *it;
+    FTL::CStrRef nodeName = node->name();
+
+    QPointF newPos = node->topLeftGraphPos() + delta;
+
+    std::string newPosJSON;
+    {
+      FTL::JSONEnc<> enc( newPosJSON );
+      FTL::JSONObjectEnc<> objEnc( enc );
+      {
+        FTL::JSONEnc<> xEnc( objEnc, FTL_STR("x") );
+        FTL::JSONFloat64Enc<> xS32Enc( xEnc, newPos.x() );
+      }
+      {
+        FTL::JSONEnc<> yEnc( objEnc, FTL_STR("y") );
+        FTL::JSONFloat64Enc<> yS32Enc( yEnc, newPos.y() );
+      }
+    }
+
+    getExec().setNodeMetadata(
+      nodeName.c_str(),
+      "uiGraphPos",
+      newPosJSON.c_str(),
+      allowUndo
+      );
+  }
+}

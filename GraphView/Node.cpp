@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
@@ -500,6 +501,8 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
   if(event->button() == Qt::LeftButton || event->button() == DFG_QT_MIDDLE_MOUSE)
   {
+    m_dragButton = event->button();
+
     bool clearSelection = true;
     if(event->button() == DFG_QT_MIDDLE_MOUSE)
     {
@@ -516,7 +519,6 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
 
     m_dragging = 1;
-    event->accept();
 
     if(!selected())
     {
@@ -532,6 +534,31 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     {
       m_graph->controller()->selectNode(this, false);
     }
+
+    m_nodesToMove = m_graph->selectedNodes();
+    if ( !event->modifiers().testFlag( Qt::ShiftModifier ) )
+    {
+      std::vector<Node *> additionalNodes;
+
+      for ( std::vector<Node *>::const_iterator it = m_nodesToMove.begin();
+        it != m_nodesToMove.end(); ++it )
+      {
+        Node *node = *it;
+        if ( node->isBackDropNode() )
+        {
+          BackDropNode *backDropNode = static_cast<BackDropNode *>( node );
+          backDropNode->appendOverlappingNodes( additionalNodes );
+        }
+      }
+
+      m_nodesToMove.insert(
+        m_nodesToMove.end(),
+        additionalNodes.begin(),
+        additionalNodes.end()
+        );
+    }
+
+    event->accept();
   }
   else if(event->button() == Qt::RightButton)
   {
@@ -548,44 +575,51 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     QGraphicsWidget::mousePressEvent(event);
 }
 
-void Node::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
 {
-  if(m_dragging > 0)
+  if ( m_dragging > 0 )
   {
-    QPointF lastPos = mapToItem( m_graph->itemGroup(), event->lastPos() );
-    QPointF pos = mapToItem( m_graph->itemGroup(), event->pos() );
+    QPointF lastPos = event->lastScenePos();
+    QPointF pos = event->scenePos();
     QPointF delta = pos - lastPos;
     m_dragging = 2;
 
-    m_graph->controller()->beginInteraction();
+    m_graph->controller()->gvcDoMoveNodes(
+      m_nodesToMove,
+      delta,
+      false // allowUndo
+      );
 
-    std::vector<Node *> nodes = m_graph->selectedNodes();
-    for(size_t i=0;i<nodes.size();i++)
-      m_graph->controller()->moveNode(nodes[i], nodes[i]->graphPos() + delta);
-
-    m_graph->controller()->endInteraction();
+    event->accept();
+    return;
   }
-  else
-    QGraphicsWidget::mouseMoveEvent(event);
+  
+  QGraphicsWidget::mouseMoveEvent(event);
 }
 
 void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
-  if(m_dragging == 2)
+  if ( m_dragging == 2 )
   {
     if(!selected())
       emit positionChanged(this, graphPos());
     else
     {
-      m_graph->controller()->beginInteraction();
+      m_graph->controller()->gvcDoMoveNodes(
+        m_nodesToMove,
+        event->buttonDownScenePos( m_dragButton ) - event->lastScenePos(),
+        false // allowUndo
+        );
 
-      std::vector<Node *> nodes = m_graph->selectedNodes();
-      for(size_t i=0;i<nodes.size();i++)
-        m_graph->controller()->moveNode(nodes[i], nodes[i]->graphPos());
-
-      m_graph->controller()->endInteraction();
+      m_graph->controller()->gvcDoMoveNodes(
+        m_nodesToMove,
+        event->scenePos() - event->buttonDownScenePos( m_dragButton ),
+        true // allowUndo
+        );
     }
-    m_dragging = false;
+
+    m_dragging = 0;
+    m_nodesToMove.clear();
   }
   else
     QGraphicsWidget::mouseReleaseEvent(event);

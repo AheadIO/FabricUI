@@ -33,23 +33,6 @@ BackDropNode::~BackDropNode()
 {
 }
 
-void BackDropNode::setTopLeftGraphPos( QPointF pos, bool quiet )
-{
-  QPointF prev = topLeftGraphPos();
-  Node::setTopLeftGraphPos(pos, quiet);
-  QPointF delta = topLeftGraphPos() - prev;
-
-  if ( !m_shiftPressed )
-  {
-    for(size_t i=0;i<m_overlappingNodes.size();i++)
-      graph()->controller()->moveNode(
-        m_overlappingNodes[i],
-        m_overlappingNodes[i]->topLeftGraphPos() + delta,
-        true
-        );
-  }
-}
-
 void BackDropNode::setSize( QSizeF size, bool quiet )
 {
   m_mainWidget->setMinimumWidth(size.width());
@@ -96,8 +79,6 @@ void BackDropNode::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 
 void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  m_shiftPressed = event->modifiers().testFlag(Qt::ShiftModifier);
-
   int corner = getCorner(event->pos());
   if(corner != -1)
   {
@@ -105,12 +86,8 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
     event->accept();
     return;
   }
-  Node::mousePressEvent(event);
 
-  if(m_dragging == 1)
-  {
-    m_overlappingNodes = BackDropNode::getOverlappingNodes();
-  }
+  Node::mousePressEvent(event);
 }
 
 void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
@@ -163,13 +140,11 @@ void BackDropNode::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     return;
   }
   Node::mouseReleaseEvent(event);
-  m_overlappingNodes.clear();
 }
 
-std::vector<Node*> BackDropNode::getOverlappingNodes() const
+void BackDropNode::appendOverlappingNodes( std::vector<Node*> &nodes ) const
 {
   std::vector<Node *> all = graph()->nodes();
-  std::vector<Node *> result;
 
   QPointF topLeft = mapToScene(boundingRect().topLeft());
   QPointF bottomRight = mapToScene(boundingRect().bottomRight());
@@ -187,10 +162,8 @@ std::vector<Node*> BackDropNode::getOverlappingNodes() const
     QRectF rect2(topLeft2, bottomRight2);
 
     if(rect.contains(rect2))
-      result.push_back(all[i]);
+      nodes.push_back(all[i]);
   }
-
-  return result;
 }
 
 int BackDropNode::getCorner(QPointF pos)
