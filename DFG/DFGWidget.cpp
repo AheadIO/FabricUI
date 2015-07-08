@@ -27,9 +27,9 @@ QSettings * DFGWidget::g_settings = NULL;
 DFGWidget::DFGWidget(
   QWidget * parent, 
   FabricCore::Client const &coreClient,
-  FabricCore::DFGHost const &coreDFGHost,
-  FabricCore::DFGBinding const &coreDFGBinding,
-  FabricCore::DFGExec const &coreDFGGraph,
+  FabricCore::DFGHost const &host,
+  FabricCore::DFGBinding const &binding,
+  FabricCore::DFGExec const &exec,
   FabricServices::ASTWrapper::KLASTManager * manager,
   Commands::CommandStack * stack,
   const DFGConfig & dfgConfig,
@@ -37,21 +37,39 @@ DFGWidget::DFGWidget(
   )
   : QWidget(parent)
   , m_coreClient(coreClient)
-  , m_coreDFGHost( coreDFGHost )
-  , m_coreDFGBinding( coreDFGBinding )
-  , m_coreDFGExec( coreDFGGraph )
+  , m_coreDFGHost( host )
+  , m_coreDFGBinding( binding )
+  , m_coreDFGExec( exec )
   , m_manager(manager)
 {
   m_dfgConfig = dfgConfig;
   m_uiGraph = NULL;
-  m_uiHeader = new GraphView::GraphHeaderWidget(this, "Graph", dfgConfig.graphConfig);
+  m_uiHeader =
+    new GraphView::GraphHeaderWidget(
+      this,
+      "Graph",
+      binding,
+      FTL::StrRef(),
+      exec,
+      dfgConfig.graphConfig
+      );
   m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, NULL);
-  m_uiController = new DFGController(NULL, m_coreClient, m_manager, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, stack, overTakeBindingNotifications);
+  m_uiController = new DFGController(
+    NULL,
+    this,
+    m_coreClient,
+    m_manager,
+    m_coreDFGHost,
+    m_coreDFGBinding,
+    m_coreDFGExec,
+    stack,
+    overTakeBindingNotifications
+    );
   m_klEditor = new DFGKLEditorWidget(this, m_uiController.get(), m_manager, m_dfgConfig);
   m_klEditor->hide();
 
   m_isEditable = true;
-  if(coreDFGBinding.isValid())
+  if(binding.isValid())
   {
     FTL::StrRef editable = m_coreDFGBinding.getMetadata("editable");
     if(editable == "false")
@@ -149,7 +167,9 @@ void DFGWidget::setGraph(
     m_uiController->setHost(m_coreDFGHost);
     m_uiController->setBinding(m_coreDFGBinding);
     m_uiController->setRouter(m_router);
-    m_uiHeader->setCaption(m_coreDFGExec.getTitle());
+
+    m_uiHeader->setExec( m_coreDFGBinding, m_coreDFGExecPath, m_coreDFGExec );
+    m_uiHeader->setCaption( m_coreDFGExec.getTitle() );
   
     if(m_isEditable)
     {
@@ -1064,4 +1084,9 @@ QSettings * DFGWidget::getSettings()
 void DFGWidget::setSettings(QSettings * settings)
 {
   g_settings = settings;
+}
+
+void DFGWidget::setExecExtDeps( FTL::CStrRef extDeps )
+{
+  m_uiHeader->setExecExtDeps( extDeps );
 }

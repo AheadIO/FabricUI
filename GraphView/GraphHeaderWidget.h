@@ -3,8 +3,12 @@
 #ifndef __UI_GraphView_GraphHeaderWidget__
 #define __UI_GraphView_GraphHeaderWidget__
 
-#include <QtGui/QWidget>
+#include <FabricCore.h>
+
+#include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
+
+#include <FTL/StrRef.h>
 
 #include "GraphConfig.h"
 
@@ -19,7 +23,14 @@ namespace FabricUI
 
     public:
 
-      GraphHeaderWidget(QWidget * parent, QString caption, const GraphConfig & config = GraphConfig());
+      GraphHeaderWidget(
+        QWidget * parent,
+        QString caption,
+        FabricCore::DFGBinding const &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec const &exec,
+        const GraphConfig & config = GraphConfig()
+        );
       virtual ~GraphHeaderWidget();
 
       QString caption() const;
@@ -31,6 +42,8 @@ namespace FabricUI
         FTL::StrRef execPath,
         FabricCore::DFGExec const &exec
         );
+
+      void setExecExtDeps( FTL::CStrRef extDeps );
 
     signals:
 
@@ -46,8 +59,6 @@ namespace FabricUI
 
       virtual void paintEvent(QPaintEvent * event);
 
-      void updateReqExtLineEdit();
-
     protected slots:
 
       void reqExtEditingFinished();
@@ -57,6 +68,7 @@ namespace FabricUI
       QFont m_font;
       QColor m_fontColor;
       QString m_caption;
+      QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;
       QPen m_pen;

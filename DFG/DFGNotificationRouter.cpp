@@ -3,8 +3,9 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/NodeBubble.h>
-#include "DFGNotificationRouter.h"
-#include "DFGController.h"
+#include <FabricUI/DFG/DFGNotificationRouter.h>
+#include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>
 
@@ -230,6 +231,12 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     {
       onFuncCodeChanged(
         jsonObject->getString( FTL_STR("code") )
+        );
+    }
+    else if(descStr == FTL_STR("extDepsChanged"))
+    {
+      onExecExtDepsChanged(
+        jsonObject->getString( FTL_STR("extDeps") )
         );
     }
     else
@@ -1131,4 +1138,12 @@ void DFGNotificationRouter::onFuncCodeChanged(
   )
 {
   // todo: we don't do anything here...
+}
+
+void DFGNotificationRouter::onExecExtDepsChanged(
+  FTL::CStrRef extDeps
+  )
+{
+  DFGWidget *dfgWidget = m_controller->getDFGWidget();
+  dfgWidget->setExecExtDeps( extDeps );
 }

@@ -22,6 +22,7 @@ namespace FabricUI
   {
 
     class DFGNotificationRouter;
+    class DFGWidget;
 
     class DFGController : public GraphView::Controller
     {
@@ -37,6 +38,7 @@ namespace FabricUI
 
       DFGController(
         GraphView::Graph * graph,
+        DFGWidget *dfgWidget,
         FabricCore::Client client,
         FabricServices::ASTWrapper::KLASTManager * manager,
         FabricCore::DFGHost host,
@@ -47,6 +49,8 @@ namespace FabricUI
         );
       ~DFGController();
 
+      DFGWidget *getDFGWidget() const
+        { return m_dfgWidget; }
       FabricCore::Client const &getClient()
         { return m_coreClient; }
       FabricCore::DFGHost const &getCoreDFGHost()
@@ -189,6 +193,7 @@ namespace FabricUI
 
       void updatePresetPathDB();
 
+      DFGWidget *m_dfgWidget;
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;
       FabricCore::DFGBinding m_coreDFGBinding;

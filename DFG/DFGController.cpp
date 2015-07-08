@@ -44,6 +44,7 @@ using namespace FabricUI::DFG;
 
 DFGController::DFGController(
   GraphView::Graph * graph,
+  DFGWidget *dfgWidget,
   FabricCore::Client client,
   FabricServices::ASTWrapper::KLASTManager * manager,
   FabricCore::DFGHost host,
@@ -53,6 +54,7 @@ DFGController::DFGController(
   bool overTakeBindingNotifications
   )
   : GraphView::Controller(graph, stack)
+  , m_dfgWidget( dfgWidget )
   , m_coreClient( client )
   , m_coreDFGHost( host )
   , m_coreDFGBinding( binding )

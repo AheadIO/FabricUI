@@ -1,14 +1,25 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QPaintEvent>
+#include <QtGui/QLabel>
 #include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
 #include "GraphHeaderWidget.h"
 
 using namespace FabricUI::GraphView;
 
-GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const GraphConfig & config)
+GraphHeaderWidget::GraphHeaderWidget(
+  QWidget * parent,
+  QString caption,
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  const GraphConfig &config
+  )
   : QWidget(parent)
+  , m_binding( binding )
+  , m_execPath( execPath )
+  , m_exec( exec )
 {
   m_config = config;
   m_caption = caption;
@@ -37,7 +48,7 @@ GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const Gr
     );
 
   layout->addWidget( new QLabel("Required Extensions:") );
-  layout->addWidget( reqExtLineEdit );
+  layout->addWidget( m_reqExtLineEdit );
   layout->addStretch(2);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -56,56 +67,37 @@ void GraphHeaderWidget::setExec(
   m_binding = binding;
   m_execPath = execPath;
   m_exec = exec;
-  updateReqExtLineEdit();
+  setExecExtDeps( m_exec.getExtDeps().getCString() );
 }
 
-void GraphHeaderWidget::updateReqExtLineEdit()
+void GraphHeaderWidget::setExecExtDeps( FTL::CStrRef extDeps )
 {
-  std::string extDepDesc;
-  unsigned extDepCount = exec.getExtDepCount();
-  for ( unsigned i = 0; i < extDepCount; ++i )
-  {
-    if ( i > 0 )
-      extDepDesc += ',';
-    extDepDesc += exec.getExtDepName( i );
-    extDepDesc += ':';
-    extDepDesc += exec.getExtDepVersion( i ).getCString();
-  }
-  m_reqExtLineEdit->setText( extDepDesc.c_str() );
+  m_reqExtLineEdit->setText( extDeps.c_str() );
 }
 
 void GraphHeaderWidget::reqExtEditingFinished()
 {
-  std::string extDepDesc = m_reqExtLineEdit.text().toUtf8().constData();
-  std::pair<FTL::StrRef, FTL::StrRef> split = extDepDesc.split(',');
-  std::vector<std::string> nameStrings;
-  std::vector<std::string> versionStrings;
+  m_reqExtLineEdit->clearFocus();
+  
+  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();
+  FTL::StrRef::Split split = FTL::StrRef( extDepDesc ).split(',');
+  std::vector<std::string> nameAndVerStrings;
   while ( !split.first.empty() )
   {
-    FTL::StrRef nameAndVersionStr = split.first.trim();
-    std::pair<FTL::StrRef, FTL::StrRef> nameAndVersionSplit =
-      nameAndVersionStr.split(':');
-    nameStrings.push_back( nameAndVersionSplit.first.trim() );
-    versionStrings.push_back( nameAndVersionSplit.second.trim() );
+    nameAndVerStrings.push_back( split.first.trim() );
     split = split.second.split(',');
   }
 
-  std::vector<char const *> nameCStrs;
-  nameCStrs.reserve( nameStrings.size() );
-  std::vector<char const *> versionCStrs;
-  versionCStrs.reserve( versionStrings.size() );
-  for ( size_t i = 0; i < nameStrings.size(); ++it )
-  {
-    nameCStrs.push_back( nameStrings[i].c_str() );
-    versionCStrs.push_back( versionStrings[i].c_str() );
-  }
+  std::vector<char const *> nameAndVerCStrs;
+  nameAndVerCStrs.reserve( nameAndVerStrings.size() );
+  for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
+    nameAndVerCStrs.push_back( nameAndVerStrings[i].c_str() );
 
   try
   {
     m_exec.setExtDeps(
-      nameCStrs.size(),
-      &nameCStrs[0],
-      &versionCStrs[0]
+      nameAndVerCStrs.size(),
+      &nameAndVerCStrs[0]
       );
   }
   catch ( FabricCore::Exception e )
