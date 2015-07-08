@@ -1438,7 +1438,12 @@ void DFGController::checkErrors()
     if ( !upgradingBackDrops )
     {
       upgradingBackDrops = true;
-      std::string uiBackDrops = exec.getMetadata( "uiBackDrops" );
+      
+      char const * uiBackDropsCStr = exec.getMetadata( "uiBackDrops" );
+      std::string uiBackDrops;
+      if(uiBackDropsCStr != NULL)
+        uiBackDrops = uiBackDropsCStr;
+
       if ( !uiBackDrops.empty() )
       {
         std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
