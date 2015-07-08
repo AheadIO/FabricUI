@@ -38,7 +38,6 @@ namespace FabricUI
       Q_OBJECT
 
       friend class Controller;
-      friend class AddNodeCommand;
       friend class RemoveNodeCommand;
       friend class AddConnectionCommand;
       friend class RemoveConnectionCommand;
