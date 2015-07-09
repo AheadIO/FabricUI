@@ -195,15 +195,6 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
 }
 
-bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
-{
-  node->mainWidget()->setMinimumWidth(size.width());
-  node->mainWidget()->setMinimumHeight(size.height());
-  node->mainWidget()->setMaximumWidth(size.width());
-  node->mainWidget()->setMaximumHeight(size.height());
-  return true;
-}
-
 bool Controller::addCommand(Command * command)
 {
   if(!command)

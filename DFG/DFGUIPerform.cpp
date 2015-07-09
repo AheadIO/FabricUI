@@ -225,6 +225,58 @@ void DFGUIPerform_MoveNodes(
   }
 }
 
+
+void DFGUIPerform_ResizeBackDropNode(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef backDropNodeName,
+  QPointF newTopLeftPos,
+  QSizeF newSize,
+  unsigned &coreUndoCount
+  )
+{
+  {
+    std::string json;
+    {
+      FTL::JSONEnc<std::string> je( json, FTL::JSONFormat::Packed() );
+      FTL::JSONObjectEnc<std::string> joe( je );
+      {
+        FTL::JSONEnc<std::string> xJE( joe, FTL_STR("x") );
+        FTL::JSONFloat64Enc<std::string> xJFE( xJE, newTopLeftPos.x() );
+      }
+      {
+        FTL::JSONEnc<std::string> yJE( joe, FTL_STR("y") );
+        FTL::JSONFloat64Enc<std::string> yJFE( yJE, newTopLeftPos.y() );
+      }
+    }
+    exec.setNodeMetadata(
+      backDropNodeName.c_str(), "uiGraphPos", json.c_str(), true
+      );
+    ++coreUndoCount;
+  }
+
+  {
+    std::string json;
+    {
+      FTL::JSONEnc<std::string> je( json, FTL::JSONFormat::Packed() );
+      FTL::JSONObjectEnc<std::string> joe( je );
+      {
+        FTL::JSONEnc<std::string> wJE( joe, FTL_STR("w") );
+        FTL::JSONFloat64Enc<std::string> wJFE( wJE, newSize.width() );
+      }
+      {
+        FTL::JSONEnc<std::string> hJE( joe, FTL_STR("h") );
+        FTL::JSONFloat64Enc<std::string> hJFE( hJE, newSize.height() );
+      }
+    }
+    exec.setNodeMetadata(
+      backDropNodeName.c_str(), "uiGraphSize", json.c_str(), true
+      );
+    ++coreUndoCount;
+  }
+}
+
 std::string DFGUIPerform_ImplodeNodes(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,

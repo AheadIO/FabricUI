@@ -123,6 +123,16 @@ public:
     FTL::CStrRef portName
     );
 
+  virtual void dfgDoResizeBackDropNode(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef backDropNodeName,
+    QPointF newTopLeftPos,
+    QSizeF newSize
+    );
+  
   virtual void dfgDoMoveNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding &binding,

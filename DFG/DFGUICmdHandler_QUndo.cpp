@@ -18,6 +18,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ResizeBackDropNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
@@ -289,6 +290,29 @@ void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
       exec,
       nodeNames,
       newTopLeftPoss
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoResizeBackDropNode(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef backDropNodeName,
+  QPointF newTopLeftPos,
+  QSizeF newSize
+  )
+{
+  DFGUICmd_ResizeBackDropNode_QUndo *cmd =
+    new DFGUICmd_ResizeBackDropNode_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      backDropNodeName,
+      newTopLeftPos,
+      newSize
       );
   m_qUndoStack->push( cmd );
 }

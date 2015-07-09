@@ -13,6 +13,7 @@
 #include <FTL/CStrRef.h>
 
 #include <QtCore/QPoint>
+#include <QtCore/QSize>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -131,6 +132,16 @@ public:
     FabricCore::DFGExec &exec,
     FTL::ArrayRef<FTL::CStrRef> nodeNames,
     FTL::ArrayRef<QPointF> newTopLeftPoss
+    ) = 0;
+
+  virtual void dfgDoResizeBackDropNode(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef backDropNodeName,
+    QPointF newTopLeftPos,
+    QSizeF newSize
     ) = 0;
 
   virtual std::string dfgDoImplodeNodes(

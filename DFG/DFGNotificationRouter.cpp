@@ -793,7 +793,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       {
         GraphView::BackDropNode *uiBackDropNode =
           static_cast<GraphView::BackDropNode *>( uiNode );
-        uiBackDropNode->setSize( QSizeF( w, h ), false );
+        uiBackDropNode->setSize( QSizeF( w, h ) );
       }
     }
   }

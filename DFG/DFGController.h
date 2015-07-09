@@ -108,6 +108,13 @@ namespace FabricUI
         bool allowUndo
         );
 
+      virtual void gvcDoResizeBackDropNode(
+        GraphView::BackDropNode *backDropNode,
+        QPointF newTopLeftPos,
+        QSizeF newSize,
+        bool allowUndo
+        );
+
       // Commands
 
       void cmdRemoveNodes(
@@ -173,6 +180,12 @@ namespace FabricUI
       void cmdMoveNodes(
         FTL::ArrayRef<FTL::CStrRef> nodeNames,
         FTL::ArrayRef<QPointF> newTopLeftPoss
+        );
+
+      void cmdResizeBackDropNode(
+        FTL::CStrRef backDropNodeName,
+        QPointF newTopLeftPos,
+        QSizeF newSize
         );
 
       std::string cmdImplodeNodes(
@@ -243,7 +256,6 @@ namespace FabricUI
         );
 
       virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
-      virtual bool setBackDropNodeSize(GraphView::BackDropNode * node, QSizeF size);
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 

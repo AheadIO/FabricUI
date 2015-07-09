@@ -26,7 +26,7 @@ namespace FabricUI
         );
       virtual ~BackDropNode();
 
-      void setSize( QSizeF size, bool quiet );
+      void setSize( QSizeF size );
 
       virtual bool isBackDropNode() const { return true; }
       virtual bool supportsToolBar() const { return false; }
@@ -42,7 +42,6 @@ namespace FabricUI
     private:
 
       int getCorner(QPointF pos);
-      void setSizeFromMouse(float width, float height);
       bool commentExpanded() const;
 
       float m_resizeDistance;

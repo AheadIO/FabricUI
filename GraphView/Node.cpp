@@ -579,14 +579,11 @@ void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
 {
   if ( m_dragging > 0 )
   {
-    QPointF lastPos = event->lastScenePos();
-    QPointF pos = event->scenePos();
-    QPointF delta = pos - lastPos;
     m_dragging = 2;
 
     m_graph->controller()->gvcDoMoveNodes(
       m_nodesToMove,
-      delta,
+      event->scenePos() - event->lastScenePos(),
       false // allowUndo
       );
 

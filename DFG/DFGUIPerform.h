@@ -10,6 +10,7 @@
 #include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 #include <QtCore/QPoint>
+#include <QtCore/QSize>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,16 @@ void DFGUIPerform_MoveNodes(
   FabricCore::DFGExec &exec,
   FTL::ArrayRef<std::string> nodeNames,
   FTL::ArrayRef<QPointF> newTopLeftPoss, 
+  unsigned &coreUndoCount
+  );
+
+void DFGUIPerform_ResizeBackDropNode(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef backDropNodeName,
+  QPointF newTopLeftPos,
+  QSizeF newSize,
   unsigned &coreUndoCount
   );
 

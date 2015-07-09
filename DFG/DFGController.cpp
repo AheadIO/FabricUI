@@ -1201,43 +1201,6 @@ void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphV
   }
 }
 
-bool DFGController::setBackDropNodeSize(
-  GraphView::BackDropNode * node,
-  QSizeF size
-  )
-{
-  try
-  {
-    std::string uiNodeColorString;
-    {
-      FTL::JSONEnc<> enc( uiNodeColorString );
-      FTL::JSONObjectEnc<> objEnc( enc );
-      {
-        FTL::JSONEnc<> wEnc( objEnc, FTL_STR("w") );
-        FTL::JSONSInt32Enc<> wS32Enc( wEnc, int(size.width()) );
-      }
-      {
-        FTL::JSONEnc<> hEnc( objEnc, FTL_STR("h") );
-        FTL::JSONSInt32Enc<> hS32Enc( hEnc, int(size.height()) );
-      }
-    }
-
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(
-      node->name().c_str(),
-      "uiGraphSize",
-      uiNodeColorString.c_str(),
-      false
-      );
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
 void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
 {
   Controller::nodeToolTriggered(node, toolName);
@@ -1749,6 +1712,26 @@ void DFGController::cmdMoveNodes(
     );
 }
 
+void DFGController::cmdResizeBackDropNode(
+  FTL::CStrRef backDropNodeName,
+  QPointF newTopLeftPos,
+  QSizeF newSize
+  )
+{
+  std::stringstream desc;
+  desc << FTL_STR("Canvas: Resize back drop node");
+
+  m_cmdHandler->dfgDoResizeBackDropNode(
+    desc.str(),
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    backDropNodeName,
+    newTopLeftPos,
+    newSize
+    );
+}
+
 std::string DFGController::cmdImplodeNodes(
   FTL::CStrRef desiredNodeName,
   FTL::ArrayRef<FTL::CStrRef> nodeNames
@@ -1838,6 +1821,71 @@ void DFGController::gvcDoMoveNodes(
         nodeName.c_str(),
         "uiGraphPos",
         newPosJSON.c_str(),
+        false
+        );
+    }
+  }
+}
+
+void DFGController::gvcDoResizeBackDropNode(
+  GraphView::BackDropNode *backDropNode,
+  QPointF newTopLeftPos,
+  QSizeF newSize,
+  bool allowUndo
+  )
+{
+  if ( allowUndo )
+  {
+    cmdResizeBackDropNode(
+      backDropNode->name(),
+      newTopLeftPos,
+      newSize
+      );
+  }
+  else
+  {
+    {
+      std::string newPosJSON;
+      {
+        FTL::JSONEnc<> enc( newPosJSON );
+        FTL::JSONObjectEnc<> objEnc( enc );
+        {
+          FTL::JSONEnc<> xEnc( objEnc, FTL_STR("x") );
+          FTL::JSONFloat64Enc<> xS32Enc( xEnc, newTopLeftPos.x() );
+        }
+        {
+          FTL::JSONEnc<> yEnc( objEnc, FTL_STR("y") );
+          FTL::JSONFloat64Enc<> yS32Enc( yEnc, newTopLeftPos.y() );
+        }
+      }
+
+      getExec().setNodeMetadata(
+        backDropNode->name().c_str(),
+        "uiGraphPos",
+        newPosJSON.c_str(),
+        false
+        );
+    }
+
+    {
+      std::string newSizeJSON;
+      {
+        FTL::JSONEnc<> enc( newSizeJSON );
+        FTL::JSONObjectEnc<> objEnc( enc );
+        {
+          FTL::JSONEnc<> wEnc( objEnc, FTL_STR("w") );
+          FTL::JSONFloat64Enc<> wS32Enc( wEnc, newSize.width() );
+        }
+        {
+          FTL::JSONEnc<> hEnc( objEnc, FTL_STR("h") );
+          FTL::JSONFloat64Enc<> hS32Enc( hEnc, newSize.height() );
+        }
+      }
+
+      getExec().setNodeMetadata(
+        backDropNode->name().c_str(),
+        "uiGraphSize",
+        newSizeJSON.c_str(),
         false
         );
     }

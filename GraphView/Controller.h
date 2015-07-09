@@ -85,6 +85,13 @@ namespace FabricUI
         bool allowUndo
         ) = 0;
 
+      virtual void gvcDoResizeBackDropNode(
+        GraphView::BackDropNode *backDropNode,
+        QPointF posDelta,
+        QSizeF sizeDelta,
+        bool allowUndo
+        ) = 0;
+
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
@@ -102,7 +109,6 @@ namespace FabricUI
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
-      virtual bool setBackDropNodeSize(BackDropNode * node, QSizeF size);
 
       virtual bool canConnectTo(
         char const *pathA,
