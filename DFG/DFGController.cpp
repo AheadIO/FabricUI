@@ -1611,18 +1611,18 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
 {
   try
   {
-    FabricCore::DFGExec exec = getCoreDFGExec();
+    FabricCore::DFGExec rootExec = m_coreDFGBinding.getExec();
 
     bool argsHaveChanged = false;
 
-    for(size_t i=0;i<exec.getExecPortCount();i++)
+    for(size_t i=0;i<rootExec.getExecPortCount();i++)
     {
       FTL::StrRef dataTypeToCheck = dataType;
       if(dataTypeToCheck.empty())
-        dataTypeToCheck = exec.getExecPortResolvedType(i);
+        dataTypeToCheck = rootExec.getExecPortResolvedType(i);
       if(dataTypeToCheck.empty())
         continue;
-      else if(exec.getExecPortResolvedType(i) != dataTypeToCheck)
+      else if(rootExec.getExecPortResolvedType(i) != dataTypeToCheck)
         continue;
 
       if(dataTypeToCheck == "Integer")
@@ -1638,7 +1638,7 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
       FabricCore::RTVal value;
       try
       {
-        value = m_coreDFGBinding.getArgValue(exec.getExecPortName(i));
+        value = m_coreDFGBinding.getArgValue(rootExec.getExecPortName(i));
       }
       catch(FabricCore::Exception e)
       {
@@ -1653,7 +1653,7 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
       addCommand(
         new DFGSetArgCommand(
           this,
-          exec.getExecPortName(i),
+          rootExec.getExecPortName(i),
           dataTypeToCheck.data()
           )
         );
