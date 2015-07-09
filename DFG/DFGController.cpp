@@ -1433,100 +1433,101 @@ void DFGController::checkErrors()
 
       }
     }
-    // [pzion 20150701] Upgrade old backdrops scheme
-    static bool upgradingBackDrops = false;
-    if ( !upgradingBackDrops )
+  }
+
+  // [pzion 20150701] Upgrade old backdrops scheme
+  static bool upgradingBackDrops = false;
+  if ( !upgradingBackDrops )
+  {
+    upgradingBackDrops = true;
+    
+    char const * uiBackDropsCStr = exec.getMetadata( "uiBackDrops" );
+    std::string uiBackDrops;
+    if(uiBackDropsCStr != NULL)
+      uiBackDrops = uiBackDropsCStr;
+
+    if ( !uiBackDrops.empty() )
     {
-      upgradingBackDrops = true;
-      
-      char const * uiBackDropsCStr = exec.getMetadata( "uiBackDrops" );
-      std::string uiBackDrops;
-      if(uiBackDropsCStr != NULL)
-        uiBackDrops = uiBackDropsCStr;
-
-      if ( !uiBackDrops.empty() )
+      std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
+      while ( !split.first.empty() )
       {
-        std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
-        while ( !split.first.empty() )
+        std::string uiBackDropKey = split.first;
+        try
         {
-          std::string uiBackDropKey = split.first;
-          try
-          {
-            char const *nodeName = exec.addUser( uiBackDropKey.c_str() );
+          char const *nodeName = exec.addUser( uiBackDropKey.c_str() );
 
-            FTL::CStrRef uiBackDrop = exec.getMetadata( uiBackDropKey.c_str() );
-            if ( !uiBackDrop.empty() )
+          FTL::CStrRef uiBackDrop = exec.getMetadata( uiBackDropKey.c_str() );
+          if ( !uiBackDrop.empty() )
+          {
+            FTL::JSONStrWithLoc swl( uiBackDrop );
+            FTL::OwnedPtr<FTL::JSONObject> jo(
+              FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
+              );
+
+            exec.setNodeMetadata(
+              nodeName,
+              "uiTitle",
+              jo->getString( FTL_STR("title") ).c_str(),
+              false
+              );
+
+            FTL::JSONObject const *posJO =
+              jo->getObject( FTL_STR("pos") );
+            std::string posStr;
             {
-              FTL::JSONStrWithLoc swl( uiBackDrop );
-              FTL::OwnedPtr<FTL::JSONObject> jo(
-                FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
-                );
-
-              exec.setNodeMetadata(
-                nodeName,
-                "uiTitle",
-                jo->getString( FTL_STR("title") ).c_str(),
-                false
-                );
-
-              FTL::JSONObject const *posJO =
-                jo->getObject( FTL_STR("pos") );
-              std::string posStr;
-              {
-                FTL::JSONEnc<> posEnc( posStr );
-                posJO->encode( posEnc );
-              }
-              exec.setNodeMetadata(
-                nodeName, "uiGraphPos", posStr.c_str(), false
-                );
-
-              FTL::JSONObject const *sizeJO =
-                jo->getObject( FTL_STR("size") );
-              std::string sizeStr;
-              {
-                FTL::JSONEnc<> sizeEnc( sizeStr );
-                FTL::JSONObjectEnc<> sizeObjEnc( sizeEnc );
-                {
-                  FTL::JSONEnc<> widthEnc( sizeObjEnc, FTL_STR("w") );
-                  FTL::JSONFloat64Enc<> widthF64Enc(
-                    widthEnc, sizeJO->getFloat64( FTL_STR("width") )
-                    );
-                }
-                {
-                  FTL::JSONEnc<> heightEnc( sizeObjEnc, FTL_STR("h") );
-                  FTL::JSONFloat64Enc<> heightF64Enc(
-                    heightEnc, sizeJO->getFloat64( FTL_STR("height") )
-                    );
-                }
-              }
-              exec.setNodeMetadata(
-                nodeName, "uiGraphSize", sizeStr.c_str(), false
-                );
-
-              FTL::JSONObject const *colorJO =
-                jo->getObject( FTL_STR("color") );
-              std::string colorStr;
-              {
-                FTL::JSONEnc<> colorEnc( colorStr );
-                colorJO->encode( colorEnc );
-              }
-              exec.setNodeMetadata(
-                nodeName, "uiNodeColor", colorStr.c_str(), false
-                );
-
-              exec.setMetadata( uiBackDropKey.c_str(), "", false );
+              FTL::JSONEnc<> posEnc( posStr );
+              posJO->encode( posEnc );
             }
-          }
-          catch ( ... )
-          {
-          }
-          split = split.second.split(',');
-        }
-      }
-      upgradingBackDrops = false;
-    }
+            exec.setNodeMetadata(
+              nodeName, "uiGraphPos", posStr.c_str(), false
+              );
 
-    exec.setMetadata( "uiBackDrops", "", false );
+            FTL::JSONObject const *sizeJO =
+              jo->getObject( FTL_STR("size") );
+            std::string sizeStr;
+            {
+              FTL::JSONEnc<> sizeEnc( sizeStr );
+              FTL::JSONObjectEnc<> sizeObjEnc( sizeEnc );
+              {
+                FTL::JSONEnc<> widthEnc( sizeObjEnc, FTL_STR("w") );
+                FTL::JSONFloat64Enc<> widthF64Enc(
+                  widthEnc, sizeJO->getFloat64( FTL_STR("width") )
+                  );
+              }
+              {
+                FTL::JSONEnc<> heightEnc( sizeObjEnc, FTL_STR("h") );
+                FTL::JSONFloat64Enc<> heightF64Enc(
+                  heightEnc, sizeJO->getFloat64( FTL_STR("height") )
+                  );
+              }
+            }
+            exec.setNodeMetadata(
+              nodeName, "uiGraphSize", sizeStr.c_str(), false
+              );
+
+            FTL::JSONObject const *colorJO =
+              jo->getObject( FTL_STR("color") );
+            std::string colorStr;
+            {
+              FTL::JSONEnc<> colorEnc( colorStr );
+              colorJO->encode( colorEnc );
+            }
+            exec.setNodeMetadata(
+              nodeName, "uiNodeColor", colorStr.c_str(), false
+              );
+
+            exec.setMetadata( uiBackDropKey.c_str(), "", false );
+          }
+        }
+        catch ( ... )
+        {
+        }
+        split = split.second.split(',');
+      }
+  
+      exec.setMetadata( "uiBackDrops", "", false );
+    }
+    upgradingBackDrops = false;
   }
 }
 
@@ -2005,7 +2006,7 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
             else
             {
               // this variable is in a different sub
-              continue;
+              //continue;
             }
           }
           else
