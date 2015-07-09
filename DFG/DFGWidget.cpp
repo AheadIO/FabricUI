@@ -554,6 +554,12 @@ void DFGWidget::onNodeAction(QAction * action)
         FTL::StrRef rType = m_coreDFGExec.getNodePortResolvedType(pinPath.c_str());
         if(rType.size() == 0 || rType.find('$') >= 0)
           continue;
+        if(rType.size() == 0 || rType.find('$') != rType.end())
+          rType = subExec.getExecPortResolvedType(i);
+        if(rType.size() == 0 || rType.find('$') != rType.end())
+          rType = subExec.getExecPortTypeSpec(i);
+        if(rType.size() == 0 || rType.find('$') != rType.end())
+          continue;
         FabricCore::RTVal val =
           m_coreDFGExec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
         if(val.isValid())
@@ -641,7 +647,11 @@ void DFGWidget::onNodeAction(QAction * action)
           pinPath += subExec.getExecPortName(i);
 
           FTL::StrRef rType = m_coreDFGExec.getNodePortResolvedType(pinPath.c_str());
-          if(rType.size() == 0 || rType.find('$') >= 0)
+          if(rType.size() == 0 || rType.find('$') != rType.end())
+            rType = subExec.getExecPortResolvedType(i);
+          if(rType.size() == 0 || rType.find('$') != rType.end())
+            rType = subExec.getExecPortTypeSpec(i);
+          if(rType.size() == 0 || rType.find('$') != rType.end())
             continue;
           FabricCore::RTVal val =
             m_coreDFGExec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
