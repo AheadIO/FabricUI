@@ -16,32 +16,25 @@ namespace FabricUI
     class DFGController;
     class DFGWidget;
 
-    class DFGNotificationRouter
+    class DFGNotificationRouter : public QObject
     {
+      Q_OBJECT
+
       friend class DFGController;
       friend class DFGWidget;
 
     public:
 
       DFGNotificationRouter(
-        FabricCore::DFGBinding coreDFGBinding,
-        FabricCore::DFGExec coreDFGGraph,
+        DFGController *dfgController,
         const DFGConfig & config = DFGConfig()
         );
 
       virtual ~DFGNotificationRouter() {};
 
-      FabricCore::DFGBinding const &getCoreDFGBinding()
-        { return m_coreDFGBinding; }
+    public slots:
 
-      FabricCore::DFGExec const &getCoreDFGExec()
-        { return m_coreDFGExec; }
-
-      DFGController * getController()
-        { return m_controller; }
-
-      void setController(DFGController * controller)
-        { m_controller = controller; }
+      void onExecChanged();
 
     protected:
 
@@ -175,10 +168,8 @@ namespace FabricUI
           );
       }
 
-      FabricCore::DFGBinding m_coreDFGBinding;
-      FabricCore::DFGExec m_coreDFGExec;
+      DFGController *m_dfgController;
       FabricCore::DFGView m_coreDFGView;
-      DFGController * m_controller;
       DFGConfig m_config;
       bool m_performChecks;
     };

@@ -16,6 +16,7 @@ namespace FabricUI
 {
   namespace DFG
   {
+    class DFGController;
 
     class DFGExecHeaderWidget : public QWidget
     {
@@ -25,10 +26,8 @@ namespace FabricUI
 
       DFGExecHeaderWidget(
         QWidget * parent,
+        DFGController *dfgController,
         QString caption,
-        FabricCore::DFGBinding const &binding,
-        FTL::StrRef execPath,
-        FabricCore::DFGExec const &exec,
         const GraphView::GraphConfig & config = GraphView::GraphConfig()
         );
       virtual ~DFGExecHeaderWidget();
@@ -36,14 +35,8 @@ namespace FabricUI
       QString caption() const;
       QFont font() const;
       QColor fontColor() const;
-
-      void setExec(
-        FabricCore::DFGBinding const &binding,
-        FTL::StrRef execPath,
-        FabricCore::DFGExec const &exec
-        );
-
-      void setExecExtDeps( FTL::CStrRef extDeps );
+      
+      void refreshExtDeps( FTL::CStrRef extDeps );
 
     signals:
 
@@ -51,11 +44,13 @@ namespace FabricUI
 
     public slots:
 
-      void setCaption(QString text);
+      void refresh();
       void setFont(QFont f);
       void setFontColor(QColor c);
 
     protected:
+
+      FabricCore::DFGExec &getExec();
 
       virtual void paintEvent(QPaintEvent * event);
 
@@ -65,6 +60,7 @@ namespace FabricUI
 
     private:
 
+      DFGController *m_dfgController;
       QFont m_font;
       QColor m_fontColor;
       QString m_caption;
@@ -74,9 +70,6 @@ namespace FabricUI
       QPen m_pen;
       GraphView::GraphConfig m_config;
 
-      FabricCore::DFGBinding m_binding;
-      std::string m_execPath;
-      FabricCore::DFGExec m_exec;
     };
 
   };

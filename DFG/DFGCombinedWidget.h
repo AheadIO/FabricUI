@@ -32,26 +32,18 @@ namespace FabricUI
       ~DFGCombinedWidget();
 
       virtual void init(      
-        FabricCore::Client client,
+        FabricCore::Client &client,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricCore::DFGHost host,
-        FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec,
+        FabricCore::DFGHost &host,
+        FabricCore::DFGBinding &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true,
         DFGConfig config = DFGConfig()
       );
 
       static void setLogFunc(DFGController::LogFunc func);
-
-      FabricCore::Client const &getClient()
-        { return m_coreClient; }
-      FabricCore::DFGHost const &getCoreDFGHost()
-        { return m_coreDFGHost; }
-      FabricCore::DFGBinding const &getCoreDFGBinding()
-        { return m_coreDFGBinding; }
-      FabricCore::DFGExec const &getCoreDFGExec()
-        { return m_coreDFGExec; }
 
       virtual ASTWrapper::KLASTManager * getManager() { return m_manager; }
       virtual PresetTreeWidget * getTreeWidget() { return m_treeWidget; }
@@ -86,9 +78,6 @@ namespace FabricUI
       QSplitter * m_hSplitter;
       FabricCore::Client m_coreClient;
       ASTWrapper::KLASTManager * m_manager;
-      FabricCore::DFGHost m_coreDFGHost;
-      FabricCore::DFGBinding m_coreDFGBinding;
-      FabricCore::DFGExec m_coreDFGExec;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;
       DFGValueEditor * m_dfgValueEditor;

@@ -4,26 +4,22 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
+#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
 
 using namespace FabricUI::DFG;
 
 DFGExecHeaderWidget::DFGExecHeaderWidget(
   QWidget * parent,
+  DFGController *dfgController,
   QString caption,
-  FabricCore::DFGBinding const &binding,
-  FTL::StrRef execPath,
-  FabricCore::DFGExec const &exec,
   const GraphView::GraphConfig &config
   )
-  : QWidget(parent)
-  , m_binding( binding )
-  , m_execPath( execPath )
-  , m_exec( exec )
+  : QWidget( parent )
+  , m_dfgController( dfgController )
+  , m_caption( caption )
+  , m_config( config )
 {
-  m_config = config;
-  m_caption = caption;
-
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
   setContentsMargins(0, 0, 0, 0);
 
@@ -58,21 +54,17 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 {
 }
 
-void DFGExecHeaderWidget::setExec(
-  FabricCore::DFGBinding const &binding,
-  FTL::StrRef execPath,
-  FabricCore::DFGExec const &exec
-  )
+void DFGExecHeaderWidget::refresh()
 {
-  m_binding = binding;
-  m_execPath = execPath;
-  m_exec = exec;
-  setExecExtDeps( m_exec.getExtDeps().getCString() );
+  m_caption = getExec().getTitle();
+  m_reqExtLineEdit->setText( getExec().getExtDeps().getCString() );
+  update();
 }
 
-void DFGExecHeaderWidget::setExecExtDeps( FTL::CStrRef extDeps )
+void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   m_reqExtLineEdit->setText( extDeps.c_str() );
+  update();
 }
 
 void DFGExecHeaderWidget::reqExtEditingFinished()
@@ -95,7 +87,7 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
 
   try
   {
-    m_exec.setExtDeps(
+    getExec().setExtDeps(
       nameAndVerCStrs.size(),
       &nameAndVerCStrs[0]
       );
@@ -119,12 +111,6 @@ QFont DFGExecHeaderWidget::font() const
 QColor DFGExecHeaderWidget::fontColor() const
 {
   return m_fontColor;
-}
-
-void DFGExecHeaderWidget::setCaption(QString text)
-{
-  m_caption = text;
-  update();
 }
 
 void DFGExecHeaderWidget::setFont(QFont f)
@@ -165,4 +151,9 @@ void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
   painter.drawText(left, top, m_caption);
 
   QWidget::paintEvent(event);
+}
+
+FabricCore::DFGExec &DFGExecHeaderWidget::getExec()
+{
+  return m_dfgController->getCoreDFGExec();
 }

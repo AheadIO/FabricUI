@@ -11,14 +11,22 @@ using namespace FabricUI::DFG;
 
 DFGSavePresetDialog::DFGSavePresetDialog(
   QWidget * parent,
-  FabricCore::DFGHost & host,
+  DFGController *dfgController,
   QString name,
   const DFGConfig & dfgConfig
   )
-: DFGBaseDialog(parent, true, dfgConfig)
-, m_dfgHost(host)
+  : DFGBaseDialog(parent, true, dfgConfig)
+  , m_dfgController( dfgController )
 {
-  m_presetTree = new PresetTreeWidget(this, host, dfgConfig, true, false);
+  m_presetTree =
+    new PresetTreeWidget(
+      this,
+      dfgController,
+      dfgConfig,
+      true,
+      false
+      );
+
   addInput(m_presetTree, "location");
   m_nameEdit = new QLineEdit(name, this);
   addInput(m_nameEdit, "name");
@@ -79,7 +87,10 @@ void DFGSavePresetDialog::onContextMenuAction(QAction * action)
   {
     try
     {
-      FTL::StrRef path = m_dfgHost.getPresetImportPathname(m_contextPath.toUtf8().constData());
+      FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+
+      FTL::StrRef path =
+        host.getPresetImportPathname(m_contextPath.toUtf8().constData());
 
       if(!FTL::FSExists(path))
       {
@@ -121,7 +132,7 @@ void DFGSavePresetDialog::onContextMenuAction(QAction * action)
         }
       }
 
-      m_dfgHost.createPresetDir(m_contextPath.toUtf8().constData(), name.toUtf8().constData());
+      host.createPresetDir(m_contextPath.toUtf8().constData(), name.toUtf8().constData());
       m_presetTree->refresh();
     }
     catch(FabricCore::Exception e)

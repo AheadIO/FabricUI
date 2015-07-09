@@ -1,9 +1,10 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "PresetTreeWidget.h"
-#include "NameSpaceTreeItem.h"
-#include "PresetTreeItem.h"
-#include "VariableListTreeItem.h"
+#include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/NameSpaceTreeItem.h>
+#include <FabricUI/DFG/PresetTreeItem.h>
+#include <FabricUI/DFG/PresetTreeWidget.h>
+#include <FabricUI/DFG/VariableListTreeItem.h>
 
 #include <FTL/JSONValue.h>
 #include <FTL/MapCharSingle.h>
@@ -17,14 +18,14 @@ using namespace FabricUI::DFG;
 
 PresetTreeWidget::PresetTreeWidget(
   QWidget * parent,
-  FabricCore::DFGHost const &coreDFGHost,
+  DFGController *dfgController,
   const DFGConfig & config,
   bool showsPresets,
   bool showSearch
   )
   : QWidget( parent )
-  , m_coreDFGHost( coreDFGHost )
-  , m_showsPresets(showsPresets)
+  , m_dfgController( dfgController )
+  , m_showsPresets( showsPresets )
 {
   if(showSearch)
     m_searchEdit = new QLineEdit(this);
@@ -59,22 +60,19 @@ PresetTreeWidget::PresetTreeWidget(
     QObject::connect(m_searchEdit, SIGNAL(editingFinished()), this, SLOT(refresh()));
     QObject::connect(m_searchEdit, SIGNAL(textChanged(const QString&)), this, SLOT(refresh()));
   }
+
+  QObject::connect(
+    dfgController, SIGNAL(hostChanged()),
+    this, SLOT(refresh())
+    );
+  QObject::connect(
+    dfgController, SIGNAL(bindingChanged()),
+    this, SLOT(refresh())
+    );
 }
 
 PresetTreeWidget::~PresetTreeWidget()
 {
-}
-
-void PresetTreeWidget::setHost( FabricCore::DFGHost const &coreDFGHost )
-{
-  m_coreDFGHost = coreDFGHost;
-  refresh();
-}
-
-void PresetTreeWidget::setBinding( FabricCore::DFGBinding const &coreDFGBinding )
-{
-  m_coreDFGBinding = coreDFGBinding;
-  refresh();
 }
 
 void PresetTreeWidget::refresh()
@@ -87,7 +85,12 @@ void PresetTreeWidget::refresh()
   if(search.length() != 0 && m_state.length() == 0)
     m_state = m_treeView->state();
 
-  if(!m_coreDFGHost.isValid())
+  FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+  if ( !host )
+    return;
+
+  FabricCore::DFGBinding &binding = m_dfgController->getCoreDFGBinding();
+  if ( !binding )
     return;
 
   m_treeModel->clear();
@@ -97,7 +100,7 @@ void PresetTreeWidget::refresh()
     std::map<std::string, std::string> nameSpaceLookup;
     std::map<std::string, std::string> presetLookup;
 
-    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc("");
+    FabricCore::DFGStringResult jsonStr = host.getPresetDesc("");
     FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
     const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
 
@@ -118,11 +121,12 @@ void PresetTreeWidget::refresh()
     }
 
     // also add the variable list item
-    m_treeModel->addItem(new VariableListTreeItem(m_coreDFGBinding));
+    m_treeModel->addItem( new VariableListTreeItem( binding ) );
 
     for(std::map<std::string, std::string>::iterator it=nameSpaceLookup.begin();it!=nameSpaceLookup.end();it++)
     {
-      NameSpaceTreeItem * item = new NameSpaceTreeItem(m_coreDFGHost, it->first.c_str(), it->second.c_str());
+      NameSpaceTreeItem * item =
+        new NameSpaceTreeItem( host, it->first.c_str(), it->second.c_str() );
       item->setShowsPresets(m_showsPresets);
       m_treeModel->addItem(item);
     }
@@ -159,7 +163,7 @@ void PresetTreeWidget::refresh()
     userDatas.resize(matches.getSize());
     matches.getUserdatas(matches.getSize(), (const void**)&userDatas[0]);
 
-    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc("");
+    FabricCore::DFGStringResult jsonStringResult = host.getPresetDesc("");
 
     char const *jsonCStr;
     uint32_t jsonSize;
@@ -195,7 +199,7 @@ void PresetTreeWidget::refresh()
         }
       }
 
-      NameSpaceTreeItem * item = new NameSpaceTreeItem(m_coreDFGHost, name.c_str(), name.c_str(), filters);
+      NameSpaceTreeItem * item = new NameSpaceTreeItem(host, name.c_str(), name.c_str(), filters);
       item->setShowsPresets(m_showsPresets);
       m_treeModel->addItem(item);
     }
@@ -216,6 +220,14 @@ void PresetTreeWidget::updatePresetPathDB()
   if(search.length() == 0)
     return;
 
+  FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+  if ( !host )
+    return;
+
+  FabricCore::DFGBinding &binding = m_dfgController->getCoreDFGBinding();
+  if ( !binding )
+    return;
+
   m_presetDictsUpToDate = true;
 
   m_presetPathDict.clear();
@@ -226,7 +238,9 @@ void PresetTreeWidget::updatePresetPathDB()
 
   for(unsigned int i=0;i<paths.size();i++)
   {
-    FabricCore::DFGStringResult jsonStringResult = m_coreDFGHost.getPresetDesc(paths[i].c_str());
+    FabricCore::DFGStringResult jsonStringResult =
+      host.getPresetDesc( paths[i].c_str() );
+    
     char const *jsonCStr;
     uint32_t jsonSize;
     jsonStringResult.getStringDataAndLength( jsonCStr, jsonSize );

@@ -177,7 +177,7 @@ void DFGValueEditor::onArgsChanged()
             m_factory,
             &m_client,
             m_controller->getCoreDFGBinding(),
-            m_controller->getExecPath(),
+            m_controller->getCoreDFGExecPath(),
             m_treeView,
             varPathVal
             );
@@ -229,7 +229,7 @@ void DFGValueEditor::onArgsChanged()
           m_factory,
           &m_client,
           m_controller->getCoreDFGBinding(),
-          m_controller->getExecPath(),
+          m_controller->getCoreDFGExecPath(),
           m_treeView,
           varPathVal
           );

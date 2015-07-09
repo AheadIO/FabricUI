@@ -14,7 +14,7 @@ DFGCommand::DFGCommand(DFGController * controller)
 const char * DFGCommand::getExecPath()
 {
   DFGController * ctrl = (DFGController*)controller();
-  return ctrl->getExecPath();
+  return ctrl->getCoreDFGExecPath().c_str();
 }
 
 bool DFGCommand::undo()
