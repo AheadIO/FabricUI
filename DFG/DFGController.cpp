@@ -2007,8 +2007,8 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
             }
             else
             {
-              // this variable is in a different sub
-              //continue;
+              path = graphName;
+              execPath = "";
             }
           }
           else
