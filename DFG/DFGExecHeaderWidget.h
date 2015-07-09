@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_GraphView_GraphHeaderWidget__
-#define __UI_GraphView_GraphHeaderWidget__
+#ifndef __UI_DFG_DFGExecHeaderWidget__
+#define __UI_DFG_DFGExecHeaderWidget__
 
 #include <FabricCore.h>
 
@@ -10,28 +10,28 @@
 
 #include <FTL/StrRef.h>
 
-#include "GraphConfig.h"
+#include <FabricUI/GraphView/GraphConfig.h>
 
 namespace FabricUI
 {
-  namespace GraphView
+  namespace DFG
   {
 
-    class GraphHeaderWidget : public QWidget
+    class DFGExecHeaderWidget : public QWidget
     {
       Q_OBJECT
 
     public:
 
-      GraphHeaderWidget(
+      DFGExecHeaderWidget(
         QWidget * parent,
         QString caption,
         FabricCore::DFGBinding const &binding,
         FTL::StrRef execPath,
         FabricCore::DFGExec const &exec,
-        const GraphConfig & config = GraphConfig()
+        const GraphView::GraphConfig & config = GraphView::GraphConfig()
         );
-      virtual ~GraphHeaderWidget();
+      virtual ~DFGExecHeaderWidget();
 
       QString caption() const;
       QFont font() const;
@@ -72,7 +72,7 @@ namespace FabricUI
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;
       QPen m_pen;
-      GraphConfig m_config;
+      GraphView::GraphConfig m_config;
 
       FabricCore::DFGBinding m_binding;
       std::string m_execPath;
@@ -83,4 +83,4 @@ namespace FabricUI
 
 };
 
-#endif // __UI_GraphView_GraphHeaderWidget__
+#endif // __UI_DFG_DFGExecHeaderWidget__

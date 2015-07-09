@@ -45,7 +45,7 @@ DFGWidget::DFGWidget(
   m_dfgConfig = dfgConfig;
   m_uiGraph = NULL;
   m_uiHeader =
-    new GraphView::GraphHeaderWidget(
+    new DFGExecHeaderWidget(
       this,
       "Graph",
       binding,

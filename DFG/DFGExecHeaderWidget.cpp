@@ -4,17 +4,17 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
-#include "GraphHeaderWidget.h"
+#include <FabricUI/DFG/DFGExecHeaderWidget.h>
 
-using namespace FabricUI::GraphView;
+using namespace FabricUI::DFG;
 
-GraphHeaderWidget::GraphHeaderWidget(
+DFGExecHeaderWidget::DFGExecHeaderWidget(
   QWidget * parent,
   QString caption,
   FabricCore::DFGBinding const &binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec const &exec,
-  const GraphConfig &config
+  const GraphView::GraphConfig &config
   )
   : QWidget(parent)
   , m_binding( binding )
@@ -54,11 +54,11 @@ GraphHeaderWidget::GraphHeaderWidget(
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
 }
 
-GraphHeaderWidget::~GraphHeaderWidget()
+DFGExecHeaderWidget::~DFGExecHeaderWidget()
 {
 }
 
-void GraphHeaderWidget::setExec(
+void DFGExecHeaderWidget::setExec(
   FabricCore::DFGBinding const &binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec const &exec
@@ -70,12 +70,12 @@ void GraphHeaderWidget::setExec(
   setExecExtDeps( m_exec.getExtDeps().getCString() );
 }
 
-void GraphHeaderWidget::setExecExtDeps( FTL::CStrRef extDeps )
+void DFGExecHeaderWidget::setExecExtDeps( FTL::CStrRef extDeps )
 {
   m_reqExtLineEdit->setText( extDeps.c_str() );
 }
 
-void GraphHeaderWidget::reqExtEditingFinished()
+void DFGExecHeaderWidget::reqExtEditingFinished()
 {
   m_reqExtLineEdit->clearFocus();
   
@@ -106,35 +106,35 @@ void GraphHeaderWidget::reqExtEditingFinished()
   }
 }
 
-QString GraphHeaderWidget::caption() const
+QString DFGExecHeaderWidget::caption() const
 {
   return m_caption;
 }
 
-QFont GraphHeaderWidget::font() const
+QFont DFGExecHeaderWidget::font() const
 {
   return m_font;
 }
 
-QColor GraphHeaderWidget::fontColor() const
+QColor DFGExecHeaderWidget::fontColor() const
 {
   return m_fontColor;
 }
 
-void GraphHeaderWidget::setCaption(QString text)
+void DFGExecHeaderWidget::setCaption(QString text)
 {
   m_caption = text;
   update();
 }
 
-void GraphHeaderWidget::setFont(QFont f)
+void DFGExecHeaderWidget::setFont(QFont f)
 {
   m_font = f;
   m_goUpButton->setFont(f);
   update();
 }
 
-void GraphHeaderWidget::setFontColor(QColor c)
+void DFGExecHeaderWidget::setFontColor(QColor c)
 {
   m_fontColor = c;
 
@@ -145,7 +145,7 @@ void GraphHeaderWidget::setFontColor(QColor c)
   update();
 }
 
-void GraphHeaderWidget::paintEvent(QPaintEvent * event)
+void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
 {
   QRect rect = contentsRect();
   QPainter painter(this);

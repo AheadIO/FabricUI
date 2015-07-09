@@ -7,7 +7,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
-#include <FabricUI/GraphView/GraphHeaderWidget.h>
+#include <FabricUI/DFG/DFGExecHeaderWidget.h>
 #include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
@@ -22,6 +22,7 @@ namespace FabricUI
 {
   namespace DFG
   {
+    class DFGExecHeaderWidget;
 
     class DFGWidget : public QWidget
     {
@@ -96,7 +97,7 @@ namespace FabricUI
       FabricUI::GraphView::PortType m_contextPortType;
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
-      GraphView::GraphHeaderWidget * m_uiHeader;
+      DFGExecHeaderWidget * m_uiHeader;
       GraphView::Graph * m_uiGraph;
       FTL::OwnedPtr<DFGController> m_uiController;
       DFGNotificationRouter * m_router;
