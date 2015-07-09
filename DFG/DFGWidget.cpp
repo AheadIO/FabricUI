@@ -633,6 +633,22 @@ void DFGWidget::onNodeAction(QAction * action)
 
         subExec.setTitle(name.toUtf8().constData());
 
+        // copy all defaults
+        for(unsigned int i=0;i<subExec.getExecPortCount();i++)
+        {
+          std::string pinPath = nodeName;
+          pinPath += ".";
+          pinPath += subExec.getExecPortName(i);
+
+          FTL::StrRef rType = m_coreDFGExec.getNodePortResolvedType(pinPath.c_str());
+          if(rType.size() == 0 || rType.find('$') >= 0)
+            continue;
+          FabricCore::RTVal val =
+            m_coreDFGExec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
+          if(val.isValid())
+            subExec.setPortDefaultValue(subExec.getExecPortName(i), val);
+        }
+
         std::string json = subExec.exportJSON().getCString();
         file = fopen(filePathStr.c_str(), "wb");
         if(!file)
