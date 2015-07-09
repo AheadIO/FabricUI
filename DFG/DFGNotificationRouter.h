@@ -156,6 +156,9 @@ namespace FabricUI
       virtual void onFuncCodeChanged(
         FTL::CStrRef code
         );
+      virtual void onExecExtDepsChanged(
+        FTL::CStrRef extDeps
+        );
 
     private:
 

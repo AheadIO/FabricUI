@@ -1,14 +1,25 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QPaintEvent>
+#include <QtGui/QLabel>
 #include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
 #include "GraphHeaderWidget.h"
 
 using namespace FabricUI::GraphView;
 
-GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const GraphConfig & config)
-: QWidget(parent)
+GraphHeaderWidget::GraphHeaderWidget(
+  QWidget * parent,
+  QString caption,
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  const GraphConfig &config
+  )
+  : QWidget(parent)
+  , m_binding( binding )
+  , m_execPath( execPath )
+  , m_exec( exec )
 {
   m_config = config;
   m_caption = caption;
@@ -30,6 +41,14 @@ GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const Gr
   setFont(config.headerFont);
   setFontColor(config.headerFontColor);
 
+  m_reqExtLineEdit = new QLineEdit;
+  QObject::connect(
+    m_reqExtLineEdit, SIGNAL(editingFinished()),
+    this, SLOT(reqExtEditingFinished())
+    );
+
+  layout->addWidget( new QLabel("Required Extensions:") );
+  layout->addWidget( m_reqExtLineEdit );
   layout->addStretch(2);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -37,7 +56,54 @@ GraphHeaderWidget::GraphHeaderWidget(QWidget * parent, QString caption, const Gr
 
 GraphHeaderWidget::~GraphHeaderWidget()
 {
+}
 
+void GraphHeaderWidget::setExec(
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec
+  )
+{
+  m_binding = binding;
+  m_execPath = execPath;
+  m_exec = exec;
+  setExecExtDeps( m_exec.getExtDeps().getCString() );
+}
+
+void GraphHeaderWidget::setExecExtDeps( FTL::CStrRef extDeps )
+{
+  m_reqExtLineEdit->setText( extDeps.c_str() );
+}
+
+void GraphHeaderWidget::reqExtEditingFinished()
+{
+  m_reqExtLineEdit->clearFocus();
+  
+  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();
+  FTL::StrRef::Split split = FTL::StrRef( extDepDesc ).split(',');
+  std::vector<std::string> nameAndVerStrings;
+  while ( !split.first.empty() )
+  {
+    nameAndVerStrings.push_back( split.first.trim() );
+    split = split.second.split(',');
+  }
+
+  std::vector<char const *> nameAndVerCStrs;
+  nameAndVerCStrs.reserve( nameAndVerStrings.size() );
+  for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
+    nameAndVerCStrs.push_back( nameAndVerStrings[i].c_str() );
+
+  try
+  {
+    m_exec.setExtDeps(
+      nameAndVerCStrs.size(),
+      &nameAndVerCStrs[0]
+      );
+  }
+  catch ( FabricCore::Exception e )
+  {
+    printf( "%s\n", e.getDesc_cstr() );
+  }
 }
 
 QString GraphHeaderWidget::caption() const
