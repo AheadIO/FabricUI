@@ -53,6 +53,7 @@ DFGController::DFGController(
   : GraphView::Controller(graph, stack)
   , m_dfgWidget( dfgWidget )
   , m_manager(manager)
+  , m_coreClient(client)
 {
   m_router = NULL;
   m_logFunc = NULL;
