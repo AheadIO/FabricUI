@@ -17,7 +17,7 @@ namespace FabricUI
     {
     public:
 
-      DFGSetDefaultValueCommand(DFGController * controller, char const * path, FabricCore::RTVal value);
+      DFGSetDefaultValueCommand(DFGController * controller, char const * pathFromRoot, FabricCore::RTVal value);
 
       virtual const char * getName() const { return "dfgSetDefaultValue"; }
       virtual const char * getShortDesc() const { return "Sets a new default value on a port / pin."; }

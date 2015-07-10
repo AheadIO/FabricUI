@@ -1599,12 +1599,14 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
   {
     std::string portOrPinPath = item->path().toUtf8().constData();
 
+    FabricCore::DFGExec rootExec = m_coreDFGBinding.getExec();
+
     // let's assume it is pin, if there's still a node name in it
     Commands::Command * command = NULL;
     if(portOrPinPath.find('.') != std::string::npos)
     {
       std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
-      FabricCore::DFGNodeType nodeType = getCoreDFGExec().getNodeType(nodeName.c_str());
+      FabricCore::DFGNodeType nodeType = rootExec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
