@@ -111,7 +111,10 @@ void DFGValueEditor::onArgsChanged()
       {
         FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
-        std::string prefix = m_nodeName;
+        std::string prefix = m_controller->getCoreDFGExecPath();
+        if(prefix.length() > 0)
+          prefix += ".";
+        prefix += m_nodeName;
         prefix += ".";
 
         for(size_t i=0;i<subExec.getExecPortCount();i++)
