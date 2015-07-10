@@ -10,12 +10,10 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGValueEditor::DFGValueEditor(
-  QWidget * parent,
   DFGController * controller,
   const DFGConfig & config
   )
   : ValueEditor::ValueEditorWidget(
-    parent,
     controller->getClient()
     )
   , m_config( config )

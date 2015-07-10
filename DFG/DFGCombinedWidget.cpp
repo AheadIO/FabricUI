@@ -60,12 +60,12 @@ void DFGCombinedWidget::init(
 
     m_treeWidget =
       new DFG::PresetTreeWidget(
-        this,
         m_dfgWidget->getDFGController(),
         config
         );
 
-    m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
+    m_dfgValueEditor =
+      new DFG::DFGValueEditor( m_dfgWidget->getUIController(), config );
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
 
@@ -81,7 +81,7 @@ void DFGCombinedWidget::init(
 
     addWidget(m_hSplitter);
 
-    m_dfgLogWidget = new DFGLogWidget(this, config);
+    m_dfgLogWidget = new DFGLogWidget( config );
     addWidget(m_dfgLogWidget);
 
     if(m_dfgWidget->isEditable())

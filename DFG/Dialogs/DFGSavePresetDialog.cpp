@@ -20,7 +20,6 @@ DFGSavePresetDialog::DFGSavePresetDialog(
 {
   m_presetTree =
     new PresetTreeWidget(
-      this,
       dfgController,
       dfgConfig,
       true,

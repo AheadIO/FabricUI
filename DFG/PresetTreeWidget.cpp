@@ -17,14 +17,12 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 PresetTreeWidget::PresetTreeWidget(
-  QWidget * parent,
   DFGController *dfgController,
   const DFGConfig & config,
   bool showsPresets,
   bool showSearch
   )
-  : QWidget( parent )
-  , m_dfgController( dfgController )
+  : m_dfgController( dfgController )
   , m_showsPresets( showsPresets )
 {
   if(showSearch)

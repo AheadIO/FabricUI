@@ -26,7 +26,6 @@ namespace FabricUI
     public:
 
       PresetTreeWidget(
-        QWidget * parent,
         DFGController *dfgController,
         const DFGConfig & config = DFGConfig(),
         bool showsPresets = true,
