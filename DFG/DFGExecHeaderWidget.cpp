@@ -7,6 +7,7 @@
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
 
+using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGExecHeaderWidget::DFGExecHeaderWidget(
