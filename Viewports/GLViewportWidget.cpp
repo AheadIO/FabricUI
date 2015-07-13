@@ -292,3 +292,15 @@ bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier
   updateGL();
   return result;
 }
+
+bool GLViewportWidget::isStageVisible()
+{
+  // TODO
+  return true;
+}
+
+void GLViewportWidget::setStageVisible( bool stageVisible )
+{
+  // TODO: toggle on/off the visibility of the stage
+}
+

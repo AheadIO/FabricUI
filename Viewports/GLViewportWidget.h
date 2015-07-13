@@ -45,11 +45,14 @@ namespace FabricUI
       FabricCore::RTVal getDrawContext() const { return m_drawContext; }
       ManipulationTool * getManipTool() { return m_manipTool; }
 
+      bool isStageVisible();
+
     public slots:
 
       void redraw();
       void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
+      void setStageVisible( bool stageVisible );
 
     signals:
 
