@@ -9,10 +9,10 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, char const * path, FabricCore::RTVal value)
+DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, char const * pathFromRoot, FabricCore::RTVal value)
 : DFGCommand(controller)
 {
-  m_path = path;
+  m_path = pathFromRoot;
   m_value = value;
   m_dataType = m_value.getTypeName().getStringCString();
   m_json = m_value.getJSON().getStringCString();
@@ -24,12 +24,12 @@ bool DFGSetDefaultValueCommand::invoke()
     return false;
 
   DFGController * ctrl = (DFGController*)controller();
-  FabricCore::DFGExec graph = ctrl->getCoreDFGExec();
+  FabricCore::DFGExec rootExec = ctrl->getCoreDFGBinding().getExec();
 
   if(m_path.find('.') != std::string::npos)
-    graph.setPortDefaultValue(m_path.c_str(), m_value);
+    rootExec.setPortDefaultValue(m_path.c_str(), m_value);
   else
-    graph.setPortDefaultValue(m_path.c_str(), m_value);
+    rootExec.setPortDefaultValue(m_path.c_str(), m_value);
 
   return true;
 }

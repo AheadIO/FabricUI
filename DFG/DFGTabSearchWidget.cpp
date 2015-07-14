@@ -35,8 +35,8 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
 {
   if(event->button() == Qt::LeftButton)
   {
-    int index = indexFromPos(event->pos());
-    if(index >= 0)
+    int index = indexFromPos( event->pos() );
+    if ( index >= 0 )
     {
       QPoint localPos = geometry().topLeft();
       QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
@@ -53,20 +53,15 @@ void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
   QWidget::mousePressEvent(event);
 }
 
-void DFGTabSearchWidget::mouseMoveEvent(QMouseEvent * event)
+void DFGTabSearchWidget::mouseMoveEvent( QMouseEvent *event )
 {
-  int index = indexFromPos(event->pos());
-  if(index >= 0)
+  int index = indexFromPos( event->pos() );
+  if ( m_currentIndex != index )
   {
-    if(m_currentIndex != index)
-    {
-      m_currentIndex = index;
-      update();
-    }
-    event->accept();
-    return;
+    m_currentIndex = index;
+    update();
   }
-  QWidget::mouseMoveEvent(event);
+  event->accept();
 }
 
 void DFGTabSearchWidget::keyPressEvent(QKeyEvent * event)
@@ -303,7 +298,7 @@ int DFGTabSearchWidget::indexFromPos(QPoint pos)
   y -= margin();
   y -= m_queryMetrics.lineSpacing();
   y /= (int)m_resultsMetrics.lineSpacing();
-  if(y < 0 || y > m_results.size())
+  if ( y < 0 || y >= m_results.length() )
     return -1;
   return y;
 }
@@ -354,7 +349,9 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
     FabricCore::Client client = controller->getClient();
     FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
 
-    DFGNewVariableDialog dialog(this, client, binding, controller->getExecPath());
+    DFGNewVariableDialog dialog(
+      this, client, binding, controller->getCoreDFGExecPath()
+      );
     if(dialog.exec() != QDialog::Accepted)
       return;
 

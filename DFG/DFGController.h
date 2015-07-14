@@ -22,14 +22,14 @@ namespace FabricUI
   {
 
     class DFGNotificationRouter;
+    class DFGWidget;
 
     class DFGController : public GraphView::Controller
     {
+      Q_OBJECT
 
       friend class DFGValueEditor;
       friend class DFGWidget;
-
-      Q_OBJECT
 
     public:
 
@@ -37,31 +37,52 @@ namespace FabricUI
 
       DFGController(
         GraphView::Graph * graph,
-        FabricCore::Client client,
+        DFGWidget *dfgWidget,
+        FabricCore::Client &client,
         FabricServices::ASTWrapper::KLASTManager * manager,
-        FabricCore::DFGHost host,
-        FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
         );
       ~DFGController();
 
-      FabricCore::Client const &getClient()
+      DFGWidget *getDFGWidget() const
+        { return m_dfgWidget; }
+      
+      FabricCore::Client &getClient()
         { return m_coreClient; }
-      FabricCore::DFGHost const &getCoreDFGHost()
+      FabricCore::DFGHost &getCoreDFGHost()
         { return m_coreDFGHost; }
-      FabricCore::DFGBinding const &getCoreDFGBinding()
+      FabricCore::DFGBinding &getCoreDFGBinding()
         { return m_coreDFGBinding; }
-      FabricCore::DFGExec getCoreDFGExec();
+      FTL::CStrRef getCoreDFGExecPath()
+        { return m_coreDFGExecPath; }
+      FabricCore::DFGExec &getCoreDFGExec()
+        { return m_coreDFGExec; }
 
-      void setHost( FabricCore::DFGHost const &coreDFGHost );
-      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
       void setClient( FabricCore::Client const &coreClient );
+      void setHostBindingExec(
+        FabricCore::DFGHost &host,
+        FabricCore::DFGBinding &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec
+        );
+      void setBindingExec(
+        FabricCore::DFGBinding &binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec
+        );
+      void setExec(
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec
+        );
+
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
-      bool isViewingRootGraph();
-      FabricServices::ASTWrapper::KLASTManager * astManager();
+
+      bool isViewingRootGraph()
+        { return m_coreDFGExecPath.empty(); }
+      FabricServices::ASTWrapper::KLASTManager * astManager()
+        { return m_manager; }
 
       virtual std::string addDFGNodeFromPreset(FTL::StrRef preset, QPointF pos);
       virtual std::string addDFGVar(FTL::StrRef varName, FTL::StrRef dataType, FTL::StrRef extDep, QPointF pos);
@@ -99,8 +120,8 @@ namespace FabricUI
       virtual bool removeConnection(GraphView::ConnectionTarget * src, GraphView::ConnectionTarget * dst);
       virtual bool removeAllConnections(char const *  path);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
-      virtual bool setCode(char const *  path, char const *  code);
-      virtual std::string reloadCode(char const *  path);
+      virtual bool setCode( FTL::CStrRef code );
+      virtual std::string reloadCode();
       virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
       virtual bool setArg(char const *  argName, FabricCore::RTVal value);
       virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
@@ -130,11 +151,6 @@ namespace FabricUI
 
       virtual void setLogFunc(LogFunc func);
 
-      virtual char const * getExecPath()
-        { return m_execPath.c_str(); }
-      virtual void setExecPath(char const * execPath)
-        { m_execPath = execPath; }
-
       virtual bool execute();
       bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
 
@@ -149,15 +165,15 @@ namespace FabricUI
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
-      virtual DFGNotificationRouter * createRouter(
-        FabricCore::DFGBinding binding,
-        FabricCore::DFGExec exec
-        );
+      virtual DFGNotificationRouter * createRouter();
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
     signals:
 
+      void hostChanged();
+      void bindingChanged();
+      void execChanged();
       void argsChanged();
       void structureChanged();
       void recompiled();
@@ -189,9 +205,12 @@ namespace FabricUI
 
       void updatePresetPathDB();
 
+      DFGWidget *m_dfgWidget;
       FabricCore::Client m_coreClient;
       FabricCore::DFGHost m_coreDFGHost;
       FabricCore::DFGBinding m_coreDFGBinding;
+      std::string m_coreDFGExecPath;
+      FabricCore::DFGExec m_coreDFGExec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
@@ -201,7 +220,6 @@ namespace FabricUI
       std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
-      std::string m_execPath;
     };
 
   };

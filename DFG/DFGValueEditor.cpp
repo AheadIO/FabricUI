@@ -10,12 +10,10 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGValueEditor::DFGValueEditor(
-  QWidget * parent,
   DFGController * controller,
   const DFGConfig & config
   )
   : ValueEditor::ValueEditorWidget(
-    parent,
     controller->getClient()
     )
   , m_config( config )
@@ -111,7 +109,10 @@ void DFGValueEditor::onArgsChanged()
       {
         FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
-        std::string prefix = m_nodeName;
+        std::string prefix = m_controller->getCoreDFGExecPath();
+        if(prefix.length() > 0)
+          prefix += ".";
+        prefix += m_nodeName;
         prefix += ".";
 
         for(size_t i=0;i<subExec.getExecPortCount();i++)
@@ -177,7 +178,7 @@ void DFGValueEditor::onArgsChanged()
             m_factory,
             &m_client,
             m_controller->getCoreDFGBinding(),
-            m_controller->getExecPath(),
+            m_controller->getCoreDFGExecPath(),
             m_treeView,
             varPathVal
             );
@@ -229,7 +230,7 @@ void DFGValueEditor::onArgsChanged()
           m_factory,
           &m_client,
           m_controller->getCoreDFGBinding(),
-          m_controller->getExecPath(),
+          m_controller->getCoreDFGExecPath(),
           m_treeView,
           varPathVal
           );

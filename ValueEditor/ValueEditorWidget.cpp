@@ -9,9 +9,11 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config)
-: QWidget(parent)
-, m_config(config)
+ValueEditorWidget::ValueEditorWidget(
+  FabricCore::Client client,
+  const EditorConfig & config
+  )
+  : m_config(config)
 {
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);

@@ -59,13 +59,12 @@ DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 {
 }
 
-void DFGKLEditorPortTableWidget::setExec(FabricCore::DFGExec exec)
+void DFGKLEditorPortTableWidget::refresh()
 {
   int prevCurrentRow = currentRow();
   int prevCurrentColumn = currentColumn();
 
   m_signalsEnabled = false;
-  m_exec = exec;
 
   clearContents();
   while(rowCount() > 0)
@@ -73,6 +72,8 @@ void DFGKLEditorPortTableWidget::setExec(FabricCore::DFGExec exec)
 
   try
   {
+    FabricCore::DFGExec &exec = getExec();
+
     if(exec.getExecPortCount() == 0)
     {
       // add a single port to start off of

@@ -21,7 +21,6 @@ namespace FabricUI
     public:
 
       DFGValueEditor(
-        QWidget * parent,
         DFGController * controller,
         const DFGConfig & config = DFGConfig()
         );

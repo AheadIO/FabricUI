@@ -26,7 +26,10 @@ namespace FabricUI
 
     public:
 
-      ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config = EditorConfig());
+      ValueEditorWidget(
+        FabricCore::Client client,
+        const EditorConfig & config = EditorConfig()
+        );
       virtual ~ValueEditorWidget();
       EditorConfig & config();
 

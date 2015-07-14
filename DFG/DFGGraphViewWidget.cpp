@@ -63,7 +63,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
 
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               std::string path = pathVar->getStringData();
-              std::string execPath = controller->getExecPath();
+              std::string execPath = controller->getCoreDFGExecPath();
 
               while(execPath.length() > 0)
               {

@@ -24,15 +24,17 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
 };
 
 void DFGCombinedWidget::init(
-  FabricCore::Client client,
+  FabricCore::Client &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  FabricCore::DFGHost host,
-  FabricCore::DFGBinding binding,
-  FabricCore::DFGExec exec,
+  FabricCore::DFGHost &host,
+  FabricCore::DFGBinding &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec &exec,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
   DFGConfig config
-) {
+  )
+{
 
   if(m_dfgWidget)
     return;
@@ -41,14 +43,29 @@ void DFGCombinedWidget::init(
   {
     m_coreClient = client;
     m_manager = manager;
-    m_coreDFGHost = host;
-    m_coreDFGBinding = binding;
-    m_coreDFGExec = exec;
 
-    m_treeWidget = new DFG::PresetTreeWidget(this, m_coreDFGHost, config);
-    m_treeWidget->setBinding(m_coreDFGBinding);
-    m_dfgWidget = new DFG::DFGWidget(this, m_coreClient, m_coreDFGHost, m_coreDFGBinding, m_coreDFGExec, m_manager, stack, config, overTakeBindingNotifications);
-    m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
+    m_dfgWidget =
+      new DFG::DFGWidget(
+        this,
+        m_coreClient,
+        host,
+        binding,
+        execPath,
+        exec,
+        m_manager,
+        stack,
+        config,
+        overTakeBindingNotifications
+        );
+
+    m_treeWidget =
+      new DFG::PresetTreeWidget(
+        m_dfgWidget->getDFGController(),
+        config
+        );
+
+    m_dfgValueEditor =
+      new DFG::DFGValueEditor( m_dfgWidget->getUIController(), config );
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
 
@@ -64,7 +81,7 @@ void DFGCombinedWidget::init(
 
     addWidget(m_hSplitter);
 
-    m_dfgLogWidget = new DFGLogWidget(this, config);
+    m_dfgLogWidget = new DFGLogWidget( config );
     addWidget(m_dfgLogWidget);
 
     if(m_dfgWidget->isEditable())
