@@ -25,11 +25,27 @@ bool DFGSetDefaultValueCommand::invoke()
 
   DFGController * ctrl = (DFGController*)controller();
   FabricCore::DFGExec rootExec = ctrl->getCoreDFGBinding().getExec();
+  FabricCore::DFGExec parentExec = rootExec;
 
-  if(m_path.find('.') != std::string::npos)
-    rootExec.setPortDefaultValue(m_path.c_str(), m_value);
-  else
-    rootExec.setPortDefaultValue(m_path.c_str(), m_value);
+  std::string path = m_path;
+
+  // for paths with more than two segments,
+  // get the corresponding subexec
+  // @pzion: should setPortDefaultValue / getPortDefaultValue
+  // automatically do this?
+  int posA = path.find('.');
+  int posB = path.rfind('.');
+  while(posA != std::string::npos && posA != posB)
+  {
+    std::string left = path.substr(0, posA);
+    path = path.substr(posA+1);
+    parentExec = parentExec.getSubExec(left.c_str());
+
+    posA = path.find('.');
+    posB = path.rfind('.');
+  }
+
+  parentExec.setPortDefaultValue(path.c_str(), m_value);
 
   return true;
 }
