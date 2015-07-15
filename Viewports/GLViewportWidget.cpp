@@ -28,7 +28,8 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
 
   if(m_settings)
   {
-    m_stageVisible = m_settings->value("glviewport/stageVisible").toBool();
+    if(m_settings->contains("glviewport/stageVisible"))
+      m_stageVisible = m_settings->value("glviewport/stageVisible").toBool();
   }
 
   try
