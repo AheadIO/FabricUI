@@ -21,6 +21,7 @@ DFGValueEditor::DFGValueEditor(
 {
   // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
+  QObject::connect(m_controller, SIGNAL(bindingChanged()), this, SLOT(onBindingChanged()));
   QObject::connect(m_controller, SIGNAL(nodeDeleted(QString)), this, SLOT(onNodeDeleted(QString)));
   QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
 
@@ -246,6 +247,12 @@ void DFGValueEditor::onArgsChanged()
   {
     m_controller->logError(e.getDesc_cstr());
   }
+}
+
+void DFGValueEditor::onBindingChanged()
+{
+  m_nodeName = "";
+  onArgsChanged();
 }
 
 void DFGValueEditor::onNodeDeleted(QString nodePath)

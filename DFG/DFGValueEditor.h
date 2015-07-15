@@ -34,6 +34,7 @@ namespace FabricUI
 
       void updateOutputs();
       void onArgsChanged();
+      void onBindingChanged();
       void onNodeDeleted(QString nodePath);
 
     private:
