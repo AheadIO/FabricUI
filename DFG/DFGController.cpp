@@ -1622,7 +1622,7 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
 
       // if we have a path deeper than one level, 
       // determine the sub exec
-      int pos = nodePath.rfind('.');
+      size_t pos = nodePath.rfind('.');
       if(pos != std::string::npos)
       {
         parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
