@@ -71,6 +71,8 @@ TreeItem * TreeModel::item(QString path)
   }
   for(size_t i=0;i<m_items.size();i++)
   {
+    if(m_items[i]->path() == path)
+      return m_items[i];
     if(m_items[i]->name() == left)
     {
       if(right.length() == 0)

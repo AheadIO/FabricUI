@@ -1603,20 +1603,32 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
 
     // let's assume it is pin, if there's still a node name in it
     Commands::Command * command = NULL;
-    if(portOrPinPath.find('.') != std::string::npos)
+    if(portOrPinPath.rfind('.') != std::string::npos)
     {
-      std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
-      FabricCore::DFGNodeType nodeType = rootExec.getNodeType(nodeName.c_str());
+      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodeName = nodePath;
+      FabricCore::DFGExec parentExec = rootExec;
+
+      // if we have a path deeper than one level, 
+      // determine the sub exec
+      int pos = nodePath.rfind('.');
+      if(pos != std::string::npos)
+      {
+        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+        nodeName = nodePath.substr(pos+1);
+      }
+
+      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
         command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodeName.c_str(), item->value().getStringCString());
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
       }
     }
     else
