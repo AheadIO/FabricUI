@@ -4,6 +4,7 @@
 
 #include <QtCore/QtCore>
 #include <QtCore/QTime>
+#include <QtCore/QSettings>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QImage>
 #include <QtOpenGL/QGLWidget>
@@ -25,7 +26,7 @@ namespace FabricUI
 
     public:
 
-    	GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent = NULL);
+    	GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
 
       double fps() const { return m_fps; }
@@ -52,7 +53,7 @@ namespace FabricUI
       void redraw();
       void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
-      void setStageVisible( bool stageVisible );
+      void setStageVisible( bool stageVisible, bool update = true );
 
     signals:
 
@@ -76,6 +77,7 @@ namespace FabricUI
       int m_width;
       int m_height;
       bool m_resizedOnce;
+      bool m_stageVisible;
       QColor m_bgColor;
       FabricCore::Client * m_client;
       FabricCore::RTVal m_drawing;
@@ -89,6 +91,8 @@ namespace FabricUI
       QTime m_fpsTimer;
       double m_fps;
       double m_fpsStack[16];
+
+      QSettings * m_settings;
 
     };
   };
