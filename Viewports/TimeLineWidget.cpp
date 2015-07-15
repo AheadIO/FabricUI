@@ -8,22 +8,23 @@
 
 using namespace FabricUI::Viewports;
 
-TimeLineWidget::TimeLineWidget()
+TimeLineWidget::TimeLineWidget(QWidget * parent)
+  : QWidget(parent)
 {
   m_settingTime = false;
 
-	setFixedHeight(40);
-	
-	// default direction is forward
-	m_direction = 1;
-	
-	// default looping ( 0 )
-	m_looping = 1;
-	
+  setFixedHeight(40);
+  
+  // default direction is forward
+  m_direction = 1;
+  
+  // default looping ( 0 )
+  m_looping = 1;
+  
   //QTimer is not precise at all; just make it call often as 
   //possible (1 ms) and we will compute the actual elapsed time
-	m_timer = new QTimer(this);
-	m_timer->setInterval(1);
+  m_timer = new QTimer(this);
+  m_timer->setInterval(1);
   m_fps = 1000;//max
 
   // layout
@@ -137,31 +138,31 @@ TimeLineWidget::TimeLineWidget()
   // line->setOrientation(Qt::Vertical);
   // layout()->addWidget(line);
 
-	// now we setup the connection 
-	connect(m_frameSlider , SIGNAL(valueChanged(int)) , this , SLOT(sliderChanged(int)));
+  // now we setup the connection 
+  connect(m_frameSlider , SIGNAL(valueChanged(int)) , this , SLOT(sliderChanged(int)));
 
-	connect(m_currentFrameSpinBox , SIGNAL(editingFinished()) , this , SLOT(currentFrameChanged()));
+  connect(m_currentFrameSpinBox , SIGNAL(editingFinished()) , this , SLOT(currentFrameChanged()));
 
 //  there is an issue with doing that when we enter a value manually
 //  not doing it is also an issue because then changing the value with the wheel is not doing the correct thing .
-//	connect(m_currentFrameSpinBox , SIGNAL(valueChanged(double)) , this , SLOT(currentFrameChanged()));
-		
-	connect(m_startSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
-	connect(m_endSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
+//  connect(m_currentFrameSpinBox , SIGNAL(valueChanged(double)) , this , SLOT(currentFrameChanged()));
+    
+  connect(m_startSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
+  connect(m_endSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
 
-	connect( m_goToStartFrameButton , SIGNAL(clicked()) , this , SLOT( goToStartFrame() ) );
-	connect( m_goToPreviousFrameButton , SIGNAL(clicked()) , this , SLOT( goToPreviousFrame() )  );
-	
-	connect( m_playButton , SIGNAL(clicked()) , this , SLOT( play() ) );
-	
-	connect( m_goToNextFrameButton , SIGNAL(clicked()) , this , SLOT( goToNextFrame() ) );
-	connect( m_goToEndFrameButton , SIGNAL(clicked()) , this , SLOT( goToEndFrame() ) );
+  connect( m_goToStartFrameButton , SIGNAL(clicked()) , this , SLOT( goToStartFrame() ) );
+  connect( m_goToPreviousFrameButton , SIGNAL(clicked()) , this , SLOT( goToPreviousFrame() )  );
+  
+  connect( m_playButton , SIGNAL(clicked()) , this , SLOT( play() ) );
+  
+  connect( m_goToNextFrameButton , SIGNAL(clicked()) , this , SLOT( goToNextFrame() ) );
+  connect( m_goToEndFrameButton , SIGNAL(clicked()) , this , SLOT( goToEndFrame() ) );
 
-	connect( m_timer , SIGNAL(timeout()) , this , SLOT(timerUpdate()) );
+  connect( m_timer , SIGNAL(timeout()) , this , SLOT(timerUpdate()) );
 
-	connect( m_frameRateComboBox , SIGNAL(activated(int)) , this , SLOT( frameRateChanged(int))  );
-	connect( m_loopingComBox , SIGNAL(activated(int)) , this , SLOT( loopingChanged(int))  );
-	
+  connect( m_frameRateComboBox , SIGNAL(activated(int)) , this , SLOT( frameRateChanged(int))  );
+  connect( m_loopingComBox , SIGNAL(activated(int)) , this , SLOT( loopingChanged(int))  );
+  
 }
 
 void TimeLineWidget::setTime(int time)
@@ -186,7 +187,7 @@ void TimeLineWidget::updateTime(int frame)
 
 int TimeLineWidget::getTime()
 {
-	return static_cast<int>( m_currentFrameSpinBox->value() );
+  return static_cast<int>( m_currentFrameSpinBox->value() );
 }
 
 int TimeLineWidget::getRangeStart()
@@ -201,99 +202,99 @@ int TimeLineWidget::getRangeEnd()
 
 void TimeLineWidget::sliderChanged(int frame)
 {
-	setTime( frame );
+  setTime( frame );
   // Force a repaint of the slider, else it's dragging a lot behind the mouse
   m_frameSlider->repaint();
 }
 
 void TimeLineWidget::frameChangedBy(int frame)
 {
-	setTime( static_cast<int>(  m_currentFrameSpinBox->value()+frame ) );
+  setTime( static_cast<int>(  m_currentFrameSpinBox->value()+frame ) );
 }
 
 void TimeLineWidget::currentFrameChanged()
 {
-	setTime( static_cast<int>(  m_currentFrameSpinBox->value() ) );
+  setTime( static_cast<int>(  m_currentFrameSpinBox->value() ) );
 }
 
 void TimeLineWidget::setTimeRange(int start , int end)
 {
-	m_startSpinBox->blockSignals(true);
-	m_startSpinBox->setValue( static_cast<int>( start ) );
-	m_startSpinBox->blockSignals(false);
-	
-	m_endSpinBox->blockSignals(true);
-	m_endSpinBox->setValue( static_cast<int>( end ) );
-	m_endSpinBox->blockSignals(false);
-	
-	// update the other elements 
-	updateFrameRange();
+  m_startSpinBox->blockSignals(true);
+  m_startSpinBox->setValue( static_cast<int>( start ) );
+  m_startSpinBox->blockSignals(false);
+  
+  m_endSpinBox->blockSignals(true);
+  m_endSpinBox->setValue( static_cast<int>( end ) );
+  m_endSpinBox->blockSignals(false);
+  
+  // update the other elements 
+  updateFrameRange();
 
-	// current time need to be on the bound
-	int currentTime = getTime();
-	if (currentTime > end)
-		setTime(end);
-	
-	if (currentTime < start )
-		setTime(start);
-	
+  // current time need to be on the bound
+  int currentTime = getTime();
+  if (currentTime > end)
+    setTime(end);
+  
+  if (currentTime < start )
+    setTime(start);
+  
 }
 
 
 void TimeLineWidget::updateFrameRange()
 {
-	m_currentFrameSpinBox->setMinimum( m_startSpinBox->value() );
-	m_currentFrameSpinBox->setMaximum( m_endSpinBox->value() );
-	
-	m_frameSlider->setMinimum( static_cast<int>( m_startSpinBox->value() ) );
-	m_frameSlider->setMaximum( static_cast<int>( m_endSpinBox->value() ) );
+  m_currentFrameSpinBox->setMinimum( m_startSpinBox->value() );
+  m_currentFrameSpinBox->setMaximum( m_endSpinBox->value() );
+  
+  m_frameSlider->setMinimum( static_cast<int>( m_startSpinBox->value() ) );
+  m_frameSlider->setMaximum( static_cast<int>( m_endSpinBox->value() ) );
 }
 
 
 void TimeLineWidget::play()
 {
-	if (m_timer->isActive() )
-	{
-		m_timer->stop();
-		m_playButton->setText(">");
+  if (m_timer->isActive() )
+  {
+    m_timer->stop();
+    m_playButton->setText(">");
     emit playbackChanged(false);
-	}
-	else
-	{
-		m_timer->start();
+  }
+  else
+  {
+    m_timer->start();
     m_lastFrameTime.start();
-		m_playButton->setText("||");
+    m_playButton->setText("||");
     emit playbackChanged(true);
-	}
+  }
 }
 
 
 void TimeLineWidget::goToStartFrame()
 {
-	int newFrame = static_cast<int>( m_startSpinBox->value() );
-	setTime(newFrame);	
+  int newFrame = static_cast<int>( m_startSpinBox->value() );
+  setTime(newFrame);  
 }
 
 void TimeLineWidget::goToPreviousFrame()
 {
-	int newFrame = static_cast<int>( m_startSpinBox->value() );
+  int newFrame = static_cast<int>( m_startSpinBox->value() );
   if(newFrame < getTime() - 1)
     newFrame = getTime() - 1;
-	setTime(newFrame);
+  setTime(newFrame);
 }
 
 void TimeLineWidget::goToNextFrame()
 {
-	int newFrame = static_cast<int>( m_endSpinBox->value() );
+  int newFrame = static_cast<int>( m_endSpinBox->value() );
   if(newFrame > getTime() + 1)
     newFrame = getTime() + 1;
-	setTime(newFrame);
+  setTime(newFrame);
 }
-		
+    
 void TimeLineWidget::goToEndFrame()
 {
-	int newFrame = static_cast<int>( m_endSpinBox->value() );
-	setTime(newFrame);	
+  int newFrame = static_cast<int>( m_endSpinBox->value() );
+  setTime(newFrame);  
 }
 
 void TimeLineWidget::timerUpdate()
@@ -307,40 +308,40 @@ void TimeLineWidget::timerUpdate()
 
   m_lastFrameTime.start();
 
-	int newTime = getTime()+m_direction;
-	if ( newTime > m_endSpinBox->value() )
-	{
-		if ( m_looping == 0 )
-			play();
-		else if ( m_looping == 1 )
-		{
-			goToStartFrame();
-		}
-		else
-		{
-			m_direction *= -1;
-			newTime = getTime()+m_direction;
-			setTime( newTime );
-		}
-	}	
-	else if ( newTime < m_startSpinBox->value() ) 
-	{
-		if ( m_looping )
-			play();
-		else if (m_looping == 1)
-			goToEndFrame();
-		else
-		{
-			m_direction = -1;
-			newTime = getTime()+m_direction;
-			setTime( newTime );
-		}
-	}	
-	else
-	{
-		setTime( newTime );
-	}			
-	
+  int newTime = getTime()+m_direction;
+  if ( newTime > m_endSpinBox->value() )
+  {
+    if ( m_looping == 0 )
+      play();
+    else if ( m_looping == 1 )
+    {
+      goToStartFrame();
+    }
+    else
+    {
+      m_direction *= -1;
+      newTime = getTime()+m_direction;
+      setTime( newTime );
+    }
+  } 
+  else if ( newTime < m_startSpinBox->value() ) 
+  {
+    if ( m_looping )
+      play();
+    else if (m_looping == 1)
+      goToEndFrame();
+    else
+    {
+      m_direction = -1;
+      newTime = getTime()+m_direction;
+      setTime( newTime );
+    }
+  } 
+  else
+  {
+    setTime( newTime );
+  }     
+  
 }
 
 void TimeLineWidget::setFrameRate( float framesPerSecond ) {
@@ -360,12 +361,12 @@ void TimeLineWidget::setFrameRate( float framesPerSecond ) {
 
 void TimeLineWidget::frameRateChanged(int index)
 {
-	if (index == 0)
-		m_fps = 1000; // max fps
-	else if (index == 1)
-		m_fps = 12; // 12 fps
-	else if (index == 2)
-		m_fps = 24; // 24 fps
+  if (index == 0)
+    m_fps = 1000; // max fps
+  else if (index == 1)
+    m_fps = 12; // 12 fps
+  else if (index == 2)
+    m_fps = 24; // 24 fps
   else if ( index == 3 )
     m_fps = 48; // 48 fps
   else if ( index == 4 )
@@ -374,7 +375,7 @@ void TimeLineWidget::frameRateChanged(int index)
 
 void TimeLineWidget::loopingChanged(int index)
 {
-	m_looping = index;
-	if (index != 2)
-		m_direction = 1;
+  m_looping = index;
+  if (index != 2)
+    m_direction = 1;
 }
