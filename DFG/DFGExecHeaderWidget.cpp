@@ -148,6 +148,9 @@ void DFGExecHeaderWidget::onExecChanged()
   {
     m_goUpButton->show();
   }
+
+  m_caption = m_dfgController->getCoreDFGExecPath().c_str();
+  update();
 }
 
 void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
