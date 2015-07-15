@@ -1297,6 +1297,11 @@ std::string DFGController::implodeNodes(char const * desiredName, QStringList pa
       return "";
     }
 
+    for(int i=0;i<paths.size();i++)
+    {
+      emit nodeDeleted(paths[i]);
+    }
+
     char const * nodePath = command->getInstName();
     moveNode(nodePath, bounds.center(), false);
 
