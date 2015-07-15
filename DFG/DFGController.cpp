@@ -317,6 +317,10 @@ bool DFGController::removeNode(char const * path)
 {
   try
   {
+    // need to do this since the path is going out of 
+    // scope throughout this function
+    QString pathCopy(path);
+    
     bool emitVarChanged = false;
     if(getCoreDFGExec().getNodeType(path) == FabricCore::DFGNodeType_Var)
       emitVarChanged = true;
@@ -331,6 +335,8 @@ bool DFGController::removeNode(char const * path)
     emit recompiled();
     if(emitVarChanged)
       emit variablesChanged();
+
+    emit nodeDeleted(pathCopy);
   }
   catch(FabricCore::Exception e)
   {
