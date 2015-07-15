@@ -49,6 +49,12 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   layout->addStretch(2);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
+
+  QObject::connect(
+    m_dfgController, SIGNAL(execChanged()),
+    this, SLOT(onExecChanged())
+    );
+  onExecChanged();
 }
 
 DFGExecHeaderWidget::~DFGExecHeaderWidget()
@@ -130,6 +136,18 @@ void DFGExecHeaderWidget::setFontColor(QColor c)
   p.setColor(QPalette::Button, m_config.nodeDefaultColor);
   m_goUpButton->setPalette(p);
   update();
+}
+
+void DFGExecHeaderWidget::onExecChanged()
+{
+  if(m_dfgController->isViewingRootGraph())
+  {
+    m_goUpButton->hide();
+  }
+  else
+  {
+    m_goUpButton->show();
+  }
 }
 
 void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)

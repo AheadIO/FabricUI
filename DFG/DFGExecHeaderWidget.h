@@ -47,6 +47,7 @@ namespace FabricUI
       void refresh();
       void setFont(QFont f);
       void setFontColor(QColor c);
+      void onExecChanged();
 
     protected:
 
