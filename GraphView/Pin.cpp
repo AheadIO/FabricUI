@@ -88,7 +88,10 @@ Pin::Pin(
   layout->addItem(m_outCircle);
   layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
   if(portType() == PortType_Input)
+  {
     m_outCircle->setClipping(true);
+  }
+  setDaisyChainCircleVisible(false);
 }
 
 Graph * Pin::graph()
@@ -290,4 +293,13 @@ void Pin::setDrawState(bool flag)
 bool Pin::drawState() const
 {
   return m_drawState;
+}
+
+void Pin::setDaisyChainCircleVisible(bool flag)
+{
+  if(portType() == PortType_Input && m_outCircle)
+  {
+    m_outCircle->setVisible(flag);
+    m_outCircle->setShouldBeVisible(flag);
+  }
 }
