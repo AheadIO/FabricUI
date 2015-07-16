@@ -25,6 +25,7 @@ DFGLogWidget::DFGLogWidget( const DFGConfig & config )
 
   m_text = new QPlainTextEdit(this);
   m_text->setFont( m_config.fixedFont );
+  m_text->setReadOnly(true);
   layout->addWidget(m_text);
 
   sLogWidgets.push_back(this);
