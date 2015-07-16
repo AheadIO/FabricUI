@@ -35,8 +35,6 @@ namespace FabricUI
       DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
       virtual ~DFGKLEditorPortTableWidget();
 
-      void setExec(FabricCore::DFGExec exec);
-
       unsigned int nbPorts() const;
       PortInfo portInfo(unsigned int index) const;
       FabricCore::DFGPortType portType(unsigned int index) const;
@@ -48,6 +46,7 @@ namespace FabricUI
 
     public slots:
 
+      void refresh();
       void onCellChanged(int row, int col);
       void onComboBoxChanged(int index);
       void onCustomContextMenuRequested(const QPoint & pos);
@@ -56,6 +55,11 @@ namespace FabricUI
     signals:
 
       void execPortsChanged();
+
+    protected:
+
+      FabricCore::DFGExec &getExec()
+        { return m_controller->getExec(); }
 
     private:
 

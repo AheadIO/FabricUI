@@ -32,18 +32,16 @@ using namespace FabricUI::DFG;
 
 DFGController::DFGController(
   GraphView::Graph * graph,
-  FabricCore::Client client,
+  DFGWidget *dfgWidget,
+  FabricCore::Client &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  FabricCore::DFGHost host,
-  FabricCore::DFGBinding binding,
   DFGUICmdHandler *cmdHandler,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications
   )
   : GraphView::Controller(graph, stack)
-  , m_client( client )
-  , m_host( host )
-  , m_binding( binding )
+  , m_dfgWidget( dfgWidget )
+  , m_client(client)
   , m_manager(manager)
   , m_cmdHandler( cmdHandler )
   , m_router(0)
@@ -68,15 +66,44 @@ void DFGController::setClient( FabricCore::Client const &client )
   m_client = client;
 }
 
-void DFGController::setHost( FabricCore::DFGHost const &host )
+void DFGController::setHostBindingExec(
+  FabricCore::DFGHost &host,
+  FabricCore::DFGBinding &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec &exec
+  )
 {
   m_host = host;
+
+  setBindingExec( binding, execPath, exec );
+
+  emit hostChanged();
 }
 
-void DFGController::setBinding( FabricCore::DFGBinding const &binding )
+void DFGController::setBindingExec(
+  FabricCore::DFGBinding &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec &exec
+  )
 {
   m_binding = binding;
+
+  setExec( execPath, exec );
+
+  emit bindingChanged();
+}
+
+void DFGController::setExec(
+  FTL::StrRef execPath,
+  FabricCore::DFGExec &exec
+  )
+{
+  m_execPath = execPath;
+  m_exec = exec;
+
   m_presetDictsUpToDate = false;
+
+  emit execChanged();
 }
 
 DFGNotificationRouter * DFGController::getRouter()
@@ -84,41 +111,32 @@ DFGNotificationRouter * DFGController::getRouter()
   return m_router;
 }
 
-FTL::CStrRef DFGController::getExecPath()
-{
-  return this->getRouter()->getExecPath();
-}
-
-FabricCore::DFGExec &DFGController::getExec()
-{
-  return this->getRouter()->getExec();
-}
-
 void DFGController::setRouter(DFGNotificationRouter * router)
 {
-  if(m_router && m_overTakeBindingNotifications)
-    m_binding.setNotificationCallback(NULL, NULL);
+  if ( m_router )
+  {
+    if ( m_overTakeBindingNotifications )
+      m_binding.setNotificationCallback( NULL, NULL );
+    QObject::disconnect(
+      this, SIGNAL(execChanged()),
+      m_router, SLOT(onExecChanged())
+      );
+  }
 
   m_router = router;
-  if(m_router)
-  {
-    m_router->setController(this);
 
-    if(m_overTakeBindingNotifications)
+  if ( m_router )
+  {
+    QObject::connect(
+      this, SIGNAL(execChanged()),
+      m_router, SLOT(onExecChanged())
+      );
+
+    if ( m_overTakeBindingNotifications )
       m_binding.setNotificationCallback(
         &BindingNotificationCallback, this
         );
   }
-}
-
-bool DFGController::isViewingRootGraph()
-{
-  return getExecPath().empty();
-}
-
-ASTWrapper::KLASTManager * DFGController::astManager()
-{
-  return m_manager;
 }
 
 bool DFGController::gvcDoRemoveNodes(
@@ -365,11 +383,16 @@ bool DFGController::addExtensionDependency(char const * extension, char const * 
   return true;
 }
 
-bool DFGController::setCode(char const * path, char const * code)
+bool DFGController::setCode( FTL::CStrRef code )
 {
   try
   {
-    Commands::Command * command = new DFGSetCodeCommand(this, path, code);;
+    Commands::Command * command =
+      new DFGSetCodeCommand(
+        this,
+        m_execPath.c_str(),
+        code.c_str()
+        );
     if(!addCommand(command))
     {
       delete(command);
@@ -395,7 +418,7 @@ bool DFGController::setCode(char const * path, char const * code)
   return true;
 }
 
-std::string DFGController::reloadCode(char const * path)
+std::string DFGController::reloadCode()
 {
   FabricCore::DFGExec &func = getExec();
   if ( func.getType() != FabricCore::DFGExecType_Func )
@@ -430,7 +453,7 @@ std::string DFGController::reloadCode(char const * path)
           if(klCodeVar->isString())
           {
             std::string klCode = klCodeVar->getStringData();
-            if(DFGController::setCode(path, klCode.c_str()))
+            if ( DFGController::setCode( klCode.c_str() ) )
               return klCode.c_str();
           }
         }
@@ -873,24 +896,21 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 
 void DFGController::checkErrors()
 {
-  FTL::CStrRef execPath = getExecPath();
-  FabricCore::DFGExec &exec = getExec();
-
-  unsigned errorCount = exec.getErrorCount();
+  unsigned errorCount = m_exec.getErrorCount();
   for(unsigned i=0;i<errorCount;i++)
   {
-    std::string prefixedError = execPath;
+    std::string prefixedError = m_execPath;
     prefixedError += " : ";
-    prefixedError += exec.getError(i);
+    prefixedError += m_exec.getError(i);
     logError( prefixedError.c_str() );
   }
 
-  if(exec.getType() == FabricCore::DFGExecType_Graph)
+  if(m_exec.getType() == FabricCore::DFGExecType_Graph)
   {
-    unsigned nodeCount = exec.getNodeCount();
+    unsigned nodeCount = m_exec.getNodeCount();
     for(size_t j=0;j<nodeCount;j++)
     {
-      char const *nodeName = exec.getNodeName(j);
+      char const *nodeName = m_exec.getNodeName(j);
 
       if ( !graph() )
         continue;
@@ -902,9 +922,9 @@ void DFGController::checkErrors()
           uiNode->clearError();
       }
 
-      if ( exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
+      if ( m_exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
       {
-        FabricCore::DFGExec instExec = exec.getSubExec( nodeName );
+        FabricCore::DFGExec instExec = m_exec.getSubExec( nodeName );
 
         unsigned errorCount = instExec.getErrorCount();
         if ( errorCount > 0 )
@@ -926,92 +946,93 @@ void DFGController::checkErrors()
 
       }
     }
-    // [pzion 20150701] Upgrade old backdrops scheme
-    static bool upgradingBackDrops = false;
-    if ( !upgradingBackDrops )
+  }
+
+  // [pzion 20150701] Upgrade old backdrops scheme
+  static bool upgradingBackDrops = false;
+  if ( !upgradingBackDrops )
+  {
+    upgradingBackDrops = true;
+    
+    char const * uiBackDropsCStr = m_exec.getMetadata( "uiBackDrops" );
+    std::string uiBackDrops;
+    if(uiBackDropsCStr != NULL)
+      uiBackDrops = uiBackDropsCStr;
+
+    if ( !uiBackDrops.empty() )
     {
-      upgradingBackDrops = true;
-      
-      char const * uiBackDropsCStr = exec.getMetadata( "uiBackDrops" );
-      std::string uiBackDrops;
-      if(uiBackDropsCStr != NULL)
-        uiBackDrops = uiBackDropsCStr;
-
-      if ( !uiBackDrops.empty() )
+      std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
+      while ( !split.first.empty() )
       {
-        std::pair<FTL::StrRef, FTL::CStrRef> split = FTL::CStrRef( uiBackDrops ).split(',');
-        while ( !split.first.empty() )
+        std::string uiBackDropKey = split.first;
+        try
         {
-          std::string uiBackDropKey = split.first;
-          try
-          {
-            char const *nodeName = exec.addUser( uiBackDropKey.c_str() );
+          char const *nodeName = m_exec.addUser( uiBackDropKey.c_str() );
 
-            FTL::CStrRef uiBackDrop = exec.getMetadata( uiBackDropKey.c_str() );
-            if ( !uiBackDrop.empty() )
+          FTL::CStrRef uiBackDrop = m_exec.getMetadata( uiBackDropKey.c_str() );
+          if ( !uiBackDrop.empty() )
+          {
+            FTL::JSONStrWithLoc swl( uiBackDrop );
+            FTL::OwnedPtr<FTL::JSONObject> jo(
+              FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
+              );
+
+            m_exec.setNodeMetadata(
+              nodeName,
+              "uiTitle",
+              jo->getString( FTL_STR("title") ).c_str(),
+              false
+              );
+
+            FTL::JSONObject const *posJO =
+              jo->getObject( FTL_STR("pos") );
+            std::string posStr = posJO->encode();
+            m_exec.setNodeMetadata(
+              nodeName, "uiGraphPos", posStr.c_str(), false
+              );
+
+            FTL::JSONObject const *sizeJO =
+              jo->getObject( FTL_STR("size") );
+            std::string sizeStr;
             {
-              FTL::JSONStrWithLoc swl( uiBackDrop );
-              FTL::OwnedPtr<FTL::JSONObject> jo(
-                FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
-                );
-
-              exec.setNodeMetadata(
-                nodeName,
-                "uiTitle",
-                jo->getString( FTL_STR("title") ).c_str(),
-                false
-                );
-
-              exec.setNodeMetadata(
-                nodeName,
-                "uiGraphPos",
-                jo->getObject( FTL_STR("pos") )->encode().c_str(),
-                false
-                );
-
-              FTL::JSONObject const *sizeJO =
-                jo->getObject( FTL_STR("size") );
-              std::string sizeStr;
+              FTL::JSONEnc<> sizeEnc( sizeStr );
+              FTL::JSONObjectEnc<> sizeObjEnc( sizeEnc );
               {
-                FTL::JSONEnc<> sizeEnc( sizeStr );
-                FTL::JSONObjectEnc<> sizeObjEnc( sizeEnc );
-                {
-                  FTL::JSONEnc<> widthEnc( sizeObjEnc, FTL_STR("w") );
-                  FTL::JSONFloat64Enc<> widthF64Enc(
-                    widthEnc, sizeJO->getFloat64( FTL_STR("width") )
-                    );
-                }
-                {
-                  FTL::JSONEnc<> heightEnc( sizeObjEnc, FTL_STR("h") );
-                  FTL::JSONFloat64Enc<> heightF64Enc(
-                    heightEnc, sizeJO->getFloat64( FTL_STR("height") )
-                    );
-                }
+                FTL::JSONEnc<> widthEnc( sizeObjEnc, FTL_STR("w") );
+                FTL::JSONFloat64Enc<> widthF64Enc(
+                  widthEnc, sizeJO->getFloat64( FTL_STR("width") )
+                  );
               }
-              exec.setNodeMetadata(
-                nodeName, "uiGraphSize", sizeStr.c_str(), false
-                );
-
-              exec.setNodeMetadata(
-                nodeName,
-                "uiNodeColor",
-                jo->getObject( FTL_STR("color") )->encode().c_str(),
-                false
-                );
-
-              exec.setMetadata( uiBackDropKey.c_str(), "", false );
+              {
+                FTL::JSONEnc<> heightEnc( sizeObjEnc, FTL_STR("h") );
+                FTL::JSONFloat64Enc<> heightF64Enc(
+                  heightEnc, sizeJO->getFloat64( FTL_STR("height") )
+                  );
+              }
             }
-          }
-          catch ( ... )
-          {
-          }
-          split = split.second.split(',');
-        }
-      }
-      upgradingBackDrops = false;
-    }
+            m_exec.setNodeMetadata(
+              nodeName, "uiGraphSize", sizeStr.c_str(), false
+              );
 
-    exec.setMetadata( "uiBackDrops", "", false );
+            FTL::JSONObject const *colorJO =
+              jo->getObject( FTL_STR("color") );
+            std::string colorStr = colorJO->encode();
+            m_exec.setNodeMetadata(
+              nodeName, "uiNodeColor", colorStr.c_str(), false
+              );
+
+            m_exec.setMetadata( uiBackDropKey.c_str(), "", false );
+          }
+        }
+        catch ( ... )
+        {
+        }
+        split = split.second.split(',');
+      }
+  
+      m_exec.setMetadata( "uiBackDrops", "", false );
+    }
+    upgradingBackDrops = false;
   }
 }
 
@@ -1056,22 +1077,36 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
   {
     std::string portOrPinPath = item->path().toUtf8().constData();
 
+    FabricCore::DFGExec rootExec = m_binding.getExec();
+
     // let's assume it is pin, if there's still a node name in it
     Commands::Command * command = NULL;
-    if(portOrPinPath.find('.') != std::string::npos)
+    if(portOrPinPath.rfind('.') != std::string::npos)
     {
-      std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
-      FabricCore::DFGNodeType nodeType = getExec().getNodeType(nodeName.c_str());
+      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodeName = nodePath;
+      FabricCore::DFGExec parentExec = rootExec;
+
+      // if we have a path deeper than one level, 
+      // determine the sub exec
+      size_t pos = nodePath.rfind('.');
+      if(pos != std::string::npos)
+      {
+        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+        nodeName = nodePath.substr(pos+1);
+      }
+
+      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
         command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodeName.c_str(), item->value().getStringCString());
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
       }
     }
     else
@@ -1094,18 +1129,18 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
 {
   try
   {
-    FabricCore::DFGExec &exec = getExec();
+    FabricCore::DFGExec rootExec = m_binding.getExec();
 
     bool argsHaveChanged = false;
 
-    for(size_t i=0;i<exec.getExecPortCount();i++)
+    for(size_t i=0;i<rootExec.getExecPortCount();i++)
     {
       FTL::StrRef dataTypeToCheck = dataType;
       if(dataTypeToCheck.empty())
-        dataTypeToCheck = exec.getExecPortResolvedType(i);
+        dataTypeToCheck = rootExec.getExecPortResolvedType(i);
       if(dataTypeToCheck.empty())
         continue;
-      else if(exec.getExecPortResolvedType(i) != dataTypeToCheck)
+      else if(rootExec.getExecPortResolvedType(i) != dataTypeToCheck)
         continue;
 
       if(dataTypeToCheck == "Integer")
@@ -1121,7 +1156,7 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
       FabricCore::RTVal value;
       try
       {
-        value = m_binding.getArgValue(exec.getExecPortName(i));
+        value = m_binding.getArgValue(rootExec.getExecPortName(i));
       }
       catch(FabricCore::Exception e)
       {
@@ -1136,7 +1171,7 @@ bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
       addCommand(
         new DFGSetArgCommand(
           this,
-          exec.getExecPortName(i),
+          rootExec.getExecPortName(i),
           dataTypeToCheck.data()
           )
         );
@@ -1340,7 +1375,11 @@ void DFGController::updatePresetPathDB()
   m_presetPathDictSTL.push_back("get");
   m_presetPathDictSTL.push_back("set");
 
-  QStringList variables = getVariableWordsFromBinding(m_binding, getExecPath().c_str());
+  QStringList variables =
+    getVariableWordsFromBinding(
+      m_binding,
+      m_execPath.c_str()
+      );
   for(int i=0;i<variables.length();i++)
   {
     m_presetPathDictSTL.push_back("get." + std::string(variables[i].toUtf8().constData()));
@@ -1356,24 +1395,31 @@ void DFGController::updatePresetPathDB()
     if(prefix.length() > 0)
       prefix += ".";
 
-    FabricCore::DFGStringResult jsonStr = m_host.getPresetDesc(paths[i].c_str());
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
-    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
-    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    try
     {
-      std::string name = memberIter.getKey()->getStringData();
-      const FabricCore::Variant * memberVar = memberIter.getValue();
-      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
-      std::string objectType = objectTypeVar->getStringData();
-      if(objectType == "Preset")
+      FabricCore::DFGStringResult jsonStr = m_host.getPresetDesc(paths[i].c_str());
+      FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+      const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+      for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
       {
-        m_presetPathDictSTL.push_back(prefix+name);
+        std::string name = memberIter.getKey()->getStringData();
+        const FabricCore::Variant * memberVar = memberIter.getValue();
+        const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+        std::string objectType = objectTypeVar->getStringData();
+        if(objectType == "Preset")
+        {
+          m_presetPathDictSTL.push_back(prefix+name);
+        }
+        else if(objectType == "NameSpace")
+        {
+          paths.push_back(prefix+name);
+          m_presetNameSpaceDictSTL.push_back(prefix+name);
+        }
       }
-      else if(objectType == "NameSpace")
-      {
-        paths.push_back(prefix+name);
-        m_presetNameSpaceDictSTL.push_back(prefix+name);
-      }
+    }
+    catch (FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
     }
   }
 
@@ -1383,13 +1429,9 @@ void DFGController::updatePresetPathDB()
     m_presetPathDict.add(m_presetPathDictSTL[i].c_str(), '.', m_presetPathDictSTL[i].c_str());
 }
 
-DFGNotificationRouter * DFGController::createRouter(
-  FabricCore::DFGBinding &binding,
-  FTL::StrRef execPath,
-  FabricCore::DFGExec &exec
-  )
+DFGNotificationRouter * DFGController::createRouter()
 {
-  return new DFGNotificationRouter( binding, execPath, exec );
+  return new DFGNotificationRouter( this );
 }
 
 QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath)
@@ -1453,8 +1495,8 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
             }
             else
             {
-              // this variable is in a different sub
-              continue;
+              path = graphName;
+              execPath = "";
             }
           }
           else

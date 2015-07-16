@@ -10,12 +10,10 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 DFGValueEditor::DFGValueEditor(
-  QWidget * parent,
   DFGController * controller,
   const DFGConfig & config
   )
   : ValueEditor::ValueEditorWidget(
-    parent,
     controller->getClient()
     )
   , m_config( config )
@@ -23,6 +21,8 @@ DFGValueEditor::DFGValueEditor(
 {
   // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
+  QObject::connect(m_controller, SIGNAL(bindingChanged()), this, SLOT(onBindingChanged()));
+  QObject::connect(m_controller, SIGNAL(nodeDeleted(QString)), this, SLOT(onNodeDeleted(QString)));
   QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
 
   // register the extra widgets
@@ -96,13 +96,20 @@ void DFGValueEditor::onArgsChanged()
     }
     else
     {
+      std::string prefix = m_nodeName;
+      std::string globalPrefix = m_controller->getExecPath();
+      if(globalPrefix.length() > 0)
+        globalPrefix += ".";
+      globalPrefix += prefix;
+
       // add an item for the node
       ValueItem * nodeItem =
         addValue(
-          m_nodeName.c_str(),
+          globalPrefix.c_str(),
           FabricCore::RTVal(),
           m_nodeName.c_str(),
-          false
+          false,
+          true /* parent to root */
           );
 
       FabricCore::DFGExec exec = m_controller->getExec();
@@ -111,17 +118,14 @@ void DFGValueEditor::onArgsChanged()
       {
         FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
 
-        std::string prefix = m_nodeName;
-        prefix += ".";
-
         for(size_t i=0;i<subExec.getExecPortCount();i++)
         {
           if(subExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
             continue;
 
           FTL::CStrRef portName = subExec.getExecPortName(i);
-          std::string portPath = prefix + portName.data();
-          if(exec.isConnectedToAny(portPath.c_str()))
+          std::string portPath = prefix + "." + portName.data();
+          if(exec.hasSrcPort(portPath.c_str()))
             continue;
 
           FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
@@ -155,7 +159,7 @@ void DFGValueEditor::onArgsChanged()
           if(!value.isValid())
             continue;
           
-          ValueItem * item = addValue(portPath.data(), value, portName.data(), true);
+          ValueItem * item = addValue((globalPrefix + "." + portName.data()).c_str(), value, portName.data(), true);
           if(item)
           {
             item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));
@@ -181,14 +185,14 @@ void DFGValueEditor::onArgsChanged()
             m_treeView,
             varPathVal
             );
-          addValue((m_nodeName+".variable").c_str(), item, true);
+          addValue((globalPrefix+".variable").c_str(), item, true);
         }
         else
         {
 
         }
 
-        std::string portPath = m_nodeName + ".value";
+        std::string portPath = prefix + ".value";
         FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
 
         if(!dataType.empty() && dataType.find('$') == dataType.end())
@@ -216,7 +220,7 @@ void DFGValueEditor::onArgsChanged()
           }
 
           if(value.isValid())
-            addValue(portPath.c_str(), value, "value", true);
+            addValue((globalPrefix + ".value").c_str(), value, "value", true);
         }
       }
       else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Get)
@@ -233,7 +237,7 @@ void DFGValueEditor::onArgsChanged()
           m_treeView,
           varPathVal
           );
-        addValue((m_nodeName+".variable").c_str(), item, true);
+        addValue((globalPrefix+".variable").c_str(), item, true);
       }
 
       // expand the node level tree item
@@ -243,6 +247,20 @@ void DFGValueEditor::onArgsChanged()
   catch(FabricCore::Exception e)
   {
     m_controller->logError(e.getDesc_cstr());
+  }
+}
+
+void DFGValueEditor::onBindingChanged()
+{
+  m_nodeName = "";
+  onArgsChanged();
+}
+
+void DFGValueEditor::onNodeDeleted(QString nodePath)
+{
+  if(nodePath == m_nodeName.c_str())
+  {
+    setNodeName("");   
   }
 }
 

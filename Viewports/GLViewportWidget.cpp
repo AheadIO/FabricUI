@@ -15,14 +15,22 @@
 
 using namespace FabricUI::Viewports;
 
-GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent)
+GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
 : QGLWidget(format, parent)
+, m_settings(settings)
 {	
   m_client = client;
   m_bgColor = bgColor;
   m_manipTool = new ManipulationTool(this);
+  m_stageVisible = true;
 	setFocusPolicy(Qt::StrongFocus);
   setAutoBufferSwap(false);
+
+  if(m_settings)
+  {
+    if(m_settings->contains("glviewport/stageVisible"))
+      m_stageVisible = m_settings->value("glviewport/stageVisible").toBool();
+  }
 
   try
   {
@@ -116,6 +124,7 @@ void GLViewportWidget::initializeGL()
   {
     m_viewport.callMethod("", "setup", 1, &m_drawContext);
     m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
+    setStageVisible(m_stageVisible, false);
   }
   catch(FabricCore::Exception e)
   {
@@ -292,3 +301,30 @@ bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier
   updateGL();
   return result;
 }
+
+bool GLViewportWidget::isStageVisible()
+{
+  return m_stageVisible;
+}
+
+void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
+{
+  m_stageVisible = stageVisible;
+  if(m_settings)
+  {
+    m_settings->setValue("glviewport/stageVisible", m_stageVisible);
+  }
+
+  try
+  {
+    FabricCore::RTVal stageVisibleVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_stageVisible);
+    m_viewport.callMethod("", "setStageVisible", 1, &stageVisibleVal);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+  if(update)
+    updateGL();
+}
+

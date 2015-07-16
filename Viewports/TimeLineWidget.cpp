@@ -8,8 +8,7 @@
 
 using namespace FabricUI::Viewports;
 
-TimeLineWidget::TimeLineWidget(QWidget * parent)
-	: QWidget(parent)
+TimeLineWidget::TimeLineWidget()
 {
   m_settingTime = false;
 

@@ -9,10 +9,10 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, char const * path, FabricCore::RTVal value)
+DFGSetDefaultValueCommand::DFGSetDefaultValueCommand(DFGController * controller, char const * pathFromRoot, FabricCore::RTVal value)
 : DFGCommand(controller)
 {
-  m_path = path;
+  m_path = pathFromRoot;
   m_value = value;
   m_dataType = m_value.getTypeName().getStringCString();
   m_json = m_value.getJSON().getStringCString();
@@ -24,12 +24,28 @@ bool DFGSetDefaultValueCommand::invoke()
     return false;
 
   DFGController * ctrl = (DFGController*)controller();
-  FabricCore::DFGExec graph = ctrl->getExec();
+  FabricCore::DFGExec rootExec = ctrl->getBinding().getExec();
+  FabricCore::DFGExec parentExec = rootExec;
 
-  if(m_path.find('.') != std::string::npos)
-    graph.setPortDefaultValue(m_path.c_str(), m_value);
-  else
-    graph.setPortDefaultValue(m_path.c_str(), m_value);
+  std::string path = m_path;
+
+  // for paths with more than two segments,
+  // get the corresponding subexec
+  // @pzion: should setPortDefaultValue / getPortDefaultValue
+  // automatically do this?
+  size_t posA = path.find('.');
+  size_t posB = path.rfind('.');
+  while(posA != std::string::npos && posA != posB)
+  {
+    std::string left = path.substr(0, posA);
+    path = path.substr(posA+1);
+    parentExec = parentExec.getSubExec(left.c_str());
+
+    posA = path.find('.');
+    posB = path.rfind('.');
+  }
+
+  parentExec.setPortDefaultValue(path.c_str(), m_value);
 
   return true;
 }

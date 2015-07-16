@@ -378,7 +378,9 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
 
   if(connection->src()->targetType() == TargetType_Pin)
   {
-    Node * node = ((Pin*)connection->src())->node();
+    Pin * pin = (Pin*)connection->src();
+    pin->setDaisyChainCircleVisible(true);
+    Node * node = pin->node();
     node->onConnectionsChanged();
   }
   if(connection->dst()->targetType() == TargetType_Pin)
@@ -426,9 +428,29 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
   prepareGeometryChange();
   controller()->beginInteraction();
 
+  Pin * daisyChainPin = NULL;
+  if(connection->src()->targetType() == TargetType_Pin)
+  {
+    daisyChainPin = (Pin*)connection->src();
+  }
+
   m_connections.erase(m_connections.begin() + index);
   if(!quiet)
     emit connectionRemoved(connection);
+
+  if(daisyChainPin)
+  {
+    bool found = false;
+    for(size_t i=0;i<m_connections.size();i++)
+    {
+      if(m_connections[i]->src() == daisyChainPin)
+      {
+        found = true;
+        break;
+      }
+    }
+    daisyChainPin->setDaisyChainCircleVisible(found);
+  }
 
   prepareGeometryChange();
   connection->invalidate();

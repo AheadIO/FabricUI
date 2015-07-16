@@ -28,7 +28,7 @@ namespace FabricUI
 
   		public:
   	
-  			TimeLineWidget(QWidget * parent=0);
+  			TimeLineWidget();
   			~TimeLineWidget() {};
 
   			/// update the internal time and also emit the signals

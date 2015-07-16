@@ -5,16 +5,16 @@
 
 #include <QtCore/QSettings>
 #include <QtGui/QWidget>
-#include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
-#include <FabricUI/GraphView/GraphHeaderWidget.h>
-#include <FabricUI/DFG/DFGGraphViewWidget.h>
-#include <FabricUI/DFG/DFGController.h>
-#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGConfig.h>
+#include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGExecHeaderWidget.h>
+#include <FabricUI/DFG/DFGGraphViewWidget.h>
 #include <FabricUI/DFG/DFGKLEditorWidget.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGTabSearchWidget.h>
 #include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
+#include <QtGui/QVBoxLayout>
 
 #include <FTL/OwnedPtr.h>
 
@@ -22,6 +22,7 @@ namespace FabricUI
 {
   namespace DFG
   {
+    class DFGExecHeaderWidget;
     class DFGUICmdHandler;
 
     class DFGWidget : public QWidget
@@ -32,11 +33,11 @@ namespace FabricUI
 
       DFGWidget(
         QWidget * parent, 
-        FabricCore::Client const &client,
-        FabricCore::DFGHost const &host,
-        FabricCore::DFGBinding const &binding,
+        FabricCore::Client &client,
+        FabricCore::DFGHost &host,
+        FabricCore::DFGBinding &binding,
         FTL::StrRef execPath,
-        FabricCore::DFGExec const &exec,
+        FabricCore::DFGExec &exec,
         FabricServices::ASTWrapper::KLASTManager * manager,
         DFGUICmdHandler *cmdHandler,
         FabricServices::Commands::CommandStack * stack,
@@ -45,24 +46,25 @@ namespace FabricUI
         );
       virtual ~DFGWidget();
 
-      void setGraph(
-        FabricCore::DFGHost const &host,
-        FabricCore::DFGBinding const &binding,
-        FTL::StrRef execPath,
-        FabricCore::DFGExec const &exec
-        );
+      DFGController *getDFGController()
+        { return m_uiController.get(); }
 
       GraphView::Graph * getUIGraph();
       DFGController * getUIController();
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
 
+      void setExecExtDeps( FTL::CStrRef extDeps );
+
       bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);
+      
+      void refreshExtDeps( FTL::CStrRef extDeps );
 
     signals:
 
+      void execChanged();
       void newPresetSaved(QString presetFilePath);
       void onGraphSet(FabricUI::GraphView::Graph* graph);
       void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
@@ -70,6 +72,7 @@ namespace FabricUI
 
     public slots:
 
+      void onExecChanged();
       void onGoUpPressed();
       void onGraphAction(QAction * action);
       void onNodeAction(QAction * action);
@@ -90,8 +93,8 @@ namespace FabricUI
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
       bool maybeEditNode(
-        FTL::CStrRef newExecPath,
-        FabricCore::DFGExec const &newExec
+        FTL::StrRef execPath,
+        FabricCore::DFGExec &exec
         );
 
       QPoint m_contextPos;
@@ -100,19 +103,15 @@ namespace FabricUI
       FabricUI::GraphView::PortType m_contextPortType;
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
-      GraphView::GraphHeaderWidget * m_uiHeader;
+      DFGExecHeaderWidget * m_uiHeader;
       GraphView::Graph * m_uiGraph;
       FTL::OwnedPtr<DFGController> m_uiController;
       DFGNotificationRouter * m_router;
       DFGKLEditorWidget * m_klEditor;
       DFGTabSearchWidget * m_tabSearchWidget;
-      FabricCore::Client m_client;
-      FabricCore::DFGHost m_host;
-      FabricCore::DFGBinding m_binding;
-      std::string m_execPath;
-      FabricCore::DFGExec m_exec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGConfig m_dfgConfig;
+
       bool m_isEditable;
 
       static QSettings * g_settings;

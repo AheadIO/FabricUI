@@ -26,11 +26,14 @@ namespace FabricUI
 
     public:
 
-      ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config = EditorConfig());
+      ValueEditorWidget(
+        FabricCore::Client client,
+        const EditorConfig & config = EditorConfig()
+        );
       virtual ~ValueEditorWidget();
       EditorConfig & config();
 
-      virtual ValueItem * addValue(QString path, FabricCore::RTVal value, QString label = "", bool enabled = true);
+      virtual ValueItem * addValue(QString path, FabricCore::RTVal value, QString label = "", bool enabled = true, bool parentToRoot = false);
       virtual ValueItem * addValue(QString path, ValueItem * item, bool enabled = true);
       virtual bool removeValue(QString path);
       virtual FabricCore::RTVal getValue(QString path);

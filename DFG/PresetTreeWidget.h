@@ -16,6 +16,8 @@ namespace FabricUI
 
   namespace DFG
   {
+    
+    class DFGController;
 
     class PresetTreeWidget : public QWidget
     {
@@ -24,8 +26,7 @@ namespace FabricUI
     public:
 
       PresetTreeWidget(
-        QWidget * parent,
-        FabricCore::DFGHost const &coreDFGHost,
+        DFGController *dfgController,
         const DFGConfig & config = DFGConfig(),
         bool showsPresets = true,
         bool showSearch = true
@@ -34,8 +35,6 @@ namespace FabricUI
 
       TreeView::TreeViewWidget * getTreeView() { return m_treeView; }
       TreeView::TreeModel * getTreeModel() { return m_treeModel; }
-      void setHost( FabricCore::DFGHost const &coreDFGHost );
-      void setBinding( FabricCore::DFGBinding const &coreDFGBinding );
 
     public slots:
 
@@ -45,9 +44,8 @@ namespace FabricUI
       
       void updatePresetPathDB();
 
+      DFGController *m_dfgController;
       QLineEdit * m_searchEdit;
-      FabricCore::DFGHost m_coreDFGHost;
-      FabricCore::DFGBinding m_coreDFGBinding;
       TreeView::TreeViewWidget * m_treeView;
       TreeView::TreeModel * m_treeModel;
       FabricServices::SplitSearch::Dict m_presetPathDict;

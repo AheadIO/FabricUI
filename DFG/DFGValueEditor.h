@@ -21,7 +21,6 @@ namespace FabricUI
     public:
 
       DFGValueEditor(
-        QWidget * parent,
         DFGController * controller,
         const DFGConfig & config = DFGConfig()
         );
@@ -35,6 +34,8 @@ namespace FabricUI
 
       void updateOutputs();
       void onArgsChanged();
+      void onBindingChanged();
+      void onNodeDeleted(QString nodePath);
 
     private:
 

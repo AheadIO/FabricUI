@@ -11,6 +11,7 @@ namespace FabricUI
 {
   namespace DFG
   {
+    class DFGController;
 
     class DFGSavePresetDialog : public DFGBaseDialog
     {
@@ -20,7 +21,7 @@ namespace FabricUI
 
       DFGSavePresetDialog(
         QWidget * parent,
-        FabricCore::DFGHost & host,
+        DFGController *dfgController,
         QString name = "",
         const DFGConfig & dfgConfig = DFGConfig()
         );
@@ -36,7 +37,7 @@ namespace FabricUI
 
     private:
 
-      FabricCore::DFGHost m_dfgHost;
+      DFGController *m_dfgController;
       QLineEdit * m_nameEdit;
       PresetTreeWidget * m_presetTree;
       QString m_contextPath;

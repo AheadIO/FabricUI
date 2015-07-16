@@ -33,15 +33,25 @@ namespace FabricUI
 
     public slots:
 
+      void onExecChanged();
       void onExecPortsChanged();
       void compile();
       void reload();
       void onNewUnsavedChanges();
 
+    signals:
+
+      void execChanged();
+
+    protected:
+
+      FTL::StrRef getExecPath()
+        { return m_controller->getExecPath(); }
+      FabricCore::DFGExec &getExec()
+        { return m_controller->getExec(); }
+
     private:
 
-      FabricCore::DFGExec m_func;
-      std::string m_execPath;
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;

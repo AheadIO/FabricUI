@@ -67,6 +67,7 @@ namespace FabricUI
       float nodeSpaceAbovePorts;
       float nodeSpaceBelowPorts;
       float nodePinSpacing;
+      float nodePinStretch;
       bool nodeShadowEnabled;
       QColor nodeShadowColor;
       QPointF nodeShadowOffset;

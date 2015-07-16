@@ -16,13 +16,17 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controller, ASTWrapper::KLASTManager * manager, const DFGConfig & config)
-: QWidget(parent)
+DFGKLEditorWidget::DFGKLEditorWidget(
+  QWidget * parent,
+  DFGController * controller,
+  ASTWrapper::KLASTManager * manager,
+  const DFGConfig & config
+  )
+  : QWidget( parent )
+  , m_controller( controller )
+  , m_config( config )
+  , m_unsavedChanges( false )
 {
-  m_controller = controller;
-  m_config = config;
-  m_unsavedChanges = false;
-
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(QSize(300, 250));
 
@@ -67,7 +71,16 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   splitter->setContentsMargins(0, 0, 0, 0);
   splitter->setChildrenCollapsible(false);
 
-  m_ports = new DFGKLEditorPortTableWidget(splitter, controller, config);
+  m_ports = new DFGKLEditorPortTableWidget( splitter, controller, config );
+  QObject::connect(
+    this, SIGNAL(execChanged()),
+    m_ports, SLOT(refresh())
+    );
+  QObject::connect(
+    m_ports, SIGNAL(execPortsChanged()),
+    this, SLOT(onExecPortsChanged())
+    );
+
   m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
   splitter->addWidget(m_ports);
@@ -77,9 +90,12 @@ DFGKLEditorWidget::DFGKLEditorWidget(QWidget * parent, DFGController * controlle
   layout->addWidget(buttonsWidget);
   layout->addWidget(splitter);
 
+  QObject::connect(
+    controller, SIGNAL(execChanged()),
+    this, SLOT(onExecChanged())
+    );
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
   QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
-  QObject::connect(m_ports, SIGNAL(execPortsChanged()), this, SLOT(onExecPortsChanged()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
 }
 
@@ -87,25 +103,35 @@ DFGKLEditorWidget::~DFGKLEditorWidget()
 {
 }
 
-void DFGKLEditorWidget::setFunc(FabricCore::DFGExec func, char const * execPath)
+void DFGKLEditorWidget::onExecChanged()
 {
-  m_func = func;
-  m_execPath = execPath;
+  FabricCore::DFGExec &exec = m_controller->getExec();
 
-  try
+  if ( exec.getType() == FabricCore::DFGExecType_Func )
   {
-    QString code = m_func.getCode();
-    if(code.length() == 0)
-      code = "dfgEntry {\n  //result = lhs + rhs;\n}\n";
-    m_klEditor->sourceCodeWidget()->setCode(code);
-  }
-  catch(FabricCore::Exception e)
-  {
-    m_controller->logError(e.getDesc_cstr());
-  }
+    show();      
+    m_klEditor->sourceCodeWidget()->setFocus();
 
-  m_ports->setExec(func);
-  m_unsavedChanges = false;
+    try
+    {
+      QString code = getExec().getCode();
+      if ( code.length() == 0 )
+        code = "dfgEntry {\n  //result = lhs + rhs;\n}\n";
+      m_klEditor->sourceCodeWidget()->setCode( code );
+    }
+    catch ( FabricCore::Exception e )
+    {
+      m_controller->logError(e.getDesc_cstr());
+    }
+
+    m_unsavedChanges = false;
+
+    emit execChanged();
+  }
+  else
+  {
+    hide();
+  }
 }
 
 void DFGKLEditorWidget::onExecPortsChanged()
@@ -116,25 +142,28 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
   bool modified = false;
 
+  FabricCore::DFGExec &exec = getExec();
+  FTL::StrRef execPath = getExecPath();
+
   // we expect only one change, so either a new port,
   // portName / portType or dataType change
-  if(m_func.getExecPortCount() == infos.size())
+  if(exec.getExecPortCount() == infos.size())
   {
     for(size_t i=0;i<infos.size();i++)
     {
       bool addRemovePort = false;
       bool setPortType = false;
       bool setDataType = false;
-      if(infos[i].portName != m_func.getExecPortName(i))
+      if(infos[i].portName != exec.getExecPortName(i))
       {
-        if(infos[i].portType == m_func.getExecPortType(i) &&
-          infos[i].dataType == m_func.getExecPortTypeSpec(i))
+        if(infos[i].portType == exec.getExecPortType(i) &&
+          infos[i].dataType == exec.getExecPortTypeSpec(i))
         {
           try
           {
-            std::string path = m_execPath;
+            std::string path = execPath;
             path += ".";
-            path += m_func.getExecPortName(i);
+            path += exec.getExecPortName(i);
             m_controller->renamePortByPath(path.c_str(), infos[i].portName.c_str());
           }
           catch(FabricCore::Exception e)
@@ -148,18 +177,18 @@ void DFGKLEditorWidget::onExecPortsChanged()
           addRemovePort = true;
         }
       }
-      else if(infos[i].portType != m_func.getExecPortType(i))
+      else if(infos[i].portType != exec.getExecPortType(i))
       {
         setPortType = true;
       }
-      else if(infos[i].dataType != m_func.getExecPortTypeSpec(i))
+      else if(infos[i].dataType != exec.getExecPortTypeSpec(i))
       {
         setDataType = true;
       }
 
       if(addRemovePort)
       {
-        char const * name = m_func.getExecPortName(i);
+        char const * name = exec.getExecPortName(i);
 
         m_controller->cmdRemovePort( name );
         m_controller->cmdAddPort(
@@ -174,8 +203,8 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         try
         {
-          char const * name = m_func.getExecPortName(i);
-          m_func.setExecPortType(name, infos[i].portType);
+          char const * name = exec.getExecPortName(i);
+          exec.setExecPortType(name, infos[i].portType);
         }
         catch(FabricCore::Exception e)
         {
@@ -187,7 +216,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         try
         {
-          m_func.setExecPortTypeSpec(i, infos[i].dataType.c_str());
+          exec.setExecPortTypeSpec(i, infos[i].dataType.c_str());
         }
         catch(FabricCore::Exception e)
         {
@@ -197,28 +226,28 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
   }
-  else if(m_func.getExecPortCount() > infos.size())
+  else if(exec.getExecPortCount() > infos.size())
   {
-    int indexToRemove = m_func.getExecPortCount() - 1;
+    int indexToRemove = exec.getExecPortCount() - 1;
     for(size_t i=0;i<infos.size();i++)
     {
-      if(m_func.getExecPortName(i) != infos[i].portName)
+      if(exec.getExecPortName(i) != infos[i].portName)
       {
         indexToRemove = i;
         break;
       }
     }
 
-    char const * name = m_func.getExecPortName(indexToRemove);
+    char const * name = exec.getExecPortName(indexToRemove);
     m_controller->cmdRemovePort( name );
     modified = true;
   }
-  else if(m_func.getExecPortCount() < infos.size())
+  else if(exec.getExecPortCount() < infos.size())
   {
     int indexToAdd = infos.size() - 1;
-    for(size_t i=0;i<m_func.getExecPortCount();i++)
+    for(size_t i=0;i<exec.getExecPortCount();i++)
     {
-      if(m_func.getExecPortName(i) != infos[i].portName)
+      if(exec.getExecPortName(i) != infos[i].portName)
       {
         indexToAdd = i;
         break;
@@ -235,15 +264,15 @@ void DFGKLEditorWidget::onExecPortsChanged()
     modified = true;
   }
 
-  if(modified)
-  {
-    m_ports->setExec(m_func);
-  }
+  if ( modified )
+    m_ports->refresh();
 }
 
 void DFGKLEditorWidget::compile()
 {
-  if(m_controller->setCode(m_execPath.c_str(), m_klEditor->sourceCodeWidget()->code().toUtf8().constData()))
+  if ( m_controller->setCode(
+    m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
+    ) )
     m_unsavedChanges = false;
 }
 
@@ -263,7 +292,7 @@ void DFGKLEditorWidget::reload()
       return;
   }
 
-  std::string code = m_controller->reloadCode(m_execPath.c_str());
+  std::string code = m_controller->reloadCode();
   if(code.length() > 0)
   {
     try

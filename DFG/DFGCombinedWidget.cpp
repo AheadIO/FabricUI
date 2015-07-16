@@ -24,12 +24,12 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
 };
 
 void DFGCombinedWidget::init(
-  FabricCore::Client const &client,
+  FabricCore::Client &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
-  FabricCore::DFGHost const &host,
-  FabricCore::DFGBinding const &binding,
+  FabricCore::DFGHost &host,
+  FabricCore::DFGBinding &binding,
   FTL::StrRef execPath,
-  FabricCore::DFGExec const &exec,
+  FabricCore::DFGExec &exec,
   DFGUICmdHandler *cmdHandler,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
@@ -44,27 +44,30 @@ void DFGCombinedWidget::init(
   {
     m_client = client;
     m_manager = manager;
-    m_host = host;
-    m_binding = binding;
-    m_execPath = execPath;
-    m_exec = exec;
 
-    m_treeWidget = new DFG::PresetTreeWidget(this, m_host, config);
-    m_treeWidget->setBinding(m_binding);
-    m_dfgWidget = new DFG::DFGWidget(
-      this,
-      m_client,
-      m_host,
-      m_binding,
-      m_execPath,
-      m_exec,
-      m_manager,
-      cmdHandler,
-      stack,
-      config,
-      overTakeBindingNotifications
-      );
-    m_dfgValueEditor = new DFG::DFGValueEditor(this, m_dfgWidget->getUIController(), config);
+    m_dfgWidget =
+      new DFG::DFGWidget(
+        this,
+        m_client,
+        host,
+        binding,
+        execPath,
+        exec,
+        m_manager,
+        cmdHandler,
+        stack,
+        config,
+        overTakeBindingNotifications
+        );
+
+    m_treeWidget =
+      new DFG::PresetTreeWidget(
+        m_dfgWidget->getDFGController(),
+        config
+        );
+
+    m_dfgValueEditor =
+      new DFG::DFGValueEditor( m_dfgWidget->getUIController(), config );
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
 
@@ -80,7 +83,7 @@ void DFGCombinedWidget::init(
 
     addWidget(m_hSplitter);
 
-    m_dfgLogWidget = new DFGLogWidget(this, config);
+    m_dfgLogWidget = new DFGLogWidget( config );
     addWidget(m_dfgLogWidget);
 
     if(m_dfgWidget->isEditable())

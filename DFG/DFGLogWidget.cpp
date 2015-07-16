@@ -13,11 +13,9 @@ DFGController::LogFunc DFGLogWidget::s_logFunc = NULL;
 std::vector<DFGLogWidget*> DFGLogWidget::sLogWidgets;
 std::vector<std::string> DFGLogWidget::sUnconsumedMessages;
 
-DFGLogWidget::DFGLogWidget(QWidget * parent, const DFGConfig & config)
-: QWidget(parent)
+DFGLogWidget::DFGLogWidget( const DFGConfig & config )
+  : m_config( config )
 {
-  m_config = config;
-
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
   QVBoxLayout * layout = new QVBoxLayout();
@@ -27,6 +25,7 @@ DFGLogWidget::DFGLogWidget(QWidget * parent, const DFGConfig & config)
 
   m_text = new QPlainTextEdit(this);
   m_text->setFont( m_config.fixedFont );
+  m_text->setReadOnly(true);
   layout->addWidget(m_text);
 
   sLogWidgets.push_back(this);

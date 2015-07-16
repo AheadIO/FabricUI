@@ -9,9 +9,11 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueEditorWidget::ValueEditorWidget(QWidget * parent, FabricCore::Client client, const EditorConfig & config)
-: QWidget(parent)
-, m_config(config)
+ValueEditorWidget::ValueEditorWidget(
+  FabricCore::Client client,
+  const EditorConfig & config
+  )
+  : m_config(config)
 {
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);
@@ -43,12 +45,12 @@ EditorConfig & ValueEditorWidget::config()
   return m_config;
 }
 
-ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, QString label, bool enabled)
+ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, QString label, bool enabled, bool parentToRoot)
 {
   int pos = path.lastIndexOf('.');
   QString left = path;
   QString right;
-  if(pos > -1)
+  if(pos > -1 && !parentToRoot)
   {
     left = path.left(pos);
     right = path.right(path.length()-pos-1);
