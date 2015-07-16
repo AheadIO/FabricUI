@@ -26,7 +26,7 @@ bool DFGSetRefVarPathCommand::invoke()
   // get the corresponding subexec
   // @pzion: should setRefVarPath / getRefVarPath
   // automatically do this?
-  int pos = path.find('.');
+  size_t pos = path.find('.');
   while(pos != std::string::npos)
   {
     std::string left = path.substr(0, pos);

@@ -33,8 +33,8 @@ bool DFGSetDefaultValueCommand::invoke()
   // get the corresponding subexec
   // @pzion: should setPortDefaultValue / getPortDefaultValue
   // automatically do this?
-  int posA = path.find('.');
-  int posB = path.rfind('.');
+  size_t posA = path.find('.');
+  size_t posB = path.rfind('.');
   while(posA != std::string::npos && posA != posB)
   {
     std::string left = path.substr(0, posA);
