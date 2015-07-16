@@ -50,7 +50,7 @@ Pin::Pin(
 
   if(portType() != PortType_Input)
   {
-    layout->addStretch(2);
+    layout->addStretch(1);
 
     if(config.nodePinStretch > 0.0f)
     {
@@ -81,7 +81,7 @@ Pin::Pin(
       layout->addItem(stretch);
     }
 
-    layout->addStretch(2);
+    layout->addStretch(1);
   }
 
   m_outCircle = new PinCircle(this, PortType_Output, m_color);
