@@ -19,6 +19,7 @@ PinCircle::PinCircle(ConnectionTarget * parent, PortType portType, QColor color,
   m_radius = m_target->graph()->config().pinRadius;
   m_highlighted = false;
   m_interactiveConnectionsAllowed = interactiveConnectionsAllowed;
+  m_shouldBeVisible = true;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   setPreferredSize(diameter(), diameter());
@@ -139,12 +140,14 @@ bool PinCircle::isOutputPortType() const
 
 void PinCircle::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
+  setVisible(true);
   target()->setHighlighted(true);
   QGraphicsWidget::hoverEnterEvent(event);
 }
 
 void PinCircle::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
+  setVisible(m_shouldBeVisible);
   target()->setHighlighted(false);
   QGraphicsWidget::hoverLeaveEvent(event);
 }
@@ -203,4 +206,9 @@ void PinCircle::setClipping(bool state)
     m_ellipse->setStartAngle(0);
     m_ellipse->setSpanAngle(5760);
   }
+}
+
+void PinCircle::setShouldBeVisible(bool state)
+{
+  m_shouldBeVisible = state;
 }
