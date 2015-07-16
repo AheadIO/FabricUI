@@ -29,7 +29,7 @@ KLSourceCodeWidget::KLSourceCodeWidget(QWidget * parent, FabricServices::ASTWrap
   m_lineOffset = UINT_MAX;
   m_filePath = "empty.kl";
   m_isHighlighting = false;
-  m_popup = NULL;
+  // m_popup = NULL;
 
   document()->setDefaultFont(config.codeFont);
   setWordWrapMode(QTextOption::NoWrap);
@@ -57,8 +57,8 @@ KLSourceCodeWidget::~KLSourceCodeWidget()
 {
   delete(m_highlighter);
   delete(m_codeAssistant);
-  if(m_popup)
-    delete(m_popup);
+  // if(m_popup)
+  //   delete(m_popup);
 }
 
 bool KLSourceCodeWidget::setASTManager(ASTWrapper::KLASTManager * manager)
@@ -67,8 +67,8 @@ bool KLSourceCodeWidget::setASTManager(ASTWrapper::KLASTManager * manager)
   {
     m_highlighter->setASTManager(manager);
     m_codeAssistant->setASTManager(manager);
-    if(m_popup)
-      m_popup->setASTManager(manager);
+    // if(m_popup)
+    //   m_popup->setASTManager(manager);
     return true;
   }
   return false;
@@ -211,25 +211,25 @@ bool KLSourceCodeWidget::event(QEvent * event)
 
 void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
 {
-  bool needNewPopup = false;
-  bool newPopupForParen = false;
+  // bool needNewPopup = false;
+  // bool newPopupForParen = false;
 
-  if((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return || event->key() == Qt::Key_Tab) && m_popup)
+  if((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return || event->key() == Qt::Key_Tab) /*&& m_popup*/)
   {
-    if(!m_popup->isFunctionParameterPopup())
-    {
-      QString prefix = m_popup->currentPrefix();
-      QString suffix = m_popup->currentSuffix();
+    // if(!m_popup->isFunctionParameterPopup())
+    // {
+    //   QString prefix = m_popup->currentPrefix();
+    //   QString suffix = m_popup->currentSuffix();
 
-      QTextCursor cursor = textCursor();
-      cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, prefix.length());
-      cursor.removeSelectedText();
-      insertPlainText(prefix+suffix);
-      hidePopup();
-      return;
-    }
-    else
-      hidePopup();
+    //   QTextCursor cursor = textCursor();
+    //   cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, prefix.length());
+    //   cursor.removeSelectedText();
+    //   insertPlainText(prefix+suffix);
+    //   hidePopup();
+    //   return;
+    // }
+    // else
+    //   hidePopup();
   }
 
   if(event->key() == Qt::Key_Tab)
@@ -264,63 +264,63 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
   }
   else if(event->key() == Qt::Key_Period && m_config.editorAlwaysShowCodeCompletion)
   {
-    needNewPopup = true;
-    newPopupForParen = false;
+    // needNewPopup = true;
+    // newPopupForParen = false;
   }
   else if(event->key() == Qt::Key_ParenLeft)
   {
-    hidePopup();
+    // hidePopup();
     if(m_config.editorAlwaysShowCodeCompletion)
     {
-      needNewPopup = true;
-      newPopupForParen = true;
+      // needNewPopup = true;
+      // newPopupForParen = true;
     }
   }
   else if(event->key() == Qt::Key_ParenRight)
   {
-    hidePopup();
+    // hidePopup();
   }
   else if(event->key() == Qt::Key_Escape)
   {
-    if(hidePopup())
-      return;
+    // if(hidePopup())
+    //   return;
   }
   else if(event->key() == Qt::Key_Backspace)
   {
-    if(m_popup)
-    {
-      if(m_popup->search().length() == 0)
-      {
-        m_popup->hide();
-        m_popup->deleteLater();
-        m_popup = NULL;        
-      }
-      else
-        m_popup->charRemovedFromSearch();
-    }
+    // if(m_popup)
+    // {
+    //   if(m_popup->search().length() == 0)
+    //   {
+    //     m_popup->hide();
+    //     m_popup->deleteLater();
+    //     m_popup = NULL;        
+    //   }
+    //   else
+    //     m_popup->charRemovedFromSearch();
+    // }
   }
   else if(event->key() == Qt::Key_Up)
   {
-    if(m_popup)
-    {
-      unsigned int index = m_popup->index();
-      if(index > 0)
-        m_popup->setIndex(index-1);
-      return;
-    }
+    // if(m_popup)
+    // {
+    //   unsigned int index = m_popup->index();
+    //   if(index > 0)
+    //     m_popup->setIndex(index-1);
+    //   return;
+    // }
   }
   else if(event->key() == Qt::Key_Down)
   {
-    if(m_popup)
-    {
-      unsigned int index = m_popup->index();
-      m_popup->setIndex(index+1);
-      return;
-    }
+    // if(m_popup)
+    // {
+    //   unsigned int index = m_popup->index();
+    //   m_popup->setIndex(index+1);
+    //   return;
+    // }
   }
   else if(event->key() == Qt::Key_Left || event->key() == Qt::Key_Right)
   {
-    hidePopup();
+    // hidePopup();
   }
   else if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
   {
@@ -378,34 +378,34 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
   }
   else if(event->key() == Qt::Key_Space)
   {
-    if(event->modifiers().testFlag(Qt::ControlModifier))
-    {
-      int pos = textCursor().position();
-      std::string charAtCursor = m_codeAssistant->getCharAtCursor(pos);
-      bool forParen = false;
-      if(charAtCursor.length() > 0)
-        forParen = charAtCursor[0] == '(';
-      if(showPopup(forParen))
-        return;
-    }
-    else if(m_popup)
-    {
-      if(!m_popup->isFunctionParameterPopup())
-        hidePopup();
-    }
+    // if(event->modifiers().testFlag(Qt::ControlModifier))
+    // {
+    //   int pos = textCursor().position();
+    //   std::string charAtCursor = m_codeAssistant->getCharAtCursor(pos);
+    //   bool forParen = false;
+    //   if(charAtCursor.length() > 0)
+    //     forParen = charAtCursor[0] == '(';
+    //   if(showPopup(forParen))
+    //     return;
+    // }
+    // else if(m_popup)
+    // {
+    //   if(!m_popup->isFunctionParameterPopup())
+    //     hidePopup();
+    // }
   }
 
-  if(m_popup)
-  {
-    if(needNewPopup)
-      hidePopup();
-    else
-    {
-      QString text = event->text();
-      if(text.length() > 0)
-        m_popup->charAddedToSearch(QStringToStl(text)[0]);
-    }
-  }
+  // if(m_popup)
+  // {
+  //   if(needNewPopup)
+  //     hidePopup();
+  //   else
+  //   {
+  //     QString text = event->text();
+  //     if(text.length() > 0)
+  //       m_popup->charAddedToSearch(QStringToStl(text)[0]);
+  //   }
+  // }
 
   QPlainTextEdit::keyPressEvent(event);
 
@@ -413,8 +413,8 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
   m_highlighter->rehighlight();
   m_isHighlighting = false;
 
-  if(needNewPopup)
-    showPopup(newPopupForParen);
+  // if(needNewPopup)
+  //   showPopup(newPopupForParen);
 }
 
 void KLSourceCodeWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -674,49 +674,49 @@ void KLSourceCodeWidget::clearHighlightedLocations()
   m_isHighlighting = false;
 }
 
-bool KLSourceCodeWidget::showPopup(bool forParen)
-{
-  updateSourceCode(false);
+// bool KLSourceCodeWidget::showPopup(bool forParen)
+// {
+//   updateSourceCode(false);
 
-  int pos = textCursor().position();
+//   int pos = textCursor().position();
 
-  hidePopup();
+//   hidePopup();
 
-  if(forParen)
-  {
-    const ASTWrapper::KLDecl * decl = m_codeAssistant->getDeclAtCursor(pos);
-    if(decl == NULL)
-      return false;
-    if(!decl->isOfDeclType(ASTWrapper::KLDeclType_Function))
-      return false;
+//   if(forParen)
+//   {
+//     const ASTWrapper::KLDecl * decl = m_codeAssistant->getDeclAtCursor(pos);
+//     if(decl == NULL)
+//       return false;
+//     if(!decl->isOfDeclType(ASTWrapper::KLDeclType_Function))
+//       return false;
 
-    m_popup = new CodeCompletionPopup(NULL, getASTManager(), (const ASTWrapper::KLFunction*)decl, m_config);
-  }
-  else
-  {
-    std::string wordAtCursor = m_codeAssistant->getWordAtCursor(pos, forParen);
-    const ASTWrapper::KLType * klType = m_codeAssistant->getTypeAtCursor(pos, true);
-    if(wordAtCursor.length() == 0 && klType == NULL)
-      return false;
+//     m_popup = new CodeCompletionPopup(NULL, getASTManager(), (const ASTWrapper::KLFunction*)decl, m_config);
+//   }
+//   else
+//   {
+//     std::string wordAtCursor = m_codeAssistant->getWordAtCursor(pos, forParen);
+//     const ASTWrapper::KLType * klType = m_codeAssistant->getTypeAtCursor(pos, true);
+//     if(wordAtCursor.length() == 0 && klType == NULL)
+//       return false;
 
-    m_popup = new CodeCompletionPopup(NULL, wordAtCursor, getASTManager(), klType, m_config);
-  }
+//     m_popup = new CodeCompletionPopup(NULL, wordAtCursor, getASTManager(), klType, m_config);
+//   }
 
-  QPoint cursorPos = mapToGlobal(cursorRect().bottomLeft());
-  m_popup->setPosFromCursor(cursorPos);
-  m_popup->show();
+//   QPoint cursorPos = mapToGlobal(cursorRect().bottomLeft());
+//   m_popup->setPosFromCursor(cursorPos);
+//   m_popup->show();
 
-  return true;
-}
+//   return true;
+// }
 
-bool KLSourceCodeWidget::hidePopup()
-{
-  if(m_popup)
-  {
-    m_popup->hide();
-    m_popup->deleteLater();
-    m_popup = NULL;
-    return true;
-  }
-  return false;
-}
+// bool KLSourceCodeWidget::hidePopup()
+// {
+//   if(m_popup)
+//   {
+//     m_popup->hide();
+//     m_popup->deleteLater();
+//     m_popup = NULL;
+//     return true;
+//   }
+//   return false;
+// }

@@ -49,7 +49,18 @@ Pin::Pin(
   }
 
   if(portType() != PortType_Input)
-    layout->addStretch(2);
+  {
+    layout->addStretch(1);
+
+    if(config.nodePinStretch > 0.0f)
+    {
+      QGraphicsWidget * stretch = new QGraphicsWidget(this);
+      stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+      stretch->setMinimumWidth(portType() == PortType_IO ? config.nodePinStretch * 0.5 : config.nodePinStretch);
+      stretch->setMaximumHeight(1.0f);
+      layout->addItem(stretch);
+    }
+  }
 
   if(m_labelCaption.length() > 0)
   {
@@ -60,13 +71,27 @@ Pin::Pin(
   }
 
   if(portType() != PortType_Output)
-    layout->addStretch(2);
+  {
+    if(config.nodePinStretch > 0.0f)
+    {
+      QGraphicsWidget * stretch = new QGraphicsWidget(this);
+      stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+      stretch->setMinimumWidth(portType() == PortType_IO ? config.nodePinStretch * 0.5 : config.nodePinStretch);
+      stretch->setMaximumHeight(1.0f);
+      layout->addItem(stretch);
+    }
+
+    layout->addStretch(1);
+  }
 
   m_outCircle = new PinCircle(this, PortType_Output, m_color);
   layout->addItem(m_outCircle);
   layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
   if(portType() == PortType_Input)
+  {
     m_outCircle->setClipping(true);
+  }
+  setDaisyChainCircleVisible(false);
 }
 
 Graph * Pin::graph()
@@ -268,4 +293,13 @@ void Pin::setDrawState(bool flag)
 bool Pin::drawState() const
 {
   return m_drawState;
+}
+
+void Pin::setDaisyChainCircleVisible(bool flag)
+{
+  if(portType() == PortType_Input && m_outCircle)
+  {
+    m_outCircle->setVisible(flag);
+    m_outCircle->setShouldBeVisible(flag);
+  }
 }

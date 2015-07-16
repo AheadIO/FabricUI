@@ -1297,6 +1297,11 @@ std::string DFGController::implodeNodes(char const * desiredName, QStringList pa
       return "";
     }
 
+    for(int i=0;i<paths.size();i++)
+    {
+      emit nodeDeleted(paths[i]);
+    }
+
     char const * nodePath = command->getInstName();
     moveNode(nodePath, bounds.center(), false);
 
@@ -1609,20 +1614,32 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
 
     // let's assume it is pin, if there's still a node name in it
     Commands::Command * command = NULL;
-    if(portOrPinPath.find('.') != std::string::npos)
+    if(portOrPinPath.rfind('.') != std::string::npos)
     {
-      std::string nodeName = portOrPinPath.substr(0, portOrPinPath.find('.'));
-      FabricCore::DFGNodeType nodeType = rootExec.getNodeType(nodeName.c_str());
+      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodeName = nodePath;
+      FabricCore::DFGExec parentExec = rootExec;
+
+      // if we have a path deeper than one level, 
+      // determine the sub exec
+      size_t pos = nodePath.rfind('.');
+      if(pos != std::string::npos)
+      {
+        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+        nodeName = nodePath.substr(pos+1);
+      }
+
+      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodeName + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
         command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodeName + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodeName.c_str(), item->value().getStringCString());
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
       }
     }
     else
@@ -1948,24 +1965,31 @@ void DFGController::updatePresetPathDB()
     if(prefix.length() > 0)
       prefix += ".";
 
-    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
-    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
-    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    try
     {
-      std::string name = memberIter.getKey()->getStringData();
-      const FabricCore::Variant * memberVar = memberIter.getValue();
-      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
-      std::string objectType = objectTypeVar->getStringData();
-      if(objectType == "Preset")
+      FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
+      FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+      const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+      for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
       {
-        m_presetPathDictSTL.push_back(prefix+name);
+        std::string name = memberIter.getKey()->getStringData();
+        const FabricCore::Variant * memberVar = memberIter.getValue();
+        const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+        std::string objectType = objectTypeVar->getStringData();
+        if(objectType == "Preset")
+        {
+          m_presetPathDictSTL.push_back(prefix+name);
+        }
+        else if(objectType == "NameSpace")
+        {
+          paths.push_back(prefix+name);
+          m_presetNameSpaceDictSTL.push_back(prefix+name);
+        }
       }
-      else if(objectType == "NameSpace")
-      {
-        paths.push_back(prefix+name);
-        m_presetNameSpaceDictSTL.push_back(prefix+name);
-      }
+    }
+    catch (FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
     }
   }
 

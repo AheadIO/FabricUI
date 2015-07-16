@@ -71,8 +71,8 @@ namespace FabricUI
 
     private:
 
-      bool showPopup(bool forParen = false);
-      bool hidePopup();
+      // bool showPopup(bool forParen = false);
+      // bool hidePopup();
 
       unsigned int m_lineOffset;
       EditorConfig m_config;
@@ -83,7 +83,7 @@ namespace FabricUI
       bool m_hasUnsavedChanges;
       bool m_isHighlighting;
       QString m_lastCode;
-      CodeCompletionPopup * m_popup;
+      // CodeCompletionPopup * m_popup;
     };
 
   };

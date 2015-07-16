@@ -725,10 +725,12 @@ void DFGWidget::onExecPortAction(QAction * action)
       FabricCore::Client &client = m_uiController->getClient();
       FabricCore::DFGExec &exec = m_uiController->getCoreDFGExec();
 
-      DFGEditPortDialog dialog( this, client, false, m_dfgConfig );
+      DFGEditPortDialog dialog( this, client, false, m_uiController->isViewingRootGraph(), m_dfgConfig );
 
       dialog.setTitle(portName);
-      dialog.setDataType(exec.getExecPortResolvedType(portName));
+
+      if(m_uiController->isViewingRootGraph())
+        dialog.setDataType(exec.getExecPortResolvedType(portName));
 
       FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
       if(uiHidden == "true")
@@ -857,7 +859,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
     FTL::CStrRef execPath = m_uiController->getCoreDFGExecPath();
     FabricCore::DFGExec &exec = m_uiController->getCoreDFGExec();
 
-    DFGEditPortDialog dialog( this, client, true, m_dfgConfig );
+    DFGEditPortDialog dialog( this, client, true, m_uiController->isViewingRootGraph(), m_dfgConfig );
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -872,8 +874,15 @@ void DFGWidget::onSidePanelAction(QAction * action)
     emit portEditDialogInvoked(&dialog);
 
     QString title = dialog.title();
-    QString dataType = dialog.dataType();
-    QString extension = dialog.extension();
+
+    QString dataType = "";
+    QString extension = "";
+
+    if(m_uiController->isViewingRootGraph())
+    {
+      dataType = dialog.dataType();
+      extension = dialog.extension();
+    }
 
     if(title.length() > 0)
     {

@@ -45,6 +45,7 @@ namespace FabricUI
       bool isInputPortType() const;
       bool isOutputPortType() const;
       virtual void setClipping(bool state);
+      virtual void setShouldBeVisible(bool state);
 
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
@@ -61,6 +62,7 @@ namespace FabricUI
       float m_radius;
       QGraphicsEllipseItem * m_ellipse;
       bool m_interactiveConnectionsAllowed;
+      bool m_shouldBeVisible;
     };
 
   };

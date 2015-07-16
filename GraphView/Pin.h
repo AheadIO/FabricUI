@@ -73,6 +73,7 @@ namespace FabricUI
 
       virtual void setDrawState(bool flag);
       virtual bool drawState() const;
+      virtual void setDaisyChainCircleVisible(bool flag);
 
       // accessed by controller
       Pin(Node * parent, char const *name, PortType pType, QColor color, const char * label = "");
