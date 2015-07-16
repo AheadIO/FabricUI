@@ -9,8 +9,13 @@
 #include <FTL/JSONValue.h>
 #include <FTL/MapCharSingle.h>
 #include <FTL/Str.h>
+#include <FTL/FS.h>
 
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
+#include <QtCore/QUrl>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -20,7 +25,8 @@ PresetTreeWidget::PresetTreeWidget(
   DFGController *dfgController,
   const DFGConfig & config,
   bool showsPresets,
-  bool showSearch
+  bool showSearch,
+  bool setupContextMenu
   )
   : m_dfgController( dfgController )
   , m_showsPresets( showsPresets )
@@ -67,6 +73,12 @@ PresetTreeWidget::PresetTreeWidget(
     dfgController, SIGNAL(bindingChanged()),
     this, SLOT(refresh())
     );
+
+  if(setupContextMenu)
+  {
+    QObject::connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint, FabricUI::TreeView::TreeItem *)), 
+      this, SLOT(onCustomContextMenuRequested(QPoint, FabricUI::TreeView::TreeItem *)));
+  }
 }
 
 PresetTreeWidget::~PresetTreeWidget()
@@ -203,6 +215,45 @@ void PresetTreeWidget::refresh()
     }
 
     m_treeView->expandAll();
+  }
+}
+
+void PresetTreeWidget::onCustomContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item)
+{
+  m_contextPath = item->path();
+
+  QMenu menu(NULL);
+  if(item->type() == "NameSpace" || item->type() == "Preset")
+    menu.addAction("Open Folder");
+  if(item->type() == "Preset")
+    menu.addAction("Open File");
+
+  QObject::connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(onContextMenuAction(QAction*)));
+  menu.exec(globalPos);  
+}
+
+void PresetTreeWidget::onContextMenuAction(QAction * action)
+{
+  if(action->text() == "Open Folder" || action->text() == "Open File")
+  {
+    try
+    {
+      FabricCore::DFGHost host = m_dfgController->getCoreDFGHost();
+      FTL::StrRef path = host.getPresetImportPathname(m_contextPath.toUtf8().constData());
+      if(action->text() == "Open Folder")
+      {
+        if(!FTL::FSIsDir(path))
+        {
+          path = FTL::PathSplit(path).first;
+        }
+      }
+
+      std::string pathStr(path.data(), path.size());
+      QDesktopServices::openUrl(QUrl::fromLocalFile(pathStr.c_str()));
+    }
+    catch(FabricCore::Exception e)
+    {
+    }
   }
 }
 

@@ -29,7 +29,8 @@ namespace FabricUI
         DFGController *dfgController,
         const DFGConfig & config = DFGConfig(),
         bool showsPresets = true,
-        bool showSearch = true
+        bool showSearch = true,
+        bool setupContextMenu = false
         );
       virtual ~PresetTreeWidget();
 
@@ -39,6 +40,8 @@ namespace FabricUI
     public slots:
 
       void refresh();
+      void onCustomContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item);
+      void onContextMenuAction(QAction * action);
 
     private:
       
@@ -53,6 +56,7 @@ namespace FabricUI
       bool m_presetDictsUpToDate;
       QString m_state;
       bool m_showsPresets;
+      QString m_contextPath;
     };
 
   };
