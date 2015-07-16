@@ -63,6 +63,7 @@ namespace FabricUI
 
     private:
 
+      int currentRow_safe() const;
       int addPort(FabricCore::DFGPortType portType, QString portName, QString dataType, QString extension = "");
 
       FabricCore::DFGExec m_exec;
