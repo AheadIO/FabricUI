@@ -1965,24 +1965,31 @@ void DFGController::updatePresetPathDB()
     if(prefix.length() > 0)
       prefix += ".";
 
-    FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
-    const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
-    for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
+    try
     {
-      std::string name = memberIter.getKey()->getStringData();
-      const FabricCore::Variant * memberVar = memberIter.getValue();
-      const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
-      std::string objectType = objectTypeVar->getStringData();
-      if(objectType == "Preset")
+      FabricCore::DFGStringResult jsonStr = m_coreDFGHost.getPresetDesc(paths[i].c_str());
+      FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(jsonStr.getCString());
+      const FabricCore::Variant * membersVar = jsonVar.getDictValue("members");
+      for(FabricCore::Variant::DictIter memberIter(*membersVar); !memberIter.isDone(); memberIter.next())
       {
-        m_presetPathDictSTL.push_back(prefix+name);
+        std::string name = memberIter.getKey()->getStringData();
+        const FabricCore::Variant * memberVar = memberIter.getValue();
+        const FabricCore::Variant * objectTypeVar = memberVar->getDictValue("objectType");
+        std::string objectType = objectTypeVar->getStringData();
+        if(objectType == "Preset")
+        {
+          m_presetPathDictSTL.push_back(prefix+name);
+        }
+        else if(objectType == "NameSpace")
+        {
+          paths.push_back(prefix+name);
+          m_presetNameSpaceDictSTL.push_back(prefix+name);
+        }
       }
-      else if(objectType == "NameSpace")
-      {
-        paths.push_back(prefix+name);
-        m_presetNameSpaceDictSTL.push_back(prefix+name);
-      }
+    }
+    catch (FabricCore::Exception e)
+    {
+      logError(e.getDesc_cstr());
     }
   }
 
