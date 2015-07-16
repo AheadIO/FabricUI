@@ -49,7 +49,18 @@ Pin::Pin(
   }
 
   if(portType() != PortType_Input)
+  {
     layout->addStretch(2);
+
+    if(config.nodePinStretch > 0.0f)
+    {
+      QGraphicsWidget * stretch = new QGraphicsWidget(this);
+      stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+      stretch->setMinimumWidth(portType() == PortType_IO ? config.nodePinStretch * 0.5 : config.nodePinStretch);
+      stretch->setMaximumHeight(1.0f);
+      layout->addItem(stretch);
+    }
+  }
 
   if(m_labelCaption.length() > 0)
   {
@@ -60,7 +71,18 @@ Pin::Pin(
   }
 
   if(portType() != PortType_Output)
+  {
+    if(config.nodePinStretch > 0.0f)
+    {
+      QGraphicsWidget * stretch = new QGraphicsWidget(this);
+      stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+      stretch->setMinimumWidth(portType() == PortType_IO ? config.nodePinStretch * 0.5 : config.nodePinStretch);
+      stretch->setMaximumHeight(1.0f);
+      layout->addItem(stretch);
+    }
+
     layout->addStretch(2);
+  }
 
   m_outCircle = new PinCircle(this, PortType_Output, m_color);
   layout->addItem(m_outCircle);
