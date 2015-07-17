@@ -95,14 +95,6 @@ namespace FabricUI
       virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
-      virtual Pin * addPin(
-        GraphView::Node * node,
-        FTL::CStrRef name,
-        GraphView::PortType pType,
-        QColor color,
-        FTL::CStrRef dataType = ""
-        );
-      virtual bool removePin(Pin * pin);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool frameNodes(const std::vector<Node*> & nodes);

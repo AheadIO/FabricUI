@@ -112,34 +112,6 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-Pin * Controller::addPin(
-  Node * node,
-  FTL::CStrRef name,
-  PortType pType,
-  QColor color,
-  FTL::CStrRef dataType
-  )
-{
-  AddPinCommand * command = new AddPinCommand(this, node, name.data(), pType, color, dataType.data());
-
-  if(addCommand(command))
-    return command->getPin();
-
-  delete(command);
-  return NULL;
-}
-
-bool Controller::removePin(Pin * pin)
-{
-  RemovePinCommand * command = new RemovePinCommand(this, pin);
-
-  if(addCommand(command))
-    return true;
-
-  delete(command);
-  return false;
-}
-
 bool Controller::gvcDoRemoveConnection(Connection * conn)
 {
   return gvcDoRemoveConnection(conn->src(), conn->dst());  
