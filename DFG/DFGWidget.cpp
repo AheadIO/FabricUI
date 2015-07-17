@@ -188,7 +188,6 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   }
 
   QMenu* result = new QMenu(NULL);
-  QAction* action;
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
@@ -196,19 +195,19 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
     if(uiDocUrl.length() > 0)
     {
-      action = result->addAction("Documentation");
+      result->addAction("Documentation");
       result->addSeparator();
     }
-    action = result->addAction("Edit");
+    result->addAction("Edit");
   }
-  action = result->addAction("Rename");
-  action = result->addAction("Delete");
+  result->addAction("Rename");
+  result->addAction("Delete");
 
   if ( !uiNode->isBackDropNode() )
   {
     result->addSeparator();
-    action = result->addAction("Save Preset");
-    action = result->addAction("Export JSON");
+    result->addAction("Save Preset");
+    result->addAction("Export JSON");
 
     FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
@@ -242,12 +241,12 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   else
   {
     result->addSeparator();
-    action = result->addAction("Change color");
+    result->addAction("Change color");
   }
 
   result->addSeparator();
-  action = result->addAction("Set Comment");
-  action = result->addAction("Remove Comment");
+  result->addAction("Set Comment");
+  result->addAction("Remove Comment");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
