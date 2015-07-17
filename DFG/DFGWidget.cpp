@@ -261,6 +261,7 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
+  result->addAction("Rename");
   result->addAction("Delete");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onExecPortAction(QAction*)));
@@ -778,6 +779,27 @@ void DFGWidget::onExecPortAction(QAction * action)
   {
     m_uiController->cmdRemovePort( portName );
   }
+  else if ( action->text() == "Rename" )
+  {
+    DFGBaseDialog dialog( this );
+    QLineEdit *lineEdit = new QLineEdit();
+    lineEdit->setText( portName );
+    lineEdit->selectAll();
+    QObject::connect(
+      lineEdit, SIGNAL(returnPressed()),
+      &dialog, SLOT(accept())
+      );
+    dialog.addInput( lineEdit, "Desired name" );
+
+    if ( dialog.exec() == QDialog::Accepted )
+    {
+      QString desiredNewName = lineEdit->text();
+      m_uiController->cmdRenameExecPort(
+        portName,
+        desiredNewName.toUtf8().constData()
+        );
+    }
+  }
   else if(action->text() == "Edit")
   {
     try
@@ -883,7 +905,10 @@ void DFGWidget::onExecPortAction(QAction * action)
 
       if(dialog.title() != portName)
       {
-        m_uiController->renamePortByPath(portName, dialog.title().toUtf8().constData());
+        m_uiController->cmdRenameExecPort(
+          portName,
+          dialog.title().toUtf8().constData()
+          );
       }
       m_uiController->endInteraction();
 

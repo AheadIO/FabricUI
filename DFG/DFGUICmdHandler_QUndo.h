@@ -203,6 +203,15 @@ public:
     FTL::CStrRef code
     );
 
+  virtual std::string dfgDoRenameExecPort(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef oldName,
+    FTL::CStrRef desiredNewName
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

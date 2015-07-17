@@ -143,7 +143,6 @@ void DFGKLEditorWidget::onExecPortsChanged()
   bool modified = false;
 
   FabricCore::DFGExec &exec = getExec();
-  FTL::StrRef execPath = getExecPath();
 
   // we expect only one change, so either a new port,
   // portName / portType or dataType change
@@ -161,10 +160,10 @@ void DFGKLEditorWidget::onExecPortsChanged()
         {
           try
           {
-            std::string path = execPath;
-            path += ".";
-            path += exec.getExecPortName(i);
-            m_controller->renamePortByPath(path.c_str(), infos[i].portName.c_str());
+            m_controller->cmdRenameExecPort(
+              exec.getExecPortName(i),
+              infos[i].portName.c_str()
+              );
           }
           catch(FabricCore::Exception e)
           {

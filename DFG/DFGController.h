@@ -241,7 +241,11 @@ namespace FabricUI
 
       void cmdSetCode( FTL::CStrRef code );
 
-      virtual std::string renamePortByPath(char const *  path, char const *  title);
+      std::string cmdRenameExecPort(
+        FTL::CStrRef oldName,
+        FTL::CStrRef desiredNewName
+        );
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
       virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");

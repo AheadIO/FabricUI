@@ -15,7 +15,6 @@
 #include "DFGLogWidget.h"
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
-#include "DFGUICmd_QUndo/DFGRenamePortCommand.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
 #include "DFGUICmd_QUndo/DFGSetDefaultValueCommand.h"
 #include "DFGUICmd_QUndo/DFGSetRefVarPathCommand.h"
@@ -288,33 +287,19 @@ void DFGController::gvcDoSetNodeCommentExpanded(
   cmdSetNodeCommentExpanded( node->name(), expanded );
 }
 
-std::string DFGController::renamePortByPath(char const *path, char const *name)
+std::string DFGController::cmdRenameExecPort(
+  FTL::CStrRef oldName,
+  FTL::CStrRef desiredNewName
+  )
 {
-  FTL::StrRef pathRef(path);
-  if(pathRef == name)
-    return "";
-  try
-  {
-    DFGRenamePortCommand * command = new DFGRenamePortCommand(this, path, name);
-    if(!addCommand(command))
-    {
-      delete(command);
-      return "";
-    }
-    emit argsChanged();
-    emit structureChanged();
-    emit recompiled();
-
-    std::string newName = command->getResult();
-    emit execPortRenamed(path, newName.c_str());
-    return newName;
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return "";
-  }
-  return "";
+  return m_cmdHandler->dfgDoRenameExecPort(
+    FTL_STR("Canvas: Rename port"),
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    oldName,
+    desiredNewName
+    );
 }
 
 bool DFGController::gvcDoAddConnection(

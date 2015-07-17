@@ -204,6 +204,15 @@ public:
     FabricCore::DFGExec &exec,
     FTL::CStrRef code
     ) = 0;
+
+  virtual std::string dfgDoRenameExecPort(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef oldName,
+    FTL::CStrRef desiredNewName
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

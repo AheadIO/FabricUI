@@ -525,4 +525,19 @@ void DFGUIPerform_SetCode(
   ++coreUndoCount;
 }
 
+std::string DFGUIPerform_RenameExecPort(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef oldName,
+  FTL::CStrRef desiredNewName,
+  unsigned &coreUndoCount
+  )
+{
+  FTL::CStrRef actualNewName =
+    exec.renameExecPort( oldName.c_str(), desiredNewName.c_str() );
+  ++coreUndoCount;
+  return actualNewName;
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

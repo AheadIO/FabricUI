@@ -18,6 +18,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RenameExecPort_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ResizeBackDropNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
@@ -461,6 +462,28 @@ void DFGUICmdHandler_QUndo::dfgDoSetCode(
       code
       );
   m_qUndoStack->push( cmd );
+}
+
+std::string DFGUICmdHandler_QUndo::dfgDoRenameExecPort(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef oldName,
+  FTL::CStrRef desiredNewName
+  )
+{
+  DFGUICmd_RenameExecPort_QUndo *cmd =
+    new DFGUICmd_RenameExecPort_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      oldName,
+      desiredNewName
+      );
+  m_qUndoStack->push( cmd );
+  return cmd->getActualNewName();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END
