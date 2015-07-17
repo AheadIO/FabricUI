@@ -169,6 +169,8 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
+      void setBlockCompilations( bool blockCompilations );
+
     signals:
 
       void hostChanged();

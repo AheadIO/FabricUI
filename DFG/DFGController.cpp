@@ -2092,3 +2092,16 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
 
   return words;
 }
+
+void DFGController::setBlockCompilations( bool blockCompilations )
+{
+  if ( blockCompilations )
+    m_coreDFGHost.blockComps();
+  else
+  {
+    m_coreDFGHost.unblockComps();
+    emit structureChanged();
+    emit recompiled();
+    emit variablesChanged();
+  }
+}
