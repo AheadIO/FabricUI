@@ -5,8 +5,10 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QColorDialog>
+#include <QtCore/QUrl>
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
+#include <QtGui/QDesktopServices>
 #include <FabricCore.h>
 #include "DFGWidget.h"
 #include "DFGMainWindow.h"
@@ -190,6 +192,13 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    if(uiDocUrl.length() > 0)
+    {
+      action = result->addAction("Documentation");
+      result->addSeparator();
+    }
     action = result->addAction("Edit");
   }
   action = result->addAction("Rename");
@@ -420,7 +429,15 @@ void DFGWidget::onNodeAction(QAction * action)
     return;
 
   char const * nodeName = m_contextNode->name().c_str();
-  if(action->text() == "Edit")
+  if(action->text() == "Documentation")
+  {
+    FabricCore::DFGExec &exec = m_uiController->getCoreDFGExec();
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    if(uiDocUrl.length() > 0)
+      QDesktopServices::openUrl(uiDocUrl);
+  }
+  else if(action->text() == "Edit")
   {
     FabricCore::DFGExec &exec = m_uiController->getCoreDFGExec();
     if ( exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst )
