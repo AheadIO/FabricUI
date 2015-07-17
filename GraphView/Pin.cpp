@@ -174,6 +174,21 @@ void Pin::setDataType(FTL::CStrRef dataType)
 {
   m_dataType = dataType;
   setToolTip(dataType.c_str());
+
+  // automatically change the label for array pins
+  if(m_label)
+  {
+    if(m_dataType.substr(m_dataType.length()-2) == "[]" && m_labelSuffix != "[]")
+    {
+      m_labelSuffix = "[]";
+      m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+    }
+    else if(m_labelSuffix.length() > 0)
+    {
+      m_labelSuffix = "";
+      m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+    }
+  }
 }
 
 PinCircle * Pin::inCircle()
