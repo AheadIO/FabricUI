@@ -246,9 +246,8 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   }
 
   result->addSeparator();
-  action = result->addAction("Add Comment");
+  action = result->addAction("Set Comment");
   action = result->addAction("Remove Comment");
-  (void)action;
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
@@ -686,15 +685,27 @@ void DFGWidget::onNodeAction(QAction * action)
     color = QColorDialog::getColor(color, this);
     m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
   }
-  else if(action->text() == "Add Comment")
+  else if(action->text() == "Set Comment")
   {
-    m_uiController->setNodeComment(m_contextNode, " ");
+    GraphView::NodeBubble * bubble = m_contextNode->bubble();
+    if(!bubble)
+    {
+      m_uiController->setNodeComment(m_contextNode, " ");
+    }
+    else
+    {
+      QString text = bubble->text();
+      if(text.length() == 0)
+        m_uiController->setNodeComment(m_contextNode, " ");
+    }
+
     onBubbleEditRequested(m_contextNode);
     m_uiController->setNodeCommentExpanded(m_contextNode, true);
   }
   else if(action->text() == "Remove Comment")
   {
     m_uiController->setNodeComment(m_contextNode, NULL);
+    m_uiController->setNodeCommentExpanded(m_contextNode, false);
   }
 
   m_contextNode = NULL;
