@@ -25,7 +25,7 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
     m_portTypeCombo = NULL;
   m_titleEdit = new QLineEdit("", this);
 
-  m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, dataTypeRequired ? "" : "$TYPE$");
+  m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "");
   m_extensionEdit = new DFGExtensionLineEdit(this, client);
 
   m_visibilityCombo = new QComboBox(this);

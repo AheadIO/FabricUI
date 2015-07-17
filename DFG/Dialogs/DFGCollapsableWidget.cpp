@@ -11,9 +11,9 @@ using namespace FabricUI::DFG;
 
 DFGCollapsableWidget::DFGCollapsableWidget(QWidget * parent, QString title, bool useGridLayout, const DFGConfig & dfgConfig)
 : QWidget(parent)
+, m_collapsed(false)
 , m_dfgConfig(dfgConfig)
 , m_usesGridLayout(useGridLayout)
-, m_collapsed(false)
 {
   QVBoxLayout * layout = new QVBoxLayout();
   setLayout(layout);
