@@ -270,10 +270,10 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
 void DFGKLEditorWidget::compile()
 {
-  if ( m_controller->setCode(
+  m_controller->cmdSetCode(
     m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
-    ) )
-    m_unsavedChanges = false;
+    );
+  m_unsavedChanges = false;
 }
 
 void DFGKLEditorWidget::reload()

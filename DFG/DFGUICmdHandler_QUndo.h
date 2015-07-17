@@ -195,6 +195,14 @@ public:
     bool expanded
     );
 
+  virtual void dfgDoSetCode(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef code
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

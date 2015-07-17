@@ -63,7 +63,10 @@ void DFGCombinedWidget::init(
     m_treeWidget =
       new DFG::PresetTreeWidget(
         m_dfgWidget->getDFGController(),
-        config
+        config,
+        true,
+        true,
+        true
         );
 
     m_dfgValueEditor =

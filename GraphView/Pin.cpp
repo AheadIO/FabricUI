@@ -52,7 +52,7 @@ Pin::Pin(
   {
     layout->addStretch(1);
 
-    if(config.nodePinStretch > 0.0f)
+    if(config.nodePinStretch > 0.0f && portType() != PortType_IO)
     {
       QGraphicsWidget * stretch = new QGraphicsWidget(this);
       stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -72,7 +72,7 @@ Pin::Pin(
 
   if(portType() != PortType_Output)
   {
-    if(config.nodePinStretch > 0.0f)
+    if(config.nodePinStretch > 0.0f && portType() != PortType_IO)
     {
       QGraphicsWidget * stretch = new QGraphicsWidget(this);
       stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));

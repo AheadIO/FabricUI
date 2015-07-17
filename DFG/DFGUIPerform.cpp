@@ -513,4 +513,16 @@ void DFGUIPerform_SetNodeCommentExpanded(
   ++coreUndoCount;
 }
 
+void DFGUIPerform_SetCode(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef code,
+  unsigned &coreUndoCount
+  )
+{
+  exec.setCode( code.c_str() );
+  ++coreUndoCount;
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

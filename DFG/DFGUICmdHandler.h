@@ -196,6 +196,14 @@ public:
     FTL::CStrRef nodeName,
     bool expanded
     ) = 0;
+
+  virtual void dfgDoSetCode(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::CStrRef code
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

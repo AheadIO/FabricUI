@@ -239,9 +239,10 @@ namespace FabricUI
         bool expanded
         );
 
+      void cmdSetCode( FTL::CStrRef code );
+
       virtual std::string renamePortByPath(char const *  path, char const *  title);
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
-      virtual bool setCode( FTL::CStrRef code );
       virtual std::string reloadCode();
       virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
       virtual bool setArg(char const *  argName, FabricCore::RTVal value);
@@ -291,6 +292,8 @@ namespace FabricUI
         { emit structureChanged(); }
       void emitRecompiled()
         { emit recompiled(); }
+
+      void setBlockCompilations( bool blockCompilations );
 
     signals:
 

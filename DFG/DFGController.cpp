@@ -16,7 +16,6 @@
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
 #include "DFGUICmd_QUndo/DFGRenamePortCommand.h"
-#include "DFGUICmd_QUndo/DFGSetCodeCommand.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
 #include "DFGUICmd_QUndo/DFGSetDefaultValueCommand.h"
 #include "DFGUICmd_QUndo/DFGSetRefVarPathCommand.h"
@@ -383,39 +382,15 @@ bool DFGController::addExtensionDependency(char const * extension, char const * 
   return true;
 }
 
-bool DFGController::setCode( FTL::CStrRef code )
+void DFGController::cmdSetCode( FTL::CStrRef code )
 {
-  try
-  {
-    Commands::Command * command =
-      new DFGSetCodeCommand(
-        this,
-        m_execPath.c_str(),
-        code.c_str()
-        );
-    if(!addCommand(command))
-    {
-      delete(command);
-      return false;
-    }
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-
-  try
-  {
-    m_binding.execute();
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-
-  emit recompiled();
-  return true;
+  m_cmdHandler->dfgDoSetCode(
+    FTL_STR("Canvas: Set code"),
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    code
+    );
 }
 
 std::string DFGController::reloadCode()
@@ -453,8 +428,8 @@ std::string DFGController::reloadCode()
           if(klCodeVar->isString())
           {
             std::string klCode = klCodeVar->getStringData();
-            if ( DFGController::setCode( klCode.c_str() ) )
-              return klCode.c_str();
+            cmdSetCode( klCode.c_str() );
+            return klCode.c_str();
           }
         }
       }
@@ -1931,5 +1906,18 @@ void DFGController::gvcDoResizeBackDropNode(
         false
         );
     }
+  }
+}
+
+void DFGController::setBlockCompilations( bool blockCompilations )
+{
+  if ( blockCompilations )
+    m_host.blockComps();
+  else
+  {
+    m_host.unblockComps();
+    emit structureChanged();
+    emit recompiled();
+    emit variablesChanged();
   }
 }
