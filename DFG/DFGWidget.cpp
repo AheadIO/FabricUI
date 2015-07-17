@@ -756,9 +756,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       DFGEditPortDialog dialog( this, client, false, m_uiController->isViewingRootGraph(), m_dfgConfig );
 
       dialog.setTitle(portName);
-
-      if(m_uiController->isViewingRootGraph())
-        dialog.setDataType(exec.getExecPortResolvedType(portName));
+      dialog.setDataType(exec.getExecPortResolvedType(portName));
 
       FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
       if(uiHidden == "true")
@@ -903,14 +901,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
     QString title = dialog.title();
 
-    QString dataType = "";
-    QString extension = "";
-
-    if(m_uiController->isViewingRootGraph())
-    {
-      dataType = dialog.dataType();
-      extension = dialog.extension();
-    }
+    QString dataType = dialog.dataType();
+    QString extension = dialog.extension();
 
     if(title.length() > 0)
     {
