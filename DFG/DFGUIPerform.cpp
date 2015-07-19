@@ -327,20 +327,15 @@ std::string DFGUIPerform_ImplodeNodes(
   return newNodeName;
 }
 
-std::vector<std::string> DFGUIPerform_ExplodeNode(
+static std::vector<std::string> AdjustNewNodes(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef nodeName,
+  FabricCore::DFGStringResult const &newNodeNamesJSON,
+  QPointF targetPos,
   unsigned &coreUndoCount
   )
 {
-  QPointF oldTopLeftPos = GetNodeUIGraphPos( exec, nodeName );
-
-  FabricCore::DFGStringResult newNodeNamesJSON =
-    exec.explodeNode( nodeName.c_str() );
-  ++coreUndoCount;
-
   FTL::OwnedPtr<FTL::JSONArray const> newNodeNamesJA(
     FTL::JSONValue::Decode(
       newNodeNamesJSON.getCString()
@@ -370,7 +365,7 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
       avgTopLeftPos += newTopLeftPoss[i];
     avgTopLeftPos /= count;
 
-    QPointF delta = oldTopLeftPos - avgTopLeftPos;
+    QPointF delta = targetPos - avgTopLeftPos;
 
     for ( size_t i = 0; i < count; ++i )
       newTopLeftPoss[i] += delta;
@@ -386,6 +381,53 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   }
 
   return newNodeNames;
+}
+
+std::vector<std::string> DFGUIPerform_ExplodeNode(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef nodeName,
+  unsigned &coreUndoCount
+  )
+{
+  QPointF oldTopLeftPos = GetNodeUIGraphPos( exec, nodeName );
+
+  FabricCore::DFGStringResult newNodeNamesJSON =
+    exec.explodeNode( nodeName.c_str() );
+  ++coreUndoCount;
+
+  return AdjustNewNodes(
+    binding,
+    execPath,
+    exec,
+    newNodeNamesJSON,
+    oldTopLeftPos,
+    coreUndoCount
+    );
+}
+
+std::vector<std::string> DFGUIPerform_Paste(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef json,
+  QPointF cursorPos,
+  unsigned &coreUndoCount
+  )
+{
+  FabricCore::DFGStringResult newNodeNamesJSON =
+    exec.importNodesJSON( json.c_str() );
+  ++coreUndoCount;
+
+  return AdjustNewNodes(
+    binding,
+    execPath,
+    exec,
+    newNodeNamesJSON,
+    cursorPos,
+    coreUndoCount
+    );
 }
 
 std::string DFGUIPerform_AddBackDrop(

@@ -2,8 +2,10 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
-#include <QtGui/QGraphicsView>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsView>
 
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
@@ -555,36 +557,6 @@ bool DFGController::setRefVarPath(char const *  path, char const * varPath)
   return false;
 }
 
-bool DFGController::moveNode(char const * path, QPointF pos, bool isTopLeftPos)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-    QString metaData = "{\"x\": "+QString::number(pos.x())+", \"y\": "+QString::number(pos.y())+"}";
-    exec.setNodeMetadata(path, "uiGraphPos", metaData.toUtf8().constData(), false);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
-bool DFGController::moveNode(GraphView::Node * uiNode, QPointF pos, bool isTopLeftPos)
-{
-  if(!isTopLeftPos)
-  {
-    pos = uiNode->centralPosToTopLeftPos(pos);
-    isTopLeftPos = true;
-  }
-
-  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
-    return moveNode(uiNode->name().c_str(), pos, isTopLeftPos);
-
-  return false;
-}
-
 bool DFGController::zoomCanvas(float zoom)
 {
   try
@@ -770,60 +742,28 @@ std::string DFGController::copy(QStringList paths)
   return "";
 }
 
-bool DFGController::paste()
+void DFGController::cmdPaste()
 {
   try
   {
-    DFGPasteCommand * command = new DFGPasteCommand(this);
-    if(!addCommand(command))
-    {
-      delete(command);
-      return false;
-    }
-
-    emit structureChanged();
-    emit recompiled();
-
-    std::vector<std::string> paths = command->getNodePaths();
-    if(paths.size() > 0)
-    {
-      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
-
-      for(size_t i=0;i<nodes.size();i++)
-        nodes[i]->setSelected(false);
-
-      QRectF bounds;
-      for(size_t i=0;i<paths.size();i++)
-      {
-        GraphView::Node * uiNode = graph()->node(paths[i].c_str());
-        if(!uiNode)
-          continue;
-        bounds = bounds.united(uiNode->boundingRect().translated(uiNode->topLeftGraphPos()));
-      }
-
-      QGraphicsView * graphicsView = graph()->scene()->views()[0];
-      QPointF cursorPos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-      cursorPos = graph()->itemGroup()->mapFromScene(cursorPos);
-
-      QPointF delta = cursorPos - bounds.center();
-
-      for(size_t i=0;i<paths.size();i++)
-      {
-        GraphView::Node * uiNode = graph()->node(paths[i].c_str());
-        if(!uiNode)
-          continue;
-        uiNode->setSelected(true);
-        moveNode(paths[i].c_str(), uiNode->topLeftGraphPos() + delta, true);
-      }
-    }
-    return true;
+    QClipboard *clipboard = QApplication::clipboard();
+    FTL::CStrRef json = clipboard->text().toUtf8().constData();
+    QGraphicsView *graphicsView = graph()->scene()->views()[0];
+    m_cmdHandler->dfgDoPaste(
+      FTL_STR("Canvas: Paste"),
+      getBinding(),
+      getExecPath(),
+      getExec(),
+      json,
+      graphicsView->mapToScene(
+        graphicsView->mapFromGlobal(QCursor::pos())
+        )
+      );
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
   }
-
-  return false;
 }
 
 bool DFGController::reloadExtensionDependencies(char const * path)

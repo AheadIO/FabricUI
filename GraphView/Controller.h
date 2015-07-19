@@ -92,7 +92,6 @@ namespace FabricUI
         bool allowUndo
         ) = 0;
 
-      virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
       virtual bool zoomCanvas(float zoom);

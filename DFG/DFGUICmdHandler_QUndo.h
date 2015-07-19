@@ -212,6 +212,15 @@ public:
     FTL::CStrRef desiredNewName
     );
 
+  virtual std::vector<std::string> dfgDoPaste(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::StrRef json,
+    QPointF cursorPos
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

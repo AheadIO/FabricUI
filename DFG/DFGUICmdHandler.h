@@ -213,6 +213,15 @@ public:
     FTL::CStrRef oldName,
     FTL::CStrRef desiredNewName
     ) = 0;
+
+  virtual std::vector<std::string> dfgDoPaste(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec &exec,
+    FTL::StrRef json,
+    QPointF cursorPos
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -81,15 +81,6 @@ bool Controller::endInteraction()
   return false;
 }
 
-bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
-{
-  if(isTopLeftPos)
-    node->setTopLeftGraphPos(pos, false /* quiet */);
-  else
-    node->setGraphPos(pos, false /* quiet */);
-  return true;
-}
-
 bool Controller::selectNode(Node * node, bool state)
 {
   if(node->selected() != state)

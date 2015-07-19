@@ -246,6 +246,8 @@ namespace FabricUI
         FTL::CStrRef desiredNewName
         );
 
+      void cmdPaste();
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
       virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
@@ -256,15 +258,12 @@ namespace FabricUI
       virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
       virtual bool setRefVarPath(char const *  path, char const * varPath);
 
-      virtual bool moveNode(char const * path, QPointF pos, bool isTopLeftPos = false);
-      virtual bool moveNode(GraphView::Node * node, QPointF pos, bool isTopLeftPos = false);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
 
       virtual std::string copy(QStringList paths = QStringList());
-      virtual bool paste();
 
       virtual bool reloadExtensionDependencies(char const * path);
 

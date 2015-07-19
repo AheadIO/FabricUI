@@ -71,6 +71,15 @@ std::vector<std::string> DFGUIPerform_ExplodeNode(
   unsigned &coreUndoCount
   );
 
+std::vector<std::string> DFGUIPerform_Paste(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef json,
+  QPointF cursorPos,
+  unsigned &coreUndoCount
+  );
+
 std::string DFGUIPerform_AddBackDrop(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,

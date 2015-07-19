@@ -180,7 +180,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   }
   else if(hotkey == "paste")
   {
-    m_dfgWidget->getUIController()->paste();
+    m_dfgWidget->getUIController()->cmdPaste();
   }
   else if(hotkey == "toggleSidePanels")
   {

@@ -15,6 +15,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ExplodeNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ImplodeNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_MoveNodes_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Paste_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveConnection_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemoveNodes_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
@@ -484,6 +485,28 @@ std::string DFGUICmdHandler_QUndo::dfgDoRenameExecPort(
       );
   m_qUndoStack->push( cmd );
   return cmd->getActualNewName();
+}
+
+std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::StrRef json,
+  QPointF cursorPos
+  )
+{
+  DFGUICmd_Paste_QUndo *cmd =
+    new DFGUICmd_Paste_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      json,
+      cursorPos
+      );
+  m_qUndoStack->push( cmd );
+  return cmd->getNodeNames();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END
