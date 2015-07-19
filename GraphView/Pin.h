@@ -89,6 +89,7 @@ namespace FabricUI
       PortType m_portType;
       std::string m_dataType;
       std::string m_labelCaption;
+      std::string m_labelSuffix;
       bool m_highlighted;
       QColor m_color;
       int m_index;

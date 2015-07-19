@@ -13,8 +13,10 @@
 #include <FabricUI/GraphView/NodeBubble.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
 #include <QtGui/QColorDialog>
 #include <QtGui/QCursor>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
@@ -193,20 +195,26 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   }
 
   QMenu* result = new QMenu(NULL);
-  QAction* action;
 
   if(uiNode->type() == GraphView::QGraphicsItemType_Node)
   {
-    action = result->addAction("Edit");
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    if(uiDocUrl.length() > 0)
+    {
+      result->addAction("Documentation");
+      result->addSeparator();
+    }
+    result->addAction("Edit");
   }
-  action = result->addAction("Edit Title");
-  action = result->addAction("Delete");
+  result->addAction("Edit Title");
+  result->addAction("Delete");
 
   if ( !uiNode->isBackDropNode() )
   {
     result->addSeparator();
-    action = result->addAction("Save Preset");
-    action = result->addAction("Export JSON");
+    result->addAction("Save Preset");
+    result->addAction("Export JSON");
 
     FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
@@ -240,13 +248,12 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   else
   {
     result->addSeparator();
-    action = result->addAction("Change color");
+    result->addAction("Change color");
   }
 
   result->addSeparator();
-  action = result->addAction("Add Comment");
-  action = result->addAction("Remove Comment");
-  (void)action;
+  result->addAction("Set Comment");
+  result->addAction("Remove Comment");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
   return result;
@@ -458,7 +465,15 @@ void DFGWidget::onNodeAction(QAction * action)
     return;
 
   char const * nodeName = m_contextNode->name().c_str();
-  if(action->text() == "Edit")
+  if(action->text() == "Documentation")
+  {
+    FabricCore::DFGExec &exec = m_uiController->getExec();
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    if(uiDocUrl.length() > 0)
+      QDesktopServices::openUrl(uiDocUrl);
+  }
+  else if(action->text() == "Edit")
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst )
@@ -732,13 +747,26 @@ void DFGWidget::onNodeAction(QAction * action)
     color = QColorDialog::getColor(color, this);
     m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
   }
-  else if(action->text() == "Add Comment")
+  else if(action->text() == "Set Comment")
   {
+    GraphView::NodeBubble * bubble = m_contextNode->bubble();
+    if(!bubble)
+    {
+      m_uiController->cmdSetNodeComment(m_contextNode->name(), " ");
+    }
+    else
+    {
+      QString text = bubble->text();
+      if(text.length() == 0)
+        m_uiController->cmdSetNodeComment(m_contextNode->name(), " ");
+    }
+
     onBubbleEditRequested(m_contextNode);
   }
   else if(action->text() == "Remove Comment")
   {
-    m_uiController->cmdSetNodeComment( m_contextNode->name(), NULL );
+    m_uiController->cmdSetNodeComment(m_contextNode->name(), NULL);
+    m_uiController->cmdSetNodeCommentExpanded(m_contextNode->name(), false);
   }
 
   m_contextNode = NULL;

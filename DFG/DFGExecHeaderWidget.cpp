@@ -92,6 +92,9 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
   for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
     nameAndVerCStrs.push_back( nameAndVerStrings[i].c_str() );
 
+  if(nameAndVerCStrs.size() == 0)
+    return;
+
   try
   {
     getExec().setExtDeps(
