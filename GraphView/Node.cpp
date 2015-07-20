@@ -36,6 +36,7 @@ Node::Node(
   m_cornerRadius = m_graph->config().nodeCornerRadius;
   m_collapsedState = CollapseState_Expanded;
   m_col = 0;
+  m_alwaysShowDaisyChainPorts = false;
 
   if(color.isValid())
     setColor(color);
@@ -484,6 +485,14 @@ void Node::setCol(int i)
   m_col = i;
 }
 
+void Node::setAlwaysShowDaisyChainPorts(bool state)
+{
+  if(m_alwaysShowDaisyChainPorts == state)
+    return;
+  m_alwaysShowDaisyChainPorts = state;
+  updatePinLayout(); 
+}
+
 unsigned int Node::pinCount() const
 {
   return m_pins.size();
@@ -647,7 +656,6 @@ void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
 
 void Node::updatePinLayout()
 {
-  bool hasOnlyInputPorts = true;
   int count = m_pinsLayout->count();
   if(count > 0)
   {
@@ -664,7 +672,6 @@ void Node::updatePinLayout()
     m_pins[i]->setDrawState(showPin);
     if(showPin)
     {
-      hasOnlyInputPorts = hasOnlyInputPorts && m_pins[i]->portType() == PortType_Input;
       m_pinsLayout->addItem(m_pins[i]);
       m_pinsLayout->setAlignment(m_pins[i], Qt::AlignLeft | Qt::AlignTop);
     }
@@ -678,6 +685,6 @@ void Node::updatePinLayout()
 
   for(size_t i=0;i<m_pins.size();i++)
   {
-    m_pins[i]->setDaisyChainCircleVisible(hasOnlyInputPorts);
+    m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
   }
 }

@@ -122,6 +122,8 @@ namespace FabricUI
       virtual int col() const;
       virtual void setCol(int i);
 
+      virtual void setAlwaysShowDaisyChainPorts(bool state);
+
       QGraphicsWidget * mainWidget();
       QGraphicsWidget * pinsWidget();
 
@@ -171,6 +173,7 @@ namespace FabricUI
       CachingEffect * m_cache;
       int m_row;
       int m_col;
+      bool m_alwaysShowDaisyChainPorts;
     };
 
 
