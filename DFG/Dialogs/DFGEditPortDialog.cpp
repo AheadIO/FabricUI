@@ -9,7 +9,7 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, bool dataTypeRequired, const DFGConfig & dfgConfig)
+DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, const DFGConfig & dfgConfig)
 : DFGBaseDialog(parent, true, dfgConfig)
 {
   setWindowTitle("Edit Port");
@@ -47,7 +47,7 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   if(m_portTypeCombo)
     addInput(m_portTypeCombo, "type", "required");
   addInput(m_titleEdit, "title", "required");
-  addInput(m_dataTypeEdit, "data type", dataTypeRequired ? "required" : "advanced");
+  addInput(m_dataTypeEdit, "data type", "required");
   addInput(m_extensionEdit, "extension", "advanced");
   addInput(m_visibilityCombo, "visibility", "metadata");
   addInput(m_hasRange, "use range", "metadata");
