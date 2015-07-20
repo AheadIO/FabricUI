@@ -5,6 +5,7 @@
 
 #include <QtGui/QDialog>
 #include "../DFGConfig.h"
+#include "DFGCollapsableWidget.h"
 
 namespace FabricUI
 {
@@ -27,10 +28,17 @@ namespace FabricUI
       virtual DFGController * getDFGController();
 
       virtual void showEvent(QShowEvent * event);
-      virtual void addInput(QWidget * widget, QString label = "");
+      virtual void addInput(QWidget * widget, QString label = "", QString section = "");
       virtual unsigned int inputCount() const;
       virtual QWidget * input(unsigned int index);
       virtual QWidget * input(QString label);
+
+      virtual void setSectionCollapsed(QString section, bool state = true);
+      virtual void setSectionCollapsable(QString section, bool state = true);
+
+    private slots:
+
+      void onSectionToggled();
 
     protected:
 
@@ -43,6 +51,7 @@ namespace FabricUI
       QWidget * m_buttonsWidget;
       DFGConfig m_dfgConfig;
 
+      std::vector<DFGCollapsableWidget*> m_sections;
       std::vector<QWidget *> m_inputs;
       std::map<std::string, unsigned int> m_labelToIndex;
     };

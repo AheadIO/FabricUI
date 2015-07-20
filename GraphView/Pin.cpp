@@ -52,7 +52,7 @@ Pin::Pin(
   {
     layout->addStretch(1);
 
-    if(config.nodePinStretch > 0.0f)
+    if(config.nodePinStretch > 0.0f && portType() != PortType_IO)
     {
       QGraphicsWidget * stretch = new QGraphicsWidget(this);
       stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -72,7 +72,7 @@ Pin::Pin(
 
   if(portType() != PortType_Output)
   {
-    if(config.nodePinStretch > 0.0f)
+    if(config.nodePinStretch > 0.0f && portType() != PortType_IO)
     {
       QGraphicsWidget * stretch = new QGraphicsWidget(this);
       stretch->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -174,6 +174,25 @@ void Pin::setDataType(FTL::CStrRef dataType)
 {
   m_dataType = dataType;
   setToolTip(dataType.c_str());
+
+  // automatically change the label for array pins
+  if(m_label)
+  {
+    if(m_dataType.length() > 2)
+    {
+      if(m_dataType.substr(m_dataType.length()-2) == "[]" && m_labelSuffix != "[]")
+      {
+        m_labelSuffix = "[]";
+        m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+        return;
+      }
+    }
+    if(m_labelSuffix.length() > 0)
+    {
+      m_labelSuffix = "";
+      m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+    }
+  }
 }
 
 PinCircle * Pin::inCircle()

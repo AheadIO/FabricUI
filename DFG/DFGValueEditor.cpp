@@ -125,7 +125,7 @@ void DFGValueEditor::onArgsChanged()
 
           FTL::CStrRef portName = subExec.getExecPortName(i);
           std::string portPath = prefix + "." + portName.data();
-          if(exec.isConnectedToAny(portPath.c_str()))
+          if(exec.hasSrcPort(portPath.c_str()))
             continue;
 
           FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());

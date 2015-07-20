@@ -61,7 +61,7 @@ DFGKLEditorPortTableWidget::~DFGKLEditorPortTableWidget()
 
 void DFGKLEditorPortTableWidget::refresh()
 {
-  int prevCurrentRow = currentRow();
+  int prevCurrentRow = currentRow_safe();
   int prevCurrentColumn = currentColumn();
 
   m_signalsEnabled = false;
@@ -189,7 +189,7 @@ void DFGKLEditorPortTableWidget::keyPressEvent(QKeyEvent * event)
         // ensure that the item has been filled after the enter press
         QCoreApplication::processEvents();
 
-        int index = currentRow();
+        int index = currentRow_safe();
         if(portName(index).length() > 0)
         {
           index = addPort(portType(index), "", dataType(index), extension(index));
@@ -203,7 +203,7 @@ void DFGKLEditorPortTableWidget::keyPressEvent(QKeyEvent * event)
       if(rowCount() <= 1)
         return;
 
-      int index = currentRow();
+      int index = currentRow_safe();
       removeRow(index);
       if(index >= rowCount())
         setCurrentCell(rowCount()-1, 0);
@@ -233,6 +233,14 @@ void DFGKLEditorPortTableWidget::onComboBoxChanged(int index)
 {
   if(m_signalsEnabled)
     emit execPortsChanged();
+}
+
+int DFGKLEditorPortTableWidget::currentRow_safe() const
+{
+  int result = currentRow();
+  if(result < 0)
+    result = 0;
+  return result;
 }
 
 int DFGKLEditorPortTableWidget::addPort(FabricCore::DFGPortType portType, QString portName, QString dataType, QString extension)
@@ -279,7 +287,7 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
     if(rowCount() <= 1)
       return;
 
-    int index = currentRow();
+    int index = currentRow_safe();
     removeRow(index);
     if(index >= rowCount())
       setCurrentCell(rowCount()-1, 0);
@@ -290,9 +298,7 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
   }
   else if(action->text() == "Add New Port (Ctrl+Enter)")
   {
-    int index = currentRow();
-    if(index >= rowCount())
-      index = rowCount() - 1;
+    int index = currentRow_safe();
     index = addPort(portType(index), "", dataType(index), extension(index));
     setCurrentCell(index, 0);
     return;
