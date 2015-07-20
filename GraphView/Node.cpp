@@ -647,6 +647,7 @@ void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
 
 void Node::updatePinLayout()
 {
+  bool hasOnlyInputPorts = true;
   int count = m_pinsLayout->count();
   if(count > 0)
   {
@@ -663,6 +664,7 @@ void Node::updatePinLayout()
     m_pins[i]->setDrawState(showPin);
     if(showPin)
     {
+      hasOnlyInputPorts = hasOnlyInputPorts && m_pins[i]->portType() == PortType_Input;
       m_pinsLayout->addItem(m_pins[i]);
       m_pinsLayout->setAlignment(m_pins[i], Qt::AlignLeft | Qt::AlignTop);
     }
@@ -672,5 +674,10 @@ void Node::updatePinLayout()
   {
     m_pinsLayout->addItem(m_pins[0]);
     m_pinsLayout->setAlignment(m_pins[0], Qt::AlignLeft | Qt::AlignTop);
+  }
+
+  for(size_t i=0;i<m_pins.size();i++)
+  {
+    m_pins[i]->setDaisyChainCircleVisible(hasOnlyInputPorts);
   }
 }
