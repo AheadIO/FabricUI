@@ -181,74 +181,102 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
     char const * nodeName = uiNode->name().c_str();
 
+    bool isVarNode = false;
+
     if(uiNode->type() == GraphView::QGraphicsItemType_Node)
     {
       FabricCore::DFGNodeType dfgNodeType = exec.getNodeType( nodeName );
-      if ( dfgNodeType != FabricCore::DFGNodeType_Inst
+      if( dfgNodeType == FabricCore::DFGNodeType_Var || 
+        dfgNodeType == FabricCore::DFGNodeType_Get || 
+        dfgNodeType == FabricCore::DFGNodeType_Set) {
+
+        isVarNode = true;
+      } else if ( dfgNodeType != FabricCore::DFGNodeType_Inst
         && dfgNodeType != FabricCore::DFGNodeType_User )
         return NULL;
     }
 
     QMenu* result = new QMenu(NULL);
 
-    if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
+    bool needsSeparator = false;
+    if(!isVarNode)
     {
-      FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-      QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
-      if(uiDocUrl.length() > 0)
+      if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
       {
-        result->addAction("Documentation");
-        result->addSeparator();
+        FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+        QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+        if(uiDocUrl.length() > 0)
+        {
+          result->addAction("Documentation");
+          result->addSeparator();
+        }
+        result->addAction("Edit");
+        needsSeparator = true;
       }
-      result->addAction("Edit");
-    }
-    result->addAction("Rename");
-    result->addAction("Delete");
+      
+      result->addAction("Rename");
+      result->addAction("Delete");
 
-    if ( !uiNode->isBackDropNode() )
-    {
-      result->addSeparator();
-      result->addAction("Save Preset");
-      result->addAction("Export JSON");
-
-      FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-
-      bool hasSep = false;
-      const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
-      if(nodes.size() > 0)
+      if (!uiNode->isBackDropNode() )
       {
-        if(!hasSep)
+        if(needsSeparator)
         {
           result->addSeparator();
-          hasSep = true;
+          needsSeparator = false;
         }
-        result->addAction("Implode nodes");
-      }
-      if(subExec.getType() == FabricCore::DFGExecType_Graph)
-      {
-        if(!hasSep)
+        result->addAction("Save Preset");
+        result->addAction("Export JSON");
+
+        FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+
+        bool hasSep = false;
+        const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+        if(nodes.size() > 0)
+        {
+          if(!hasSep)
+          {
+            result->addSeparator();
+            hasSep = true;
+          }
+          result->addAction("Implode nodes");
+        }
+        if(subExec.getType() == FabricCore::DFGExecType_Graph)
+        {
+          if(!hasSep)
+          {
+            result->addSeparator();
+            hasSep = true;
+          }
+          result->addAction("Explode node");
+        }
+
+        if(subExec.getExtDepCount() > 0)
         {
           result->addSeparator();
-          hasSep = true;
+          result->addAction("Reload Extension(s)");
         }
-        result->addAction("Explode node");
+        needsSeparator = true;
       }
-
-      if(subExec.getExtDepCount() > 0)
+      else
       {
-        result->addSeparator();
-        result->addAction("Reload Extension(s)");
+        if(needsSeparator)
+        {
+          result->addSeparator();
+          needsSeparator = false;
+        }
+        result->addAction("Change color");
+        needsSeparator = true;
       }
     }
-    else
+
+    if(needsSeparator)
     {
       result->addSeparator();
-      result->addAction("Change color");
+      needsSeparator = false;
     }
-
-    result->addSeparator();
     result->addAction("Set Comment");
     result->addAction("Remove Comment");
+    needsSeparator = true;
 
     graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
     return result;
