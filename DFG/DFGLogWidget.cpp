@@ -89,8 +89,12 @@ void DFGLogWidget::setLogFunc(DFGController::LogFunc func)
   s_logFunc = func;
 }
 
-
 void DFGLogWidget::copy()
 {
   m_text->copy();
+}
+
+void DFGLogWidget::clear()
+{
+  m_text->clear();
 }

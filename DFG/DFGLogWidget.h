@@ -31,6 +31,7 @@ namespace FabricUI
     public slots:
 
       void copy();
+      void clear();
 
     private:
 
