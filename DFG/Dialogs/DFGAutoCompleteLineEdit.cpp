@@ -36,5 +36,6 @@ void DFGAutoCompleteLineEdit::setWords(const QStringList & words)
   QStringList list = words;
   qSort(list.begin(),list.end(), DFGAutoCompleteLineEdit_compareWords);
   QCompleter* completer = new QCompleter(list);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
   setCompleter(completer); 
 }

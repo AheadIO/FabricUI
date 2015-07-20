@@ -18,6 +18,8 @@ DFGNewVariableDialog::DFGNewVariableDialog(
   )
 : DFGBaseDialog(parent, true, dfgConfig)
 {
+  setWindowTitle("New Variable");
+
   m_nameEdit = new DFGVariablePathLineEdit(this, binding, currentExecPath, name);
   addInput(m_nameEdit, "name");
   m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, dataType);
