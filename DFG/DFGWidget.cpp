@@ -176,87 +176,123 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 
 QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, void* userData)
 {
-  DFGWidget * graphWidget = (DFGWidget*)userData;
-  FabricCore::DFGExec &exec = graphWidget->m_uiController->getExec();
-
-  GraphView::Graph * graph = graphWidget->m_uiGraph;
-  if(graph->controller() == NULL)
-    return NULL;
-  graphWidget->m_contextNode = uiNode;
-
-  char const * nodeName = uiNode->name().c_str();
-
-  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
+  try
   {
-    FabricCore::DFGNodeType dfgNodeType = exec.getNodeType( nodeName );
-    if ( dfgNodeType != FabricCore::DFGNodeType_Inst
-      && dfgNodeType != FabricCore::DFGNodeType_User )
+    DFGWidget * graphWidget = (DFGWidget*)userData;
+    FabricCore::DFGExec &exec = graphWidget->m_uiController->getExec();
+
+    GraphView::Graph * graph = graphWidget->m_uiGraph;
+    if(graph->controller() == NULL)
       return NULL;
-  }
+    graphWidget->m_contextNode = uiNode;
 
-  QMenu* result = new QMenu(NULL);
+    char const * nodeName = uiNode->name().c_str();
 
-  if(uiNode->type() == GraphView::QGraphicsItemType_Node)
-  {
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
-    if(uiDocUrl.length() > 0)
+    bool isVarNode = false;
+
+    if(uiNode->type() == GraphView::QGraphicsItemType_Node)
     {
-      result->addAction("Documentation");
-      result->addSeparator();
+      FabricCore::DFGNodeType dfgNodeType = exec.getNodeType( nodeName );
+      if( dfgNodeType == FabricCore::DFGNodeType_Var || 
+        dfgNodeType == FabricCore::DFGNodeType_Get || 
+        dfgNodeType == FabricCore::DFGNodeType_Set) {
+
+        isVarNode = true;
+      } else if ( dfgNodeType != FabricCore::DFGNodeType_Inst
+        && dfgNodeType != FabricCore::DFGNodeType_User )
+        return NULL;
     }
-    result->addAction("Edit");
-  }
-  result->addAction("Edit Title");
-  result->addAction("Delete");
 
-  if ( !uiNode->isBackDropNode() )
-  {
-    result->addSeparator();
-    result->addAction("Save Preset");
-    result->addAction("Export JSON");
+    QMenu* result = new QMenu(NULL);
 
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-
-    bool hasSep = false;
-    const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
-    if(nodes.size() > 0)
+    bool needsSeparator = false;
+    if(!isVarNode)
     {
-      if(!hasSep)
+      if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
       {
-        result->addSeparator();
-        hasSep = true;
+        FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+        QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+        if(uiDocUrl.length() > 0)
+        {
+          result->addAction("Documentation");
+          result->addSeparator();
+        }
+        result->addAction("Edit");
+        needsSeparator = true;
       }
-      result->addAction("Implode nodes");
-    }
-    if(subExec.getType() == FabricCore::DFGExecType_Graph)
-    {
-      if(!hasSep)
+      
+      result->addAction("Rename");
+      result->addAction("Delete");
+
+      if (!uiNode->isBackDropNode() )
       {
-        result->addSeparator();
-        hasSep = true;
+        if(needsSeparator)
+        {
+          result->addSeparator();
+          needsSeparator = false;
+        }
+        result->addAction("Save Preset");
+        result->addAction("Export JSON");
+
+        FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+
+        bool hasSep = false;
+        const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
+        if(nodes.size() > 0)
+        {
+          if(!hasSep)
+          {
+            result->addSeparator();
+            hasSep = true;
+          }
+          result->addAction("Implode nodes");
+        }
+        if(subExec.getType() == FabricCore::DFGExecType_Graph)
+        {
+          if(!hasSep)
+          {
+            result->addSeparator();
+            hasSep = true;
+          }
+          result->addAction("Explode node");
+        }
+
+        if(subExec.getExtDepCount() > 0)
+        {
+          result->addSeparator();
+          result->addAction("Reload Extension(s)");
+        }
+        needsSeparator = true;
       }
-      result->addAction("Explode node");
+      else
+      {
+        if(needsSeparator)
+        {
+          result->addSeparator();
+          needsSeparator = false;
+        }
+        result->addAction("Change color");
+        needsSeparator = true;
+      }
     }
 
-    if(subExec.getExtDepCount() > 0)
+    if(needsSeparator)
     {
       result->addSeparator();
-      result->addAction("Reload Extension(s)");
+      needsSeparator = false;
     }
+    result->addAction("Set Comment");
+    result->addAction("Remove Comment");
+    needsSeparator = true;
+
+    graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
+    return result;
   }
-  else
+  catch(FabricCore::Exception e)
   {
-    result->addSeparator();
-    result->addAction("Change color");
+    printf("Exception: %s\n", e.getDesc_cstr());
   }
-
-  result->addSeparator();
-  result->addAction("Set Comment");
-  result->addAction("Remove Comment");
-
-  graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
-  return result;
+  return NULL;
 }
 
 QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData)
@@ -835,12 +871,10 @@ void DFGWidget::onExecPortAction(QAction * action)
       FabricCore::Client &client = m_uiController->getClient();
       FabricCore::DFGExec &exec = m_uiController->getExec();
 
-      DFGEditPortDialog dialog( this, client, false, m_uiController->isViewingRootGraph(), m_dfgConfig );
+      DFGEditPortDialog dialog( this, client, false, m_dfgConfig );
 
       dialog.setTitle(portName);
-
-      if(m_uiController->isViewingRootGraph())
-        dialog.setDataType(exec.getExecPortResolvedType(portName));
+      dialog.setDataType(exec.getExecPortResolvedType(portName));
 
       FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
       if(uiHidden == "true")
@@ -972,7 +1006,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
     FTL::CStrRef execPath = m_uiController->getExecPath();
     FabricCore::DFGExec &exec = m_uiController->getExec();
 
-    DFGEditPortDialog dialog( this, client, true, m_uiController->isViewingRootGraph(), m_dfgConfig );
+    DFGEditPortDialog dialog( this, client, true, m_dfgConfig );
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -988,14 +1022,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
     QString title = dialog.title();
 
-    QString dataType = "";
-    QString extension = "";
-
-    if(m_uiController->isViewingRootGraph())
-    {
-      dataType = dialog.dataType();
-      extension = dialog.extension();
-    }
+    QString dataType = dialog.dataType();
+    QString extension = dialog.extension();
 
     if(title.length() > 0)
     {

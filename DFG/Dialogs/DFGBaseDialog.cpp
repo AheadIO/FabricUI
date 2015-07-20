@@ -22,6 +22,9 @@ DFGBaseDialog::DFGBaseDialog(QWidget * parent, bool useGridLayout, const DFGConf
   m_dfgConfig = dfgConfig;
   m_usesGridLayout = useGridLayout;
 
+  setMinimumHeight(10);
+  setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
+
   setFont(dfgConfig.defaultFont);
 
   setContentsMargins(0, 0, 0, 0);
@@ -33,15 +36,11 @@ DFGBaseDialog::DFGBaseDialog(QWidget * parent, bool useGridLayout, const DFGConf
   m_inputsWidget->setContentsMargins(0, 0, 0, 0);
   layout()->addWidget(m_inputsWidget);
   
-  QLayout * inputsLayout;
-  if(m_usesGridLayout)
-    inputsLayout = new QGridLayout();
-  else
-    inputsLayout = new QVBoxLayout();
-  m_inputsWidget->setLayout(inputsLayout);
-  m_inputsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-  inputsLayout->setContentsMargins(2, 2, 2, 2);
-  inputsLayout->setSpacing(2);
+  QLayout * sectionsLayout = new QVBoxLayout();
+  m_inputsWidget->setLayout(sectionsLayout);
+  m_inputsWidget->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+  sectionsLayout->setContentsMargins(2, 2, 2, 2);
+  sectionsLayout->setSpacing(2);
 
   m_buttonsWidget = new QWidget(this);
   m_buttonsWidget->setContentsMargins(0, 0, 0, 0);
@@ -49,18 +48,18 @@ DFGBaseDialog::DFGBaseDialog(QWidget * parent, bool useGridLayout, const DFGConf
   
   QHBoxLayout * buttonsLayout = new QHBoxLayout();
   m_buttonsWidget->setLayout(buttonsLayout);
-  m_buttonsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+  m_buttonsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
 
   buttonsLayout->setContentsMargins(2, 2, 2, 2);
   buttonsLayout->setSpacing(2);
 
-  QPushButton * cancelButton = new QPushButton("Cancel", m_buttonsWidget);
   QPushButton * okButton = new QPushButton("OK", m_buttonsWidget);
-  cancelButton->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+  QPushButton * cancelButton = new QPushButton("Cancel", m_buttonsWidget);
   okButton->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+  cancelButton->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 
-  QObject::connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
   QObject::connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
+  QObject::connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
   buttonsLayout->addStretch(2);
   buttonsLayout->addWidget(cancelButton);
@@ -117,10 +116,32 @@ QWidget * DFGBaseDialog::buttonsWidget()
   return m_buttonsWidget;
 }
 
-void DFGBaseDialog::addInput(QWidget * widget, QString label)
+void DFGBaseDialog::addInput(QWidget * widget, QString label, QString section)
 {
   unsigned int index = m_inputs.size();
-  widget->setParent(m_inputsWidget);
+
+  if(section.length() == 0)
+    section = "parameters";
+
+  if(m_sections.size() == 0)
+  {
+    DFGCollapsableWidget * collapsableSection = new DFGCollapsableWidget(m_inputsWidget, section, m_usesGridLayout, m_dfgConfig);
+    m_sections.push_back(collapsableSection);
+    m_inputsWidget->layout()->addWidget(collapsableSection);
+    QObject::connect(collapsableSection, SIGNAL(toggled()), this, SLOT(onSectionToggled()));
+    collapsableSection->setCollapsable(false);
+  }
+
+  if(m_sections[m_sections.size()-1]->title() != section)
+  {
+    DFGCollapsableWidget * collapsableSection = new DFGCollapsableWidget(m_inputsWidget, section, m_usesGridLayout, m_dfgConfig);
+    m_sections.push_back(collapsableSection);
+    m_inputsWidget->layout()->addWidget(collapsableSection);
+    QObject::connect(collapsableSection, SIGNAL(toggled()), this, SLOT(onSectionToggled()));
+  }
+
+  m_sections[m_sections.size()-1]->addWidget(widget, label);
+
   widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
   m_inputs.push_back(widget);
 
@@ -130,27 +151,42 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label)
     QObject::connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(accept()));
   }
 
-  QLayout * layout = m_inputsWidget->layout();
-
   if(m_usesGridLayout)
   {
-    int row = ((QGridLayout*)layout)->rowCount();
     if(label.length() > 0)
     {
-      QLabel * l = new QLabel(label, m_inputsWidget);
-      ((QGridLayout*)layout)->addWidget(l, row, 0);
-      layout->setAlignment(l, Qt::AlignRight | Qt::AlignVCenter);
       m_labelToIndex.insert(std::pair<std::string,unsigned int>(label.toUtf8().constData(), index));
     }
-    ((QGridLayout*)layout)->addWidget(widget, row, 1);
-    // layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
-  }
-  else
-  {
-    layout->addWidget(widget);
-    // layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
   }
 
+}
+
+void DFGBaseDialog::setSectionCollapsed(QString section, bool state)
+{
+  if(section.length() == 0)
+    section = "parameters";
+
+  for(size_t i=0;i<m_sections.size();i++)
+  {
+    if(m_sections[i]->title() == section)
+    {
+      m_sections[i]->setCollapsed(state);
+    }
+  }
+}
+
+void DFGBaseDialog::setSectionCollapsable(QString section, bool state)
+{
+  if(section.length() == 0)
+    section = "parameters";
+
+  for(size_t i=0;i<m_sections.size();i++)
+  {
+    if(m_sections[i]->title() == section)
+    {
+      m_sections[i]->setCollapsable(state);
+    }
+  }
 }
 
 unsigned int DFGBaseDialog::inputCount() const
@@ -172,3 +208,10 @@ QWidget * DFGBaseDialog::input(QString label)
   }
   return NULL;
 }
+
+void DFGBaseDialog::onSectionToggled()
+{
+  m_inputsWidget->adjustSize();
+  adjustSize();
+}
+

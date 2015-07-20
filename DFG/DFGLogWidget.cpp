@@ -2,8 +2,9 @@
 
 #include "DFGLogWidget.h"
 
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QMenu>
+#include <QtGui/QVBoxLayout>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -26,6 +27,11 @@ DFGLogWidget::DFGLogWidget( const DFGConfig & config )
   m_text = new QPlainTextEdit(this);
   m_text->setFont( m_config.fixedFont );
   m_text->setReadOnly(true);
+  m_text->setContextMenuPolicy( Qt::CustomContextMenu );
+  connect(
+    m_text, SIGNAL(customContextMenuRequested(const QPoint&)),
+    this, SLOT(showContextMenu(const QPoint&))
+    );
   layout->addWidget(m_text);
 
   sLogWidgets.push_back(this);
@@ -89,8 +95,23 @@ void DFGLogWidget::setLogFunc(DFGController::LogFunc func)
   s_logFunc = func;
 }
 
-
-void DFGLogWidget::copy()
+void DFGLogWidget::showContextMenu( QPoint const &pos )
 {
-  m_text->copy();
+  QMenu *menu = m_text->createStandardContextMenu();
+
+  menu->addSeparator();
+
+  QAction *clearAction = new QAction( "Clear", menu );
+  connect(
+    clearAction, SIGNAL(triggered()),
+    this, SLOT(clear())
+    );
+  menu->addAction( clearAction );
+
+  menu->popup( m_text->mapToGlobal(pos) );
+}
+
+void DFGLogWidget::clear()
+{
+  m_text->clear();
 }

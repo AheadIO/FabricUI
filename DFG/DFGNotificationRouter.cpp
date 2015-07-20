@@ -430,6 +430,9 @@ void DFGNotificationRouter::onNodeInserted(
     FTL::CStrRef uiTooltip = subExec.getMetadata("uiTooltip");
     if(!uiTooltip.empty())
       onNodeMetadataChanged(nodeName, "uiTooltip", uiTooltip);
+    FTL::CStrRef uiAlwaysShowDaisyChainPorts = subExec.getMetadata("uiAlwaysShowDaisyChainPorts");
+    if(!uiAlwaysShowDaisyChainPorts.empty())
+      onNodeMetadataChanged(nodeName, "uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts);
   }
 
   if ( exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_User )
@@ -898,6 +901,17 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       uiBubble->collapse();
     else
       uiBubble->expand();
+  }
+  else if(key == FTL_STR("uiAlwaysShowDaisyChainPorts"))
+  {
+    if(value.size() == 0 || value == "false")
+    {
+      uiNode->setAlwaysShowDaisyChainPorts(false);
+    }
+    else
+    {
+      uiNode->setAlwaysShowDaisyChainPorts(true);
+    }
   }
 }
 

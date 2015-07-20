@@ -9,9 +9,11 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, bool showDataType, const DFGConfig & dfgConfig)
+DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, const DFGConfig & dfgConfig)
 : DFGBaseDialog(parent, true, dfgConfig)
 {
+  setWindowTitle("Edit Port");
+
   if(showPortType)
   {
     m_portTypeCombo = new QComboBox(this);
@@ -23,16 +25,8 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
     m_portTypeCombo = NULL;
   m_titleEdit = new QLineEdit("", this);
 
-  if(showDataType)
-  {
-    m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "$TYPE$");
-    m_extensionEdit = new DFGExtensionLineEdit(this, client);
-  }
-  else
-  {
-    m_dataTypeEdit = NULL;
-    m_extensionEdit = NULL;
-  }
+  m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "");
+  m_extensionEdit = new DFGExtensionLineEdit(this, client);
 
   m_visibilityCombo = new QComboBox(this);
   m_visibilityCombo->addItem("normal");
@@ -51,21 +45,22 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   m_rangeMax->setValidator(new QDoubleValidator(m_rangeMax));
 
   if(m_portTypeCombo)
-    addInput(m_portTypeCombo, "type");
-  addInput(m_titleEdit, "title");
-  if(m_dataTypeEdit)
-    addInput(m_dataTypeEdit, "data type");
-  if(m_extensionEdit)
-    addInput(m_extensionEdit, "extension");
-  addInput(m_visibilityCombo, "visibility");
-  addInput(m_hasRange, "use range");
-  addInput(m_rangeMin, "range min");
-  addInput(m_rangeMax, "range max");
-  addInput(m_hasCombo, "use combo");
-  addInput(m_combo, "combo");
+    addInput(m_portTypeCombo, "type", "required");
+  addInput(m_titleEdit, "title", "required");
+  addInput(m_dataTypeEdit, "data type", "required");
+  addInput(m_extensionEdit, "extension", "advanced");
+  addInput(m_visibilityCombo, "visibility", "metadata");
+  addInput(m_hasRange, "use range", "metadata");
+  addInput(m_rangeMin, "range min", "metadata");
+  addInput(m_rangeMax, "range max", "metadata");
+  addInput(m_hasCombo, "use combo", "metadata");
+  addInput(m_combo, "combo", "metadata");
 
   QObject::connect(m_hasRange, SIGNAL(stateChanged(int)), this, SLOT(onRangeToggled(int)));
   QObject::connect(m_hasCombo, SIGNAL(stateChanged(int)), this, SLOT(onComboToggled(int)));
+
+  setSectionCollapsed("advanced");
+  setSectionCollapsed("metadata");
 }
 
 DFGEditPortDialog::~DFGEditPortDialog()
@@ -103,28 +98,22 @@ void DFGEditPortDialog::setTitle(QString value)
 
 QString DFGEditPortDialog::dataType() const
 {
-  if(m_dataTypeEdit)
-    return m_dataTypeEdit->text();
-  return "";
+  return m_dataTypeEdit->text();
 }
 
 void DFGEditPortDialog::setDataType(QString value)
 {
-  if(m_dataTypeEdit)
-    m_dataTypeEdit->setText(value);
+  m_dataTypeEdit->setText(value);
 }
 
 QString DFGEditPortDialog::extension() const
 {
-  if(m_extensionEdit)
-    return m_extensionEdit->text();
-  return "";
+  return m_extensionEdit->text();
 }
 
 void DFGEditPortDialog::setExtension(QString value)
 {
-  if(m_extensionEdit)
-    m_extensionEdit->setText(value);
+  m_extensionEdit->setText(value);
 }
 
 bool DFGEditPortDialog::hidden() const

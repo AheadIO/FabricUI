@@ -18,7 +18,7 @@ DFGConfig::DFGConfig()
 {
   defaultWindowColor = QColor(25, 37, 42);
   defaultBackgroundColor = QColor(156, 174, 187);
-  defaultFont.setBold(true);
+  // defaultFont.setBold(true);
   defaultFontColor = QColor(31, 43, 55, 255);
   fixedFont.setStyleHint( QFont::TypeWriter );
   logFont.setStyleHint( QFont::TypeWriter );

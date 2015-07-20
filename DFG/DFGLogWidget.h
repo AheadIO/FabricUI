@@ -30,7 +30,8 @@ namespace FabricUI
 
     public slots:
 
-      void copy();
+      void clear();
+      void showContextMenu( QPoint const &pos );
 
     private:
 
