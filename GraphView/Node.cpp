@@ -36,6 +36,7 @@ Node::Node(
   m_cornerRadius = m_graph->config().nodeCornerRadius;
   m_collapsedState = CollapseState_Expanded;
   m_col = 0;
+  m_alwaysShowDaisyChainPorts = false;
 
   if(color.isValid())
     setColor(color);
@@ -484,6 +485,14 @@ void Node::setCol(int i)
   m_col = i;
 }
 
+void Node::setAlwaysShowDaisyChainPorts(bool state)
+{
+  if(m_alwaysShowDaisyChainPorts == state)
+    return;
+  m_alwaysShowDaisyChainPorts = state;
+  updatePinLayout(); 
+}
+
 unsigned int Node::pinCount() const
 {
   return m_pins.size();
@@ -672,5 +681,10 @@ void Node::updatePinLayout()
   {
     m_pinsLayout->addItem(m_pins[0]);
     m_pinsLayout->setAlignment(m_pins[0], Qt::AlignLeft | Qt::AlignTop);
+  }
+
+  for(size_t i=0;i<m_pins.size();i++)
+  {
+    m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
   }
 }
