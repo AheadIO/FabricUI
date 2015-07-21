@@ -248,10 +248,18 @@ namespace FabricUI
 
       void cmdPaste();
 
+      void cmdSetArgType(
+        FTL::CStrRef argName,
+        FTL::CStrRef typeName
+        );
+
+      void cmdSetArgValue(
+        FTL::CStrRef argName,
+        FabricCore::RTVal const &value
+        );
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
-      virtual bool setArg(char const *  argName, char const *  dataType, char const *  json = "");
-      virtual bool setArg(char const *  argName, FabricCore::RTVal value);
       virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
       virtual bool setDefaultValue(char const *  path, char const *  dataType, char const *  json);
       virtual std::string exportJSON(char const *  path);

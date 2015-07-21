@@ -962,7 +962,10 @@ void DFGWidget::onExecPortAction(QAction * action)
       if(dialog.dataType().length() > 0 && dialog.dataType() != exec.getExecPortResolvedType(portName))
       {
         if(m_uiController->isViewingRootGraph())
-          m_uiController->setArg(portName, dialog.dataType().toUtf8().constData());
+          m_uiController->cmdSetArgType(
+            portName,
+            dialog.dataType().toUtf8().constData()
+            );
       }
 
       if(dialog.title() != portName)

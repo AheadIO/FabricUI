@@ -221,6 +221,13 @@ public:
     QPointF cursorPos
     );
 
+  virtual void dfgDoSetArgType(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef argName,
+    FTL::CStrRef typeName
+    );
+
   virtual void dfgDoSetArgValue(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,

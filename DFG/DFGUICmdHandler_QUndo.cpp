@@ -21,6 +21,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RemovePort_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_RenameExecPort_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ResizeBackDropNode_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgType_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
@@ -508,6 +509,23 @@ std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(
       );
   m_qUndoStack->push( cmd );
   return cmd->getNodeNames();
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetArgType(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef argName,
+  FTL::CStrRef typeName
+  )
+{
+  DFGUICmd_SetArgType_QUndo *cmd =
+    new DFGUICmd_SetArgType_QUndo(
+      desc,
+      binding,
+      argName,
+      typeName
+      );
+  m_qUndoStack->push( cmd );
 }
 
 void DFGUICmdHandler_QUndo::dfgDoSetArgValue(

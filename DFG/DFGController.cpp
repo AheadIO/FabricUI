@@ -429,46 +429,17 @@ std::string DFGController::reloadCode()
   return "";
 }
 
-bool DFGController::setArg(char const * argName, char const * dataType, char const * json)
+void DFGController::cmdSetArgType(
+  FTL::CStrRef argName,
+  FTL::CStrRef typeName
+  )
 {
-  beginInteraction();
-  try
-  {
-    Commands::Command * command = new DFGSetArgCommand(this, argName, dataType, json);;
-    if(addCommand(command))
-    {
-      bindUnboundRTVals();
-      emit argsChanged();
-      endInteraction();
-      return true;
-    }
-    delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  endInteraction();
-  return false;
-}
-
-bool DFGController::setArg(char const * argName, FabricCore::RTVal value)
-{
-  try
-  {
-    Commands::Command * command = new DFGSetArgCommand(this, argName, value);;
-    if(addCommand(command))
-    {
-      emit argsChanged();
-      return true;
-    }
-    delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
+  m_cmdHandler->dfgDoSetArgType(
+    FTL_STR("Canvas: Set argument type"),
+    getBinding(),
+    argName,
+    typeName
+    );
 }
 
 bool DFGController::setDefaultValue(char const * path, FabricCore::RTVal value)
@@ -1012,21 +983,33 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     {
       FTL::CStrRef argName = portOrPinPath;
       FabricCore::RTVal const &value = valueItem->value();
-
-      if ( !m_binding.getArgValue( argName.c_str() ).isExEQTo( value ) )
-      {
-        m_cmdHandler->dfgDoSetArgValue(
-          FTL_STR("Set argument value"),
-          m_binding,
-          argName.c_str(),
-          value.clone()
-          );
-      }
+      cmdSetArgValue( argName, value );
     }
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
+  }
+}
+
+void DFGController::cmdSetArgValue(
+  FTL::CStrRef argName,
+  FabricCore::RTVal const &value
+  )
+{
+  if ( !m_binding.getArgValue( argName.c_str() ).isExEQTo( value ) )
+  {
+    std::string desc;
+    desc += FTL_STR("Canvas: Set argument '");
+    desc += argName;
+    desc += FTL_STR("' value"),
+
+    m_cmdHandler->dfgDoSetArgValue(
+      desc,
+      m_binding,
+      argName.c_str(),
+      value.clone()
+      );
   }
 }
 
@@ -1131,25 +1114,17 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
     else
     {
       FTL::CStrRef argName = portOrPinPath;
-      FabricCore::RTVal const &valueAtInteractionEnter =
+      FabricCore::RTVal valueAtInteractionEnter =
         valueItem->valueAtInteractionEnter();
       FabricCore::RTVal value = valueItem->value();
 
       m_binding.setArgValue(
         argName.c_str(),
-        valueItem->valueAtInteractionEnter(),
+        valueAtInteractionEnter,
         false // canUndo
         );
 
-      if ( !valueAtInteractionEnter.isExEQTo( value ) )
-      {
-        m_cmdHandler->dfgDoSetArgValue(
-          FTL_STR("Set argument value"),
-          m_binding,
-          argName.c_str(),
-          value.clone()
-          );
-      }
+      cmdSetArgValue( argName, value );
     }
   }
   catch(FabricCore::Exception e)
