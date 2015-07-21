@@ -309,7 +309,7 @@ namespace FabricUI
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void nodeDeleted(QString nodePath);
       void execPortRenamed(char const * path, char const * newName);
-      void argValueChanged(const char * argName);
+      void argValueChanged();
       void variablesChanged();
 
     public slots:

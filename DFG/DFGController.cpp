@@ -970,61 +970,6 @@ bool DFGController::execute()
   return false;
 }
 
-// void DFGController::onValueChanged(ValueEditor::ValueItem * item)
-// {
-//   beginInteraction();
-//   try
-//   {
-//     std::string portOrPinPath = item->path().toUtf8().constData();
-
-//     FabricCore::DFGExec rootExec = m_binding.getExec();
-
-//     // let's assume it is pin, if there's still a node name in it
-//     Commands::Command * command = NULL;
-//     if(portOrPinPath.rfind('.') != std::string::npos)
-//     {
-//       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
-//       std::string nodeName = nodePath;
-//       FabricCore::DFGExec parentExec = rootExec;
-
-//       // if we have a path deeper than one level, 
-//       // determine the sub exec
-//       size_t pos = nodePath.rfind('.');
-//       if(pos != std::string::npos)
-//       {
-//         parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
-//         nodeName = nodePath.substr(pos+1);
-//       }
-
-//       FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
-//       if(nodeType == FabricCore::DFGNodeType_Inst || 
-//         nodeType == FabricCore::DFGNodeType_Var ||
-//         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
-//       {
-//         command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
-//       }
-//       else if((nodeType == FabricCore::DFGNodeType_Get || 
-//         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
-//       {
-//         command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
-//       }
-//     }
-//     else
-//     {
-//       command = new DFGSetArgCommand(this, item->name().toUtf8().constData(), item->value());
-//     }
-//     if(command == NULL)
-//       return;
-//     if(!addCommand(command))
-//       delete(command);
-//   }
-//   catch(FabricCore::Exception e)
-//   {
-//     logError(e.getDesc_cstr());
-//   }
-//   endInteraction();
-// }
-
 void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
 {
   try
@@ -1065,12 +1010,18 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     }
     else
     {
-      m_cmdHandler->dfgDoSetArgValue(
-        FTL_STR("Set argument value"),
-        getBinding(),
-        valueItem->name().toUtf8().constData(),
-        valueItem->value()
-        );
+      FTL::CStrRef argName = portOrPinPath;
+      FabricCore::RTVal const &value = valueItem->value();
+
+      if ( !m_binding.getArgValue( argName.c_str() ).isExEQTo( value ) )
+      {
+        m_cmdHandler->dfgDoSetArgValue(
+          FTL_STR("Set argument value"),
+          m_binding,
+          argName.c_str(),
+          value.clone()
+          );
+      }
     }
   }
   catch(FabricCore::Exception e)
@@ -1123,9 +1074,13 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
     }
     else
     {
+      FTL::CStrRef argName = portOrPinPath;
+      FabricCore::RTVal const &value = valueItem->value();
+      
       m_binding.setArgValue(
-        valueItem->name().toUtf8().constData(),
-        valueItem->value()
+        argName.c_str(),
+        value.clone(),
+        false // canUndo
         );
     }
   }
@@ -1137,6 +1092,70 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
 
 void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
 {
+  try
+  {
+    std::string portOrPinPath = valueItem->path().toUtf8().constData();
+
+    FabricCore::DFGExec rootExec = m_binding.getExec();
+
+    // let's assume it is pin, if there's still a node name in it
+    Commands::Command * command = NULL;
+    if(portOrPinPath.rfind('.') != std::string::npos)
+    {
+      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodeName = nodePath;
+      FabricCore::DFGExec parentExec = rootExec;
+
+      // if we have a path deeper than one level, 
+      // determine the sub exec
+      size_t pos = nodePath.rfind('.');
+      if(pos != std::string::npos)
+      {
+        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+        nodeName = nodePath.substr(pos+1);
+      }
+
+      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+      if(nodeType == FabricCore::DFGNodeType_Inst || 
+        nodeType == FabricCore::DFGNodeType_Var ||
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+      {
+        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
+      }
+      else if((nodeType == FabricCore::DFGNodeType_Get || 
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+      {
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
+      }
+    }
+    else
+    {
+      FTL::CStrRef argName = portOrPinPath;
+      FabricCore::RTVal const &valueAtInteractionEnter =
+        valueItem->valueAtInteractionEnter();
+      FabricCore::RTVal value = valueItem->value();
+
+      m_binding.setArgValue(
+        argName.c_str(),
+        valueItem->valueAtInteractionEnter(),
+        false // canUndo
+        );
+
+      if ( !valueAtInteractionEnter.isExEQTo( value ) )
+      {
+        m_cmdHandler->dfgDoSetArgValue(
+          FTL_STR("Set argument value"),
+          m_binding,
+          argName.c_str(),
+          value.clone()
+          );
+      }
+    }
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
 }
 
 bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
@@ -1288,9 +1307,7 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
     if(descStr == FTL_STR("argChanged"))
     {
-      emit argValueChanged(
-        jsonObject->getString( FTL_STR("name") ).c_str()
-        );
+      emit argValueChanged();
     }
     // [pzion 20150609] Why doesn't this work?
     //

@@ -83,7 +83,7 @@ bool DFGSetArgCommand::invoke()
       return false;
   }
 
-  binding.setArgValue(m_argName.c_str(), m_value);
+  binding.setArgValue(m_argName.c_str(), m_value, false);
   return true;
 }
 

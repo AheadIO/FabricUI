@@ -57,7 +57,7 @@ std::string DFGUIPerform_AddPort(
           if ( defaultValue.isValid() )
           {
             if ( execPath.empty() )
-              binding.setArgValue( portName.c_str(), defaultValue );
+              binding.setArgValue( portName.c_str(), defaultValue, true );
             else
               exec.setPortDefaultValue( portName.c_str(), defaultValue );
             ++coreUndoCount;
@@ -118,7 +118,8 @@ std::string DFGUIPerform_AddPort(
         );
     binding.setArgValue(
       portName.c_str(),
-      argValue
+      argValue,
+      true
       );
     ++coreUndoCount;
   }
@@ -589,7 +590,7 @@ void DFGUIPerform_SetArgValue(
   unsigned &coreUndoCount
   )
 {
-  binding.setArgValue( argName.c_str(), value );
+  binding.setArgValue( argName.c_str(), value, true );
   ++coreUndoCount;
 }
 

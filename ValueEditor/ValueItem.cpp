@@ -93,16 +93,8 @@ const char * ValueItem::getMetaData(const char * key)
 void ValueItem::onBeginInteraction( ValueItem * item )
 {
   assert( !m_valueAtInteractionEnter );
-
-  FabricCore::RTVal typeNameRTVal = m_value.getTypeName();
-  char const *typeNameCStr = typeNameRTVal.getStringCString();
-
-  m_valueAtInteractionEnter =
-    m_value.callMethod(
-      typeNameCStr,
-      "clone",
-      0, NULL
-      );
+  
+  m_valueAtInteractionEnter = m_value.clone();
 }
 
 void ValueItem::onEndInteraction( ValueItem * item )

@@ -85,10 +85,11 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
+        value = value.clone();
 
         ValueItem * item = addValue(portName.data(), value, portName.data(), true);
         if(item)
-        {
+        { 
           item->setMetaData("uiRange", exec.getExecPortMetadata(portName.data(), "uiRange"));
           item->setMetaData("uiCombo", exec.getExecPortMetadata(portName.data(), "uiCombo"));
         }
@@ -107,6 +108,7 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
+        value = value.clone();
         addValue(portName.data(), value, portName.data(), false);
       }
     }
@@ -160,7 +162,9 @@ void DFGValueEditor::onArgsChanged()
               value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
           }
 
-          if(!value.isValid())
+          if ( value.isValid() )
+            value = value.clone();
+          else
           {
             bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
             if(isObject)
@@ -172,8 +176,6 @@ void DFGValueEditor::onArgsChanged()
               value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
             }
           }
-          if(!value.isValid())
-            continue;
           
           ValueItem * item = addValue((globalPrefix + "." + portName.data()).c_str(), value, portName.data(), true);
           if(item)
@@ -293,10 +295,16 @@ void DFGValueEditor::updateOutputs()
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {
     ValueItem * item = (ValueItem*)m_treeModel->item(i);
-    if(item->enabled())
-      continue;
-    item->setValue(binding.getArgValue(item->name().toUtf8().constData()));
-    m_treeModel->invalidateItem(item);
+    FabricCore::RTVal argValue =
+      binding.getArgValue(item->name().toUtf8().constData());
+    if ( !argValue.isExEQTo( item->value() ) )
+    {
+      char const *argValueTypeNameCStr = argValue.getTypeNameCStr();
+      FabricCore::RTVal clonedArgValue =
+        argValue.callMethod( argValueTypeNameCStr, "clone", 0, NULL );
+      item->setValue( clonedArgValue );
+      m_treeModel->invalidateItem(item);
+    }
   }
 }
 
