@@ -242,8 +242,17 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef portOrPinPath,
+    FTL::CStrRef portPath,
     FabricCore::RTVal const &value
+    ) = 0;
+
+  virtual void dfgDoSetRefVarPath(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::CStrRef refName,
+    FTL::CStrRef varPath
     ) = 0;
 };
 

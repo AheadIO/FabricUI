@@ -156,6 +156,15 @@ void DFGUIPerform_SetDefaultValue(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_SetRefVarPath(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef refName,
+  FTL::CStrRef varPath,
+  unsigned &coreUndoCount
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__

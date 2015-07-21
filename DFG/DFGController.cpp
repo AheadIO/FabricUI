@@ -18,7 +18,6 @@
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
-#include "DFGUICmd_QUndo/DFGSetRefVarPathCommand.h"
 #include "DFGUICmd_QUndo/DFGSetNodeCacheRuleCommand.h"
 
 #include <sstream>
@@ -475,23 +474,6 @@ bool DFGController::setNodeCacheRule(char const * path, FEC_DFGCacheRule rule)
   return false;
 }
 
-bool DFGController::setRefVarPath(char const *  path, char const * varPath)
-{
-  try
-  {
-    Commands::Command * command = new DFGSetRefVarPathCommand(this, path, varPath);;
-    if(addCommand(command))
-      return true;
-    else
-      delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
-}
-
 bool DFGController::zoomCanvas(float zoom)
 {
   try
@@ -919,7 +901,6 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    Commands::Command * command = NULL;
     if(portOrPinPath.rfind('.') != std::string::npos)
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
@@ -954,7 +935,13 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
+        cmdSetRefVarPath(
+          m_binding,
+          execPath,
+          exec,
+          nodePath,
+          valueItem->value().getStringCString()
+          );
       }
     }
     else
@@ -994,7 +981,7 @@ void DFGController::cmdSetDefaultValue(
       binding,
       execPath,
       exec,
-      portPath.c_str(),
+      portPath,
       value.clone()
       );
   }
@@ -1017,8 +1004,35 @@ void DFGController::cmdSetArgValue(
     m_cmdHandler->dfgDoSetArgValue(
       desc,
       m_binding,
-      argName.c_str(),
+      argName,
       value.clone()
+      );
+  }
+}
+
+void DFGController::cmdSetRefVarPath(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef refName,
+  FTL::CStrRef varPath
+  )
+{
+  FTL::CStrRef currentVarPath = exec.getRefVarPath( refName.c_str() );
+  if ( currentVarPath != varPath )
+  {
+    std::string desc;
+    desc += FTL_STR("Canvas: Set '");
+    desc += refName;
+    desc += FTL_STR("' variable path"),
+
+    m_cmdHandler->dfgDoSetRefVarPath(
+      desc,
+      binding,
+      execPath,
+      exec,
+      refName,
+      varPath
       );
   }
 }
@@ -1036,7 +1050,6 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    Commands::Command * command = NULL;
     if(portOrPinPath.rfind('.') != std::string::npos)
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
@@ -1069,7 +1082,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
+        assert( false );
       }
     }
     else
@@ -1099,7 +1112,6 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    Commands::Command * command = NULL;
     if(portOrPinPath.rfind('.') != std::string::npos)
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
@@ -1144,7 +1156,7 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
+        assert( false );
       }
     }
     else
@@ -1645,8 +1657,12 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
   QPointF pos
   )
 {
+  std::string desc = FTL_STR("Canvas: Create function '");
+  desc += title;
+  desc += '\'';
+
   return m_cmdHandler->dfgDoAddInstWithEmptyFunc(
-    FTL_STR("Canvas: Create new function"),
+    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1661,7 +1677,7 @@ std::string DFGController::cmdAddInstFromPreset(
   QPointF pos
   )
 {
-  std::string desc = FTL_STR("Canvas: Create instance of preset '");
+  std::string desc = FTL_STR("Canvas: Create instance of '");
   desc += presetPath;
   desc += '\'';
 
@@ -1682,8 +1698,13 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
+  std::string desc;
+  desc += FTL_STR("Canvas: Create variable '");
+  desc += desiredNodeName;
+  desc += '\'';
+
   return m_cmdHandler->dfgDoAddVar(
-    FTL_STR("Canvas: Create new variable node"),
+    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1781,10 +1802,17 @@ void DFGController::cmdMoveNodes(
 {
   std::stringstream desc;
   desc << FTL_STR("Canvas: Move ");
-  desc << nodeNames.size();
-  desc << FTL_STR(" node");
-  if ( nodeNames.size() != 1 )
-    desc << 's';
+  if ( nodeNames.size() > 1 )
+  {
+    desc << nodeNames.size();
+    desc << FTL_STR(" nodes");
+  }
+  else
+  {
+    desc << FTL_STR("node '");
+    desc << nodeNames[0];
+    desc << FTL_STR("'");
+  }
 
   m_cmdHandler->dfgDoMoveNodes(
     desc.str(),

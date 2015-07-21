@@ -244,6 +244,15 @@ public:
     FabricCore::RTVal const &value
     );
 
+  virtual void dfgDoSetRefVarPath(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::CStrRef refName,
+    FTL::CStrRef varPath
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

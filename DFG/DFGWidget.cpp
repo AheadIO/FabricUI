@@ -454,16 +454,16 @@ dfgEntry {\n\
     if(dialog.exec() != QDialog::Accepted)
       return;
 
-    QString name = dialog.name();
-    if(name.length() == 0)
+    std::string name = dialog.name().toUtf8().constData();
+    if ( name.empty() )
       return;
-    QString dataType = dialog.dataType();
-    QString extension = dialog.extension();
+    std::string dataType = dialog.dataType().toUtf8().constData();
+    std::string extension = dialog.extension().toUtf8().constData();
 
     m_uiController->cmdAddVar(
-      name.toUtf8().constData(), 
-      dataType.toUtf8().constData(), 
-      extension.toUtf8().constData(), 
+      name,
+      dataType,
+      extension,
       pos
       );
 

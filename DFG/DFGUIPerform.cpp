@@ -648,12 +648,25 @@ void DFGUIPerform_SetDefaultValue(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef portOrPinPath,
+  FTL::CStrRef portPath,
   FabricCore::RTVal const &value,
   unsigned &coreUndoCount
   )
 {
-  exec.setPortDefaultValue( portOrPinPath.c_str(), value, true );
+  exec.setPortDefaultValue( portPath.c_str(), value, true );
+  ++coreUndoCount;
+}
+
+void DFGUIPerform_SetRefVarPath(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef refName,
+  FTL::CStrRef varPath,
+  unsigned &coreUndoCount
+  )
+{
+  exec.setRefVarPath( refName.c_str(), varPath.c_str(), true );
   ++coreUndoCount;
 }
 

@@ -266,11 +266,18 @@ namespace FabricUI
         FabricCore::RTVal const &value
         );
 
+      void cmdSetRefVarPath(
+        FabricCore::DFGBinding &binding,
+        FTL::CStrRef execPath,
+        FabricCore::DFGExec &exec,
+        FTL::CStrRef refName,
+        FTL::CStrRef varPath
+        );
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
       virtual std::string exportJSON(char const *  path);
       virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
-      virtual bool setRefVarPath(char const *  path, char const * varPath);
 
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);

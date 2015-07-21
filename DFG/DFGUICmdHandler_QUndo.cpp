@@ -23,11 +23,12 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ResizeBackDropNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgType_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgValue_QUndo.h>
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetDefaultValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetDefaultValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetRefVarPath_QUndo.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -563,6 +564,27 @@ void DFGUICmdHandler_QUndo::dfgDoSetDefaultValue(
       exec,
       portOrPinPath,
       value
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetRefVarPath(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::CStrRef refName,
+  FTL::CStrRef varPath
+  )
+{
+  DFGUICmd_SetRefVarPath_QUndo *cmd =
+    new DFGUICmd_SetRefVarPath_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      refName,
+      varPath
       );
   m_qUndoStack->push( cmd );
 }

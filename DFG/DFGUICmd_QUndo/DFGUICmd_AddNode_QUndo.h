@@ -76,10 +76,10 @@ protected:
 
 private:
 
-  FTL::CStrRef m_primaryArg;
+  std::string m_primaryArg;
   QPointF m_pos;
   
-  FTL::CStrRef m_nodeName;
+  std::string m_nodeName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
