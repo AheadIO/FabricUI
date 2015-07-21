@@ -277,7 +277,7 @@ namespace FabricUI
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
 
-      virtual std::string copy(QStringList paths = QStringList());
+      virtual std::string copy();
 
       virtual bool reloadExtensionDependencies(char const * path);
 

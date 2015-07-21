@@ -20,7 +20,6 @@
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
 #include "DFGUICmd_QUndo/DFGSetRefVarPathCommand.h"
 #include "DFGUICmd_QUndo/DFGSetNodeCacheRuleCommand.h"
-#include "DFGUICmd_QUndo/DFGCopyCommand.h"
 
 #include <sstream>
 
@@ -646,36 +645,41 @@ bool DFGController::tintBackDropNode(
   return true;
 }
 
-std::string DFGController::copy(QStringList paths)
+std::string DFGController::copy()
 {
+  std::string json;
   try
   {
-    if(paths.length() == 0)
+    const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+
+    std::vector<std::string> pathStrs;
+    pathStrs.reserve( nodes.size() );
+
+    for ( size_t i = 0; i < nodes.size(); ++i )
     {
-      const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
-      for(unsigned int i=0;i<nodes.size();i++)
-      {
-        if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
-          continue;
-        paths.append(nodes[i]->name().c_str());
-      }
+      if ( nodes[i]->type() != GraphView::QGraphicsItemType_Node )
+        continue;
+      pathStrs.push_back( nodes[i]->name() );
     }
 
-    DFGCopyCommand * command = new DFGCopyCommand(this, paths);
-    if(!addCommand(command))
-    {
-      delete(command);
-      return "";
-    }
+    char const *pathCStrs[pathStrs.size()];
+    for ( size_t i = 0; i < pathStrs.size(); ++i )
+      pathCStrs[i] = pathStrs[i].c_str();
 
-    return command->getJSON();
+    json =
+      m_exec.exportNodesJSON(
+        pathStrs.size(),
+        &pathCStrs[0]
+        ).getCString();
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText( json.c_str() );
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
   }
-
-  return "";
+  return json;
 }
 
 void DFGController::cmdPaste()
