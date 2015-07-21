@@ -14,11 +14,11 @@ public:
 
   DFGUICmd_AddInstWithEmptyFunc_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef title,
-    FTL::CStrRef initialCode,
+    FTL::StrRef title,
+    FTL::StrRef initialCode,
     QPointF pos
     )
     : DFGUICmd_AddNode_QUndo(
@@ -53,7 +53,7 @@ protected:
 
 private:
 
-  FTL::CStrRef m_initialCode;
+  std::string m_initialCode;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

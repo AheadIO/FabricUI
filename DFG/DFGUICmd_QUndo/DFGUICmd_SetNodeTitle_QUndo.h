@@ -3,25 +3,25 @@
 #ifndef __UI_DFG_DFGUICmd_SetNodeTitle_QUndo__
 #define __UI_DFG_DFGUICmd_SetNodeTitle_QUndo__
 
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Exec_QUndo.h>
 #include <FabricUI/DFG/DFGUIPerform.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 class DFGUICmd_SetNodeTitle_QUndo
-  : public DFGUICmd_QUndo
+  : public DFGUICmd_Exec_QUndo
 {
 public:
 
   DFGUICmd_SetNodeTitle_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef nodeName,
-    FTL::CStrRef newTitle
+    FTL::StrRef nodeName,
+    FTL::StrRef newTitle
     )
-    : DFGUICmd_QUndo(
+    : DFGUICmd_Exec_QUndo(
       desc,
       binding,
       execPath,
@@ -33,7 +33,7 @@ public:
 
 protected:
   
-  virtual void invoke(
+  virtual void invokeForExec(
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,

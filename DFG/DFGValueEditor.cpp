@@ -23,7 +23,23 @@ DFGValueEditor::DFGValueEditor(
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(m_controller, SIGNAL(bindingChanged()), this, SLOT(onBindingChanged()));
   QObject::connect(m_controller, SIGNAL(nodeDeleted(QString)), this, SLOT(onNodeDeleted(QString)));
-  QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
+
+  QObject::connect(
+    this, SIGNAL(valueItemDelta(ValueItem*)),
+    m_controller, SLOT(onValueItemDelta(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionEnter(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionDelta(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionLeave(ValueItem *))
+    );
 
   // register the extra widgets
   m_factory->registerEditor(&VariablePathValueWidget::creator, &VariablePathValueWidget::canDisplay);

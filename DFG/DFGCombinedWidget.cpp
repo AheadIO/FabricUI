@@ -91,7 +91,14 @@ void DFGCombinedWidget::init(
 
     if(m_dfgWidget->isEditable())
     {
-      QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
+      QObject::connect(
+        m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
+        this, SLOT(onValueChanged())
+        );
+      QObject::connect(
+        m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+        this, SLOT(onValueChanged())
+        );
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));

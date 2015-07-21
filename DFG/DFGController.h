@@ -140,17 +140,17 @@ namespace FabricUI
       // Commands
 
       void cmdRemoveNodes(
-        FTL::ArrayRef<FTL::StrRef> nodeNames
+        FTL::ArrayRef<FTL::CStrRef> nodeNames
         );
 
       void cmdConnect(
-        FTL::StrRef srcPath, 
-        FTL::StrRef dstPath
+        FTL::CStrRef srcPath, 
+        FTL::CStrRef dstPath
         );
 
       void cmdDisconnect(
-        FTL::StrRef srcPath, 
-        FTL::StrRef dstPath
+        FTL::CStrRef srcPath, 
+        FTL::CStrRef dstPath
         );
 
       std::string cmdAddInstWithEmptyGraph(
@@ -171,20 +171,20 @@ namespace FabricUI
 
       std::string cmdAddVar(
         FTL::CStrRef desiredNodeName,
-        FTL::StrRef dataType,
-        FTL::StrRef extDep,
+        FTL::CStrRef dataType,
+        FTL::CStrRef extDep,
         QPointF pos
         );
 
       std::string cmdAddGet(
         FTL::CStrRef desiredNodeName,
-        FTL::StrRef varPath,
+        FTL::CStrRef varPath,
         QPointF pos
         );
 
       std::string cmdAddSet(
         FTL::CStrRef desiredNodeName,
-        FTL::StrRef varPath,
+        FTL::CStrRef varPath,
         QPointF pos
         );
 
@@ -314,7 +314,11 @@ namespace FabricUI
 
     public slots:
 
-      void onValueChanged(ValueItem * item);
+      void onValueItemDelta( ValueItem *valueItem );
+      void onValueItemInteractionEnter( ValueItem *valueItem );
+      void onValueItemInteractionDelta( ValueItem *valueItem );
+      void onValueItemInteractionLeave( ValueItem *valueItem );
+
       void checkErrors();
       void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
       void onVariablesChanged();

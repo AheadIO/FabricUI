@@ -16,8 +16,8 @@ public:
 
   DFGUICmd_AddSet_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::StrRef desiredNodeName,
     FTL::StrRef varPath,

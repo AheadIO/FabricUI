@@ -38,7 +38,6 @@ namespace FabricUI
     signals:
 
       void beginInteraction(ValueItem * item);
-      void valueChanged(ValueItem * item);
       void endInteraction(ValueItem * item);
 
     protected:

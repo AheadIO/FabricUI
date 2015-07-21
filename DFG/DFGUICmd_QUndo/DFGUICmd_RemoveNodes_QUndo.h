@@ -3,24 +3,24 @@
 #ifndef __UI_DFG_DFGUICmd_RemoveNodes_QUndo__
 #define __UI_DFG_DFGUICmd_RemoveNodes_QUndo__
 
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Exec_QUndo.h>
 #include <FTL/ArrayRef.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 class DFGUICmd_RemoveNodes_QUndo
-  : public DFGUICmd_QUndo
+  : public DFGUICmd_Exec_QUndo
 {
 public:
 
   DFGUICmd_RemoveNodes_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::ArrayRef<FTL::StrRef> nodeNames
     )
-    : DFGUICmd_QUndo( desc, binding, execPath, exec )
+    : DFGUICmd_Exec_QUndo( desc, binding, execPath, exec )
   {
     m_nodeNames.insert(
       m_nodeNames.end(), nodeNames.begin(), nodeNames.end()
@@ -29,7 +29,7 @@ public:
 
 protected:
   
-  virtual void invoke(
+  virtual void invokeForExec(
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,

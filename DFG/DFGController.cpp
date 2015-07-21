@@ -145,7 +145,7 @@ bool DFGController::gvcDoRemoveNodes(
 {
   if ( !nodes.empty() )
   {
-    std::vector<FTL::StrRef> nodeNames;
+    std::vector<FTL::CStrRef> nodeNames;
     nodeNames.reserve( nodes.size() );
     for ( unsigned i = 0; i < nodes.size(); ++i )
       nodeNames.push_back( nodes[i]->name() );
@@ -970,12 +970,66 @@ bool DFGController::execute()
   return false;
 }
 
-void DFGController::onValueChanged(ValueEditor::ValueItem * item)
+// void DFGController::onValueChanged(ValueEditor::ValueItem * item)
+// {
+//   beginInteraction();
+//   try
+//   {
+//     std::string portOrPinPath = item->path().toUtf8().constData();
+
+//     FabricCore::DFGExec rootExec = m_binding.getExec();
+
+//     // let's assume it is pin, if there's still a node name in it
+//     Commands::Command * command = NULL;
+//     if(portOrPinPath.rfind('.') != std::string::npos)
+//     {
+//       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+//       std::string nodeName = nodePath;
+//       FabricCore::DFGExec parentExec = rootExec;
+
+//       // if we have a path deeper than one level, 
+//       // determine the sub exec
+//       size_t pos = nodePath.rfind('.');
+//       if(pos != std::string::npos)
+//       {
+//         parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+//         nodeName = nodePath.substr(pos+1);
+//       }
+
+//       FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+//       if(nodeType == FabricCore::DFGNodeType_Inst || 
+//         nodeType == FabricCore::DFGNodeType_Var ||
+//         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+//       {
+//         command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
+//       }
+//       else if((nodeType == FabricCore::DFGNodeType_Get || 
+//         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+//       {
+//         command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
+//       }
+//     }
+//     else
+//     {
+//       command = new DFGSetArgCommand(this, item->name().toUtf8().constData(), item->value());
+//     }
+//     if(command == NULL)
+//       return;
+//     if(!addCommand(command))
+//       delete(command);
+//   }
+//   catch(FabricCore::Exception e)
+//   {
+//     logError(e.getDesc_cstr());
+//   }
+//   endInteraction();
+// }
+
+void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
 {
-  beginInteraction();
   try
   {
-    std::string portOrPinPath = item->path().toUtf8().constData();
+    std::string portOrPinPath = valueItem->path().toUtf8().constData();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -1001,28 +1055,88 @@ void DFGController::onValueChanged(ValueEditor::ValueItem * item)
         nodeType == FabricCore::DFGNodeType_Var ||
         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
-        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), item->value());
+        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
       {
-        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), item->value().getStringCString());
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
       }
     }
     else
     {
-      command = new DFGSetArgCommand(this, item->name().toUtf8().constData(), item->value());
+      m_cmdHandler->dfgDoSetArgValue(
+        FTL_STR("Set argument value"),
+        getBinding(),
+        valueItem->name().toUtf8().constData(),
+        valueItem->value()
+        );
     }
-    if(command == NULL)
-      return;
-    if(!addCommand(command))
-      delete(command);
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
   }
-  endInteraction();
+}
+
+void DFGController::onValueItemInteractionEnter( ValueEditor::ValueItem *valueItem )
+{
+}
+
+void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueItem )
+{
+  try
+  {
+    std::string portOrPinPath = valueItem->path().toUtf8().constData();
+
+    FabricCore::DFGExec rootExec = m_binding.getExec();
+
+    // let's assume it is pin, if there's still a node name in it
+    Commands::Command * command = NULL;
+    if(portOrPinPath.rfind('.') != std::string::npos)
+    {
+      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodeName = nodePath;
+      FabricCore::DFGExec parentExec = rootExec;
+
+      // if we have a path deeper than one level, 
+      // determine the sub exec
+      size_t pos = nodePath.rfind('.');
+      if(pos != std::string::npos)
+      {
+        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
+        nodeName = nodePath.substr(pos+1);
+      }
+
+      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+      if(nodeType == FabricCore::DFGNodeType_Inst || 
+        nodeType == FabricCore::DFGNodeType_Var ||
+        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+      {
+        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
+      }
+      else if((nodeType == FabricCore::DFGNodeType_Get || 
+        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+      {
+        command = new DFGSetRefVarPathCommand(this, nodePath.c_str(), valueItem->value().getStringCString());
+      }
+    }
+    else
+    {
+      m_binding.setArgValue(
+        valueItem->name().toUtf8().constData(),
+        valueItem->value()
+        );
+    }
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+}
+
+void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
+{
 }
 
 bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
@@ -1419,7 +1533,7 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
 }
 
 void DFGController::cmdRemoveNodes(
-  FTL::ArrayRef<FTL::StrRef> nodeNames
+  FTL::ArrayRef<FTL::CStrRef> nodeNames
   )
 {
   std::stringstream desc;
@@ -1441,8 +1555,8 @@ void DFGController::cmdRemoveNodes(
 }
 
 void DFGController::cmdConnect(
-  FTL::StrRef srcPath, 
-  FTL::StrRef dstPath
+  FTL::CStrRef srcPath, 
+  FTL::CStrRef dstPath
   )
 {
   std::string desc = FTL_STR("Canvas: Connect '");
@@ -1462,8 +1576,8 @@ void DFGController::cmdConnect(
 }
 
 void DFGController::cmdDisconnect(
-  FTL::StrRef srcPath, 
-  FTL::StrRef dstPath
+  FTL::CStrRef srcPath, 
+  FTL::CStrRef dstPath
   )
 {
   std::string desc = FTL_STR("Canvas: Disconnect '");
@@ -1535,8 +1649,8 @@ std::string DFGController::cmdAddInstFromPreset(
 
 std::string DFGController::cmdAddVar(
   FTL::CStrRef desiredNodeName,
-  FTL::StrRef dataType,
-  FTL::StrRef extDep,
+  FTL::CStrRef dataType,
+  FTL::CStrRef extDep,
   QPointF pos
   )
 {
@@ -1554,7 +1668,7 @@ std::string DFGController::cmdAddVar(
 
 std::string DFGController::cmdAddGet(
   FTL::CStrRef desiredNodeName,
-  FTL::StrRef varPath,
+  FTL::CStrRef varPath,
   QPointF pos
   )
 {
@@ -1571,7 +1685,7 @@ std::string DFGController::cmdAddGet(
 
 std::string DFGController::cmdAddSet(
   FTL::CStrRef desiredNodeName,
-  FTL::StrRef varPath,
+  FTL::CStrRef varPath,
   QPointF pos
   )
 {

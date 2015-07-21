@@ -70,9 +70,22 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
         return NULL;
       }
     }
-    QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
+    QObject::connect(
+      newItem, SIGNAL(valueItemDelta(ValueItem*)),
+      this, SIGNAL(valueItemDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+      this, SIGNAL(valueItemInteractionEnter(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+      this, SIGNAL(valueItemInteractionDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+      this, SIGNAL(valueItemInteractionLeave(ValueItem*))
+      );
     m_treeModel->addItem(newItem);
     return newItem;
   }
@@ -90,9 +103,22 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
         return NULL;
       }
     }
-    QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
+    QObject::connect(
+      newItem, SIGNAL(valueItemDelta(ValueItem*)),
+      this, SIGNAL(valueItemDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+      this, SIGNAL(valueItemInteractionEnter(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+      this, SIGNAL(valueItemInteractionDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+      this, SIGNAL(valueItemInteractionLeave(ValueItem*))
+      );
     item->addChild(newItem);
     return newItem;
   }
@@ -118,9 +144,22 @@ ValueItem * ValueEditorWidget::addValue(QString path, ValueItem * newItem, bool 
       return NULL;
     if(!m_factory->canDisplay(newItem))
       return NULL;
-    QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
+    QObject::connect(
+      newItem, SIGNAL(valueItemDelta(ValueItem*)),
+      this, SIGNAL(valueItemDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+      this, SIGNAL(valueItemInteractionEnter(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+      this, SIGNAL(valueItemInteractionDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+      this, SIGNAL(valueItemInteractionLeave(ValueItem*))
+      );
     m_treeModel->addItem(newItem);
     return newItem;
   }
@@ -131,9 +170,22 @@ ValueItem * ValueEditorWidget::addValue(QString path, ValueItem * newItem, bool 
       return NULL;
     if(!m_factory->canDisplay(newItem))
       return NULL;
-    QObject::connect(newItem, SIGNAL(beginInteraction(ValueItem*)), this, SIGNAL(beginInteraction(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(valueChanged(ValueItem*)), this, SIGNAL(valueChanged(ValueItem*)));
-    QObject::connect(newItem, SIGNAL(endInteraction(ValueItem*)), this, SIGNAL(endInteraction(ValueItem*)));
+    QObject::connect(
+      newItem, SIGNAL(valueItemDelta(ValueItem*)),
+      this, SIGNAL(valueItemDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+      this, SIGNAL(valueItemInteractionEnter(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+      this, SIGNAL(valueItemInteractionDelta(ValueItem*))
+      );
+    QObject::connect(
+      newItem, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+      this, SIGNAL(valueItemInteractionLeave(ValueItem*))
+      );
     item->addChild(newItem);
     return newItem;
   }

@@ -582,4 +582,15 @@ std::string DFGUIPerform_RenameExecPort(
   return actualNewName;
 }
 
+void DFGUIPerform_SetArgValue(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef argName,
+  FabricCore::RTVal const &value,
+  unsigned &coreUndoCount
+  )
+{
+  binding.setArgValue( argName.c_str(), value );
+  ++coreUndoCount;
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

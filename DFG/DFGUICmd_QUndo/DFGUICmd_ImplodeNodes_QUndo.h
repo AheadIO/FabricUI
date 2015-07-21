@@ -3,29 +3,29 @@
 #ifndef __UI_DFG_DFGUICmd_ImplodeNodes_QUndo__
 #define __UI_DFG_DFGUICmd_ImplodeNodes_QUndo__
 
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Exec_QUndo.h>
 #include <FTL/ArrayRef.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 class DFGUICmd_ImplodeNodes_QUndo
-  : public DFGUICmd_QUndo
+  : public DFGUICmd_Exec_QUndo
 {
 public:
 
   DFGUICmd_ImplodeNodes_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef desiredNodeName,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames
+    FTL::StrRef desiredNodeName,
+    FTL::ArrayRef<FTL::StrRef> nodeNames
     )
-    : DFGUICmd_QUndo( desc, binding, execPath, exec )
+    : DFGUICmd_Exec_QUndo( desc, binding, execPath, exec )
     , m_desiredNodeName( desiredNodeName )
   {
     m_nodeNames.reserve( nodeNames.size() );
-    for ( FTL::ArrayRef<FTL::CStrRef>::IT it = nodeNames.begin();
+    for ( FTL::ArrayRef<FTL::StrRef>::IT it = nodeNames.begin();
       it != nodeNames.end(); ++it )
     {
       m_nodeNames.push_back( *it );
@@ -37,7 +37,7 @@ public:
 
 protected:
   
-  virtual void invoke(
+  virtual void invokeForExec(
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,

@@ -14,8 +14,8 @@ public:
 
   DFGUICmd_AddInstFromPreset_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::StrRef presetPath,
     QPointF pos

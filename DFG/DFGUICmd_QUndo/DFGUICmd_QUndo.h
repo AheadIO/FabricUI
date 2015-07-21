@@ -15,14 +15,10 @@ public:
 
   DFGUICmd_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec const &exec
+    FabricCore::DFGHost const &host
     )
     : QUndoCommand()
-    , m_binding( binding )
-    , m_execPath( execPath )
-    , m_exec( exec )
+    , m_host( host )
     , m_coreUndoCount( 0 )
     { setText( desc.c_str() ); }
 
@@ -33,16 +29,14 @@ protected:
     if ( m_coreUndoCount )
     {
       for ( unsigned i = 0; i < m_coreUndoCount; ++i )
-        m_exec.getHost().maybeRedo();
+        m_host.maybeRedo();
     }
     else
     {
       try
       {
-        invoke(
-          m_binding,
-          m_execPath,
-          m_exec,
+        invokeForHost(
+          m_host,
           m_coreUndoCount
           );
       }
@@ -59,21 +53,17 @@ protected:
   virtual void undo()
   {
     for ( unsigned i = 0; i < m_coreUndoCount; ++i )
-      m_exec.getHost().maybeUndo();
+      m_host.maybeUndo();
   }
 
-  virtual void invoke(
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
+  virtual void invokeForHost(
+    FabricCore::DFGHost &host,
     unsigned &coreUndoCount
     ) = 0;
 
 private:
 
-  FabricCore::DFGBinding m_binding;
-  FTL::CStrRef m_execPath;
-  FabricCore::DFGExec m_exec;
+  FabricCore::DFGHost m_host;
   unsigned m_coreUndoCount;
 };
 

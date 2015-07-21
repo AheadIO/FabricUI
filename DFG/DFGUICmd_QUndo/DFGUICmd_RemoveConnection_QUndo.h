@@ -3,31 +3,31 @@
 #ifndef __UI_DFG_DFGUICmd_RemoveConnection_QUndo__
 #define __UI_DFG_DFGUICmd_RemoveConnection_QUndo__
 
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Exec_QUndo.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 class DFGUICmd_RemoveConnection_QUndo
-  : public DFGUICmd_QUndo
+  : public DFGUICmd_Exec_QUndo
 {
 public:
 
   DFGUICmd_RemoveConnection_QUndo(
     FTL::CStrRef desc,
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::StrRef srcPath,
     FTL::StrRef dstPath
     )
-    : DFGUICmd_QUndo( desc, binding, execPath, exec )
+    : DFGUICmd_Exec_QUndo( desc, binding, execPath, exec )
     , m_srcPath( srcPath )
     , m_dstPath( dstPath )
     {}
 
 protected:
   
-  virtual void invoke(
+  virtual void invokeForExec(
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,
