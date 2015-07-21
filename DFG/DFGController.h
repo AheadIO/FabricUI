@@ -293,7 +293,7 @@ namespace FabricUI
       virtual void setLogFunc(LogFunc func);
 
       virtual bool execute();
-      bool bindUnboundRTVals(FTL::StrRef dataType = FTL::StrRef());
+      bool bindUnboundRTVals();
 
       virtual bool canConnectTo(
         char const *pathA,

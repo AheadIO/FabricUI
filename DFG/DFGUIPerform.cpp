@@ -584,19 +584,14 @@ std::string DFGUIPerform_RenameExecPort(
   return actualNewName;
 }
 
-void DFGUIPerform_SetArgType(
-  FabricCore::DFGBinding &binding,
-  FTL::CStrRef argName,
-  FTL::CStrRef typeName,
-  unsigned &coreUndoCount
+FabricCore::RTVal DFGCreateDefaultValue(
+  FabricCore::Context context,
+  FTL::CStrRef typeName
   )
 {
   FabricServices::CodeCompletion::KLTypeDesc typeDesc( typeName );
   std::string baseType = typeDesc.getBaseType();
 
-  FabricCore::DFGHost host = binding.getHost();
-  FabricCore::Context context = host.getContext();
-  
   FabricCore::RTVal value;
   if(typeDesc.isVariableArray())
     value = FabricCore::RTVal::ConstructVariableArray(context, baseType.c_str());
@@ -628,7 +623,19 @@ void DFGUIPerform_SetArgType(
     value = FabricCore::RTVal::Construct(context, typeName.c_str(), 0, 0);
   else if(FabricCore::GetRegisteredTypeIsObject(context, baseType.c_str()))
     value = FabricCore::RTVal::Create(context, typeName.c_str(), 0, 0);
+  return value;
+}
 
+void DFGUIPerform_SetArgType(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef argName,
+  FTL::CStrRef typeName,
+  unsigned &coreUndoCount
+  )
+{
+  FabricCore::DFGHost host = binding.getHost();
+  FabricCore::Context context = host.getContext();
+  FabricCore::RTVal value = DFGCreateDefaultValue( context, typeName );
   binding.setArgValue( argName.c_str(), value, true );
   ++coreUndoCount;
 }

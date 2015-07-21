@@ -11,13 +11,14 @@
 #include <FTL/Str.h>
 #include <FTL/MapCharSingle.h>
 
+#include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphRelaxer.h>
 
-#include "DFGController.h"
-#include "DFGLogWidget.h"
-#include "DFGNotificationRouter.h"
-#include "DFGUICmdHandler.h"
-#include "DFGUICmd_QUndo/DFGSetArgCommand.h"
+#include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGLogWidget.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
+#include <FabricUI/DFG/DFGUIPerform.h>
 
 #include <sstream>
 
@@ -1157,65 +1158,47 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
   }
 }
 
-bool DFGController::bindUnboundRTVals(FTL::StrRef dataType)
+bool DFGController::bindUnboundRTVals()
 {
+  bool argsHaveChanged = false;
   try
   {
     FabricCore::DFGExec rootExec = m_binding.getExec();
-
-    bool argsHaveChanged = false;
-
-    for(size_t i=0;i<rootExec.getExecPortCount();i++)
+    unsigned argCount = rootExec.getExecPortCount();
+    for ( unsigned i = 0; i < argCount; ++i )
     {
-      FTL::StrRef dataTypeToCheck = dataType;
-      if(dataTypeToCheck.empty())
-        dataTypeToCheck = rootExec.getExecPortResolvedType(i);
-      if(dataTypeToCheck.empty())
+      FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
+      if ( dataTypeToCheck.empty()
+        || rootExec.getExecPortResolvedType(i) != dataTypeToCheck )
         continue;
-      else if(rootExec.getExecPortResolvedType(i) != dataTypeToCheck)
-        continue;
-
-      if(dataTypeToCheck == "Integer")
-        dataTypeToCheck = "SInt32";
-      else if(dataTypeToCheck == "Byte")
-        dataTypeToCheck = "UInt8";
-      else if(dataTypeToCheck == "Size" || dataTypeToCheck == "Count" || dataTypeToCheck == "Index")
-        dataTypeToCheck = "UInt32";
-      else if(dataTypeToCheck == "Scalar")
-        dataTypeToCheck = "Float32";
 
       // if there is already a bound value, make sure it has the right type
       FabricCore::RTVal value;
       try
       {
-        value = m_binding.getArgValue(rootExec.getExecPortName(i));
+        value = m_binding.getArgValue( i );
       }
-      catch(FabricCore::Exception e)
+      catch ( FabricCore::Exception e )
       {
         continue;
       }
-      if(value.isValid())
-      {
-        if(value.getTypeName().getStringCString() == dataTypeToCheck)
-          continue;
-      }
+      if ( !!value && value.getTypeNameCStr() == dataTypeToCheck )
+        continue;
 
-      addCommand(
-        new DFGSetArgCommand(
-          this,
-          rootExec.getExecPortName(i),
-          dataTypeToCheck.data()
-          )
+      m_binding.setArgValue(
+        i,
+        DFGCreateDefaultValue( m_client.getContext(), dataTypeToCheck ),
+        false
         );
+
       argsHaveChanged = true;
     }
-    return argsHaveChanged;
   }
-  catch(FabricCore::Exception e)
+  catch ( FabricCore::Exception e )
   {
-    logError(e.getDesc_cstr());
+    logError( e.getDesc_cstr() );
   }
-  return false;
+  return argsHaveChanged;
 }
 
 bool DFGController::canConnectTo(

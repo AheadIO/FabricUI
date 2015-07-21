@@ -165,6 +165,11 @@ void DFGUIPerform_SetRefVarPath(
   unsigned &coreUndoCount
   );
 
+FabricCore::RTVal DFGCreateDefaultValue(
+  FabricCore::Context context,
+  FTL::CStrRef typeName
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__
