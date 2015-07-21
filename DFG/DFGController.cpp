@@ -18,7 +18,6 @@
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
-#include "DFGUICmd_QUndo/DFGSetNodeCacheRuleCommand.h"
 
 #include <sstream>
 
@@ -449,29 +448,6 @@ std::string DFGController::exportJSON(char const * path)
     logError(e.getDesc_cstr());
   }
   return "";
-}
-
-bool DFGController::setNodeCacheRule(char const * path, FEC_DFGCacheRule rule)
-{
-  try
-  {
-    FabricCore::DFGExec &exec = getExec();
-    FEC_DFGCacheRule prevRule = exec.getInstCacheRule(path);
-    
-    if(prevRule == rule)
-      return false;
-    
-    Commands::Command * command = new DFGSetNodeCacheRuleCommand(this, path, rule);;
-    if(addCommand(command))
-      return true;
-    else
-      delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
 }
 
 bool DFGController::zoomCanvas(float zoom)

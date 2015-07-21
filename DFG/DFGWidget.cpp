@@ -720,18 +720,6 @@ void DFGWidget::onNodeAction(QAction * action)
       return;
     }
   }
-  else if(action->text() == "Caching - Unspecified")
-  {
-    m_uiController->setNodeCacheRule(nodeName, FEC_DFGCacheRule_Unspecified);
-  }
-  else if(action->text() == "Caching - Never")
-  {
-    m_uiController->setNodeCacheRule(nodeName, FEC_DFGCacheRule_Never);
-  }
-  else if(action->text() == "Caching - Always")
-  {
-    m_uiController->setNodeCacheRule(nodeName, FEC_DFGCacheRule_Always);
-  }
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(this, "graph", m_dfgConfig);

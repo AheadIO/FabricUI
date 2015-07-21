@@ -277,7 +277,6 @@ namespace FabricUI
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
       virtual std::string exportJSON(char const *  path);
-      virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
 
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
