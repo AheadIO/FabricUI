@@ -258,6 +258,14 @@ namespace FabricUI
         FabricCore::RTVal const &value
         );
 
+      void cmdSetDefaultValue(
+        FabricCore::DFGBinding &binding,
+        FTL::CStrRef execPath,
+        FabricCore::DFGExec &exec,
+        FTL::CStrRef portPath,
+        FabricCore::RTVal const &value
+        );
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
       virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
@@ -317,7 +325,7 @@ namespace FabricUI
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void nodeDeleted(QString nodePath);
       void execPortRenamed(char const * path, char const * newName);
-      void argValueChanged();
+      void dirty();
       void variablesChanged();
 
     public slots:

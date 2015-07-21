@@ -235,6 +235,15 @@ public:
     FabricCore::RTVal const &value
     );
 
+  virtual void dfgDoSetDefaultValue(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::CStrRef portOrPinPath,
+    FabricCore::RTVal const &value
+    );
+
 private:
 
   QUndoStack *m_qUndoStack;

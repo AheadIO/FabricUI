@@ -588,7 +588,7 @@ void DFGWidget::onNodeAction(QAction * action)
         FabricCore::RTVal val =
           exec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
         if(val.isValid())
-          subExec.setPortDefaultValue(subExec.getExecPortName(i), val);
+          subExec.setPortDefaultValue(subExec.getExecPortName(i), val, false);
       }
 
       std::string json = subExec.exportJSON().getCString();
@@ -685,7 +685,7 @@ void DFGWidget::onNodeAction(QAction * action)
           FabricCore::RTVal val =
             exec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
           if(val.isValid())
-            subExec.setPortDefaultValue(subExec.getExecPortName(i), val);
+            subExec.setPortDefaultValue(subExec.getExecPortName(i), val, false);
         }
 
         std::string json = subExec.exportJSON().getCString();

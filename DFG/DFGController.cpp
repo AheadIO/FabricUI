@@ -955,23 +955,32 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
       std::string nodeName = nodePath;
-      FabricCore::DFGExec parentExec = rootExec;
+
+      FabricCore::DFGExec exec = rootExec;
+      std::string execPath;
 
       // if we have a path deeper than one level, 
       // determine the sub exec
       size_t pos = nodePath.rfind('.');
-      if(pos != std::string::npos)
+      if ( pos != std::string::npos )
       {
-        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
-        nodeName = nodePath.substr(pos+1);
+        execPath = nodePath.substr (0, pos );
+        exec = rootExec.getSubExec( execPath.c_str() );
+        nodeName = nodePath.substr( pos + 1 );
       }
 
-      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+      FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
-        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
+        cmdSetDefaultValue(
+          m_binding,
+          execPath,
+          exec,
+          portOrPinPath,
+          valueItem->value()
+          );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
@@ -981,9 +990,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     }
     else
     {
-      FTL::CStrRef argName = portOrPinPath;
-      FabricCore::RTVal const &value = valueItem->value();
-      cmdSetArgValue( argName, value );
+      cmdSetArgValue( portOrPinPath, valueItem->value() );
     }
   }
   catch(FabricCore::Exception e)
@@ -992,12 +999,46 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
   }
 }
 
+void DFGController::cmdSetDefaultValue(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef portPath,
+  FabricCore::RTVal const &value
+  )
+{
+  FabricCore::RTVal currentDefaultValue =
+    exec.getPortDefaultValue(
+      portPath.c_str(),
+      value.getTypeNameCStr()
+      );
+  if ( !currentDefaultValue
+    || !currentDefaultValue.isExEQTo( value ) )
+  {
+    std::string desc;
+    desc += FTL_STR("Canvas: Set '");
+    desc += portPath;
+    desc += FTL_STR("' default value"),
+
+    m_cmdHandler->dfgDoSetDefaultValue(
+      desc,
+      binding,
+      execPath,
+      exec,
+      portPath.c_str(),
+      value.clone()
+      );
+  }
+}
+
 void DFGController::cmdSetArgValue(
   FTL::CStrRef argName,
   FabricCore::RTVal const &value
   )
 {
-  if ( !m_binding.getArgValue( argName.c_str() ).isExEQTo( value ) )
+  FabricCore::RTVal currentValue = m_binding.getArgValue( argName.c_str() );
+  if ( !currentValue
+    || !currentValue.isExEQTo( value ) )
   {
     std::string desc;
     desc += FTL_STR("Canvas: Set argument '");
@@ -1031,23 +1072,30 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
       std::string nodeName = nodePath;
-      FabricCore::DFGExec parentExec = rootExec;
 
+      FabricCore::DFGExec exec = rootExec;
+      std::string execPath;
+      
       // if we have a path deeper than one level, 
       // determine the sub exec
       size_t pos = nodePath.rfind('.');
-      if(pos != std::string::npos)
+      if ( pos != std::string::npos )
       {
-        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
-        nodeName = nodePath.substr(pos+1);
+        execPath = nodePath.substr (0, pos );
+        exec = rootExec.getSubExec( execPath.c_str() );
+        nodeName = nodePath.substr( pos + 1 );
       }
 
-      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+      FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
-        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
+        exec.setPortDefaultValue(
+          portOrPinPath.c_str(),
+          valueItem->value().clone(),
+          false // canUndo
+          );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
@@ -1087,23 +1135,42 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
     {
       std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
       std::string nodeName = nodePath;
-      FabricCore::DFGExec parentExec = rootExec;
 
+      FabricCore::DFGExec exec = rootExec;
+      std::string execPath;
+      
       // if we have a path deeper than one level, 
       // determine the sub exec
       size_t pos = nodePath.rfind('.');
-      if(pos != std::string::npos)
+      if ( pos != std::string::npos )
       {
-        parentExec = parentExec.getSubExec(nodePath.substr(0, pos).c_str());
-        nodeName = nodePath.substr(pos+1);
+        execPath = nodePath.substr (0, pos );
+        exec = rootExec.getSubExec( execPath.c_str() );
+        nodeName = nodePath.substr( pos + 1 );
       }
 
-      FabricCore::DFGNodeType nodeType = parentExec.getNodeType(nodeName.c_str());
+      FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
         (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
       {
-        command = new DFGSetDefaultValueCommand(this, portOrPinPath.c_str(), valueItem->value());
+        FabricCore::RTVal valueAtInteractionEnter =
+          valueItem->valueAtInteractionEnter();
+        FabricCore::RTVal value = valueItem->value();
+
+        exec.setPortDefaultValue(
+          portOrPinPath.c_str(),
+          valueAtInteractionEnter,
+          false // canUndo
+          );
+
+        cmdSetDefaultValue(
+          m_binding,
+          execPath,
+          exec,
+          portOrPinPath,
+          value
+          );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
@@ -1280,9 +1347,9 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
       );
 
     FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
-    if(descStr == FTL_STR("argChanged"))
+    if ( descStr == FTL_STR("dirty") )
     {
-      emit argValueChanged();
+      emit dirty();
     }
     // [pzion 20150609] Why doesn't this work?
     //

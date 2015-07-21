@@ -23,6 +23,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_ResizeBackDropNode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgType_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgValue_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetDefaultValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
@@ -540,6 +541,27 @@ void DFGUICmdHandler_QUndo::dfgDoSetArgValue(
       desc,
       binding,
       argName,
+      value
+      );
+  m_qUndoStack->push( cmd );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetDefaultValue(
+  FTL::CStrRef desc,
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::CStrRef portOrPinPath,
+  FabricCore::RTVal const &value
+  )
+{
+  DFGUICmd_SetDefaultValue_QUndo *cmd =
+    new DFGUICmd_SetDefaultValue_QUndo(
+      desc,
+      binding,
+      execPath,
+      exec,
+      portOrPinPath,
       value
       );
   m_qUndoStack->push( cmd );

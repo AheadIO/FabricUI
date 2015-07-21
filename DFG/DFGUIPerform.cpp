@@ -60,7 +60,7 @@ std::string DFGUIPerform_AddPort(
             if ( execPath.empty() )
               binding.setArgValue( portName.c_str(), defaultValue, true );
             else
-              exec.setPortDefaultValue( portName.c_str(), defaultValue );
+              exec.setPortDefaultValue( portName.c_str(), defaultValue, true );
             ++coreUndoCount;
           }
         }
@@ -641,6 +641,19 @@ void DFGUIPerform_SetArgValue(
   )
 {
   binding.setArgValue( argName.c_str(), value, true );
+  ++coreUndoCount;
+}
+
+void DFGUIPerform_SetDefaultValue(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef portOrPinPath,
+  FabricCore::RTVal const &value,
+  unsigned &coreUndoCount
+  )
+{
+  exec.setPortDefaultValue( portOrPinPath.c_str(), value, true );
   ++coreUndoCount;
 }
 

@@ -236,6 +236,15 @@ public:
     FTL::CStrRef argName,
     FabricCore::RTVal const &value
     ) = 0;
+
+  virtual void dfgDoSetDefaultValue(
+    FTL::CStrRef desc,
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::CStrRef portOrPinPath,
+    FabricCore::RTVal const &value
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

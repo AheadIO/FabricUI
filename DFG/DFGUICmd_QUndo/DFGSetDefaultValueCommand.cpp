@@ -45,7 +45,7 @@ bool DFGSetDefaultValueCommand::invoke()
     posB = path.rfind('.');
   }
 
-  parentExec.setPortDefaultValue(path.c_str(), m_value);
+  parentExec.setPortDefaultValue(path.c_str(), m_value, true);
 
   return true;
 }

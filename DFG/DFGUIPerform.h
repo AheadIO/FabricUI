@@ -147,6 +147,15 @@ void DFGUIPerform_SetArgValue(
   unsigned &coreUndoCount
   );
 
+void DFGUIPerform_SetDefaultValue(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  FTL::CStrRef portOrPinPath,
+  FabricCore::RTVal const &value,
+  unsigned &coreUndoCount
+  );
+
 FABRIC_UI_DFG_NAMESPACE_END
 
 #endif // __UI_DFG_DFGUIPerform__
