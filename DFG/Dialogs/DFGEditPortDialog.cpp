@@ -58,9 +58,6 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
 
   QObject::connect(m_hasRange, SIGNAL(stateChanged(int)), this, SLOT(onRangeToggled(int)));
   QObject::connect(m_hasCombo, SIGNAL(stateChanged(int)), this, SLOT(onComboToggled(int)));
-
-  setSectionCollapsed("advanced");
-  setSectionCollapsed("metadata");
 }
 
 DFGEditPortDialog::~DFGEditPortDialog()

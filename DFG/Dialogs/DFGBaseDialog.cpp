@@ -138,6 +138,7 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label, QString section)
     m_sections.push_back(collapsableSection);
     m_inputsWidget->layout()->addWidget(collapsableSection);
     QObject::connect(collapsableSection, SIGNAL(toggled()), this, SLOT(onSectionToggled()));
+    collapsableSection->setCollapsed(true);
   }
 
   m_sections[m_sections.size()-1]->addWidget(widget, label);
