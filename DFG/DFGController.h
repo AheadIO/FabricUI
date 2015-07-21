@@ -268,8 +268,6 @@ namespace FabricUI
 
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
-      virtual bool setDefaultValue(char const *  path, FabricCore::RTVal value);
-      virtual bool setDefaultValue(char const *  path, char const *  dataType, char const *  json);
       virtual std::string exportJSON(char const *  path);
       virtual bool setNodeCacheRule(char const *  path, FEC_DFGCacheRule rule);
       virtual bool setRefVarPath(char const *  path, char const * varPath);

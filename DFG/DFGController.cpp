@@ -442,39 +442,6 @@ void DFGController::cmdSetArgType(
     );
 }
 
-bool DFGController::setDefaultValue(char const * path, FabricCore::RTVal value)
-{
-  try
-  {
-    Commands::Command * command = new DFGSetDefaultValueCommand(this, path, value);;
-    if(addCommand(command))
-    {
-      emit argsChanged();
-      return true;
-    }
-    delete(command);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
-}
-
-bool DFGController::setDefaultValue(char const * path, char const * dataType, char const * json)
-{
-  try
-  {
-    FabricCore::RTVal value = FabricCore::ConstructRTValFromJSON(m_client, dataType, json);
-    return setDefaultValue(path, value);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return false;
-}
-
 std::string DFGController::exportJSON(char const * path)
 {
   try
