@@ -18,11 +18,9 @@
 #include "DFGNotificationRouter.h"
 #include "DFGUICmdHandler.h"
 #include "DFGUICmd_QUndo/DFGSetArgCommand.h"
-#include "DFGUICmd_QUndo/DFGSetDefaultValueCommand.h"
 #include "DFGUICmd_QUndo/DFGSetRefVarPathCommand.h"
 #include "DFGUICmd_QUndo/DFGSetNodeCacheRuleCommand.h"
 #include "DFGUICmd_QUndo/DFGCopyCommand.h"
-#include "DFGUICmd_QUndo/DFGPasteCommand.h"
 
 #include <sstream>
 
