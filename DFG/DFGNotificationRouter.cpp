@@ -345,7 +345,6 @@ void DFGNotificationRouter::onGraphSet()
       }
     }
 
-    m_dfgController->emitStructureChanged();
     m_dfgController->emitRecompiled();
   }
   catch ( FTL::JSONException je )
@@ -467,7 +466,6 @@ void DFGNotificationRouter::onNodeInserted(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -491,7 +489,6 @@ void DFGNotificationRouter::onNodeRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -534,7 +531,6 @@ void DFGNotificationRouter::onNodePortInserted(
     uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -560,7 +556,6 @@ void DFGNotificationRouter::onNodePortRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -610,7 +605,6 @@ void DFGNotificationRouter::onExecPortInserted(
     uiGraph->addConnection(uiOutPort, uiInPort, false);
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -649,7 +643,6 @@ void DFGNotificationRouter::onExecPortRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -706,8 +699,6 @@ void DFGNotificationRouter::onPortsConnected(
   }
 
   m_dfgController->bindUnboundRTVals();
-  m_dfgController->emitArgsChanged();
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -763,8 +754,6 @@ void DFGNotificationRouter::onPortsDisconnected(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitArgsChanged();
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 

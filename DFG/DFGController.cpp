@@ -2011,7 +2011,7 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   else
   {
     m_host.unblockComps();
-    emit structureChanged();
+    emit argsChanged();
     emit recompiled();
     emit variablesChanged();
   }

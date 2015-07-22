@@ -962,8 +962,6 @@ void DFGWidget::onExecPortAction(QAction * action)
           );
       }
       m_uiController->endInteraction();
-
-      emit m_uiController->structureChanged();
     }
     catch(FabricCore::Exception e)
     {
@@ -1071,8 +1069,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
           flat += ")";
           exec.setExecPortMetadata(portName.c_str(), "uiCombo", flat.toUtf8().constData(), false);
         }
-
-        emit m_uiController->structureChanged();
       }
       catch(FabricCore::Exception e)
       {
