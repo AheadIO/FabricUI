@@ -641,6 +641,49 @@ std::string DFGController::copy()
   return json;
 }
 
+void DFGController::cmdCut()
+{
+  try
+  {
+    const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+
+    std::vector<std::string> pathStrs;
+    pathStrs.reserve( nodes.size() );
+
+    for ( size_t i = 0; i < nodes.size(); ++i )
+    {
+      if ( nodes[i]->type() != GraphView::QGraphicsItemType_Node )
+        continue;
+      pathStrs.push_back( nodes[i]->name() );
+    }
+
+    std::vector<char const *> pathCStrs;
+    pathCStrs.reserve( pathStrs.size() );
+    for ( size_t i = 0; i < pathStrs.size(); ++i )
+      pathCStrs.push_back( pathStrs[i].c_str() );
+
+    std::string json =
+      m_exec.exportNodesJSON(
+        pathCStrs.size(),
+        &pathCStrs[0]
+        ).getCString();
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText( json.c_str() );
+
+    std::vector<FTL::CStrRef> pathCStrRefs;
+    pathCStrRefs.reserve( pathStrs.size() );
+    for ( size_t i = 0; i < pathStrs.size(); ++i )
+      pathCStrRefs.push_back( pathStrs[i] );
+
+    cmdRemoveNodes( pathCStrRefs );
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+  }
+}
+
 void DFGController::cmdPaste()
 {
   try

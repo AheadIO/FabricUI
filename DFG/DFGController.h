@@ -245,6 +245,8 @@ namespace FabricUI
         FTL::CStrRef desiredNewName
         );
 
+      void cmdCut();
+
       void cmdPaste();
 
       void cmdSetArgType(
