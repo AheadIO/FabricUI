@@ -44,7 +44,6 @@ namespace FabricUI
         FabricCore::Client &client,
         FabricServices::ASTWrapper::KLASTManager * manager,
         DFGUICmdHandler *cmdHandler,
-        FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true
         );
       ~DFGController();

@@ -24,7 +24,7 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgType_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetArgValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetDefaultValue_QUndo.h>
+#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetPortDefaultValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
@@ -547,7 +547,7 @@ void DFGUICmdHandler_QUndo::dfgDoSetArgValue(
   m_qUndoStack->push( cmd );
 }
 
-void DFGUICmdHandler_QUndo::dfgDoSetDefaultValue(
+void DFGUICmdHandler_QUndo::dfgDoSetPortDefaultValue(
   FTL::CStrRef desc,
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
@@ -556,8 +556,8 @@ void DFGUICmdHandler_QUndo::dfgDoSetDefaultValue(
   FabricCore::RTVal const &value
   )
 {
-  DFGUICmd_SetDefaultValue_QUndo *cmd =
-    new DFGUICmd_SetDefaultValue_QUndo(
+  DFGUICmd_SetPortDefaultValue_QUndo *cmd =
+    new DFGUICmd_SetPortDefaultValue_QUndo(
       desc,
       binding,
       execPath,

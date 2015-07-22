@@ -36,7 +36,6 @@ DFGWidget::DFGWidget(
   FabricCore::DFGExec &exec,
   FabricServices::ASTWrapper::KLASTManager * manager,
   DFGUICmdHandler *cmdHandler,
-  Commands::CommandStack * stack,
   const DFGConfig & dfgConfig,
   bool overTakeBindingNotifications
   )
@@ -52,7 +51,6 @@ DFGWidget::DFGWidget(
     client,
     m_manager,
     cmdHandler,
-    stack,
     overTakeBindingNotifications
     );
 

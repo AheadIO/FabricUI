@@ -42,7 +42,6 @@ namespace FabricUI
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec,
         DFGUICmdHandler *cmdHandler,
-        FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true,
         DFGConfig config = DFGConfig()
         );

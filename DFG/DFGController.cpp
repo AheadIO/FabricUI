@@ -32,10 +32,9 @@ DFGController::DFGController(
   FabricCore::Client &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
   DFGUICmdHandler *cmdHandler,
-  FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications
   )
-  : GraphView::Controller(graph, stack)
+  : GraphView::Controller(graph)
   , m_dfgWidget( dfgWidget )
   , m_client(client)
   , m_manager(manager)
@@ -621,13 +620,14 @@ std::string DFGController::copy()
       pathStrs.push_back( nodes[i]->name() );
     }
 
-    char const *pathCStrs[pathStrs.size()];
+    std::vector<char const *> pathCStrs;
+    pathCStrs.reserve( pathStrs.size() );
     for ( size_t i = 0; i < pathStrs.size(); ++i )
-      pathCStrs[i] = pathStrs[i].c_str();
+      pathCStrs.push_back( pathStrs[i].c_str() );
 
     json =
       m_exec.exportNodesJSON(
-        pathStrs.size(),
+        pathCStrs.size(),
         &pathCStrs[0]
         ).getCString();
 
@@ -953,7 +953,7 @@ void DFGController::cmdSetDefaultValue(
     desc += portPath;
     desc += FTL_STR("' default value"),
 
-    m_cmdHandler->dfgDoSetDefaultValue(
+    m_cmdHandler->dfgDoSetPortDefaultValue(
       desc,
       binding,
       execPath,

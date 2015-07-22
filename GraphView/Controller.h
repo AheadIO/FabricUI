@@ -38,7 +38,7 @@ namespace FabricUI
       
     public:
 
-      Controller(Graph * graph, FabricServices::Commands::CommandStack * stack);
+      Controller(Graph * graph);
       virtual ~Controller();
 
       Graph * graph();
@@ -109,9 +109,6 @@ namespace FabricUI
 
       bool gvcDoRemoveConnection(Connection * conn);
 
-      bool addCommand(FabricServices::Commands::Command * command);
-      bool clearCommands();
-
     public slots:
 
       void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
@@ -120,7 +117,6 @@ namespace FabricUI
 
       Graph * m_graph;
       unsigned int m_interactionBracket;
-      FabricServices::Commands::CommandStack * m_stack;
       FabricServices::Commands::CompoundCommand * m_compound;
     };
 
