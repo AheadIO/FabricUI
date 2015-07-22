@@ -26,7 +26,7 @@ DFGNotificationRouter::DFGNotificationRouter(
 
 void DFGNotificationRouter::onExecChanged()
 {
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
   if ( exec )
     m_coreDFGView = exec.createView( &Callback, this );
   else
@@ -39,7 +39,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
   {
     // printf( "notif = %s\n", jsonStr.c_str() );
     
-    // FabricCore::DFGStringResult desc = m_coreDFGExec.getDesc();
+    // FabricCore::DFGStringResult desc = m_exec.getDesc();
     // printf( "exec = %s\n", desc.getCString() );
 
     onNotification(jsonStr);
@@ -269,7 +269,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 
 void DFGNotificationRouter::onGraphSet()
 {
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
   if ( !exec )
     return;
 
@@ -344,6 +344,9 @@ void DFGNotificationRouter::onGraphSet()
         onExecMetadataChanged( key, value );
       }
     }
+
+    m_dfgController->emitStructureChanged();
+    m_dfgController->emitRecompiled();
   }
   catch ( FTL::JSONException je )
   {
@@ -360,7 +363,7 @@ void DFGNotificationRouter::onNodeInserted(
   FTL::JSONObject const *jsonObject
   )
 {
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
   if ( !exec )
     return;
 
@@ -368,7 +371,7 @@ void DFGNotificationRouter::onNodeInserted(
   if(!uiGraph)
     return;
 
-  FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
+  FabricCore::DFGNodeType nodeType = exec.getNodeType( nodeName.c_str() );
   GraphView::Node * uiNode;
   if ( nodeType == FabricCore::DFGNodeType_User )
     uiNode = uiGraph->addBackDropNode( nodeName );
@@ -398,7 +401,7 @@ void DFGNotificationRouter::onNodeInserted(
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
-    FTL::CStrRef varPath = exec.getRefVarPath(nodeName.c_str());
+    FTL::CStrRef varPath = exec.getRefVarPath( nodeName.c_str() );
     onRefVarPathChanged(nodeName, varPath);
   }
 
@@ -463,6 +466,9 @@ void DFGNotificationRouter::onNodeInserted(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodeRemoved(
@@ -484,6 +490,9 @@ void DFGNotificationRouter::onNodeRemoved(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodePortInserted(
@@ -501,7 +510,7 @@ void DFGNotificationRouter::onNodePortInserted(
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
 
   QColor color;
   if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
@@ -524,6 +533,9 @@ void DFGNotificationRouter::onNodePortInserted(
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodePortRemoved(
@@ -547,6 +559,9 @@ void DFGNotificationRouter::onNodePortRemoved(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onExecPortInserted(
@@ -560,7 +575,7 @@ void DFGNotificationRouter::onExecPortInserted(
 
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
   QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
 
   GraphView::Port * uiOutPort = NULL;
@@ -594,6 +609,9 @@ void DFGNotificationRouter::onExecPortInserted(
   {
     uiGraph->addConnection(uiOutPort, uiInPort, false);
   }
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
@@ -630,6 +648,9 @@ void DFGNotificationRouter::onExecPortRemoved(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onPortsConnected(
@@ -683,6 +704,11 @@ void DFGNotificationRouter::onPortsConnected(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->bindUnboundRTVals();
+  m_dfgController->emitArgsChanged();
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -736,6 +762,10 @@ void DFGNotificationRouter::onPortsDisconnected(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+
+  m_dfgController->emitArgsChanged();
+  m_dfgController->emitStructureChanged();
+  m_dfgController->emitRecompiled();
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
@@ -782,7 +812,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
       {
         GraphView::BackDropNode *uiBackDropNode =
           static_cast<GraphView::BackDropNode *>( uiNode );
-        uiBackDropNode->setSize( QSizeF( w, h ), false );
+        uiBackDropNode->setSize( QSizeF( w, h ) );
       }
     }
   }
@@ -857,35 +887,20 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   else if(key == FTL_STR("uiComment"))
   {
     QString text = value.c_str();
-    GraphView::NodeBubble * uiBubble = uiNode->bubble();
-    if(text.length() == 0)
-    {
-      if(uiBubble != NULL)
-      {
-        uiBubble->setNode(NULL);
-        uiNode->setBubble(NULL);
-        uiBubble->scene()->removeItem(uiBubble);
-        uiBubble->hide();
-        uiBubble->deleteLater();
-      }
-    }
+    GraphView::NodeBubble *uiBubble = uiNode->bubble();
+    if ( text.length() == 0 )
+      uiBubble->hide();
     else
-    {
-      if(uiBubble == NULL)
-        uiBubble = new GraphView::NodeBubble(uiNode->graph(), uiNode, uiNode->graph()->config());
-      uiBubble->setText(text);
-    }
+      uiBubble->show();
+    uiBubble->setText(text);
   }
   else if(key == FTL_STR("uiCommentExpanded"))
   {
     GraphView::NodeBubble * uiBubble = uiNode->bubble();
-    if(uiBubble)
-    {
-      if(value.size() == 0 || value == "false")
-        uiBubble->collapse();
-      else
-        uiBubble->expand();
-    }
+    if ( value.empty() || value == FTL_STR("false") )
+      uiBubble->collapse();
+    else
+      uiBubble->expand();
   }
   else if(key == FTL_STR("uiAlwaysShowDaisyChainPorts"))
   {
@@ -1062,7 +1077,7 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   if(newResolvedType != uiPort->dataType())
   {
     uiPort->setDataType(newResolvedType);
-    FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+    FabricCore::DFGExec &exec = m_dfgController->getExec();
     uiPort->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.data()));
     uiGraph->updateColorForConnections(uiPort);
   }
@@ -1096,11 +1111,10 @@ void DFGNotificationRouter::onNodePortResolvedTypeChanged(
   if(newResolvedType != uiPin->dataType())
   {
     uiPin->setDataType(newResolvedType);
-    FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+    FabricCore::DFGExec &exec = m_dfgController->getExec();
     if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
     {
-      FabricCore::DFGExec subExec =
-        exec.getSubExec(nodeName.c_str());
+      FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
       uiPin->setColor(m_config.getColorForDataType(newResolvedType, &subExec, portName.data()));
     }
     else
@@ -1148,7 +1162,7 @@ void DFGNotificationRouter::onRefVarPathChanged(
   FTL::CStrRef newVarPath
   )
 {
-  FabricCore::DFGExec &exec = m_dfgController->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
   if ( !exec )
     return;
 

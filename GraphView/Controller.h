@@ -6,11 +6,16 @@
 #include <QtCore/QString>
 #include <QtCore/QPointF>
 #include <QtGui/QColor>
+
 #include <Commands/CommandStack.h>
 #include <Commands/CompoundCommand.h>
+
 #include "PortType.h"
 #include "NodeToolbar.h"
+
 #include <vector>
+
+#include <FTL/ArrayRef.h>
 #include <FTL/StrRef.h>
 
 namespace FabricUI
@@ -42,40 +47,67 @@ namespace FabricUI
 
       virtual bool beginInteraction();
       virtual bool endInteraction();
-      virtual Node * addNode(
-        FTL::CStrRef name,
-        FTL::CStrRef title,
+
+      virtual bool gvcDoRemoveNodes(
+        FTL::ArrayRef<GraphView::Node *> nodes
+        ) = 0;
+
+      virtual bool gvcDoAddConnection(
+        ConnectionTarget * src,
+        ConnectionTarget * dst
+        ) = 0;
+
+      virtual bool gvcDoRemoveConnection(
+        ConnectionTarget * src,
+        ConnectionTarget * dst
+        ) = 0;
+
+      virtual bool gvcDoAddInstFromPreset(
+        FTL::CStrRef presetPath,
         QPointF pos
-        );
-      virtual bool removeNode(Node * node);
-      virtual bool moveNode(Node * node, QPointF pos, bool isTopLeftPos = false);
-      virtual bool renameNode(Node * node, FTL::StrRef title);
+        ) = 0;
+
+      virtual void gvcDoAddPort(
+        FTL::CStrRef desiredPortName,
+        PortType portType,
+        FTL::CStrRef typeSpec = FTL::CStrRef(),
+        ConnectionTarget *connectWith = 0
+        ) = 0;
+      
+      virtual void gvcDoSetNodeCommentExpanded(
+        Node *node,
+        bool expanded
+        ) = 0;
+
+      virtual void gvcDoMoveNodes(
+        std::vector<Node *> const &nodes,
+        QPointF delta,
+        bool allowUndo
+        ) = 0;
+
+      virtual void gvcDoResizeBackDropNode(
+        GraphView::BackDropNode *backDropNode,
+        QPointF posDelta,
+        QSizeF sizeDelta,
+        bool allowUndo
+        ) = 0;
+
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
-      virtual Pin * addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType = "");
-      virtual bool removePin(Pin * pin);
-      virtual Port * addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType = "");
-      virtual bool removePort(Port * port);
-      virtual Port * addPortFromPin(Pin * pin, PortType pType);
-      virtual bool renamePort(Port * port, FTL::StrRef title);
-      virtual bool addConnection(ConnectionTarget * src, ConnectionTarget * dst);
-      virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst);
-      virtual bool removeConnection(Connection * conn);
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool frameNodes(const std::vector<Node*> & nodes);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
-      virtual bool setBackDropNodeSize(BackDropNode * node, QSizeF size);
-      virtual bool setNodeComment(Node * node, char const * comment);
-      virtual void setNodeCommentExpanded(Node * node, bool expanded);
 
       virtual bool canConnectTo(
         char const *pathA,
         char const *pathB,
         std::string &failureReason
         );
+
+      bool gvcDoRemoveConnection(Connection * conn);
 
       bool addCommand(FabricServices::Commands::Command * command);
       bool clearCommands();

@@ -5,16 +5,16 @@
 
 #include <QtCore/QSettings>
 #include <QtGui/QWidget>
-#include <QtGui/QVBoxLayout>
 #include <Commands/CommandStack.h>
+#include <FabricUI/DFG/DFGConfig.h>
+#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGExecHeaderWidget.h>
+#include <FabricUI/DFG/DFGGraphViewWidget.h>
+#include <FabricUI/DFG/DFGKLEditorWidget.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
+#include <FabricUI/DFG/DFGTabSearchWidget.h>
 #include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
-#include "DFGGraphViewWidget.h"
-#include "DFGController.h"
-#include "DFGNotificationRouter.h"
-#include "DFGConfig.h"
-#include "DFGKLEditorWidget.h"
-#include "DFGTabSearchWidget.h"
+#include <QtGui/QVBoxLayout>
 
 #include <FTL/OwnedPtr.h>
 
@@ -23,6 +23,7 @@ namespace FabricUI
   namespace DFG
   {
     class DFGExecHeaderWidget;
+    class DFGUICmdHandler;
 
     class DFGWidget : public QWidget
     {
@@ -38,6 +39,7 @@ namespace FabricUI
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec,
         FabricServices::ASTWrapper::KLASTManager * manager,
+        DFGUICmdHandler *cmdHandler,
         FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
         bool overTakeBindingNotifications = true
@@ -79,7 +81,7 @@ namespace FabricUI
       void onSidePanelAction(QAction * action);
       void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
-      void onNodeToBeRenamed(FabricUI::GraphView::Node* node);
+      void onEditNodeTitle(FabricUI::GraphView::Node* node);
       void onKeyPressed(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
@@ -90,7 +92,7 @@ namespace FabricUI
       static QMenu* portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData);
       static QMenu* sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData);
 
-      bool editNode(
+      bool maybeEditNode(
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec
         );

@@ -44,7 +44,7 @@ namespace FabricUI
       FTL::CStrRef name() const
         { return m_name; }
 
-      std::string path() const;
+      virtual std::string path() const;
 
       virtual char const * label() const;
       virtual PortType portType() const;

@@ -22,7 +22,10 @@ namespace FabricUI
       ValueItem(QString name, TreeView::TreeEditorFactory * factory, FabricCore::Client * client, QWidget * parent, FabricCore::RTVal value, QString label = "", bool enabled = true);
       virtual ~ValueItem();
 
-      FabricCore::RTVal value() const;
+      FabricCore::RTVal &value()
+        { return m_value; }
+      FabricCore::RTVal &valueAtInteractionEnter()
+        { return m_valueAtInteractionEnter; }
       void setValue(FabricCore::RTVal v);
       QString valueTypeName() const;
       bool enabled() const;
@@ -37,9 +40,16 @@ namespace FabricUI
 
     signals:
 
-      void beginInteraction(ValueItem * item);
-      void valueChanged(ValueItem * item);
-      void endInteraction(ValueItem * item);
+      void valueItemDelta( ValueItem *valueItem );
+
+      void valueItemInteractionEnter( ValueItem *valueItem );
+      void valueItemInteractionDelta( ValueItem *valueItem );
+      void valueItemInteractionLeave( ValueItem *valueItem );
+
+    public slots:
+
+      void onBeginInteraction(ValueItem * item);
+      void onEndInteraction(ValueItem * item);
 
     private:
 
@@ -49,6 +59,7 @@ namespace FabricUI
       std::map<std::string, std::string> m_metaData;
       bool m_enabled;
       bool m_isSettingValue;
+      FabricCore::RTVal m_valueAtInteractionEnter;
     };
 
   };

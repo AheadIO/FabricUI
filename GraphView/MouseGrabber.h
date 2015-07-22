@@ -34,6 +34,8 @@ namespace FabricUI
       const Graph * graph() const;
       virtual QColor color() const;
 
+      virtual std::string path() const { return "***ASSERT***"; }
+
       virtual bool canConnectTo(
         ConnectionTarget * other,
         std::string &failureReason

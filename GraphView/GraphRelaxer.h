@@ -4,9 +4,10 @@
 #define __UI_GraphView_GraphRelaxer__
 
 #include <QtCore/QPointF>
-#include <QtCore/QString>
 
 #include "GraphConfig.h"
+#include <FTL/CStrRef.h>
+#include <string>
 #include <vector>
 #include <map>
 
@@ -43,7 +44,7 @@ namespace FabricUI
         int row;
         float width;
         float height;
-        QString name;
+        std::string name;
         QPointF curr;
         QPointF prev;
         QPointF vel;
@@ -52,18 +53,25 @@ namespace FabricUI
 
       GraphRelaxer(const GraphConfig & config = GraphConfig());
       unsigned int numNodes() const;
-      QString getName(int index);
+      FTL::CStrRef getName(int index);
       QPointF getPos(int index);
-      int addNode(QString name, QPointF pos, int col, int row, float width, float height);
-      void addSpring(QString a, QString b, float force = 1.0);
+      int addNode(
+        FTL::StrRef name,
+        QPointF pos,
+        int col,
+        int row,
+        float width,
+        float height
+        );
+      void addSpring(FTL::StrRef a, FTL::StrRef b, float force = 1.0);
       void relax(int steps);
 
     private:
 
       typedef std::vector<RelaxNode> RelaxNodeList;
-      typedef std::map<QString, int> RelaxNodeLookup;
+      typedef std::map<std::string, int> RelaxNodeLookup;
       typedef RelaxNodeLookup::iterator RelaxNodeLookupIt;
-      typedef std::pair<QString, int> RelaxNodeLookupPair;
+      typedef std::pair<std::string, int> RelaxNodeLookupPair;
 
       RelaxNodeList m_nodes;
       RelaxNodeLookup m_nodeLookup;

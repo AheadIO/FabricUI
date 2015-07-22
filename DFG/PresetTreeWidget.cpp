@@ -95,11 +95,11 @@ void PresetTreeWidget::refresh()
   if(search.length() != 0 && m_state.length() == 0)
     m_state = m_treeView->state();
 
-  FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+  FabricCore::DFGHost &host = m_dfgController->getHost();
   if ( !host )
     return;
 
-  FabricCore::DFGBinding &binding = m_dfgController->getCoreDFGBinding();
+  FabricCore::DFGBinding &binding = m_dfgController->getBinding();
   if ( !binding )
     return;
 
@@ -238,7 +238,7 @@ void PresetTreeWidget::onContextMenuAction(QAction * action)
   {
     try
     {
-      FabricCore::DFGHost host = m_dfgController->getCoreDFGHost();
+      FabricCore::DFGHost host = m_dfgController->getHost();
       FTL::StrRef path = host.getPresetImportPathname(m_contextPath.toUtf8().constData());
       if(action->text() == "Open Folder")
       {
@@ -269,11 +269,11 @@ void PresetTreeWidget::updatePresetPathDB()
   if(search.length() == 0)
     return;
 
-  FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+  FabricCore::DFGHost &host = m_dfgController->getHost();
   if ( !host )
     return;
 
-  FabricCore::DFGBinding &binding = m_dfgController->getCoreDFGBinding();
+  FabricCore::DFGBinding &binding = m_dfgController->getBinding();
   if ( !binding )
     return;
 

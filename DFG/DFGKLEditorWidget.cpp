@@ -105,7 +105,7 @@ DFGKLEditorWidget::~DFGKLEditorWidget()
 
 void DFGKLEditorWidget::onExecChanged()
 {
-  FabricCore::DFGExec &exec = m_controller->getCoreDFGExec();
+  FabricCore::DFGExec &exec = m_controller->getExec();
 
   if ( exec.getType() == FabricCore::DFGExecType_Func )
   {
@@ -143,7 +143,6 @@ void DFGKLEditorWidget::onExecPortsChanged()
   bool modified = false;
 
   FabricCore::DFGExec &exec = getExec();
-  FTL::StrRef execPath = getExecPath();
 
   // we expect only one change, so either a new port,
   // portName / portType or dataType change
@@ -161,10 +160,10 @@ void DFGKLEditorWidget::onExecPortsChanged()
         {
           try
           {
-            std::string path = execPath;
-            path += ".";
-            path += exec.getExecPortName(i);
-            m_controller->renamePortByPath(path.c_str(), infos[i].portName.c_str());
+            m_controller->cmdRenameExecPort(
+              exec.getExecPortName(i),
+              infos[i].portName.c_str()
+              );
           }
           catch(FabricCore::Exception e)
           {
@@ -190,17 +189,14 @@ void DFGKLEditorWidget::onExecPortsChanged()
       {
         char const * name = exec.getExecPortName(i);
 
-        if(m_controller->removePortByName(name))
-        {
-          m_controller->addPortByPath(
-            m_controller->getCoreDFGExecPath(),
-            name,
-            infos[i].portType,
-            infos[i].dataType.c_str(),
-            false
-            ); 
-          modified = true;
-        }
+        m_controller->cmdRemovePort( name );
+        m_controller->cmdAddPort(
+          name,
+          infos[i].portType,
+          infos[i].dataType.c_str(),
+          FTL::CStrRef() // portToConnectWith
+          ); 
+        modified = true;
       }
       else if(setPortType)
       {
@@ -242,7 +238,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
     }
 
     char const * name = exec.getExecPortName(indexToRemove);
-    m_controller->removePortByName(name);
+    m_controller->cmdRemovePort( name );
     modified = true;
   }
   else if(exec.getExecPortCount() < infos.size())
@@ -257,12 +253,11 @@ void DFGKLEditorWidget::onExecPortsChanged()
       }
     }
 
-    m_controller->addPortByPath(
-      m_controller->getCoreDFGExecPath(),
+    m_controller->cmdAddPort(
       infos[indexToAdd].portName,
       infos[indexToAdd].portType,
       infos[indexToAdd].dataType,
-      false
+      FTL::CStrRef() // portToConnectWith
       );
     
     modified = true;
@@ -274,10 +269,10 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
 void DFGKLEditorWidget::compile()
 {
-  if ( m_controller->setCode(
+  m_controller->cmdSetCode(
     m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
-    ) )
-    m_unsavedChanges = false;
+    );
+  m_unsavedChanges = false;
 }
 
 void DFGKLEditorWidget::reload()

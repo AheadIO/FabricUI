@@ -4,6 +4,7 @@
 #include "DFGController.h"
 #include "Dialogs/DFGGetStringDialog.h"
 #include "Dialogs/DFGNewVariableDialog.h"
+#include "DFGUICmdHandler.h"
 #include <FabricCore.h>
 
 using namespace FabricUI;
@@ -24,6 +25,9 @@ DFGGraphViewWidget::DFGGraphViewWidget(
 
 void DFGGraphViewWidget::dropEvent(QDropEvent *event)
 {
+  DFGController *controller =
+    static_cast<DFGController *>( graph()->controller() );
+
   std::string json = event->mimeData()->text().toUtf8().constData();
 
   graph()->controller()->beginInteraction();
@@ -49,8 +53,9 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               if(pathVar->isString())
               {
-                ((DFGController*)graph()->controller())->addDFGNodeFromPreset(
-                  pathVar->getStringData(), pos
+                controller->cmdAddInstFromPreset(
+                  pathVar->getStringData(),
+                  pos
                   );
                 pos += QPointF(30, 30);
               }
@@ -59,11 +64,11 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
             {
               DFGController* controller = (DFGController*)graph()->controller();
               FabricCore::Client client = controller->getClient();
-              FabricCore::DFGBinding binding = controller->getCoreDFGBinding();
+              FabricCore::DFGBinding binding = controller->getBinding();
 
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               std::string path = pathVar->getStringData();
-              std::string execPath = controller->getCoreDFGExecPath();
+              std::string execPath = controller->getExecPath();
 
               while(execPath.length() > 0)
               {
@@ -91,21 +96,19 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
                 event->mouseButtons().testFlag(Qt::RightButton))
               {
-                ((DFGController*)graph()->controller())->addDFGSet(
-                  "", 
+                controller->cmdAddSet(
+                  "",
                   path.c_str(),
                   pos
                   );
-                  pos += QPointF(30, 30);
               }
               else
               {
-                ((DFGController*)graph()->controller())->addDFGGet(
-                  "", 
+                controller->cmdAddGet(
+                  "",
                   path.c_str(),
                   pos
                   );
-                  pos += QPointF(30, 30);
               }
             }
           }
@@ -115,7 +118,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
   }
   catch(FabricCore::Exception e)
   {
-    ((DFGController*)graph()->controller())->logError(e.getDesc_cstr());
+    controller->logError(e.getDesc_cstr());
   }
 
   graph()->controller()->endInteraction();

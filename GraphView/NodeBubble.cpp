@@ -29,7 +29,7 @@ NodeBubble::NodeBubble(Graph * parent, Node * node, const GraphConfig & config)
   QObject::connect(this, SIGNAL(bubbleEditRequested(FabricUI::GraphView::NodeBubble *)), 
     m_node, SLOT(onBubbleEditRequested(FabricUI::GraphView::NodeBubble *)));
 
-  m_node->setBubble(this);
+  m_node->m_bubble = this;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   updateSize();
@@ -37,11 +37,9 @@ NodeBubble::NodeBubble(Graph * parent, Node * node, const GraphConfig & config)
 
 NodeBubble::~NodeBubble()
 {
-  delete(m_metrics);
-  if(m_node)
-  {
-    m_node->setBubble(NULL);
-  }
+  delete m_metrics;
+  if ( m_node )
+    m_node->m_bubble = 0;
 }
 
 Graph * NodeBubble::graph()
@@ -114,7 +112,7 @@ void NodeBubble::mousePressEvent(QGraphicsSceneMouseEvent * event)
   if(event->button() == Qt::RightButton)
   {
     // toggle the expanded state
-    graph()->controller()->setNodeCommentExpanded(m_node, m_collapsed);
+    graph()->controller()->gvcDoSetNodeCommentExpanded( m_node, m_collapsed );
     event->accept();
   }
 }
@@ -123,7 +121,7 @@ void NodeBubble::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 {
   if(m_collapsed)
   {
-    graph()->controller()->setNodeCommentExpanded(m_node, true);
+    graph()->controller()->gvcDoSetNodeCommentExpanded(m_node, true);
     event->accept();
   }
   else

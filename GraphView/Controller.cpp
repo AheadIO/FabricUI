@@ -9,13 +9,9 @@
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/ConnectionTarget.h>
-#include <FabricUI/GraphView/Commands/AddNodeCommand.h>
-#include <FabricUI/GraphView/Commands/RemoveNodeCommand.h>
 #include <FabricUI/GraphView/Commands/RenameNodeCommand.h>
 #include <FabricUI/GraphView/Commands/AddPinCommand.h>
 #include <FabricUI/GraphView/Commands/RemovePinCommand.h>
-#include <FabricUI/GraphView/Commands/AddConnectionCommand.h>
-#include <FabricUI/GraphView/Commands/RemoveConnectionCommand.h>
 #include <FabricUI/GraphView/Commands/AddPortCommand.h>
 #include <FabricUI/GraphView/Commands/RemovePortCommand.h>
 #include <FabricUI/GraphView/Commands/RenamePortCommand.h>
@@ -85,55 +81,6 @@ bool Controller::endInteraction()
   return false;
 }
 
-Node * Controller::addNode(
-  FTL::CStrRef name,
-  FTL::CStrRef title,
-  QPointF pos
-  )
-{
-  AddNodeCommand * command = new AddNodeCommand(this, name, title, pos);
-  if(!addCommand(command))
-  {
-    delete(command);
-    return NULL;
-  }
-  return command->getNode();
-}
-
-bool Controller::removeNode(Node * node)
-{
-  RemoveNodeCommand * command =
-    new RemoveNodeCommand(this, node->name().c_str());
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
-}
-
-bool Controller::moveNode(Node * node, QPointF pos, bool isTopLeftPos)
-{
-  if(isTopLeftPos)
-    node->setTopLeftGraphPos(pos, false /* quiet */);
-  else
-    node->setGraphPos(pos, false /* quiet */);
-  return true;
-}
-
-bool Controller::renameNode(Node * node, FTL::StrRef title)
-{
-  if(title == node->title())
-    return false;
-  RenameNodeCommand * command = new RenameNodeCommand(this, node, title.data());
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
-}
-
 bool Controller::selectNode(Node * node, bool state)
 {
   if(node->selected() != state)
@@ -156,130 +103,9 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-Pin * Controller::addPin(Node * node, FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
+bool Controller::gvcDoRemoveConnection(Connection * conn)
 {
-  AddPinCommand * command = new AddPinCommand(this, node, name.data(), pType, color, dataType.data());
-
-  if(addCommand(command))
-    return command->getPin();
-
-  delete(command);
-  return NULL;
-}
-
-bool Controller::removePin(Pin * pin)
-{
-  RemovePinCommand * command = new RemovePinCommand(this, pin);
-
-  if(addCommand(command))
-    return true;
-
-  delete(command);
-  return false;
-}
-
-Port * Controller::addPort(FTL::StrRef name, PortType pType, QColor color, FTL::StrRef dataType)
-{
-  AddPortCommand * command = new AddPortCommand(this, name.data(), pType, color, dataType.data());
-
-  if(addCommand(command))
-    return command->getPort();
-
-  delete(command);
-  return NULL;
-}
-
-bool Controller::removePort(Port * port)
-{
-  RemovePortCommand * command = new RemovePortCommand(this, port);
-
-  if(addCommand(command))
-    return true;
-
-  delete(command);
-  return false;
-}
-
-Port * Controller::addPortFromPin(Pin * pin, PortType pType)
-{
-  if(!m_graph)
-    return NULL;
-  beginInteraction();
-  Port * port = addPort(pin->name(), pType, pin->color(), pin->dataType());
-  if(port)
-  {
-    std::vector<Connection*> connections = m_graph->connections();
-    if(pType == PortType_Output)
-    {
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == pin)
-        {
-          if(!removeConnection(connections[i]))
-          {
-            endInteraction();
-            return NULL;
-          }
-          break;
-        }
-      }
-      addConnection(port, pin);
-    }
-    else if(pType == PortType_Input)
-    {
-      for(size_t i=0;i<connections.size();i++)
-      {
-        if(connections[i]->dst() == port)
-        {
-          if(!removeConnection(connections[i]))
-          {
-            endInteraction();
-            return NULL;
-          }
-          break;
-        }
-      }
-      addConnection(pin, port);
-    }
-  }
-  endInteraction();
-  return port;
-}
-
-bool Controller::renamePort(Port * port, FTL::StrRef title)
-{
-  if(title == port->name())
-    return false;
-  RenamePortCommand * command = new RenamePortCommand(this, port, title.data());
-  if(!addCommand(command))
-  {
-    delete(command);
-    return false;
-  }
-  return true;
-}
-
-bool Controller::addConnection(ConnectionTarget * src, ConnectionTarget * dst)
-{
-  Command * command = new AddConnectionCommand(this, src, dst);;
-  if(addCommand(command))
-    return true;
-  delete(command);
-  return false;
-}
-
-bool Controller::removeConnection(ConnectionTarget * src, ConnectionTarget * dst)
-{
-  Command * command = new RemoveConnectionCommand(this, src, dst);;
-  if(addCommand(command))
-    return true;
-  delete(command);
-  return false;
-}
-
-bool Controller::removeConnection(Connection * conn)
-{
-  return removeConnection(conn->src(), conn->dst());  
+  return gvcDoRemoveConnection(conn->src(), conn->dst());  
 }
 
 bool Controller::zoomCanvas(float zoom)
@@ -330,52 +156,6 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
-}
-
-bool Controller::setBackDropNodeSize(BackDropNode * node, QSizeF size)
-{
-  node->mainWidget()->setMinimumWidth(size.width());
-  node->mainWidget()->setMinimumHeight(size.height());
-  node->mainWidget()->setMaximumWidth(size.width());
-  node->mainWidget()->setMaximumHeight(size.height());
-  return true;
-}
-
-bool Controller::setNodeComment(Node * node, char const * comment)
-{
-  NodeBubble * bubble = node->bubble();
-
-  if(comment == NULL)
-  {
-    if(bubble == NULL)
-      return false;
-
-    bubble->scene()->removeItem(bubble);
-    bubble->hide();
-    bubble->deleteLater();
-    return true;
-  }
-
-  if(bubble == NULL)
-  {
-    bubble = new NodeBubble(graph(), node, graph()->config());
-    bubble->expand();
-  }
-
-  bubble->setText(comment);
-  return true;
-}
-
-void Controller::setNodeCommentExpanded(Node * node, bool expanded)
-{
-  NodeBubble * bubble = node->bubble();
-  if ( bubble != NULL )
-  {
-    if(expanded)
-      bubble->expand();
-    else
-      bubble->collapse();
-  }
 }
 
 bool Controller::addCommand(Command * command)

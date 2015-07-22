@@ -42,9 +42,14 @@ TreeView::TreeEditorWidget * ValueWidgetFactory::createEditor(QWidget * parent, 
     if(valueItem)
     {
       valueWidget->setEnabled(valueItem->enabled());
-      QObject::connect(valueWidget, SIGNAL(beginInteraction(ValueItem*)), valueItem, SIGNAL(beginInteraction(ValueItem*)));      
-      QObject::connect(valueWidget, SIGNAL(valueChanged(ValueItem*)), valueItem, SIGNAL(valueChanged(ValueItem*)));      
-      QObject::connect(valueWidget, SIGNAL(endInteraction(ValueItem*)), valueItem, SIGNAL(endInteraction(ValueItem*)));      
+      QObject::connect(
+        valueWidget, SIGNAL(beginInteraction(ValueItem*)),
+        valueItem, SLOT(onBeginInteraction(ValueItem*))
+        );
+      QObject::connect(
+        valueWidget, SIGNAL(endInteraction(ValueItem*)),
+        valueItem, SLOT(onEndInteraction(ValueItem*))
+        );
     }
   }
   return widget;

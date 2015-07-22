@@ -57,8 +57,7 @@ namespace FabricUI
         { return m_name; }
       void setName( FTL::CStrRef name );
 
-      FTL::CStrRef path() const
-        { return name(); }
+      virtual std::string path() const;
 
       virtual char const * label() const;
       void setLabel(char const * n);

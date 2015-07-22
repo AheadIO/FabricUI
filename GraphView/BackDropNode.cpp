@@ -33,29 +33,10 @@ BackDropNode::~BackDropNode()
 {
 }
 
-void BackDropNode::setTopLeftGraphPos( QPointF pos, bool quiet )
+void BackDropNode::setSize( QSizeF size )
 {
-  QPointF prev = topLeftGraphPos();
-  Node::setTopLeftGraphPos(pos, quiet);
-  QPointF delta = topLeftGraphPos() - prev;
-
-  if ( !m_shiftPressed )
-  {
-    for(size_t i=0;i<m_overlappingNodes.size();i++)
-      graph()->controller()->moveNode(
-        m_overlappingNodes[i],
-        m_overlappingNodes[i]->topLeftGraphPos() + delta,
-        true
-        );
-  }
-}
-
-void BackDropNode::setSize( QSizeF size, bool quiet )
-{
-  m_mainWidget->setMinimumWidth(size.width());
-  m_mainWidget->setMinimumHeight(size.height());
-  m_mainWidget->setMaximumWidth(size.width());
-  m_mainWidget->setMaximumHeight(size.height());
+  m_mainWidget->setMinimumSize( size );
+  m_mainWidget->setMaximumSize( size );
 }
 
 void BackDropNode::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
@@ -96,62 +77,66 @@ void BackDropNode::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 
 void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  m_shiftPressed = event->modifiers().testFlag(Qt::ShiftModifier);
-
   int corner = getCorner(event->pos());
   if(corner != -1)
   {
     m_dragging = 3 + corner;
-    m_lastDragPoint = mapToScene(event->pos());
+    m_dragButton = event->button();
     event->accept();
     return;
   }
-  Node::mousePressEvent(event);
 
-  if(m_dragging == 1)
-  {
-    m_overlappingNodes = BackDropNode::getOverlappingNodes();
-  }
+  Node::mousePressEvent(event);
 }
 
 void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
+  QPointF delta = event->scenePos() - event->lastScenePos();
+
   if(m_dragging == 3) // topleft
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
-    graph()->controller()->moveNode(this, topLeftGraphPos() + delta, true);
-    QSizeF s = m_mainWidget->size();
-    setSizeFromMouse(s.width() - delta.x(), s.height() - delta.y());
-    m_lastDragPoint += delta;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + delta,
+      m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() ),
+      false
+      );
     event->accept();
     return;
   }
-  else if(m_dragging == 4) // topright
+  
+  if(m_dragging == 4) // topright
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
-    graph()->controller()->moveNode(this, topLeftGraphPos() + QPointF(0.0f, delta.y()), true);
-    QSizeF s = m_mainWidget->size();
-    setSizeFromMouse(s.width() + delta.x(), s.height() - delta.y());
-    m_lastDragPoint += delta;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, delta.y() ),
+      m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() ),
+      false
+      );
     event->accept();
     return;
   }
-  else if(m_dragging == 5) // bottomleft
+  
+  if(m_dragging == 5) // bottomleft
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
-    graph()->controller()->moveNode(this, topLeftGraphPos() + QPointF(delta.x(), 0.0f), true);
-    QSizeF s = m_mainWidget->size();
-    setSizeFromMouse(s.width() - delta.x(), s.height() + delta.y());
-    m_lastDragPoint += delta;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( delta.x(), 0 ),
+      m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() ),
+      false
+      );
     event->accept();
     return;
   }
-  else if(m_dragging == 6) // bottomright
+  
+  if(m_dragging == 6) // bottomright
   {
-    QPointF delta = mapToScene(event->pos()) - m_lastDragPoint;
-    QSizeF s = m_mainWidget->size();
-    setSizeFromMouse(s.width() + delta.x(), s.height() + delta.y());
-    m_lastDragPoint += delta;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, 0 ),
+      m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() ),
+      false
+      );
     event->accept();
     return;
   }
@@ -161,20 +146,93 @@ void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
 void BackDropNode::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
-  if(m_dragging >= 3)
+  QPointF preDelta =
+    event->buttonDownScenePos( m_dragButton ) - event->lastScenePos();
+  QPointF delta =
+    event->scenePos() - event->buttonDownScenePos( m_dragButton );
+
+  if(m_dragging == 3) // topleft
   {
     m_dragging = 0;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + preDelta,
+      m_mainWidget->minimumSize() + QSizeF( -preDelta.x(), -preDelta.y() ),
+      false
+      );
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + delta,
+      m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() ),
+      true
+      );
     event->accept();
     return;
   }
+  
+  if(m_dragging == 4) // topright
+  {
+    m_dragging = 0;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, preDelta.y() ),
+      m_mainWidget->minimumSize() + QSizeF( +preDelta.x(), -preDelta.y() ),
+      false
+      );
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, delta.y() ),
+      m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() ),
+      true
+      );
+    event->accept();
+    return;
+  }
+  
+  if(m_dragging == 5) // bottomleft
+  {
+    m_dragging = 0;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( preDelta.x(), 0 ),
+      m_mainWidget->minimumSize() + QSizeF( -preDelta.x(), +preDelta.y() ),
+      false
+      );
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( delta.x(), 0 ),
+      m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() ),
+      true
+      );
+    event->accept();
+    return;
+  }
+  
+  if(m_dragging == 6) // bottomright
+  {
+    m_dragging = 0;
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, 0 ),
+      m_mainWidget->minimumSize() + QSizeF( +preDelta.x(), +preDelta.y() ),
+      false
+      );
+    graph()->controller()->gvcDoResizeBackDropNode(
+      this,
+      topLeftGraphPos() + QPointF( 0, 0 ),
+      m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() ),
+      true
+      );
+    event->accept();
+    return;
+  }
+
   Node::mouseReleaseEvent(event);
-  m_overlappingNodes.clear();
 }
 
-std::vector<Node*> BackDropNode::getOverlappingNodes() const
+void BackDropNode::appendOverlappingNodes( std::vector<Node*> &nodes ) const
 {
   std::vector<Node *> all = graph()->nodes();
-  std::vector<Node *> result;
 
   QPointF topLeft = mapToScene(boundingRect().topLeft());
   QPointF bottomRight = mapToScene(boundingRect().bottomRight());
@@ -192,10 +250,8 @@ std::vector<Node*> BackDropNode::getOverlappingNodes() const
     QRectF rect2(topLeft2, bottomRight2);
 
     if(rect.contains(rect2))
-      result.push_back(all[i]);
+      nodes.push_back(all[i]);
   }
-
-  return result;
 }
 
 int BackDropNode::getCorner(QPointF pos)
@@ -214,14 +270,4 @@ int BackDropNode::getCorner(QPointF pos)
     return 3;
 
   return -1;
-}
-
-void BackDropNode::setSizeFromMouse(float width, float height)
-{
-  if(width < graph()->config().nodeMinWidth * 2.0f)
-    width = graph()->config().nodeMinWidth * 2.0f;
-  if(height < graph()->config().nodeMinHeight * 2.0f)
-    height = graph()->config().nodeMinHeight * 2.0f;
-
-  graph()->controller()->setBackDropNodeSize(this, QSizeF(width, height));
 }

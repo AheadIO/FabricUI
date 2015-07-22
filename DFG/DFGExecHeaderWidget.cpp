@@ -152,7 +152,7 @@ void DFGExecHeaderWidget::onExecChanged()
     m_goUpButton->show();
   }
 
-  m_caption = m_dfgController->getCoreDFGExecPath().c_str();
+  m_caption = m_dfgController->getExecPath().c_str();
   update();
 }
 
@@ -180,5 +180,5 @@ void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
 
 FabricCore::DFGExec &DFGExecHeaderWidget::getExec()
 {
-  return m_dfgController->getCoreDFGExec();
+  return m_dfgController->getExec();
 }

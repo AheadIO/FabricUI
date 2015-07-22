@@ -46,9 +46,9 @@ namespace FabricUI
     protected:
 
       FTL::StrRef getExecPath()
-        { return m_controller->getCoreDFGExecPath(); }
+        { return m_controller->getExecPath(); }
       FabricCore::DFGExec &getExec()
-        { return m_controller->getCoreDFGExec(); }
+        { return m_controller->getExec(); }
 
     private:
 

@@ -29,8 +29,7 @@ namespace FabricUI
         DFGController *dfgController,
         const DFGConfig & config = DFGConfig()
         );
-
-      virtual ~DFGNotificationRouter() {};
+      virtual ~DFGNotificationRouter() {}
 
     public slots:
 

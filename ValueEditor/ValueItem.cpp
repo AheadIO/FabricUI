@@ -2,6 +2,7 @@
 
 #include "ValueItem.h"
 #include "ValueWidget.h"
+#include <assert.h>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -19,11 +20,6 @@ ValueItem::ValueItem(QString name, TreeEditorFactory * factory, FabricCore::Clie
 
 ValueItem::~ValueItem()
 {
-}
-
-FabricCore::RTVal ValueItem::value() const
-{
-  return m_value;
 }
 
 void ValueItem::setValue(FabricCore::RTVal v)
@@ -57,8 +53,12 @@ void ValueItem::onUIChanged()
 {
   if(!editor())
     return;
+
   m_value = ((ValueWidget*)editor())->value();
-  emit valueChanged(this);
+
+  if ( !!m_valueAtInteractionEnter )
+    emit valueItemInteractionDelta( this );
+  else emit valueItemDelta( this );
 }
 
 void ValueItem::onDataChanged()
@@ -89,3 +89,20 @@ const char * ValueItem::getMetaData(const char * key)
     return NULL;
   return it->second.c_str();
 }
+
+void ValueItem::onBeginInteraction( ValueItem * item )
+{
+  assert( !m_valueAtInteractionEnter );
+  
+  m_valueAtInteractionEnter = m_value.clone();
+}
+
+void ValueItem::onEndInteraction( ValueItem * item )
+{
+  assert( !!m_valueAtInteractionEnter );
+
+  emit valueItemInteractionLeave( this );
+
+  m_valueAtInteractionEnter.invalidate();
+}
+

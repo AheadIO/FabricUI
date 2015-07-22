@@ -59,7 +59,7 @@ namespace FabricUI
     protected:
 
       FabricCore::DFGExec &getExec()
-        { return m_controller->getCoreDFGExec(); }
+        { return m_controller->getExec(); }
 
     private:
 

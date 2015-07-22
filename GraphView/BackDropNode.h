@@ -26,8 +26,7 @@ namespace FabricUI
         );
       virtual ~BackDropNode();
 
-      virtual void setTopLeftGraphPos(QPointF pos, bool quiet = false);
-      void setSize( QSizeF size, bool quiet );
+      void setSize( QSizeF size );
 
       virtual bool isBackDropNode() const { return true; }
       virtual bool supportsToolBar() const { return false; }
@@ -38,17 +37,15 @@ namespace FabricUI
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
 
+      void appendOverlappingNodes( std::vector<Node*> &nodes ) const;
+      
     private:
 
-      std::vector<Node*> getOverlappingNodes() const;
       int getCorner(QPointF pos);
-      void setSizeFromMouse(float width, float height);
       bool commentExpanded() const;
 
       float m_resizeDistance;
-      bool m_shiftPressed;
       bool m_hasCustomPointer;
-      std::vector<Node*> m_overlappingNodes;
     };
 
 

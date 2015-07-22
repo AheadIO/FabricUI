@@ -200,3 +200,8 @@ QPointF Port::connectionPos(PortType pType) const
   return m_circle->centerInSceneCoords();
 }
 
+
+std::string Port::path() const
+{
+  return m_name;
+}

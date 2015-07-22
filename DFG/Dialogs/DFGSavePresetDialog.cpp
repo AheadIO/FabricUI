@@ -88,7 +88,7 @@ void DFGSavePresetDialog::onContextMenuAction(QAction * action)
   {
     try
     {
-      FabricCore::DFGHost &host = m_dfgController->getCoreDFGHost();
+      FabricCore::DFGHost &host = m_dfgController->getHost();
 
       FTL::StrRef path =
         host.getPresetImportPathname(m_contextPath.toUtf8().constData());

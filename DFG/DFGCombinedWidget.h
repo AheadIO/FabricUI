@@ -21,6 +21,9 @@ namespace FabricUI
 
   namespace DFG
   {
+
+    class DFGUICmdHandler;
+    
     class DFGCombinedWidget : public QSplitter
     {
 
@@ -38,10 +41,11 @@ namespace FabricUI
         FabricCore::DFGBinding &binding,
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec,
+        DFGUICmdHandler *cmdHandler,
         FabricServices::Commands::CommandStack * stack,
         bool overTakeBindingNotifications = true,
         DFGConfig config = DFGConfig()
-      );
+        );
 
       static void setLogFunc(DFGController::LogFunc func);
 
@@ -76,7 +80,7 @@ namespace FabricUI
       void log(const char * message);
 
       QSplitter * m_hSplitter;
-      FabricCore::Client m_coreClient;
+      FabricCore::Client m_client;
       ASTWrapper::KLASTManager * m_manager;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;

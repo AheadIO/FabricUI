@@ -4,7 +4,7 @@
 #include <QtGui/QLabel>
 
 #include "DFGCombinedWidget.h"
-#include <Style/FabricStyle.h>
+#include <FabricUI/Style/FabricStyle.h>
 
 using namespace FabricUI::DFG;
 
@@ -30,6 +30,7 @@ void DFGCombinedWidget::init(
   FabricCore::DFGBinding &binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec &exec,
+  DFGUICmdHandler *cmdHandler,
   FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
   DFGConfig config
@@ -41,18 +42,19 @@ void DFGCombinedWidget::init(
 
   try
   {
-    m_coreClient = client;
+    m_client = client;
     m_manager = manager;
 
     m_dfgWidget =
       new DFG::DFGWidget(
         this,
-        m_coreClient,
+        m_client,
         host,
         binding,
         execPath,
         exec,
         m_manager,
+        cmdHandler,
         stack,
         config,
         overTakeBindingNotifications
@@ -89,7 +91,14 @@ void DFGCombinedWidget::init(
 
     if(m_dfgWidget->isEditable())
     {
-      QObject::connect(m_dfgValueEditor, SIGNAL(valueChanged(ValueItem*)), this, SLOT(onValueChanged()));
+      QObject::connect(
+        m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
+        this, SLOT(onValueChanged())
+        );
+      QObject::connect(
+        m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+        this, SLOT(onValueChanged())
+        );
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
@@ -154,11 +163,9 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
 {
   if(hotkey == "delete" || hotkey == "delete2")
   {
-    std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
-    m_dfgWidget->getUIController()->beginInteraction();
-    for(size_t i=0;i<nodes.size();i++)
-      m_dfgWidget->getUIController()->removeNode(nodes[i]);
-    m_dfgWidget->getUIController()->endInteraction();
+    m_dfgWidget->getUIController()->gvcDoRemoveNodes(
+      m_dfgWidget->getUIGraph()->selectedNodes()
+      );
   }
   else if(hotkey == "frameSelected")
   {
@@ -180,7 +187,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   }
   else if(hotkey == "paste")
   {
-    m_dfgWidget->getUIController()->paste();
+    m_dfgWidget->getUIController()->cmdPaste();
   }
   else if(hotkey == "toggleSidePanels")
   {
@@ -203,7 +210,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
     if(nodes.size() > 0)
-      m_dfgWidget->onNodeToBeRenamed(nodes[0]);
+      m_dfgWidget->onEditNodeTitle(nodes[0]);
   }
   else if(hotkey == "relax nodes")
   {

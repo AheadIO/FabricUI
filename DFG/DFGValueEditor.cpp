@@ -23,7 +23,23 @@ DFGValueEditor::DFGValueEditor(
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(m_controller, SIGNAL(bindingChanged()), this, SLOT(onBindingChanged()));
   QObject::connect(m_controller, SIGNAL(nodeDeleted(QString)), this, SLOT(onNodeDeleted(QString)));
-  QObject::connect(this, SIGNAL(valueChanged(ValueItem*)), m_controller, SLOT( onValueChanged(ValueItem *)));
+
+  QObject::connect(
+    this, SIGNAL(valueItemDelta(ValueItem*)),
+    m_controller, SLOT(onValueItemDelta(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionEnter(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionEnter(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionDelta(ValueItem *))
+    );
+  QObject::connect(
+    this, SIGNAL(valueItemInteractionLeave(ValueItem*)),
+    m_controller, SLOT(onValueItemInteractionLeave(ValueItem *))
+    );
 
   // register the extra widgets
   m_factory->registerEditor(&VariablePathValueWidget::creator, &VariablePathValueWidget::canDisplay);
@@ -50,7 +66,7 @@ void DFGValueEditor::onArgsChanged()
       if(!m_controller->getRouter())
         return;
 
-      FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
+      FabricCore::DFGBinding binding = m_controller->getBinding();
       FabricCore::DFGExec exec = binding.getExec();
 
       for(size_t i=0;i<exec.getExecPortCount();i++)
@@ -69,10 +85,11 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
+        value = value.clone();
 
         ValueItem * item = addValue(portName.data(), value, portName.data(), true);
         if(item)
-        {
+        { 
           item->setMetaData("uiRange", exec.getExecPortMetadata(portName.data(), "uiRange"));
           item->setMetaData("uiCombo", exec.getExecPortMetadata(portName.data(), "uiCombo"));
         }
@@ -91,13 +108,14 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = binding.getArgValue(portName.data());
         if(!value.isValid())
           continue;
+        value = value.clone();
         addValue(portName.data(), value, portName.data(), false);
       }
     }
     else
     {
       std::string prefix = m_nodeName;
-      std::string globalPrefix = m_controller->getCoreDFGExecPath();
+      std::string globalPrefix = m_controller->getExecPath();
       if(globalPrefix.length() > 0)
         globalPrefix += ".";
       globalPrefix += prefix;
@@ -112,7 +130,7 @@ void DFGValueEditor::onArgsChanged()
           true /* parent to root */
           );
 
-      FabricCore::DFGExec exec = m_controller->getCoreDFGExec();
+      FabricCore::DFGExec exec = m_controller->getExec();
 
       if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
       {
@@ -144,7 +162,9 @@ void DFGValueEditor::onArgsChanged()
               value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
           }
 
-          if(!value.isValid())
+          if ( value.isValid() )
+            value = value.clone();
+          else
           {
             bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
             if(isObject)
@@ -156,8 +176,6 @@ void DFGValueEditor::onArgsChanged()
               value = FabricCore::RTVal::Construct(m_controller->getClient(), dataType.c_str(), 0, 0);
             }
           }
-          if(!value.isValid())
-            continue;
           
           ValueItem * item = addValue((globalPrefix + "." + portName.data()).c_str(), value, portName.data(), true);
           if(item)
@@ -180,8 +198,8 @@ void DFGValueEditor::onArgsChanged()
             "variable",
             m_factory,
             &m_client,
-            m_controller->getCoreDFGBinding(),
-            m_controller->getCoreDFGExecPath(),
+            m_controller->getBinding(),
+            m_controller->getExecPath(),
             m_treeView,
             varPathVal
             );
@@ -232,8 +250,8 @@ void DFGValueEditor::onArgsChanged()
           "variable",
           m_factory,
           &m_client,
-          m_controller->getCoreDFGBinding(),
-          m_controller->getCoreDFGExecPath(),
+          m_controller->getBinding(),
+          m_controller->getExecPath(),
           m_treeView,
           varPathVal
           );
@@ -272,15 +290,21 @@ void DFGValueEditor::updateOutputs()
   if(!m_controller->getRouter())
     return;
 
-  FabricCore::DFGBinding binding = m_controller->getCoreDFGBinding();
+  FabricCore::DFGBinding &binding = m_controller->getBinding();
 
   for(unsigned int i=0;i<m_treeModel->numItems();i++)
   {
     ValueItem * item = (ValueItem*)m_treeModel->item(i);
-    if(item->enabled())
-      continue;
-    item->setValue(binding.getArgValue(item->name().toUtf8().constData()));
-    m_treeModel->invalidateItem(item);
+    FabricCore::RTVal argValue =
+      binding.getArgValue(item->name().toUtf8().constData());
+    if ( !argValue.isExEQTo( item->value() ) )
+    {
+      char const *argValueTypeNameCStr = argValue.getTypeNameCStr();
+      FabricCore::RTVal clonedArgValue =
+        argValue.callMethod( argValueTypeNameCStr, "clone", 0, NULL );
+      item->setValue( clonedArgValue );
+      m_treeModel->invalidateItem(item);
+    }
   }
 }
 
