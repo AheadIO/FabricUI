@@ -620,13 +620,14 @@ std::string DFGController::copy()
       pathStrs.push_back( nodes[i]->name() );
     }
 
-    char const *pathCStrs[pathStrs.size()];
+    std::vector<char const *> pathCStrs;
+    pathCStrs.reserve( pathStrs.size() );
     for ( size_t i = 0; i < pathStrs.size(); ++i )
-      pathCStrs[i] = pathStrs[i].c_str();
+      pathCStrs.push_back( pathStrs[i].c_str() );
 
     json =
       m_exec.exportNodesJSON(
-        pathStrs.size(),
+        pathCStrs.size(),
         &pathCStrs[0]
         ).getCString();
 

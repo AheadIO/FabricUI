@@ -298,15 +298,16 @@ std::string DFGUIPerform_ImplodeNodes(
     uiGraphPos /= count;
   }
 
-  char const *nodeNameCStrs[count];
+  std::vector<char const *> nodeNameCStrs;
+  nodeNameCStrs.reserve( count );
   for ( size_t i = 0; i < count; ++i )
-    nodeNameCStrs[i] = nodeNames[i].c_str();
+    nodeNameCStrs.push_back( nodeNames[i].c_str() );
 
   std::string newNodeName =
     exec.implodeNodes(
       desiredNodeName.c_str(),
-      count,
-      nodeNameCStrs
+      nodeNameCStrs.size(),
+      &nodeNameCStrs[0]
       );
   ++coreUndoCount;
 
