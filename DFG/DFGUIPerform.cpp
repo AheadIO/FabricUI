@@ -520,6 +520,7 @@ void DFGUIPerform_SetNodeComment(
   FabricCore::DFGExec &exec,
   FTL::CStrRef nodeName,
   FTL::CStrRef comment,
+  bool expanded,
   unsigned &coreUndoCount
   )
 {
@@ -531,24 +532,6 @@ void DFGUIPerform_SetNodeComment(
     );
   ++coreUndoCount;
 
-  exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiCommentExpanded",
-    !comment.empty()? "true": "",
-    true
-    );
-  ++coreUndoCount;
-}
-
-void DFGUIPerform_SetNodeCommentExpanded(
-  FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
-  FTL::CStrRef nodeName,
-  bool expanded,
-  unsigned &coreUndoCount
-  )
-{
   exec.setNodeMetadata(
     nodeName.c_str(),
     "uiCommentExpanded",

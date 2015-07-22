@@ -192,14 +192,13 @@ void DFGController::cmdSetNodeTitle(
 
 void DFGController::cmdSetNodeComment(
   FTL::CStrRef nodeName,
-  FTL::CStrRef comment
+  FTL::CStrRef comment,
+  bool expanded
   )
 {
-  std::string desc = FTL_STR("Canvas: ");
-  desc += !comment.empty()? FTL_STR("Change"): FTL_STR("Remove");
-  desc += FTL_STR(" comment (node '");
+  std::string desc = FTL_STR("Canvas: Change comment for node '");
   desc += nodeName;
-  desc += FTL_STR("')");
+  desc += FTL_STR("'");
 
   m_cmdHandler->dfgDoSetNodeComment(
     desc,
@@ -207,27 +206,7 @@ void DFGController::cmdSetNodeComment(
     getExecPath(),
     getExec(),
     nodeName,
-    comment
-    );
-}
-
-void DFGController::cmdSetNodeCommentExpanded(
-  FTL::CStrRef nodeName,
-  bool expanded
-  )
-{
-  std::string desc = FTL_STR("Canvas: ");
-  desc += expanded? FTL_STR("Expand"): FTL_STR("Contract");
-  desc += FTL_STR(" comment (node '");
-  desc += nodeName;
-  desc += FTL_STR("')");
-
-  m_cmdHandler->dfgDoSetNodeCommentExpanded(
-    desc,
-    getBinding(),
-    getExecPath(),
-    getExec(),
-    nodeName,
+    comment,
     expanded
     );
 }
@@ -281,7 +260,11 @@ void DFGController::gvcDoSetNodeCommentExpanded(
   bool expanded
   )
 {
-  cmdSetNodeCommentExpanded( node->name(), expanded );
+  cmdSetNodeComment(
+    node->name(),
+    m_exec.getNodeMetadata( node->name().c_str(), "uiComment" ),
+    expanded
+    );
 }
 
 std::string DFGController::cmdRenameExecPort(

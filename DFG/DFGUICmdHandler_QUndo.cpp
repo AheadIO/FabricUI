@@ -26,7 +26,6 @@
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetCode_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetPortDefaultValue_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeComment_QUndo.h>
-#include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeCommentExpanded_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetNodeTitle_QUndo.h>
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_SetRefVarPath_QUndo.h>
 
@@ -414,7 +413,8 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
   FTL::CStrRef nodeName,
-  FTL::CStrRef comment
+  FTL::CStrRef comment,
+  bool expanded
   )
 {
   DFGUICmd_SetNodeComment_QUndo *cmd =
@@ -424,27 +424,7 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
       execPath,
       exec,
       nodeName,
-      comment
-      );
-  m_qUndoStack->push( cmd );
-}
-
-void DFGUICmdHandler_QUndo::dfgDoSetNodeCommentExpanded(
-  FTL::CStrRef desc,
-  FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec const &exec,
-  FTL::CStrRef nodeName,
-  bool expanded
-  )
-{
-  DFGUICmd_SetNodeCommentExpanded_QUndo *cmd =
-    new DFGUICmd_SetNodeCommentExpanded_QUndo(
-      desc,
-      binding,
-      execPath,
-      exec,
-      nodeName,
+      comment,
       expanded
       );
   m_qUndoStack->push( cmd );

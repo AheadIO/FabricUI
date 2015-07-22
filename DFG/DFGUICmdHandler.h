@@ -221,17 +221,7 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef nodeName,
-    FTL::CStrRef comment
-    ) = 0;
-
-  static FTL::CStrRef CmdName_SetNodeCommentExpanded()
-    { return FTL_STR("dfgSetNodeCommentExpanded"); }
-  virtual void dfgDoSetNodeCommentExpanded(
-    FTL::CStrRef desc,
-    FabricCore::DFGBinding const &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec const &exec,
-    FTL::CStrRef nodeName,
+    FTL::CStrRef comment,
     bool expanded
     ) = 0;
 

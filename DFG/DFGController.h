@@ -230,11 +230,7 @@ namespace FabricUI
 
       void cmdSetNodeComment(
         FTL::CStrRef nodeName, 
-        FTL::CStrRef comment
-        );
-
-      void cmdSetNodeCommentExpanded(
-        FTL::CStrRef nodeName, 
+        FTL::CStrRef comment, 
         bool expanded
         );
 

@@ -104,14 +104,6 @@ void DFGUIPerform_SetNodeComment(
   FabricCore::DFGExec &exec,
   FTL::CStrRef nodeName,
   FTL::CStrRef comment,
-  unsigned &coreUndoCount
-  );
-
-void DFGUIPerform_SetNodeCommentExpanded(
-  FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
-  FTL::CStrRef nodeName,
   bool expanded,
   unsigned &coreUndoCount
   );
