@@ -219,7 +219,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
         needsSeparator = true;
       }
       
-      result->addAction("Rename");
+      result->addAction("Edit Title");
       result->addAction("Delete");
 
       if (!uiNode->isBackDropNode() )
