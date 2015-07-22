@@ -32,10 +32,9 @@ DFGController::DFGController(
   FabricCore::Client &client,
   FabricServices::ASTWrapper::KLASTManager * manager,
   DFGUICmdHandler *cmdHandler,
-  FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications
   )
-  : GraphView::Controller(graph, stack)
+  : GraphView::Controller(graph)
   , m_dfgWidget( dfgWidget )
   , m_client(client)
   , m_manager(manager)

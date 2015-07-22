@@ -31,7 +31,6 @@ void DFGCombinedWidget::init(
   FTL::StrRef execPath,
   FabricCore::DFGExec &exec,
   DFGUICmdHandler *cmdHandler,
-  FabricServices::Commands::CommandStack * stack,
   bool overTakeBindingNotifications,
   DFGConfig config
   )
@@ -55,7 +54,6 @@ void DFGCombinedWidget::init(
         exec,
         m_manager,
         cmdHandler,
-        stack,
         config,
         overTakeBindingNotifications
         );

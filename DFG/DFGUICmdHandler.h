@@ -21,6 +21,8 @@ class DFGUICmdHandler
 {
 public:
 
+  static FTL::CStrRef CmdName_RemoveNodes()
+    { return FTL_STR("dfgRemoveNodes"); }
   virtual void dfgDoRemoveNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -29,6 +31,8 @@ public:
     FTL::ArrayRef<FTL::CStrRef> nodeNames
     ) = 0;
 
+  static FTL::CStrRef CmdName_Connect()
+    { return FTL_STR("dfgConnect"); }
   virtual void dfgDoConnect(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -38,6 +42,8 @@ public:
     FTL::CStrRef dstPath
     ) = 0;
 
+  static FTL::CStrRef CmdName_Disconnect()
+    { return FTL_STR("dfgDisconnect"); }
   virtual void dfgDoDisconnect(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -47,6 +53,8 @@ public:
     FTL::CStrRef dstPath
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddInstWithEmptyGraph()
+    { return FTL_STR("dfgAddInstWithEmptyGraph"); }
   virtual std::string dfgDoAddInstWithEmptyGraph(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -56,6 +64,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddInstWithEmptyFunc()
+    { return FTL_STR("dfgAddInstWithEmptyFunc"); }
   virtual std::string dfgDoAddInstWithEmptyFunc(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -66,6 +76,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddInstFromPreset()
+    { return FTL_STR("dfgAddInstFromPreset"); }
   virtual std::string dfgDoAddInstFromPreset(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -75,6 +87,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddVar()
+    { return FTL_STR("dfgAddVar"); }
   virtual std::string dfgDoAddVar(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -86,6 +100,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddGet()
+    { return FTL_STR("dfgAddGet"); }
   virtual std::string dfgDoAddGet(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -96,6 +112,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddSet()
+    { return FTL_STR("dfgAddSet"); }
   virtual std::string dfgDoAddSet(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,

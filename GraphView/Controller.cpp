@@ -13,12 +13,11 @@
 using namespace FabricUI::GraphView;
 using namespace FabricServices::Commands;
 
-Controller::Controller(Graph * parent, CommandStack * stack)
+Controller::Controller(Graph * parent)
 {
   m_graph = parent;
   if(m_graph)
     m_graph->setController(this);
-  m_stack = stack;
   m_compound = NULL;
   m_interactionBracket = 0;
 }
@@ -63,10 +62,7 @@ bool Controller::endInteraction()
     {
       if(m_compound)
       {
-        if(m_compound->isEmpty())
-          delete(m_compound);
-        else
-          m_stack->add(m_compound);
+        delete m_compound;
         m_compound = NULL;
       }
       return true;
@@ -150,21 +146,6 @@ void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
 {
   toolbar->addTool("node_collapse", "node_collapse.png");
   toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
-}
-
-bool Controller::addCommand(Command * command)
-{
-  if(!command)
-    return false;
-  if(m_compound)
-    return m_compound->add(command);
-  return m_stack->add(command);
-}
-
-bool Controller::clearCommands()
-{
-  m_stack->clear();
-  return true;
 }
 
 void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)

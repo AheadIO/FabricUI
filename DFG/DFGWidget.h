@@ -40,7 +40,6 @@ namespace FabricUI
         FabricCore::DFGExec &exec,
         FabricServices::ASTWrapper::KLASTManager * manager,
         DFGUICmdHandler *cmdHandler,
-        FabricServices::Commands::CommandStack * stack,
         const DFGConfig & dfgConfig = DFGConfig(),
         bool overTakeBindingNotifications = true
         );
