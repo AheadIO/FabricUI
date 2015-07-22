@@ -124,6 +124,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddPort()
+    { return FTL_STR("dfgAddPort"); }
   virtual std::string dfgDoAddPort(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -135,6 +137,8 @@ public:
     FTL::CStrRef portToConnect
     ) = 0;
 
+  static FTL::CStrRef CmdName_RemovePort()
+    { return FTL_STR("dfgRemovePort"); }
   virtual void dfgDoRemovePort(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -143,6 +147,8 @@ public:
     FTL::CStrRef portName
     ) = 0;
 
+  static FTL::CStrRef CmdName_MoveNodes()
+    { return FTL_STR("dfgMoveNodes"); }
   virtual void dfgDoMoveNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -152,6 +158,8 @@ public:
     FTL::ArrayRef<QPointF> newTopLeftPoss
     ) = 0;
 
+  static FTL::CStrRef CmdName_ResizeBackDropNode()
+    { return FTL_STR("dfgResizeBackDropNode"); }
   virtual void dfgDoResizeBackDropNode(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -162,6 +170,8 @@ public:
     QSizeF newSize
     ) = 0;
 
+  static FTL::CStrRef CmdName_ImplodeNodes()
+    { return FTL_STR("dfgImplodeNodes"); }
   virtual std::string dfgDoImplodeNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -171,6 +181,8 @@ public:
     FTL::ArrayRef<FTL::CStrRef> nodeNames
     ) = 0;
 
+  static FTL::CStrRef CmdName_ExplodeNode()
+    { return FTL_STR("dfgExplodeNode"); }
   virtual std::vector<std::string> dfgDoExplodeNode(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -179,6 +191,8 @@ public:
     FTL::CStrRef nodeName
     ) = 0;
 
+  static FTL::CStrRef CmdName_AddBackDrop()
+    { return FTL_STR("dfgAddBackDrop"); }
   virtual void dfgDoAddBackDrop(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -188,6 +202,8 @@ public:
     QPointF pos
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetNodeTitle()
+    { return FTL_STR("dfgSetNodeTitle"); }
   virtual void dfgDoSetNodeTitle(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -197,6 +213,8 @@ public:
     FTL::CStrRef newTitle
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetNodeComment()
+    { return FTL_STR("dfgSetNodeComment"); }
   virtual void dfgDoSetNodeComment(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -206,6 +224,8 @@ public:
     FTL::CStrRef comment
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetNodeCommentExpanded()
+    { return FTL_STR("dfgSetNodeCommentExpanded"); }
   virtual void dfgDoSetNodeCommentExpanded(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -215,6 +235,8 @@ public:
     bool expanded
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetCode()
+    { return FTL_STR("dfgSetCode"); }
   virtual void dfgDoSetCode(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -223,6 +245,8 @@ public:
     FTL::CStrRef code
     ) = 0;
 
+  static FTL::CStrRef CmdName_RenameExecPort()
+    { return FTL_STR("dfgRenameExecPort"); }
   virtual std::string dfgDoRenameExecPort(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -232,6 +256,8 @@ public:
     FTL::CStrRef desiredNewName
     ) = 0;
 
+  static FTL::CStrRef CmdName_Paste()
+    { return FTL_STR("dfgPaste"); }
   virtual std::vector<std::string> dfgDoPaste(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -241,6 +267,8 @@ public:
     QPointF cursorPos
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetArgType()
+    { return FTL_STR("dfgSetArgType"); }
   virtual void dfgDoSetArgType(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -248,6 +276,8 @@ public:
     FTL::CStrRef typeName
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetArgValue()
+    { return FTL_STR("dfgSetArgValue"); }
   virtual void dfgDoSetArgValue(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
@@ -255,7 +285,9 @@ public:
     FabricCore::RTVal const &value
     ) = 0;
 
-  virtual void dfgDoSetDefaultValue(
+  static FTL::CStrRef CmdName_SetPortDefaultValue()
+    { return FTL_STR("dfgSetPortDefaultValue"); }
+  virtual void dfgDoSetPortDefaultValue(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
@@ -264,6 +296,8 @@ public:
     FabricCore::RTVal const &value
     ) = 0;
 
+  static FTL::CStrRef CmdName_SetRefVarPath()
+    { return FTL_STR("dfgSetRefVarPath"); }
   virtual void dfgDoSetRefVarPath(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,

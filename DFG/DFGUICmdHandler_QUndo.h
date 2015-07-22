@@ -235,7 +235,7 @@ public:
     FabricCore::RTVal const &value
     );
 
-  virtual void dfgDoSetDefaultValue(
+  virtual void dfgDoSetPortDefaultValue(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,

@@ -1,19 +1,19 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_DFG_DFGUICmd_SetDefaultValue_QUndo__
-#define __UI_DFG_DFGUICmd_SetDefaultValue_QUndo__
+#ifndef __UI_DFG_DFGUICmd_SetPortDefaultValue_QUndo__
+#define __UI_DFG_DFGUICmd_SetPortDefaultValue_QUndo__
 
 #include <FabricUI/DFG/DFGUICmd_QUndo/DFGUICmd_Exec_QUndo.h>
 #include <FabricUI/DFG/DFGUIPerform.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-class DFGUICmd_SetDefaultValue_QUndo
+class DFGUICmd_SetPortDefaultValue_QUndo
   : public DFGUICmd_Exec_QUndo
 {
 public:
 
-  DFGUICmd_SetDefaultValue_QUndo(
+  DFGUICmd_SetPortDefaultValue_QUndo(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
     FTL::StrRef execPath,
@@ -58,4 +58,4 @@ private:
 
 FABRIC_UI_DFG_NAMESPACE_END
 
-#endif // __UI_DFG_DFGUICmd_SetDefaultValue_QUndo__
+#endif // __UI_DFG_DFGUICmd_SetPortDefaultValue_QUndo__

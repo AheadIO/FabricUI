@@ -953,7 +953,7 @@ void DFGController::cmdSetDefaultValue(
     desc += portPath;
     desc += FTL_STR("' default value"),
 
-    m_cmdHandler->dfgDoSetDefaultValue(
+    m_cmdHandler->dfgDoSetPortDefaultValue(
       desc,
       binding,
       execPath,
