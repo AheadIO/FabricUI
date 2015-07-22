@@ -1168,8 +1168,7 @@ bool DFGController::bindUnboundRTVals()
     for ( unsigned i = 0; i < argCount; ++i )
     {
       FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
-      if ( dataTypeToCheck.empty()
-        || rootExec.getExecPortResolvedType(i) != dataTypeToCheck )
+      if ( dataTypeToCheck.empty() )
         continue;
 
       // if there is already a bound value, make sure it has the right type
@@ -1182,7 +1181,7 @@ bool DFGController::bindUnboundRTVals()
       {
         continue;
       }
-      if ( !!value && value.getTypeNameCStr() == dataTypeToCheck )
+      if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
         continue;
 
       m_binding.setArgValue(
@@ -1291,14 +1290,13 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     {
       emit dirty();
     }
-    // [pzion 20150609] Why doesn't this work?
-    //
-    // else if ( descStr == FTL_STR("argTypeChanged")
-    //   || descStr == FTL_STR("argInserted")
-    //   || descStr == FTL_STR("argRemoved") )
-    // {
-    //   emit argsChanged();
-    // }
+    else if ( descStr == FTL_STR("argTypeChanged")
+      || descStr == FTL_STR("argInserted")
+      || descStr == FTL_STR("argRemoved") )
+    {
+      bindUnboundRTVals();
+      emit argsChanged();
+    }
   }
   catch ( FabricCore::Exception e )
   {
