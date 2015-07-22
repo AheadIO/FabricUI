@@ -284,26 +284,56 @@ void DFGValueEditor::onNodeDeleted(QString nodePath)
 
 void DFGValueEditor::updateOutputs()
 {
-  if(!m_nodeName.empty())
-    return;
-
-  if(!m_controller->getRouter())
+  // [pzion 20150722] What is the purpose of this??
+  if ( !m_controller->getRouter() )
     return;
 
   FabricCore::DFGBinding &binding = m_controller->getBinding();
 
-  for(unsigned int i=0;i<m_treeModel->numItems();i++)
+  if ( m_nodeName.empty() )
   {
-    ValueItem * item = (ValueItem*)m_treeModel->item(i);
-    FabricCore::RTVal argValue =
-      binding.getArgValue(item->name().toUtf8().constData());
-    if ( !argValue.isExEQTo( item->value() ) )
+    for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )
     {
-      char const *argValueTypeNameCStr = argValue.getTypeNameCStr();
-      FabricCore::RTVal clonedArgValue =
-        argValue.callMethod( argValueTypeNameCStr, "clone", 0, NULL );
-      item->setValue( clonedArgValue );
-      m_treeModel->invalidateItem(item);
+      ValueItem * item = (ValueItem*)m_treeModel->item(i);
+      FabricCore::RTVal value =
+        binding.getArgValue(item->name().toUtf8().constData());
+      if ( !value.isExEQTo( item->value() ) )
+      {
+        item->setValue( value.clone() );
+        m_treeModel->invalidateItem(item);
+      }
+    }
+  }
+  else
+  {
+    FabricCore::DFGExec exec = binding.getExec();
+
+    FTL::CStrRef::Split split = FTL::CStrRef( m_nodeName ).rsplit('.');
+    if ( !split.first.empty() )
+      exec = exec.getSubExec( std::string( split.first ).c_str() );
+    FTL::CStrRef nodeName = split.second;
+
+    for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )
+    {
+      TreeView::TreeItem *treeItem = m_treeModel->item( i );
+      bool invalid = false;
+      for ( unsigned i = 0; i < treeItem->numChildren(); ++i )
+      {
+        ValueItem *valueItem =
+          static_cast<ValueItem *>( treeItem->child( i ) );
+        FabricCore::RTVal value =
+          exec.getPortDefaultValue(
+            nodeName.c_str(),
+            valueItem->name().toUtf8().constData()
+            );
+        if ( !value.isExEQTo( valueItem->value() ) )
+        {
+          valueItem->setValue( value.clone() );
+          invalid = true;
+        }
+      }
+      if ( invalid )
+        m_treeModel->invalidateItem( treeItem );
     }
   }
 }

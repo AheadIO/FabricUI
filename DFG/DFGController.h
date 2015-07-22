@@ -306,6 +306,8 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
+      void emitDefaultValuesChanged()
+        { emit defaultValuesChanged(); }
       void emitRecompiled()
         { emit recompiled(); }
 
@@ -317,6 +319,8 @@ namespace FabricUI
       void bindingChanged();
       void execChanged();
       void argsChanged();
+      void argValuesChanged();
+      void defaultValuesChanged();
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void nodeDeleted(QString nodePath);

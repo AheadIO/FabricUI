@@ -1323,6 +1323,10 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
       bindUnboundRTVals();
       emit argsChanged();
     }
+    else if ( descStr == FTL_STR("argChanged") )
+    {
+      emit argValuesChanged();
+    }
   }
   catch ( FabricCore::Exception e )
   {

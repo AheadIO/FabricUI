@@ -243,6 +243,13 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("extDeps") )
         );
     }
+    else if( descStr == FTL_STR("nodePortDefaultValuesChanged") )
+    {
+      onNodePortDefaultValuesChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") )
+        );
+    }
     else
     {
       printf(
@@ -1177,4 +1184,12 @@ void DFGNotificationRouter::onExecExtDepsChanged(
 {
   DFGWidget *dfgWidget = m_dfgController->getDFGWidget();
   dfgWidget->refreshExtDeps( extDeps );
+}
+
+void DFGNotificationRouter::onNodePortDefaultValuesChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName
+  )
+{
+  m_dfgController->emitDefaultValuesChanged();
 }
