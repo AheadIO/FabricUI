@@ -9,7 +9,6 @@
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/ConnectionTarget.h>
-#include <FabricUI/GraphView/Commands/RenameNodeCommand.h>
 #include <FabricUI/GraphView/Commands/AddPinCommand.h>
 #include <FabricUI/GraphView/Commands/RemovePinCommand.h>
 #include <FabricUI/GraphView/Commands/AddPortCommand.h>
