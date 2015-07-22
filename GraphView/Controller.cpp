@@ -9,11 +9,6 @@
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/ConnectionTarget.h>
-#include <FabricUI/GraphView/Commands/AddPinCommand.h>
-#include <FabricUI/GraphView/Commands/RemovePinCommand.h>
-#include <FabricUI/GraphView/Commands/AddPortCommand.h>
-#include <FabricUI/GraphView/Commands/RemovePortCommand.h>
-#include <FabricUI/GraphView/Commands/RenamePortCommand.h>
 
 using namespace FabricUI::GraphView;
 using namespace FabricServices::Commands;
