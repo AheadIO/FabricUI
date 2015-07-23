@@ -20,6 +20,8 @@ namespace FabricUI
 
       VariableListTreeItem(FabricCore::DFGBinding const &coreDFGBinding, QStringList filters = QStringList());
 
+      virtual FTL::CStrRef type() const { return FTL_STR("VariableList"); }
+
       FTL::OwnedPtr<FTL::JSONObject> m_json;
       FabricCore::DFGBinding m_coreDFGBinding;
     };

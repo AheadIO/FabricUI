@@ -5,10 +5,13 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-PresetTreeItem::PresetTreeItem(char const * path, char const * name)
-: TreeView::TreeItem(name, "Preset")
+PresetTreeItem::PresetTreeItem(
+  FTL::CStrRef path,
+  FTL::CStrRef name
+  )
+  : TreeView::TreeItem( name )
+  , m_path( path )
 {
-  m_path = path;
 }
 
 Qt::ItemFlags PresetTreeItem::flags()

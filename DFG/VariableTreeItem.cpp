@@ -6,7 +6,7 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 VariableTreeItem::VariableTreeItem(char const * name, char const * path)
-: TreeView::TreeItem(name, "DFGVariable")
+: TreeView::TreeItem(name)
 {
   m_name = name;
   m_path = path;

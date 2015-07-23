@@ -19,6 +19,8 @@ namespace FabricUI
 
       NameSpaceTreeItem(FabricCore::DFGHost const &coreDFGHost, char const * name, char const * ns, QStringList filters = QStringList());
 
+      virtual FTL::CStrRef type() const { return FTL_STR("NameSpace"); }
+
       virtual unsigned int numChildren();
 
       // filtering

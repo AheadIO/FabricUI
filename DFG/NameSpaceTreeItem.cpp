@@ -9,7 +9,7 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 NameSpaceTreeItem::NameSpaceTreeItem(FabricCore::DFGHost const &coreDFGHost, char const * name, char const * ns, QStringList filters)
-: TreeView::TreeItem(name, "NameSpace")
+: TreeView::TreeItem(name)
 , m_coreDFGHost(coreDFGHost)
 , m_nameSpace(ns)
 , m_filters(filters)
