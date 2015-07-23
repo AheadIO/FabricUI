@@ -313,40 +313,38 @@ void DFGValueEditor::updateOutputs()
   }
   else
   {
-    FabricCore::DFGExec exec = binding.getExec();
+    FabricCore::DFGExec rootExec = binding.getExec();
 
-    FTL::CStrRef::Split split = FTL::CStrRef( m_nodeName ).rsplit('.');
-    if ( !split.first.empty() )
-      exec = exec.getSubExec( std::string( split.first ).c_str() );
-    FTL::CStrRef nodeName = split.second;
-
-    for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )
+    // [pzion 20150722] Notice we start at 1 here to skip node name
+    for ( unsigned i = 1; i < m_treeModel->numItems(); ++i )
     {
-      TreeView::TreeItem *treeItem = m_treeModel->item( i );
-      bool invalid = false;
-      for ( unsigned i = 0; i < treeItem->numChildren(); ++i )
+      ValueItem *valueItem =
+        static_cast<ValueItem *>( m_treeModel->item( i ) );
+      FabricCore::RTVal const &valueItemValue = valueItem->value();
+
+      FTL::CStrRef::Split split = valueItem->name().rsplit('.');
+      FTL::CStrRef portName = split.second;
+      FTL::StrRef::Split subSplit = split.first.rsplit('.');
+      std::string nodeName = subSplit.second;
+      std::string execPath = subSplit.first;
+
+      FabricCore::DFGExec exec =
+        rootExec.getSubExec( execPath.c_str() );
+
+      std::string portPath = nodeName;
+      portPath += '.';
+      portPath += portName;
+
+      FabricCore::RTVal value =
+        exec.getPortDefaultValue(
+          portPath.c_str(),
+          valueItemValue.getTypeNameCStr()
+          );
+      if ( !!value && !value.isExEQTo( valueItem->value() ) )
       {
-        ValueItem *valueItem =
-          static_cast<ValueItem *>( treeItem->child( i ) );
-        FabricCore::RTVal const &valueItemValue = valueItem->value();
-
-        std::string portPath = nodeName;
-        portPath += '.';
-        portPath += valueItem->name();
-
-        FabricCore::RTVal value =
-          exec.getPortDefaultValue(
-            portPath.c_str(),
-            valueItemValue.getTypeNameCStr()
-            );
-        if ( !!value && !value.isExEQTo( valueItem->value() ) )
-        {
-          valueItem->setValue( value.clone() );
-          invalid = true;
-        }
+        valueItem->setValue( value.clone() );
+        m_treeModel->invalidateItem( valueItem );
       }
-      if ( invalid )
-        m_treeModel->invalidateItem( treeItem );
     }
   }
 }

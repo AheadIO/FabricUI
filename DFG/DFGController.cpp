@@ -954,7 +954,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
           m_binding,
           execPath,
           exec,
-          portOrPinPath,
+          portPath,
           valueItem->value()
           );
       }
