@@ -42,6 +42,11 @@ DFGController::DFGController(
   , m_router(0)
   , m_logFunc(0)
   , m_overTakeBindingNotifications( overTakeBindingNotifications )
+  , m_updateSignalBlockCount( 0 )
+  , m_argsChangedPending( false )
+  , m_argValuesChangedPending( false )
+  , m_defaultValuesChangedPending( false )
+  , m_dirtyPending( false )
 {
   m_router = NULL;
   m_logFunc = NULL;
@@ -1108,6 +1113,8 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
 
 void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
 {
+  UpdateSignalBlocker blocker( this );
+
   try
   {
     std::string portOrPinPath = valueItem->path();
@@ -1314,18 +1321,18 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
     if ( descStr == FTL_STR("dirty") )
     {
-      emit dirty();
+      emitDirty();
     }
     else if ( descStr == FTL_STR("argTypeChanged")
       || descStr == FTL_STR("argInserted")
       || descStr == FTL_STR("argRemoved") )
     {
       bindUnboundRTVals();
-      emit argsChanged();
+      emitArgsChanged();
     }
     else if ( descStr == FTL_STR("argChanged") )
     {
-      emit argValuesChanged();
+      emitArgValuesChanged();
     }
   }
   catch ( FabricCore::Exception e )
@@ -1836,6 +1843,8 @@ std::string DFGController::cmdImplodeNodes(
   FTL::ArrayRef<FTL::CStrRef> nodeNames
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::stringstream desc;
   desc << FTL_STR("Canvas: Implode ");
   desc << nodeNames.size();
@@ -1998,7 +2007,7 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   else
   {
     m_host.unblockComps();
-    emit argsChanged();
+    emitArgsChanged();
     emit recompiled();
     emit variablesChanged();
   }
