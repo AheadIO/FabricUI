@@ -899,7 +899,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
 {
   try
   {
-    std::string portOrPinPath = valueItem->path().toUtf8().constData();
+    std::string portOrPinPath = valueItem->path();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -1048,7 +1048,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
 {
   try
   {
-    std::string portOrPinPath = valueItem->path().toUtf8().constData();
+    std::string portOrPinPath = valueItem->path();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -1110,7 +1110,7 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
 {
   try
   {
-    std::string portOrPinPath = valueItem->path().toUtf8().constData();
+    std::string portOrPinPath = valueItem->path();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 

@@ -68,7 +68,7 @@ void Vec2ValueWidget::onEndInteraction()
 
 TreeEditorWidget * Vec2ValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  Vec2ValueWidget * widget = new Vec2ValueWidget(item->label(), parent);
+  Vec2ValueWidget * widget = new Vec2ValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

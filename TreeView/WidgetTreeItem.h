@@ -22,8 +22,15 @@ namespace FabricUI
 
     public:
 
-      WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type = "widget", QString label = "", QWidget * parent = NULL);
+      WidgetTreeItem(
+        FTL::StrRef name,
+        TreeEditorFactory * factory,
+        FTL::StrRef label = FTL::StrRef(),
+        QWidget * parent = NULL
+        );
       virtual ~WidgetTreeItem();
+
+      virtual FTL::CStrRef type() const { return FTL_STR("widget"); }
 
       virtual TreeItemType itemType() const;
       virtual QSize sizeHint(const QStyleOptionViewItem & option) const;

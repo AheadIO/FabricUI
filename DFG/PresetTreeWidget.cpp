@@ -239,7 +239,8 @@ void PresetTreeWidget::onContextMenuAction(QAction * action)
     try
     {
       FabricCore::DFGHost host = m_dfgController->getHost();
-      FTL::StrRef path = host.getPresetImportPathname(m_contextPath.toUtf8().constData());
+      FTL::StrRef path =
+        host.getPresetImportPathname( m_contextPath.c_str() );
       if(action->text() == "Open Folder")
       {
         if(!FTL::FSIsDir(path))

@@ -59,28 +59,23 @@ TreeItem * TreeModel::item(unsigned int index)
   return m_items[index];
 }
 
-TreeItem * TreeModel::item(QString path)
+TreeItem * TreeModel::item( FTL::StrRef path )
 {
-  int pos = path.indexOf('.');
-  QString left = path;
-  QString right;
-  if(pos > -1)
+  FTL::StrRef::Split split = path.split('.');
+  if ( !split.first.empty() )
   {
-    left = path.left(pos);
-    right = path.right(path.length()-pos-1);
-  }
-  for(size_t i=0;i<m_items.size();i++)
-  {
-    if(m_items[i]->path() == path)
-      return m_items[i];
-    if(m_items[i]->name() == left)
+    for ( size_t i = 0; i < m_items.size(); ++i )
     {
-      if(right.length() == 0)
-        return m_items[i];
-      return m_items[i]->child(right);
+      if ( m_items[i]->name() == split.first )
+      {
+        if ( split.second.empty() )
+          return m_items[i];
+        else
+          return m_items[i]->child( split.second );
+      }
     }
   }
-  return NULL;
+  return 0;
 }
 
 void TreeModel::clear()

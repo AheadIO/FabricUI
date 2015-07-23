@@ -6,17 +6,25 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 VariablePathValueItem::VariablePathValueItem(
-  QString name,
+  FTL::StrRef name,
   TreeView::TreeEditorFactory * factory,
   FabricCore::Client * client,
   FabricCore::DFGBinding binding,
   FTL::CStrRef execPath,
   QWidget * parent,
   FabricCore::RTVal value,
-  QString label,
+  FTL::StrRef label,
   bool enabled
   )
-: ValueEditor::ValueItem(name, factory, client, parent, value, label, enabled)
+  : ValueEditor::ValueItem(
+    name,
+    factory,
+    client,
+    parent,
+    value,
+    label,
+    enabled
+    )
 {
   m_binding = binding;
   m_execPath = execPath.c_str();

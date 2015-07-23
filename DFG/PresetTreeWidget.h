@@ -56,7 +56,7 @@ namespace FabricUI
       bool m_presetDictsUpToDate;
       QString m_state;
       bool m_showsPresets;
-      QString m_contextPath;
+      std::string m_contextPath;
     };
 
   };

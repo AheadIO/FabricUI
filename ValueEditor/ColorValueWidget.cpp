@@ -188,7 +188,7 @@ void ColorValueWidget::onEndInteraction()
 
 TreeEditorWidget * ColorValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  ColorValueWidget * widget = new ColorValueWidget(item->label(), parent);
+  ColorValueWidget * widget = new ColorValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

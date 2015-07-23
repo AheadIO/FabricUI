@@ -296,7 +296,7 @@ void DFGValueEditor::updateOutputs()
     {
       ValueItem * item = (ValueItem*)m_treeModel->item(i);
       FabricCore::RTVal value =
-        binding.getArgValue(item->name().toUtf8().constData());
+        binding.getArgValue( item->name().c_str() );
       if ( !value.isExEQTo( item->value() ) )
       {
         item->setValue( value.clone() );
@@ -321,10 +321,16 @@ void DFGValueEditor::updateOutputs()
       {
         ValueItem *valueItem =
           static_cast<ValueItem *>( treeItem->child( i ) );
+        FabricCore::RTVal const &valueItemValue = valueItem->value();
+
+        std::string portPath = nodeName;
+        portPath += '.';
+        portPath += valueItem->name();
+
         FabricCore::RTVal value =
           exec.getPortDefaultValue(
-            nodeName.c_str(),
-            valueItem->name().toUtf8().constData()
+            portPath.c_str(),
+            valueItemValue.getTypeNameCStr()
             );
         if ( !value.isExEQTo( valueItem->value() ) )
         {

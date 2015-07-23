@@ -19,15 +19,26 @@ namespace FabricUI
 
     public:
 
-      static SGObjectTreeItem * Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
+      static SGObjectTreeItem * Create(
+        SGObjectTreeView * view,
+        FTL::StrRef name,
+        FabricCore::Client * client,
+        FabricCore::RTVal sgObject
+        );
       virtual ~SGObjectTreeItem();
 
-      virtual QString type() const;
+      virtual FTL::CStrRef type() const { return FTL_STR("SGObject"); }
+
       virtual unsigned int numChildren();
 
     protected:
 
-      SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
+      SGObjectTreeItem(
+        SGObjectTreeView * view,
+        FTL::StrRef name,
+        FabricCore::Client * client,
+        FabricCore::RTVal browser
+        );
 
       FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;

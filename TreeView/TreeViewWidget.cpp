@@ -59,7 +59,7 @@ QString TreeViewWidget::state() const
     if(items[i]->collapsed())
       continue;
 
-    result += items[i]->path()+";";
+    result += QString( (items[i]->path()+";").c_str() );
 
     for(unsigned int j=0;j<items[i]->numChildren();j++)
       items.push_back(items[i]->child(j));
@@ -84,7 +84,8 @@ void TreeViewWidget::setState(QString s)
     if(itemPaths[i].isEmpty())
       continue;
 
-    TreeItem * item = model->item(itemPaths[i]);
+    std::string itemPath = itemPaths[i].toUtf8().constData();
+    TreeItem * item = model->item( itemPath );
     if(!item)
       continue;
 

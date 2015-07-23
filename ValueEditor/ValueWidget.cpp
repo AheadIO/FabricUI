@@ -53,7 +53,7 @@ ValueItem * ValueWidget::valueItem()
 
 TreeEditorWidget * ValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  ValueWidget * widget = new ValueWidget(item->label(), parent);
+  ValueWidget * widget = new ValueWidget( item->label().c_str(), parent );
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

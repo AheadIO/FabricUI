@@ -42,7 +42,7 @@ void BooleanValueWidget::onValueChangedInCheckBox()
 
 TreeEditorWidget * BooleanValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  BooleanValueWidget * widget = new BooleanValueWidget(item->label(), parent);
+  BooleanValueWidget * widget = new BooleanValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

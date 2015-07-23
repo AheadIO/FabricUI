@@ -62,7 +62,7 @@ void FilePathValueWidget::onBrowseClicked()
   else
     filter = filter + " files (*." + filter + ");;All files (*.*)";
 
-  filePath = QFileDialog::getSaveFileName(this, valueItem()->name(), info.dir().absolutePath(), filter);
+  filePath = QFileDialog::getSaveFileName(this, valueItem()->name().c_str(), info.dir().absolutePath(), filter);
   if(filePath.isEmpty())
     return;
 
@@ -74,7 +74,7 @@ void FilePathValueWidget::onBrowseClicked()
 
 TreeEditorWidget * FilePathValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  FilePathValueWidget * widget = new FilePathValueWidget(item->label(), parent);
+  FilePathValueWidget * widget = new FilePathValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

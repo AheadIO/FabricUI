@@ -60,7 +60,7 @@ void VariablePathValueWidget::onValueChangedInLineEdit()
 
 TreeView::TreeEditorWidget * VariablePathValueWidget::creator(QWidget * parent, TreeView::WidgetTreeItem * item)
 {
-  VariablePathValueWidget * widget = new VariablePathValueWidget(item->label(), parent);
+  VariablePathValueWidget * widget = new VariablePathValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueEditor::ValueItem*)item)->value());
   return widget;

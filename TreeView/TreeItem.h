@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include <FTL/CStrRef.h>
+
 namespace FabricUI
 {
 
@@ -33,16 +35,23 @@ namespace FabricUI
 
     public:
 
-      TreeItem(QString name, QString type = "item", QString label = "");
+      TreeItem(
+        FTL::StrRef name,
+        FTL::StrRef label = FTL::StrRef()
+        );
       virtual ~TreeItem();
+
+      virtual FTL::CStrRef type() const { return FTL_STR("item"); }
+
+      FTL::CStrRef name() const
+        { return m_name; }
+      FTL::CStrRef label() const
+        { return m_label; }
+      std::string path() const;
 
       virtual TreeItemType itemType() const;
       virtual bool editable() const;
       virtual void setEditable(bool state);
-      virtual QString name() const;
-      virtual QString label() const;
-      virtual QString path() const;
-      virtual QString type() const;
       virtual QColor foregroundColor() const;
       virtual void setForegroundColor(QColor color);
       virtual QColor backgroundColor() const;
@@ -58,8 +67,8 @@ namespace FabricUI
       virtual unsigned int numChildren();
       virtual void addChild(TreeItem * childToAdd);
       virtual bool removeChild(TreeItem * childToRemove);
-      virtual TreeItem * child(unsigned int i);
-      virtual TreeItem * child(QString path);
+      virtual TreeItem * child( unsigned int i );
+      virtual TreeItem * child( FTL::StrRef path );
       virtual TreeItem * parent();
       virtual TreeModel * model();
 
@@ -84,9 +93,8 @@ namespace FabricUI
 
     private:
 
-      QString m_name;
-      QString m_label;
-      QString m_type;
+      std::string m_name;
+      std::string m_label;
       QColor m_backgroundColor;
       QColor m_foregroundColor;
       QPixmap m_pixmap;
