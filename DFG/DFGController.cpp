@@ -716,7 +716,9 @@ bool DFGController::reloadExtensionDependencies(char const * path)
     }
   }
 
-  return execute();
+  execute();
+
+  return true;
 }
 
 void DFGController::checkErrors()
@@ -881,18 +883,16 @@ void DFGController::setLogFunc(LogFunc func)
 }
 
 
-bool DFGController::execute()
+void DFGController::execute()
 {
   try
   {
     m_binding.execute();
-    return true;
   }
   catch(FabricCore::Exception e)
   {
     logError(e.getDesc_cstr());
   }
-  return false;
 }
 
 void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )

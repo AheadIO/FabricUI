@@ -332,7 +332,7 @@ void DFGValueEditor::updateOutputs()
             portPath.c_str(),
             valueItemValue.getTypeNameCStr()
             );
-        if ( !value.isExEQTo( valueItem->value() ) )
+        if ( !!value && !value.isExEQTo( valueItem->value() ) )
         {
           valueItem->setValue( value.clone() );
           invalid = true;

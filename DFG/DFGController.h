@@ -289,7 +289,8 @@ namespace FabricUI
 
       virtual void setLogFunc(LogFunc func);
 
-      virtual bool execute();
+      void execute();
+      
       bool bindUnboundRTVals();
 
       virtual bool canConnectTo(
