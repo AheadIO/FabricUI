@@ -251,7 +251,15 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
   if ( node->isBackDropNode() )
     return;
   
-  m_dfgValueEditor->setNodeName(node->name());
+  FabricUI::DFG::DFGController *dfgController =
+    m_dfgWidget->getUIController();
+
+  m_dfgValueEditor->setNode(
+    dfgController->getBinding(),
+    dfgController->getExecPath(),
+    dfgController->getExec(),
+    node->name()
+    );
 
   QList<int> s = m_hSplitter->sizes();
   if(s[2] == 0)

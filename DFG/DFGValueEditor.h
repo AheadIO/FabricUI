@@ -26,24 +26,34 @@ namespace FabricUI
         );
       virtual ~DFGValueEditor();
 
-      FTL::CStrRef getNodeName()
-        { return m_nodeName; }
-      void setNodeName( FTL::StrRef nodeName );
-
     public slots:
+
+      void clear();
+
+      void setBinding(
+        FabricCore::DFGBinding const &binding
+        );
+
+      void setNode(
+        FabricCore::DFGBinding const &binding,
+        FTL::StrRef m_execPath,
+        FabricCore::DFGExec const &exec,
+        FTL::StrRef m_nodeName
+        );
 
       void updateOutputs();
       void onArgsChanged();
-      void onBindingChanged();
-      void onNodeDeleted(QString nodePath);
+
+      void onNodeRemoved( FTL::CStrRef nodePathFromRoot );
 
     private:
 
-      FTL::CStrRef unAliasType(FTL::CStrRef type);
-
-      std::string m_nodeName;
       DFGConfig m_config;
-      DFGController * m_controller;
+      DFGController *m_controller;
+      FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
+      FabricCore::DFGExec m_exec;
+      std::string m_nodeName;
     };
 
   };

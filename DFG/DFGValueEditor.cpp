@@ -49,92 +49,117 @@ DFGValueEditor::~DFGValueEditor()
 {
 }
 
-void DFGValueEditor::setNodeName( FTL::StrRef nodeName )
+void DFGValueEditor::clear()
 {
+  ValueEditor::ValueEditorWidget::clear();
+
+  m_binding.invalidate();
+  m_execPath.clear();
+  m_exec.invalidate();
+  m_nodeName.clear();
+}
+
+void DFGValueEditor::setBinding(
+  FabricCore::DFGBinding const &binding
+  )
+{
+  m_binding = binding;
+  m_execPath.clear();
+  m_exec.invalidate();
+  m_nodeName.clear();
+  
+  onArgsChanged();
+}
+
+void DFGValueEditor::setNode(
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::StrRef nodeName
+  )
+{
+  m_binding = binding;
+  m_execPath = execPath;
+  m_exec = exec;
   m_nodeName = nodeName;
+  
   onArgsChanged();
 }
 
 void DFGValueEditor::onArgsChanged()
 {
-  clear();
+  ValueEditor::ValueEditorWidget::clear();
 
   try
   {
-    if(m_nodeName.empty())
+    if ( !m_exec )
     {
-      if(!m_controller->getRouter())
-        return;
+      FabricCore::DFGExec rootExec = m_binding.getExec();
 
-      FabricCore::DFGBinding binding = m_controller->getBinding();
-      FabricCore::DFGExec exec = binding.getExec();
-
-      for(size_t i=0;i<exec.getExecPortCount();i++)
+      for(size_t i=0;i<rootExec.getExecPortCount();i++)
       {
-        if(exec.getExecPortType(i) == FabricCore::DFGPortType_Out)
+        if(rootExec.getExecPortType(i) == FabricCore::DFGPortType_Out)
           continue;
-        FTL::StrRef portName = exec.getExecPortName(i);
+        FTL::CStrRef portName = rootExec.getExecPortName(i);
         if(portName.size() == 0)
           continue;
         if(portName == "timeLine" || portName == "timeline")
           continue;
-        FTL::StrRef uiHidden = exec.getExecPortMetadata(portName.data(), "uiHidden");
+        FTL::StrRef uiHidden = rootExec.getExecPortMetadata(portName.c_str(), "uiHidden");
         if(uiHidden == "true")
           continue;
 
-        FabricCore::RTVal value = binding.getArgValue(portName.data());
+        FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
           continue;
         value = value.clone();
 
-        ValueItem * item = addValue(portName.data(), value, portName.data(), true);
+        ValueItem * item = addValue( portName, value, portName, true);
         if(item)
         { 
-          item->setMetaData("uiRange", exec.getExecPortMetadata(portName.data(), "uiRange"));
-          item->setMetaData("uiCombo", exec.getExecPortMetadata(portName.data(), "uiCombo"));
+          item->setMetaData("uiRange", rootExec.getExecPortMetadata(portName.c_str(), "uiRange"));
+          item->setMetaData("uiCombo", rootExec.getExecPortMetadata(portName.c_str(), "uiCombo"));
         }
       }
 
-      for(size_t i=0;i<exec.getExecPortCount();i++)
+      for(size_t i=0;i<rootExec.getExecPortCount();i++)
       {
-        if(exec.getExecPortType(i) != FabricCore::DFGPortType_Out)
+        if(rootExec.getExecPortType(i) != FabricCore::DFGPortType_Out)
           continue;
-        FTL::StrRef portName = exec.getExecPortName(i);
+        FTL::CStrRef portName = rootExec.getExecPortName(i);
         if(portName.size() == 0)
           continue;
-        FTL::StrRef uiHidden = exec.getExecPortMetadata(portName.data(), "uiHidden");
+        FTL::CStrRef uiHidden = rootExec.getExecPortMetadata(portName.c_str(), "uiHidden");
         if(uiHidden == "true")
           continue;
-        FabricCore::RTVal value = binding.getArgValue(portName.data());
+        FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
           continue;
         value = value.clone();
-        addValue(portName.data(), value, portName.data(), false);
+        addValue( portName, value, portName, false );
       }
     }
     else
     {
-      std::string prefix = m_nodeName;
-      std::string globalPrefix = m_controller->getExecPath();
-      if(globalPrefix.length() > 0)
-        globalPrefix += ".";
-      globalPrefix += prefix;
-
       // add an item for the node
       ValueItem * nodeItem =
         addValue(
-          globalPrefix.c_str(),
+          m_nodeName.c_str(),
           FabricCore::RTVal(),
           m_nodeName.c_str(),
           false,
           true /* parent to root */
           );
 
-      FabricCore::DFGExec exec = m_controller->getExec();
+      std::string nodePathFromRoot = m_execPath;
+      if ( !nodePathFromRoot.empty() )
+        nodePathFromRoot += '.';
+      nodePathFromRoot += m_nodeName;
 
-      if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+      if ( m_exec.getNodeType( m_nodeName.c_str() )
+        == FabricCore::DFGNodeType_Inst )
       {
-        FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
+        FabricCore::DFGExec subExec = m_exec.getSubExec( m_nodeName.c_str() );
 
         for(size_t i=0;i<subExec.getExecPortCount();i++)
         {
@@ -142,26 +167,31 @@ void DFGValueEditor::onArgsChanged()
             continue;
 
           FTL::CStrRef portName = subExec.getExecPortName(i);
-          std::string portPath = prefix + "." + portName.data();
-          if(exec.hasSrcPort(portPath.c_str()))
+
+          std::string portPath = m_nodeName;
+          portPath += '.';
+          portPath += portName;
+          if ( m_exec.hasSrcPort( portPath.c_str() ) )
             continue;
 
-          FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
+          FTL::CStrRef dataType = 
+            m_exec.getNodePortResolvedType( portPath.c_str() );
           if(dataType.empty() || dataType.find('$') != dataType.end())
             continue;
 
-          FTL::CStrRef hidden = subExec.getExecPortMetadata(portName.data(), "uiHidden");
-          if(hidden == "true")
+          FTL::CStrRef hidden =
+            subExec.getExecPortMetadata(
+              portName.c_str(),
+              "uiHidden"
+              );
+          if ( hidden == FTL_STR("true") )
             continue;
 
-          FabricCore::RTVal value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), dataType.c_str());
-          if(!value.isValid())
-          {
-            FTL::CStrRef aliasedDataType = unAliasType(dataType);
-            if(aliasedDataType != dataType)
-              value = exec.getInstPortResolvedDefaultValue(portPath.c_str(), aliasedDataType.c_str());
-          }
-
+          FabricCore::RTVal value =
+            m_exec.getInstPortResolvedDefaultValue(
+              portPath.c_str(),
+              dataType.c_str()
+              );
           if ( value.isValid() )
             value = value.clone();
           else
@@ -177,9 +207,13 @@ void DFGValueEditor::onArgsChanged()
             }
           }
           
+          std::string portPathFromRoot = nodePathFromRoot;
+          portPathFromRoot += '.';
+          portPathFromRoot += portName;
+
           ValueItem * item =
             addValue(
-              globalPrefix + "." + portName.data(),
+              portPathFromRoot,
               value,
               portName,
               true, // enabled
@@ -192,12 +226,13 @@ void DFGValueEditor::onArgsChanged()
           }
         }
       }
-      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Var ||
-        exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
+      else if( m_exec.getNodeType( m_nodeName.c_str() ) == FabricCore::DFGNodeType_Var ||
+        m_exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
       {
-        if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Set)
+        if ( m_exec.getNodeType( m_nodeName.c_str() )
+          == FabricCore::DFGNodeType_Set )
         {
-          std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
+          std::string varPath = m_exec.getRefVarPath(m_nodeName.c_str());
 
           FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
 
@@ -210,26 +245,24 @@ void DFGValueEditor::onArgsChanged()
             m_treeView,
             varPathVal
             );
-          addValue((globalPrefix+".variable").c_str(), item, true);
-        }
-        else
-        {
 
+          std::string portPathFromRoot = m_execPath;
+          if ( !portPathFromRoot.empty() )
+            portPathFromRoot += '.';
+          portPathFromRoot += m_nodeName;
+          portPathFromRoot += FTL_STR(".variable");
+
+          addValue( portPathFromRoot, item, "variable", true, true );
         }
 
-        std::string portPath = prefix + ".value";
-        FTL::CStrRef dataType = exec.getNodePortResolvedType(portPath.c_str());
+        std::string portPath = m_nodeName + ".value";
+        FTL::CStrRef dataType =
+          m_exec.getNodePortResolvedType( portPath.c_str() );
 
         if(!dataType.empty() && dataType.find('$') == dataType.end())
         {
-          FabricCore::RTVal value = exec.getPortDefaultValue(portPath.c_str(), dataType.c_str());
-          if(!value.isValid())
-          {
-            FTL::CStrRef aliasedDataType = unAliasType(dataType);
-
-            if(aliasedDataType != dataType)
-              value = exec.getPortDefaultValue(portPath.c_str(), aliasedDataType.c_str());
-          }
+          FabricCore::RTVal value =
+            m_exec.getPortDefaultValue( portPath.c_str(), dataType.c_str() );
 
           if(!value.isValid())
           {
@@ -244,29 +277,53 @@ void DFGValueEditor::onArgsChanged()
             }
           }
 
-          if(value.isValid())
-            addValue((globalPrefix + ".value").c_str(), value, "value", true);
+          if ( value.isValid() )
+          {
+            std::string portPathFromRoot = m_execPath;
+            if ( !portPathFromRoot.empty() )
+              portPathFromRoot += '.';
+            portPathFromRoot += m_nodeName;
+            portPathFromRoot += FTL_STR(".value");
+            
+            addValue( portPathFromRoot, value, "value", true, true );
+          }
         }
       }
-      else if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Get)
+      else if ( m_exec.getNodeType( m_nodeName.c_str() )
+        == FabricCore::DFGNodeType_Get )
       {
-        std::string varPath = exec.getRefVarPath(m_nodeName.c_str());
-        FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
+        std::string varPath = m_exec.getRefVarPath( m_nodeName.c_str() );
+        FabricCore::RTVal varPathVal =
+          FabricCore::RTVal::ConstructString(
+            m_controller->getClient(),
+            varPath.c_str()
+            );
 
-        VariablePathValueItem * item = new VariablePathValueItem(
-          "variable",
-          m_factory,
-          &m_client,
-          m_controller->getBinding(),
-          m_controller->getExecPath(),
-          m_treeView,
-          varPathVal
-          );
-        addValue((globalPrefix+".variable").c_str(), item, true);
+        VariablePathValueItem * item =
+          new VariablePathValueItem(
+            "variable",
+            m_factory,
+            &m_client,
+            m_controller->getBinding(),
+            m_controller->getExecPath(),
+            m_treeView,
+            varPathVal
+            );
+
+        std::string portPathFromRoot = m_execPath;
+        if ( !portPathFromRoot.empty() )
+          portPathFromRoot += '.';
+        portPathFromRoot += m_nodeName;
+        portPathFromRoot += FTL_STR(".variable");
+        
+        addValue( portPathFromRoot, item, "variable", true, true );
       }
 
       // expand the node level tree item
-      m_treeView->setExpanded(m_treeModel->index(nodeItem->index(), 0), true);
+      m_treeView->setExpanded(
+        m_treeModel->index(nodeItem->index(), 0),
+        true
+        );
     }
   }
   catch(FabricCore::Exception e)
@@ -275,35 +332,25 @@ void DFGValueEditor::onArgsChanged()
   }
 }
 
-void DFGValueEditor::onBindingChanged()
+void DFGValueEditor::onNodeRemoved( FTL::CStrRef nodePathFromRoot )
 {
-  m_nodeName = "";
-  onArgsChanged();
-}
-
-void DFGValueEditor::onNodeDeleted(QString nodePath)
-{
-  if(nodePath == m_nodeName.c_str())
+  if ( !m_nodeName.empty() )
   {
-    setNodeName("");   
+    FTL::CStrRef::Split split = nodePathFromRoot.rsplit('.');
+    if ( split.first == m_execPath && split.second == m_nodeName )
+      clear();
   }
 }
 
 void DFGValueEditor::updateOutputs()
 {
-  // [pzion 20150722] What is the purpose of this??
-  if ( !m_controller->getRouter() )
-    return;
-
-  FabricCore::DFGBinding &binding = m_controller->getBinding();
-
   if ( m_nodeName.empty() )
   {
     for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )
     {
       ValueItem * item = (ValueItem*)m_treeModel->item(i);
       FabricCore::RTVal value =
-        binding.getArgValue( item->name().c_str() );
+        m_binding.getArgValue( item->name().c_str() );
       if ( !value.isExEQTo( item->value() ) )
       {
         item->setValue( value.clone() );
@@ -313,7 +360,7 @@ void DFGValueEditor::updateOutputs()
   }
   else
   {
-    FabricCore::DFGExec rootExec = binding.getExec();
+    FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // [pzion 20150722] Notice we start at 1 here to skip node name
     for ( unsigned i = 1; i < m_treeModel->numItems(); ++i )
@@ -322,21 +369,14 @@ void DFGValueEditor::updateOutputs()
         static_cast<ValueItem *>( m_treeModel->item( i ) );
       FabricCore::RTVal const &valueItemValue = valueItem->value();
 
-      FTL::CStrRef::Split split = valueItem->name().rsplit('.');
-      FTL::CStrRef portName = split.second;
-      FTL::StrRef::Split subSplit = split.first.rsplit('.');
-      std::string nodeName = subSplit.second;
-      std::string execPath = subSplit.first;
+      FTL::CStrRef portName = valueItem->name().rsplit('.').second;
 
-      FabricCore::DFGExec exec =
-        rootExec.getSubExec( execPath.c_str() );
-
-      std::string portPath = nodeName;
+      std::string portPath = m_nodeName;
       portPath += '.';
       portPath += portName;
 
       FabricCore::RTVal value =
-        exec.getPortDefaultValue(
+        m_exec.getPortDefaultValue(
           portPath.c_str(),
           valueItemValue.getTypeNameCStr()
           );
@@ -347,17 +387,4 @@ void DFGValueEditor::updateOutputs()
       }
     }
   }
-}
-
-FTL::CStrRef DFGValueEditor::unAliasType(FTL::CStrRef dataType)
-{
-  if(dataType == FTL_STR("Integer"))
-    return FTL_STR("SInt32");
-  else if(dataType == FTL_STR("Byte"))
-    return FTL_STR("UInt8");
-  else if(dataType == FTL_STR("Size") || dataType == FTL_STR("Count") || dataType == FTL_STR("Index"))
-    return FTL_STR("UInt32");
-  else if(dataType == FTL_STR("Scalar"))
-    return FTL_STR("Float32");
-  else return dataType;
 }

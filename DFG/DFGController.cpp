@@ -90,7 +90,7 @@ void DFGController::setBindingExec(
 
   setExec( execPath, exec );
 
-  emit bindingChanged();
+  emit bindingChanged( m_binding );
 }
 
 void DFGController::setExec(
@@ -918,7 +918,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
 {
   try
   {
-    std::string portOrPinPath = valueItem->path();
+    std::string portOrPinPath = valueItem->name();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -1077,7 +1077,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
 {
   try
   {
-    std::string portOrPinPath = valueItem->path();
+    std::string portOrPinPath = valueItem->name();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -1145,7 +1145,7 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
 
   try
   {
-    std::string portOrPinPath = valueItem->path();
+    std::string portOrPinPath = valueItem->name();
 
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
@@ -2071,4 +2071,14 @@ void DFGController::setBlockCompilations( bool blockCompilations )
     emit recompiled();
     emit variablesChanged();
   }
+}
+
+void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
+{
+  std::string nodePathFromRoot = m_execPath;
+  if ( !nodePathFromRoot.empty() )
+    nodePathFromRoot += '.';
+  nodePathFromRoot += nodeName;
+
+  emit nodeRemoved( nodePathFromRoot );
 }

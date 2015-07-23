@@ -388,10 +388,12 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
+      void emitNodeRemoved( FTL::CStrRef nodeName );
+
     signals:
 
       void hostChanged();
-      void bindingChanged();
+      void bindingChanged( FabricCore::DFGBinding const &newBinding );
       void execChanged();
 
       void argsChanged();
@@ -404,6 +406,8 @@ namespace FabricUI
       void nodeDeleted(QString nodePath);
       void execPortRenamed(char const * path, char const * newName);
       void variablesChanged();
+
+      void nodeRemoved( FTL::CStrRef nodePathFromRoot );
 
     public slots:
 

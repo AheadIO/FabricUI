@@ -497,6 +497,8 @@ void DFGNotificationRouter::onNodeRemoved(
   }
 
   m_dfgController->emitRecompiled();
+
+  m_dfgController->emitNodeRemoved( nodeName );
 }
 
 void DFGNotificationRouter::onNodePortInserted(
