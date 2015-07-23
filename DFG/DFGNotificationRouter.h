@@ -37,124 +37,125 @@ namespace FabricUI
 
     protected:
 
-      virtual void onGraphSet();
-      virtual void onNotification(FTL::CStrRef json);
-      virtual void onNodeInserted(
+      void onGraphSet();
+      void onNotification(FTL::CStrRef json);
+      void onNodeInserted(
         FTL::CStrRef nodeName,
         FTL::JSONObject const *jsonObject
         );
-      virtual void onNodeRemoved(
+      void onNodeRemoved(
         FTL::CStrRef nodeName
         );
-      virtual void onNodePortInserted(
+      void onNodePortInserted(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName,
         FTL::JSONObject const *jsonObject
         );
-      virtual void onNodePortRemoved(
+      void onNodePortRemoved(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName
         );
-      virtual void onExecPortInserted(
+      void onExecPortInserted(
         FTL::CStrRef portName,
         FTL::JSONObject const *jsonObject
         );
-      virtual void onExecPortRemoved(
+      void onExecPortRemoved(
         FTL::CStrRef portName
         );
-      virtual void onPortsConnected(
+      void onPortsConnected(
         FTL::CStrRef srcPath,
         FTL::CStrRef dstPath
         );
-      virtual void onPortsDisconnected(
+      void onPortsDisconnected(
         FTL::CStrRef srcPath,
         FTL::CStrRef dstPath
         );
-      virtual void onNodeMetadataChanged(
+      void onNodeMetadataChanged(
         FTL::CStrRef nodePath,
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      virtual void onNodeTitleChanged(
+      void onNodeTitleChanged(
         FTL::CStrRef nodePath,
         FTL::CStrRef title
         );
-      virtual void onExecPortRenamed(
+      void onExecPortRenamed(
         FTL::CStrRef oldPortName,
         FTL::CStrRef newPortName,
         FTL::JSONObject const *execPortJSONObject
         );
-      virtual void onNodePortRenamed(
+      void onNodePortRenamed(
         FTL::CStrRef nodeName,
         FTL::CStrRef oldPortName,
         FTL::CStrRef newPortName
         );
-      virtual void onExecMetadataChanged(
+      void onExecMetadataChanged(
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      virtual void onExtDepAdded(
+      void onExtDepAdded(
         FTL::CStrRef extension,
         FTL::CStrRef version
         );
-      virtual void onExtDepRemoved(
+      void onExtDepRemoved(
         FTL::CStrRef extension,
         FTL::CStrRef version
         );
-      virtual void onNodeCacheRuleChanged(
+      void onNodeCacheRuleChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef newCacheRule
         );
-      virtual void onExecCacheRuleChanged(
+      void onExecCacheRuleChanged(
         FTL::CStrRef newCacheRule
         );
-      virtual void onExecPortResolvedTypeChanged(
+      void onExecPortResolvedTypeChanged(
         FTL::CStrRef portName,
         FTL::CStrRef newResolvedType
         );
-      virtual void onExecPortTypeSpecChanged(
+      void onExecPortTypeSpecChanged(
         FTL::CStrRef portName,
         FTL::CStrRef typeSpec
         );
-      virtual void onNodePortResolvedTypeChanged(
+      void onNodePortResolvedTypeChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName,
         FTL::CStrRef newResolvedType
         );
-      virtual void onExecPortMetadataChanged(
+      void onExecPortMetadataChanged(
         FTL::CStrRef portName,
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      virtual void onNodePortMetadataChanged(
+      void onNodePortMetadataChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName,
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      virtual void onExecPortTypeChanged(
+      void onExecPortTypeChanged(
         FTL::CStrRef portName,
         FTL::CStrRef execPortType
         );
-      virtual void onNodePortTypeChanged(
+      void onNodePortTypeChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName,
         FTL::CStrRef nodePortType
         );
-      virtual void onRefVarPathChanged(
+      void onRefVarPathChanged(
         FTL::CStrRef refName,
         FTL::CStrRef newVarPath
         );
-      virtual void onFuncCodeChanged(
+      void onFuncCodeChanged(
         FTL::CStrRef code
         );
-      virtual void onExecExtDepsChanged(
+      void onExecExtDepsChanged(
         FTL::CStrRef extDeps
         );
-      virtual void onNodePortDefaultValuesChanged(
+      void onNodePortDefaultValuesChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName
         );
+      void onRemovedFromOwner();
 
     private:
 

@@ -250,6 +250,10 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("portName") )
         );
     }
+    else if ( descStr == FTL_STR("removedFromOwner") )
+    {
+      onRemovedFromOwner();
+    }
     else
     {
       printf(
@@ -1194,4 +1198,21 @@ void DFGNotificationRouter::onNodePortDefaultValuesChanged(
   )
 {
   m_dfgController->emitDefaultValuesChanged();
+}
+
+void DFGNotificationRouter::onRemovedFromOwner()
+{
+  FTL::StrRef execPath = m_dfgController->getExecPath();
+  if ( execPath.empty() )
+    return;
+
+  FTL::StrRef::Split split = execPath.rsplit('.');
+  std::string parentExecPath = split.first;
+
+  FabricCore::DFGBinding &binding = m_dfgController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec parentExec =
+    rootExec.getSubExec( parentExecPath.c_str() );
+
+  m_dfgController->setExec( parentExecPath, parentExec );
 }
