@@ -177,7 +177,14 @@ void DFGValueEditor::onArgsChanged()
             }
           }
           
-          ValueItem * item = addValue((globalPrefix + "." + portName.data()).c_str(), value, portName.data(), true);
+          ValueItem * item =
+            addValue(
+              globalPrefix + "." + portName.data(),
+              value,
+              portName,
+              true, // enabled
+              true // parentToRoot
+              );
           if(item)
           {
             item->setMetaData("uiRange", subExec.getExecPortMetadata(portName.data(), "uiRange"));

@@ -160,6 +160,8 @@ void DFGController::cmdAddBackDrop(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Create backdrop '");
   desc += title;
   desc += '\'';
@@ -179,6 +181,8 @@ void DFGController::cmdSetNodeTitle(
   FTL::CStrRef newTitle
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Change title to '");
   desc += newTitle;
   desc += FTL_STR("' (node '");
@@ -201,6 +205,8 @@ void DFGController::cmdSetNodeComment(
   bool expanded
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Change comment for node '");
   desc += nodeName;
   desc += FTL_STR("'");
@@ -277,6 +283,8 @@ std::string DFGController::cmdRenameExecPort(
   FTL::CStrRef desiredNewName
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   return m_cmdHandler->dfgDoRenameExecPort(
     FTL_STR("Canvas: Rename port"),
     getBinding(),
@@ -354,6 +362,8 @@ bool DFGController::addExtensionDependency(char const * extension, char const * 
 
 void DFGController::cmdSetCode( FTL::CStrRef code )
 {
+  UpdateSignalBlocker blocker( this );
+  
   m_cmdHandler->dfgDoSetCode(
     FTL_STR("Canvas: Set code"),
     getBinding(),
@@ -417,6 +427,8 @@ void DFGController::cmdSetArgType(
   FTL::CStrRef typeName
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   m_cmdHandler->dfgDoSetArgType(
     FTL_STR("Canvas: Set argument type"),
     getBinding(),
@@ -674,6 +686,8 @@ void DFGController::cmdCut()
 
 void DFGController::cmdPaste()
 {
+  UpdateSignalBlocker blocker( this );
+  
   try
   {
     QClipboard *clipboard = QApplication::clipboard();
@@ -909,17 +923,19 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    if(portOrPinPath.rfind('.') != std::string::npos)
+    size_t pos = portOrPinPath.rfind('.');
+    if ( pos != std::string::npos )
     {
-      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodePath = portOrPinPath.substr( 0, pos );
       std::string nodeName = nodePath;
+      std::string portName = portOrPinPath.substr( pos + 1 );
 
       FabricCore::DFGExec exec = rootExec;
       std::string execPath;
-
+      
       // if we have a path deeper than one level, 
       // determine the sub exec
-      size_t pos = nodePath.rfind('.');
+      pos = nodePath.rfind('.');
       if ( pos != std::string::npos )
       {
         execPath = nodePath.substr (0, pos );
@@ -930,8 +946,10 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
       FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && FTL::CStrRef(portName) == FTL_STR("value")))
       {
+        std::string portPath = nodeName + "." + portName;
+
         cmdSetDefaultValue(
           m_binding,
           execPath,
@@ -941,7 +959,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
           );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && FTL::CStrRef(portName) == FTL_STR("variable"))
       {
         cmdSetRefVarPath(
           m_binding,
@@ -979,6 +997,8 @@ void DFGController::cmdSetDefaultValue(
   if ( !currentDefaultValue
     || !currentDefaultValue.isExEQTo( value ) )
   {
+    UpdateSignalBlocker blocker( this );
+    
     std::string desc;
     desc += FTL_STR("Canvas: Set '");
     desc += portPath;
@@ -1004,6 +1024,8 @@ void DFGController::cmdSetArgValue(
   if ( !currentValue
     || !currentValue.isExEQTo( value ) )
   {
+    UpdateSignalBlocker blocker( this );
+  
     std::string desc;
     desc += FTL_STR("Canvas: Set argument '");
     desc += argName;
@@ -1029,6 +1051,8 @@ void DFGController::cmdSetRefVarPath(
   FTL::CStrRef currentVarPath = exec.getRefVarPath( refName.c_str() );
   if ( currentVarPath != varPath )
   {
+    UpdateSignalBlocker blocker( this );
+    
     std::string desc;
     desc += FTL_STR("Canvas: Set '");
     desc += refName;
@@ -1058,17 +1082,19 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    if(portOrPinPath.rfind('.') != std::string::npos)
+    size_t pos = portOrPinPath.rfind('.');
+    if ( pos != std::string::npos )
     {
-      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodePath = portOrPinPath.substr( 0, pos );
       std::string nodeName = nodePath;
+      std::string portName = portOrPinPath.substr( pos + 1 );
 
       FabricCore::DFGExec exec = rootExec;
       std::string execPath;
       
       // if we have a path deeper than one level, 
       // determine the sub exec
-      size_t pos = nodePath.rfind('.');
+      pos = nodePath.rfind('.');
       if ( pos != std::string::npos )
       {
         execPath = nodePath.substr (0, pos );
@@ -1079,16 +1105,18 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
       FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && FTL::CStrRef(portName) == FTL_STR("value")))
       {
+        std::string portPath = nodeName + "." + portName;
+
         exec.setPortDefaultValue(
-          portOrPinPath.c_str(),
+          portPath.c_str(),
           valueItem->value().clone(),
           false // canUndo
           );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && FTL::CStrRef(portName) == FTL_STR("variable"))
       {
         assert( false );
       }
@@ -1122,17 +1150,19 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
     FabricCore::DFGExec rootExec = m_binding.getExec();
 
     // let's assume it is pin, if there's still a node name in it
-    if(portOrPinPath.rfind('.') != std::string::npos)
+    size_t pos = portOrPinPath.rfind('.');
+    if ( pos != std::string::npos )
     {
-      std::string nodePath = portOrPinPath.substr(0, portOrPinPath.rfind('.'));
+      std::string nodePath = portOrPinPath.substr( 0, pos );
       std::string nodeName = nodePath;
+      std::string portName = portOrPinPath.substr( pos + 1 );
 
       FabricCore::DFGExec exec = rootExec;
       std::string execPath;
       
       // if we have a path deeper than one level, 
       // determine the sub exec
-      size_t pos = nodePath.rfind('.');
+      pos = nodePath.rfind('.');
       if ( pos != std::string::npos )
       {
         execPath = nodePath.substr (0, pos );
@@ -1143,14 +1173,16 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
       FabricCore::DFGNodeType nodeType = exec.getNodeType(nodeName.c_str());
       if(nodeType == FabricCore::DFGNodeType_Inst || 
         nodeType == FabricCore::DFGNodeType_Var ||
-        (nodeType == FabricCore::DFGNodeType_Set && portOrPinPath == nodePath + ".value"))
+        (nodeType == FabricCore::DFGNodeType_Set && FTL::CStrRef(portName) == FTL_STR("value")))
       {
+        std::string portPath = nodeName + "." + portName;
+
         FabricCore::RTVal valueAtInteractionEnter =
           valueItem->valueAtInteractionEnter();
         FabricCore::RTVal value = valueItem->value();
 
         exec.setPortDefaultValue(
-          portOrPinPath.c_str(),
+          portPath.c_str(),
           valueAtInteractionEnter,
           false // canUndo
           );
@@ -1159,12 +1191,12 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
           m_binding,
           execPath,
           exec,
-          portOrPinPath,
+          portPath,
           value
           );
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
-        nodeType == FabricCore::DFGNodeType_Set) && portOrPinPath == nodePath + ".variable")
+        nodeType == FabricCore::DFGNodeType_Set) && FTL::CStrRef(portName) == FTL_STR(".variable"))
       {
         assert( false );
       }
@@ -1570,6 +1602,8 @@ void DFGController::cmdRemoveNodes(
   FTL::ArrayRef<FTL::CStrRef> nodeNames
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::stringstream desc;
   desc << FTL_STR("Canvas: Remove ");
   if ( nodeNames.size() > 1 )
@@ -1593,6 +1627,8 @@ void DFGController::cmdConnect(
   FTL::CStrRef dstPath
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Connect '");
   desc += srcPath;
   desc += FTL_STR("' to '");
@@ -1614,6 +1650,8 @@ void DFGController::cmdDisconnect(
   FTL::CStrRef dstPath
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Disconnect '");
   desc += srcPath;
   desc += FTL_STR("' from '");
@@ -1635,6 +1673,8 @@ std::string DFGController::cmdAddInstWithEmptyGraph(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   return m_cmdHandler->dfgDoAddInstWithEmptyGraph(
     FTL_STR("Canvas: Create New Subgraph"),
     getBinding(),
@@ -1651,6 +1691,8 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Create function '");
   desc += title;
   desc += '\'';
@@ -1671,6 +1713,8 @@ std::string DFGController::cmdAddInstFromPreset(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Create instance of '");
   desc += presetPath;
   desc += '\'';
@@ -1692,6 +1736,8 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc;
   desc += FTL_STR("Canvas: Create variable '");
   desc += desiredNodeName;
@@ -1715,6 +1761,8 @@ std::string DFGController::cmdAddGet(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   return m_cmdHandler->dfgDoAddGet(
     FTL_STR("Canvas: Create get variable node"),
     getBinding(),
@@ -1732,6 +1780,8 @@ std::string DFGController::cmdAddSet(
   QPointF pos
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   return m_cmdHandler->dfgDoAddSet(
     FTL_STR("Canvas: Create set variable node"),
     getBinding(),
@@ -1750,6 +1800,8 @@ std::string DFGController::cmdAddPort(
   FTL::CStrRef portToConnect
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Create port '");
   desc += desiredPortName;
   desc += '\'';
@@ -1776,6 +1828,8 @@ void DFGController::cmdRemovePort(
   FTL::CStrRef portName
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Delete port '");
   desc += portName;
   desc += '\'';
@@ -1794,6 +1848,8 @@ void DFGController::cmdMoveNodes(
   FTL::ArrayRef<QPointF> newTopLeftPoss
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::stringstream desc;
   desc << FTL_STR("Canvas: Move ");
   if ( nodeNames.size() > 1 )
@@ -1824,6 +1880,8 @@ void DFGController::cmdResizeBackDropNode(
   QSizeF newSize
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::stringstream desc;
   desc << FTL_STR("Canvas: Resize back drop node");
 
@@ -1844,7 +1902,7 @@ std::string DFGController::cmdImplodeNodes(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
+
   std::stringstream desc;
   desc << FTL_STR("Canvas: Implode ");
   desc << nodeNames.size();
@@ -1866,6 +1924,8 @@ std::vector<std::string> DFGController::cmdExplodeNode(
   FTL::CStrRef nodeName
   )
 {
+  UpdateSignalBlocker blocker( this );
+  
   std::string desc = FTL_STR("Canvas: Explode node '");
   desc += nodeName;
   desc += '\'';
