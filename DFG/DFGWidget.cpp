@@ -775,7 +775,10 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Remove Comment")
   {
-    m_uiController->cmdSetNodeComment(m_contextNode->name(), NULL, false);
+    m_uiController->setNodeCommentExpanded( m_contextNode->name(), false );
+    m_uiController->cmdSetNodeComment(
+      m_contextNode->name(), FTL::CStrRef()
+      );
   }
 
   m_contextNode = NULL;
@@ -1129,7 +1132,10 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   {
     m_uiController->cmdSetNodeComment(
       node->name(),
-      dialog.text().toUtf8().constData(),
+      dialog.text().toUtf8().constData()
+      );
+    m_uiController->setNodeCommentExpanded(
+      node->name(),
       true
       );
   }

@@ -187,8 +187,7 @@ void DFGController::cmdSetNodeTitle(
 
 void DFGController::cmdSetNodeComment(
   FTL::CStrRef nodeName,
-  FTL::CStrRef comment,
-  bool expanded
+  FTL::CStrRef comment
   )
 {
   UpdateSignalBlocker blocker( this );
@@ -198,8 +197,20 @@ void DFGController::cmdSetNodeComment(
     getExecPath(),
     getExec(),
     nodeName,
-    comment,
-    expanded
+    comment
+    );
+}
+
+void DFGController::setNodeCommentExpanded(
+  FTL::CStrRef nodeName,
+  bool expanded
+  )
+{
+  m_exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiCommentExpanded",
+    expanded? "true": "",
+    false
     );
 }
 
@@ -252,11 +263,7 @@ void DFGController::gvcDoSetNodeCommentExpanded(
   bool expanded
   )
 {
-  cmdSetNodeComment(
-    node->name(),
-    m_exec.getNodeMetadata( node->name().c_str(), "uiComment" ),
-    expanded
-    );
+  setNodeCommentExpanded( node->name(), expanded );
 }
 
 std::string DFGController::cmdRenameExecPort(

@@ -17,13 +17,11 @@ public:
     FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::StrRef nodeName,
-    FTL::StrRef comment,
-    bool expanded
+    FTL::StrRef comment
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_nodeName( nodeName )
     , m_comment( comment )
-    , m_expanded( expanded )
     {}
 
   static FTL::CStrRef CmdName()
@@ -39,7 +37,6 @@ private:
 
   std::string m_nodeName;
   std::string m_comment;
-  bool m_expanded;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -21,14 +21,6 @@ void DFGUICmd_SetNodeComment::invoke( unsigned &coreUndoCount )
     true
     );
   ++coreUndoCount;
-
-  getExec().setNodeMetadata(
-    m_nodeName.c_str(),
-    "uiCommentExpanded",
-    m_expanded? "true": "",
-    true
-    );
-  ++coreUndoCount;
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

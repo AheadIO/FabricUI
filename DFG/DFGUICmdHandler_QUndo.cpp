@@ -428,8 +428,7 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
   FTL::CStrRef nodeName,
-  FTL::CStrRef comment,
-  bool expanded
+  FTL::CStrRef comment
   )
 {
   DFGUICmd_SetNodeComment *cmd =
@@ -438,8 +437,7 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
       execPath,
       exec,
       nodeName,
-      comment,
-      expanded
+      comment
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }

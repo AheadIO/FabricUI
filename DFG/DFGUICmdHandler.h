@@ -159,7 +159,7 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef nodeName,
-    FTL::CStrRef newTitle
+    FTL::CStrRef title
     ) = 0;
 
   virtual void dfgDoSetNodeComment(
@@ -167,8 +167,7 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef nodeName,
-    FTL::CStrRef comment,
-    bool expanded
+    FTL::CStrRef comment
     ) = 0;
 
   virtual void dfgDoSetCode(
@@ -183,7 +182,7 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef oldPortName,
-    FTL::CStrRef desiredPortName
+    FTL::CStrRef desiredNewPortName
     ) = 0;
 
   virtual std::vector<std::string> dfgDoPaste(
