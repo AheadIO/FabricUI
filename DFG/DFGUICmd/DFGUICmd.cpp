@@ -11,60 +11,27 @@ FABRIC_UI_DFG_NAMESPACE_BEGIN
 void DFGUICmd::doit()
 {
   assert( m_state == State_New );
-
-  try
-  {
-    invoke( m_coreUndoCount );
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "Caught FabricCore::Exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-
   m_state = State_Done;
+
+  invoke( m_coreUndoCount );
 }
 
 void DFGUICmd::undo()
 {
   assert( m_state == State_Done || m_state == State_Redone );
-
-  try
-  {
-    for ( unsigned i = 0; i < m_coreUndoCount; ++i )
-      m_host.maybeUndo();
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "Caught FabricCore::Exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-
   m_state = State_Undone;
+
+  for ( unsigned i = 0; i < m_coreUndoCount; ++i )
+    m_host.maybeUndo();
 }
 
 void DFGUICmd::redo()
 {
   assert( m_state = State_Undone );
-
-  try
-  {
-    for ( unsigned i = 0; i < m_coreUndoCount; ++i )
-      m_host.maybeRedo();
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "Caught FabricCore::Exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-
   m_state = State_Redone;
+
+  for ( unsigned i = 0; i < m_coreUndoCount; ++i )
+    m_host.maybeRedo();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END
