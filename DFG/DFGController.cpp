@@ -18,9 +18,7 @@
 #include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <FabricUI/DFG/DFGUIPerform.h>
-
-#include <sstream>
+#include <FabricUI/DFG/DFGUIUtil.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -162,12 +160,7 @@ void DFGController::cmdAddBackDrop(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Create backdrop '");
-  desc += title;
-  desc += '\'';
-
   m_cmdHandler->dfgDoAddBackDrop(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -183,14 +176,7 @@ void DFGController::cmdSetNodeTitle(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Change title to '");
-  desc += newTitle;
-  desc += FTL_STR("' (node '");
-  desc += nodeName;
-  desc += FTL_STR("')");
-
   m_cmdHandler->dfgDoSetNodeTitle(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -207,12 +193,7 @@ void DFGController::cmdSetNodeComment(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Change comment for node '");
-  desc += nodeName;
-  desc += FTL_STR("'");
-
   m_cmdHandler->dfgDoSetNodeComment(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -284,9 +265,8 @@ std::string DFGController::cmdRenameExecPort(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
-  return m_cmdHandler->dfgDoRenameExecPort(
-    FTL_STR("Canvas: Rename port"),
+
+  return m_cmdHandler->dfgDoRenamePort(
     getBinding(),
     getExecPath(),
     getExec(),
@@ -365,7 +345,6 @@ void DFGController::cmdSetCode( FTL::CStrRef code )
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetCode(
-    FTL_STR("Canvas: Set code"),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -430,7 +409,6 @@ void DFGController::cmdSetArgType(
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetArgType(
-    FTL_STR("Canvas: Set argument type"),
     getBinding(),
     argName,
     typeName
@@ -694,7 +672,6 @@ void DFGController::cmdPaste()
     FTL::CStrRef json = clipboard->text().toUtf8().constData();
     QGraphicsView *graphicsView = graph()->scene()->views()[0];
     m_cmdHandler->dfgDoPaste(
-      FTL_STR("Canvas: Paste"),
       getBinding(),
       getExecPath(),
       getExec(),
@@ -999,13 +976,7 @@ void DFGController::cmdSetDefaultValue(
   {
     UpdateSignalBlocker blocker( this );
     
-    std::string desc;
-    desc += FTL_STR("Canvas: Set '");
-    desc += portPath;
-    desc += FTL_STR("' default value"),
-
     m_cmdHandler->dfgDoSetPortDefaultValue(
-      desc,
       binding,
       execPath,
       exec,
@@ -1026,13 +997,7 @@ void DFGController::cmdSetArgValue(
   {
     UpdateSignalBlocker blocker( this );
   
-    std::string desc;
-    desc += FTL_STR("Canvas: Set argument '");
-    desc += argName;
-    desc += FTL_STR("' value"),
-
     m_cmdHandler->dfgDoSetArgValue(
-      desc,
       m_binding,
       argName,
       value.clone()
@@ -1053,13 +1018,7 @@ void DFGController::cmdSetRefVarPath(
   {
     UpdateSignalBlocker blocker( this );
     
-    std::string desc;
-    desc += FTL_STR("Canvas: Set '");
-    desc += refName;
-    desc += FTL_STR("' variable path"),
-
     m_cmdHandler->dfgDoSetRefVarPath(
-      desc,
       binding,
       execPath,
       exec,
@@ -1604,17 +1563,7 @@ void DFGController::cmdRemoveNodes(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::stringstream desc;
-  desc << FTL_STR("Canvas: Remove ");
-  if ( nodeNames.size() > 1 )
-  {
-    desc << nodeNames.size();
-    desc << FTL_STR(" nodes");
-  }
-  else desc << FTL_STR("node '") << nodeNames[0] << '\'';
-
   m_cmdHandler->dfgDoRemoveNodes(
-    desc.str(),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1629,14 +1578,7 @@ void DFGController::cmdConnect(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Connect '");
-  desc += srcPath;
-  desc += FTL_STR("' to '");
-  desc += dstPath;
-  desc += '\'';
-
   m_cmdHandler->dfgDoConnect(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1652,14 +1594,7 @@ void DFGController::cmdDisconnect(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Disconnect '");
-  desc += srcPath;
-  desc += FTL_STR("' from '");
-  desc += dstPath;
-  desc += '\'';
-
   m_cmdHandler->dfgDoDisconnect(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1674,9 +1609,7 @@ std::string DFGController::cmdAddInstWithEmptyGraph(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
-  return m_cmdHandler->dfgDoAddInstWithEmptyGraph(
-    FTL_STR("Canvas: Create New Subgraph"),
+  return m_cmdHandler->dfgDoAddGraph(
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1692,13 +1625,7 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
-  std::string desc = FTL_STR("Canvas: Create function '");
-  desc += title;
-  desc += '\'';
-
-  return m_cmdHandler->dfgDoAddInstWithEmptyFunc(
-    desc,
+  return m_cmdHandler->dfgDoAddFunc(
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1714,13 +1641,7 @@ std::string DFGController::cmdAddInstFromPreset(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
-  std::string desc = FTL_STR("Canvas: Create instance of '");
-  desc += presetPath;
-  desc += '\'';
-
-  return m_cmdHandler->dfgDoAddInstFromPreset(
-    desc,
+  return m_cmdHandler->dfgDoInstPreset(
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1737,14 +1658,7 @@ std::string DFGController::cmdAddVar(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
-  std::string desc;
-  desc += FTL_STR("Canvas: Create variable '");
-  desc += desiredNodeName;
-  desc += '\'';
-
   return m_cmdHandler->dfgDoAddVar(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1762,9 +1676,7 @@ std::string DFGController::cmdAddGet(
   )
 {
   UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoAddGet(
-    FTL_STR("Canvas: Create get variable node"),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1783,7 +1695,6 @@ std::string DFGController::cmdAddSet(
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddSet(
-    FTL_STR("Canvas: Create set variable node"),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1802,18 +1713,7 @@ std::string DFGController::cmdAddPort(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Create port '");
-  desc += desiredPortName;
-  desc += '\'';
-  if ( !portToConnect.empty() )
-  {
-    desc += FTL_STR(" and connect with '");
-    desc += portToConnect;
-    desc += '\'';
-  }
-
   return m_cmdHandler->dfgDoAddPort(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1830,12 +1730,7 @@ void DFGController::cmdRemovePort(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Delete port '");
-  desc += portName;
-  desc += '\'';
-
   m_cmdHandler->dfgDoRemovePort(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1850,22 +1745,7 @@ void DFGController::cmdMoveNodes(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::stringstream desc;
-  desc << FTL_STR("Canvas: Move ");
-  if ( nodeNames.size() > 1 )
-  {
-    desc << nodeNames.size();
-    desc << FTL_STR(" nodes");
-  }
-  else
-  {
-    desc << FTL_STR("node '");
-    desc << nodeNames[0];
-    desc << FTL_STR("'");
-  }
-
   m_cmdHandler->dfgDoMoveNodes(
-    desc.str(),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1882,11 +1762,7 @@ void DFGController::cmdResizeBackDropNode(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::stringstream desc;
-  desc << FTL_STR("Canvas: Resize back drop node");
-
-  m_cmdHandler->dfgDoResizeBackDropNode(
-    desc.str(),
+  m_cmdHandler->dfgDoResizeBackDrop(
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1903,15 +1779,7 @@ std::string DFGController::cmdImplodeNodes(
 {
   UpdateSignalBlocker blocker( this );
 
-  std::stringstream desc;
-  desc << FTL_STR("Canvas: Implode ");
-  desc << nodeNames.size();
-  desc << FTL_STR(" node");
-  if ( nodeNames.size() != 1 )
-    desc << 's';
-
   return m_cmdHandler->dfgDoImplodeNodes(
-    desc.str(),
     getBinding(),
     getExecPath(),
     getExec(),
@@ -1926,12 +1794,7 @@ std::vector<std::string> DFGController::cmdExplodeNode(
 {
   UpdateSignalBlocker blocker( this );
   
-  std::string desc = FTL_STR("Canvas: Explode node '");
-  desc += nodeName;
-  desc += '\'';
-
   return m_cmdHandler->dfgDoExplodeNode(
-    desc,
     getBinding(),
     getExecPath(),
     getExec(),
