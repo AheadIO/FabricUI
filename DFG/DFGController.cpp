@@ -440,8 +440,18 @@ bool DFGController::zoomCanvas(float zoom)
   try
   {
     FabricCore::DFGExec &exec = getExec();
-    QString metaData = "{\"value\": "+QString::number(zoom)+"}";
-    exec.setMetadata("uiGraphZoom", metaData.toUtf8().constData(), false);
+
+    std::string json;
+    {
+      FTL::JSONEnc<> enc( json );
+      FTL::JSONObjectEnc<> objEnc( enc );
+      {
+        FTL::JSONEnc<> zoomEnc( objEnc, FTL_STR("value") );
+        FTL::JSONFloat64Enc<> zoomS32Enc( zoomEnc, zoom );
+      }
+    }
+
+    exec.setMetadata("uiGraphZoom", json.c_str(), false);
   }
   catch(FabricCore::Exception e)
   {
@@ -456,8 +466,22 @@ bool DFGController::panCanvas(QPointF pan)
   try
   {
     FabricCore::DFGExec &exec = getExec();
-    QString metaData = "{\"x\": "+QString::number(pan.x())+", \"y\": "+QString::number(pan.y())+"}";
-    exec.setMetadata("uiGraphPan", metaData.toUtf8().constData(), false);
+
+    std::string json;
+    {
+      FTL::JSONEnc<> enc( json );
+      FTL::JSONObjectEnc<> objEnc( enc );
+      {
+        FTL::JSONEnc<> xEnc( objEnc, FTL_STR("x") );
+        FTL::JSONFloat64Enc<> xS32Enc( xEnc, pan.x() );
+      }
+      {
+        FTL::JSONEnc<> yEnc( objEnc, FTL_STR("y") );
+        FTL::JSONFloat64Enc<> yS32Enc( yEnc, pan.y() );
+      }
+    }
+
+    exec.setMetadata("uiGraphPan", json.c_str(), false);
   }
   catch(FabricCore::Exception e)
   {
@@ -676,13 +700,12 @@ void DFGController::cmdPaste()
   try
   {
     QClipboard *clipboard = QApplication::clipboard();
-    FTL::CStrRef json = clipboard->text().toUtf8().constData();
     QGraphicsView *graphicsView = graph()->scene()->views()[0];
     m_cmdHandler->dfgDoPaste(
       getBinding(),
       getExecPath(),
       getExec(),
-      json,
+      clipboard->text().toUtf8().constData(),
       graphicsView->mapToScene(
         graphicsView->mapFromGlobal(QCursor::pos())
         )
