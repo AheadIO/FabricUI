@@ -40,6 +40,7 @@ namespace FabricUI
     public slots:
 
       void refresh();
+      void setBinding( FabricCore::DFGBinding const &binding );
       void onCustomContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item);
       void onContextMenuAction(QAction * action);
 

@@ -70,8 +70,8 @@ PresetTreeWidget::PresetTreeWidget(
     this, SLOT(refresh())
     );
   QObject::connect(
-    dfgController, SIGNAL(bindingChanged()),
-    this, SLOT(refresh())
+    dfgController, SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
+    this, SLOT(setBinding(FabricCore::DFGBinding const &))
     );
 
   if(setupContextMenu)
@@ -83,6 +83,13 @@ PresetTreeWidget::PresetTreeWidget(
 
 PresetTreeWidget::~PresetTreeWidget()
 {
+}
+
+void PresetTreeWidget::setBinding(
+  FabricCore::DFGBinding const &binding
+  )
+{
+  refresh();
 }
 
 void PresetTreeWidget::refresh()

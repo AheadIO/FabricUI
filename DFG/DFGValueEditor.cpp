@@ -21,8 +21,14 @@ DFGValueEditor::DFGValueEditor(
 {
   // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
-  QObject::connect(m_controller, SIGNAL(bindingChanged()), this, SLOT(onBindingChanged()));
-  QObject::connect(m_controller, SIGNAL(nodeDeleted(QString)), this, SLOT(onNodeDeleted(QString)));
+  QObject::connect(
+    m_controller, SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
+    this, SLOT(setBinding(FabricCore::DFGBinding const &))
+    );
+  QObject::connect(
+    m_controller, SIGNAL(nodeRemoved(FTL::CStrRef)),
+    this, SLOT(onNodeRemoved(FTL::CStrRef))
+    );
 
   QObject::connect(
     this, SIGNAL(valueItemDelta(ValueItem*)),
