@@ -135,8 +135,8 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef desiredNodeName,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames
+    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::CStrRef desiredNodeName
     ) = 0;
 
   virtual std::vector<std::string> dfgDoExplodeNode(

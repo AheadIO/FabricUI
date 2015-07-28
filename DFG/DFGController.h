@@ -210,8 +210,8 @@ namespace FabricUI
         );
 
       std::string cmdImplodeNodes(
-        FTL::CStrRef desiredNodeName,
-        FTL::ArrayRef<FTL::CStrRef> nodeNames
+        FTL::ArrayRef<FTL::CStrRef> nodeNames,
+        FTL::CStrRef desiredNodeName
         );
 
       std::vector<std::string> cmdExplodeNode(

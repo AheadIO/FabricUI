@@ -1803,8 +1803,8 @@ void DFGController::cmdResizeBackDropNode(
 }
 
 std::string DFGController::cmdImplodeNodes(
-  FTL::CStrRef desiredNodeName,
-  FTL::ArrayRef<FTL::CStrRef> nodeNames
+  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::CStrRef desiredNodeName
   )
 {
   UpdateSignalBlocker blocker( this );
@@ -1813,8 +1813,8 @@ std::string DFGController::cmdImplodeNodes(
     getBinding(),
     getExecPath(),
     getExec(),
-    desiredNodeName,
-    nodeNames
+    nodeNames,
+    desiredNodeName
     );
 }
 

@@ -17,8 +17,8 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef desiredImplodedNodeName,
-    FTL::ArrayRef<FTL::StrRef> nodeNames
+    FTL::ArrayRef<FTL::StrRef> nodeNames,
+    FTL::StrRef desiredImplodedNodeName
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_desiredImplodedNodeName( desiredImplodedNodeName )
@@ -49,8 +49,8 @@ protected:
     FabricCore::DFGBinding &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec &exec,
-    FTL::CStrRef desiredImplodedNodeName,
     FTL::ArrayRef<std::string> nodeNames,
+    FTL::CStrRef desiredImplodedNodeName,
     unsigned &coreUndoCount
     );
 

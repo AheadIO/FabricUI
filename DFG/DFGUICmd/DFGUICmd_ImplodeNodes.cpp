@@ -21,8 +21,8 @@ void DFGUICmd_ImplodeNodes::invoke( unsigned &coreUndoCount )
       getBinding(),
       getExecPath(),
       getExec(),
-      m_desiredImplodedNodeName,
       m_nodeNames,
+      m_desiredImplodedNodeName,
       coreUndoCount
       );
 }
@@ -31,8 +31,8 @@ std::string DFGUICmd_ImplodeNodes::Perform(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef desiredImplodedNodeName,
   FTL::ArrayRef<std::string> nodeNames,
+  FTL::CStrRef desiredImplodedNodeName,
   unsigned &coreUndoCount
   )
 {

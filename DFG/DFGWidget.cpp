@@ -433,8 +433,8 @@ dfgEntry {\n\
 
     std::string newNodeName =
       m_uiController->cmdImplodeNodes(
-        text.toUtf8().constData(),
-        nodeNames
+        nodeNames,
+        text.toUtf8().constData()
         );
 
     m_uiGraph->clearSelection();
@@ -738,8 +738,8 @@ void DFGWidget::onNodeAction(QAction * action)
 
     std::string newNodeName =
       m_uiController->cmdImplodeNodes(
-        text.toUtf8().constData(),
-        nodeNames
+        nodeNames,
+        text.toUtf8().constData()
         );
 
     m_uiGraph->clearSelection();

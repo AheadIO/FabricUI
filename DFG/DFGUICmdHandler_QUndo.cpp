@@ -344,8 +344,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef desiredImplodedNodeName,
-  FTL::ArrayRef<FTL::CStrRef> nodeNames
+  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::CStrRef desiredImplodedNodeName
   )
 {
   DFGUICmd_ImplodeNodes *cmd =
@@ -353,8 +353,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
       binding,
       execPath,
       exec,
-      desiredImplodedNodeName,
-      FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() )
+      FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() ),
+      desiredImplodedNodeName
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualImplodedNodeName();
