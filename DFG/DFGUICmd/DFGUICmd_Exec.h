@@ -68,6 +68,7 @@ protected:
           desc += ',';
         appendDesc_Path( *it, desc );
       }
+      desc += ']';
     }
     else
     {

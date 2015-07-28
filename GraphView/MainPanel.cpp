@@ -124,6 +124,14 @@ QRectF MainPanel::boundingRect() const
 
 void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+  // clean up the scene
+  if(m_selectionRect)
+  {
+    scene()->removeItem(m_selectionRect);
+    delete(m_selectionRect);
+    m_selectionRect = NULL;
+  }
+
   if(event->button() == Qt::LeftButton && !m_spaceBarDown && !event->modifiers().testFlag(Qt::AltModifier))
   {
     QPointF mouseDownPos = mapToItem(m_itemGroup, event->pos());
