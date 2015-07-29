@@ -244,6 +244,9 @@ void GLViewportWidget::resetRTVals()
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
+
+  setUsingStage(m_usingStage);
+  setStageVisible(m_stageVisible);
 }
 
 void GLViewportWidget::mousePressEvent(QMouseEvent *event)
@@ -318,11 +321,13 @@ bool GLViewportWidget::isStageVisible()
 void GLViewportWidget::setUsingStage( bool usingStage, bool update )
 {
   m_usingStage = usingStage;
-  m_stageVisible = true;
   if(m_settings)
   {
     m_settings->setValue("glviewport/usingStage", m_usingStage);
   }
+
+  if(!m_viewport.isValid())
+    return;
 
   try
   {
@@ -344,6 +349,9 @@ void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
   {
     m_settings->setValue("glviewport/stageVisible", m_stageVisible);
   }
+
+  if(!m_viewport.isValid())
+    return;
 
   try
   {
