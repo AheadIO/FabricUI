@@ -513,7 +513,10 @@ GraphView::Port * DFGController::addPortFromPin(GraphView::Pin * pin, GraphView:
             if(isViewingRootGraph())
               setArg(portPath.c_str(), defaultValue);
             else
-              setDefaultValue(portPath.c_str(), defaultValue);
+            {
+              std::string path = m_coreDFGExecPath + "." + portPath;
+              setDefaultValue(path.c_str(), defaultValue);
+            }
           }
         }
 
