@@ -239,6 +239,18 @@ void GLViewportWidget::resetRTVals()
     }
     m_drawContext = m_drawContext.callMethod("DrawContext", "getInstance", 0, 0);
     m_drawContext.callMethod("", "resetAllViewportParams", 0, 0);
+
+    // [pzion 20150728] Artificially push a meaningless movement
+    // event to force camera manipulation code to compiler, preventing
+    // annoying pauses
+    QMouseEvent nullEvent(
+      QMouseEvent::MouseMove,
+      QCursor::pos(),
+      Qt::NoButton,
+      Qt::NoButton,
+      Qt::NoModifier
+      );
+    manipulateCamera( &nullEvent, false );
   }
   catch(FabricCore::Exception e)
   {
