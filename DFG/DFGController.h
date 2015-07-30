@@ -65,7 +65,6 @@ namespace FabricUI
       DFGUICmdHandler *getCmdHandler() const
         { return m_cmdHandler; }
 
-      void setClient( FabricCore::Client const &coreClient );
       void setHostBindingExec(
         FabricCore::DFGHost &host,
         FabricCore::DFGBinding &binding,
@@ -277,7 +276,6 @@ namespace FabricUI
 
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
-      virtual std::string exportJSON(char const *  path);
 
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);

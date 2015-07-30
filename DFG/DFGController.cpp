@@ -59,11 +59,6 @@ DFGController::~DFGController()
 {
 }
 
-void DFGController::setClient( FabricCore::Client const &client )
-{
-  m_client = client;
-}
-
 void DFGController::setHostBindingExec(
   FabricCore::DFGHost &host,
   FabricCore::DFGBinding &binding,
@@ -427,19 +422,6 @@ void DFGController::cmdSetArgType(
     argName,
     typeName
     );
-}
-
-std::string DFGController::exportJSON(char const * path)
-{
-  try
-  {
-    return m_binding.exportJSON().getCString();
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-  }
-  return "";
 }
 
 bool DFGController::zoomCanvas(float zoom)
