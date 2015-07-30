@@ -121,13 +121,13 @@ namespace FabricUI
         FTL::CStrRef portName,
         FTL::CStrRef newResolvedType
         );
-      void onExecPortMetadataChanged(
+      void onNodePortMetadataChanged(
+        FTL::CStrRef nodeName,
         FTL::CStrRef portName,
         FTL::CStrRef key,
         FTL::CStrRef value
         );
-      void onNodePortMetadataChanged(
-        FTL::CStrRef nodeName,
+      void onExecPortMetadataChanged(
         FTL::CStrRef portName,
         FTL::CStrRef key,
         FTL::CStrRef value

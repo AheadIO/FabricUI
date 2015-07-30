@@ -192,18 +192,18 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
         );
     }
-    else if(descStr == FTL_STR("portMetadataChanged"))
+    else if(descStr == FTL_STR("nodePortMetadataChanged"))
     {
-      onExecPortMetadataChanged(
+      onNodePortMetadataChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );
     }
-    else if(descStr == FTL_STR("nodePortMetadataChanged"))
+    else if(descStr == FTL_STR("execPortMetadataChanged"))
     {
-      onNodePortMetadataChanged(
-        jsonObject->getString( FTL_STR("nodeName") ),
+      onExecPortMetadataChanged(
         jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
