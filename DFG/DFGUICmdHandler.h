@@ -23,6 +23,9 @@ public:
 
   static FTL::CStrRef CmdName_RemoveNodes()
     { return FTL_STR("dfgRemoveNodes"); }
+
+  virtual ~DFGUICmdHandler() {}
+
   virtual void dfgDoRemoveNodes(
     FTL::CStrRef desc,
     FabricCore::DFGBinding const &binding,
