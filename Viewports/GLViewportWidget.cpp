@@ -22,12 +22,15 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
   m_client = client;
   m_bgColor = bgColor;
   m_manipTool = new ManipulationTool(this);
+  m_usingStage = true;
   m_stageVisible = true;
 	setFocusPolicy(Qt::StrongFocus);
   setAutoBufferSwap(false);
 
   if(m_settings)
   {
+    if(m_settings->contains("glviewport/usingStage"))
+      m_usingStage = m_settings->value("glviewport/usingStage").toBool();
     if(m_settings->contains("glviewport/stageVisible"))
       m_stageVisible = m_settings->value("glviewport/stageVisible").toBool();
   }
@@ -236,11 +239,26 @@ void GLViewportWidget::resetRTVals()
     }
     m_drawContext = m_drawContext.callMethod("DrawContext", "getInstance", 0, 0);
     m_drawContext.callMethod("", "resetAllViewportParams", 0, 0);
+
+    // [pzion 20150728] Artificially push a meaningless movement
+    // event to force camera manipulation code to compiler, preventing
+    // annoying pauses
+    QMouseEvent nullEvent(
+      QMouseEvent::MouseMove,
+      QCursor::pos(),
+      Qt::NoButton,
+      Qt::NoButton,
+      Qt::NoModifier
+      );
+    manipulateCamera( &nullEvent, false );
   }
   catch(FabricCore::Exception e)
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
+
+  setUsingStage(m_usingStage);
+  setStageVisible(m_stageVisible);
 }
 
 void GLViewportWidget::mousePressEvent(QMouseEvent *event)
@@ -302,9 +320,38 @@ bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier
   return result;
 }
 
+bool GLViewportWidget::isUsingStage()
+{
+  return m_usingStage;
+}
+
 bool GLViewportWidget::isStageVisible()
 {
   return m_stageVisible;
+}
+
+void GLViewportWidget::setUsingStage( bool usingStage, bool update )
+{
+  m_usingStage = usingStage;
+  if(m_settings)
+  {
+    m_settings->setValue("glviewport/usingStage", m_usingStage);
+  }
+
+  if(!m_viewport.isValid())
+    return;
+
+  try
+  {
+    FabricCore::RTVal usingStageVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_usingStage);
+    m_viewport.callMethod("", "setUsingStage", 1, &usingStageVal);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+  if(update)
+    updateGL();
 }
 
 void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
@@ -314,6 +361,9 @@ void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
   {
     m_settings->setValue("glviewport/stageVisible", m_stageVisible);
   }
+
+  if(!m_viewport.isValid())
+    return;
 
   try
   {

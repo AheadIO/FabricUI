@@ -880,14 +880,17 @@ void DFGWidget::onExecPortAction(QAction * action)
         }
       }
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
+      std::string uiComboStr;
       if(uiCombo.size() > 0)
+        uiComboStr = uiCombo.data();
+      if(uiComboStr.size() > 0)
       {
-        if(uiCombo[0] == '(')
-          uiCombo = uiCombo.substr(1);
-        if(uiCombo[uiCombo.size()-1] == ')')
-          uiCombo = uiCombo.substr(0, uiCombo.size()-1);
+        if(uiComboStr[0] == '(')
+          uiComboStr = uiComboStr.substr(1);
+        if(uiComboStr[uiComboStr.size()-1] == ')')
+          uiComboStr = uiComboStr.substr(0, uiComboStr.size()-1);
 
-        QStringList parts = QString(uiCombo.data()).split(',');
+        QStringList parts = QString(uiComboStr.c_str()).split(',');
         dialog.setHasCombo(true);
         dialog.setComboValues(parts);
       }
@@ -929,7 +932,7 @@ void DFGWidget::onExecPortAction(QAction * action)
         flat += ")";
         exec.setExecPortMetadata(portName, "uiCombo", flat.toUtf8().constData(), false);
       }
-      else if(uiCombo.size() > 0)
+      else if(uiComboStr.length() > 0)
       {
         exec.setExecPortMetadata(portName, "uiCombo", NULL, false);
       }

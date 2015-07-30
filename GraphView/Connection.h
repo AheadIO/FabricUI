@@ -55,10 +55,12 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
     public slots:
 
       virtual void dependencyMoved();
+      virtual void dependencySelected();
 
     private:
 
@@ -71,10 +73,15 @@ namespace FabricUI
       QColor m_color;
       QPen m_defaultPen;
       QPen m_hoverPen;
+      bool m_hovered;
 
       bool m_dragging;
       QPointF m_lastDragPoint;
       bool m_aboutToBeDeleted;
+      bool m_isExposedConnection;
+      bool m_hasSelectedTarget;
+      float m_clipRadius;
+      QPainterPath m_clipPath;
     };
 
   };

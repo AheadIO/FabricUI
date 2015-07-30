@@ -25,17 +25,29 @@ Connection::Connection(
   , m_graph( graph )
   , m_src( src )
   , m_dst( dst )
+  , m_hovered( false )
   , m_dragging( false )
   , m_aboutToBeDeleted( false )
+  , m_hasSelectedTarget( false )
 {
-  m_defaultPen = m_graph->config().connectionDefaultPen;
+  m_isExposedConnection = 
+    m_src->targetType() == TargetType_ProxyPort ||
+    m_src->targetType() == TargetType_Port ||
+    m_dst->targetType() == TargetType_ProxyPort ||
+    m_dst->targetType() == TargetType_Port;
+
+  if(m_isExposedConnection)
+  {
+    // setBrush(m_graph->config().connectionExposePenGradient);
+    m_defaultPen = m_graph->config().connectionExposePen;
+  }
+  else
+  {
+    m_defaultPen = m_graph->config().connectionDefaultPen;
+  }
   m_hoverPen = m_graph->config().connectionHoverPen;
 
-  if(src->targetType() == TargetType_Port || dst->targetType() == TargetType_Port)
-  {
-    m_defaultPen.setStyle(Qt::DotLine);
-    m_hoverPen.setStyle(Qt::DotLine);
-  }
+  m_clipRadius = m_graph->config().connectionExposeRadius;
 
   QColor color = m_graph->config().connectionColor;
   if(m_graph->config().connectionUsePinColor || forceUseOfPinColor)
@@ -64,6 +76,7 @@ Connection::Connection(
   setZValue(-1);
 
   dependencyMoved();
+  dependencySelected();
 
   MainPanel *mainPanel = graph->mainPanel();
   QObject::connect(
@@ -90,6 +103,7 @@ Connection::Connection(
       Node * node = ((Pin*)target)->node();
       QObject::connect(node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(geometryChanged()), this, SLOT(dependencyMoved()));
+      QObject::connect(node, SIGNAL(selectionChanged(FabricUI::GraphView::Node *, bool)), this, SLOT(dependencySelected()));
     }
     else if(target->targetType() == TargetType_MouseGrabber)
     {
@@ -152,7 +166,15 @@ void Connection::setColor(QColor color)
   }
 
   m_color = color;
-  m_defaultPen.setColor(color);
+
+  if(m_isExposedConnection)
+  {
+    m_defaultPen.setColor(color);
+  }
+  else
+  {
+    m_defaultPen.setColor(color);
+  }
   setPen(m_defaultPen);
 }
 
@@ -180,12 +202,14 @@ void Connection::invalidate()
 
 void Connection::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
+  m_hovered = true;
   setPen(m_hoverPen);
   QGraphicsPathItem::hoverEnterEvent(event);
 }
 
 void Connection::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
+  m_hovered = false;
   setPen(m_defaultPen);
   QGraphicsPathItem::hoverLeaveEvent(event);
 }
@@ -265,6 +289,24 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     QGraphicsPathItem::mouseMoveEvent(event);
 }
 
+void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+{
+  if(m_isExposedConnection && !m_hovered && !m_hasSelectedTarget && m_graph->config().dimConnectionLines)
+  {
+    painter->setOpacity(0.15);
+    QGraphicsPathItem::paint(painter, option, widget);
+    painter->setOpacity(0.5);
+    painter->setClipPath(m_clipPath);
+    QGraphicsPathItem::paint(painter, option, widget);
+    painter->setClipping(false);
+    painter->setOpacity(1.0);
+  }
+  else
+  {
+    QGraphicsPathItem::paint(painter, option, widget);
+  }
+}
+
 void Connection::dependencyMoved()
 {
   QPointF currSrcPoint = srcPoint();
@@ -283,6 +325,30 @@ void Connection::dependencyMoved()
       currDstPoint
   );
   setPath(path);
+
+  if(m_isExposedConnection)
+  {
+    m_clipPath = QPainterPath();
+    m_clipPath.addEllipse(currSrcPoint, m_clipRadius, m_clipRadius);
+    m_clipPath.addEllipse(currDstPoint, m_clipRadius, m_clipRadius);
+  }
+}
+
+void Connection::dependencySelected()
+{
+  m_hasSelectedTarget = false;
+
+  if(m_src->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)m_src)->node();
+    m_hasSelectedTarget = m_hasSelectedTarget || node->selected();
+  }
+  if(m_dst->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)m_dst)->node();
+    m_hasSelectedTarget = m_hasSelectedTarget || node->selected();
+  }
+  update();
 }
 
 float Connection::computeTangentLength() const
