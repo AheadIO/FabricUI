@@ -151,6 +151,9 @@ namespace FabricUI
       void onExecExtDepsChanged(
         FTL::CStrRef extDeps
         );
+      void onExecPortDefaultValuesChanged(
+        FTL::CStrRef portName
+        );
       void onNodePortDefaultValuesChanged(
         FTL::CStrRef nodeName,
         FTL::CStrRef portName
