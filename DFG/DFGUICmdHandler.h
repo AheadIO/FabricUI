@@ -21,6 +21,8 @@ class DFGUICmdHandler
 {
 public:
 
+  virtual ~DFGUICmdHandler() {}
+
   virtual void dfgDoRemoveNodes(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,

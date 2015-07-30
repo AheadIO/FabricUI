@@ -248,6 +248,13 @@ void DFGController::gvcDoAddPort(
     case GraphView::PortType_IO:
       dfgPortType = FabricCore::DFGPortType_IO;
       break;
+
+    default:
+      // [andrew 20150730] shouldn't be possible but needed to prevent
+      // compiler warning
+      assert( false );
+      dfgPortType = FabricCore::DFGPortType_In;
+      break;
   }
 
   cmdAddPort(
