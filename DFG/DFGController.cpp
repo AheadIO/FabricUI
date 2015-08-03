@@ -41,6 +41,7 @@ DFGController::DFGController(
   , m_logFunc(0)
   , m_overTakeBindingNotifications( overTakeBindingNotifications )
   , m_updateSignalBlockCount( 0 )
+  , m_varsChangedPending( false )
   , m_argsChangedPending( false )
   , m_argValuesChangedPending( false )
   , m_defaultValuesChangedPending( false )
@@ -52,7 +53,7 @@ DFGController::DFGController(
   m_presetDictsUpToDate = false;
 
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
-  QObject::connect(this, SIGNAL(variablesChanged()), this, SLOT(onVariablesChanged()));
+  QObject::connect(this, SIGNAL(varsChanged()), this, SLOT(onVariablesChanged()));
 }
 
 DFGController::~DFGController()
@@ -1344,6 +1345,11 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     {
       emitArgValuesChanged();
     }
+    else if ( descStr == FTL_STR("varInserted")
+      || descStr == FTL_STR("varRemoved") )
+    {
+      emitVarsChanged();
+    }
   }
   catch ( FabricCore::Exception e )
   {
@@ -1951,7 +1957,7 @@ void DFGController::setBlockCompilations( bool blockCompilations )
     m_host.unblockComps();
     emitArgsChanged();
     emit recompiled();
-    emit variablesChanged();
+    emit varsChanged();
   }
 }
 

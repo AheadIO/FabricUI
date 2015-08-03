@@ -309,6 +309,14 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
+      void emitVarsChanged()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_varsChangedPending = true;
+        else
+          emit varsChanged();
+      }
+
       void emitArgsChanged()
       {
         if ( m_updateSignalBlockCount > 0 )
@@ -362,6 +370,11 @@ namespace FabricUI
         {
           if ( --m_controller->m_updateSignalBlockCount == 0 )
           {
+            if ( m_controller->m_varsChangedPending )
+            {
+              m_controller->m_varsChangedPending = false;
+              emit m_controller->varsChanged();
+            }
             if ( m_controller->m_argsChangedPending )
             {
               m_controller->m_argsChangedPending = false;
@@ -398,6 +411,7 @@ namespace FabricUI
       void bindingChanged( FabricCore::DFGBinding const &newBinding );
       void execChanged();
 
+      void varsChanged();
       void argsChanged();
       void argValuesChanged();
       void defaultValuesChanged();
@@ -406,7 +420,6 @@ namespace FabricUI
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
-      void variablesChanged();
 
       void nodeRemoved( FTL::CStrRef nodePathFromRoot );
 
@@ -455,6 +468,7 @@ namespace FabricUI
       bool m_presetDictsUpToDate;
 
       uint32_t m_updateSignalBlockCount;
+      bool m_varsChangedPending;
       bool m_argsChangedPending;
       bool m_argValuesChangedPending;
       bool m_defaultValuesChangedPending;
