@@ -880,7 +880,7 @@ void DFGController::checkErrors()
 
 void DFGController::log(const char * message)
 {
-  DFGLogWidget::callback(NULL, message, 0);
+  DFGLogWidget::log(message);
   if(m_logFunc)
     (*m_logFunc)(message);
 }
