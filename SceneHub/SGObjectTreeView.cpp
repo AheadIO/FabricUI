@@ -2,6 +2,7 @@
 
 #include "SGObjectTreeView.h"
 #include <QtGui/QMenu>
+#include <iostream>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -9,16 +10,19 @@ using namespace FabricUI::SceneHub;
 SGObjectTreeView::SGObjectTreeView(QWidget * parent)
 : TreeView::TreeViewWidget(parent)
 {
+  std::cerr << "SGObjectTreeView::SGObjectTreeView" << std::endl;
   setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_lastItemClickedOn = NULL;
 }
 
 SGObjectTreeView::~SGObjectTreeView()
 {
+  std::cerr << "SGObjectTreeView::~SGObjectTreeView" << std::endl;
 }
 
 void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView::TreeItem * item)
 {
+  std::cerr << "SGObjectTreeView::showCustomContextMenu" << std::endl;
   m_lastItemClickedOn = item;
 
   QMenu *menu=new QMenu(this);
@@ -29,6 +33,7 @@ void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView:
 
 void SGObjectTreeView::contextMenuTriggered(QAction * action)
 {
+  std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
   if(m_lastItemClickedOn == NULL)
     return;
 
