@@ -33,7 +33,7 @@ void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView:
 
 void SGObjectTreeView::contextMenuTriggered(QAction * action)
 {
-  //std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
+  std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
   if(m_lastItemClickedOn == NULL)
     return;
 
@@ -41,8 +41,11 @@ void SGObjectTreeView::contextMenuTriggered(QAction * action)
   {
     std::vector<TreeView::TreeItem*> items;
     items.push_back(m_lastItemClickedOn);
+    std::cerr << "Nb items" << items.size() << std::endl;
+
     for(unsigned i=0;i<items.size();i++)
     {
+      std::cerr << "Nb children" << items[i]->numChildren() << std::endl;
       for(unsigned int j=0;j<items[i]->numChildren();j++)
         items.push_back(items[i]->child(j));
     }

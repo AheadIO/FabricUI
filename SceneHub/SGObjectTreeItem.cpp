@@ -2,6 +2,7 @@
 
 #include "SGObjectTreeItem.h"
 #include "SGObjectTreeView.h"
+#include <iostream>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -56,6 +57,7 @@ void SGObjectTreeItem::createChildrenIfNotDone()
         FabricCore::RTVal index = FabricCore::RTVal::ConstructUInt32(*m_client, i);
         FabricCore::RTVal browser = m_rtVal.callMethod("SGObjectHierarchyBrowser", "getChildBrowser", 1, &index);
         FabricCore::RTVal name = browser.callMethod("String", "getName", 0, 0);
+        std::cerr << "name[" << i << "] " << name.getStringCString() << std::endl;
         addChild(Create(m_view, name.getStringCString(), m_client, browser));
       }
 
