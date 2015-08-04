@@ -118,6 +118,11 @@ DFGWidget::DFGWidget(
 
 DFGWidget::~DFGWidget()
 {
+  if ( m_uiController )
+    m_uiController->setRouter( 0 );
+
+  if ( m_router )
+    delete m_router;
 }
 
 GraphView::Graph * DFGWidget::getUIGraph()
