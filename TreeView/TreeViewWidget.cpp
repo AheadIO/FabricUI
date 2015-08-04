@@ -12,7 +12,7 @@ using namespace FabricUI::TreeView;
 TreeViewWidget::TreeViewWidget(QWidget * parent, bool supportsDelegates)
 :QTreeView(parent)
 {
-  std::cerr << "TreeViewWidget::TreeViewWidget" << std::endl;
+  //std::cerr << "TreeViewWidget::TreeViewWidget" << std::endl;
   setHeaderHidden(true);
   setSelectionMode(QAbstractItemView::ContiguousSelection);
 
@@ -41,13 +41,13 @@ TreeViewWidget::TreeViewWidget(QWidget * parent, bool supportsDelegates)
 
 TreeViewWidget::~TreeViewWidget()
 {
-  std::cerr << "TreeViewWidget::~TreeViewWidget" << std::endl;
+  //std::cerr << "TreeViewWidget::~TreeViewWidget" << std::endl;
 
 }
 
 QString TreeViewWidget::state() const
 {
-  std::cerr << "TreeViewWidget::state" << std::endl;
+  //std::cerr << "TreeViewWidget::state" << std::endl;
   QString result;
 
   QAbstractItemModel * abstractModel = model();
@@ -75,7 +75,7 @@ QString TreeViewWidget::state() const
 
 void TreeViewWidget::setState(QString s)
 {
-  std::cerr << "TreeViewWidget::setState" << std::endl;
+  //std::cerr << "TreeViewWidget::setState" << std::endl;
 
   if(s.isEmpty())
     return;
@@ -104,7 +104,7 @@ void TreeViewWidget::setState(QString s)
 
 void TreeViewWidget::onCustomContextMenuRequested(const QPoint & point)
 {
-  std::cerr << "TreeViewWidget::onCustomContextMenuRequested" << std::endl;
+  //std::cerr << "TreeViewWidget::onCustomContextMenuRequested" << std::endl;
 
   QModelIndex index = indexAt(point);
   if (index.isValid())
@@ -117,7 +117,7 @@ void TreeViewWidget::onCustomContextMenuRequested(const QPoint & point)
 
 void TreeViewWidget::setFactory(TreeEditorFactory * factory)
 {
-  std::cerr << "TreeViewWidget::setFactory" << std::endl;
+  //std::cerr << "TreeViewWidget::setFactory" << std::endl;
 
   if(m_delegate)
     m_delegate->setFactory(factory);
@@ -125,7 +125,7 @@ void TreeViewWidget::setFactory(TreeEditorFactory * factory)
 
 void TreeViewWidget::onExpanded(const QModelIndex & index)
 {
-  std::cerr << "TreeViewWidget::onExpanded" << std::endl;
+  //std::cerr << "TreeViewWidget::onExpanded" << std::endl;
 
   if(!index.isValid())
     return;
@@ -139,7 +139,7 @@ void TreeViewWidget::onExpanded(const QModelIndex & index)
 
 void TreeViewWidget::onCollapsed(const QModelIndex & index)
 {
-  std::cerr << "TreeViewWidget::onCollapsed" << std::endl;
+  //std::cerr << "TreeViewWidget::onCollapsed" << std::endl;
 
   if(!index.isValid())
     return;
@@ -152,7 +152,7 @@ void TreeViewWidget::onCollapsed(const QModelIndex & index)
 
 void TreeViewWidget::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-  std::cerr << "TreeViewWidget::selectionChanged" << std::endl;
+  //std::cerr << "TreeViewWidget::selectionChanged" << std::endl;
 
   QAbstractItemModel * abstractModel = model();
   if(abstractModel) {
@@ -168,7 +168,7 @@ void TreeViewWidget::selectionChanged(const QItemSelection & selected, const QIt
 
 void TreeViewWidget::onEnteredIndex(const QModelIndex & index)
 {
-  std::cerr << "TreeViewWidget::onEnteredIndex" << std::endl;
+  //std::cerr << "TreeViewWidget::onEnteredIndex" << std::endl;
 
   if(index.isValid() && m_usesDelegate)
   {
