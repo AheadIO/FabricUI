@@ -180,6 +180,9 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) co
 
   //std::cerr << "TreeModel::index 3" << std::endl;
   TreeItem * item = parentItem->child(row);
+  if( !item )
+    return QModelIndex();
+
   //std::cerr << "TreeModel::index 3.1" << std::endl;
   QModelIndex idx = item->modelIndex();
   //std::cerr << "TreeModel::index 3.2" << std::endl;

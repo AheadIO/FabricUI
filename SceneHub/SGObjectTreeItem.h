@@ -17,6 +17,8 @@ namespace FabricUI
     {
       Q_OBJECT
 
+      friend class SGObjectTreeModel;
+
     public:
 
       static SGObjectTreeItem * Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
@@ -24,14 +26,18 @@ namespace FabricUI
 
       virtual QString type() const;
       virtual unsigned int numChildren();
+      virtual void loadRecursively();
 
       virtual TreeItem * child(unsigned int i);
       virtual TreeItem * child(QString path);
+
+      void updateChildrenCount();
 
     protected:
 
       SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
       void createChildrenIfNotDone();
+      void updateRecursively();
 
       FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;

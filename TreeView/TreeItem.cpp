@@ -171,10 +171,12 @@ unsigned int TreeItem::numChildren()
 
 void TreeItem::addChild(TreeItem * childToAdd)
 {
+  m_model->beginInsertRows( modelIndex(m_model), m_children.size(), m_children.size() );
   childToAdd->setParent(this);
   childToAdd->setModel(m_model);
   childToAdd->setIndex(m_children.size());
   m_children.push_back(childToAdd);
+  m_model->endInsertRows();
   emit childAdded(childToAdd);
 }
 
@@ -193,10 +195,26 @@ bool TreeItem::removeChild(TreeItem * childToRemove)
   if(index == m_children.size())
     return false;
 
+  m_model->beginRemoveRows( modelIndex(m_model), index, index );
   m_children.erase(m_children.begin() + index);
+  m_model->endRemoveRows();
   emit childRemoved(childToRemove);
 
   return true;
+}
+
+void TreeItem::removeChildrenRecursively() {
+  if( m_children.size() == 0 )
+    return;
+
+  for( unsigned int i = 0; i < m_children.size(); ++i ) {
+    TreeItem* child = m_children[i];
+    if( child )
+      child->removeChildrenRecursively();
+  }
+  m_model->beginRemoveRows( modelIndex( m_model ), 0, m_children.size()-1 );
+  m_children.resize(0);
+  m_model->endRemoveRows();
 }
 
 TreeItem * TreeItem::child(unsigned int i)
