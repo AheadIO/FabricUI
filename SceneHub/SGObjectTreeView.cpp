@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "SGObjectTreeView.h"
+#include "SGObjectTreeItem.h"
 #include <QtGui/QMenu>
 #include <iostream>
 
@@ -19,13 +20,14 @@ void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView:
 
   QMenu *menu=new QMenu(this);
   menu->addAction(new QAction("Expand recursively", this));
+  menu->addAction(new QAction("Load recursively", this));
   QObject::connect(menu, SIGNAL(triggered(QAction *)), this, SLOT(contextMenuTriggered(QAction *)));
   menu->popup(globalPos);
 }
 
 void SGObjectTreeView::contextMenuTriggered(QAction * action) {
 
-  std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
+  //std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
   if(m_lastItemClickedOn == NULL)
     return;
 
@@ -33,15 +35,17 @@ void SGObjectTreeView::contextMenuTriggered(QAction * action) {
   {
     std::vector<TreeView::TreeItem*> items;
     items.push_back(m_lastItemClickedOn);
-    std::cerr << "Nb items" << items.size() << std::endl;
+    //std::cerr << "Nb items" << items.size() << std::endl;
 
     for(unsigned i=0;i<items.size();i++)
     {
-      std::cerr << "Nb children" << items[i]->numChildren() << std::endl;
+      //std::cerr << "Nb children" << items[i]->numChildren() << std::endl;
       for(unsigned int j=0;j<items[i]->numChildren();j++)
         items.push_back(items[i]->child(j));
     }
   }
-
+  else if( action->text() == "Load recursively" ) {
+    ( (SGObjectTreeItem*)m_lastItemClickedOn )->loadRecursively();
+  }
   m_lastItemClickedOn = NULL;
 }
