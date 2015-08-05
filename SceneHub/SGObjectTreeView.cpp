@@ -7,21 +7,13 @@
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-SGObjectTreeView::SGObjectTreeView(QWidget * parent)
-: TreeView::TreeViewWidget(parent)
-{
+SGObjectTreeView::SGObjectTreeView(QWidget * parent) : TreeView::TreeViewWidget(parent) {
   //std::cerr << "SGObjectTreeView::SGObjectTreeView" << std::endl;
   setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_lastItemClickedOn = NULL;
 }
 
-SGObjectTreeView::~SGObjectTreeView()
-{
-  //std::cerr << "SGObjectTreeView::~SGObjectTreeView" << std::endl;
-}
-
-void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView::TreeItem * item)
-{
+void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView::TreeItem * item) {
   //std::cerr << "SGObjectTreeView::showCustomContextMenu" << std::endl;
   m_lastItemClickedOn = item;
 
@@ -31,8 +23,8 @@ void SGObjectTreeView::showCustomContextMenu(const QPoint & globalPos, TreeView:
   menu->popup(globalPos);
 }
 
-void SGObjectTreeView::contextMenuTriggered(QAction * action)
-{
+void SGObjectTreeView::contextMenuTriggered(QAction * action) {
+
   std::cerr << "SGObjectTreeView::contextMenuTriggered" << std::endl;
   if(m_lastItemClickedOn == NULL)
     return;

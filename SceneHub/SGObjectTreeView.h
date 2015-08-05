@@ -11,37 +11,28 @@
 
 namespace FabricUI
 {
-
   namespace SceneHub
   {
     class SGObjectTreeView : public TreeView::TreeViewWidget
     {
       Q_OBJECT
-
       friend class SGObjectTreeItem;
 
-    public:
+      public:
+        SGObjectTreeView(QWidget * parent);
+        virtual ~SGObjectTreeView() {};
+        virtual void showCustomContextMenu(const QPoint & globalPos, TreeView::TreeItem * item);
 
-      SGObjectTreeView(QWidget * parent);
-      virtual ~SGObjectTreeView();
+      public slots:
+        void contextMenuTriggered(QAction * action);
 
-      virtual void showCustomContextMenu(const QPoint & globalPos, TreeView::TreeItem * item);
+      signals:
+        void itemExpanded(FabricUI::TreeView::TreeItem *);
 
-    public slots:
-
-      void contextMenuTriggered(QAction * action);
-
-    signals:
-
-      void itemExpanded(FabricUI::TreeView::TreeItem *);
-
-    private:
-
-      TreeView::TreeItem * m_lastItemClickedOn;
+      private:
+        TreeView::TreeItem * m_lastItemClickedOn;
     };
-
   };
-
 };
 
 #endif // __UI_SceneHub_SGObjectTreeView__
