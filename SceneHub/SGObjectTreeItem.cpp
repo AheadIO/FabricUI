@@ -40,6 +40,19 @@ QString SGObjectTreeItem::type() const
   return "SGObject";
 }
 
+FabricCore::RTVal SGObjectTreeItem::getSGObject() {
+ FabricCore::RTVal val;
+  try
+  {
+   val = m_rtVal.callMethod("SGObject", "getObject", 0, 0);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+ return val;
+}
+
 void SGObjectTreeItem::updateChildrenCount() {
 
   try {
@@ -129,7 +142,7 @@ void SGObjectTreeItem::updateRecursively() {
 void SGObjectTreeItem::loadRecursively() {
   try
   {
-    FabricCore::RTVal sgObject = m_rtVal.callMethod("SGObject", "getObject", 0, 0);
+    FabricCore::RTVal sgObject = getSGObject();
     sgObject.callMethod("", "forceHierarchyExpansion", 0, 0);
 
     emit ((SGObjectTreeModel*)model())->itemChanged(this);

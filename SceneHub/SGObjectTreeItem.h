@@ -33,6 +33,8 @@ namespace FabricUI
 
       void updateChildrenCount();
 
+      FabricCore::RTVal getSGObject();
+
     protected:
 
       SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
