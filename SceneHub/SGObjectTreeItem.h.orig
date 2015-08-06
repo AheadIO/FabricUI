@@ -21,10 +21,16 @@ namespace FabricUI
 
     public:
 
-      static SGObjectTreeItem * Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
+      static SGObjectTreeItem * Create(
+        SGObjectTreeView * view,
+        FTL::StrRef name,
+        FabricCore::Client * client,
+        FabricCore::RTVal sgObject
+        );
       virtual ~SGObjectTreeItem();
 
-      virtual QString type() const;
+      virtual FTL::CStrRef type() const { return FTL_STR("SGObject"); }
+
       virtual unsigned int numChildren();
       virtual void loadRecursively();
 
@@ -37,9 +43,18 @@ namespace FabricUI
 
     protected:
 
+<<<<<<< HEAD
       SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser);
       void createChildrenIfNotDone();
       void updateRecursively();
+=======
+      SGObjectTreeItem(
+        SGObjectTreeView * view,
+        FTL::StrRef name,
+        FabricCore::Client * client,
+        FabricCore::RTVal browser
+        );
+>>>>>>> origin
 
       FabricCore::Client * m_client;
       FabricCore::RTVal m_rtVal;
