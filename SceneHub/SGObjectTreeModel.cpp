@@ -1,5 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
+/*
 #include "SGObjectTreeModel.h"
 #include "SGObjectTreeItem.h"
 #include <iostream>
@@ -31,3 +31,4 @@ void SGObjectTreeModel::onSceneHierarchyChanged()
   for( unsigned int i = 0; i < roots.size(); ++i )
     roots[i]->updateRecursively();
 }
+*/

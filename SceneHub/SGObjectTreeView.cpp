@@ -1,5 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
+/*
 #include "SGObjectTreeView.h"
 #include "SGObjectTreeItem.h"
 #include <QtGui/QMenu>
@@ -49,3 +49,4 @@ void SGObjectTreeView::contextMenuTriggered(QAction * action) {
   }
   m_lastItemClickedOn = NULL;
 }
+*/

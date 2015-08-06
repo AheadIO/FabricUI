@@ -1,5 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
+/*
 #ifndef __UI_SceneHub_SGObjectTreeModel__
 #define __UI_SceneHub_SGObjectTreeModel__
 
@@ -36,4 +36,6 @@ namespace FabricUI
 
 };
 
+
 #endif // __UI_SceneHub_SGObjectTreeModel__
+*/

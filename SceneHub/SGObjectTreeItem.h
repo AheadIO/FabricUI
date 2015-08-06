@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+/*
 #ifndef __UI_SceneHub_SGObjectTreeItem__
 #define __UI_SceneHub_SGObjectTreeItem__
 
@@ -24,7 +25,7 @@ namespace FabricUI
       static SGObjectTreeItem * Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject);
       virtual ~SGObjectTreeItem();
 
-      virtual QString type() const;
+      //virtual QString type() const;
       virtual unsigned int numChildren();
       virtual void loadRecursively();
 
@@ -52,3 +53,4 @@ namespace FabricUI
 };
 
 #endif // __UI_SceneHub_SGObjectTreeItem__
+*/

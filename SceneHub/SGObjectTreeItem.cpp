@@ -1,5 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
+/*
 #include "SGObjectTreeItem.h"
 #include "SGObjectTreeView.h"
 #include "SGObjectTreeModel.h"
@@ -166,3 +166,4 @@ TreeView::TreeItem * SGObjectTreeItem::child( QString path )
   createChildrenIfNotDone();
   return TreeView::TreeItem::child(path);
 }
+*/
