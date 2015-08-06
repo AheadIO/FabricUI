@@ -16,7 +16,6 @@ using namespace FabricUI::SceneHub;
 
 
 SGGeometryManagerDialog::SGGeometryManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
-  std::cerr << "SGGeometryManagerDialog::SGGeometryManagerDialog" << std::endl;
   init(parent, client, testObject);
   m_colorButton = new QPushButton("Color");
   m_closeButton = new QPushButton("Close");

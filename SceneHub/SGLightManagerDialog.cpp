@@ -17,7 +17,6 @@ using namespace FabricUI::SceneHub;
 
 SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
 
-  std::cerr << "SGLightManagerDialog::SGLightManagerDialog" << std::endl;
   init(parent, client, testObject);
 
   m_colorButton = new QPushButton("Color");
@@ -28,9 +27,8 @@ SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *
   m_intensitySlider->setValue(5);
 
   QVBoxLayout* mainLayout = new QVBoxLayout(this);
-  mainLayout->addWidget( m_intensitySlider );
   mainLayout->addWidget( m_colorButton );
- 
+  mainLayout->addWidget( m_intensitySlider);
   connect(m_colorButton, SIGNAL(clicked()), this, SLOT(showColorDialog()));
   connect(m_intensitySlider, SIGNAL(valueChanged(int)), this, SLOT(updateLightProperties()));
   connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -39,30 +37,18 @@ SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *
 // ***********
 
 void SGLightManagerDialog::showColorDialog() {
-  SGBaseManagerDialog::showColorDialog();
-  updateLightProperties();
+  if(SGBaseManagerDialog::showColorDialog());
+    updateLightProperties();
 }
 
 void SGLightManagerDialog::updateLightProperties() {
-  FabricCore::RTVal intensity = FabricCore::RTVal::ConstructFloat32(*m_client, float(m_intensitySlider->value()/10.0f));
   // Here we should be able to dynamically update the scene light
-  // if(!m_addLight)
-  // m_parent->update
-  /*
-     FABRIC_TRY("SGLightManagerDialog::setLightProperties",
-      // Get the click position
-      FabricCore::RTVal klViewportDim = m_viewport.callMethod("Vec2", "getDimensions", 0, 0);
-      FabricCore::RTVal klPos = FabricCore::RTVal::Construct(*m_client, "Vec2", 0, 0);
-      klPos.setMember("x", FabricCore::RTVal::ConstructFloat32(*m_client, float(m_glWidgetScreenPos.x())));
-      // We must inverse the y coordinate to match Qt/RTR viewport system of coordonates
-      klPos.setMember("y", FabricCore::RTVal::ConstructFloat32(*m_client, klViewportDim.maybeGetMember("y").getFloat32() - float(m_glWidgetScreenPos.y())));
-      
-      std::vector<FabricCore::RTVal> klParams(3); 
-      klParams[0] = FabricCore::RTVal::ConstructUInt32(*m_client, m_lightType);
-      klParams[1] = m_color;
-      klParams[2] = klPos;
-      m_testObject.callMethod("", "onAddLight", 3, &klParams[0]); 
-      close();
-    );
-  */
+   FABRIC_TRY("SGLightManagerDialog::updateLightProperties",
+    // Get the click position
+    std::vector<FabricCore::RTVal> klParams(2); 
+    klParams[0] = m_color;
+    klParams[1] = FabricCore::RTVal::ConstructFloat32(*m_client, float(m_intensitySlider->value()/10.0f));;
+    m_testObject.callMethod("", "onSetlightProperties", 2, &klParams[0]); 
+    m_parent->update();
+  );
 }

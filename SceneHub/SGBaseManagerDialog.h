@@ -31,7 +31,7 @@ namespace FabricUI
         virtual void mouseMoveEvent( QMouseEvent * );
         virtual void mouseReleaseEvent( QMouseEvent * );
         virtual void closeEvent( QCloseEvent * );
-        void showColorDialog();
+        bool showColorDialog();
 
         FabricCore::RTVal m_color;
         FabricCore::Client *m_client;
