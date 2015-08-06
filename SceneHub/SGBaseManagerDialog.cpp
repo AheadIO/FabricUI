@@ -39,6 +39,7 @@ bool SGBaseManagerDialog::init(QWidget* parent, FabricCore::Client *client, Fabr
   setMouseTracking( true );
   setFixedSize(400, 280);
   if(m_parent) move( m_parent->mapToGlobal( m_parent->rect().center() ) );
+  setWindowFlags(Qt::WindowStaysOnTopHint);
   return true;
 }
 
