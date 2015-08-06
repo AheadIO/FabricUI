@@ -37,6 +37,8 @@ bool SGObjectManagerDialog::init(QWidget* parent, FabricCore::Client *client, Fa
   FABRIC_TRY_RETURN("SGObjectManagerDialog::setLight", false, m_viewport = m_testObject.callMethod("Viewport2", "getViewport", 0, 0); );
   if(m_parent) move( m_parent->mapToGlobal( m_parent->rect().center() ) );
   setMouseTracking( true );
+  setFixedSize(400, 280);
+
   show();
   return true;
 }
