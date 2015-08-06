@@ -99,9 +99,25 @@ void DFGCombinedWidget::init(
         );
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
-      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(structureChanged()), this, SLOT(onStructureChanged()));
+
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
+        this, SLOT(onStructureChanged())
+        );
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
+        this, SLOT(onValueChanged())
+        );
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(varsChanged()),
+        m_treeWidget, SLOT(refresh())
+        );
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
+        this, SLOT(onValueChanged())
+        );
+
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
-      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(execPortRenamed(QString, QString)), this, SLOT(onExecPortRenamed(QString, QString)));
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
         this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(variablesChanged()), m_treeWidget, SLOT(refresh()));
@@ -247,7 +263,15 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
   if ( node->isBackDropNode() )
     return;
   
-  m_dfgValueEditor->setNodeName(node->name());
+  FabricUI::DFG::DFGController *dfgController =
+    m_dfgWidget->getUIController();
+
+  m_dfgValueEditor->setNode(
+    dfgController->getBinding(),
+    dfgController->getExecPath(),
+    dfgController->getExec(),
+    node->name()
+    );
 
   QList<int> s = m_hSplitter->sizes();
   if(s[2] == 0)

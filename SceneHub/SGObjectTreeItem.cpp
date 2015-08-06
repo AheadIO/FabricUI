@@ -8,7 +8,12 @@
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-SGObjectTreeItem * SGObjectTreeItem::Create(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal sgObject)
+SGObjectTreeItem * SGObjectTreeItem::Create(
+  SGObjectTreeView * view,
+  FTL::StrRef name,
+  FabricCore::Client * client,
+  FabricCore::RTVal sgObject
+  )
 {
   try
   {
@@ -22,8 +27,13 @@ SGObjectTreeItem * SGObjectTreeItem::Create(SGObjectTreeView * view, QString nam
   return NULL;
 }
 
-SGObjectTreeItem::SGObjectTreeItem(SGObjectTreeView * view, QString name, FabricCore::Client * client, FabricCore::RTVal browser)
-: TreeView::TreeItem(name)
+SGObjectTreeItem::SGObjectTreeItem(
+  SGObjectTreeView * view,
+  FTL::StrRef name,
+  FabricCore::Client * client,
+  FabricCore::RTVal browser
+  )
+  : TreeView::TreeItem( name )
 {
   m_view = view;
   m_client = client;
@@ -33,11 +43,6 @@ SGObjectTreeItem::SGObjectTreeItem(SGObjectTreeView * view, QString name, Fabric
 
 SGObjectTreeItem::~SGObjectTreeItem()
 {
-}
-
-QString SGObjectTreeItem::type() const
-{
-  return "SGObject";
 }
 
 FabricCore::RTVal SGObjectTreeItem::getSGObject() {

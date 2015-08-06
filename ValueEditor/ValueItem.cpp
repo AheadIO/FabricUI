@@ -7,8 +7,21 @@
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
 
-ValueItem::ValueItem(QString name, TreeEditorFactory * factory, FabricCore::Client * client, QWidget * parent, FabricCore::RTVal value, QString label, bool enabled)
-: WidgetTreeItem(name, factory, "ValueItem", label, parent)
+ValueItem::ValueItem(
+  FTL::StrRef name,
+  TreeEditorFactory * factory,
+  FabricCore::Client * client,
+  QWidget * parent,
+  FabricCore::RTVal value,
+  FTL::StrRef label,
+  bool enabled
+  )
+  : WidgetTreeItem(
+    name,
+    factory,
+    label,
+    parent
+    )
 {
   m_isSettingValue = false;
   m_value = value;

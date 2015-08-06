@@ -37,7 +37,7 @@ DFGLogWidget::DFGLogWidget( const DFGConfig & config )
   sLogWidgets.push_back(this);
 
   for(size_t i=0;i<sUnconsumedMessages.size();i++)
-    callback(NULL, sUnconsumedMessages[i].c_str(), 0);
+    log(sUnconsumedMessages[i].c_str());
   sUnconsumedMessages.clear();
 }
 
@@ -62,10 +62,17 @@ DFGLogWidget::~DFGLogWidget()
 
 void DFGLogWidget::log(const char * message)
 {
-  callback(NULL, message, 0);
+  callback( NULL, FabricCore::ReportSource_System,
+            FabricCore::ReportLevel_Info, message, 0 );
 }
 
-void DFGLogWidget::callback(void * userData, char const * stringData, uint32_t stringLength)
+void DFGLogWidget::callback(
+  void * userData, 
+  FabricCore::ReportSource source,
+  FabricCore::ReportLevel level,
+  char const * stringData,
+  uint32_t stringLength
+  )
 {
   if(sLogWidgets.size() > 0)
   {

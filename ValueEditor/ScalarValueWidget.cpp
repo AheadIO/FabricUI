@@ -161,7 +161,7 @@ void ScalarValueWidget::onEndInteraction()
 
 TreeEditorWidget * ScalarValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  ScalarValueWidget * widget = new ScalarValueWidget(item->label(), parent);
+  ScalarValueWidget * widget = new ScalarValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

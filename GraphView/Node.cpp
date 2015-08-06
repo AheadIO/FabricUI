@@ -508,7 +508,9 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
   if(event->modifiers().testFlag(Qt::AltModifier))
     return QGraphicsWidget::mousePressEvent(event);
 
-  if(event->button() == Qt::LeftButton || event->button() == DFG_QT_MIDDLE_MOUSE)
+  if ( event->button() == Qt::LeftButton
+    || event->button() == DFG_QT_MIDDLE_MOUSE
+    || event->button() == Qt::RightButton )
   {
     m_dragButton = event->button();
 
@@ -525,6 +527,10 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
       for(size_t i=0;i<nodes.size();i++)
         m_graph->controller()->selectNode(nodes[i], true);
+    }
+    else if(event->button() == Qt::RightButton)
+    {
+      clearSelection = !selected();
     }
 
     m_dragging = 1;
@@ -567,21 +573,22 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
         );
     }
 
-    event->accept();
-  }
-  else if(event->button() == Qt::RightButton)
-  {
-    QMenu * menu = graph()->getNodeContextMenu(this);
-    if(menu)
+    if(event->button() == Qt::RightButton)
     {
-      menu->exec(QCursor::pos());
-      menu->deleteLater();
+      m_dragging = 0;
+      QMenu * menu = graph()->getNodeContextMenu(this);
+      if(menu)
+      {
+        menu->exec(QCursor::pos());
+        menu->deleteLater();
+      }
     }
-    else
-      QGraphicsWidget::mousePressEvent(event);
+
+    event->accept();
+    return;
   }
-  else
-    QGraphicsWidget::mousePressEvent(event);
+
+  QGraphicsWidget::mousePressEvent(event);
 }
 
 void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )

@@ -56,12 +56,12 @@ QString DFGSavePresetDialog::location() const
 void DFGSavePresetDialog::onItemSelected(FabricUI::TreeView::TreeItem * item)
 {
   if(item->type() == "NameSpace")
-    m_location = item->path();
+    m_location = item->path().c_str();
   else if(item->type() == "Preset")
   {
-    m_nameEdit->setText(item->name());
-    m_location = item->path();
-    m_location = m_location.left(m_location.length() - item->name().length() - 1);
+    m_nameEdit->setText(item->name().c_str());
+    m_location = item->path().c_str();
+    m_location = m_location.left(m_location.length() - item->name().size() - 1);
   }
 }
 
@@ -70,7 +70,7 @@ void DFGSavePresetDialog::onCustomContextMenuRequested(QPoint globalPos, FabricU
   if(item->type() != "NameSpace")
     return;
 
-  m_contextPath = item->path();
+  m_contextPath = item->path().c_str();
   if(m_contextPath.startsWith("Fabric.") || m_contextPath.startsWith("Variables.") || 
     m_contextPath == "Fabric" || m_contextPath == "Variables")
     return;

@@ -7,9 +7,14 @@
 #include <iostream>
 using namespace FabricUI::TreeView;
 
-WidgetTreeItem::WidgetTreeItem(QString name, TreeEditorFactory * factory, QString type, QString label, QWidget * parent)
-: TreeItem(name, type, label)
-, m_parent(parent)
+WidgetTreeItem::WidgetTreeItem(
+  FTL::StrRef name,
+  TreeEditorFactory * factory,
+  FTL::StrRef label,
+  QWidget * parent
+  )
+  : TreeItem(name, label)
+  , m_parent(parent)
 {
   //std::cerr << "WidgetTreeItem::WidgetTreeItem" << std::endl;
   m_editor = NULL;

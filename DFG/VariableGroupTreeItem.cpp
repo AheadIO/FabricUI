@@ -7,7 +7,7 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 VariableGroupTreeItem::VariableGroupTreeItem(char const * name, char const * path, FTL::JSONObject const * jsonObject, QStringList filters)
-: TreeView::TreeItem(name, "Variable")
+: TreeView::TreeItem(name)
 , m_filters(filters)
 {
   m_name = name;

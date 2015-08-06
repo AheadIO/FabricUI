@@ -123,6 +123,11 @@ DFGWidget::DFGWidget(
 
 DFGWidget::~DFGWidget()
 {
+  if ( m_uiController )
+    m_uiController->setRouter( 0 );
+
+  if ( m_router )
+    delete m_router;
 }
 
 GraphView::Graph * DFGWidget::getUIGraph()
@@ -219,7 +224,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
         needsSeparator = true;
       }
       
-      result->addAction("Rename");
+      result->addAction("Edit Title");
       result->addAction("Delete");
 
       if (!uiNode->isBackDropNode() )
@@ -433,8 +438,8 @@ dfgEntry {\n\
 
     std::string newNodeName =
       m_uiController->cmdImplodeNodes(
-        text.toUtf8().constData(),
-        nodeNames
+        nodeNames,
+        text.toUtf8().constData()
         );
 
     m_uiGraph->clearSelection();
@@ -738,8 +743,8 @@ void DFGWidget::onNodeAction(QAction * action)
 
     std::string newNodeName =
       m_uiController->cmdImplodeNodes(
-        text.toUtf8().constData(),
-        nodeNames
+        nodeNames,
+        text.toUtf8().constData()
         );
 
     m_uiGraph->clearSelection();
@@ -771,24 +776,14 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Set Comment")
   {
-    GraphView::NodeBubble * bubble = m_contextNode->bubble();
-    if(!bubble)
-    {
-      m_uiController->cmdSetNodeComment(m_contextNode->name(), " ");
-    }
-    else
-    {
-      QString text = bubble->text();
-      if(text.length() == 0)
-        m_uiController->cmdSetNodeComment(m_contextNode->name(), " ");
-    }
-
     onBubbleEditRequested(m_contextNode);
   }
   else if(action->text() == "Remove Comment")
   {
-    m_uiController->cmdSetNodeComment(m_contextNode->name(), NULL);
-    m_uiController->cmdSetNodeCommentExpanded(m_contextNode->name(), false);
+    m_uiController->setNodeCommentExpanded( m_contextNode->name(), false );
+    m_uiController->cmdSetNodeComment(
+      m_contextNode->name(), FTL::CStrRef()
+      );
   }
 
   m_contextNode = NULL;
@@ -890,14 +885,17 @@ void DFGWidget::onExecPortAction(QAction * action)
         }
       }
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
+      std::string uiComboStr;
       if(uiCombo.size() > 0)
+        uiComboStr = uiCombo.data();
+      if(uiComboStr.size() > 0)
       {
-        if(uiCombo[0] == '(')
-          uiCombo = uiCombo.substr(1);
-        if(uiCombo[uiCombo.size()-1] == ')')
-          uiCombo = uiCombo.substr(0, uiCombo.size()-1);
+        if(uiComboStr[0] == '(')
+          uiComboStr = uiComboStr.substr(1);
+        if(uiComboStr[uiComboStr.size()-1] == ')')
+          uiComboStr = uiComboStr.substr(0, uiComboStr.size()-1);
 
-        QStringList parts = QString(uiCombo.data()).split(',');
+        QStringList parts = QString(uiComboStr.c_str()).split(',');
         dialog.setHasCombo(true);
         dialog.setComboValues(parts);
       }
@@ -939,7 +937,7 @@ void DFGWidget::onExecPortAction(QAction * action)
         flat += ")";
         exec.setExecPortMetadata(portName, "uiCombo", flat.toUtf8().constData(), false);
       }
-      else if(uiCombo.size() > 0)
+      else if(uiComboStr.length() > 0)
       {
         exec.setExecPortMetadata(portName, "uiCombo", NULL, false);
       }
@@ -962,8 +960,6 @@ void DFGWidget::onExecPortAction(QAction * action)
           );
       }
       m_uiController->endInteraction();
-
-      emit m_uiController->structureChanged();
     }
     catch(FabricCore::Exception e)
     {
@@ -1071,8 +1067,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
           flat += ")";
           exec.setExecPortMetadata(portName.c_str(), "uiCombo", flat.toUtf8().constData(), false);
         }
-
-        emit m_uiController->structureChanged();
       }
       catch(FabricCore::Exception e)
       {
@@ -1127,23 +1121,33 @@ void DFGWidget::onKeyPressed(QKeyEvent * event)
 
 void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
 {
-  GraphView::NodeBubble * bubble = node->bubble();
-  bool visible = bubble->isVisible();
-  bool collapsed = bubble->collapsed();
-  bubble->show();
-  bubble->expand();
+  QString text;
+  bool visible = true;
+  bool collapsed = false;
 
-  QString text = bubble->text();
+  GraphView::NodeBubble * bubble = node->bubble();
+  if ( bubble )
+  {
+    text = bubble->text();
+    visible = bubble->isVisible();
+    collapsed = bubble->collapsed();
+    bubble->show();
+    bubble->expand();
+  }
+
   DFGGetTextDialog dialog(this, text);
   if ( dialog.exec() == QDialog::Accepted )
   {
-    text = dialog.text();
     m_uiController->cmdSetNodeComment(
       node->name(),
-      text.toUtf8().constData()
+      dialog.text().toUtf8().constData()
+      );
+    m_uiController->setNodeCommentExpanded(
+      node->name(),
+      true
       );
   }
-  else
+  else if ( bubble )
   {
     if ( collapsed )
       bubble->collapse();

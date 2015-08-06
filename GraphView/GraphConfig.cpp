@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include <FTL/Config.h>
 #include "GraphConfig.h"
+#include <FTL/Config.h>
 
 using namespace FabricUI::GraphView;
 
@@ -76,10 +76,14 @@ GraphConfig::GraphConfig()
   pinOutputUsesFullCircle = true;
   pinClickableDistance = 30.0f;
 
+  dimConnectionLines = true;
   connectionUsePinColor = true;
   connectionNodePortColorRatio = 0.75;
   connectionColor = QColor(130, 130, 130);
   connectionDefaultPen = QPen(connectionColor, 1.5);
+  connectionExposePen = QPen(connectionColor, 1.5);
+  connectionExposePen.setStyle(Qt::DotLine);
+  connectionExposeRadius = 50.0;
   connectionHoverPen = QPen(QColor(170, 170, 170), 2.0, Qt::SolidLine);
   connectionFixedTangentLength = 10.0f;
   connectionPercentualTangentLength = 45.0f;

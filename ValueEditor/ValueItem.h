@@ -19,8 +19,18 @@ namespace FabricUI
 
     public:
 
-      ValueItem(QString name, TreeView::TreeEditorFactory * factory, FabricCore::Client * client, QWidget * parent, FabricCore::RTVal value, QString label = "", bool enabled = true);
+      ValueItem(
+        FTL::StrRef name,
+        TreeView::TreeEditorFactory * factory,
+        FabricCore::Client * client,
+        QWidget * parent,
+        FabricCore::RTVal value,
+        FTL::StrRef label = FTL::StrRef(),
+        bool enabled = true
+        );
       virtual ~ValueItem();
+
+      virtual FTL::CStrRef type() const { return FTL_STR("ValueItem"); }
 
       FabricCore::RTVal &value()
         { return m_value; }

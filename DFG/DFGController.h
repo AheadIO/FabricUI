@@ -65,7 +65,6 @@ namespace FabricUI
       DFGUICmdHandler *getCmdHandler() const
         { return m_cmdHandler; }
 
-      void setClient( FabricCore::Client const &coreClient );
       void setHostBindingExec(
         FabricCore::DFGHost &host,
         FabricCore::DFGBinding &binding,
@@ -210,8 +209,8 @@ namespace FabricUI
         );
 
       std::string cmdImplodeNodes(
-        FTL::CStrRef desiredNodeName,
-        FTL::ArrayRef<FTL::CStrRef> nodeNames
+        FTL::ArrayRef<FTL::CStrRef> nodeNames,
+        FTL::CStrRef desiredNodeName
         );
 
       std::vector<std::string> cmdExplodeNode(
@@ -233,7 +232,7 @@ namespace FabricUI
         FTL::CStrRef comment
         );
 
-      void cmdSetNodeCommentExpanded(
+      void setNodeCommentExpanded(
         FTL::CStrRef nodeName, 
         bool expanded
         );
@@ -244,6 +243,8 @@ namespace FabricUI
         FTL::CStrRef oldName,
         FTL::CStrRef desiredNewName
         );
+
+      void cmdCut();
 
       void cmdPaste();
 
@@ -275,7 +276,6 @@ namespace FabricUI
 
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
-      virtual std::string exportJSON(char const *  path);
 
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
@@ -291,7 +291,8 @@ namespace FabricUI
 
       virtual void setLogFunc(LogFunc func);
 
-      virtual bool execute();
+      void execute();
+
       bool bindUnboundRTVals();
 
       virtual bool canConnectTo(
@@ -308,28 +309,119 @@ namespace FabricUI
 
       static QStringList getVariableWordsFromBinding(FabricCore::DFGBinding & binding, FTL::CStrRef currentExecPath);
 
+      void emitVarsChanged()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_varsChangedPending = true;
+        else
+          emit varsChanged();
+      }
+
       void emitArgsChanged()
-        { emit argsChanged(); }
-      void emitStructureChanged()
-        { emit structureChanged(); }
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_argsChangedPending = true;
+        else
+          emit argsChanged();
+      }
+
+      void emitArgValuesChanged()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_argValuesChangedPending = true;
+        else
+          emit argValuesChanged();
+      }
+
+      void emitDefaultValuesChanged()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_defaultValuesChangedPending = true;
+        else
+          emit defaultValuesChanged();
+      }
+
+      void emitDirty()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_dirtyPending = true;
+        else
+          emit dirty();
+      }
+
       void emitRecompiled()
-        { emit recompiled(); }
+      {
+        emit recompiled();
+      }
 
       void setBlockCompilations( bool blockCompilations );
+
+      class UpdateSignalBlocker
+      {
+      public:
+
+        UpdateSignalBlocker( DFGController *controller )
+          : m_controller( controller )
+        {
+          ++m_controller->m_updateSignalBlockCount;
+        }
+
+        ~UpdateSignalBlocker()
+        {
+          if ( --m_controller->m_updateSignalBlockCount == 0 )
+          {
+            if ( m_controller->m_varsChangedPending )
+            {
+              m_controller->m_varsChangedPending = false;
+              emit m_controller->varsChanged();
+            }
+            if ( m_controller->m_argsChangedPending )
+            {
+              m_controller->m_argsChangedPending = false;
+              emit m_controller->argsChanged();
+            }
+            if ( m_controller->m_argValuesChangedPending )
+            {
+              m_controller->m_argValuesChangedPending = false;
+              emit m_controller->argValuesChanged();
+            }
+            if ( m_controller->m_defaultValuesChangedPending )
+            {
+              m_controller->m_defaultValuesChangedPending = false;
+              emit m_controller->defaultValuesChanged();
+            }
+            if ( m_controller->m_dirtyPending )
+            {
+              m_controller->m_dirtyPending = false;
+              emit m_controller->dirty();
+            }
+          }
+        }
+
+      private:
+
+        DFGController *m_controller;
+      };
+
+      void emitNodeRemoved( FTL::CStrRef nodeName );
 
     signals:
 
       void hostChanged();
-      void bindingChanged();
+      void bindingChanged( FabricCore::DFGBinding const &newBinding );
       void execChanged();
+
+      void varsChanged();
       void argsChanged();
-      void structureChanged();
+      void argValuesChanged();
+      void defaultValuesChanged();
+      void dirty();
+
       void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void nodeDeleted(QString nodePath);
       void execPortRenamed(char const * path, char const * newName);
-      void dirty();
-      void variablesChanged();
+
+      void nodeRemoved( FTL::CStrRef nodePathFromRoot );
 
     public slots:
 
@@ -374,6 +466,13 @@ namespace FabricUI
       std::vector<std::string> m_presetNameSpaceDictSTL;
       std::vector<std::string> m_presetPathDictSTL;
       bool m_presetDictsUpToDate;
+
+      uint32_t m_updateSignalBlockCount;
+      bool m_varsChangedPending;
+      bool m_argsChangedPending;
+      bool m_argValuesChangedPending;
+      bool m_defaultValuesChangedPending;
+      bool m_dirtyPending;
     };
 
   };

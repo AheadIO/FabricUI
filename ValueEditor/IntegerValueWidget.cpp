@@ -284,7 +284,7 @@ void IntegerValueWidget::onEndInteraction()
 
 TreeEditorWidget * IntegerValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  IntegerValueWidget * widget = new IntegerValueWidget(item->label(), parent);
+  IntegerValueWidget * widget = new IntegerValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

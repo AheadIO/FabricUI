@@ -70,8 +70,8 @@ PresetTreeWidget::PresetTreeWidget(
     this, SLOT(refresh())
     );
   QObject::connect(
-    dfgController, SIGNAL(bindingChanged()),
-    this, SLOT(refresh())
+    dfgController, SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
+    this, SLOT(setBinding(FabricCore::DFGBinding const &))
     );
 
   if(setupContextMenu)
@@ -83,6 +83,13 @@ PresetTreeWidget::PresetTreeWidget(
 
 PresetTreeWidget::~PresetTreeWidget()
 {
+}
+
+void PresetTreeWidget::setBinding(
+  FabricCore::DFGBinding const &binding
+  )
+{
+  refresh();
 }
 
 void PresetTreeWidget::refresh()
@@ -239,7 +246,8 @@ void PresetTreeWidget::onContextMenuAction(QAction * action)
     try
     {
       FabricCore::DFGHost host = m_dfgController->getHost();
-      FTL::StrRef path = host.getPresetImportPathname(m_contextPath.toUtf8().constData());
+      FTL::StrRef path =
+        host.getPresetImportPathname( m_contextPath.c_str() );
       if(action->text() == "Open Folder")
       {
         if(!FTL::FSIsDir(path))

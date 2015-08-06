@@ -4,13 +4,13 @@
 
 using namespace FabricUI::TreeView;
 
-TreeItem::TreeItem(QString name, QString type, QString label)
+TreeItem::TreeItem(
+  FTL::StrRef name,
+  FTL::StrRef label
+  )
+  : m_name( name )
+  , m_label( !label.empty()? label: name )
 {
-  m_name = name;
-  m_label = label;
-  if(m_label.length() == 0)
-    m_label = m_name;
-  m_type = type;
   m_parent = NULL;
   m_model = NULL;
   m_index = 0;
@@ -42,26 +42,11 @@ void TreeItem::setEditable(bool state)
   m_editable = state;  
 }
 
-QString TreeItem::name() const
-{
-  return m_name;
-}
-
-QString TreeItem::label() const
-{
-  return m_label;
-}
-
-QString TreeItem::path() const
+std::string TreeItem::path() const
 {
   if(m_parent == NULL)
     return m_name;
   return m_parent->path() + "." + m_name;
-}
-
-QString TreeItem::type() const
-{
-  return m_type;
 }
 
 QColor TreeItem::foregroundColor() const
@@ -222,26 +207,23 @@ TreeItem * TreeItem::child(unsigned int i)
   return m_children[i];
 }
 
-TreeItem * TreeItem::child(QString path)
+TreeItem * TreeItem::child( FTL::StrRef path )
 {
-  int pos = path.indexOf('.');
-  QString left = path;
-  QString right;
-  if(pos > -1)
-  {
-    left = path.left(pos);
-    right = path.right(path.length()-pos-1);
-  }
+  FTL::StrRef::Split split = path.split('.');
+  if ( split.first.empty() )
+    return this;
 
-  for(size_t i=0;i<m_children.size();i++)
+  for ( size_t i = 0; i < m_children.size(); ++i )
   {
-    if(m_children[i]->name() == left)
+    if ( m_children[i]->name() == split.first )
     {
-      if(right.length() == 0)
+      if ( split.second.empty() )
         return m_children[i];
-      return m_children[i]->child(right);
+      else
+        m_children[i]->child( split.second );
     }
   }
+
   return NULL;
 }
 
@@ -297,7 +279,7 @@ QVariant TreeItem::data(int role)
   {
     case Qt::DisplayRole:
     {
-      return label();
+      return QString( label().c_str() );
     }
     case Qt::DecorationRole:
     {

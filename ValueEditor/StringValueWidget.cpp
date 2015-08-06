@@ -108,7 +108,7 @@ void StringValueWidget::onValueChangedInComboBox(int index)
 
 TreeEditorWidget * StringValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
 {
-  StringValueWidget * widget = new StringValueWidget(item->label(), parent);
+  StringValueWidget * widget = new StringValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;

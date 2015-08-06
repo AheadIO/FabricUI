@@ -25,7 +25,14 @@ namespace FabricUI
       virtual ~DFGLogWidget();
 
       static void log(const char * message);
-      static void callback(void * userData, char const * stringData, uint32_t stringLength);
+
+      static void callback(
+        void * userData, 
+        FabricCore::ReportSource source,
+        FabricCore::ReportLevel level,
+        char const * stringData,
+        uint32_t stringLength
+        );
       static void setLogFunc(DFGController::LogFunc func);
 
     public slots:

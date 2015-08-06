@@ -20,17 +20,19 @@ namespace FabricUI
 
     public:
 
-      VariablePathValueItem(QString name,
+      VariablePathValueItem(
+        FTL::StrRef name,
         TreeView::TreeEditorFactory * factory,
         FabricCore::Client * client,
         FabricCore::DFGBinding binding,
         FTL::CStrRef execPath,
         QWidget * parent,
         FabricCore::RTVal value,
-        QString label = "",
-        bool enabled = true);
+        FTL::StrRef label = FTL::StrRef(),
+        bool enabled = true
+        );
 
-      virtual QString type() const { return "VariablePath"; }
+      virtual FTL::CStrRef type() const { return FTL_STR("VariablePath"); }
 
       FabricCore::DFGBinding getDFGBinding() { return m_binding; }
       FTL::CStrRef getDFGExecPath() { return m_execPath.c_str(); }

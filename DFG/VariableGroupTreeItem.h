@@ -20,6 +20,8 @@ namespace FabricUI
 
       VariableGroupTreeItem(char const * name, char const * path, FTL::JSONObject const * jsonObject, QStringList filters = QStringList());
 
+      virtual FTL::CStrRef type() const { return FTL_STR("VariableGroup"); }
+
       virtual unsigned int numChildren();
 
       // filtering

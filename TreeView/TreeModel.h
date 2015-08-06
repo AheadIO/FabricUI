@@ -29,7 +29,7 @@ namespace FabricUI
       virtual void addItem(TreeItem * itemToAdd);
       virtual bool removeItem(TreeItem * itemToRemove);
       virtual TreeItem * item(unsigned int index);
-      virtual TreeItem * item(QString path);
+      virtual TreeItem * item( FTL::StrRef path );
       virtual void clear();
 
       // qt model implementation

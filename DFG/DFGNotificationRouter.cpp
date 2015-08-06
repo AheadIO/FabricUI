@@ -192,18 +192,18 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getStringOrEmpty( FTL_STR("newResolvedType") )
         );
     }
-    else if(descStr == FTL_STR("portMetadataChanged"))
+    else if(descStr == FTL_STR("nodePortMetadataChanged"))
     {
-      onExecPortMetadataChanged(
+      onNodePortMetadataChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
         );
     }
-    else if(descStr == FTL_STR("nodePortMetadataChanged"))
+    else if(descStr == FTL_STR("execPortMetadataChanged"))
     {
-      onNodePortMetadataChanged(
-        jsonObject->getString( FTL_STR("nodeName") ),
+      onExecPortMetadataChanged(
         jsonObject->getString( FTL_STR("portName") ),
         jsonObject->getString( FTL_STR("key") ),
         jsonObject->getString( FTL_STR("value") )
@@ -242,6 +242,23 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
       onExecExtDepsChanged(
         jsonObject->getString( FTL_STR("extDeps") )
         );
+    }
+    else if( descStr == FTL_STR("execPortDefaultValuesChanged") )
+    {
+      onExecPortDefaultValuesChanged(
+        jsonObject->getString( FTL_STR("portName") )
+        );
+    }
+    else if( descStr == FTL_STR("nodePortDefaultValuesChanged") )
+    {
+      onNodePortDefaultValuesChanged(
+        jsonObject->getString( FTL_STR("nodeName") ),
+        jsonObject->getString( FTL_STR("portName") )
+        );
+    }
+    else if ( descStr == FTL_STR("removedFromOwner") )
+    {
+      onRemovedFromOwner();
     }
     else
     {
@@ -345,7 +362,6 @@ void DFGNotificationRouter::onGraphSet()
       }
     }
 
-    m_dfgController->emitStructureChanged();
     m_dfgController->emitRecompiled();
   }
   catch ( FTL::JSONException je )
@@ -467,7 +483,6 @@ void DFGNotificationRouter::onNodeInserted(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -491,8 +506,9 @@ void DFGNotificationRouter::onNodeRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
+
+  m_dfgController->emitNodeRemoved( nodeName );
 }
 
 void DFGNotificationRouter::onNodePortInserted(
@@ -534,7 +550,6 @@ void DFGNotificationRouter::onNodePortInserted(
     uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -560,7 +575,6 @@ void DFGNotificationRouter::onNodePortRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -610,7 +624,6 @@ void DFGNotificationRouter::onExecPortInserted(
     uiGraph->addConnection(uiOutPort, uiInPort, false);
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -649,7 +662,6 @@ void DFGNotificationRouter::onExecPortRemoved(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -706,8 +718,6 @@ void DFGNotificationRouter::onPortsConnected(
   }
 
   m_dfgController->bindUnboundRTVals();
-  m_dfgController->emitArgsChanged();
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -763,8 +773,6 @@ void DFGNotificationRouter::onPortsDisconnected(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
-  m_dfgController->emitArgsChanged();
-  m_dfgController->emitStructureChanged();
   m_dfgController->emitRecompiled();
 }
 
@@ -1188,4 +1196,36 @@ void DFGNotificationRouter::onExecExtDepsChanged(
 {
   DFGWidget *dfgWidget = m_dfgController->getDFGWidget();
   dfgWidget->refreshExtDeps( extDeps );
+}
+
+void DFGNotificationRouter::onNodePortDefaultValuesChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName
+  )
+{
+  m_dfgController->emitDefaultValuesChanged();
+}
+
+void DFGNotificationRouter::onExecPortDefaultValuesChanged(
+  FTL::CStrRef portName
+  )
+{
+  m_dfgController->emitDefaultValuesChanged();
+}
+
+void DFGNotificationRouter::onRemovedFromOwner()
+{
+  FTL::StrRef execPath = m_dfgController->getExecPath();
+  if ( execPath.empty() )
+    return;
+
+  FTL::StrRef::Split split = execPath.rsplit('.');
+  std::string parentExecPath = split.first;
+
+  FabricCore::DFGBinding &binding = m_dfgController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec parentExec =
+    rootExec.getSubExec( parentExecPath.c_str() );
+
+  m_dfgController->setExec( parentExecPath, parentExec );
 }

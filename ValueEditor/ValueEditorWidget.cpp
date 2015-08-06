@@ -45,18 +45,28 @@ EditorConfig & ValueEditorWidget::config()
   return m_config;
 }
 
-ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, QString label, bool enabled, bool parentToRoot)
+ValueItem * ValueEditorWidget::addValue(
+  FTL::StrRef path,
+  FabricCore::RTVal value,
+  FTL::StrRef label,
+  bool enabled,
+  bool parentToRoot
+  )
 {
-  int pos = path.lastIndexOf('.');
-  QString left = path;
-  QString right;
-  if(pos > -1 && !parentToRoot)
+  FTL::StrRef left = path;
+  FTL::StrRef right;
+
+  if ( !parentToRoot )
   {
-    left = path.left(pos);
-    right = path.right(path.length()-pos-1);
+    FTL::StrRef::Split split = path.rsplit('.');
+    if ( !split.first.empty() )
+    {
+      left = split.first;
+      right = split.second;
+    }
   }
 
-  if(right.length() == 0)
+  if ( right.empty() )
   {
     TreeItem * item = m_treeModel->item(left);
     if(item != NULL)
@@ -126,18 +136,17 @@ ValueItem * ValueEditorWidget::addValue(QString path, FabricCore::RTVal value, Q
   return NULL;
 }
 
-ValueItem * ValueEditorWidget::addValue(QString path, ValueItem * newItem, bool enabled)
+ValueItem * ValueEditorWidget::addValue(
+  FTL::StrRef path,
+  ValueItem * newItem,
+  bool enabled
+  )
 {
-  int pos = path.lastIndexOf('.');
-  QString left = path;
-  QString right;
-  if(pos > -1)
-  {
-    left = path.left(pos);
-    right = path.right(path.length()-pos-1);
-  }
+  FTL::StrRef::Split split = path.rsplit('.');
+  FTL::StrRef left = split.first;
+  FTL::StrRef right = split.second;
 
-  if(right.length() == 0)
+  if ( right.empty() )
   {
     TreeItem * item = m_treeModel->item(left);
     if(item != NULL)
@@ -194,7 +203,7 @@ ValueItem * ValueEditorWidget::addValue(QString path, ValueItem * newItem, bool 
 }
 
 
-bool ValueEditorWidget::removeValue(QString path)
+bool ValueEditorWidget::removeValue( FTL::StrRef path )
 {
   TreeItem * item = m_treeModel->item(path);
   if(item == NULL)
@@ -209,7 +218,7 @@ bool ValueEditorWidget::removeValue(QString path)
   return true;
 }
 
-FabricCore::RTVal ValueEditorWidget::getValue(QString path)
+FabricCore::RTVal ValueEditorWidget::getValue( FTL::StrRef path )
 {
   ValueItem * item = (ValueItem *)m_treeModel->item(path);
   if(item == NULL)
