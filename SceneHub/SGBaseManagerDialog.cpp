@@ -1,6 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "SGObjectManagerDialog.h"
+#include "SGBaseManagerDialog.h"
 #include <QtGui/QMenu>
 #include <QtGui/QLayout>
 #include <QtGui/QKeyEvent>
@@ -16,12 +16,12 @@ using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
 
-SGObjectManagerDialog::SGObjectManagerDialog() {
-  std::cerr << "SGObjectManagerDialog::SGObjectManagerDialog" << std::endl;
+SGBaseManagerDialog::SGBaseManagerDialog() {
+  std::cerr << "SGBaseManagerDialog::SGBaseManagerDialog" << std::endl;
   setMouseTracking( true );
 }
 
-bool SGObjectManagerDialog::init(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
+bool SGBaseManagerDialog::init(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
   if(!client) return false;
   m_parent = parent;
   m_client = client;
@@ -34,20 +34,19 @@ bool SGObjectManagerDialog::init(QWidget* parent, FabricCore::Client *client, Fa
   klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
   m_color = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
 
-  FABRIC_TRY_RETURN("SGObjectManagerDialog::setLight", false, m_viewport = m_testObject.callMethod("Viewport2", "getViewport", 0, 0); );
-  if(m_parent) move( m_parent->mapToGlobal( m_parent->rect().center() ) );
+  FABRIC_TRY_RETURN("SGBaseManagerDialog::init", false, m_viewport = m_testObject.callMethod("Viewport2", "getViewport", 0, 0); );
+  setWindowTitle ("");
   setMouseTracking( true );
   setFixedSize(400, 280);
-
-  show();
+  if(m_parent) move( m_parent->mapToGlobal( m_parent->rect().center() ) );
   return true;
 }
 
 // ***********
 
-void SGObjectManagerDialog::showColorDialog() {
+void SGBaseManagerDialog::showColorDialog() {
   QColor color = QColorDialog::getColor(Qt::yellow, this);
-  FABRIC_TRY("SGObjectManagerDialog::showColorDialog",
+  FABRIC_TRY("SGBaseManagerDialog::showColorDialog",
     std::vector<FabricCore::RTVal> klColorRGBA(4); 
     klColorRGBA[0] = FabricCore::RTVal::ConstructFloat32(*m_client, float(color.redF()));
     klColorRGBA[1] = FabricCore::RTVal::ConstructFloat32(*m_client, float(color.greenF()));
@@ -57,11 +56,11 @@ void SGObjectManagerDialog::showColorDialog() {
   );
 }
 
-void SGObjectManagerDialog::mouseMoveEvent( QMouseEvent * e) {}
+void SGBaseManagerDialog::mouseMoveEvent( QMouseEvent * e) {}
 
-void SGObjectManagerDialog::mouseReleaseEvent( QMouseEvent * e) {}
+void SGBaseManagerDialog::mouseReleaseEvent( QMouseEvent * e) {}
 
-void SGObjectManagerDialog::closeEvent( QCloseEvent *e ) {
+void SGBaseManagerDialog::closeEvent( QCloseEvent *e ) {
   e->accept();
   if (!m_parent) return;
   QMouseEvent me( QEvent::MouseButtonRelease, QPoint(0,0), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);

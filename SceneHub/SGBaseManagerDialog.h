@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_SceneHub_SGObjectManagerDialog__
-#define __UI_SceneHub_SGObjectManagerDialog__
+#ifndef __UI_SceneHub_SGBaseManagerDialog__
+#define __UI_SceneHub_SGBaseManagerDialog__
 
 #include <QtCore/QPoint>
 #include <QtCore/QCoreApplication>
@@ -18,13 +18,13 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    class SGObjectManagerDialog : public QWidget
+    class SGBaseManagerDialog : public QWidget
     {
       Q_OBJECT
 
       public:
-        SGObjectManagerDialog();
-        virtual ~SGObjectManagerDialog() {};
+        SGBaseManagerDialog();
+        virtual ~SGBaseManagerDialog() {};
  
       protected:
         bool init(QWidget*, FabricCore::Client *, FabricCore::RTVal);
@@ -42,4 +42,4 @@ namespace FabricUI
   };
 };
 
-#endif // __UI_SceneHub_SGObjectManagerDialog__
+#endif // __UI_SceneHub_SGBaseManagerDialog__

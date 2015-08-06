@@ -16,12 +16,12 @@ using namespace FabricUI::SceneHub;
 
 
 SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
+
   std::cerr << "SGLightManagerDialog::SGLightManagerDialog" << std::endl;
   init(parent, client, testObject);
 
-  m_addLight = false;
   m_colorButton = new QPushButton("Color");
-  m_addButton = new QPushButton("Set");
+  m_closeButton = new QPushButton("Close");
   m_intensitySlider = new QSlider( Qt::Horizontal);
   m_intensitySlider->setMinimum(0);
   m_intensitySlider->setMaximum(10);
@@ -30,29 +30,16 @@ SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *
   QVBoxLayout* mainLayout = new QVBoxLayout(this);
   mainLayout->addWidget( m_intensitySlider );
   mainLayout->addWidget( m_colorButton );
-  mainLayout->addWidget( m_addButton );
  
   connect(m_colorButton, SIGNAL(clicked()), this, SLOT(showColorDialog()));
   connect(m_intensitySlider, SIGNAL(valueChanged(int)), this, SLOT(updateLightProperties()));
-  connect(m_addButton, SIGNAL(clicked()), this, SLOT(setLightProperties()));
-}
-
-void SGLightManagerDialog::setLightProperties(uint32_t lightType) {
-  m_addLight = false;
-  m_lightType = lightType;
-}
-
-void SGLightManagerDialog::addLight(uint32_t lightType, QPoint screenPos) {
-  m_addButton->setText("Add");
-  m_glWidgetScreenPos = screenPos;
-  m_lightType = lightType;
-  m_addLight = true;
+  connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 // ***********
 
 void SGLightManagerDialog::showColorDialog() {
-  SGObjectManagerDialog::showColorDialog();
+  SGBaseManagerDialog::showColorDialog();
   updateLightProperties();
 }
 
@@ -61,12 +48,8 @@ void SGLightManagerDialog::updateLightProperties() {
   // Here we should be able to dynamically update the scene light
   // if(!m_addLight)
   // m_parent->update
-}
-
-void SGLightManagerDialog::setLightProperties() {
-  if(m_addLight)
-  {
-    FABRIC_TRY("SGLightManagerDialog::setLightProperties",
+  /*
+     FABRIC_TRY("SGLightManagerDialog::setLightProperties",
       // Get the click position
       FabricCore::RTVal klViewportDim = m_viewport.callMethod("Vec2", "getDimensions", 0, 0);
       FabricCore::RTVal klPos = FabricCore::RTVal::Construct(*m_client, "Vec2", 0, 0);
@@ -81,6 +64,5 @@ void SGLightManagerDialog::setLightProperties() {
       m_testObject.callMethod("", "onAddLight", 3, &klParams[0]); 
       close();
     );
-  }
+  */
 }
-
