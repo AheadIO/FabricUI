@@ -7,7 +7,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
 #include <QtGui/QColorDialog>
-#include <QtGui/QFileDialog.h>
+#include <QtGui/QFileDialog>
 #include <iostream>
 #include "macros.h"
 #include <Core/Build.h>
@@ -51,7 +51,7 @@ void SGInstanceManagerDialog::showColorDialog() {
 FabricCore::RTVal SGInstanceManagerDialog::showFileDialog() {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), ".", tr("Files (*.abc *.fbx)"));
   FabricCore::RTVal rtFileName;
-  FABRIC_TRY_RETURN("SGInstanceManagerDialog::showFileDialog", false,
+  FABRIC_TRY_RETURN("SGInstanceManagerDialog::showFileDialog", FabricCore::RTVal(),
     rtFileName = FabricCore::RTVal::ConstructString(*m_client, fileName.toStdString().c_str());
   );
   return rtFileName;
