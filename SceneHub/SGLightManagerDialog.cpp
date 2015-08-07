@@ -37,7 +37,7 @@ SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *
 // ***********
 
 void SGLightManagerDialog::showColorDialog() {
-  if(SGBaseManagerDialog::showColorDialog());
+  if(SGBaseManagerDialog::showColorDialog())
     updateLightProperties();
 }
 
