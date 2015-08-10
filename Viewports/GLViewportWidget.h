@@ -68,8 +68,12 @@ namespace FabricUI
       virtual void resizeGL(int w, int h);
       virtual void paintGL();
 
-      void resetRTVals();
-      bool manipulateCamera(QInputEvent *event, bool requireModifier = true);
+      void resetRTVals( bool shouldUpdateGL = true );
+      bool manipulateCamera(
+        QInputEvent *event,
+        bool requireModifier = true,
+        bool shouldUpdateGL = true
+        );
 
       void mousePressEvent(QMouseEvent *event);
       void mouseMoveEvent(QMouseEvent *event);

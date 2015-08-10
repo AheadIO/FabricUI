@@ -52,7 +52,7 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
 
   m_fpsTimer.start();
   m_resizedOnce = false;
-  resetRTVals();
+  resetRTVals( false /*shouldUpdateGL*/ );
 }
 
 GLViewportWidget::~GLViewportWidget()
@@ -198,7 +198,7 @@ void GLViewportWidget::paintGL()
   emit redrawn();
 }
 
-void GLViewportWidget::resetRTVals()
+void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
 {
   try
   {
@@ -250,15 +250,19 @@ void GLViewportWidget::resetRTVals()
       Qt::NoButton,
       Qt::NoModifier
       );
-    manipulateCamera( &nullEvent, false );
+    manipulateCamera(
+      &nullEvent,
+      false, // requireModifier
+      false // shouldUpdateGL
+      );
   }
   catch(FabricCore::Exception e)
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
 
-  setUsingStage(m_usingStage);
-  setStageVisible(m_stageVisible);
+  setUsingStage( m_usingStage, shouldUpdateGL );
+  setStageVisible( m_stageVisible, shouldUpdateGL );
 }
 
 void GLViewportWidget::mousePressEvent(QMouseEvent *event)
@@ -297,7 +301,11 @@ void GLViewportWidget::wheelEvent(QWheelEvent *event)
   QGLWidget::wheelEvent(event);
 }
 
-bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier)
+bool GLViewportWidget::manipulateCamera(
+  QInputEvent *event,
+  bool requireModifier,
+  bool shouldUpdateGL
+  )
 {
   if(!event->modifiers().testFlag(Qt::AltModifier) && requireModifier)
     return false;
@@ -316,7 +324,8 @@ bool GLViewportWidget::manipulateCamera(QInputEvent *event, bool requireModifier
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
-  updateGL();
+  if ( shouldUpdateGL )
+    updateGL();
   return result;
 }
 
@@ -330,7 +339,10 @@ bool GLViewportWidget::isStageVisible()
   return m_stageVisible;
 }
 
-void GLViewportWidget::setUsingStage( bool usingStage, bool update )
+void GLViewportWidget::setUsingStage(
+  bool usingStage,
+  bool update
+  )
 {
   m_usingStage = usingStage;
   if(m_settings)
