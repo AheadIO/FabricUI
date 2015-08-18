@@ -13,10 +13,12 @@
 #include <FabricUI/GraphView/GraphConfig.h>
 #include <FabricUI/GraphView/CachingEffect.h>
 
+#include <math.h>
+
 using namespace FabricUI::GraphView;
 
 const float MainPanel::s_minZoom = 0.05f;
-const float MainPanel::s_maxZoom = 4.00f;
+const float MainPanel::s_maxZoom = 2.00f;
 const float MainPanel::s_minZoomForOne = 1.0f / 1.01f;
 const float MainPanel::s_maxZoomForOne = 1.01f;
 
@@ -225,8 +227,8 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {
-    QPointF delta = (event->pos() - m_lastPanPoint) * m_mouseAltZoomState;
-    float zoomFactor = 1.0f - 3.5 * (delta.y() - delta.x()) * m_mouseWheelZoomRate;
+    QPointF delta = event->pos() - m_lastPanPoint;
+    float zoomFactor = powf( 1.005f, delta.x() - delta.y() );
     performZoom( m_mouseAltZoomState * zoomFactor, m_lastPanPoint );
   }
   else
