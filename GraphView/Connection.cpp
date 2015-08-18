@@ -324,6 +324,17 @@ void Connection::dependencyMoved()
       currDstPoint - QPointF(tangentLength, 0), 
       currDstPoint
   );
+
+  // we draw the curve the other way as well to
+  // ensure that the polygon is closed in the top left.
+  // not doing this results in an open polygon, which 
+  // make the hover area for the curve very big.
+  path.cubicTo(
+      currDstPoint - QPointF(tangentLength, 0), 
+      currSrcPoint + QPointF(tangentLength, 0), 
+      currSrcPoint
+  );
+
   setPath(path);
 
   if(m_isExposedConnection)
