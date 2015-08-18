@@ -425,7 +425,9 @@ void DFGController::cmdSetArgType(
     );
 }
 
-bool DFGController::zoomCanvas(float zoom)
+bool DFGController::zoomCanvas(
+  float zoom
+  )
 {
   try
   {

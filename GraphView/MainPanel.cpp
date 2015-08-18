@@ -15,6 +15,11 @@
 
 using namespace FabricUI::GraphView;
 
+const float MainPanel::s_minZoom = 0.05f;
+const float MainPanel::s_maxZoom = 4.00f;
+const float MainPanel::s_minZoomForOne = 1.0f / 1.01f;
+const float MainPanel::s_maxZoomForOne = 1.01f;
+
 MainPanel::MainPanel(Graph * parent)
 : QGraphicsWidget(parent)
 {
@@ -71,27 +76,27 @@ float MainPanel::canvasZoom() const
 
 void MainPanel::setCanvasZoom(float state, bool quiet)
 {
-  if(state > 1.0)
-    state = 1.0;
-  if(state < 0.05)
-    state = 0.05f;
+  if(state > s_maxZoom)
+    state = s_maxZoom;
+  if(state < s_minZoom)
+    state = s_minZoom;
   if(m_mouseWheelZoomState == state)
     return;
-
-  QPointF cursorPos = m_mouseWheelZoomState * m_lastPanPoint;
 
   m_mouseWheelZoomState = state;
 
   QGraphicsView * graphicsView = graph()->scene()->views()[0];
-  if(m_mouseWheelZoomState == 1.0)
+  if ( state > s_minZoomForOne
+    && state < s_maxZoomForOne )
+  {
     graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, false);
+    m_itemGroup->setScale(1.0f);
+  }
   else
+  {
     graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-  m_itemGroup->setScale(m_mouseWheelZoomState);
-
-  QPointF newCursorPos = m_mouseWheelZoomState * m_lastPanPoint;
-  setCanvasPan(canvasPan() + cursorPos - newCursorPos);
+    m_itemGroup->setScale(state);
+  }
 
   update();
 
@@ -221,10 +226,8 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {
     QPointF delta = (event->pos() - m_lastPanPoint) * m_mouseAltZoomState;
-
     float zoomFactor = 1.0f - 3.5 * (delta.y() - delta.x()) * m_mouseWheelZoomRate;
-    float newZoomState = m_mouseAltZoomState * zoomFactor;
-    m_graph->controller()->zoomCanvas(newZoomState);
+    performZoom( m_mouseAltZoomState * zoomFactor, m_lastPanPoint );
   }
   else
     QGraphicsWidget::mouseMoveEvent(event);
@@ -252,14 +255,34 @@ void MainPanel::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     QGraphicsWidget::mouseMoveEvent(event);
 }
 
+void MainPanel::performZoom(
+  float newZoomState,
+  QPointF zoomCenter
+  )
+{
+  if ( newZoomState > s_maxZoom )
+    newZoomState = s_maxZoom;
+  else if ( newZoomState < s_minZoom )
+    newZoomState = s_minZoom;
+
+  QPointF oldItemGroupPos = mapToItem( m_itemGroup, zoomCenter );
+  float oldScale = m_itemGroup->scale();
+  m_itemGroup->setScale( newZoomState );
+  QPointF newItemPos = mapFromItem( m_itemGroup, oldItemGroupPos );
+  m_itemGroup->setScale( oldScale );
+  QPointF delta = newItemPos - zoomCenter;
+
+  m_graph->controller()->zoomCanvas( newZoomState );
+  m_graph->controller()->panCanvas( canvasPan() - delta );
+}
+
 void MainPanel::wheelEvent(QGraphicsSceneWheelEvent * event)
 {
-  if(m_manipulationMode == ManipulationMode_None)
+  if ( m_manipulationMode == ManipulationMode_None )
   {
-    m_lastPanPoint = event->pos();
     float zoomFactor = 1.0f + float(event->delta()) * m_mouseWheelZoomRate;
-    float newZoomState = m_mouseWheelZoomState * zoomFactor;
-    m_graph->controller()->zoomCanvas(newZoomState);
+    m_lastPanPoint = event->pos();
+    performZoom( m_mouseWheelZoomState * zoomFactor, event->pos() );
   }
 }
 

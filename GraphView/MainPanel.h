@@ -65,7 +65,19 @@ namespace FabricUI
       void canvasZoomChanged(float zoom);
       void canvasPanChanged(QPointF pos);
 
+    protected:
+
+      void performZoom(
+        float zoomFactor,
+        QPointF zoomCenter
+        );
+
     private:
+
+      static const float s_minZoom;
+      static const float s_maxZoom;
+      static const float s_minZoomForOne;
+      static const float s_maxZoomForOne;
 
       Graph * m_graph;
       float m_mouseWheelZoomRate;
