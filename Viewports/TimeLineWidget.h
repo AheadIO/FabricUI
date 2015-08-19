@@ -68,6 +68,9 @@ namespace FabricUI
         /// start or stop the playback ( act as a switch on the playing state )
         void play();
 
+        /// stop the playback
+        void pause();
+
         /// set the frame to the start of the current time slider range
         void goToStartFrame();
 

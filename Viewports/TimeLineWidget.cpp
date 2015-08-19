@@ -261,6 +261,14 @@ void TimeLineWidget::play()
   }
 }
 
+void TimeLineWidget::pause()
+{
+  if (m_timer->isActive() )
+  {
+    m_timer->stop();
+    m_playButton->setText(">");
+  }
+}
 
 void TimeLineWidget::goToStartFrame()
 {
