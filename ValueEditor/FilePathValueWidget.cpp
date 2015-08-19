@@ -62,9 +62,18 @@ void FilePathValueWidget::onBrowseClicked()
   else
     filter = filter + " files (*." + filter + ");;All files (*.*)";
 
-  filePath = QFileDialog::getSaveFileName(this, valueItem()->name().c_str(), info.dir().absolutePath(), filter);
-  if(filePath.isEmpty())
-    return;
+  QFileDialog fileDialog(this, valueItem()->name().c_str(), info.dir().absolutePath(), filter);
+  fileDialog.setFileMode(QFileDialog::AnyFile);
+  fileDialog.setOption(QFileDialog::DontConfirmOverwrite, true);
+  fileDialog.setLabelText(QFileDialog::Accept, "Accept");
+
+  if(fileDialog.exec())
+  {
+    QStringList fileNames;
+    fileNames = fileDialog.selectedFiles();
+    if(fileNames.length() > 0)
+      filePath = fileNames[0];
+  }
 
   stringVal = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), filePath.toUtf8().constData());
   m_value = FabricCore::RTVal::Create(*((ValueItem*)item())->client(), "FilePath", 1, &stringVal);
