@@ -1,7 +1,6 @@
 #include "TimeLineWidget.h"
 
 #include <QtGui/QMenu>
-#include <QtGui/QColorDialog>
 #include <QtGui/QInputDialog>
 
 #include <algorithm>
@@ -104,16 +103,21 @@ TimeLineWidget::TimeLineWidget()
 
   m_frameRateComboBox = new QComboBox(this);
   m_frameRateComboBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  m_frameRateComboBox->setMinimumWidth(80);
-  m_frameRateComboBox->setMaximumWidth(80);
+  m_frameRateComboBox->setMinimumWidth(90);
+  m_frameRateComboBox->setMaximumWidth(90);
   m_frameRateComboBox->setFrame(false);
   m_frameRateComboBox->setLayoutDirection(Qt::LeftToRight);
   m_frameRateComboBox->setEditable(false);
-  m_frameRateComboBox->addItem("max fps");
-  m_frameRateComboBox->addItem("12 fps");
-  m_frameRateComboBox->addItem("24 fps");
-  m_frameRateComboBox->addItem("48 fps");
-  m_frameRateComboBox->addItem("60 fps");
+  m_frameRateComboBox->addItem("max fps", QVariant(0.0));
+  m_frameRateComboBox->addItem("12.0 fps", QVariant(12.0));
+  m_frameRateComboBox->addItem("23.98 fps", QVariant(23.98));
+  m_frameRateComboBox->addItem("24.0 fps", QVariant(24.0));
+  m_frameRateComboBox->addItem("29.97 fps", QVariant(29.97));
+  m_frameRateComboBox->addItem("30.0 fps", QVariant(30.0));
+  m_frameRateComboBox->addItem("48.0 fps", QVariant(48.0));
+  m_frameRateComboBox->addItem("60.0 fps", QVariant(60.0));
+  m_frameRateComboBox->addItem("120.0 fps", QVariant(120.0));
+  m_frameRateComboBox->addItem("custom fps", QVariant(-1.0));
   layout()->addWidget(m_frameRateComboBox);
 
   m_loopingComBox = new QComboBox(this);
@@ -326,17 +330,25 @@ void TimeLineWidget::timerUpdate()
 
 void TimeLineWidget::frameRateChanged(int index)
 {
-  if (index == 0)
+  double fps = m_frameRateComboBox->itemData(index).toDouble();
+  if(fps == 0.0) // max fps
     m_timer->setInterval(1); // max fps
-  else if (index == 1)
-    m_timer->setInterval(83); // 12 fps
-  else if (index == 2)
-    m_timer->setInterval(42); // 24 fps
-  else if ( index == 3 )
-    m_timer->setInterval(21); // 48 fps
-  else if ( index == 4 )
-    m_timer->setInterval(17); // 60 fps
+  else if(fps == -1.0) // custom fps
+  {
+    bool ok;
+    double userFps = QInputDialog::getDouble(
+      this, tr("TimeLineWidget::getCustomFpS"), tr("Custom FPS"),
+      24.0, 1.0, 1000.0, 2, &ok );
+    if(ok)
+    {
+      fps = userFps;
+      m_frameRateComboBox->setItemText( index, 
+        "custom " + QString::number(fps) );
+    }
+  }
 
+  if(fps > 0.0)
+    m_timer->setInterval((int)(1000.0 / fps));
 }
 
 void TimeLineWidget::loopingChanged(int index)
