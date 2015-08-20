@@ -74,6 +74,8 @@ namespace FabricUI
       virtual void setColorAsGradient(QColor a, QColor b);
       QColor titleColor() const;
       virtual void setTitleColor(QColor col);
+      QColor fontColor() const;
+      virtual void setFontColor(QColor col);
       QPen defaultPen() const;
       QPen selectedPen() const;
       QString comment() const;
@@ -153,6 +155,7 @@ namespace FabricUI
       QColor m_colorA;
       QColor m_colorB;
       QColor m_titleColor;
+      QColor m_fontColor;
       QPen m_defaultPen;
       QPen m_selectedPen;
       QPen m_errorPen;

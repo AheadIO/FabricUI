@@ -2,6 +2,7 @@
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeLabel.h>
 #include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
 #include <FabricUI/GraphView/NodeBubble.h>
@@ -181,6 +182,25 @@ QColor Node::titleColor() const
 void Node::setTitleColor(QColor col)
 {
   m_titleColor = col;
+}
+
+QColor Node::fontColor() const
+{
+  return m_fontColor;
+}
+
+void Node::setFontColor(QColor col)
+{
+  if(m_fontColor == col)
+    return;
+
+  m_fontColor = col;
+  m_header->labelWidget()->setColor(m_fontColor, m_header->labelWidget()->highlightColor());
+
+  for(size_t i=0;i<m_pins.size();i++)
+  {
+    m_pins[i]->labelWidget()->setColor(m_fontColor, m_pins[i]->labelWidget()->highlightColor());
+  }
 }
 
 QPen Node::defaultPen() const

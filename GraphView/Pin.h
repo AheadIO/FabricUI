@@ -47,6 +47,7 @@ namespace FabricUI
       virtual std::string path() const;
 
       virtual char const * label() const;
+      PinLabel * labelWidget() { return m_label; }
       virtual PortType portType() const;
       QColor color() const;
       void setColor(QColor color, bool quiet = false, bool performUpdate = true);

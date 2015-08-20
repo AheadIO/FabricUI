@@ -443,6 +443,9 @@ void DFGNotificationRouter::onNodeInserted(
     FTL::CStrRef uiHeaderColor = subExec.getMetadata("uiHeaderColor");
     if(!uiHeaderColor.empty())
       onNodeMetadataChanged(nodeName, "uiHeaderColor", uiHeaderColor);
+    FTL::CStrRef uiTextColor = subExec.getMetadata("uiTextColor");
+    if(!uiTextColor.empty())
+      onNodeMetadataChanged(nodeName, "uiTextColor", uiTextColor);
     FTL::CStrRef uiTooltip = subExec.getMetadata("uiTooltip");
     if(!uiTooltip.empty())
       onNodeMetadataChanged(nodeName, "uiTooltip", uiTooltip);
@@ -461,6 +464,10 @@ void DFGNotificationRouter::onNodeInserted(
       exec.getNodeMetadata( nodeName.c_str(), "uiHeaderColor" );
     if ( !uiHeaderColor.empty() )
       onNodeMetadataChanged( nodeName, "uiHeaderColor", uiHeaderColor );
+    FTL::CStrRef uiTextColor =
+      exec.getNodeMetadata( nodeName.c_str(), "uiTextColor" );
+    if ( !uiTextColor.empty() )
+      onNodeMetadataChanged( nodeName, "uiTextColor", uiTextColor );
   }
 
   if ( FTL::JSONValue const *metadataJSONValue =
@@ -885,6 +892,23 @@ void DFGNotificationRouter::onNodeMetadataChanged(
         QColor color(r, g, b);
         uiNode->setTitleColor(color);
       }
+    }
+  }
+  else if(key == FTL_STR("uiTextColor"))
+  {
+    FTL::JSONStrWithLoc jsonStrWithLoc( value );
+    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
+      FTL::JSONValue::Decode( jsonStrWithLoc )
+      );
+    if ( jsonValue )
+    {
+      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+      int r = int(jsonObject->getFloat64( FTL_STR("r") ));
+      int g = int(jsonObject->getFloat64( FTL_STR("g") ));
+      int b = int(jsonObject->getFloat64( FTL_STR("b") ));
+
+      QColor color(r, g, b);
+      uiNode->setFontColor(color);
     }
   }
   else if(key == FTL_STR("uiTooltip"))

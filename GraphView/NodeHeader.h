@@ -30,6 +30,7 @@ namespace FabricUI
 
       Node * node();
       const Node * node() const;
+      NodeLabel * labelWidget() { return m_title; }
 
       void setTitle(QString const &title);
 
