@@ -108,7 +108,10 @@ namespace FabricUI
 
     private:
 
+      FabricCore::RTVal genRtVal(float r, float g, float b, float a);
+
       ColorPickerWidget * m_colorPicker;
+      std::string m_typeName;
       QLineEdit * m_lineEditR;
       QLineEdit * m_lineEditG;
       QLineEdit * m_lineEditB;

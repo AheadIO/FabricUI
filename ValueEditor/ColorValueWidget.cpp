@@ -129,22 +129,14 @@ void ColorValueWidget::onValueChangedInLineEdit()
   float g = m_lineEditG->text().toFloat();
   float b = m_lineEditB->text().toFloat();
   float a = m_lineEditA->text().toFloat();
-  m_value = FabricCore::RTVal::Construct(*((ValueItem*)item())->client(), "Color", 0, 0);
-  m_value.setMember("r", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), r));
-  m_value.setMember("g", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), g));
-  m_value.setMember("b", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), b));
-  m_value.setMember("a", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), a));
+  m_value = genRtVal(r, g, b, a);
   m_colorPicker->set(r, g, b, a);
   emit dataChanged();
 }
 
 void ColorValueWidget::onValueChangedColorPicker(float r, float g, float b, float a)
 {
-  m_value = FabricCore::RTVal::Construct(*((ValueItem*)item())->client(), "Color", 0, 0);
-  m_value.setMember("r", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), r));
-  m_value.setMember("g", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), g));
-  m_value.setMember("b", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), b));
-  m_value.setMember("a", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), a));
+  m_value = genRtVal(r, g, b, a);
   m_lineEditR->setText(QString::number(r));
   m_lineEditG->setText(QString::number(g));
   m_lineEditB->setText(QString::number(b));
@@ -155,11 +147,35 @@ void ColorValueWidget::onValueChangedColorPicker(float r, float g, float b, floa
 void ColorValueWidget::setValue(FabricCore::RTVal v)
 {
   ValueWidget::setValue(v);
+  m_typeName = v.getTypeName().getStringCString();
 
-  float r = value().maybeGetMember("r").getFloat32();
-  float g = value().maybeGetMember("g").getFloat32();
-  float b = value().maybeGetMember("b").getFloat32();
-  float a = value().maybeGetMember("a").getFloat32();
+  float r, g, b, a;
+  if(m_typeName == "Color")
+  {
+    r = value().maybeGetMember("r").getFloat32();
+    g = value().maybeGetMember("g").getFloat32();
+    b = value().maybeGetMember("b").getFloat32();
+    a = value().maybeGetMember("a").getFloat32();
+  }
+  else if(m_typeName == "RGB")
+  {
+    r = float(value().maybeGetMember("r").getUInt8()) / 255.0f;
+    g = float(value().maybeGetMember("g").getUInt8()) / 255.0f;
+    b = float(value().maybeGetMember("b").getUInt8()) / 255.0f;
+    a = 1.0;
+  }
+  else if(m_typeName == "RGBA" || m_typeName == "ARGB")
+  {
+    r = float(value().maybeGetMember("r").getUInt8()) / 255.0f;
+    g = float(value().maybeGetMember("g").getUInt8()) / 255.0f;
+    b = float(value().maybeGetMember("b").getUInt8()) / 255.0f;
+    a = float(value().maybeGetMember("a").getUInt8()) / 255.0f;
+  }
+  else
+  {
+    r = g = b = 0.0;
+    a = 1.0;
+  }
   m_lineEditR->setText(QString::number(r));
   m_lineEditG->setText(QString::number(g));
   m_lineEditB->setText(QString::number(b));
@@ -200,5 +216,34 @@ bool ColorValueWidget::canDisplay(WidgetTreeItem * item)
     return false;
 
   QString typeName = ((ValueItem*)item)->valueTypeName();
-  return typeName == "Color";
+  return typeName == "Color" || 
+    typeName == "RGB" ||
+    typeName == "RGBA" || 
+    typeName == "ARGB";
+}
+
+FabricCore::RTVal ColorValueWidget::genRtVal(float r, float g, float b, float a)
+{
+  FabricCore::RTVal val = FabricCore::RTVal::Construct(*((ValueItem*)item())->client(), m_typeName.c_str(), 0, 0);
+  if(m_typeName == "Color")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), r));
+    val.setMember("g", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), g));
+    val.setMember("b", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), b));
+    val.setMember("a", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), a));
+  }
+  else if(m_typeName == "RGB")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(r * 255.0f)));
+    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(g * 255.0f)));
+    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(b * 255.0f)));
+  }
+  else if(m_typeName == "RGBA" || m_typeName == "ARGB")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(r * 255.0f)));
+    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(g * 255.0f)));
+    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(b * 255.0f)));
+    val.setMember("a", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(a * 255.0f)));
+  }
+  return val;
 }
