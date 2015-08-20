@@ -45,6 +45,8 @@ namespace FabricUI
         );
       virtual ~DFGWidget();
 
+      DFGConfig & getConfig() { return m_dfgConfig; }
+
       DFGController *getDFGController()
         { return m_uiController.get(); }
 
@@ -80,7 +82,6 @@ namespace FabricUI
       void onSidePanelAction(QAction * action);
       void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
-      void onEditNodeTitle(FabricUI::GraphView::Node* node);
       void onKeyPressed(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 

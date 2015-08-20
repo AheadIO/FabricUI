@@ -10,6 +10,7 @@
 #include <FabricUI/DFG/Dialogs/DFGGetTextDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
+#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 #include <FabricUI/GraphView/NodeBubble.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -211,20 +212,25 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     bool needsSeparator = false;
     if(!isVarNode)
     {
-      if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
+      QString uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
+      if(uiDocUrl.length() == 0 && !uiNode->isBackDropNode())
       {
         FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-        QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
-        if(uiDocUrl.length() > 0)
-        {
-          result->addAction("Documentation");
-          result->addSeparator();
-        }
+        uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+      }
+      if(uiDocUrl.length() > 0)
+      {
+        result->addAction("Documentation");
+        result->addSeparator();
+      }
+
+      if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
+      {
         result->addAction("Edit");
         needsSeparator = true;
       }
       
-      result->addAction("Edit Title");
+      result->addAction("Properties");
       result->addAction("Delete");
 
       if (!uiNode->isBackDropNode() )
@@ -265,16 +271,6 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
           result->addSeparator();
           result->addAction("Reload Extension(s)");
         }
-        needsSeparator = true;
-      }
-      else
-      {
-        if(needsSeparator)
-        {
-          result->addSeparator();
-          needsSeparator = false;
-        }
-        result->addAction("Change color");
         needsSeparator = true;
       }
     }
@@ -507,8 +503,12 @@ void DFGWidget::onNodeAction(QAction * action)
   if(action->text() == "Documentation")
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-    QString uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    QString uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
+    if(uiDocUrl.length() == 0 && exec.getNodeType(nodeName) == FabricCore::DFGNodeType_Inst)
+    {
+      FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
+      uiDocUrl = subExec.getMetadata( "uiDocUrl" );
+    }
     if(uiDocUrl.length() > 0)
       QDesktopServices::openUrl(uiDocUrl);
   }
@@ -527,10 +527,6 @@ void DFGWidget::onNodeAction(QAction * action)
 
     maybeEditNode( subExecPath, subExec );
   }
-  else if(action->text() == "Edit Title")
-  {
-    onEditNodeTitle(m_contextNode);
-  }
   else if(action->text() == "Delete")
   {
     m_uiController->gvcDoRemoveNodes(m_contextNode);
@@ -546,6 +542,25 @@ void DFGWidget::onNodeAction(QAction * action)
     QString title = subExec.getTitle();
     if(title.toLower().endsWith(".dfg.json"))
       title = title.left(title.length() - 9);
+
+    FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
+    if(!uiNodeColor.empty())
+      subExec.setMetadata("uiNodeColor", uiNodeColor.c_str());
+    FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
+    if(!uiHeaderColor.empty())
+      subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str());
+    FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
+    if(!uiTextColor.empty())
+      subExec.setMetadata("uiTextColor", uiTextColor.c_str());
+    FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
+    if(!uiTooltip.empty())
+      subExec.setMetadata("uiTooltip", uiTooltip.c_str());
+    FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
+    if(!uiDocUrl.empty())
+      subExec.setMetadata("uiDocUrl", uiDocUrl.c_str());
+    FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
+    if(!uiAlwaysShowDaisyChainPorts.empty())
+      subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str());
 
     QString lastPresetFolder = title;
     if(getSettings())
@@ -671,6 +686,25 @@ void DFGWidget::onNodeAction(QAction * action)
 
         subExec.setTitle(name.toUtf8().constData());
 
+        FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
+        if(!uiNodeColor.empty())
+          subExec.setMetadata("uiNodeColor", uiNodeColor.c_str());
+        FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
+        if(!uiHeaderColor.empty())
+          subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str());
+        FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
+        if(!uiTextColor.empty())
+          subExec.setMetadata("uiTextColor", uiTextColor.c_str());
+        FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
+        if(!uiTooltip.empty())
+          subExec.setMetadata("uiTooltip", uiTooltip.c_str());
+        FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
+        if(!uiDocUrl.empty())
+          subExec.setMetadata("uiDocUrl", uiDocUrl.c_str());
+        FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
+        if(!uiAlwaysShowDaisyChainPorts.empty())
+          subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str());
+
         // copy all defaults
         for(unsigned int i=0;i<subExec.getExecPortCount();i++)
         {
@@ -768,11 +802,11 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->reloadExtensionDependencies(nodeName);
   }
-  else if(action->text() == "Change color")
+  else if(action->text() == "Properties")
   {
-    QColor color = m_contextNode->color();
-    color = QColorDialog::getColor(color, this);
-    m_uiController->tintBackDropNode((GraphView::BackDropNode*)m_contextNode, color);
+    DFGNodePropertiesDialog dialog( this, m_uiController.get(), nodeName, m_dfgConfig );
+    if(!dialog.exec())
+      return;
   }
   else if(action->text() == "Set Comment")
   {
@@ -1089,25 +1123,6 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
   if(name == "PanGraph")
   {
     m_uiGraph->mainPanel()->setSpaceBarDown(false);
-  }
-}
-
-void DFGWidget::onEditNodeTitle(
-  FabricUI::GraphView::Node *node
-  )
-{
-  DFGGetStringDialog dialog(
-    this,
-    QString( node->title().c_str() ),
-    m_dfgConfig
-    );
-  if ( dialog.exec() == QDialog::Accepted )
-  {
-    QString text = dialog.text();
-    m_uiController->cmdSetNodeTitle(
-      node->name(),
-      text.toUtf8().constData()
-      );
   }
 }
 

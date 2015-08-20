@@ -210,6 +210,32 @@ void DFGController::setNodeCommentExpanded(
     );
 }
 
+void DFGController::setNodeToolTip(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newToolTip
+  )
+{
+  m_exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiTooltip",
+    newToolTip.c_str(),
+    false
+    );
+}
+
+void DFGController::setNodeDocUrl(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef newDocUrl
+  )
+{
+  m_exec.setNodeMetadata(
+    nodeName.c_str(),
+    "uiDocUrl",
+    newDocUrl.c_str(),
+    false
+    );
+}
+
 bool DFGController::gvcDoAddInstFromPreset(
   FTL::CStrRef presetPath,
   QPointF pos
@@ -563,8 +589,9 @@ bool DFGController::relaxNodes(QStringList paths)
   return true;
 }
 
-bool DFGController::tintBackDropNode(
-  GraphView::BackDropNode * node,
+bool DFGController::setNodeColor(
+  const char * nodeName,
+  const char * key,
   QColor color
   )
 {
@@ -590,8 +617,8 @@ bool DFGController::tintBackDropNode(
 
     FabricCore::DFGExec &exec = getExec();
     exec.setNodeMetadata(
-      node->name().c_str(),
-      "uiNodeColor",
+      nodeName,
+      key,
       uiNodeColorString.c_str(),
       false
       );
@@ -602,6 +629,21 @@ bool DFGController::tintBackDropNode(
     return false;
   }
   return true;
+}
+
+bool DFGController::setNodeBackgroundColor(const char * nodeName, QColor color)
+{
+  return setNodeColor(nodeName, "uiNodeColor", color);
+}
+
+bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
+{
+  return setNodeColor(nodeName, "uiHeaderColor", color);
+}
+
+bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
+{
+  return setNodeColor(nodeName, "uiTextColor", color);
 }
 
 std::string DFGController::copy()

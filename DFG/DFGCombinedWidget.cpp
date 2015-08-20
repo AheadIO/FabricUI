@@ -5,6 +5,7 @@
 
 #include "DFGCombinedWidget.h"
 #include <FabricUI/Style/FabricStyle.h>
+#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 
 using namespace FabricUI::DFG;
 
@@ -224,7 +225,11 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
     if(nodes.size() > 0)
-      m_dfgWidget->onEditNodeTitle(nodes[0]);
+    {
+      DFGNodePropertiesDialog dialog( this, m_dfgWidget->getUIController(), nodes[0]->name().c_str(), m_dfgWidget->getConfig() );
+      if(!dialog.exec())
+        return;
+    }
   }
   else if(hotkey == "relax nodes")
   {

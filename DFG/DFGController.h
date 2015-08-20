@@ -237,6 +237,16 @@ namespace FabricUI
         bool expanded
         );
 
+      void setNodeToolTip(
+        FTL::CStrRef nodeName, 
+        FTL::CStrRef newToolTip
+        );
+
+      void setNodeDocUrl(
+        FTL::CStrRef nodeName, 
+        FTL::CStrRef newDocUrl
+        );
+
       void cmdSetCode( FTL::CStrRef code );
 
       std::string cmdRenameExecPort(
@@ -280,7 +290,10 @@ namespace FabricUI
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
-      virtual bool tintBackDropNode(GraphView::BackDropNode * node, QColor color);
+      virtual bool setNodeBackgroundColor(const char * nodeName, QColor color);
+      virtual bool setNodeHeaderColor(const char * nodeName, QColor color);
+      virtual bool setNodeTextColor(const char * nodeName, QColor color);
+      virtual bool setNodeColor(const char * nodeName, const char * key, QColor color);
 
       virtual std::string copy();
 
