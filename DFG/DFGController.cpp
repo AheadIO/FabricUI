@@ -711,12 +711,12 @@ void DFGController::cmdPaste()
 
 bool DFGController::reloadExtensionDependencies(char const * path)
 {
-  FabricCore::DFGExec &exec = getExec();
+  FabricCore::DFGExec exec = getExec();
   FTL::StrRef pathRef(path);
   if(pathRef.size() > 0)
     exec = exec.getSubExec(path);
 
-  if(exec.isValid())
+  if(!exec.isValid())
     return false;
 
   for(unsigned int i = 0; i < exec.getExtDepCount(); i++ )
