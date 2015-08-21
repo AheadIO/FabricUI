@@ -534,10 +534,24 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
   {
     m_dragButton = event->button();
 
+    Node * hitNode = this;
+    // apparently qt doesn't cast again on right
+    // mouse button, so contextual menus are off.
+    std::vector<Node *> nodes = graph()->nodes();
+    for(size_t i=0;i<nodes.size();i++)
+    {
+      QPointF pos = mapToItem(nodes[i], event->pos());
+      if(nodes[i]->rect().contains(pos))
+      {
+        hitNode = nodes[i];
+        break;
+      }
+    }
+
     bool clearSelection = true;
     if(event->button() == DFG_QT_MIDDLE_MOUSE)
     {
-      std::vector<Node*> nodes = upStreamNodes();
+      std::vector<Node*> nodes = hitNode->upStreamNodes();
 
       if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
       {
@@ -550,24 +564,24 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
     else if(event->button() == Qt::RightButton)
     {
-      clearSelection = !selected();
+      clearSelection = !hitNode->selected();
     }
 
-    m_dragging = 1;
+    m_dragging = event->button() == Qt::RightButton ? 0 : 1;
 
-    if(!selected())
+    if(!hitNode->selected())
     {
       m_graph->controller()->beginInteraction();
 
       if(clearSelection && !event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
         m_graph->controller()->clearSelection();
-      m_graph->controller()->selectNode(this, true);
+      m_graph->controller()->selectNode(hitNode, true);
 
       m_graph->controller()->endInteraction();
     }
     else if(event->modifiers().testFlag(Qt::ControlModifier))
     {
-      m_graph->controller()->selectNode(this, false);
+      m_graph->controller()->selectNode(hitNode, false);
     }
 
     m_nodesToMove = m_graph->selectedNodes();
@@ -595,8 +609,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     if(event->button() == Qt::RightButton)
     {
-      m_dragging = 0;
-      QMenu * menu = graph()->getNodeContextMenu(this);
+      QMenu * menu = graph()->getNodeContextMenu(hitNode);
       if(menu)
       {
         menu->exec(QCursor::pos());
