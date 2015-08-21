@@ -37,6 +37,7 @@ Graph::Graph(
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
   m_nodeToolbar = NULL;
+  m_overlayItem = NULL;
 }
 
 void Graph::initialize()
@@ -479,6 +480,41 @@ MouseGrabber * Graph::getMouseGrabber()
 void Graph::resetMouseGrabber()
 {
   m_mouseGrabber = NULL;
+}
+
+void Graph::updateOverlays(float width, float height)
+{
+  if(m_overlayItem == NULL)
+    return;
+
+  QPointF pos = m_overlayPos;
+  if(pos.x() < 0.0f) 
+  {
+    if(m_rightPanel)
+      pos.setX(width + pos.x() - m_rightPanel->rect().width());
+    else
+      pos.setX(width + pos.x());
+  }
+  else if(m_leftPanel)
+  {
+    pos.setX(pos.x() + m_leftPanel->rect().width());
+  }
+  
+  if(pos.y() < 0.0) pos.setY(height + pos.y());
+
+  m_overlayItem->setPos(pos);
+}
+
+void Graph::setupBackgroundOverlay(QPointF pos, QString filePath)
+{
+  m_overlayPos = pos;
+  m_overlayPixmap = QPixmap(filePath);  
+  if(m_overlayItem == NULL)
+    m_overlayItem = new QGraphicsPixmapItem(m_overlayPixmap, this);
+  else
+    m_overlayItem->setPixmap(m_overlayPixmap);
+  m_overlayItem->setZValue(2000);
+  updateOverlays(rect().width(), rect().height());
 }
 
 void Graph::defineHotkey(Qt::Key key, Qt::KeyboardModifier modifiers, QString name)

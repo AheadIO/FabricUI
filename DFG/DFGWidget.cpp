@@ -1283,6 +1283,13 @@ void DFGWidget::onExecChanged()
       m_uiGraphViewWidget->hide();
     }
 
+    if(!m_uiController->getClient().validateLicense())
+    {
+      QString filePath = getenv("FABRIC_DIR");
+      filePath += "/Resources/PoweredByFabric_black.png";
+      m_uiGraph->setupBackgroundOverlay(QPointF(-160, -70), filePath);
+    }
+
     // FE-4277
     emit onGraphSet(m_uiGraph);
   }

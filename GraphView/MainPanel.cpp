@@ -296,7 +296,5 @@ void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
     m_boundingRect = windowFrameRect();
   }
 
-  // QRectF rect = windowFrameRect();
-  // m_backGround->resize(rect.width(), rect.height());
   QGraphicsWidget::paint(painter, option, widget);
 }

@@ -129,6 +129,9 @@ namespace FabricUI
       virtual bool removeConnection(Connection * connection, bool quiet = false);
       virtual void resetMouseGrabber();
 
+      void updateOverlays(float width, float height);
+      void setupBackgroundOverlay(QPointF pos, QString filePath);
+
     public slots:
 
       virtual bool pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
@@ -201,6 +204,9 @@ namespace FabricUI
       void * m_portContextMenuCallbackUD;
       void * m_sidePanelContextMenuCallbackUD;
       bool m_isEditable;
+      QPointF m_overlayPos;
+      QPixmap m_overlayPixmap;
+      QGraphicsPixmapItem * m_overlayItem;
 
     };
 

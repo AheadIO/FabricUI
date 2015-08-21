@@ -40,7 +40,7 @@ namespace FabricUI
       virtual void keyPressEvent(QKeyEvent * event);
       virtual void keyReleaseEvent(QKeyEvent * event);
       QPoint lastEventPos() const;
-
+      
     public slots:
 
       void onSceneChanged();
