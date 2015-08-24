@@ -120,19 +120,19 @@ void DFGNodePropertiesDialog::onDocUrlChanged()
 
 void DFGNodePropertiesDialog::onNodeColorChanged(float r, float g, float b, float a)
 {
-  QColor col(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
+  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
   m_controller->setNodeBackgroundColor(m_nodeName.c_str(), col);
 }
 
 void DFGNodePropertiesDialog::onHeaderColorChanged(float r, float g, float b, float a)
 {
-  QColor col(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
+  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
   m_controller->setNodeHeaderColor(m_nodeName.c_str(), col);
 }
 
 void DFGNodePropertiesDialog::onTextColorChanged(float r, float g, float b, float a)
 {
-  QColor col(r * 255.0f, g * 255.0f, b * 255.0f, a * 255.0f);
+  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
   m_controller->setNodeTextColor(m_nodeName.c_str(), col);
 }
 
