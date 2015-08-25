@@ -107,7 +107,7 @@ void ValueItem::onBeginInteraction( ValueItem * item )
 {
   assert( !m_valueAtInteractionEnter );
   
-  m_valueAtInteractionEnter = m_value.clone();
+  m_valueAtInteractionEnter = m_value.copy();
 }
 
 void ValueItem::onEndInteraction( ValueItem * item )

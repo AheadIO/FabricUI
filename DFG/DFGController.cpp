@@ -1045,7 +1045,7 @@ void DFGController::cmdSetDefaultValue(
       execPath,
       exec,
       portPath,
-      value.clone()
+      value.copy()
       );
   }
 }
@@ -1064,7 +1064,7 @@ void DFGController::cmdSetArgValue(
     m_cmdHandler->dfgDoSetArgValue(
       m_binding,
       argName,
-      value.clone()
+      value.copy()
       );
   }
 }
@@ -1134,7 +1134,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
 
         exec.setPortDefaultValue(
           portPath.c_str(),
-          valueItem->value().clone(),
+          valueItem->value().copy(),
           false // canUndo
           );
       }
@@ -1151,7 +1151,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
       
       m_binding.setArgValue(
         argName.c_str(),
-        value.clone(),
+        value.copy(),
         false // canUndo
         );
     }

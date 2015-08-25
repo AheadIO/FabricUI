@@ -118,7 +118,7 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
           continue;
-        value = value.clone();
+        value = value.copy();
 
         ValueItem * item = addValue( portName, value, portName, true);
         if(item)
@@ -141,7 +141,7 @@ void DFGValueEditor::onArgsChanged()
         FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
           continue;
-        value = value.clone();
+        value = value.copy();
         addValue( portName, value, portName, false );
       }
     }
@@ -199,7 +199,7 @@ void DFGValueEditor::onArgsChanged()
               dataType.c_str()
               );
           if ( value.isValid() )
-            value = value.clone();
+            value = value.copy();
           else
           {
             bool isObject = FabricCore::GetRegisteredTypeIsObject(m_controller->getClient(), dataType.c_str());
@@ -359,7 +359,7 @@ void DFGValueEditor::updateOutputs()
         m_binding.getArgValue( item->name().c_str() );
       if ( !value.isExEQTo( item->value() ) )
       {
-        item->setValue( value.clone() );
+        item->setValue( value.copy() );
         m_treeModel->invalidateItem(item);
       }
     }
@@ -388,7 +388,7 @@ void DFGValueEditor::updateOutputs()
           );
       if ( !!value && !value.isExEQTo( valueItem->value() ) )
       {
-        valueItem->setValue( value.clone() );
+        valueItem->setValue( value.copy() );
         m_treeModel->invalidateItem( valueItem );
       }
     }
