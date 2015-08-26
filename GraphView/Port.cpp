@@ -190,6 +190,10 @@ bool Port::canConnectTo(
         failureReason
         );
     }
+    case TargetType_NodeHeader:
+    {
+      return true;
+    }
     default:
       return false;
   }

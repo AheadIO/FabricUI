@@ -15,9 +15,11 @@ NodeHeader::NodeHeader(
   Node * parent,
   QString const &text
   )
-: QGraphicsWidget(parent->mainWidget())
+: ConnectionTarget(parent->mainWidget())
 {
   m_node = parent;
+  m_inCircle = NULL;
+  m_outCircle = NULL;
   Graph * graph = m_node->graph();
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -26,17 +28,31 @@ NodeHeader::NodeHeader(
   float contentsMargins = graph->config().nodeHeaderContentMargins;
   float nodeWidthReduction = graph->config().nodeWidthReduction * 0.5;
 
-  layout->setContentsMargins(contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
+  // layout->setContentsMargins(contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
+  layout->setContentsMargins(nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
   layout->setSpacing(graph->config().nodeHeaderSpacing);
   layout->setOrientation(Qt::Horizontal);
   setLayout(layout);
 
   m_title = new NodeLabel(this, text, graph->config().nodeFontColor, graph->config().nodeFontHighlightColor, graph->config().nodeFont);
 
+  m_inCircle = new PinCircle(this, PortType_Input, m_node->color());
+  m_inCircle->setClipping(false);
+  layout->addItem(m_inCircle);
+  layout->setAlignment(m_inCircle, Qt::AlignLeft | Qt::AlignVCenter);
+
   layout->addStretch(1);
   layout->addItem(m_title);
   layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignTop);
   layout->addStretch(1);
+
+  m_outCircle = new PinCircle(this, PortType_Output, m_node->color());
+  m_outCircle->setClipping(false);
+  layout->addItem(m_outCircle);
+  layout->setAlignment(m_outCircle, Qt::AlignRight | Qt::AlignVCenter);
+
+  if(!m_node->graph()->config().nodeHeaderAlwaysShowPins)
+    setCirclesVisible(m_node->collapsedState() != Node::CollapseState_Expanded);
 }
 
 Node * NodeHeader::node()
@@ -62,4 +78,58 @@ bool NodeHeader::highlighted() const
 void NodeHeader::setHighlighted(bool state)
 {
   m_title->setHighlighted(state);
+}
+
+std::string NodeHeader::path() const
+{
+  return node()->name();
+}
+
+QPointF NodeHeader::connectionPos(PortType pType) const
+{
+  if(pType == PortType_Input)
+  {
+    if(m_inCircle)
+      return m_inCircle->centerInSceneCoords();
+  }
+  else
+  {
+    if(m_outCircle)
+      return m_outCircle->centerInSceneCoords();
+  }
+  return QPointF();
+}
+
+Graph * NodeHeader::graph()
+{
+  return node()->graph();
+}
+
+const Graph * NodeHeader::graph() const
+{
+  return node()->graph();
+}
+
+QColor NodeHeader::color() const
+{
+  return node()->color();
+}
+
+void NodeHeader::setColor(QColor col)
+{
+  if(m_inCircle)
+    m_inCircle->setColor(col);
+  if(m_outCircle)
+    m_outCircle->setColor(col);
+}
+
+bool NodeHeader::areCirclesVisible() const
+{
+  return m_outCircle->isVisible();
+}
+
+void NodeHeader::setCirclesVisible(bool visible)
+{
+  m_inCircle->setVisible(visible);
+  m_outCircle->setVisible(visible);
 }

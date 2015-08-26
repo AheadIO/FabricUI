@@ -14,6 +14,7 @@ namespace FabricUI
   namespace GraphView
   {
     // forward declarations
+    class Node;
     class Graph;
     class ConnectionTarget;
     class Connection;
@@ -58,9 +59,15 @@ namespace FabricUI
 
       void positionChanged(QPointF);
 
+    private slots:
+
+      void nodeHeaderMenuTriggered(QAction *);
+
     private:
 
       void showToolTip();
+      void invokeConnect(ConnectionTarget * source, ConnectionTarget * target);
+      void invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole, QPoint pos);
 
       QPointF m_connectionPos;
       ConnectionTarget * m_target;
@@ -68,6 +75,10 @@ namespace FabricUI
       float m_radius;
       Connection * m_connection;
       ConnectionTarget * m_targetUnderMouse;
+
+      Node * m_contextNode;
+      ConnectionTarget * m_contextOther;
+      PortType m_contextNodeRole;
     };
 
   };

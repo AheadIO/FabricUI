@@ -6,6 +6,8 @@
 #include <QtGui/QGraphicsWidget>
 #include <QtGui/QColor>
 #include <QtGui/QPen>
+#include "ConnectionTarget.h"
+#include "PinCircle.h"
 
 namespace FabricUI
 {
@@ -17,7 +19,7 @@ namespace FabricUI
     class NodeLabel;
     class NodeEditButton;
 
-    class NodeHeader : public QGraphicsWidget
+    class NodeHeader : public ConnectionTarget
     {
       Q_OBJECT
 
@@ -36,12 +38,33 @@ namespace FabricUI
 
       virtual bool highlighted() const;
       virtual void setHighlighted(bool state = true);
-      
+
+      virtual std::string path() const;
+
+      // ConnectionTarget
+      virtual bool canConnectTo(
+        ConnectionTarget * other,
+        std::string &failureReason
+        ) const { return true; }
+
+      virtual TargetType targetType() const { return TargetType_NodeHeader; }
+      virtual QPointF connectionPos(PortType pType) const;
+    
+      virtual Graph * graph();
+      virtual const Graph * graph() const;
+      virtual QColor color() const;
+      void setColor(QColor col);
+
+      bool areCirclesVisible() const;
+      void setCirclesVisible(bool visible);
+
     private:
 
       Node * m_node;
       NodeLabel * m_title;
       NodeEditButton * m_editButton;
+      PinCircle * m_inCircle;
+      PinCircle * m_outCircle;
     };
 
   };

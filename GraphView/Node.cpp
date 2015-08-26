@@ -30,6 +30,7 @@ Node::Node(
   , m_title( title )
   , m_bubble( NULL )
   , m_mainWidget( NULL )
+  , m_header( NULL )
 {
   m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
@@ -151,7 +152,8 @@ const NodeBubble * Node::bubble() const
 void Node::setTitle( FTL::CStrRef title )
 {
   m_title = title;
-  m_header->setTitle( QString( title.c_str() ) );
+  if(m_header)
+    m_header->setTitle( QString( title.c_str() ) );
 }
 
 QColor Node::color() const
@@ -170,6 +172,8 @@ void Node::setColorAsGradient(QColor a, QColor b)
   m_colorB = b;
   if(m_graph->config().nodeDefaultPenUsesNodeColor)
     m_defaultPen.setBrush(m_colorB.darker());
+  if(m_header)
+    m_header->setColor(a);
   if ( m_mainWidget )
     m_mainWidget->update();
 }
@@ -250,7 +254,11 @@ Node::CollapseState Node::collapsedState() const
 
 void Node::setCollapsedState(Node::CollapseState state)
 {
+  if(m_collapsedState == state)
+    return;
   m_collapsedState = state;
+  if(!m_graph->config().nodeHeaderAlwaysShowPins)
+    m_header->setCirclesVisible(state != CollapseState_Expanded);
   emit collapsedStateChanged(this, m_collapsedState);
   updatePinLayout();
   update();

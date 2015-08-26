@@ -251,6 +251,10 @@ bool Pin::canConnectTo(
         return false;
       return true;
     }
+    case TargetType_NodeHeader:
+    {
+      return true;
+    }
     default:
       return false;
   }

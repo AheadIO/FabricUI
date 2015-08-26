@@ -63,6 +63,7 @@ namespace FabricUI
       float nodeHeaderSpacing;
       float nodeHeaderSpaceTop;
       float nodeHeaderSpaceBottom;
+      bool nodeHeaderAlwaysShowPins;
       float nodeCornerRadius;
       float nodeSpaceAbovePorts;
       float nodeSpaceBelowPorts;

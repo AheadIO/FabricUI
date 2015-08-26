@@ -9,6 +9,8 @@
 #include <QtGui/QCursor>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsView>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
 
 using namespace FabricUI::GraphView;
 
@@ -19,6 +21,8 @@ MouseGrabber::MouseGrabber(Graph * parent, QPointF mousePos, ConnectionTarget * 
   m_target = target;
   m_otherPortType = portType;
   m_targetUnderMouse = NULL;
+  m_contextNode = NULL;
+  m_contextOther = NULL;
 
   const GraphConfig & config = parent->config();
   m_radius = config.mouseGrabberRadius;
@@ -176,20 +180,6 @@ void MouseGrabber::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
 void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
-  if(!event->modifiers().testFlag(Qt::ShiftModifier))
-  {
-    prepareGeometryChange();
-    ungrabMouse();
-    QGraphicsScene * scene = graph()->scene();
-    graph()->resetMouseGrabber();
-    m_connection->invalidate();
-    scene->removeItem(m_connection);
-    m_connection->deleteLater();
-    scene->removeItem(this);
-    scene->update();
-    this->deleteLater();
-  }
-
   if(m_targetUnderMouse)
   {
     m_targetUnderMouse->setHighlighted(false);
@@ -208,30 +198,21 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
       target = m_target;
     }
 
-    if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_Pin)
-    {
-      Pin *pinToConnectWith = static_cast<Pin *>( target );
-      graph()->controller()->gvcDoAddPort(
-        pinToConnectWith->name(),
-        PortType_Output,
-        pinToConnectWith->dataType(),
-        pinToConnectWith
-        );
-    }
-    else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_Pin)
-    {
-      Pin *pinToConnectWith = static_cast<Pin *>( source );
-      graph()->controller()->gvcDoAddPort(
-        pinToConnectWith->name(),
-        PortType_Input,
-        pinToConnectWith->dataType(),
-        pinToConnectWith
-        );
-    }
-    else
-    {
-      graph()->controller()->gvcDoAddConnection(source, target);
-    }
+    invokeConnect(source, target);
+  }
+
+  if(!event->modifiers().testFlag(Qt::ShiftModifier))
+  {
+    prepareGeometryChange();
+    ungrabMouse();
+    QGraphicsScene * scene = graph()->scene();
+    graph()->resetMouseGrabber();
+    m_connection->invalidate();
+    scene->removeItem(m_connection);
+    m_connection->deleteLater();
+    scene->removeItem(this);
+    scene->update();
+    this->deleteLater();
   }
 
   if(!event->modifiers().testFlag(Qt::ShiftModifier))
@@ -248,4 +229,106 @@ void MouseGrabber::paint(QPainter * painter, const QStyleOptionGraphicsItem * op
   painter->setPen(color);
   painter->drawRect(windowFrameRect());
   QGraphicsWidget::paint(painter, option, widget);
+}
+
+void MouseGrabber::invokeConnect(ConnectionTarget * source, ConnectionTarget * target)
+{
+  if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_Pin)
+  {
+    Pin *pinToConnectWith = static_cast<Pin *>( target );
+    graph()->controller()->gvcDoAddPort(
+      pinToConnectWith->name(),
+      PortType_Output,
+      pinToConnectWith->dataType(),
+      pinToConnectWith
+      );
+  }
+  else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_Pin)
+  {
+    Pin *pinToConnectWith = static_cast<Pin *>( source );
+    graph()->controller()->gvcDoAddPort(
+      pinToConnectWith->name(),
+      PortType_Input,
+      pinToConnectWith->dataType(),
+      pinToConnectWith
+      );
+  }
+  else if(source->targetType() == TargetType_NodeHeader)
+  {
+    NodeHeader * header = static_cast<NodeHeader *>( source );
+    Node * node = header->node();
+
+    QPoint globalPos = QCursor::pos();
+    invokeNodeHeaderMenu(node, target, PortType_Input, globalPos);
+  }
+  else if(target->targetType() == TargetType_NodeHeader)
+  {
+    NodeHeader * header = static_cast<NodeHeader *>( target );
+    Node * node = header->node();
+
+    QPoint globalPos = QCursor::pos();
+    invokeNodeHeaderMenu(node, source, PortType_Output, globalPos);
+  }
+  else
+  {
+    graph()->controller()->gvcDoAddConnection(source, target);
+  }
+}
+
+void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole, QPoint pos)
+{
+  m_contextNode = node;
+  m_contextNodeRole = nodeRole;
+  m_contextOther = other;
+
+  QMenu *menu = new QMenu(NULL);
+
+  unsigned int count = 0;
+  for(unsigned int i=0;i<node->pinCount();i++)
+  {
+    Pin * pin = node->pin(i);
+    if(pin->portType() == nodeRole)
+      continue;
+
+    if(nodeRole == PortType_Output)
+    {
+      std::string failureReason;
+      if(!other->canConnectTo(pin, failureReason))
+        continue;
+    }
+    else if(nodeRole == PortType_Input)
+    {
+      std::string failureReason;
+      if(!pin->canConnectTo(other, failureReason))
+        continue;
+    }
+    QString name = pin->name().c_str();
+    menu->addAction(new QAction(name, this));
+    count++;
+  }
+
+  if(count == 0)
+    menu->addAction(new QAction("... cancel", this));
+
+  QObject::connect(menu, SIGNAL(triggered(QAction *)), this, SLOT(nodeHeaderMenuTriggered(QAction *)));
+  menu->exec(pos);
+}
+
+void MouseGrabber::nodeHeaderMenuTriggered(QAction * action)
+{
+  QString name = action->text();
+  if(name == "... cancel")
+    return;
+
+  Pin * pin = m_contextNode->pin(name.toUtf8().constData());
+  if(!pin)
+    return;
+
+  if(m_contextNodeRole == PortType_Output)
+    invokeConnect(m_contextOther, pin);
+  else
+    invokeConnect(pin, m_contextOther);
+
+  // todo: color of header port based on header color -> lighter
+  // context menu items to use "> " prefix or "<" suffix to indicate direction
 }

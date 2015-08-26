@@ -435,6 +435,15 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
     daisyChainPin = (Pin*)connection->src();
   }
 
+  ConnectionTarget * src = connection->src();
+  ConnectionTarget * dst = connection->dst();
+
+  if(connection->dst()->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)connection->dst())->node();
+    node->onConnectionsChanged();
+  }
+
   m_connections.erase(m_connections.begin() + index);
   if(!quiet)
     emit connectionRemoved(connection);
@@ -457,6 +466,17 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
   connection->invalidate();
   scene()->removeItem(connection);
   delete(connection);
+
+  if(src->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)src)->node();
+    node->onConnectionsChanged();
+  }
+  if(dst->targetType() == TargetType_Pin)
+  {
+    Node * node = ((Pin*)dst)->node();
+    node->onConnectionsChanged();
+  }
 
   controller()->endInteraction();
 
