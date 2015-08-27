@@ -46,7 +46,7 @@ namespace FabricUI
       virtual bool canConnectTo(
         ConnectionTarget * other,
         std::string &failureReason
-        ) const { return true; }
+        ) const;
 
       virtual TargetType targetType() const { return TargetType_NodeHeader; }
       virtual QPointF connectionPos(PortType pType) const;

@@ -91,6 +91,14 @@ std::string NodeHeader::path() const
   return node()->name();
 }
 
+bool NodeHeader::canConnectTo(
+  ConnectionTarget * other,
+  std::string &failureReason
+  ) const
+{
+  return other != this;
+}
+
 QPointF NodeHeader::connectionPos(PortType pType) const
 {
   if(pType == PortType_Input)
