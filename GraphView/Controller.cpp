@@ -114,7 +114,7 @@ bool Controller::panCanvas(QPointF pan)
   return true;
 }
 
-bool Controller::frameNodes(const std::vector<Node*> & nodes)
+bool Controller::frameNodes(const std::vector<Node*> & nodes, float zoom)
 {
   if(!m_graph)
     return false;
@@ -125,6 +125,9 @@ bool Controller::frameNodes(const std::vector<Node*> & nodes)
   for(size_t i=0;i<nodes.size();i++)
     bounds = bounds.united(nodes[i]->boundingRect().translated(nodes[i]->topLeftGraphPos()));
 
+  if(zoom != 0.0f)
+    zoomCanvas(zoom);
+
   bool result = panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
 
   m_graph->mainPanel()->update();
@@ -134,7 +137,7 @@ bool Controller::frameNodes(const std::vector<Node*> & nodes)
 
 bool Controller::frameSelectedNodes()
 {
-  return frameNodes(m_graph->selectedNodes());
+  return frameNodes(m_graph->selectedNodes(), 1.0);
 }
 
 bool Controller::frameAllNodes()

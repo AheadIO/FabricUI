@@ -96,7 +96,7 @@ namespace FabricUI
       virtual bool clearSelection();
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
-      virtual bool frameNodes(const std::vector<Node*> & nodes);
+      virtual bool frameNodes(const std::vector<Node*> & nodes, float zoom = 0.0f);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
       virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
