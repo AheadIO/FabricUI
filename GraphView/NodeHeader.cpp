@@ -139,12 +139,13 @@ void NodeHeader::setCirclesVisible(bool visible)
 
 void NodeHeader::addHeaderButton(QString name, QString icon)
 {
-  QGraphicsLinearLayout * layout = (QGraphicsLinearLayout *)layout();
+  QGraphicsLinearLayout * lay = (QGraphicsLinearLayout *)layout();
 
   NodeHeaderButton * button = new NodeHeaderButton(this, name, icon);
-  QObject::connect(button, SIGNAL(triggered(QString)), this, SLOT(onHeaderButtonTriggered(QString)));
-  layout->addItem(button);
-  layout->setAlignment(button, Qt::AlignHCenter | Qt::AlignTop);
+  QObject::connect(button, SIGNAL(triggered(FabricUI::GraphView::NodeHeaderButton *)), 
+    this, SLOT(onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton *)));
+  lay->addItem(button);
+  lay->setAlignment(button, Qt::AlignHCenter | Qt::AlignTop);
   m_buttons.push_back(button);
 }
 
@@ -157,7 +158,7 @@ void NodeHeader::setHeaderButtonRotation(QString name, int rotation)
   }
 }
 
-void NodeHeader::onHeaderButtonTriggered(QString button)
+void NodeHeader::onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
   emit headerButtonTriggered(button);
 }

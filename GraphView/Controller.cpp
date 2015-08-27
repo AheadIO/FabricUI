@@ -145,11 +145,19 @@ bool Controller::frameAllNodes()
   return frameNodes(m_graph->nodes());
 }
 
+void Controller::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
+{
+  if(button->name() == "node_collapse")
+  {
+    int state = (button->rotation() + 1) % 3;
+    button->header()->node()->setCollapsedState((Node::CollapseState)state);
+  }
+}
+
 void Controller::populateNodeHeaderButtons(NodeHeader * header)
 {
-  // todo
-  // toolbar->addTool("node_collapse", "node_collapse.png");
-  // toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
+  header->addHeaderButton("node_collapse", "node_collapse.png");
+  header->setHeaderButtonRotation("node_collapse", (int)header->node()->collapsedState());
 }
 
 bool Controller::canConnectTo(

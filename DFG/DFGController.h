@@ -445,6 +445,7 @@ namespace FabricUI
 
       void checkErrors();
       void onVariablesChanged();
+      virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 

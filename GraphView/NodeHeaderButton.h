@@ -27,16 +27,18 @@ namespace FabricUI
       virtual ~NodeHeaderButton() {}
 
       virtual int type() const { return QGraphicsItemType_NodeHeaderButton; }
+      NodeHeader * header() { return m_nodeHeader; }
       virtual QString name() const { return m_name; }
       virtual QString icon() const { return m_icon; }
       virtual int rotation() const { return m_rotation; }
       virtual void setRotation(int rot);
 
+      virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
     signals:
 
-      void triggered(QString name);
+      void triggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 

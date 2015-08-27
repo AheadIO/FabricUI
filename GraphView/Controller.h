@@ -27,6 +27,7 @@ namespace FabricUI
     class Graph;
     class Node;
     class NodeHeader;
+    class NodeHeaderButton;
     class BackDropNode;
     class Pin;
     class Port;
@@ -109,6 +110,9 @@ namespace FabricUI
         );
 
       bool gvcDoRemoveConnection(Connection * conn);
+
+    public slots:
+      virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 

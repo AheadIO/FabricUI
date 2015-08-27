@@ -64,11 +64,11 @@ namespace FabricUI
 
     signals:
 
-      void headerButtonTriggered(QString button);
+      void headerButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private slots:
 
-      void onHeaderButtonTriggered(QString button);
+      void onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 

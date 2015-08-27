@@ -76,6 +76,9 @@ Node::Node(
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
+  QObject::connect(m_header, SIGNAL(headerButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)), 
+    m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
+
   m_pinsWidget = new QGraphicsWidget(m_mainWidget);
   layout->addItem(m_pinsWidget);
   layout->setAlignment(m_pinsWidget, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -259,6 +262,7 @@ void Node::setCollapsedState(Node::CollapseState state)
   if(!m_graph->config().nodeHeaderAlwaysShowPins)
     m_header->setCirclesVisible(state != CollapseState_Expanded);
   emit collapsedStateChanged(this, m_collapsedState);
+  m_header->setHeaderButtonRotation("node_collapse", (int)m_collapsedState);
   updatePinLayout();
   update();
 }
