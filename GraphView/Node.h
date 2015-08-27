@@ -48,13 +48,13 @@ namespace FabricUI
         FTL::CStrRef name,
         FTL::CStrRef title,
         QColor color = QColor(),
-        QColor titleColor = QColor()
+        QColor titleColor = QColor(),
+        bool isBackDropNode = false
         );
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
-      virtual bool isBackDropNode() const { return false; }
-      virtual bool supportsHeaderButtons() const { return true; }
+      bool isBackDropNode() const { return m_isBackDropNode; }
 
       Graph * graph();
       const Graph * graph() const;
@@ -147,6 +147,7 @@ namespace FabricUI
 
       void updatePinLayout();
 
+      bool m_isBackDropNode;
       Graph * m_graph;
       std::string m_name;
       std::string m_title;

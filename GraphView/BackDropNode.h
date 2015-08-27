@@ -28,9 +28,6 @@ namespace FabricUI
 
       void setSize( QSizeF size );
 
-      virtual bool isBackDropNode() const { return true; }
-      virtual bool supportsHeaderButtons() const { return false; }
-
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);

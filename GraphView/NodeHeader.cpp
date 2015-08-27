@@ -45,7 +45,8 @@ NodeHeader::NodeHeader(
   layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignTop);
 
   // add all buttons
-  m_node->graph()->controller()->populateNodeHeaderButtons(this);
+  if(!m_node->isBackDropNode())
+    m_node->graph()->controller()->populateNodeHeaderButtons(this);
 
   layout->addStretch(1);
 
@@ -56,6 +57,8 @@ NodeHeader::NodeHeader(
 
   if(!m_node->graph()->config().nodeHeaderAlwaysShowPins)
     setCirclesVisible(m_node->collapsedState() != Node::CollapseState_Expanded);
+  else if(m_node->isBackDropNode())
+    setCirclesVisible(false);
 }
 
 Node * NodeHeader::node()

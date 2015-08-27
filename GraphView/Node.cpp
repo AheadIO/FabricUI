@@ -21,9 +21,11 @@ Node::Node(
   FTL::CStrRef name,
   FTL::CStrRef title,
   QColor color,
-  QColor titleColor
+  QColor titleColor,
+  bool isBackDropNode 
   )
   : QGraphicsWidget( parent->itemGroup() )
+  , m_isBackDropNode(isBackDropNode)
   , m_graph( parent )
   , m_name( name )
   , m_title( title )
@@ -76,8 +78,11 @@ Node::Node(
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
-  QObject::connect(m_header, SIGNAL(headerButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)), 
-    m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
+  if(!m_isBackDropNode)
+  {
+    QObject::connect(m_header, SIGNAL(headerButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)), 
+      m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
+  }
 
   m_pinsWidget = new QGraphicsWidget(m_mainWidget);
   layout->addItem(m_pinsWidget);

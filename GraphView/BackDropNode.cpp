@@ -16,7 +16,7 @@ BackDropNode::BackDropNode(
   QColor color,
   QColor titleColor
   )
-  : Node( parent, name, title, color, titleColor )
+  : Node( parent, name, title, color, titleColor, true )
 {
   m_mainWidget->setMinimumWidth(graph()->config().nodeMinWidth * 2.0f);
   m_mainWidget->setMinimumHeight(graph()->config().nodeMinHeight * 2.0f);
@@ -92,6 +92,7 @@ void BackDropNode::mousePressEvent(QGraphicsSceneMouseEvent * event)
 void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
   QPointF delta = event->scenePos() - event->lastScenePos();
+  delta *= 1.0f / graph()->mainPanel()->canvasZoom();
 
   if(m_dragging == 3) // topleft
   {
