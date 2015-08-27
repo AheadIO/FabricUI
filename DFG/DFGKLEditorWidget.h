@@ -5,10 +5,12 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QStringListModel>
 #include <FabricUI/KLEditor/KLEditorWidget.h>
 #include "DFGConfig.h"
 #include "DFGController.h"
 #include "DFGKLEditorPortTableWidget.h"
+
 
 namespace FabricUI
 {
@@ -50,11 +52,15 @@ namespace FabricUI
       FabricCore::DFGExec &getExec()
         { return m_controller->getExec(); }
 
+      void updateDiags();
+
     private:
 
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;
+      QStringListModel m_diagsModel;
+      QListView *m_diagsView;
       DFGConfig m_config;
       bool m_unsavedChanges;
     };

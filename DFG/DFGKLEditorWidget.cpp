@@ -83,10 +83,16 @@ DFGKLEditorWidget::DFGKLEditorWidget(
 
   m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
+  m_diagsView = new QListView;
+  m_diagsView->setModel( &m_diagsModel );
+
   splitter->addWidget(m_ports);
-  splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(0, 1);
+  splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(1, 7);
+  splitter->addWidget(m_diagsView);
+  splitter->setStretchFactor(0, 1);
+
   layout->addWidget(buttonsWidget);
   layout->addWidget(splitter);
 
@@ -97,6 +103,8 @@ DFGKLEditorWidget::DFGKLEditorWidget(
   QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
   QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
+
+  updateDiags();
 }
 
 DFGKLEditorWidget::~DFGKLEditorWidget()
@@ -125,6 +133,8 @@ void DFGKLEditorWidget::onExecChanged()
     }
 
     m_unsavedChanges = false;
+
+    updateDiags();
 
     emit execChanged();
   }
@@ -272,7 +282,30 @@ void DFGKLEditorWidget::compile()
   m_controller->cmdSetCode(
     m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
     );
+
   m_unsavedChanges = false;
+
+  updateDiags();
+}
+
+void DFGKLEditorWidget::updateDiags()
+{
+  FabricCore::DFGExec &exec = m_controller->getExec();
+  unsigned errorCount;
+  if ( !!exec )
+    errorCount = exec.getErrorCount();
+  else
+    errorCount = 0;
+
+  QStringList stringList;
+  for ( unsigned i = 0; i < errorCount; ++i )
+  {
+    FTL::CStrRef error = exec.getError( i );
+    stringList.append( error.c_str() );
+  }
+
+  m_diagsModel.setStringList( stringList );
+  m_diagsView->setVisible( errorCount > 0 );
 }
 
 void DFGKLEditorWidget::reload()
@@ -302,7 +335,10 @@ void DFGKLEditorWidget::reload()
     {
       m_controller->logError(e.getDesc_cstr());
     }
+
     m_unsavedChanges = false;
+
+    updateDiags();
   }
 }
 
