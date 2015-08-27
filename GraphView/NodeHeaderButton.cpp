@@ -12,6 +12,8 @@
   #include <Util/Timer.h>
 #endif
 
+#include <stdio.h>
+
 using namespace FabricUI::GraphView;
 
 std::map<QString, QPixmap> NodeHeaderButton::s_pixmaps;
