@@ -19,7 +19,7 @@ namespace FabricUI
       
       char const *pathSep;
       bool disconnectInputsAutomatically;
-      bool rightClickDeletesConnections;
+      bool middleClickDeletesConnections;
 
       int headerMargins;
       QColor headerBackgroundColor;

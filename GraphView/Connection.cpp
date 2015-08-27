@@ -228,6 +228,17 @@ void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
     m_lastDragPoint = mapToScene(event->pos());
     event->accept();
   }
+  else if(event->button() == DFG_QT_MIDDLE_MOUSE)
+  {
+    if(graph()->config().middleClickDeletesConnections)
+    {
+      graph()->controller()->gvcDoRemoveConnection(this);
+      event->accept();
+      return;
+    }
+    else
+      QGraphicsPathItem::mousePressEvent(event);
+  }
   else if(event->button() == Qt::RightButton)
   {
     QMenu * menu = graph()->getConnectionContextMenu(this);
@@ -235,12 +246,6 @@ void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
     {
       menu->exec(QCursor::pos());
       menu->deleteLater();
-    }
-    else if(graph()->config().rightClickDeletesConnections)
-    {
-      graph()->controller()->gvcDoRemoveConnection(this);
-      event->accept();
-      return;
     }
     else
       QGraphicsPathItem::mousePressEvent(event);

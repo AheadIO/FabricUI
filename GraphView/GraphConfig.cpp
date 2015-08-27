@@ -15,7 +15,7 @@ GraphConfig::GraphConfig()
   
   pathSep = ".";
   disconnectInputsAutomatically = true;
-  rightClickDeletesConnections = true;
+  middleClickDeletesConnections = true;
 
   mainPanelBackgroundColor = QColor(90, 90, 90, 255);
   mainPanelDrawGrid = false;
