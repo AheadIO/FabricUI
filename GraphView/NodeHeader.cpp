@@ -28,7 +28,6 @@ NodeHeader::NodeHeader(
   float contentsMargins = graph->config().nodeHeaderContentMargins;
   float nodeWidthReduction = graph->config().nodeWidthReduction * 0.5;
 
-  // layout->setContentsMargins(contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, contentsMargins + nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
   layout->setContentsMargins(nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
   layout->setSpacing(graph->config().nodeHeaderSpacing);
   layout->setOrientation(Qt::Horizontal);
@@ -44,6 +43,10 @@ NodeHeader::NodeHeader(
   layout->addStretch(1);
   layout->addItem(m_title);
   layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignTop);
+
+  // add all buttons
+  m_node->graph()->controller()->populateNodeHeaderButtons(this);
+
   layout->addStretch(1);
 
   m_outCircle = new PinCircle(this, PortType_Output, m_node->color());
@@ -132,4 +135,29 @@ void NodeHeader::setCirclesVisible(bool visible)
 {
   m_inCircle->setVisible(visible);
   m_outCircle->setVisible(visible);
+}
+
+void NodeHeader::addHeaderButton(QString name, QString icon)
+{
+  QGraphicsLinearLayout * layout = (QGraphicsLinearLayout *)layout();
+
+  NodeHeaderButton * button = new NodeHeaderButton(this, name, icon);
+  QObject::connect(button, SIGNAL(triggered(QString)), this, SLOT(onHeaderButtonTriggered(QString)));
+  layout->addItem(button);
+  layout->setAlignment(button, Qt::AlignHCenter | Qt::AlignTop);
+  m_buttons.push_back(button);
+}
+
+void NodeHeader::setHeaderButtonRotation(QString name, int rotation)
+{
+  for(size_t i=0;i<m_buttons.size();i++)
+  {
+    if(m_buttons[i]->name() == name)
+      m_buttons[i]->setRotation(rotation);
+  }
+}
+
+void NodeHeader::onHeaderButtonTriggered(QString button)
+{
+  emit headerButtonTriggered(button);
 }

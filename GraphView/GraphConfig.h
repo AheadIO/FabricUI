@@ -74,12 +74,8 @@ namespace FabricUI
       QPointF nodeShadowOffset;
       float nodeShadowBlurRadius;
 
-      QColor nodeToolbarColor;
-      QPen nodeToolbarPen;
-      float nodeToolbarHeight;
-      float nodeToolbarBaseWidth;
-      float nodeToolbarSeparator;
-      QString nodeToolbarIconDir;
+      float nodeHeaderButtonSeparator;
+      QString nodeHeaderButtonIconDir;
 
       QPen pinDefaultPen;
       bool pinUsesColorForPen;

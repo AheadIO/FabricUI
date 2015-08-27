@@ -5,13 +5,13 @@
 
 #include <QtCore/QString>
 #include <QtCore/QPointF>
+#include <QtCore/QSizeF>
 #include <QtGui/QColor>
 
 #include <Commands/CommandStack.h>
 #include <Commands/CompoundCommand.h>
 
 #include "PortType.h"
-#include "NodeToolbar.h"
 
 #include <vector>
 
@@ -26,6 +26,7 @@ namespace FabricUI
     // forward declarations
     class Graph;
     class Node;
+    class NodeHeader;
     class BackDropNode;
     class Pin;
     class Port;
@@ -99,7 +100,7 @@ namespace FabricUI
       virtual bool frameNodes(const std::vector<Node*> & nodes, float zoom = 0.0f);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
-      virtual void populateNodeToolbar(NodeToolbar * toolbar, Node * node);
+      virtual void populateNodeHeaderButtons(NodeHeader * header);
 
       virtual bool canConnectTo(
         char const *pathA,
@@ -108,10 +109,6 @@ namespace FabricUI
         );
 
       bool gvcDoRemoveConnection(Connection * conn);
-
-    public slots:
-
-      void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
 
     private:
 

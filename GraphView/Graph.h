@@ -14,7 +14,6 @@
 #include <FabricUI/GraphView/GraphConfig.h>
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Node.h>
-#include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Connection.h>
 #include <FabricUI/GraphView/MouseGrabber.h>
@@ -67,8 +66,6 @@ namespace FabricUI
       bool hasSidePanels() const;
       SidePanel * sidePanel(PortType portType);
       const SidePanel * sidePanel(PortType portType) const;
-
-      NodeToolbar * nodeToolbar();
 
       // nodes
       virtual std::vector<Node *> nodes() const;
@@ -182,7 +179,6 @@ namespace FabricUI
 
       GraphConfig m_config;
       Controller * m_controller;
-      NodeToolbar * m_nodeToolbar;
       std::vector<Node *> m_nodes;
       std::map<FTL::StrRef, size_t> m_nodeMap;
       std::vector<Connection *> m_connections;

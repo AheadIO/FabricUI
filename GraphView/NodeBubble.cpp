@@ -180,8 +180,7 @@ void NodeBubble::updateSize()
   else
   {
     width = m_config.nodeBubbleMinWidth;
-    height = m_config.nodeToolbarHeight + 2.0;
-    height += float(m_metrics->lineSpacing());
+    height = 2.0f + float(m_metrics->lineSpacing());
 
     if(m_textLines.length() > 0)
     {

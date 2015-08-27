@@ -58,12 +58,8 @@ GraphConfig::GraphConfig()
   nodeShadowOffset = QPointF(2.5, 2.5);
   nodeShadowBlurRadius = 10.0;
 
-  nodeToolbarColor = QColor(180, 183, 193);
-  nodeToolbarPen = nodeDefaultPen;
-  nodeToolbarHeight = 18.0f;
-  nodeToolbarBaseWidth = 6.0f;
-  nodeToolbarSeparator = 2.0f;
-  nodeToolbarIconDir = "${FABRIC_DIR}/Resources/Icons/";
+  nodeHeaderButtonSeparator = 2.0f;
+  nodeHeaderButtonIconDir = "${FABRIC_DIR}/Resources/Icons/";
 
   pinFont = QFont("Lucida", 9);
   pinFontColor = nodeFontColor;

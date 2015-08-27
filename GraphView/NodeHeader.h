@@ -8,6 +8,7 @@
 #include <QtGui/QPen>
 #include "ConnectionTarget.h"
 #include "PinCircle.h"
+#include "NodeHeaderButton.h"
 
 namespace FabricUI
 {
@@ -58,6 +59,17 @@ namespace FabricUI
       bool areCirclesVisible() const;
       void setCirclesVisible(bool visible);
 
+      void addHeaderButton(QString name, QString icon);
+      void setHeaderButtonRotation(QString name, int rotation);
+
+    signals:
+
+      void headerButtonTriggered(QString button);
+
+    private slots:
+
+      void onHeaderButtonTriggered(QString button);
+
     private:
 
       Node * m_node;
@@ -65,6 +77,7 @@ namespace FabricUI
       NodeEditButton * m_editButton;
       PinCircle * m_inCircle;
       PinCircle * m_outCircle;
+      std::vector<NodeHeaderButton*> m_buttons;
     };
 
   };

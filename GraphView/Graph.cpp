@@ -36,7 +36,6 @@ Graph::Graph(
   m_connectionContextMenuCallbackUD = NULL;
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
-  m_nodeToolbar = NULL;
   m_overlayItem = NULL;
 }
 
@@ -60,14 +59,6 @@ void Graph::initialize()
   layout->addItem(m_mainPanel);
   layout->addItem(m_rightPanel);
   setLayout(layout);
-
-  m_nodeToolbar = new NodeToolbar(this, m_config);
-  m_nodeToolbar->hide();
-  if(m_controller)
-  {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
-      m_controller, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
-  }
 }
 
 const GraphConfig & Graph::config() const
@@ -82,11 +73,6 @@ Controller * Graph::controller()
 
 void Graph::setController(Controller * c)
 {
-  if(!m_controller && c && m_nodeToolbar)
-  {
-    QObject::connect(m_nodeToolbar, SIGNAL(toolTriggered(FabricUI::GraphView::Node *, char const *)), 
-      c, SLOT(nodeToolTriggered(FabricUI::GraphView::Node *, char const *)));
-  }
   m_controller = c;
 }
 
@@ -128,11 +114,6 @@ const SidePanel * Graph::sidePanel(PortType portType) const
   return NULL;
 }
 
-NodeToolbar * Graph::nodeToolbar()
-{
-  return m_nodeToolbar;
-}
-
 Node * Graph::addNode(Node * node, bool quiet)
 {
   FTL::StrRef key = node->name();
@@ -144,9 +125,6 @@ Node * Graph::addNode(Node * node, bool quiet)
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
-
-  if ( m_nodeToolbar && node->supportsToolBar() )
-    m_nodeToolbar->attach(node);
 
   if(!quiet)
     emit nodeAdded(node);
@@ -203,9 +181,6 @@ bool Graph::removeNode(Node * node, bool quiet)
     if(found)
       controller()->gvcDoRemoveConnection(con);
   }
-
-  if(m_nodeToolbar->node() == node)
-    m_nodeToolbar->deattach();
 
   size_t index = it->second;
   m_nodes.erase(m_nodes.begin() + index);

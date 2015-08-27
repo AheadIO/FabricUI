@@ -145,26 +145,11 @@ bool Controller::frameAllNodes()
   return frameNodes(m_graph->nodes());
 }
 
-void Controller::populateNodeToolbar(NodeToolbar * toolbar, Node * node)
+void Controller::populateNodeHeaderButtons(NodeHeader * header)
 {
-  toolbar->addTool("node_collapse", "node_collapse.png");
-  toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
-}
-
-void Controller::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
-{
-  FTL::StrRef toolNameRef(toolName);
-  if(toolNameRef == "node_collapse")
-  {
-    node->toggleCollapsedState();
-    if(m_graph)
-    {
-      if(m_graph->nodeToolbar())
-      {
-        m_graph->nodeToolbar()->setToolRotation(toolName, node->collapsedState());
-      }
-    }    
-  }
+  // todo
+  // toolbar->addTool("node_collapse", "node_collapse.png");
+  // toolbar->setToolRotation("node_collapse", (int)node->collapsedState());
 }
 
 bool Controller::canConnectTo(

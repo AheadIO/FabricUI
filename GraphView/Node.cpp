@@ -3,7 +3,6 @@
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/NodeLabel.h>
-#include <FabricUI/GraphView/NodeToolbar.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
 #include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Graph.h>
@@ -687,11 +686,6 @@ void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 
 void Node::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
-  if(supportsToolBar())
-  {
-    graph()->nodeToolbar()->attach(this);
-    event->accept();
-  }
 }
 
 void Node::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)

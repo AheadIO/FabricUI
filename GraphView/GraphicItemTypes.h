@@ -19,6 +19,7 @@ namespace FabricUI
     const int QGraphicsItemType_PinCircle = QGraphicsItem::UserType + 10;
     const int QGraphicsItemType_NodeRectangle = QGraphicsItem::UserType + 11;
     const int QGraphicsItemType_ProxyPin = QGraphicsItem::UserType + 12;
+    const int QGraphicsItemType_NodeHeaderButton = QGraphicsItem::UserType + 13;
 
   };
 

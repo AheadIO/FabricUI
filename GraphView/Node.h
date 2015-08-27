@@ -54,7 +54,7 @@ namespace FabricUI
 
       virtual int type() const { return QGraphicsItemType_Node; }
       virtual bool isBackDropNode() const { return false; }
-      virtual bool supportsToolBar() const { return true; }
+      virtual bool supportsHeaderButtons() const { return true; }
 
       Graph * graph();
       const Graph * graph() const;

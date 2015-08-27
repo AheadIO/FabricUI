@@ -314,7 +314,7 @@ namespace FabricUI
         std::string &failureReason
         );
 
-      virtual void populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node);
+      virtual void populateNodeHeaderButtons(GraphView::NodeHeader * header);
 
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
@@ -444,7 +444,6 @@ namespace FabricUI
       void onValueItemInteractionLeave( ValueItem *valueItem );
 
       void checkErrors();
-      void nodeToolTriggered(FabricUI::GraphView::Node *, char const *);
       void onVariablesChanged();
 
     private:

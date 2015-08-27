@@ -13,6 +13,7 @@
 
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphRelaxer.h>
+#include <FabricUI/GraphView/NodeHeader.h>
 
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
@@ -1314,46 +1315,29 @@ bool DFGController::canConnectTo(
   return false;
 }
 
-void DFGController::populateNodeToolbar(GraphView::NodeToolbar * toolbar, GraphView::Node * node)
+void DFGController::populateNodeHeaderButtons(NodeHeader * header)
 {
-  if(node->type() == GraphView::QGraphicsItemType_Node)
-  {
-    Controller::populateNodeToolbar(toolbar, node);
+  // todo
+  // if(node->type() == GraphView::QGraphicsItemType_Node)
+  // {
+  //   Controller::populateNodeHeaderButtons(toolbar, node);
 
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
-      {
-        toolbar->addTool("node_edit", "node_edit.png");
-      }
-    }
-    catch ( FabricCore::Exception e )
-    {
-      printf(
-        "DFGController::populateNodeToolbar: caught Core exception: %s\n",
-        e.getDesc_cstr()
-        );
-    }
-  }
-}
-
-void DFGController::nodeToolTriggered(FabricUI::GraphView::Node * node, char const * toolName)
-{
-  Controller::nodeToolTriggered(node, toolName);
-
-  FTL::StrRef toolNameRef(toolName);
-  if(toolNameRef == "node_collapse")
-  {
-    int collapsedState = (int)node->collapsedState();
-    FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
-  }
-  else if(toolNameRef == "node_edit")
-  {
-    emit nodeEditRequested(node);
-  }
+  //   try
+  //   {
+  //     FabricCore::DFGExec &exec = getExec();
+  //     if(exec.getNodeType(node->name().c_str()) == FabricCore::DFGNodeType_Inst)
+  //     {
+  //       toolbar->addTool("node_edit", "node_edit.png");
+  //     }
+  //   }
+  //   catch ( FabricCore::Exception e )
+  //   {
+  //     printf(
+  //       "DFGController::populateNodeHeaderButtons: caught Core exception: %s\n",
+  //       e.getDesc_cstr()
+  //       );
+  //   }
+  // }
 }
 
 void DFGController::onVariablesChanged()
