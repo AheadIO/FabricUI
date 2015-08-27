@@ -646,9 +646,12 @@ void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
   {
     m_dragging = 2;
 
+    QPointF delta = event->scenePos() - event->lastScenePos();
+    delta *= 1.0f / graph()->mainPanel()->canvasZoom();
+
     m_graph->controller()->gvcDoMoveNodes(
       m_nodesToMove,
-      event->scenePos() - event->lastScenePos(),
+      delta,
       false // allowUndo
       );
 
