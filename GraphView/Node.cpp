@@ -29,8 +29,8 @@ Node::Node(
   , m_name( name )
   , m_title( title )
   , m_bubble( NULL )
-  , m_mainWidget( NULL )
   , m_header( NULL )
+  , m_mainWidget( NULL )
 {
   m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
