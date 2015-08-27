@@ -303,7 +303,14 @@ void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, P
         continue;
     }
     QString name = pin->name().c_str();
-    menu->addAction(new QAction(name, this));
+    QString label;
+    if(nodeRole == PortType_Input)
+      label = "> "+name;
+    else
+      label = name+" <";
+    QAction * action = new QAction(label, this);
+    action->setData(name);
+    menu->addAction(action);
     count++;
   }
 
@@ -316,8 +323,8 @@ void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, P
 
 void MouseGrabber::nodeHeaderMenuTriggered(QAction * action)
 {
-  QString name = action->text();
-  if(name == "... cancel")
+  QString name = action->data().toString();
+  if(name == "")
     return;
 
   Pin * pin = m_contextNode->pin(name.toUtf8().constData());
@@ -328,7 +335,4 @@ void MouseGrabber::nodeHeaderMenuTriggered(QAction * action)
     invokeConnect(m_contextOther, pin);
   else
     invokeConnect(pin, m_contextOther);
-
-  // todo: color of header port based on header color -> lighter
-  // context menu items to use "> " prefix or "<" suffix to indicate direction
 }

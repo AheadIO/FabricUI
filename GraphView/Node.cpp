@@ -172,8 +172,6 @@ void Node::setColorAsGradient(QColor a, QColor b)
   m_colorB = b;
   if(m_graph->config().nodeDefaultPenUsesNodeColor)
     m_defaultPen.setBrush(m_colorB.darker());
-  if(m_header)
-    m_header->setColor(a);
   if ( m_mainWidget )
     m_mainWidget->update();
 }
@@ -186,6 +184,8 @@ QColor Node::titleColor() const
 void Node::setTitleColor(QColor col)
 {
   m_titleColor = col;
+  if(m_header)
+    m_header->setColor(m_titleColor.lighter());
 }
 
 QColor Node::fontColor() const
