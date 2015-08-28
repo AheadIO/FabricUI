@@ -23,6 +23,9 @@ BackDropNode::BackDropNode(
   m_mainWidget->setMaximumWidth(graph()->config().nodeMinWidth * 2.0f);
   m_mainWidget->setMaximumHeight(graph()->config().nodeMinHeight * 2.0f);
 
+  m_minSize.setWidth(graph()->config().nodeMinWidth * 2.0f);
+  m_minSize.setHeight(graph()->config().nodeMinHeight * 2.0f);
+
   m_resizeDistance = 16.0;
   m_hasCustomPointer = false;
   setAcceptHoverEvents(true);
@@ -94,54 +97,56 @@ void BackDropNode::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   QPointF delta = event->scenePos() - event->lastScenePos();
   delta *= 1.0f / graph()->mainPanel()->canvasZoom();
 
+  QPointF pos;
+  QSizeF size;
+
   if(m_dragging == 3) // topleft
   {
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + delta,
-      m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() ),
-      false
-      );
-    event->accept();
-    return;
+    pos = topLeftGraphPos() + delta;
+    size = m_mainWidget->minimumSize() + QSizeF( -delta.x(), -delta.y() );
   }
   
   if(m_dragging == 4) // topright
   {
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( 0, delta.y() ),
-      m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() ),
-      false
-      );
-    event->accept();
-    return;
+    pos = topLeftGraphPos() + QPointF( 0, delta.y() );
+    size = m_mainWidget->minimumSize() + QSizeF( +delta.x(), -delta.y() );
   }
   
   if(m_dragging == 5) // bottomleft
   {
-    graph()->controller()->gvcDoResizeBackDropNode(
-      this,
-      topLeftGraphPos() + QPointF( delta.x(), 0 ),
-      m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() ),
-      false
-      );
-    event->accept();
-    return;
+    pos = topLeftGraphPos() + QPointF( delta.x(), 0 );
+    size = m_mainWidget->minimumSize() + QSizeF( -delta.x(), +delta.y() );
   }
   
   if(m_dragging == 6) // bottomright
   {
+    pos = topLeftGraphPos() + QPointF( 0, 0 );
+    size = m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() );
+  }
+
+  // clamp to avoid negative scaling
+  if(size.width() < m_minSize.width())
+  {
+    pos.setX(topLeftGraphPos().x());
+    size.setWidth(m_minSize.width());
+  }
+  if(size.height() < m_minSize.height())
+  {
+    pos.setY(topLeftGraphPos().y());
+    size.setHeight(m_minSize.height());
+  }
+
+  if(m_dragging > 2)
+  {
     graph()->controller()->gvcDoResizeBackDropNode(
       this,
-      topLeftGraphPos() + QPointF( 0, 0 ),
-      m_mainWidget->minimumSize() + QSizeF( +delta.x(), +delta.y() ),
+      pos,
+      size,
       false
       );
     event->accept();
     return;
   }
-
   Node::mouseMoveEvent(event);
 }
 

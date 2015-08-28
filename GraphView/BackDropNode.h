@@ -43,6 +43,7 @@ namespace FabricUI
 
       float m_resizeDistance;
       bool m_hasCustomPointer;
+      QSize m_minSize;
     };
 
 
