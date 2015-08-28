@@ -45,6 +45,33 @@ MouseGrabber::MouseGrabber(Graph * parent, QPointF mousePos, ConnectionTarget * 
   // self.__mouseOverPinCircle = None
 }
 
+MouseGrabber * MouseGrabber::construct(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType)
+{
+  if(target->targetType() == TargetType_NodeHeader)
+  {
+    NodeHeader * header = static_cast<NodeHeader *>( target );
+    Node * node = header->node();
+
+    QMenu * menu = createNodeHeaderMenu(node, NULL, portType);
+    QPoint globalPos = QCursor::pos();
+    QAction * action = menu->exec(globalPos);
+
+    if(action == NULL)
+      return NULL;
+
+    QString name = action->data().toString();
+    if(name == "")
+      return NULL;
+
+    Pin * pin = node->pin(name.toUtf8().constData());
+    if(!pin)
+      return NULL;
+
+    return construct(parent, mousePos, pin, portType);
+  }
+  return new MouseGrabber(parent, mousePos, target, portType);
+}
+
 float MouseGrabber::radius() const
 {
   return m_radius;
@@ -275,54 +302,63 @@ void MouseGrabber::invokeConnect(ConnectionTarget * source, ConnectionTarget * t
   }
 }
 
-void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole, QPoint pos)
+QMenu * MouseGrabber::createNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole)
 {
-  m_contextNode = node;
-  m_contextNodeRole = nodeRole;
-  m_contextOther = other;
-
   QMenu *menu = new QMenu(NULL);
 
   unsigned int count = 0;
   for(unsigned int i=0;i<node->pinCount();i++)
   {
     Pin * pin = node->pin(i);
+
     if(pin->portType() == nodeRole)
       continue;
 
-    if(nodeRole == PortType_Output)
+    if(other)
     {
-      std::string failureReason;
-      if(!other->canConnectTo(pin, failureReason))
-        continue;
+      if(nodeRole == PortType_Output)
+      {
+        std::string failureReason;
+        if(!other->canConnectTo(pin, failureReason))
+          continue;
+      }
+      else if(nodeRole == PortType_Input)
+      {
+        std::string failureReason;
+        if(!pin->canConnectTo(other, failureReason))
+          continue;
+      }
     }
-    else if(nodeRole == PortType_Input)
-    {
-      std::string failureReason;
-      if(!pin->canConnectTo(other, failureReason))
-        continue;
-    }
+
     QString name = pin->name().c_str();
     QString label;
     if(nodeRole == PortType_Input)
       label = "> "+name;
     else
       label = name+" <";
-    QAction * action = new QAction(label, this);
+    QAction * action = new QAction(label, NULL);
     action->setData(name);
     menu->addAction(action);
     count++;
   }
 
   if(count == 0)
-    menu->addAction(new QAction("... cancel", this));
+    menu->addAction(new QAction("... cancel", NULL));
 
-  QObject::connect(menu, SIGNAL(triggered(QAction *)), this, SLOT(nodeHeaderMenuTriggered(QAction *)));
-  menu->exec(pos);
+  return menu;
 }
 
-void MouseGrabber::nodeHeaderMenuTriggered(QAction * action)
+void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole, QPoint pos)
 {
+  m_contextNode = node;
+  m_contextNodeRole = nodeRole;
+  m_contextOther = other;
+
+  QMenu * menu = createNodeHeaderMenu(node, other, nodeRole);
+  QAction * action = menu->exec(pos);
+  if(action == NULL)
+    return;
+
   QString name = action->data().toString();
   if(name == "")
     return;
@@ -331,7 +367,12 @@ void MouseGrabber::nodeHeaderMenuTriggered(QAction * action)
   if(!pin)
     return;
 
-  if(m_contextNodeRole == PortType_Output)
+  if(m_contextOther == NULL)
+  {
+    // this is invoked from MouseGrabber::construct
+    m_contextOther = pin;
+  }
+  else if(m_contextNodeRole == PortType_Output)
     invokeConnect(m_contextOther, pin);
   else
     invokeConnect(pin, m_contextOther);

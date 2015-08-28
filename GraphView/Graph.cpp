@@ -467,7 +467,7 @@ MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * targ
 {
   if(!m_isEditable)
     return NULL;
-  m_mouseGrabber = new MouseGrabber(this, pos, target, portType);
+  m_mouseGrabber = MouseGrabber::construct(this, pos, target, portType);
   return m_mouseGrabber;
 }
 

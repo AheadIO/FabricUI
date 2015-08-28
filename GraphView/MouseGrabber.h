@@ -27,6 +27,8 @@ namespace FabricUI
 
       MouseGrabber(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType);
 
+      static MouseGrabber * construct(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType);
+
       float radius() const;
       float diameter() const;
       ConnectionTarget * target();
@@ -59,14 +61,11 @@ namespace FabricUI
 
       void positionChanged(QPointF);
 
-    private slots:
-
-      void nodeHeaderMenuTriggered(QAction *);
-
     private:
 
       void showToolTip();
       void invokeConnect(ConnectionTarget * source, ConnectionTarget * target);
+      static QMenu * createNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole);
       void invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, PortType nodeRole, QPoint pos);
 
       QPointF m_connectionPos;
