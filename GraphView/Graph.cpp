@@ -124,8 +124,11 @@ Node * Graph::addNode(Node * node, bool quiet)
   m_nodeMap.insert(std::pair<FTL::StrRef, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
 
-  node->setZValue(m_maxZValue);
-  m_maxZValue += 0.05;
+  double zValue = m_maxZValue;
+  if(!node->isBackDropNode())
+    zValue += 3.0;
+  m_maxZValue += 0.0001;
+  node->setZValue(zValue);
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
