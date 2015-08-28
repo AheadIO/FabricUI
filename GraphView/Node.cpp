@@ -551,6 +551,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     m_dragButton = event->button();
 
     Node * hitNode = this;
+
     // apparently qt doesn't cast again on right
     // mouse button, so contextual menus are off.
     std::vector<Node *> nodes = graph()->nodes();
@@ -559,8 +560,9 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
       QPointF pos = mapToItem(nodes[i], event->pos());
       if(nodes[i]->rect().contains(pos))
       {
+        if(nodes[i]->zValue() < hitNode->zValue())
+          continue;
         hitNode = nodes[i];
-        break;
       }
     }
 

@@ -37,6 +37,7 @@ Graph::Graph(
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
   m_overlayItem = NULL;
+  m_maxZValue = 0.1;
 }
 
 void Graph::initialize()
@@ -122,6 +123,9 @@ Node * Graph::addNode(Node * node, bool quiet)
 
   m_nodeMap.insert(std::pair<FTL::StrRef, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
+
+  node->setZValue(m_maxZValue);
+  m_maxZValue += 0.05;
 
   QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
   QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
