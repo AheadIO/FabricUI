@@ -26,7 +26,7 @@ BackDropNode::BackDropNode(
   m_minSize.setWidth(graph()->config().nodeMinWidth * 2.0f);
   m_minSize.setHeight(graph()->config().nodeMinHeight * 2.0f);
 
-  m_resizeDistance = 16.0;
+  m_resizeDistance = 32.0;
   m_hasCustomPointer = false;
   setAcceptHoverEvents(true);
   setZValue(-100);
