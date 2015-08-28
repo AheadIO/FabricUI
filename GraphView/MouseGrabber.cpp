@@ -53,6 +53,9 @@ MouseGrabber * MouseGrabber::construct(Graph * parent, QPointF mousePos, Connect
     Node * node = header->node();
 
     QMenu * menu = createNodeHeaderMenu(node, NULL, portType);
+    if(menu == NULL)
+      return NULL;
+    
     QPoint globalPos = QCursor::pos();
     QAction * action = menu->exec(globalPos);
 
@@ -343,7 +346,10 @@ QMenu * MouseGrabber::createNodeHeaderMenu(Node * node, ConnectionTarget * other
   }
 
   if(count == 0)
-    menu->addAction(new QAction("... cancel", NULL));
+  {
+    delete menu;
+    menu = NULL;
+  }
 
   return menu;
 }
@@ -355,6 +361,9 @@ void MouseGrabber::invokeNodeHeaderMenu(Node * node, ConnectionTarget * other, P
   m_contextOther = other;
 
   QMenu * menu = createNodeHeaderMenu(node, other, nodeRole);
+  if(menu == NULL)
+    return;
+
   QAction * action = menu->exec(pos);
   if(action == NULL)
     return;
