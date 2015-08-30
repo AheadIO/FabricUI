@@ -23,8 +23,8 @@ BackDropNode::BackDropNode(
   m_mainWidget->setMaximumWidth(graph()->config().nodeMinWidth * 2.0f);
   m_mainWidget->setMaximumHeight(graph()->config().nodeMinHeight * 2.0f);
 
-  m_minSize.setWidth(graph()->config().nodeMinWidth * 2.0f);
-  m_minSize.setHeight(graph()->config().nodeMinHeight * 2.0f);
+  m_minSize.setWidth(int(graph()->config().nodeMinWidth * 2.0f));
+  m_minSize.setHeight(int(graph()->config().nodeMinHeight * 2.0f));
 
   m_resizeDistance = 32.0;
   m_hasCustomPointer = false;
