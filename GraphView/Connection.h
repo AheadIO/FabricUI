@@ -33,6 +33,8 @@ namespace FabricUI
         bool forceUseOfPinColor = false
         );
 
+      ~Connection();
+
       virtual int type() const { return QGraphicsItemType_Connection; }
 
       Graph * graph();

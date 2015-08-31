@@ -118,6 +118,10 @@ Connection::Connection(
   }
 }
 
+Connection::~Connection()
+{
+}
+
 Graph * Connection::graph()
 {
   return m_graph;

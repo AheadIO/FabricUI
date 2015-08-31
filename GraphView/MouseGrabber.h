@@ -26,6 +26,7 @@ namespace FabricUI
     public:
 
       MouseGrabber(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType);
+      ~MouseGrabber();
 
       static MouseGrabber * construct(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType);
 

@@ -41,8 +41,10 @@ MouseGrabber::MouseGrabber(Graph * parent, QPointF mousePos, ConnectionTarget * 
     m_connection = new Connection(parent, m_target, this, true /* forceUseOfPinColor */);
   else
     m_connection = new Connection(parent, this, m_target, true /* forceUseOfPinColor */);
+}
 
-  // self.__mouseOverPinCircle = None
+MouseGrabber::~MouseGrabber()
+{
 }
 
 MouseGrabber * MouseGrabber::construct(Graph * parent, QPointF mousePos, ConnectionTarget * target, PortType portType)
@@ -55,7 +57,7 @@ MouseGrabber * MouseGrabber::construct(Graph * parent, QPointF mousePos, Connect
     QMenu * menu = createNodeHeaderMenu(node, NULL, portType);
     if(menu == NULL)
       return NULL;
-    
+
     QPoint globalPos = QCursor::pos();
     QAction * action = menu->exec(globalPos);
 
@@ -240,6 +242,7 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     m_connection->invalidate();
     scene->removeItem(m_connection);
     m_connection->deleteLater();
+    // m_connection->setParent(this);
     scene->removeItem(this);
     scene->update();
     this->deleteLater();
