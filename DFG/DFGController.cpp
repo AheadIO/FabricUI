@@ -302,13 +302,18 @@ std::string DFGController::cmdRenameExecPort(
 {
   UpdateSignalBlocker blocker( this );
 
-  return m_cmdHandler->dfgDoRenamePort(
+  std::string result = m_cmdHandler->dfgDoRenamePort(
     getBinding(),
     getExecPath(),
     getExec(),
     oldName,
     desiredNewName
     );
+
+  if(result.length() > 0)
+    emit argsChanged();
+
+  return result;
 }
 
 bool DFGController::gvcDoAddConnection(
