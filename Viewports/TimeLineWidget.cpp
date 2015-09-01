@@ -186,8 +186,6 @@ TimeLineWidget::TimeLineWidget()
 
 void TimeLineWidget::setTime(int time)
 {
-  if(m_lastSteppedFrame == time)
-    return;
   if(m_settingTime)
     return;
   m_settingTime = true;
@@ -199,8 +197,11 @@ void TimeLineWidget::setTime(int time)
 
   if(m_simMode != 0)
   {
-    if(m_lastSteppedFrame == UINT_MAX)
+    if(m_lastSteppedFrame == UINT_MAX || time == getRangeStart())
       m_lastSteppedFrame = getRangeStart()-1;
+
+    if(m_lastSteppedFrame > time)
+      return;
 
     if(time > getRangeStart() && time > m_lastSteppedFrame)
     {
