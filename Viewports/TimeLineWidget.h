@@ -32,7 +32,7 @@ namespace FabricUI
         ~TimeLineWidget() {};
 
         /// update the internal time and also emit the signals
-        void updateTime(int frame);
+        void updateTime(int frame, bool onLoadingScene = false);
 
         /// return the current Time
         int getTime();
@@ -45,6 +45,18 @@ namespace FabricUI
 
         /// setup the time range
         void setTimeRange(int start , int end);
+
+        /// returns the loop mode
+        int loopMode() const { return m_loopMode; }
+
+        /// sets the loop mode
+        void setLoopMode(int mode);
+
+        /// returns the sim mode
+        int simulationMode() const { return m_simMode; }
+
+        /// sets the sim mode
+        void setSimulationMode(int mode);
 
       signals :
         /// this signal is emited when ever the time on the widget changed
@@ -92,7 +104,10 @@ namespace FabricUI
         void frameRateChanged(int index);
 
         /// called when the looping scheme changed
-        void loopingChanged(int index);
+        void loopModeChanged(int index);
+
+        /// called when the simulation mode changed
+        void simModeChanged(int index);
 
         /// internal time changing function
         /// if you want to set the time from the outside use updateTime(int)
@@ -103,11 +118,17 @@ namespace FabricUI
         /// the timer in charge of the playback . this is paused when not active
         QTimer * m_timer;
 
+        /// current frame
+        int m_lastSteppedFrame;
+
         /// direction of play
         int m_direction;
 
         /// are we looping
-        int m_looping;
+        int m_loopMode;
+
+        /// are we stepping frames
+        int m_simMode;
 
         /// blocking any additional settime calls
         bool m_settingTime;
@@ -123,7 +144,8 @@ namespace FabricUI
         QPushButton * m_goToNextFrameButton;
         QPushButton * m_goToEndFrameButton;
         QComboBox * m_frameRateComboBox;
-        QComboBox * m_loopingComBox;
+        QComboBox * m_loopModeComBox;
+        QComboBox * m_simModeComBox;
 
     };
   };

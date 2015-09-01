@@ -11,11 +11,17 @@ TimeLineWidget::TimeLineWidget()
 {
   m_settingTime = false;
 
+  // last frame processed
+  m_lastSteppedFrame = UINT_MAX;
+
   // default direction is forward
   m_direction = 1;
 
   // default looping ( 0 )
-  m_looping = 1;
+  m_loopMode = 1;
+
+  // default playback sim
+  m_simMode = 0;
 
   m_timer = new QTimer(this);
   m_timer->setInterval(0);
@@ -34,6 +40,7 @@ TimeLineWidget::TimeLineWidget()
   m_startSpinBox->setDecimals(0);
   m_startSpinBox->setMinimum(-1000000.000000000000000);
   m_startSpinBox->setMaximum(1000000.000000000000000);
+  m_startSpinBox->setValue(0.000000000000000);
   layout()->addWidget(m_startSpinBox);
 
   m_frameSlider = new QSlider(this);
@@ -103,8 +110,8 @@ TimeLineWidget::TimeLineWidget()
 
   m_frameRateComboBox = new QComboBox(this);
   m_frameRateComboBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  m_frameRateComboBox->setMinimumWidth(90);
-  m_frameRateComboBox->setMaximumWidth(90);
+  m_frameRateComboBox->setMinimumWidth(70);
+  m_frameRateComboBox->setMaximumWidth(70);
   m_frameRateComboBox->setFrame(false);
   m_frameRateComboBox->setLayoutDirection(Qt::LeftToRight);
   m_frameRateComboBox->setEditable(false);
@@ -120,17 +127,30 @@ TimeLineWidget::TimeLineWidget()
   m_frameRateComboBox->addItem("custom fps", QVariant(-1.0));
   layout()->addWidget(m_frameRateComboBox);
 
-  m_loopingComBox = new QComboBox(this);
-  m_loopingComBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  m_loopingComBox->setMinimumWidth(100);
-  m_loopingComBox->setMaximumWidth(100);
-  m_loopingComBox->setFrame(false);
-  m_loopingComBox->setLayoutDirection(Qt::LeftToRight);
-  m_loopingComBox->setEditable(false);
-  m_loopingComBox->addItem("Loop Once");
-  m_loopingComBox->addItem("Continuous");
-  m_loopingComBox->addItem("Oscillate");
-  layout()->addWidget(m_loopingComBox);
+  m_loopModeComBox = new QComboBox(this);
+  m_loopModeComBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  m_loopModeComBox->setMinimumWidth(70);
+  m_loopModeComBox->setMaximumWidth(70);
+  m_loopModeComBox->setFrame(false);
+  m_loopModeComBox->setLayoutDirection(Qt::LeftToRight);
+  m_loopModeComBox->setEditable(false);
+  m_loopModeComBox->addItem("Loop Once");
+  m_loopModeComBox->addItem("Continuous");
+  m_loopModeComBox->addItem("Oscillate");
+  layout()->addWidget(m_loopModeComBox);
+
+  m_simModeComBox = new QComboBox(this);
+  m_simModeComBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  m_simModeComBox->setMinimumWidth(70);
+  m_simModeComBox->setMaximumWidth(70);
+  m_simModeComBox->setFrame(false);
+  m_simModeComBox->setLayoutDirection(Qt::LeftToRight);
+  m_simModeComBox->setEditable(false);
+  m_simModeComBox->addItem("Interactive");
+  m_simModeComBox->setItemData(0, "Always evaluate", Qt::ToolTipRole);
+  m_simModeComBox->addItem("Simulated");
+  m_simModeComBox->setItemData(1, "Evaluate all frames, also in betweens.\nReset the stepping on first frame.", Qt::ToolTipRole);
+  layout()->addWidget(m_simModeComBox);
 
   // QLine * line = new QLine();
   // line->setOrientation(Qt::Vertical);
@@ -159,12 +179,15 @@ TimeLineWidget::TimeLineWidget()
   connect( m_timer , SIGNAL(timeout()) , this , SLOT(timerUpdate()) );
 
   connect( m_frameRateComboBox , SIGNAL(activated(int)) , this , SLOT( frameRateChanged(int))  );
-  connect( m_loopingComBox , SIGNAL(activated(int)) , this , SLOT( loopingChanged(int))  );
+  connect( m_loopModeComBox , SIGNAL(activated(int)) , this , SLOT( loopModeChanged(int))  );
+  connect( m_simModeComBox , SIGNAL(activated(int)) , this , SLOT( simModeChanged(int))  );
 
 }
 
 void TimeLineWidget::setTime(int time)
 {
+  if(m_lastSteppedFrame == time)
+    return;
   if(m_settingTime)
     return;
   m_settingTime = true;
@@ -172,14 +195,32 @@ void TimeLineWidget::setTime(int time)
   m_frameSlider->setValue(time);
   m_currentFrameSpinBox->setValue(time);
 
-  emit frameChanged(time);
-
   m_settingTime = false;
+
+  if(m_simMode != 0)
+  {
+    if(m_lastSteppedFrame == UINT_MAX)
+      m_lastSteppedFrame = getRangeStart()-1;
+
+    if(time > getRangeStart() && time > m_lastSteppedFrame)
+    {
+      // step through all frame in betweens
+      for(int i=m_lastSteppedFrame+1;i<time;i++)
+      {
+        m_lastSteppedFrame = i;
+        emit frameChanged(i);
+      }
+    }
+  }
+
+  m_lastSteppedFrame = time;
+  emit frameChanged(time);
 }
 
 /// update the internal time and also emit the signals
-void TimeLineWidget::updateTime(int frame)
+void TimeLineWidget::updateTime(int frame, bool onLoadingScene)
 {
+  m_lastSteppedFrame = UINT_MAX;
   setTime(frame);
 }
 
@@ -223,6 +264,8 @@ void TimeLineWidget::setTimeRange(int start , int end)
   m_endSpinBox->setValue( static_cast<int>( end ) );
   m_endSpinBox->blockSignals(false);
 
+  m_lastSteppedFrame = start;
+
   // update the other elements
   updateFrameRange();
 
@@ -236,6 +279,17 @@ void TimeLineWidget::setTimeRange(int start , int end)
 
 }
 
+void TimeLineWidget::setLoopMode(int mode)
+{
+  m_loopModeComBox->setCurrentIndex(mode);
+  loopModeChanged(mode);
+}
+
+void TimeLineWidget::setSimulationMode(int mode)
+{
+  m_simModeComBox->setCurrentIndex(mode);
+  simModeChanged(mode);
+}
 
 void TimeLineWidget::updateFrameRange()
 {
@@ -303,9 +357,9 @@ void TimeLineWidget::timerUpdate()
   int newTime = getTime()+m_direction;
   if ( newTime > m_endSpinBox->value() )
   {
-    if ( m_looping == 0 )
+    if ( m_loopMode == 0 )
       play();
-    else if ( m_looping == 1 )
+    else if ( m_loopMode == 1 )
     {
       goToStartFrame();
     }
@@ -318,9 +372,9 @@ void TimeLineWidget::timerUpdate()
   }
   else if ( newTime < m_startSpinBox->value() )
   {
-    if ( m_looping )
+    if ( m_loopMode )
       play();
-    else if (m_looping == 1)
+    else if (m_loopMode == 1)
       goToEndFrame();
     else
     {
@@ -359,9 +413,14 @@ void TimeLineWidget::frameRateChanged(int index)
     m_timer->setInterval((int)(1000.0 / fps));
 }
 
-void TimeLineWidget::loopingChanged(int index)
+void TimeLineWidget::loopModeChanged(int index)
 {
-  m_looping = index;
+  m_loopMode = index;
   if (index != 2)
     m_direction = 1;
+}
+
+void TimeLineWidget::simModeChanged(int index)
+{
+  m_simMode = index;
 }
