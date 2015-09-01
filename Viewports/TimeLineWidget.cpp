@@ -220,7 +220,8 @@ void TimeLineWidget::setTime(int time)
 /// update the internal time and also emit the signals
 void TimeLineWidget::updateTime(int frame, bool onLoadingScene)
 {
-  m_lastSteppedFrame = UINT_MAX;
+  if(onLoadingScene)
+    m_lastSteppedFrame = UINT_MAX;
   setTime(frame);
 }
 
