@@ -284,8 +284,13 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
 {
   if(action->text() == "Delete Port (Ctrl+BackSpace)")
   {
-    if(rowCount() <= 1)
+    if(rowCount() == 0)
       return;
+    if(rowCount() == 1)
+    {
+      if(portName(0) == "" && dataType(0) != "$TYPE$")
+        return;
+    }
 
     int index = currentRow_safe();
     removeRow(index);
