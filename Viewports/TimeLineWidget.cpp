@@ -200,7 +200,7 @@ void TimeLineWidget::setTime(int time)
     if(m_lastSteppedFrame == UINT_MAX || time == getRangeStart())
       m_lastSteppedFrame = getRangeStart()-1;
 
-    if(m_lastSteppedFrame > time)
+    if(m_lastSteppedFrame >= time)
       return;
 
     if(time > getRangeStart() && time > m_lastSteppedFrame)
