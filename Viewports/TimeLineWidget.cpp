@@ -211,9 +211,15 @@ void TimeLineWidget::setTime(int time)
         emit frameChanged(i);
       }
     }
+
+    if(time > m_lastSteppedFrame || time == getRangeStart())
+      m_lastSteppedFrame = time;
+  }
+  else
+  {
+    m_lastSteppedFrame = time;
   }
 
-  m_lastSteppedFrame = time;
   emit frameChanged(time);
 }
 
