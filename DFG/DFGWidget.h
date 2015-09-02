@@ -63,6 +63,10 @@ namespace FabricUI
       
       void refreshExtDeps( FTL::CStrRef extDeps );
 
+      bool maybeEditNode(
+        FabricUI::GraphView::Node * node
+        );
+
     signals:
 
       void execChanged();
@@ -70,6 +74,7 @@ namespace FabricUI
       void onGraphSet(FabricUI::GraphView::Graph* graph);
       void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
       void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
+      void nodeInspectRequested(FabricUI::GraphView::Node *);
 
     public slots:
 

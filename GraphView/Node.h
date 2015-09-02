@@ -141,8 +141,8 @@ namespace FabricUI
       void positionChanged(FabricUI::GraphView::Node *, QPointF);
       void pinAdded(FabricUI::GraphView::Node *, Pin *);
       void pinRemoved(FabricUI::GraphView::Node *, Pin *);
-      void doubleClicked(FabricUI::GraphView::Node *);
-      void bubbleEditRequested(FabricUI::GraphView::Node * node);
+      void doubleClicked(FabricUI::GraphView::Node *, Qt::MouseButton, Qt::KeyboardModifiers);
+      void bubbleEditRequested(FabricUI::GraphView::Node * nod);
 
     protected:
 
@@ -152,6 +152,7 @@ namespace FabricUI
       bool onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
       bool onMouseMove(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
       bool onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
+      bool onMouseDoubleClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
 
       bool m_isBackDropNode;
       Graph * m_graph;

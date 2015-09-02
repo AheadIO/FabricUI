@@ -149,7 +149,7 @@ void PinCircle::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 void PinCircle::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
   setVisible(m_shouldBeVisible);
-  if(target()->type() != TargetType_NodeHeader)
+  if(target()->targetType() != TargetType_NodeHeader)
     target()->setHighlighted(false);
   QGraphicsWidget::hoverLeaveEvent(event);
 }
@@ -158,7 +158,7 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   if(event->button() == Qt::LeftButton && m_interactiveConnectionsAllowed)
   {
-    if(target()->type() != TargetType_NodeHeader)
+    if(target()->targetType() != TargetType_NodeHeader)
       target()->setHighlighted(false);
 
     QPointF scenePos = mapToScene(QPointF(m_radius * 0.5, m_radius * 0.5));

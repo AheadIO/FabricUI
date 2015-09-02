@@ -163,7 +163,7 @@ void NodeHeader::addHeaderButton(QString name, QStringList icons, int state)
   QObject::connect(button, SIGNAL(triggered(FabricUI::GraphView::NodeHeaderButton *)), 
     this, SLOT(onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton *)));
   lay->addItem(button);
-  lay->setAlignment(button, Qt::AlignHCenter | Qt::AlignTop);
+  lay->setAlignment(button, Qt::AlignHCenter | Qt::AlignVCenter);
   m_buttons.push_back(button);
 }
 

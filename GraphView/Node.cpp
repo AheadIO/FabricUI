@@ -572,6 +572,16 @@ void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
   QGraphicsWidget::mouseReleaseEvent(event);
 }
 
+void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
+{
+  if(onMouseDoubleClicked(event->button(), event->modifiers(), event->scenePos(), event->lastScenePos()))
+  {
+    event->accept();
+    return;
+  }
+  QGraphicsWidget::mouseDoubleClickEvent(event);
+}
+
 bool Node::onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos)
 {
   if(modifiers.testFlag(Qt::AltModifier))
@@ -726,10 +736,14 @@ bool Node::onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifier
   return false;
 }
 
-void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
+bool Node::onMouseDoubleClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos)
 {
-  emit doubleClicked(this);
-  QGraphicsWidget::mouseDoubleClickEvent(event);
+  if(button == Qt::LeftButton)
+  {
+    emit doubleClicked(this, button, modifiers);
+    return true;
+  }
+  return false;
 }
 
 void Node::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
