@@ -85,7 +85,7 @@ namespace FabricUI
       bool m_resizedOnce;
       bool m_stageVisible;
       bool m_usingStage;
-      bool m_hasLicense;
+      bool m_hasCommercialLicense;
       QColor m_bgColor;
       FabricCore::Client * m_client;
       FabricCore::RTVal m_drawing;

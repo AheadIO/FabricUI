@@ -24,8 +24,8 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
   m_manipTool = new ManipulationTool(this);
   m_usingStage = true;
   m_stageVisible = true;
-  m_hasLicense = client->validateLicense();
-	setFocusPolicy(Qt::StrongFocus);
+  m_hasCommercialLicense = client->hasCommercialLicense();
+  setFocusPolicy(Qt::StrongFocus);
   setAutoBufferSwap(false);
 
   if(m_settings)
@@ -224,7 +224,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
       args[1] = m_viewport;
       m_drawing.callMethod("", "registerViewport", 2, args);
 
-      if(!m_hasLicense)
+      if(!m_hasCommercialLicense)
         m_viewport.callMethod("", "setupLicensingOverlay", 0, 0);
     }
 
