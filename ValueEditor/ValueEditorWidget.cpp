@@ -27,11 +27,12 @@ ValueEditorWidget::ValueEditorWidget(
   setContentsMargins(0, 0, 0, 0);
   layout->setContentsMargins(0, 0, 0, 0);
 
-  m_treeView = new TreeView::TreeViewWidget(this, true /* delegate support */);
+  m_treeView  = new TreeView::TreeViewWidget(this, true /* delegate support */);
   m_treeModel = new TreeView::TreeModel(this);
-  m_factory = new ValueWidgetFactory();
+  m_factory   = new ValueWidgetFactory();
   m_treeView->setModel(m_treeModel);
   m_treeView->setFactory(m_factory);
+  m_treeView->setIndentation(0);  /*  set the indentation to 0 pixels to avoid wasting space and as a fix for FE-5120 */
 
   layout->addWidget(m_treeView);
 }
