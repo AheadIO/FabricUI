@@ -122,6 +122,10 @@ void DFGCombinedWidget::init(
         m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
         this, SLOT(onValueChanged())
         );
+      QObject::connect(
+        m_dfgWidget, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
+        this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
+        );
 
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
@@ -270,14 +274,16 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
 
       QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
         this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
-      QObject::connect(graph, SIGNAL(nodeDoubleClicked(FabricUI::GraphView::Node*)), 
-        this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+      QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)), 
+        this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)));
+      QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)), 
+        this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node*)));
     }
     m_setGraph = graph;
   }
 }
 
-void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
+void DFGCombinedWidget::onNodeInspectRequested(FabricUI::GraphView::Node * node)
 {
   if ( node->isBackDropNode() )
     return;
@@ -299,6 +305,11 @@ void DFGCombinedWidget::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
     s[1] -= s[2];
     m_hSplitter->setSizes(s);
   }
+}
+
+void DFGCombinedWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
+{
+  m_dfgWidget->maybeEditNode(node);
 }
 
 void DFGCombinedWidget::setLogFunc(DFGController::LogFunc func)

@@ -64,7 +64,9 @@ namespace FabricUI
       virtual void onRecompilation() = 0;
       virtual void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onGraphSet(FabricUI::GraphView::Graph * graph);
-      virtual void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
+
+      virtual void onNodeInspectRequested(FabricUI::GraphView::Node * node);
+      virtual void onNodeEditRequested(FabricUI::GraphView::Node * node);
       virtual void onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix);
 
     private slots:

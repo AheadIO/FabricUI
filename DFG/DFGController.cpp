@@ -1337,30 +1337,6 @@ void DFGController::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderB
   }
 }
 
-void DFGController::populateNodeHeaderButtons(GraphView::NodeHeader * header)
-{
-  if(header->node()->type() == GraphView::QGraphicsItemType_Node)
-  {
-    try
-    {
-      FabricCore::DFGExec &exec = getExec();
-      if(exec.getNodeType(header->node()->name().c_str()) == FabricCore::DFGNodeType_Inst)
-      {
-        header->addHeaderButton("node_edit", "node_edit.png");
-      }
-    }
-    catch ( FabricCore::Exception e )
-    {
-      printf(
-        "DFGController::populateNodeHeaderButtons: caught Core exception: %s\n",
-        e.getDesc_cstr()
-        );
-    }
-
-    Controller::populateNodeHeaderButtons(header);
-  }
-}
-
 void DFGController::onVariablesChanged()
 {
   m_presetDictsUpToDate = false;

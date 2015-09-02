@@ -173,6 +173,8 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   result->addAction("Read Variable (Get)");
   result->addAction("Write Variable (Set)");
   result->addAction("Cache Node");
+  result->addSeparator();
+  result->addAction("Paste - Ctrl V");
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
   return result;
@@ -226,12 +228,17 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
       if(!uiNode->isBackDropNode() && uiNode->type() == GraphView::QGraphicsItemType_Node)
       {
-        result->addAction("Edit");
+        result->addAction("Inspect - DoubleClick");
+        result->addAction("Edit - Shift DoubleClick");
         needsSeparator = true;
       }
       
-      result->addAction("Properties");
-      result->addAction("Delete");
+      result->addAction("Properties - F2");
+      result->addAction("Delete - Del");
+      result->addSeparator();
+      result->addAction("Copy - Ctrl C");
+      result->addAction("Paste - Ctrl V");
+      result->addAction("Cut - Ctrl X");
 
       if (!uiNode->isBackDropNode() )
       {
@@ -387,15 +394,7 @@ dfgEntry {\n\
     GraphView::Node * uiNode = m_uiGraph->node(nodeName);
     if(uiNode)
     {
-      std::string subExecPath = m_uiController->getExecPath();
-      if ( !subExecPath.empty() )
-        subExecPath += '.';
-      subExecPath += uiNode->name();
-
-      FabricCore::DFGExec subExec =
-        m_uiController->getExec().getSubExec( uiNode->name().c_str() );
-
-      maybeEditNode( subExecPath, subExec );
+      maybeEditNode( uiNode );
     }
     m_uiController->endInteraction();
   }
@@ -492,6 +491,10 @@ dfgEntry {\n\
     controller->cmdAddInstFromPreset("Fabric.Core.Data.Cache", QPointF(pos.x(), pos.y()));
     pos += QPointF(30, 30);
   }
+  else if(action->text() == "Paste - Ctrl V")
+  {
+    getUIController()->cmdPaste();
+  }
 }
 
 void DFGWidget::onNodeAction(QAction * action)
@@ -512,24 +515,29 @@ void DFGWidget::onNodeAction(QAction * action)
     if(uiDocUrl.length() > 0)
       QDesktopServices::openUrl(uiDocUrl);
   }
-  else if(action->text() == "Edit")
+  else if(action->text() == "Inspect - DoubleClick")
   {
-    FabricCore::DFGExec &exec = m_uiController->getExec();
-    if ( exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst )
-      return;
-
-    std::string subExecPath = m_uiController->getExecPath();
-    if ( !subExecPath.empty() )
-      subExecPath += '.';
-    subExecPath += nodeName;
-
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
-
-    maybeEditNode( subExecPath, subExec );
+    emit nodeInspectRequested(m_contextNode);
   }
-  else if(action->text() == "Delete")
+  else if(action->text() == "Edit - Shift DoubleClick")
+  {
+    maybeEditNode( m_contextNode );
+  }
+  else if(action->text() == "Delete - Del")
   {
     m_uiController->gvcDoRemoveNodes(m_contextNode);
+  }
+  else if(action->text() == "Copy - Ctrl C")
+  {
+    m_uiController->copy();
+  }
+  else if(action->text() == "Paste - Ctrl V")
+  {
+    m_uiController->cmdPaste();
+  }
+  else if(action->text() == "Cut - Ctrl X")
+  {
+    m_uiController->cmdCut();
   }
   else if(action->text() == "Export JSON")
   {
@@ -802,7 +810,7 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     m_uiController->reloadExtensionDependencies(nodeName);
   }
-  else if(action->text() == "Properties")
+  else if(action->text() == "Properties - F2")
   {
     DFGNodePropertiesDialog dialog( this, m_uiController.get(), nodeName, m_dfgConfig );
     if(!dialog.exec())
@@ -825,27 +833,7 @@ void DFGWidget::onNodeAction(QAction * action)
 
 void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
 {
-  try
-  {
-    FTL::CStrRef nodeName = node->name();
-
-    FabricCore::DFGExec &exec = m_uiController->getExec();
-    if ( exec.getNodeType( nodeName.c_str() )
-      != FabricCore::DFGNodeType_Inst )
-      return;
-
-    std::string subExecPath = m_uiController->getExecPath();
-    if ( !subExecPath.empty() )
-      subExecPath += '.';
-    subExecPath += nodeName;
-
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
-    maybeEditNode( subExecPath, subExec );
-  }
-  catch(FabricCore::Exception e)
-  {
-    printf("Exception: %s\n", e.getDesc_cstr());
-  }
+  maybeEditNode( node );
 }
 
 void DFGWidget::onExecPortAction(QAction * action)
@@ -1184,6 +1172,38 @@ void DFGWidget::onPaste()
 {
   getUIController()->cmdPaste();
 }
+
+bool DFGWidget::maybeEditNode(
+  FabricUI::GraphView::Node * node
+  )
+{
+  if ( node->isBackDropNode() )
+    return false;
+
+  try
+  {
+    FTL::CStrRef nodeName = node->name();
+
+    FabricCore::DFGExec &exec = m_uiController->getExec();
+    if ( exec.getNodeType( nodeName.c_str() )
+      != FabricCore::DFGNodeType_Inst )
+      return false;
+
+    std::string subExecPath = m_uiController->getExecPath();
+    if ( !subExecPath.empty() )
+      subExecPath += '.';
+    subExecPath += nodeName;
+
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
+    return maybeEditNode( subExecPath, subExec );
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Exception: %s\n", e.getDesc_cstr());
+  }
+  return false;
+}
+
 
 bool DFGWidget::maybeEditNode(
   FTL::StrRef execPath,

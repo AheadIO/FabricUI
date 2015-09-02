@@ -59,8 +59,10 @@ namespace FabricUI
       bool areCirclesVisible() const;
       void setCirclesVisible(bool visible);
 
-      void addHeaderButton(QString name, QString icon);
-      void setHeaderButtonRotation(QString name, int rotation);
+      void setHeaderButtonState(QString name, int state);
+
+      virtual bool nodeButtonsHighlighted() const { return m_nodeButtonsHighlighted; }
+      virtual void setNodeButtonsHighlighted(bool value);
 
     signals:
 
@@ -72,9 +74,11 @@ namespace FabricUI
 
     private:
 
+      void addHeaderButton(QString name, QStringList icons, int state = 0);
+
       Node * m_node;
       NodeLabel * m_title;
-      NodeEditButton * m_editButton;
+      bool m_nodeButtonsHighlighted;
       PinCircle * m_inCircle;
       PinCircle * m_outCircle;
       std::vector<NodeHeaderButton*> m_buttons;
