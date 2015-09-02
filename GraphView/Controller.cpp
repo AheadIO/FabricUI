@@ -149,15 +149,9 @@ void Controller::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButt
 {
   if(button->name() == "node_collapse")
   {
-    int state = (button->rotation() + 1) % 3;
+    int state = (button->state() + 1) % 3;
     button->header()->node()->setCollapsedState((Node::CollapseState)state);
   }
-}
-
-void Controller::populateNodeHeaderButtons(NodeHeader * header)
-{
-  header->addHeaderButton("node_collapse", "node_collapse.png");
-  header->setHeaderButtonRotation("node_collapse", (int)header->node()->collapsedState());
 }
 
 bool Controller::canConnectTo(

@@ -18,59 +18,68 @@ using namespace FabricUI::GraphView;
 
 std::map<QString, QPixmap> NodeHeaderButton::s_pixmaps;
 
-NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QString icon, int rotation)
+NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringList icons, int state)
 : QGraphicsWidget(parent)
 {
   m_nodeHeader = parent;
   m_name = name;
-  m_icon = icon;
-  m_rotation = 0;
+  m_icons = icons;
+  m_state = 0;
 
-  std::map<QString, QPixmap>::iterator it = s_pixmaps.find(icon);
-  if(it != s_pixmaps.end())
-    m_pixmap = it->second;
-  else
+  for(unsigned int i=0;i<icons.count();i++)
   {
-    QString filePath = m_nodeHeader->node()->graph()->config().nodeHeaderButtonIconDir + m_icon;
-
-    int pos = 0;
-    QRegExp rx("\\$\\{([^\\}]+)\\}");
-    rx.setMinimal(true);
-    while((pos = rx.indexIn(filePath, pos)) != -1)
+    QString icon = icons[i];
+    std::map<QString, QPixmap>::iterator it = s_pixmaps.find(icon);
+    QPixmap pixmap;
+    if(it != s_pixmaps.end())
+      pixmap = it->second;
+    else
     {
-        QString capture = rx.cap(1);
-        const char * envVar = getenv(capture.toAscii());
-        if(envVar)
-        {
-          QString replacement = envVar;
-          filePath.replace("${" + capture + "}", replacement);
-        }
-        pos += rx.matchedLength() + 2;
+      QString filePath = m_nodeHeader->node()->graph()->config().nodeHeaderButtonIconDir + icon;
+
+      int pos = 0;
+      QRegExp rx("\\$\\{([^\\}]+)\\}");
+      rx.setMinimal(true);
+      while((pos = rx.indexIn(filePath, pos)) != -1)
+      {
+          QString capture = rx.cap(1);
+          const char * envVar = getenv(capture.toAscii());
+          if(envVar)
+          {
+            QString replacement = envVar;
+            filePath.replace("${" + capture + "}", replacement);
+          }
+          pos += rx.matchedLength() + 2;
+      }
+
+      pixmap = QPixmap(filePath);
+      s_pixmaps.insert(std::pair<QString, QPixmap>(icon, pixmap));
+    
+      if(pixmap.width() == 0)
+      {
+        printf("NodeHeaderButton: Pixmap not found: '%s'\n", filePath.toUtf8().constData());
+        return;
+      }
     }
 
-    m_pixmap = QPixmap(filePath);
-    s_pixmaps.insert(std::pair<QString, QPixmap>(icon, m_pixmap));
-  
-    if(m_pixmap.width() == 0)
-    {
-      printf("NodeHeaderButton: Pixmap not found: '%s'\n", filePath.toUtf8().constData());
-      return;
-    }
+    m_pixmaps.append(pixmap);
   }
 
-  setMinimumWidth(m_pixmap.width());
-  setMaximumWidth(m_pixmap.width());
-  setMinimumHeight(m_pixmap.height());
-  setMaximumHeight(m_pixmap.height());
+  setMinimumWidth(m_pixmaps[m_state].width());
+  setMaximumWidth(m_pixmaps[m_state].width());
+  setMinimumHeight(m_pixmaps[m_state].height());
+  setMaximumHeight(m_pixmaps[m_state].height());
 
-  setRotation(rotation);
+  setState(state);
 }
 
-void NodeHeaderButton::setRotation(int rot)
+void NodeHeaderButton::setState(int value)
 {
-  if(m_rotation == rot)
+  if(m_state == value)
     return;
-  m_rotation = rot;
+  if(m_state >= m_pixmaps.count())
+    return;
+  m_state = value;
   update();
 }
 
@@ -92,12 +101,11 @@ void NodeHeaderButton::paint(QPainter * painter, const QStyleOptionGraphicsItem 
   timer->resume();
 #endif
 
-  QPixmap pixmap = m_pixmap;
-  if(m_rotation > 0)
+  if(m_pixmaps.count() > m_state)
   {
-    pixmap = pixmap.transformed(QTransform().rotate(90.0f * float(m_rotation)));
+    QPixmap pixmap = m_pixmaps[m_state];
+    painter->drawPixmap(QPointF(0, 0), pixmap);
   }
-  painter->drawPixmap(QPointF(0, 0), pixmap);
 
   QGraphicsWidget::paint(painter, option, widget);
 }

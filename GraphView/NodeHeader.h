@@ -59,8 +59,7 @@ namespace FabricUI
       bool areCirclesVisible() const;
       void setCirclesVisible(bool visible);
 
-      void addHeaderButton(QString name, QString icon);
-      void setHeaderButtonRotation(QString name, int rotation);
+      void setHeaderButtonState(QString name, int state);
 
     signals:
 
@@ -71,6 +70,8 @@ namespace FabricUI
       void onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
+
+      void addHeaderButton(QString name, QStringList icons, int state = 0);
 
       Node * m_node;
       NodeLabel * m_title;

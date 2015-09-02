@@ -101,7 +101,6 @@ namespace FabricUI
       virtual bool frameNodes(const std::vector<Node*> & nodes, float zoom = 0.0f);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
-      virtual void populateNodeHeaderButtons(NodeHeader * header);
 
       virtual bool canConnectTo(
         char const *pathA,

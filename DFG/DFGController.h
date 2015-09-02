@@ -314,8 +314,6 @@ namespace FabricUI
         std::string &failureReason
         );
 
-      virtual void populateNodeHeaderButtons(GraphView::NodeHeader * header);
-
       virtual QStringList getPresetPathsFromSearch(char const * search, bool includePresets = true, bool includeNameSpaces = false);
 
       virtual DFGNotificationRouter *createRouter();

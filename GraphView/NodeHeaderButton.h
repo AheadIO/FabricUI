@@ -23,15 +23,15 @@ namespace FabricUI
 
     public:
 
-      NodeHeaderButton(NodeHeader * parent, QString name, QString icon, int rotation = 0);
+      NodeHeaderButton(NodeHeader * parent, QString name, QStringList icons, int state = 0);
       virtual ~NodeHeaderButton() {}
 
       virtual int type() const { return QGraphicsItemType_NodeHeaderButton; }
       NodeHeader * header() { return m_nodeHeader; }
       virtual QString name() const { return m_name; }
-      virtual QString icon() const { return m_icon; }
-      virtual int rotation() const { return m_rotation; }
-      virtual void setRotation(int rot);
+      virtual QString icon() const { return m_icons[m_state]; }
+      virtual int state() const { return m_state; }
+      virtual void setState(int value);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
@@ -44,9 +44,9 @@ namespace FabricUI
 
       NodeHeader * m_nodeHeader;
       QString m_name;
-      QString m_icon;
-      int m_rotation;
-      QPixmap m_pixmap;
+      QStringList m_icons;
+      int m_state;
+      QList<QPixmap> m_pixmaps;
 
       static std::map<QString, QPixmap> s_pixmaps;
 
