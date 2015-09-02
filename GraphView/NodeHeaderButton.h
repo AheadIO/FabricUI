@@ -34,6 +34,8 @@ namespace FabricUI
       virtual void setState(int value);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+      virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
+      virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
     signals:
@@ -47,6 +49,7 @@ namespace FabricUI
       QStringList m_icons;
       int m_state;
       QList<QPixmap> m_pixmaps;
+      QPointF m_lastMousePos;
 
       static std::map<QString, QPixmap> s_pixmaps;
 

@@ -32,6 +32,7 @@ namespace FabricUI
 
       friend class NodeRectangle;
       friend class NodeBubble;
+      friend class NodeHeaderButton;
 
     public:
 
@@ -147,6 +148,11 @@ namespace FabricUI
 
       void updatePinLayout();
 
+      // used by NodeHeader / NodeHeaderButton
+      bool onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
+      bool onMouseMove(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
+      bool onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
+
       bool m_isBackDropNode;
       Graph * m_graph;
       std::string m_name;
@@ -171,6 +177,7 @@ namespace FabricUI
       bool m_selected;
       int m_dragging;
       Qt::MouseButton m_dragButton;
+      QPointF m_mouseDownPos;
       std::vector<Node *> m_nodesToMove;
 
       std::vector<Pin*> m_pins;

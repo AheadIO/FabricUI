@@ -541,14 +541,45 @@ Pin * Node::pin(FTL::StrRef name)
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-  if(event->modifiers().testFlag(Qt::AltModifier))
-    return QGraphicsWidget::mousePressEvent(event);
-
-  if ( event->button() == Qt::LeftButton
-    || event->button() == DFG_QT_MIDDLE_MOUSE
-    || event->button() == Qt::RightButton )
+  if(onMousePress(event->button(), event->modifiers(), event->scenePos(), event->lastScenePos()))
   {
-    m_dragButton = event->button();
+    event->accept();
+    return;
+  }
+  QGraphicsWidget::mousePressEvent(event);
+}
+
+void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
+{
+  if(onMouseMove(event->button(), event->modifiers(), event->scenePos(), event->lastScenePos()))
+  {
+    event->accept();
+    return;
+  }
+  QGraphicsWidget::mouseMoveEvent(event);
+}
+
+void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+{
+  if(onMouseRelease(event->button(), event->modifiers(), event->scenePos(), event->lastScenePos()))
+  {
+    event->accept();
+    return;
+  }
+  QGraphicsWidget::mouseReleaseEvent(event);
+}
+
+bool Node::onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos)
+{
+  if(modifiers.testFlag(Qt::AltModifier))
+    return false;
+
+  if ( button == Qt::LeftButton
+    || button == DFG_QT_MIDDLE_MOUSE
+    || button == Qt::RightButton )
+  {
+    m_dragButton = button;
+    m_mouseDownPos = scenePos;
 
     Node * hitNode = this;
 
@@ -557,7 +588,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     std::vector<Node *> nodes = graph()->nodes();
     for(size_t i=0;i<nodes.size();i++)
     {
-      QPointF pos = mapToItem(nodes[i], event->pos());
+      QPointF pos = nodes[i]->mapFromScene(pos);
       if(nodes[i]->rect().contains(pos))
       {
         if(nodes[i]->zValue() < hitNode->zValue())
@@ -567,11 +598,11 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
 
     bool clearSelection = true;
-    if(event->button() == DFG_QT_MIDDLE_MOUSE)
+    if(button == DFG_QT_MIDDLE_MOUSE)
     {
       std::vector<Node*> nodes = hitNode->upStreamNodes();
 
-      if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
+      if(!modifiers.testFlag(Qt::ControlModifier) && !modifiers.testFlag(Qt::ShiftModifier))
       {
         m_graph->controller()->clearSelection();
         clearSelection = false;
@@ -580,30 +611,30 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
       for(size_t i=0;i<nodes.size();i++)
         m_graph->controller()->selectNode(nodes[i], true);
     }
-    else if(event->button() == Qt::RightButton)
+    else if(button == Qt::RightButton)
     {
       clearSelection = !hitNode->selected();
     }
 
-    m_dragging = event->button() == Qt::RightButton ? 0 : 1;
+    m_dragging = button == Qt::RightButton ? 0 : 1;
 
     if(!hitNode->selected())
     {
       m_graph->controller()->beginInteraction();
 
-      if(clearSelection && !event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
+      if(clearSelection && !modifiers.testFlag(Qt::ControlModifier) && !modifiers.testFlag(Qt::ShiftModifier))
         m_graph->controller()->clearSelection();
       m_graph->controller()->selectNode(hitNode, true);
 
       m_graph->controller()->endInteraction();
     }
-    else if(event->modifiers().testFlag(Qt::ControlModifier))
+    else if(modifiers.testFlag(Qt::ControlModifier))
     {
       m_graph->controller()->selectNode(hitNode, false);
     }
 
     m_nodesToMove = m_graph->selectedNodes();
-    if ( !event->modifiers().testFlag( Qt::ShiftModifier ) )
+    if ( !modifiers.testFlag( Qt::ShiftModifier ) )
     {
       std::vector<Node *> additionalNodes;
 
@@ -625,7 +656,7 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
         );
     }
 
-    if(event->button() == Qt::RightButton)
+    if(button == Qt::RightButton)
     {
       QMenu * menu = graph()->getNodeContextMenu(hitNode);
       if(menu)
@@ -635,20 +666,19 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
       }
     }
 
-    event->accept();
-    return;
+    return true;
   }
 
-  QGraphicsWidget::mousePressEvent(event);
+  return false;
 }
 
-void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
+bool Node::onMouseMove(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos)
 {
   if ( m_dragging > 0 )
   {
     m_dragging = 2;
 
-    QPointF delta = event->scenePos() - event->lastScenePos();
+    QPointF delta = scenePos - lastScenePos;
     delta *= 1.0f / graph()->mainPanel()->canvasZoom();
 
     m_graph->controller()->gvcDoMoveNodes(
@@ -657,14 +687,13 @@ void Node::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
       false // allowUndo
       );
 
-    event->accept();
-    return;
+    return true;
   }
-  
-  QGraphicsWidget::mouseMoveEvent(event);
+
+  return false;
 }
 
-void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+bool Node::onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos)
 {
   if ( m_dragging == 2 )
   {
@@ -674,22 +703,24 @@ void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     {
       m_graph->controller()->gvcDoMoveNodes(
         m_nodesToMove,
-        event->buttonDownScenePos( m_dragButton ) - event->lastScenePos(),
+        m_mouseDownPos - lastScenePos,
         false // allowUndo
         );
 
       m_graph->controller()->gvcDoMoveNodes(
         m_nodesToMove,
-        event->scenePos() - event->buttonDownScenePos( m_dragButton ),
+        scenePos - m_mouseDownPos,
         true // allowUndo
         );
     }
 
     m_dragging = 0;
     m_nodesToMove.clear();
+
+    return true;
   }
-  else
-    QGraphicsWidget::mouseReleaseEvent(event);
+
+  return false;
 }
 
 void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)

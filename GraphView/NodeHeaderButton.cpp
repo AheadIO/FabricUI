@@ -87,11 +87,49 @@ void NodeHeaderButton::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   if(event->button() == Qt::LeftButton)
   {
-    emit triggered(this);
+    m_lastMousePos = event->scenePos();
     event->accept();
+
+    m_nodeHeader->node()->onMousePress(
+      event->button(),
+      event->modifiers(),
+      event->scenePos(),
+      event->lastScenePos()
+      );
     return;
   }
   QGraphicsWidget::mousePressEvent(event);
+}
+
+void NodeHeaderButton::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
+{
+  event->accept();
+
+  // force the event to fall back to the node
+  // this is done so that dragging etc works correctly.
+  m_nodeHeader->node()->onMouseMove(
+    event->button(),
+    event->modifiers(),
+    event->scenePos(),
+    event->lastScenePos()
+    );
+}
+
+void NodeHeaderButton::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+{
+  if(m_lastMousePos == event->scenePos())
+  {
+    emit triggered(this);
+  }
+
+  // force the event to fall back to the node
+  // this is done so that dragging etc works correctly.
+  m_nodeHeader->node()->onMouseRelease(
+    event->button(),
+    event->modifiers(),
+    event->scenePos(),
+    event->lastScenePos()
+    );
 }
 
 void NodeHeaderButton::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
