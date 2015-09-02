@@ -141,14 +141,16 @@ bool PinCircle::isOutputPortType() const
 void PinCircle::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
   setVisible(true);
-  target()->setHighlighted(true);
+  if(target()->targetType() != TargetType_NodeHeader)
+    target()->setHighlighted(true);
   QGraphicsWidget::hoverEnterEvent(event);
 }
 
 void PinCircle::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
   setVisible(m_shouldBeVisible);
-  target()->setHighlighted(false);
+  if(target()->type() != TargetType_NodeHeader)
+    target()->setHighlighted(false);
   QGraphicsWidget::hoverLeaveEvent(event);
 }
 
@@ -156,7 +158,8 @@ void PinCircle::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   if(event->button() == Qt::LeftButton && m_interactiveConnectionsAllowed)
   {
-    target()->setHighlighted(false);
+    if(target()->type() != TargetType_NodeHeader)
+      target()->setHighlighted(false);
 
     QPointF scenePos = mapToScene(QPointF(m_radius * 0.5, m_radius * 0.5));
 

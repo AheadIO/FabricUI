@@ -25,6 +25,12 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
   m_name = name;
   m_icons = icons;
   m_state = 0;
+  m_highlighted = false;
+
+  QColor nodeFontHighlightColor = m_nodeHeader->node()->graph()->config().nodeFontHighlightColor;
+  float hlR = nodeFontHighlightColor.redF();
+  float hlG = nodeFontHighlightColor.greenF();
+  float hlB = nodeFontHighlightColor.blueF();
 
   for(unsigned int i=0;i<icons.count();i++)
   {
@@ -63,12 +69,45 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
     }
 
     m_pixmaps.append(pixmap);
+
+    // composite a highlight image, using just the alpha map
+    it = s_pixmaps.find(icon + ":highlight");
+    QPixmap highlightPixmap;
+    if(it != s_pixmaps.end())
+      highlightPixmap = it->second;
+    else
+    {
+      QImage image = pixmap.toImage();
+
+      for(unsigned int x=0;x<image.width();x++)
+      {
+        for(unsigned int y=0;y<image.height();y++)
+        {
+          QRgb c = image.pixel(x, y);
+          if(qAlpha(c) > 0)
+          {
+            int a = qAlpha(c);
+            int r = int(hlR * float(a) + 0.5f);
+            int g = int(hlG * float(a) + 0.5f);
+            int b = int(hlB * float(a) + 0.5f);
+            c = qRgba(r, g, b, a);
+            image.setPixel(x, y, c);
+          }
+        }
+      }
+
+      highlightPixmap = QPixmap::fromImage(image);
+      s_pixmaps.insert(std::pair<QString, QPixmap>(icon + ":highlight", highlightPixmap));
+    }
+
+    m_pixmaps.append(highlightPixmap);
   }
 
-  setMinimumWidth(m_pixmaps[m_state].width());
-  setMaximumWidth(m_pixmaps[m_state].width());
-  setMinimumHeight(m_pixmaps[m_state].height());
-  setMaximumHeight(m_pixmaps[m_state].height());
+  int index = 2 * m_state + (m_highlighted ? 1 : 0);
+  setMinimumWidth(m_pixmaps[index].width());
+  setMaximumWidth(m_pixmaps[index].width());
+  setMinimumHeight(m_pixmaps[index].height());
+  setMaximumHeight(m_pixmaps[index].height());
 
   setState(state);
 }
@@ -80,6 +119,14 @@ void NodeHeaderButton::setState(int value)
   if(m_state >= m_pixmaps.count())
     return;
   m_state = value;
+  update();
+}
+
+void NodeHeaderButton::setHighlighted(bool value)
+{
+  if(m_highlighted == value)
+    return;
+  m_highlighted = value;
   update();
 }
 
@@ -139,9 +186,10 @@ void NodeHeaderButton::paint(QPainter * painter, const QStyleOptionGraphicsItem 
   timer->resume();
 #endif
 
-  if(m_pixmaps.count() > m_state)
+  int index = 2 * m_state + (m_highlighted ? 1 : 0);
+  if(m_pixmaps.count() > index)
   {
-    QPixmap pixmap = m_pixmaps[m_state];
+    QPixmap pixmap = m_pixmaps[index];
     painter->drawPixmap(QPointF(0, 0), pixmap);
   }
 

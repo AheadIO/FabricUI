@@ -18,6 +18,7 @@ NodeHeader::NodeHeader(
 : ConnectionTarget(parent->mainWidget())
 {
   m_node = parent;
+  m_nodeButtonsHighlighted = false;
   m_inCircle = NULL;
   m_outCircle = NULL;
   Graph * graph = m_node->graph();
@@ -178,4 +179,13 @@ void NodeHeader::setHeaderButtonState(QString name, int state)
 void NodeHeader::onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
   emit headerButtonTriggered(button);
+}
+
+void NodeHeader::setNodeButtonsHighlighted(bool value)
+{
+  if(m_nodeButtonsHighlighted == value)
+    return;
+  m_nodeButtonsHighlighted = value;
+  for(size_t i=0;i<m_buttons.size();i++)
+    m_buttons[i]->setHighlighted(m_nodeButtonsHighlighted);
 }

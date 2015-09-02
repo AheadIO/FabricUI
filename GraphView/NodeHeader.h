@@ -61,6 +61,9 @@ namespace FabricUI
 
       void setHeaderButtonState(QString name, int state);
 
+      virtual bool nodeButtonsHighlighted() const { return m_nodeButtonsHighlighted; }
+      virtual void setNodeButtonsHighlighted(bool value);
+
     signals:
 
       void headerButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
@@ -75,7 +78,7 @@ namespace FabricUI
 
       Node * m_node;
       NodeLabel * m_title;
-      NodeEditButton * m_editButton;
+      bool m_nodeButtonsHighlighted;
       PinCircle * m_inCircle;
       PinCircle * m_outCircle;
       std::vector<NodeHeaderButton*> m_buttons;

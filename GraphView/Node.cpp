@@ -283,7 +283,10 @@ void Node::setSelected(bool state, bool quiet)
     return;
   m_selected = state;
   if(m_header)
+  {
     m_header->setHighlighted(m_selected);
+    m_header->setNodeButtonsHighlighted(m_selected);
+  }
   if(!quiet)
   {
     emit selectionChanged(this, m_selected);

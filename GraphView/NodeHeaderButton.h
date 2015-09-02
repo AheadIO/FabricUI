@@ -32,6 +32,8 @@ namespace FabricUI
       virtual QString icon() const { return m_icons[m_state]; }
       virtual int state() const { return m_state; }
       virtual void setState(int value);
+      virtual bool highlighted() const { return m_highlighted; }
+      virtual void setHighlighted(bool value);
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
@@ -48,6 +50,7 @@ namespace FabricUI
       QString m_name;
       QStringList m_icons;
       int m_state;
+      bool m_highlighted;
       QList<QPixmap> m_pixmaps;
       QPointF m_lastMousePos;
 
