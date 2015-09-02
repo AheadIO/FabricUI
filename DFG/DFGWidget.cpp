@@ -1170,6 +1170,21 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   }
 }
 
+void DFGWidget::onCopy()
+{
+  getUIController()->copy();
+}
+
+void DFGWidget::onCut()
+{
+  getUIController()->cmdCut();
+}
+
+void DFGWidget::onPaste()
+{
+  getUIController()->cmdPaste();
+}
+
 bool DFGWidget::maybeEditNode(
   FTL::StrRef execPath,
   FabricCore::DFGExec &exec
@@ -1222,6 +1237,42 @@ void DFGWidget::setSettings(QSettings * settings)
 void DFGWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   m_uiHeader->refreshExtDeps( extDeps );
+}
+
+void DFGWidget::populateMenuBar(QMenuBar * menuBar)
+{
+  QMenu *fileMenu = menuBar->addMenu(tr("&File"));
+  QMenu *editMenu = menuBar->addMenu(tr("&Edit"));
+  QMenu *viewMenu = menuBar->addMenu(tr("&View"));
+
+  // emit the prefix menu entry requests
+  emit additionalMenuActionsRequested("File", fileMenu, true);
+  emit additionalMenuActionsRequested("Edit", editMenu, true);
+  emit additionalMenuActionsRequested("View", viewMenu, true);
+
+  // add separators if required
+  if(fileMenu->actions().count() > 0)
+    fileMenu->addSeparator();
+  if(editMenu->actions().count() > 0)
+    editMenu->addSeparator();
+  if(viewMenu->actions().count() > 0)
+    viewMenu->addSeparator();
+
+  // edit menu
+  QAction * cutAction = editMenu->addAction("Cut");
+  cutAction->setShortcut( QKeySequence::Cut );
+  QObject::connect(cutAction, SIGNAL(triggered()), this, SLOT(onCut()));
+  QAction * copyAction = editMenu->addAction("Copy");
+  copyAction->setShortcut( QKeySequence::Copy );
+  QObject::connect(copyAction, SIGNAL(triggered()), this, SLOT(onCopy()));
+  QAction * pasteAction = editMenu->addAction("Paste");
+  pasteAction->setShortcut( QKeySequence::Paste );
+  QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
+
+  // emit the suffix menu entry requests
+  emit additionalMenuActionsRequested("File", fileMenu, false);
+  emit additionalMenuActionsRequested("Edit", editMenu, false);
+  emit additionalMenuActionsRequested("View", viewMenu, false);
 }
 
 void DFGWidget::onExecChanged()

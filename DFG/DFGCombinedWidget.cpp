@@ -2,6 +2,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
 
 #include "DFGCombinedWidget.h"
 #include <FabricUI/Style/FabricStyle.h>
@@ -36,9 +38,12 @@ void DFGCombinedWidget::init(
   DFGConfig config
   )
 {
-
   if(m_dfgWidget)
     return;
+
+  QMenuBar * menuBar = new QMenuBar(this);
+  menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  addWidget(menuBar);
 
   try
   {
@@ -125,6 +130,14 @@ void DFGCombinedWidget::init(
       QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
     }
 
+    // populate the menu bar
+    QObject::connect(
+      m_dfgWidget, 
+      SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
+      this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
+      );
+    m_dfgWidget->populateMenuBar(menuBar);
+
     onGraphSet(m_dfgWidget->getUIGraph());
   }
   catch(FabricCore::Exception e)
@@ -141,8 +154,9 @@ void DFGCombinedWidget::init(
   m_hSplitter->setSizes(s);
 
   s = sizes();
-  s[0] = 500;
-  s[1] = 0;
+  s[0] = 10;
+  s[1] = 500;
+  s[2] = 0;
   setSizes(s);
 }
 
@@ -307,4 +321,41 @@ void DFGCombinedWidget::log(const char * message)
   if(m_dfgWidget)
     m_dfgWidget->getUIController()->log(message);
   printf("%s\n", message);
+}
+
+void DFGCombinedWidget::onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix)
+{
+  if(name == "File")
+  {
+    if(prefix)
+    {
+      // QAction * loadGraphAction = menu->addAction("Load Graph...");
+      // loadGraphAction->setShortcut(QKeySequence::Open);
+
+      // QAction * saveGraphAsAction = menu->addAction("Save Graph As...");
+      // saveGraphAsAction->setShortcut(QKeySequence::SaveAs);
+    
+      // QObject::connect(loadGraphAction, SIGNAL(triggered()), this, SLOT(onLoadGraph()));
+      // QObject::connect(saveGraphAsAction, SIGNAL(triggered()), this, SLOT(onSaveGraphAs()));
+    }
+  }
+  else if(name == "Edit")
+  {
+    if(prefix)
+    {
+      QAction *undoAction = menu->addAction("Undo");
+      undoAction->setShortcut( QKeySequence::Undo );
+      menu->addAction( undoAction );
+      QAction *redoAction = menu->addAction("Redo");
+      redoAction->setShortcut( QKeySequence::Redo );
+      menu->addAction( redoAction );
+
+      QObject::connect(undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
+      QObject::connect(redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
+    }
+  }
+  else if(name == "View")
+  {
+    // todo: here we might add view options for the canvas graph
+  }
 }

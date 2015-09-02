@@ -5,6 +5,7 @@
 
 #include <QtCore/QSettings>
 #include <QtGui/QWidget>
+#include <QtGui/QMenuBar>
 #include <Commands/CommandStack.h>
 #include <FabricUI/DFG/DFGConfig.h>
 #include <FabricUI/DFG/DFGController.h>
@@ -63,8 +64,11 @@ namespace FabricUI
       
       void refreshExtDeps( FTL::CStrRef extDeps );
 
+      void populateMenuBar(QMenuBar * menuBar);
+
     signals:
 
+      void additionalMenuActionsRequested(QString, QMenu*, bool);
       void execChanged();
       void newPresetSaved(QString presetFilePath);
       void onGraphSet(FabricUI::GraphView::Graph* graph);
@@ -84,6 +88,9 @@ namespace FabricUI
       void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
       void onKeyPressed(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
+      void onCut();
+      void onCopy();
+      void onPaste();
 
     private:
 
