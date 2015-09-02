@@ -317,7 +317,7 @@ QMenu * MouseGrabber::createNodeHeaderMenu(Node * node, ConnectionTarget * other
   {
     Pin * pin = node->pin(i);
 
-    if(pin->portType() == nodeRole)
+    if(nodeRole == PortType_Output && pin->portType() == nodeRole)
       continue;
 
     if(other)

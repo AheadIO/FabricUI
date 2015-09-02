@@ -46,11 +46,11 @@ void Graph::initialize()
 
   m_leftPanel = new SidePanel(this, PortType_Output);
   QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
+    this, SLOT(onsidePanelInspectRequested(FabricUI::GraphView::SidePanel*)));
 
   m_rightPanel = new SidePanel(this, PortType_Input);
   QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-    this, SLOT(onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel*)));
+    this, SLOT(onsidePanelInspectRequested(FabricUI::GraphView::SidePanel*)));
 
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   layout->setSpacing(0);
@@ -130,7 +130,12 @@ Node * Graph::addNode(Node * node, bool quiet)
   m_maxZValue += 0.0001;
   node->setZValue(zValue);
 
-  QObject::connect(node, SIGNAL(doubleClicked(FabricUI::GraphView::Node*)), this, SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*)));
+  QObject::connect(
+    node, 
+    SIGNAL(doubleClicked(FabricUI::GraphView::Node*, Qt::MouseButton, Qt::KeyboardModifiers)), 
+    this, 
+    SLOT(onNodeDoubleClicked(FabricUI::GraphView::Node*, Qt::MouseButton, Qt::KeyboardModifiers))
+    );
   QObject::connect(node, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*)));
 
   if(!quiet)
@@ -549,16 +554,21 @@ bool Graph::releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
   return true;
 }
 
-void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node)
+void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 {
   if(m_isEditable)
-    emit nodeDoubleClicked(node);
+  {
+    if(modifiers.testFlag(Qt::ShiftModifier))
+      emit nodeEditRequested(node);
+    else
+      emit nodeInspectRequested(node);
+  }
 }
 
-void Graph::onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel)
+void Graph::onsidePanelInspectRequested(FabricUI::GraphView::SidePanel * panel)
 {
   if(m_isEditable)
-    emit sidePanelDoubleClicked(panel);
+    emit sidePanelInspectRequested(panel);
 }
 
 void Graph::onBubbleEditRequested(FabricUI::GraphView::Node * node)

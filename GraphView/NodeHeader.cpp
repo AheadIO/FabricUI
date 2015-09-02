@@ -18,6 +18,7 @@ NodeHeader::NodeHeader(
 : ConnectionTarget(parent->mainWidget())
 {
   m_node = parent;
+  m_nodeButtonsHighlighted = false;
   m_inCircle = NULL;
   m_outCircle = NULL;
   Graph * graph = m_node->graph();
@@ -44,12 +45,18 @@ NodeHeader::NodeHeader(
   layout->addItem(m_title);
   layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignTop);
 
-  // add all buttons
-  if(!m_node->isBackDropNode())
-    m_node->graph()->controller()->populateNodeHeaderButtons(this);
-
   layout->addStretch(1);
 
+  // add all buttons
+  if(!m_node->isBackDropNode())
+  {
+    QStringList icons;
+    icons.append("node_collapse_1.png");
+    icons.append("node_collapse_2.png");
+    icons.append("node_collapse_3.png");
+    addHeaderButton("node_collapse", icons, (int)node()->collapsedState());
+  }
+    
   m_outCircle = new PinCircle(this, PortType_Output, m_node->color());
   m_outCircle->setClipping(false);
   layout->addItem(m_outCircle);
@@ -148,28 +155,37 @@ void NodeHeader::setCirclesVisible(bool visible)
   m_outCircle->setVisible(visible);
 }
 
-void NodeHeader::addHeaderButton(QString name, QString icon)
+void NodeHeader::addHeaderButton(QString name, QStringList icons, int state)
 {
   QGraphicsLinearLayout * lay = (QGraphicsLinearLayout *)layout();
 
-  NodeHeaderButton * button = new NodeHeaderButton(this, name, icon);
+  NodeHeaderButton * button = new NodeHeaderButton(this, name, icons, state);
   QObject::connect(button, SIGNAL(triggered(FabricUI::GraphView::NodeHeaderButton *)), 
     this, SLOT(onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton *)));
   lay->addItem(button);
-  lay->setAlignment(button, Qt::AlignHCenter | Qt::AlignTop);
+  lay->setAlignment(button, Qt::AlignHCenter | Qt::AlignVCenter);
   m_buttons.push_back(button);
 }
 
-void NodeHeader::setHeaderButtonRotation(QString name, int rotation)
+void NodeHeader::setHeaderButtonState(QString name, int state)
 {
   for(size_t i=0;i<m_buttons.size();i++)
   {
     if(m_buttons[i]->name() == name)
-      m_buttons[i]->setRotation(rotation);
+      m_buttons[i]->setState(state);
   }
 }
 
 void NodeHeader::onHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
   emit headerButtonTriggered(button);
+}
+
+void NodeHeader::setNodeButtonsHighlighted(bool value)
+{
+  if(m_nodeButtonsHighlighted == value)
+    return;
+  m_nodeButtonsHighlighted = value;
+  for(size_t i=0;i<m_buttons.size();i++)
+    m_buttons[i]->setHighlighted(m_nodeButtonsHighlighted);
 }

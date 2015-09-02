@@ -133,8 +133,8 @@ namespace FabricUI
 
       virtual bool pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
       virtual bool releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers);
-      void onNodeDoubleClicked(FabricUI::GraphView::Node * node);
-      void onSidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+      void onNodeDoubleClicked(FabricUI::GraphView::Node * node, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+      void onsidePanelInspectRequested(FabricUI::GraphView::SidePanel * panel);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
 
     signals:
@@ -145,8 +145,9 @@ namespace FabricUI
       void nodeSelected(FabricUI::GraphView::Node * node);
       void nodeDeselected(FabricUI::GraphView::Node * node);
       void nodeMoved(FabricUI::GraphView::Node * node, QPointF pos);
-      void nodeDoubleClicked(FabricUI::GraphView::Node * node);
-      void sidePanelDoubleClicked(FabricUI::GraphView::SidePanel * panel);
+      void nodeInspectRequested(FabricUI::GraphView::Node *);
+      void nodeEditRequested(FabricUI::GraphView::Node *);
+      void sidePanelInspectRequested(FabricUI::GraphView::SidePanel * panel);
       void connectionAdded(FabricUI::GraphView::Connection * connection);
       void connectionRemoved(FabricUI::GraphView::Connection * connection);
       void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
