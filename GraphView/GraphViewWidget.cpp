@@ -73,6 +73,7 @@ void GraphViewWidget::setGraph(Graph * graph)
   {
     m_graph->setGeometry(0, 0, size().width(), size().height());
     m_scene->addItem(m_graph);
+    m_graph->updateOverlays(rect().width(), rect().height());
   }
 }
 
