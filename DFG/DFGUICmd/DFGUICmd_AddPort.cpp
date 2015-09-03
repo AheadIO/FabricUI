@@ -111,8 +111,7 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
       exec.connectTo( portName.c_str(), portToConnect.c_str() );
       ++coreUndoCount;
     }
-    if ( portType != FabricCore::DFGPortType_In
-      && portToConnectNodePortType != FabricCore::DFGPortType_In )
+    if ( portType != FabricCore::DFGPortType_In )
     {
       exec.connectTo( portToConnect.c_str(), portName.c_str() );
       ++coreUndoCount;
