@@ -32,7 +32,7 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
   float hlG = nodeFontHighlightColor.greenF();
   float hlB = nodeFontHighlightColor.blueF();
 
-  for(unsigned int i=0;i<icons.count();i++)
+  for(int i=0;i<icons.count();i++)
   {
     QString icon = icons[i];
     std::map<QString, QPixmap>::iterator it = s_pixmaps.find(icon);
@@ -79,9 +79,9 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
     {
       QImage image = pixmap.toImage();
 
-      for(unsigned int x=0;x<image.width();x++)
+      for(int x=0;x<image.width();x++)
       {
-        for(unsigned int y=0;y<image.height();y++)
+        for(int y=0;y<image.height();y++)
         {
           QRgb c = image.pixel(x, y);
           if(qAlpha(c) > 0)
