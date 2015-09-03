@@ -658,6 +658,12 @@ std::string DFGController::copy()
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
 
+    if (nodes.size() == 0)
+    {
+      QApplication::clipboard()->clear();
+      return "";
+    }
+
     std::vector<std::string> pathStrs;
     pathStrs.reserve( nodes.size() );
 
@@ -694,6 +700,12 @@ void DFGController::cmdCut()
   try
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+
+    if (nodes.size() == 0)
+    {
+      QApplication::clipboard()->clear();
+      return;
+    }
 
     std::vector<std::string> pathStrs;
     pathStrs.reserve( nodes.size() );
@@ -739,16 +751,19 @@ void DFGController::cmdPaste()
   try
   {
     QClipboard *clipboard = QApplication::clipboard();
-    QGraphicsView *graphicsView = graph()->scene()->views()[0];
-    m_cmdHandler->dfgDoPaste(
-      getBinding(),
-      getExecPath(),
-      getExec(),
-      clipboard->text().toUtf8().constData(),
-      graphicsView->mapToScene(
-        graphicsView->mapFromGlobal(QCursor::pos())
-        )
-      );
+    if (!clipboard->text().isEmpty())
+    {
+      QGraphicsView *graphicsView = graph()->scene()->views()[0];
+      m_cmdHandler->dfgDoPaste(
+        getBinding(),
+        getExecPath(),
+        getExec(),
+        clipboard->text().toUtf8().constData(),
+        graphicsView->mapToScene(
+          graphicsView->mapFromGlobal(QCursor::pos())
+          )
+        );
+    }
   }
   catch(FabricCore::Exception e)
   {
