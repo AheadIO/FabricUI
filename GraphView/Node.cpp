@@ -601,7 +601,7 @@ bool Node::onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers,
     std::vector<Node *> nodes = graph()->nodes();
     for(size_t i=0;i<nodes.size();i++)
     {
-      QPointF pos = nodes[i]->mapFromScene(pos);
+      QPointF pos = nodes[i]->mapFromScene(scenePos);
       if(nodes[i]->rect().contains(pos))
       {
         if(nodes[i]->zValue() < hitNode->zValue())
