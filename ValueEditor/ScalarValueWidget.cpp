@@ -2,6 +2,7 @@
 
 #include "ScalarValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QDoubleValidator>
 
@@ -26,6 +27,11 @@ ScalarValueWidget::ScalarValueWidget(QString label, QWidget * parent)
   m_slider->setMinimum(0);
   m_slider->setMaximum(10000);
   hbox->addWidget(m_slider);
+
+  m_lineEdit->setFocusPolicy(Qt::StrongFocus);
+  m_slider->setFocusPolicy(Qt::NoFocus);
+  m_lineEdit->installEventFilter(new TabEventFilter(this));
+  m_slider->installEventFilter(new BackspaceDeleteEventFilter(this));
 
   QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onValueChangedInSlider()));

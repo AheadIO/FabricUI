@@ -30,6 +30,7 @@ namespace FabricUI
     public slots:
 
       void onValueChangedInCheckBox();
+      virtual void setFocusToFirstInput() { m_checkBox->setFocus(); }
 
     private:
 

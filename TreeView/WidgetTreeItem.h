@@ -38,6 +38,8 @@ namespace FabricUI
 
       virtual void onUIChanged() {};
       virtual void onDataChanged();
+      
+      TreeEditorWidget * editor();
 
     private slots:
 
@@ -47,7 +49,6 @@ namespace FabricUI
 
     protected:
 
-      TreeEditorWidget * editor();
       virtual void setEditor(TreeEditorWidget * editor);
       virtual void setSelected(bool state);
       virtual void setExpanded(bool state);

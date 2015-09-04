@@ -69,8 +69,10 @@ namespace FabricUI
       virtual bool removeChild(TreeItem * childToRemove);
       virtual TreeItem * child( unsigned int i );
       virtual TreeItem * child( FTL::StrRef path );
+      virtual TreeItem * child( QModelIndex index );
       virtual TreeItem * parent();
       virtual TreeModel * model();
+      virtual TreeItem * sibling(bool next = true);
 
       virtual Qt::ItemFlags flags();
       virtual QVariant data(int role);

@@ -18,6 +18,8 @@ namespace FabricUI
 
   namespace ValueEditor
   {
+    class ValueEditorWidget;
+
     class ValueWidget : public TreeView::TreeEditorWidget
     {
       Q_OBJECT
@@ -32,8 +34,13 @@ namespace FabricUI
       virtual ValueItem * valueItem();
       virtual void setEnabled(bool state) {}
 
+      ValueEditorWidget * mainEditorWidget();
+
       static TreeView::TreeEditorWidget * creator(QWidget * parent, TreeView::WidgetTreeItem * item);
       static bool canDisplay(TreeView::WidgetTreeItem * item);
+
+    public slots:
+      virtual void setFocusToFirstInput() {}
 
     signals:
 

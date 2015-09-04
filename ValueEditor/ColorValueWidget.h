@@ -105,6 +105,7 @@ namespace FabricUI
       void onValueChangedColorPicker(float r, float g, float b, float a);
       void onBeginInteraction();
       void onEndInteraction();
+      virtual void setFocusToFirstInput() { m_lineEditR->setFocus(); }
 
     private:
 

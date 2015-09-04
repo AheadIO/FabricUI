@@ -2,6 +2,7 @@
 
 #include "ColorValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QDoubleValidator>
 #include <QtGui/QColorDialog>
@@ -105,6 +106,15 @@ ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
   m_colorPicker->setMinimumWidth(60);
   m_colorPicker->setMinimumHeight(m_lineEditR->minimumHeight());
   m_colorPicker->set(0, 0, 0, 0);
+
+  m_lineEditR->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditG->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditB->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditA->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditA->setFocusPolicy(Qt::StrongFocus);
+  m_colorPicker->setFocusPolicy(Qt::NoFocus);
+
+  m_colorPicker->installEventFilter(new BackspaceDeleteEventFilter(this));
 
   hbox->addWidget(m_lineEditR);
   hbox->addWidget(m_lineEditG);

@@ -2,6 +2,7 @@
 
 #include "Vec3ValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QDoubleValidator>
 
@@ -24,6 +25,10 @@ Vec3ValueWidget::Vec3ValueWidget(QString label, QWidget * parent)
   hbox->addWidget(m_lineEditX);
   hbox->addWidget(m_lineEditY);
   hbox->addWidget(m_lineEditZ);
+
+  m_lineEditX->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditY->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditZ->setFocusPolicy(Qt::StrongFocus);
 
   QObject::connect(m_lineEditX, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_lineEditY, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));

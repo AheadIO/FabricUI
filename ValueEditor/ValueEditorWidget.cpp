@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QVBoxLayout> 
+#include <QtCore/Qt>
 
 #include "ValueEditorWidget.h"
 #include "ValueWidgetFactory.h"
@@ -232,4 +233,14 @@ void ValueEditorWidget::clear()
   blockSignals(true);
   m_treeModel->clear();
   blockSignals(false);
+}
+
+void ValueEditorWidget::keyPressEvent(QKeyEvent * event)
+{
+  if(event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+  {
+    event->accept();
+    return;
+  }
+  return QWidget::keyPressEvent(event);
 }

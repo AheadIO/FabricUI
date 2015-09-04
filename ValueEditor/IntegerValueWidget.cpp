@@ -2,6 +2,7 @@
 
 #include "IntegerValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QIntValidator>
 
@@ -69,6 +70,8 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
       if(parts.length() > 1)
       {
         m_comboBox = new QComboBox(this);
+        m_comboBox->setFocusPolicy(Qt::StrongFocus);
+        m_comboBox->installEventFilter(new BackspaceDeleteEventFilter(this));
         hbox->addWidget(m_comboBox);
 
         for(int i=0;i<parts.size();i++)
@@ -93,6 +96,11 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
       m_slider = new QSlider(this);
       m_slider->setOrientation(Qt::Horizontal);
       hbox->addWidget(m_slider);
+
+      m_lineEdit->setFocusPolicy(Qt::StrongFocus);
+      m_slider->setFocusPolicy(Qt::NoFocus);
+      m_slider->installEventFilter(new BackspaceDeleteEventFilter(this));
+
       QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
       QObject::connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onValueChangedInSlider()));
       QObject::connect(m_slider, SIGNAL(sliderPressed()), this, SLOT(onBeginInteraction()));
@@ -312,4 +320,12 @@ bool IntegerValueWidget::canDisplay(WidgetTreeItem * item)
     typeName == "Count" || 
     typeName == "Index" || 
     typeName == "Integer";
+}
+
+void IntegerValueWidget::setFocusToFirstInput()
+{
+  if(m_lineEdit)
+    m_lineEdit->setFocus();
+  if(m_comboBox)
+    m_lineEdit->setFocus();
 }

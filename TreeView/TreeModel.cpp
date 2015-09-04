@@ -78,6 +78,20 @@ TreeItem * TreeModel::item( FTL::StrRef path )
   return 0;
 }
 
+TreeItem * TreeModel::item( QModelIndex index )
+{
+  for ( size_t i = 0; i < m_items.size(); ++i )
+  {
+    TreeItem * candidate = m_items[i];
+    if ( candidate->modelIndex() == index )
+      return candidate;
+    candidate = candidate->child( index );
+    if(candidate)
+      return candidate;
+  }
+  return NULL;  
+}
+
 void TreeModel::clear()
 {
   size_t prevSize = m_items.size();

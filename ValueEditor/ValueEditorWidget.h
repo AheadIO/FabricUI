@@ -5,6 +5,7 @@
 
 #include <QtGui/QLabel> 
 #include <QtGui/QWidget>
+#include <QtGui/QKeyEvent>
 
 #include <FabricUI/TreeView/TreeViewWidget.h>
 #include <FabricUI/TreeView/TreeModel.h>
@@ -33,6 +34,8 @@ namespace FabricUI
       virtual ~ValueEditorWidget();
       EditorConfig & config();
 
+      TreeView::TreeViewWidget * treeView() { return m_treeView; }
+
       virtual ValueItem * addValue(
         FTL::StrRef path,
         FabricCore::RTVal value,
@@ -53,6 +56,8 @@ namespace FabricUI
         );
       
       virtual void clear();
+
+      virtual void keyPressEvent(QKeyEvent * event);
 
     signals:
 

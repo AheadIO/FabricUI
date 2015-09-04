@@ -37,6 +37,7 @@ namespace FabricUI
       void onValueChangedInSlider();
       void onBeginInteraction();
       void onEndInteraction();
+      virtual void setFocusToFirstInput() { m_lineEdit->setFocus(); }
 
     private:
 

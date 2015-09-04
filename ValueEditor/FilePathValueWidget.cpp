@@ -2,6 +2,7 @@
 
 #include "FilePathValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QFileDialog>
 #include <QtCore/QFileInfo>
@@ -20,6 +21,10 @@ FilePathValueWidget::FilePathValueWidget(QString label, QWidget * parent)
   m_browseButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   hbox->addWidget(m_lineEdit);
   hbox->addWidget(m_browseButton);
+
+  m_lineEdit->setFocusPolicy(Qt::StrongFocus);
+  m_browseButton->setFocusPolicy(Qt::NoFocus);
+  m_browseButton->installEventFilter(new BackspaceDeleteEventFilter(this));
 
   QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_browseButton, SIGNAL(clicked()), this, SLOT(onBrowseClicked()));

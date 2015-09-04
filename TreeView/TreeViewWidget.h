@@ -30,6 +30,8 @@ namespace FabricUI
       virtual QString state() const;
       virtual void setState(QString s);
 
+      virtual void tabForwards();
+
     private slots:
       void onCustomContextMenuRequested(const QPoint & point);
       void onEnteredIndex(const QModelIndex & index);

@@ -36,6 +36,7 @@ namespace FabricUI
 
     public slots:
       void changeData();
+      virtual void setFocusToFirstInput() = 0;
 
     signals:
       void dataChanged();

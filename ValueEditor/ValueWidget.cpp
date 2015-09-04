@@ -64,3 +64,21 @@ bool ValueWidget::canDisplay(WidgetTreeItem * item)
   QString typeName = ((ValueItem*)item)->valueTypeName();
   return item->type() == "ValueItem" && typeName == ""; // only accept empty RTVals
 }
+
+ValueEditorWidget * ValueWidget::mainEditorWidget()
+{
+  QObject * p = parent();
+  while(p != NULL)
+  {
+    ValueEditorWidget * result = dynamic_cast<ValueEditorWidget *>(p);
+    if(result != NULL)
+      return result;
+    QObject * p2 = p->parent();
+    if(p2 == NULL)
+      return NULL;
+    if(p2 == p)
+      return NULL;
+    p = p2;
+  }
+  return NULL;
+}

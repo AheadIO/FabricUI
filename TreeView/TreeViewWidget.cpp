@@ -96,6 +96,24 @@ void TreeViewWidget::setState(QString s)
   update();
 }
 
+void TreeViewWidget::tabForwards()
+{
+  QAbstractItemModel * abstractModel = model();
+  if(!abstractModel)
+    return;
+
+  TreeModel * model = (TreeModel *)abstractModel;
+  TreeItem * current = model->item(currentIndex());
+  if(!current)
+    return;
+
+  TreeItem * sibling = current->sibling();
+  if(sibling == current)
+    return;
+
+  onEnteredIndex(sibling->modelIndex(model));
+}
+
 void TreeViewWidget::onCustomContextMenuRequested(const QPoint & point)
 {
   QModelIndex index = indexAt(point);
@@ -156,5 +174,18 @@ void TreeViewWidget::onEnteredIndex(const QModelIndex & index)
   {
     setCurrentIndex(index);
     edit(index, QAbstractItemView::AllEditTriggers, NULL);
+
+    QAbstractItemModel * abstractModel = model();
+    if(abstractModel)
+    {
+      TreeModel * model = (TreeModel *)abstractModel;
+      TreeItem * item = model->item(index);
+      WidgetTreeItem * widgetItem = dynamic_cast<WidgetTreeItem *>(item);
+      if(widgetItem)
+      {
+        if(widgetItem->editor())
+          widgetItem->editor()->setFocusToFirstInput();
+      }
+    }
   }
 }

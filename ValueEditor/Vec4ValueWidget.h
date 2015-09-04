@@ -32,6 +32,7 @@ namespace FabricUI
       void onValueChangedInLineEdit();
       void onBeginInteraction();
       void onEndInteraction();
+      virtual void setFocusToFirstInput() { m_lineEditX->setFocus(); }
 
     private:
 

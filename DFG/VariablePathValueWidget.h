@@ -27,6 +27,7 @@ namespace FabricUI
 
       static TreeView::TreeEditorWidget * creator(QWidget * parent, TreeView::WidgetTreeItem * item);
       static bool canDisplay(TreeView::WidgetTreeItem * item);
+      virtual void setFocusToFirstInput() { m_lineEdit->setFocus(); }
 
     public slots:
 

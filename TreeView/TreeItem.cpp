@@ -209,6 +209,20 @@ TreeItem * TreeItem::child( FTL::StrRef path )
   return NULL;
 }
 
+TreeItem * TreeItem::child( QModelIndex index )
+{
+  for ( size_t i = 0; i < m_children.size(); ++i )
+  {
+    TreeItem * candidate = m_children[i];
+    if ( candidate->modelIndex() == index )
+      return candidate;
+    candidate = candidate->child( index );
+    if(candidate)
+      return candidate;
+  }
+  return NULL;  
+}
+
 TreeItem * TreeItem::parent()
 {
   return m_parent;
@@ -223,6 +237,40 @@ TreeModel * TreeItem::model()
 {
   return m_model;
 }
+
+TreeItem * TreeItem::sibling(bool next)
+{
+  if(m_parent)
+  {
+    std::vector<TreeItem*> & children = m_parent->m_children;
+    for(size_t i=0;i<children.size();i++)
+    {
+      if(children[i] == this)
+      {
+        if(next)
+          return children[(i+1) % children.size()];
+        else
+          return children[(i+children.size()-1) % children.size()];
+      }
+    }
+  }
+  else if(m_model)
+  {
+    std::vector<TreeItem*> items = m_model->m_items;
+    for(size_t i=0;i<items.size();i++)
+    {
+      if(items[i] == this)
+      {
+        if(next)
+          return items[(i+1) % items.size()];
+        else
+          return items[(i+items.size()-1) % items.size()];
+      }
+    }
+  }
+  return NULL;
+}
+
 
 void TreeItem::setModel(TreeModel * model)
 {

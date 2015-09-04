@@ -2,6 +2,7 @@
 
 #include "Vec2ValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 #include <QtGui/QDoubleValidator>
 
@@ -21,6 +22,9 @@ Vec2ValueWidget::Vec2ValueWidget(QString label, QWidget * parent)
   m_lineEditY->setValidator(validator);
   hbox->addWidget(m_lineEditX);
   hbox->addWidget(m_lineEditY);
+
+  m_lineEditX->setFocusPolicy(Qt::StrongFocus);
+  m_lineEditY->setFocusPolicy(Qt::StrongFocus);
 
   QObject::connect(m_lineEditX, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_lineEditY, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));

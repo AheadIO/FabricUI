@@ -30,6 +30,7 @@ namespace FabricUI
       virtual bool removeItem(TreeItem * itemToRemove);
       virtual TreeItem * item(unsigned int index);
       virtual TreeItem * item( FTL::StrRef path );
+      virtual TreeItem * item( QModelIndex index );
       virtual void clear();
 
       // qt model implementation
@@ -57,9 +58,6 @@ namespace FabricUI
     protected:
 
       void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
-
-    private:
-
       std::vector<TreeItem*> m_items;
     };
 

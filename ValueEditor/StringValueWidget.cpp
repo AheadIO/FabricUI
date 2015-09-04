@@ -2,6 +2,7 @@
 
 #include "StringValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -39,6 +40,9 @@ void StringValueWidget::setValue(FabricCore::RTVal v)
       if(parts.length() > 1)
       {
         m_comboBox = new QComboBox(this);
+        m_comboBox->setFocusPolicy(Qt::StrongFocus);
+        m_comboBox->installEventFilter(new BackspaceDeleteEventFilter(this));
+
         hbox->addWidget(m_comboBox);
 
         for(int i=0;i<parts.size();i++)
@@ -55,6 +59,7 @@ void StringValueWidget::setValue(FabricCore::RTVal v)
     if(m_comboBox == NULL)
     {
       m_lineEdit = new QLineEdit(this);
+      m_lineEdit->setFocusPolicy(Qt::StrongFocus);
       hbox->addWidget(m_lineEdit);
       QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
     }
@@ -121,4 +126,12 @@ bool StringValueWidget::canDisplay(WidgetTreeItem * item)
 
   QString typeName = ((ValueItem*)item)->valueTypeName();
   return typeName == "String";
+}
+
+void StringValueWidget::setFocusToFirstInput()
+{
+  if(m_lineEdit)
+    m_lineEdit->setFocus();
+  if(m_comboBox)
+    m_lineEdit->setFocus();
 }

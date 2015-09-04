@@ -39,6 +39,7 @@ namespace FabricUI
       void onValueChangedInComboBox(int index);
       void onBeginInteraction();
       void onEndInteraction();
+      virtual void setFocusToFirstInput();
 
     private:
 

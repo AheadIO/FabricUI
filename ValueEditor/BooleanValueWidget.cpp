@@ -2,6 +2,7 @@
 
 #include "BooleanValueWidget.h"
 #include "ValueItem.h"
+#include "ValueEditorEventFilters.h"
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -12,7 +13,11 @@ BooleanValueWidget::BooleanValueWidget(QString label, QWidget * parent)
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
   m_checkBox = new QCheckBox(this);
+  m_checkBox->setFocusPolicy(Qt::StrongFocus);
+
   hbox->addWidget(m_checkBox);
+
+  m_checkBox->installEventFilter(new BackspaceDeleteEventFilter(this));
 
   QObject::connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(onValueChangedInCheckBox()));
 }
