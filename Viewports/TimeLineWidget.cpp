@@ -148,7 +148,7 @@ TimeLineWidget::TimeLineWidget()
   m_simModeComBox->setEditable(false);
   m_simModeComBox->addItem("Interactive");
   m_simModeComBox->setItemData(0, "Always evaluate", Qt::ToolTipRole);
-  m_simModeComBox->addItem("Simulated");
+  m_simModeComBox->addItem("Simulation");
   m_simModeComBox->setItemData(1, "Evaluate all frames, also in betweens.\nReset the stepping on first frame.", Qt::ToolTipRole);
   layout()->addWidget(m_simModeComBox);
 
