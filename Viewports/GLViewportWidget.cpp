@@ -390,7 +390,40 @@ void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
+
   if(update)
     updateGL();
+}
+
+void GLViewportWidget::resetCamera()
+{
+  if(!m_viewport.isValid())
+    return;
+
+  try
+  {
+    FabricCore::RTVal position[3];
+    position[0] = FabricCore::RTVal::ConstructFloat32(*m_client, 30.0f);
+    position[1] = FabricCore::RTVal::ConstructFloat32(*m_client, 20.0f);
+    position[2] = FabricCore::RTVal::ConstructFloat32(*m_client, 40.0f);
+    
+    FabricCore::RTVal target[3];
+    target[0] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
+    target[1] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
+    target[2] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
+    
+    FabricCore::RTVal args[2];
+    args[0] = FabricCore::RTVal::Construct(*m_client, "Vec3", 3, position);
+    args[1] = FabricCore::RTVal::Construct(*m_client, "Vec3", 3, target);
+
+    m_camera.callMethod("", "setFromPositionAndTarget", 2, args);
+    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraManipulator", 1, &m_camera);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Error: %s\n", e.getDesc_cstr());
+  }
+
+  updateGL();
 }
 
