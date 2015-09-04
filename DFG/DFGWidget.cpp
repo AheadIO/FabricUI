@@ -1116,6 +1116,7 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
 
 void DFGWidget::onKeyPressed(QKeyEvent * event)
 {
+
   if(getUIGraph() && getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
     event->accept();
   else

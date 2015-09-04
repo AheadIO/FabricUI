@@ -135,6 +135,37 @@ bool Controller::frameNodes(const std::vector<Node*> & nodes, float zoom)
   return result;
 }
 
+bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
+{
+  if(!m_graph)
+    return false;
+  if(nodes.size() == 0)
+    return false;
+
+  // Get the boudingRect of the nodes
+  QRectF bounds;
+  for(size_t i=0;i<nodes.size();i++)
+    bounds = bounds.united(nodes[i]->boundingRect().translated(nodes[i]->topLeftGraphPos()));
+
+  // Get the boudingRect of DFG panel 
+  QRectF boundingRect = m_graph->mainPanel()->boundingRect();
+
+  // Compute the appropriate zoom
+  float zoom = std::min( boundingRect.width()/bounds.width(), boundingRect.height()/bounds.height() );
+  // Zoom out a bit more, otherwise nodes will lies on the panel border
+  zoom *= 0.9f;
+
+  // Apply the zoom
+  if(zoom != 0.0f)
+    zoomCanvas(zoom);
+
+  bool result = panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
+
+  m_graph->mainPanel()->update();
+
+  return result;
+}
+
 bool Controller::frameSelectedNodes()
 {
   return frameNodes(m_graph->selectedNodes(), 1.0);
@@ -142,7 +173,7 @@ bool Controller::frameSelectedNodes()
 
 bool Controller::frameAllNodes()
 {
-  return frameNodes(m_graph->nodes());
+  return frameAndFitNodes(m_graph->nodes());
 }
 
 void Controller::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)

@@ -42,7 +42,7 @@ namespace FabricUI
 
       float canvasZoom() const;
       QPointF canvasPan() const;
-
+ 
       float mouseWheelZoomRate() const;
       void setMouseWheelZoomRate(float rate);
       ManipulationMode manipulationMode() const;
