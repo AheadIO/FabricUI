@@ -56,6 +56,7 @@ namespace FabricUI
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
       void setUsingStage( bool usingStage, bool update = true );
       void setStageVisible( bool stageVisible, bool update = true );
+      void resetCamera();
 
     signals:
 
