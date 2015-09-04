@@ -168,7 +168,7 @@ bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
 
 bool Controller::frameSelectedNodes()
 {
-  return frameNodes(m_graph->selectedNodes(), 1.0);
+  return frameAndFitNodes(m_graph->selectedNodes());
 }
 
 bool Controller::frameAllNodes()
