@@ -40,17 +40,29 @@ Graph::Graph(
   m_maxZValue = 0.1;
 }
 
+void Graph::requestSidePanelInspect(
+  FabricUI::GraphView::SidePanel *sidePanel
+  )
+{
+  if ( m_isEditable )
+    emit sidePanelInspectRequested();
+}
+
 void Graph::initialize()
 {
   m_mainPanel = new MainPanel(this);
 
   m_leftPanel = new SidePanel(this, PortType_Output);
-  QObject::connect(m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-    this, SLOT(onsidePanelInspectRequested(FabricUI::GraphView::SidePanel*)));
+  QObject::connect(
+    m_leftPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(requestSidePanelInspect(FabricUI::GraphView::SidePanel*))
+    );
 
   m_rightPanel = new SidePanel(this, PortType_Input);
-  QObject::connect(m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
-    this, SLOT(onsidePanelInspectRequested(FabricUI::GraphView::SidePanel*)));
+  QObject::connect(
+    m_rightPanel, SIGNAL(doubleClicked(FabricUI::GraphView::SidePanel*)), 
+    this, SLOT(requestSidePanelInspect(FabricUI::GraphView::SidePanel*))
+    );
 
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   layout->setSpacing(0);
@@ -563,12 +575,6 @@ void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node, Qt::MouseButto
     else
       emit nodeInspectRequested(node);
   }
-}
-
-void Graph::onsidePanelInspectRequested(FabricUI::GraphView::SidePanel * panel)
-{
-  if(m_isEditable)
-    emit sidePanelInspectRequested(panel);
 }
 
 void Graph::onBubbleEditRequested(FabricUI::GraphView::Node * node)
