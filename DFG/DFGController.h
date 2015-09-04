@@ -284,6 +284,13 @@ namespace FabricUI
         FTL::CStrRef varPath
         );
 
+      void cmdReorderPorts(
+        FabricCore::DFGBinding &binding,
+        FTL::CStrRef execPath,
+        FabricCore::DFGExec &exec,
+        const std::vector<unsigned int> & indices
+        );
+
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
 
