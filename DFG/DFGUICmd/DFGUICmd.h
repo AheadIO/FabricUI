@@ -6,9 +6,12 @@
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUINamespace.h>
 #include <FabricCore.h>
+#include <FTL/StrRef.h>
 #include <QtGui/QUndoCommand>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
+
+#define DFG_CMD_NAME(n) FTL_STR("fabricCanavs" n)
 
 class DFGUICmd
 {

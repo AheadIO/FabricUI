@@ -27,7 +27,7 @@ public:
   }
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgRemoveNodes"); }
+    { return DFG_CMD_NAME("RemoveNodes"); }
 
 protected:
   

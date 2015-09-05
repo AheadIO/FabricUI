@@ -33,7 +33,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgAddVar"); }
+    { return DFG_CMD_NAME("AddVar"); }
 
 protected:
 

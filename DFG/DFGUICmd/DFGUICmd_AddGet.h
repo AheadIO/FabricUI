@@ -31,7 +31,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgAddGet"); }
+    { return DFG_CMD_NAME("AddGet"); }
 
 protected:
 
