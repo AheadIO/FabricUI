@@ -64,6 +64,8 @@ namespace FabricUI
       void canvasZoomChanged(float zoom);
       void canvasPanChanged(QPointF pos);
 
+// [pzion 20150905] The version check causes link errors, but
+// ommitting it doesn't seem to cause problems anyway...
 // #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
       void geometryChanged();
 // #endif
