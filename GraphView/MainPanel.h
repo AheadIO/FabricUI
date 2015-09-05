@@ -64,12 +64,20 @@ namespace FabricUI
       void canvasZoomChanged(float zoom);
       void canvasPanChanged(QPointF pos);
 
+// #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+      void geometryChanged();
+// #endif
+      
     protected:
 
       void performZoom(
         float zoomFactor,
         QPointF zoomCenter
         );
+
+#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+      virtual void updateGeometry();
+#endif
 
     private:
 

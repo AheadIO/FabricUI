@@ -811,3 +811,11 @@ void Node::updatePinLayout()
     m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
   }
 }
+
+#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+void Node::updateGeometry()
+{
+  QGraphicsWidget::updateGeometry();
+  emit geometryChanged();
+}
+#endif
