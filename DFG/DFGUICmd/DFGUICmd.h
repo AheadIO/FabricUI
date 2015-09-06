@@ -11,7 +11,7 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-#define DFG_CMD_NAME(n) FTL_STR("fabricCanavs" n)
+#define DFG_CMD_NAME(n) FTL_STR("FabricCanvas" n)
 
 class DFGUICmd
 {
