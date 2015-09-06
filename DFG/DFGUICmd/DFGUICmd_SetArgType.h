@@ -23,7 +23,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgSetArgType"); }
+    { return DFG_CMD_NAME("SetArgType"); }
 
 protected:
   

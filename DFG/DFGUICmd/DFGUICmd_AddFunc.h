@@ -30,7 +30,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgAddFunc"); }
+    { return DFG_CMD_NAME("AddFunc"); }
 
 protected:
 

@@ -30,7 +30,7 @@ public:
   {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgPaste"); }
+    { return DFG_CMD_NAME("Paste"); }
 
   FTL::ArrayRef<std::string> getPastedNodeNames()
   {

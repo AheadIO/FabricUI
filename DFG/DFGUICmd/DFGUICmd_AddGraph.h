@@ -29,7 +29,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgAddGraph"); }
+    { return DFG_CMD_NAME("AddGraph"); }
 
 protected:
 

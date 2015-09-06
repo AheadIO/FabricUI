@@ -33,7 +33,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgAddPort"); }
+    { return DFG_CMD_NAME("AddPort"); }
 
   FTL::CStrRef getActualPortName()
   {
