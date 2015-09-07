@@ -37,30 +37,26 @@ namespace FabricUI
 
       virtual void showEvent(QShowEvent * event);
 
-    private slots:
-
-      void onTitleChanged();
-      void onToolTipChanged();
-      void onDocUrlChanged();
-      void onNodeColorChanged(float r, float g, float b, float a);
-      void onHeaderColorChanged(float r, float g, float b, float a);
-      void onTextColorChanged(float r, float g, float b, float a);
+      QString getTitle();
+      QString getToolTip();
+      QString getDocUrl();
+      QColor getNodeColor();
+      QColor getHeaderColor();
+      QColor getTextColor();
 
     private:
 
       void setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * json, QColor defaultCol);
 
-      std::string m_nodeName;
+      std::string                      m_nodeName;
+      DFGController                   *m_controller;
 
-      QLineEdit * m_titleEdit;
-      QPlainTextEdit * m_toolTipEdit;
-      QLineEdit * m_docUrlEdit;
-      DFGController * m_controller;
-      ValueEditor::ColorPickerWidget * m_nodeColor;
-      ValueEditor::ColorPickerWidget * m_headerColor;
-      ValueEditor::ColorPickerWidget * m_textColor;
-
-
+      QLineEdit                       *m_titleEdit;
+      QPlainTextEdit                  *m_toolTipEdit;
+      QLineEdit                       *m_docUrlEdit;
+      ValueEditor::ColorPickerWidget  *m_nodeColor;
+      ValueEditor::ColorPickerWidget  *m_headerColor;
+      ValueEditor::ColorPickerWidget  *m_textColor;
     };
 
   };
