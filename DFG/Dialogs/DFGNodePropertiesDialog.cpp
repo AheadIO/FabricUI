@@ -31,12 +31,21 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
 
   try
   {
-    FabricCore::DFGExec exec = m_controller->getExec();
-    FabricCore::DFGExec subExec;
-    if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
-      subExec = exec.getSubExec(m_nodeName.c_str());
+    FabricCore::DFGExec     exec = m_controller->getExec();
+    FabricCore::DFGExec     subExec;
+    FabricCore::DFGNodeType nodeType = exec.getNodeType(m_nodeName.c_str());
 
-    setTitle( exec.getInstTitle(m_nodeName.c_str()) );
+    if(nodeType == FabricCore::DFGNodeType_Inst)
+    {
+      subExec = exec.getSubExec(m_nodeName.c_str());
+      setTitle(exec.getInstTitle(m_nodeName.c_str()));
+    }
+    else
+    {
+      FTL::CStrRef uiTitle = exec.getNodeMetadata(m_nodeName.c_str(), "uiTitle");
+      if (uiTitle.empty())  setTitle(m_nodeName.c_str());
+      else                  setTitle(uiTitle.c_str());
+    }
 
     FTL::CStrRef uiTooltip = exec.getNodeMetadata(m_nodeName.c_str(), "uiTooltip");
     if(uiTooltip.empty() && subExec.isValid())
