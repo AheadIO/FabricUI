@@ -80,6 +80,7 @@ namespace FabricUI
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec
         );
+      void refreshExec();
 
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);

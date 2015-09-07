@@ -159,6 +159,15 @@ namespace FabricUI
         FTL::CStrRef portName
         );
       void onRemovedFromOwner();
+      void onExecPortsReordered(
+        unsigned int indexCount,
+        unsigned int * indices
+        );
+      void onNodePortsReordered(
+        FTL::CStrRef nodeName,
+        unsigned int indexCount,
+        unsigned int * indices
+        );
 
     private:
 

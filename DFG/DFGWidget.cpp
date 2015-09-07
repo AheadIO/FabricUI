@@ -321,12 +321,9 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
     {
       result->addSeparator();
 
-      if(graphWidget->m_contextPort->index() > 0)
-        result->addAction("Move up");
-      if(graphWidget->m_contextPort->index() < graphWidget->m_contextPort->sidePanel()->portCount() - 1)
-        result->addAction("Move down");
+      result->addAction("Move up");
+      result->addAction("Move down");
       result->addAction("Move outputs to end");
-      result->addAction("Move inputs to end");
     }
   }
   catch(FabricCore::Exception e)
@@ -1024,8 +1021,7 @@ void DFGWidget::onExecPortAction(QAction * action)
   }
   else if(action->text() == "Move up" ||
     action->text() == "Move down" ||
-    action->text() == "Move outputs to end" ||
-    action->text() == "Move inputs to end")
+    action->text() == "Move outputs to end")
   {
     try
     {
@@ -1034,38 +1030,53 @@ void DFGWidget::onExecPortAction(QAction * action)
       FTL::CStrRef execPath = m_uiController->getExecPath();
       FabricCore::DFGExec &exec = m_uiController->getExec();
 
-      std::vector<unsigned int> indices;
-
+      // create an index list with the inputs first
+      std::vector<unsigned int> inputsFirst;
       for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        printf("port %d '%s'\n", (int)i, exec.getExecPortName(i));
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_IO)
+          inputsFirst.push_back(i);
+      }
+      for(unsigned int i=0;i<exec.getExecPortCount();i++)
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_In)
+          inputsFirst.push_back(i);
+      }
+      for(unsigned int i=0;i<exec.getExecPortCount();i++)
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
+          inputsFirst.push_back(i);
+      }
+
+      std::vector<unsigned int> indices;
 
       if(action->text() == "Move up")
       {
         unsigned index = UINT_MAX;
         FTL::StrRef portNameRef = portName;
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
+        for(size_t i=0;i<inputsFirst.size();i++)
         {
-          if(portNameRef == exec.getExecPortName(i))
+          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
           {
             index = i;
             break;
           }
         }
-        if(index != UINT_MAX)
+        if(index != UINT_MAX && index != 0)
         {
           if(index == 0)
             return;
 
-          for(unsigned int i=0;i<exec.getExecPortCount();i++)
+          for(size_t i=0;i<inputsFirst.size();i++)
           {
             if(i == index - 1)
             {
-              indices.push_back(index);
-              indices.push_back(i);
+              indices.push_back(inputsFirst[index]);
+              indices.push_back(inputsFirst[i]);
             }
             else if(i != index)
             {
-              indices.push_back(i);
+              indices.push_back(inputsFirst[i]);
             }
           }
         }
@@ -1074,68 +1085,33 @@ void DFGWidget::onExecPortAction(QAction * action)
       {
         unsigned index = UINT_MAX;
         FTL::StrRef portNameRef = portName;
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
+        for(unsigned int i=0;i<inputsFirst.size();i++)
         {
-          if(portNameRef == exec.getExecPortName(i))
+          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
           {
             index = i;
             break;
           }
         }
-        if(index != UINT_MAX)
+        if(index != UINT_MAX && index != inputsFirst.size() - 1)
         {
-          if(index == exec.getExecPortCount() - 1)
-            return;
-
-          for(unsigned int i=0;i<exec.getExecPortCount();i++)
+          for(unsigned int i=0;i<inputsFirst.size();i++)
           {
             if(i == index)
             {
-              indices.push_back(index + 1);
-              indices.push_back(index);
+              indices.push_back(inputsFirst[index + 1]);
+              indices.push_back(inputsFirst[index]);
             }
             else if(i != index + 1)
             {
-              indices.push_back(i);
+              indices.push_back(inputsFirst[i]);
             }
           }
         }
       }
       else if(action->text() == "Move outputs to end")
       {
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_IO)
-            indices.push_back(i);
-        }
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_In)
-            indices.push_back(i);
-        }
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
-            indices.push_back(i);
-        }
-      }
-      else if(action->text() == "Move inputs to end")
-      {
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_IO)
-            indices.push_back(i);
-        }
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
-            indices.push_back(i);
-        }
-        for(unsigned int i=0;i<exec.getExecPortCount();i++)
-        {
-          if(exec.getExecPortType(i) == FEC_DFGPortType_In)
-            indices.push_back(i);
-        }
+        indices = inputsFirst;
       }
 
       if(indices.size() > 0)

@@ -100,6 +100,11 @@ void DFGController::setExec(
   emit execChanged();
 }
 
+void DFGController::refreshExec()
+{
+  emit execChanged();
+}
+
 DFGNotificationRouter * DFGController::getRouter()
 {
   return m_router;
