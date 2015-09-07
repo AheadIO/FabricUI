@@ -144,7 +144,17 @@ namespace FabricUI
       void doubleClicked(FabricUI::GraphView::Node *, Qt::MouseButton, Qt::KeyboardModifiers);
       void bubbleEditRequested(FabricUI::GraphView::Node * nod);
 
+// [pzion 20150905] The version check causes link errors, but
+// ommitting it doesn't seem to cause problems anyway...
+// #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+      void geometryChanged();
+// #endif
+
     protected:
+
+#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+      virtual void updateGeometry();
+#endif
 
       void updatePinLayout();
 

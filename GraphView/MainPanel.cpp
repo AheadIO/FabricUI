@@ -298,3 +298,11 @@ void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
 
   QGraphicsWidget::paint(painter, option, widget);
 }
+
+#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
+void MainPanel::updateGeometry()
+{
+  QGraphicsWidget::updateGeometry();
+  emit geometryChanged();
+}
+#endif

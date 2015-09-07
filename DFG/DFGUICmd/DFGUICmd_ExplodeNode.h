@@ -25,7 +25,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgExplodeNode"); }
+    { return DFG_CMD_NAME("ExplodeNode"); }
 
   FTL::ArrayRef<std::string> getExplodedNodeNames()
   {

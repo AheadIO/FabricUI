@@ -29,7 +29,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgInstPreset"); }
+    { return DFG_CMD_NAME("InstPreset"); }
 
 protected:
 

@@ -35,7 +35,7 @@ public:
   }
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgMoveNodes"); }
+    { return DFG_CMD_NAME("MoveNodes"); }
 
 protected:
   

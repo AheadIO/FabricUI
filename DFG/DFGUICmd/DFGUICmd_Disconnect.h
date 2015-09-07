@@ -25,7 +25,7 @@ public:
     {}
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgDisconnect"); }
+    { return DFG_CMD_NAME("Disconnect"); }
 
 protected:
   

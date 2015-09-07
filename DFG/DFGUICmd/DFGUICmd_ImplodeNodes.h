@@ -31,7 +31,7 @@ public:
   }
 
   static FTL::CStrRef CmdName()
-    { return FTL_STR("dfgImplodeNodes"); }
+    { return DFG_CMD_NAME("ImplodeNodes"); }
 
   FTL::CStrRef getActualImplodedNodeName()
   {
