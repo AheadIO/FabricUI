@@ -37,7 +37,7 @@ namespace FabricUI
 
       void onExecChanged();
       void onExecPortsChanged();
-      void compile();
+      void save();
       void reload();
       void onNewUnsavedChanges();
 
@@ -52,7 +52,7 @@ namespace FabricUI
       FabricCore::DFGExec &getExec()
         { return m_controller->getExec(); }
 
-      void updateDiags();
+      void updateDiags( bool saving = false );
 
     private:
 

@@ -1216,9 +1216,9 @@ bool DFGWidget::maybeEditNode(
     if(m_klEditor->isVisible() && m_klEditor->hasUnsavedChanges())
     {
       QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-        "You haven't compiled the code.\nYou are going to lose the changes.\nSure?");
+        "You haven't saved the code.\nYou are going to lose the changes.\nSure?");
 
-      msg.addButton("Compile Now", QMessageBox::AcceptRole);
+      msg.addButton("Save Now", QMessageBox::AcceptRole);
       msg.addButton("Ok", QMessageBox::NoRole);
       msg.addButton("Cancel", QMessageBox::RejectRole);
 
@@ -1227,9 +1227,9 @@ bool DFGWidget::maybeEditNode(
       QString clicked = msg.clickedButton()->text();
       if(clicked == "Cancel")
         return false;
-      else if(clicked == "Compile Now")
+      else if(clicked == "Save Now")
       {
-        m_klEditor->compile();
+        m_klEditor->save();
         if(m_klEditor->hasUnsavedChanges())
           return false;
       }

@@ -51,18 +51,18 @@ DFGKLEditorWidget::DFGKLEditorWidget(
   buttonsWidget->setContentsMargins(config.graphConfig.headerMargins, config.graphConfig.headerMargins, config.graphConfig.headerMargins, config.graphConfig.headerMargins);
   buttonsWidget->setFont(config.graphConfig.nodeFont);
 
-  QPushButton * compileButton = new QPushButton("Compile", buttonsWidget);
+  QPushButton * saveButton = new QPushButton("Save", buttonsWidget);
   QPushButton * reloadButton = new QPushButton("Reload", buttonsWidget);
   buttonsLayout->addStretch(2);
   buttonsLayout->addWidget(reloadButton);
-  buttonsLayout->addWidget(compileButton);
+  buttonsLayout->addWidget(saveButton);
 
 
-  QPalette buttonPal(compileButton->palette());
+  QPalette buttonPal(saveButton->palette());
   buttonPal.setColor(QPalette::ButtonText, config.graphConfig.headerFontColor);
   buttonPal.setColor(QPalette::Button, config.graphConfig.nodeDefaultColor);
-  // compileButton->setAutoFillBackground(false);
-  compileButton->setPalette(buttonPal);
+  // saveButton->setAutoFillBackground(false);
+  saveButton->setPalette(buttonPal);
   reloadButton->setPalette(buttonPal);
 
   QSplitter * splitter = new QSplitter(this);
@@ -100,7 +100,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(
     controller, SIGNAL(execChanged()),
     this, SLOT(onExecChanged())
     );
-  QObject::connect(compileButton, SIGNAL(clicked()), this, SLOT(compile()));
+  QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
   QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
 
@@ -277,7 +277,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
     m_ports->refresh();
 }
 
-void DFGKLEditorWidget::compile()
+void DFGKLEditorWidget::save()
 {
   m_controller->cmdSetCode(
     m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
@@ -285,10 +285,10 @@ void DFGKLEditorWidget::compile()
 
   m_unsavedChanges = false;
 
-  updateDiags();
+  updateDiags( true );
 }
 
-void DFGKLEditorWidget::updateDiags()
+void DFGKLEditorWidget::updateDiags( bool saving )
 {
   FabricCore::DFGExec &exec = m_controller->getExec();
   unsigned errorCount;
@@ -306,6 +306,9 @@ void DFGKLEditorWidget::updateDiags()
 
   m_diagsModel.setStringList( stringList );
   m_diagsView->setVisible( errorCount > 0 );
+
+  if ( saving )
+    m_controller->log("Save successful.");
 }
 
 void DFGKLEditorWidget::reload()
