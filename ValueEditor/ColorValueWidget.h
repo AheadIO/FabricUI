@@ -66,6 +66,11 @@ namespace FabricUI
       float getB() const { return m_colorB; }
       float getA() const { return m_colorA; }
 
+      int getR_as8bit() const { return (int)(std::max(0.0f, std::min(255.0f, 255.0f * m_colorR))); }
+      int getG_as8bit() const { return (int)(std::max(0.0f, std::min(255.0f, 255.0f * m_colorG))); }
+      int getB_as8bit() const { return (int)(std::max(0.0f, std::min(255.0f, 255.0f * m_colorB))); }
+      int getA_as8bit() const { return (int)(std::max(0.0f, std::min(255.0f, 255.0f * m_colorA))); }
+
       void setEnabled(bool flag) { m_enabled = flag; }
 
     signals:

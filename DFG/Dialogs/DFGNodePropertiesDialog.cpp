@@ -16,18 +16,18 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
 {
   setWindowTitle("Node Properties");
 
-  m_titleEdit = new QLineEdit("", this);
+  m_titleEdit   = new QLineEdit("", this);
   m_titleEdit->setMinimumWidth(250);
   m_toolTipEdit = new QPlainTextEdit("", this);
-  m_docUrlEdit = new QLineEdit("", this);
+  m_docUrlEdit  = new QLineEdit("", this);
 
-  m_nodeColor = new ValueEditor::ColorPickerWidget(this);
+  m_nodeColor   = new ValueEditor::ColorPickerWidget(this);
   m_headerColor = new ValueEditor::ColorPickerWidget(this);
-  m_textColor = new ValueEditor::ColorPickerWidget(this);
+  m_textColor   = new ValueEditor::ColorPickerWidget(this);
 
-  setColorFromExec(m_nodeColor, "uiNodeColor", dfgConfig.graphConfig.nodeDefaultColor);
+  setColorFromExec(m_nodeColor,   "uiNodeColor",   dfgConfig.graphConfig.nodeDefaultColor);
   setColorFromExec(m_headerColor, "uiHeaderColor", dfgConfig.graphConfig.nodeDefaultLabelColor);
-  setColorFromExec(m_textColor, "uiTextColor", dfgConfig.graphConfig.nodeFontColor);
+  setColorFromExec(m_textColor,   "uiTextColor",   dfgConfig.graphConfig.nodeFontColor);
 
   try
   {
@@ -36,12 +36,14 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
     if(exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
       subExec = exec.getSubExec(m_nodeName.c_str());
 
-    setTitle(m_nodeName.c_str());
+    setTitle( exec.getInstTitle(m_nodeName.c_str()) );
+
     FTL::CStrRef uiTooltip = exec.getNodeMetadata(m_nodeName.c_str(), "uiTooltip");
     if(uiTooltip.empty() && subExec.isValid())
       uiTooltip = subExec.getMetadata("uiTooltip");
     if(!uiTooltip.empty())
       setToolTip(uiTooltip.c_str());
+
     FTL::CStrRef uiDocUrl = exec.getNodeMetadata(m_nodeName.c_str(), "uiDocUrl");
     if(uiDocUrl.empty() && subExec.isValid())
       uiDocUrl = subExec.getMetadata("uiDocUrl");
@@ -53,19 +55,12 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput(m_titleEdit, "title", "properties");
-  addInput(m_toolTipEdit, "tooltip", "properties");
-  addInput(m_docUrlEdit, "doc url", "properties");
-  addInput(m_nodeColor, "node color", "properties");
+  addInput(m_titleEdit,   "title",        "properties");
+  addInput(m_toolTipEdit, "tooltip",      "properties");
+  addInput(m_docUrlEdit,  "doc url",      "properties");
+  addInput(m_nodeColor,   "node color",   "properties");
   addInput(m_headerColor, "header color", "properties");
-  addInput(m_textColor, "text color", "properties");
-
-  QObject::connect(m_titleEdit, SIGNAL(editingFinished()), this, SLOT(onTitleChanged()));
-  QObject::connect(m_toolTipEdit, SIGNAL(textChanged()), this, SLOT(onToolTipChanged()));
-  QObject::connect(m_docUrlEdit, SIGNAL(editingFinished()), this, SLOT(onDocUrlChanged()));
-  QObject::connect(m_nodeColor, SIGNAL(colorChanged(float, float, float, float)), this, SLOT(onNodeColorChanged(float, float, float, float)));
-  QObject::connect(m_headerColor, SIGNAL(colorChanged(float, float, float, float)), this, SLOT(onHeaderColorChanged(float, float, float, float)));
-  QObject::connect(m_textColor, SIGNAL(colorChanged(float, float, float, float)), this, SLOT(onTextColorChanged(float, float, float, float)));
+  addInput(m_textColor,   "text color",   "properties");
 }
 
 DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
@@ -94,46 +89,46 @@ void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
   DFGBaseDialog::showEvent(event);  
 }
 
-void DFGNodePropertiesDialog::onTitleChanged()
+QString DFGNodePropertiesDialog::getTitle()
 {
-  m_controller->cmdSetNodeTitle(
-    m_nodeName.c_str(),
-    m_titleEdit->text().toUtf8().constData()
-    );
+  return m_titleEdit->text();
 }
 
-void DFGNodePropertiesDialog::onToolTipChanged()
+QString DFGNodePropertiesDialog::getToolTip()
 {
-  m_controller->setNodeToolTip(
-    m_nodeName.c_str(),
-    m_toolTipEdit->toPlainText().toUtf8().constData()
-    );
+  return m_toolTipEdit->toPlainText();
 }
 
-void DFGNodePropertiesDialog::onDocUrlChanged()
+QString DFGNodePropertiesDialog::getDocUrl()
 {
-  m_controller->setNodeDocUrl(
-    m_nodeName.c_str(),
-    m_docUrlEdit->text().toUtf8().constData()
-    );
+  return m_docUrlEdit->text();
 }
 
-void DFGNodePropertiesDialog::onNodeColorChanged(float r, float g, float b, float a)
+QColor DFGNodePropertiesDialog::getNodeColor()
 {
-  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
-  m_controller->setNodeBackgroundColor(m_nodeName.c_str(), col);
+  ValueEditor::ColorPickerWidget *cpw = m_nodeColor;
+  return QColor(cpw->getR_as8bit(),
+                cpw->getG_as8bit(),
+                cpw->getB_as8bit(),
+                cpw->getA_as8bit());
 }
 
-void DFGNodePropertiesDialog::onHeaderColorChanged(float r, float g, float b, float a)
+QColor DFGNodePropertiesDialog::getHeaderColor()
 {
-  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
-  m_controller->setNodeHeaderColor(m_nodeName.c_str(), col);
+  ValueEditor::ColorPickerWidget *cpw = m_headerColor;
+  return QColor(cpw->getR_as8bit(),
+                cpw->getG_as8bit(),
+                cpw->getB_as8bit(),
+                cpw->getA_as8bit());
 }
 
-void DFGNodePropertiesDialog::onTextColorChanged(float r, float g, float b, float a)
+QColor DFGNodePropertiesDialog::getTextColor()
 {
-  QColor col(int(r * 255.0f), int(g * 255.0f), int(b * 255.0f), int(a * 255.0f));
-  m_controller->setNodeTextColor(m_nodeName.c_str(), col);
+  ValueEditor::ColorPickerWidget *cpw = m_textColor;
+  return QColor(cpw->getR_as8bit(),
+                cpw->getG_as8bit(),
+                cpw->getB_as8bit(),
+                cpw->getA_as8bit());
 }
 
 void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)
