@@ -307,7 +307,7 @@ void DFGKLEditorWidget::updateDiags( bool saving )
   m_diagsModel.setStringList( stringList );
   m_diagsView->setVisible( errorCount > 0 );
 
-  if ( saving )
+  if ( saving && errorCount == 0 )
     m_controller->log("Save successful.");
 }
 
