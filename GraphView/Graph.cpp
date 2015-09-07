@@ -2,6 +2,7 @@
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Exception.h>
 
 using namespace FabricUI::GraphView;
@@ -139,8 +140,13 @@ Node * Graph::addNode(Node * node, bool quiet)
   double zValue = m_maxZValue;
   if(!node->isBackDropNode())
     zValue += 3.0;
-  m_maxZValue += 0.0001;
   node->setZValue(zValue);
+  m_maxZValue += 0.0001;
+  if(node->bubble())
+  {
+    m_maxZValue += 0.0001;
+    node->bubble()->setZValue(zValue + 0.0001);
+  }
 
   QObject::connect(
     node, 
