@@ -1064,9 +1064,6 @@ void DFGWidget::onExecPortAction(QAction * action)
         }
         if(index != UINT_MAX && index != 0)
         {
-          if(index == 0)
-            return;
-
           for(size_t i=0;i<inputsFirst.size();i++)
           {
             if(i == index - 1)
