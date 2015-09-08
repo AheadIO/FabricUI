@@ -100,6 +100,11 @@ void DFGController::setExec(
   emit execChanged();
 }
 
+void DFGController::refreshExec()
+{
+  emit execChanged();
+}
+
 DFGNotificationRouter * DFGController::getRouter()
 {
   return m_router;
@@ -1110,6 +1115,23 @@ void DFGController::cmdSetRefVarPath(
       varPath
       );
   }
+}
+
+void DFGController::cmdReorderPorts(
+  FabricCore::DFGBinding &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec &exec,
+  const std::vector<unsigned int> & indices
+  )
+{
+  UpdateSignalBlocker blocker( this );
+  
+  m_cmdHandler->dfgDoReorderPorts(
+    binding,
+    execPath,
+    exec,
+    indices
+    );
 }
 
 void DFGController::onValueItemInteractionEnter( ValueEditor::ValueItem *valueItem )

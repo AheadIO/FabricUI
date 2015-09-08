@@ -574,4 +574,21 @@ void DFGUICmdHandler_QUndo::dfgDoSetRefVarPath(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
+void DFGUICmdHandler_QUndo::dfgDoReorderPorts(
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  const std::vector<unsigned int> & indices
+  )
+{
+  DFGUICmd_ReorderPorts *cmd =
+    new DFGUICmd_ReorderPorts(
+      binding,
+      execPath,
+      exec,
+      indices
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

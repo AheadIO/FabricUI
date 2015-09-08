@@ -22,6 +22,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_RemoveNodes.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_RemovePort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_RenamePort.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_ReorderPorts.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ResizeBackDrop.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgType.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgValue.h>

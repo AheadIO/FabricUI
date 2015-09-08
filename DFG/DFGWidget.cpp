@@ -313,6 +313,24 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   result->addAction("Rename");
   result->addAction("Delete");
 
+  try
+  {
+    FabricCore::Client &client = graphWidget->m_uiController->getClient();
+    FabricCore::DFGExec &exec = graphWidget->m_uiController->getExec();
+    if(exec.getExecPortCount() > 1)
+    {
+      result->addSeparator();
+
+      result->addAction("Move up");
+      result->addAction("Move down");
+      result->addAction("Move outputs to end");
+    }
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("Exception: %s\n", e.getDesc_cstr());
+  }
+
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onExecPortAction(QAction*)));
   return result;
 }
@@ -1000,6 +1018,106 @@ void DFGWidget::onExecPortAction(QAction * action)
     // {
     //   // setup the value editor
     // }
+  }
+  else if(action->text() == "Move up" ||
+    action->text() == "Move down" ||
+    action->text() == "Move outputs to end")
+  {
+    try
+    {
+      FabricCore::Client &client = m_uiController->getClient();
+      FabricCore::DFGBinding &binding = m_uiController->getBinding();
+      FTL::CStrRef execPath = m_uiController->getExecPath();
+      FabricCore::DFGExec &exec = m_uiController->getExec();
+
+      // create an index list with the inputs first
+      std::vector<unsigned int> inputsFirst;
+      for(unsigned int i=0;i<exec.getExecPortCount();i++)
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_IO)
+          inputsFirst.push_back(i);
+      }
+      for(unsigned int i=0;i<exec.getExecPortCount();i++)
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_In)
+          inputsFirst.push_back(i);
+      }
+      for(unsigned int i=0;i<exec.getExecPortCount();i++)
+      {
+        if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
+          inputsFirst.push_back(i);
+      }
+
+      std::vector<unsigned int> indices;
+
+      if(action->text() == "Move up")
+      {
+        unsigned index = UINT_MAX;
+        FTL::StrRef portNameRef = portName;
+        for(size_t i=0;i<inputsFirst.size();i++)
+        {
+          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
+          {
+            index = i;
+            break;
+          }
+        }
+        if(index != UINT_MAX && index != 0)
+        {
+          for(size_t i=0;i<inputsFirst.size();i++)
+          {
+            if(i == index - 1)
+            {
+              indices.push_back(inputsFirst[index]);
+              indices.push_back(inputsFirst[i]);
+            }
+            else if(i != index)
+            {
+              indices.push_back(inputsFirst[i]);
+            }
+          }
+        }
+      }
+      else if(action->text() == "Move down")
+      {
+        unsigned index = UINT_MAX;
+        FTL::StrRef portNameRef = portName;
+        for(unsigned int i=0;i<inputsFirst.size();i++)
+        {
+          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
+          {
+            index = i;
+            break;
+          }
+        }
+        if(index != UINT_MAX && index != inputsFirst.size() - 1)
+        {
+          for(unsigned int i=0;i<inputsFirst.size();i++)
+          {
+            if(i == index)
+            {
+              indices.push_back(inputsFirst[index + 1]);
+              indices.push_back(inputsFirst[index]);
+            }
+            else if(i != index + 1)
+            {
+              indices.push_back(inputsFirst[i]);
+            }
+          }
+        }
+      }
+      else if(action->text() == "Move outputs to end")
+      {
+        indices = inputsFirst;
+      }
+
+      if(indices.size() > 0)
+        m_uiController->cmdReorderPorts(binding, execPath, exec, indices);
+    }
+    catch(FabricCore::Exception e)
+    {
+      printf("Exception: %s\n", e.getDesc_cstr());
+    }
   }
 
   m_contextPort = NULL;

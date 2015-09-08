@@ -64,6 +64,7 @@ namespace FabricUI
       virtual QColor color() const;
       void setColor(QColor color);
       virtual PortType portType() const;
+      unsigned int index() const { return m_index; }
 
       virtual FTL::CStrRef dataType() const
         { return m_dataType; }
@@ -84,6 +85,10 @@ namespace FabricUI
 
       void positionChanged();
 
+    protected:
+
+      void setIndex(unsigned id) { m_index = id; }
+
     private:
 
       void init();
@@ -97,6 +102,7 @@ namespace FabricUI
       bool m_highlighted;
       TextContainer * m_label;
       PinCircle * m_circle;
+      unsigned int m_index;
     };
 
   };
