@@ -315,7 +315,6 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
 
   try
   {
-    FabricCore::Client &client = graphWidget->m_uiController->getClient();
     FabricCore::DFGExec &exec = graphWidget->m_uiController->getExec();
     if(exec.getExecPortCount() > 1)
     {
@@ -1029,7 +1028,6 @@ void DFGWidget::onExecPortAction(QAction * action)
   {
     try
     {
-      FabricCore::Client &client = m_uiController->getClient();
       FabricCore::DFGBinding &binding = m_uiController->getBinding();
       FTL::CStrRef execPath = m_uiController->getExecPath();
       FabricCore::DFGExec &exec = m_uiController->getExec();
