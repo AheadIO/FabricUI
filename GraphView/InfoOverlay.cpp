@@ -14,7 +14,7 @@
 using namespace FabricUI::GraphView;
 
 InfoOverlay::InfoOverlay(Graph * parent, QString text, const GraphConfig & config)
-: QGraphicsWidget(parent->itemGroup())
+: QGraphicsWidget(parent->mainPanel())
 , m_graph(parent)
 , m_config(config)
 {

@@ -208,6 +208,7 @@ namespace FabricUI
       void * m_portContextMenuCallbackUD;
       void * m_sidePanelContextMenuCallbackUD;
       InfoOverlay * m_centralOverlay;
+      QString m_centralOverlayText;
       bool m_isEditable;
       QPointF m_overlayPos;
       QPixmap m_overlayPixmap;

@@ -241,6 +241,10 @@ bool Graph::removeNode(Node * node, bool quiet)
 
   controller()->endInteraction();
 
+  // recreate the overlay info
+  if(m_nodes.size() == 0 && m_centralOverlayText.length() > 0)
+    setCentralOverlayText(m_centralOverlayText);
+
   return true;
 }
 
@@ -541,8 +545,8 @@ void Graph::updateOverlays(float width, float height)
   if(m_centralOverlay != NULL)
   {
     QPointF pos;
-    pos.setX(-m_centralOverlay->minimumWidth() * 0.5 + width * 0.5);
-    pos.setY(-m_centralOverlay->minimumHeight() * 0.5 + height * 0.5);
+    pos.setX(-m_centralOverlay->minimumWidth() * 0.5 + m_mainPanel->size().width() * 0.5);
+    pos.setY(-m_centralOverlay->minimumHeight() * 0.5 + m_mainPanel->size().height() * 0.5);
     m_centralOverlay->setPos(pos);
   }
 }
@@ -564,6 +568,7 @@ void Graph::setCentralOverlayText(QString text)
   if(m_centralOverlay)
     return;
   m_centralOverlay = new InfoOverlay(this, text, m_config);
+  m_centralOverlayText = text;
   updateOverlays(rect().width(), rect().height());
 }
 
