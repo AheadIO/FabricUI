@@ -766,7 +766,11 @@ void DFGWidget::onNodeAction(QAction * action)
         fclose(file);
 
         subExec.setImportPathname(filePathStr.c_str());
-        subExec.attachPresetFile(location.toUtf8().constData(), name.toUtf8().constData());
+        subExec.attachPresetFile(
+          location.toUtf8().constData(),
+          name.toUtf8().constData(),
+          true // replaceExisting
+          );
 
         emit newPresetSaved(filePathStr.c_str());
         // update the preset search paths within the controller
