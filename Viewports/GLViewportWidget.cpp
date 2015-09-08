@@ -100,6 +100,7 @@ void GLViewportWidget::setManipulationActive(bool state)
     m_manipTool->toolOnSetup();
   else
     m_manipTool->toolOffCleanup();
+  redraw();
 }
 
 void GLViewportWidget::clearInlineDrawing()

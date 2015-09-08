@@ -30,6 +30,7 @@ DFGTabSearchWidget::DFGTabSearchWidget(
 
 DFGTabSearchWidget::~DFGTabSearchWidget()
 {
+  releaseKeyboard();
 }
 
 void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
@@ -188,6 +189,13 @@ void DFGTabSearchWidget::paintEvent(QPaintEvent * event)
   QWidget::paintEvent(event);  
 }
 
+void DFGTabSearchWidget::hideEvent(QHideEvent * event)
+{
+  releaseKeyboard();
+  emit enabled(false);
+  QWidget::hideEvent(event);  
+}
+
 void DFGTabSearchWidget::showForSearch( QPoint globalPos )
 {
   m_results.clear();
@@ -201,6 +209,8 @@ void DFGTabSearchWidget::showForSearch( QPoint globalPos )
                0 );
   updateGeometry();
 
+  grabKeyboard();
+  emit enabled(true);
   show();
 }
 

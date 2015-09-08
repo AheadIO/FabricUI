@@ -31,6 +31,11 @@ namespace FabricUI
       virtual void mouseMoveEvent(QMouseEvent * event);
       virtual void keyPressEvent(QKeyEvent * event);
       virtual void paintEvent(QPaintEvent * event);
+      virtual void hideEvent(QHideEvent * event);
+
+    signals: 
+
+      void enabled(bool);
 
     protected:
 

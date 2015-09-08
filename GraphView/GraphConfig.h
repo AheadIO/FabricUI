@@ -111,6 +111,11 @@ namespace FabricUI
       QColor nodeBubbleColor;
       QFont nodeBubbleFont;
 
+      float infoOverlayMinWidth;
+      float infoOverlayMinHeight;
+      QColor infoOverlayColor;
+      QFont infoOverlayFont;
+
       GraphConfig();
     };
 

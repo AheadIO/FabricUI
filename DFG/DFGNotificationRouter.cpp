@@ -260,6 +260,41 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     {
       onRemovedFromOwner();
     }
+    else if ( descStr == FTL_STR("execPortsReordered") )
+    {
+      const FTL::JSONArray * newOrder = jsonObject->maybeGetArray( FTL_STR("newOrder") );
+      if ( newOrder )
+      {
+        std::vector<unsigned int> indices;
+        for( size_t i = 0; i < newOrder->size(); i++ )
+        {
+          const FTL::JSONValue * indexVal = newOrder->get( i );
+          unsigned int index = indexVal->getSInt32Value();
+          indices.push_back( index );
+        }
+
+        if( indices.size() > 0 )
+          onExecPortsReordered( indices.size(), &indices[ 0 ] );
+      }
+    }
+    else if (descStr == FTL_STR("nodePortsReordered") )
+    {
+      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+      const FTL::JSONArray * newOrder = jsonObject->maybeGetArray( FTL_STR("newOrder") );
+      if ( newOrder )
+      {
+        std::vector<unsigned int> indices;
+        for( size_t i = 0; i < newOrder->size(); i++ )
+        {
+          const FTL::JSONValue * indexVal = newOrder->get( i );
+          unsigned int index = indexVal->getSInt32Value();
+          indices.push_back( index );
+        }
+
+        if( indices.size() > 0 )
+          onNodePortsReordered( nodeName, indices.size(), &indices[ 0 ] );
+      }
+    }
     else
     {
       printf(
@@ -1235,4 +1270,23 @@ void DFGNotificationRouter::onRemovedFromOwner()
     rootExec.getSubExec( parentExecPath.c_str() );
 
   m_dfgController->setExec( parentExecPath, parentExec );
+}
+
+void DFGNotificationRouter::onExecPortsReordered(
+  unsigned int indexCount,
+  unsigned int * indices
+  )
+{
+  // refresh the view
+  m_dfgController->refreshExec();
+}
+
+void DFGNotificationRouter::onNodePortsReordered(
+  FTL::CStrRef nodeName,
+  unsigned int indexCount,
+  unsigned int * indices
+  )
+{
+  // refresh the view
+  m_dfgController->refreshExec();
 }

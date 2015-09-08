@@ -80,6 +80,7 @@ namespace FabricUI
         FTL::StrRef execPath,
         FabricCore::DFGExec &exec
         );
+      void refreshExec();
 
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
@@ -282,6 +283,13 @@ namespace FabricUI
         FabricCore::DFGExec &exec,
         FTL::CStrRef refName,
         FTL::CStrRef varPath
+        );
+
+      void cmdReorderPorts(
+        FabricCore::DFGBinding &binding,
+        FTL::CStrRef execPath,
+        FabricCore::DFGExec &exec,
+        const std::vector<unsigned int> & indices
         );
 
       virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);

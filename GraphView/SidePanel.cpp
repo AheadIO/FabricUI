@@ -68,6 +68,7 @@ Port * SidePanel::addPort(Port * port)
       return NULL;
   }
 
+  port->setIndex(m_ports.size());
   m_ports.push_back(port);
 
   resetLayout();
@@ -90,6 +91,9 @@ bool SidePanel::removePort(Port * port)
     return false;
 
   m_ports.erase(m_ports.begin() + index);
+
+  for(size_t i=0;i<m_ports.size();i++)
+    m_ports[i]->setIndex(i);
 
   scene()->removeItem(port);
   delete(port);

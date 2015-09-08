@@ -21,6 +21,7 @@ namespace FabricUI
         GraphView::Graph * graph = NULL
         );
 
+      virtual void setGraph(GraphView::Graph * graph);
       virtual void dropEvent(QDropEvent *event);
 
     };

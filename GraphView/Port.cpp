@@ -28,6 +28,7 @@ Port::Port(
   m_portType = portType;
   m_dataType = dataType;
   m_color = color;
+  m_index = 0;
 
   init();
 }

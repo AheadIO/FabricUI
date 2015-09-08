@@ -222,6 +222,13 @@ public:
     FTL::CStrRef refName,
     FTL::CStrRef varPath
     ) = 0;
+
+  virtual void dfgDoReorderPorts(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    const std::vector<unsigned int> & indices
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

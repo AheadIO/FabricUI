@@ -2,6 +2,7 @@
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/Exception.h>
 
 using namespace FabricUI::GraphView;
@@ -38,6 +39,7 @@ Graph::Graph(
   m_sidePanelContextMenuCallbackUD = NULL;
   m_overlayItem = NULL;
   m_maxZValue = 0.1;
+  m_centralOverlay = NULL;
 }
 
 void Graph::requestSidePanelInspect(
@@ -139,8 +141,13 @@ Node * Graph::addNode(Node * node, bool quiet)
   double zValue = m_maxZValue;
   if(!node->isBackDropNode())
     zValue += 3.0;
-  m_maxZValue += 0.0001;
   node->setZValue(zValue);
+  m_maxZValue += 0.0001;
+  if(node->bubble())
+  {
+    m_maxZValue += 0.0001;
+    node->bubble()->setZValue(zValue + 0.0001);
+  }
 
   QObject::connect(
     node, 
@@ -152,6 +159,14 @@ Node * Graph::addNode(Node * node, bool quiet)
 
   if(!quiet)
     emit nodeAdded(node);
+
+  if(m_centralOverlay)
+  {
+    prepareGeometryChange();
+    scene()->removeItem(m_centralOverlay);
+    delete(m_centralOverlay);
+    m_centralOverlay = NULL;
+  }
 
   return node;
 }
@@ -503,25 +518,33 @@ void Graph::resetMouseGrabber()
 
 void Graph::updateOverlays(float width, float height)
 {
-  if(m_overlayItem == NULL)
-    return;
-
-  QPointF pos = m_overlayPos;
-  if(pos.x() < 0.0f) 
+  if(m_overlayItem != NULL)
   {
-    if(m_rightPanel)
-      pos.setX(width + pos.x() - m_rightPanel->rect().width());
-    else
-      pos.setX(width + pos.x());
-  }
-  else if(m_leftPanel)
-  {
-    pos.setX(pos.x() + m_leftPanel->rect().width());
-  }
-  
-  if(pos.y() < 0.0) pos.setY(height + pos.y());
+    QPointF pos = m_overlayPos;
+    if(pos.x() < 0.0f) 
+    {
+      if(m_rightPanel)
+        pos.setX(width + pos.x() - m_rightPanel->rect().width());
+      else
+        pos.setX(width + pos.x());
+    }
+    else if(m_leftPanel)
+    {
+      pos.setX(pos.x() + m_leftPanel->rect().width());
+    }
+    
+    if(pos.y() < 0.0) pos.setY(height + pos.y());
 
-  m_overlayItem->setPos(pos);
+    m_overlayItem->setPos(pos);
+  }
+
+  if(m_centralOverlay != NULL)
+  {
+    QPointF pos;
+    pos.setX(-m_centralOverlay->minimumWidth() * 0.5 + width * 0.5);
+    pos.setY(-m_centralOverlay->minimumHeight() * 0.5 + height * 0.5);
+    m_centralOverlay->setPos(pos);
+  }
 }
 
 void Graph::setupBackgroundOverlay(QPointF pos, QString filePath)
@@ -533,6 +556,14 @@ void Graph::setupBackgroundOverlay(QPointF pos, QString filePath)
   else
     m_overlayItem->setPixmap(m_overlayPixmap);
   m_overlayItem->setZValue(2000);
+  updateOverlays(rect().width(), rect().height());
+}
+
+void Graph::setCentralOverlayText(QString text)
+{
+  if(m_centralOverlay)
+    return;
+  m_centralOverlay = new InfoOverlay(this, text, m_config);
   updateOverlays(rect().width(), rect().height());
 }
 
