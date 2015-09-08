@@ -24,6 +24,8 @@ void DFGUICmd_Paste::invoke( unsigned &coreUndoCount )
       m_cursorPos,
       coreUndoCount
       );
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

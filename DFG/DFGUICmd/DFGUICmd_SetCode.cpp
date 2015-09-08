@@ -16,6 +16,8 @@ void DFGUICmd_SetCode::invoke( unsigned &coreUndoCount )
 {
   getExec().setCode( m_code.c_str() );
   ++coreUndoCount;
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

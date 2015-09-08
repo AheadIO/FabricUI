@@ -127,7 +127,6 @@ void DFGCombinedWidget::init(
         this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
         );
 
-      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(recompiled()), this, SLOT(onRecompilation()));
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
         this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
       QObject::connect(m_dfgWidget->getUIController(), SIGNAL(varsChanged()), m_treeWidget, SLOT(refresh()));
@@ -183,7 +182,6 @@ void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
 
 void DFGCombinedWidget::onValueChanged()
 {
-  onRecompilation();
   emit valueChanged();
 }
 

@@ -18,6 +18,8 @@ FTL::CStrRef DFGUICmd_InstPreset::invokeAdd( unsigned &coreUndoCount )
     getExec().addInstFromPreset( getPresetPath().c_str() );
   ++coreUndoCount;
 
+  getBinding().execute();
+
   return actualNodeName;
 }
 

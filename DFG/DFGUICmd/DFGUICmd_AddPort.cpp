@@ -23,6 +23,8 @@ void DFGUICmd_AddPort::invoke( unsigned &coreUndoCount )
       m_portToConnectWith,
       coreUndoCount
       );
+
+  getBinding().execute();
 }
 
 FTL::CStrRef DFGUICmd_AddPort::Perform(

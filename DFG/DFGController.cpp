@@ -1996,7 +1996,6 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   {
     m_host.unblockComps();
     emitArgsChanged();
-    emit recompiled();
     emit varsChanged();
   }
 }

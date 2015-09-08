@@ -22,6 +22,8 @@ void DFGUICmd_RenamePort::invoke( unsigned &coreUndoCount )
       m_desiredNewPortName.c_str()
       );
   ++coreUndoCount;
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

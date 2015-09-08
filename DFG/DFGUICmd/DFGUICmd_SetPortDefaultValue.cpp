@@ -16,6 +16,8 @@ void DFGUICmd_SetPortDefaultValue::invoke( unsigned &coreUndoCount )
 {
   getExec().setPortDefaultValue( m_portPath.c_str(), m_value, true );
   ++coreUndoCount;
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

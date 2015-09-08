@@ -21,6 +21,8 @@ void DFGUICmd_Connect::invoke( unsigned &coreUndoCount )
     m_dstPath.c_str()
     );
   ++coreUndoCount;
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

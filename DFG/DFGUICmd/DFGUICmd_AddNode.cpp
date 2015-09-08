@@ -30,6 +30,8 @@ void DFGUICmd_AddNode::invoke( unsigned &coreUndoCount )
     true // canUndo
     );
   ++coreUndoCount;
+
+  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END
