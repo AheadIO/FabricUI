@@ -45,7 +45,7 @@ void Port::init()
   layout->setOrientation(Qt::Horizontal);
   setLayout(layout);
 
-  m_label = new TextContainer(this, m_labelCaption.c_str(), config.sidePanelFontColor, config.sidePanelFontHighlightColor, config.sidePanelFont);
+  m_label = new TextContainer(this, QSTRING_FROM_STL_UTF8(m_labelCaption), config.sidePanelFontColor, config.sidePanelFontHighlightColor, config.sidePanelFont);
   m_circle = new PinCircle(this, m_portType, color());
 
   if(m_portType == PortType_Input)
@@ -101,7 +101,7 @@ void Port::setName( FTL::CStrRef name )
   if(m_name == m_labelCaption)
   {
     m_labelCaption = name;
-    m_label->setText(m_labelCaption.c_str());
+    m_label->setText(QSTRING_FROM_STL_UTF8(m_labelCaption));
   }
   m_name = name;
   update();

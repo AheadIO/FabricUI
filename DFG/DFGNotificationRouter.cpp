@@ -948,12 +948,12 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   }
   else if(key == FTL_STR("uiTooltip"))
   {
-    QString tooltip = value.c_str();
+    QString tooltip = QSTRING_FROM_FTL_UTF8(value);
     uiNode->header()->setToolTip(tooltip.trimmed());
   }
   else if(key == FTL_STR("uiComment"))
   {
-    QString text = value.c_str();
+    QString text = QSTRING_FROM_FTL_UTF8(value);
     GraphView::NodeBubble *uiBubble = uiNode->bubble();
     if ( text.length() == 0 )
       uiBubble->hide();

@@ -64,7 +64,7 @@ Pin::Pin(
 
   if(m_labelCaption.length() > 0)
   {
-    m_label = new PinLabel(this, m_labelCaption.c_str(), config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
+    m_label = new PinLabel(this, QSTRING_FROM_STL_UTF8(m_labelCaption), config.pinFontColor, config.pinFontHighlightColor, config.pinFont);
 
     layout->addItem(m_label);
     layout->setAlignment(m_label, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -183,14 +183,14 @@ void Pin::setDataType(FTL::CStrRef dataType)
       if(m_dataType.substr(m_dataType.length()-2) == "[]" && m_labelSuffix != "[]")
       {
         m_labelSuffix = "[]";
-        m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+        m_label->setText(QSTRING_FROM_STL_UTF8(m_labelCaption + m_labelSuffix));
         return;
       }
     }
     if(m_labelSuffix.length() > 0)
     {
       m_labelSuffix = "";
-      m_label->setText((m_labelCaption + m_labelSuffix).c_str());
+      m_label->setText(QSTRING_FROM_STL_UTF8(m_labelCaption + m_labelSuffix));
     }
   }
 }

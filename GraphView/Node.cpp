@@ -74,7 +74,7 @@ Node::Node(
   layout->setOrientation(Qt::Vertical);
   m_mainWidget->setLayout(layout);
 
-  m_header = new NodeHeader(this, QString( title.c_str() ));
+  m_header = new NodeHeader(this, QSTRING_FROM_FTL_UTF8(title) );
   layout->addItem(m_header);
   layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
 
@@ -160,7 +160,7 @@ void Node::setTitle( FTL::CStrRef title )
 {
   m_title = title;
   if(m_header)
-    m_header->setTitle( QString( title.c_str() ) );
+    m_header->setTitle( QSTRING_FROM_FTL_UTF8(title) );
 }
 
 QColor Node::color() const

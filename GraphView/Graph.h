@@ -27,6 +27,9 @@
 # define DFG_QT_MIDDLE_MOUSE Qt::MidButton
 #endif
 
+#define QSTRING_FROM_FTL_UTF8(s) QString::fromUtf8((s).data(), (s).size())
+#define QSTRING_FROM_STL_UTF8(s) QString::fromUtf8((s).c_str(), (s).length())
+
 namespace FabricUI
 {
 
