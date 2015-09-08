@@ -315,6 +315,7 @@ namespace FabricUI
       void execute();
 
       bool bindUnboundRTVals();
+      static bool bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding);
 
       virtual bool canConnectTo(
         char const *pathA,
@@ -366,11 +367,6 @@ namespace FabricUI
           m_dirtyPending = true;
         else
           emit dirty();
-      }
-
-      void emitRecompiled()
-      {
-        emit recompiled();
       }
 
       void setBlockCompilations( bool blockCompilations );
@@ -436,7 +432,6 @@ namespace FabricUI
       void defaultValuesChanged();
       void dirty();
 
-      void recompiled();
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
 

@@ -20,7 +20,6 @@ FTL::CStrRef DFGUICmd_AddSet::invokeAdd( unsigned &coreUndoCount )
       m_varPath.c_str()
       );
   ++coreUndoCount;
-
   return actualNodeName;
 }
 
