@@ -23,6 +23,13 @@ DFGGraphViewWidget::DFGGraphViewWidget(
 {
 }
 
+void DFGGraphViewWidget::setGraph(GraphView::Graph * graph)
+{
+  GraphView::GraphViewWidget::setGraph(graph);
+  if(graph)
+    graph->setCentralOverlayText("Press TAB to insert nodes.");
+}
+
 void DFGGraphViewWidget::dropEvent(QDropEvent *event)
 {
   DFGController *controller =

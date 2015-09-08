@@ -116,4 +116,11 @@ GraphConfig::GraphConfig()
   nodeBubbleFont = nodeFont;
   nodeBubbleFont.setBold(false);
   nodeBubbleFont.setPointSizeF(7.0);
+
+  infoOverlayMinWidth = 100.0;
+  infoOverlayMinHeight = 40.0;
+  infoOverlayColor = QColor(178, 224, 253);
+  infoOverlayFont = nodeFont;
+  infoOverlayFont.setBold(false);
+  infoOverlayFont.setPointSizeF(7.0);
 }

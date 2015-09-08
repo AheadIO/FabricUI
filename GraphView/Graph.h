@@ -19,6 +19,7 @@
 #include <FabricUI/GraphView/MouseGrabber.h>
 #include <FabricUI/GraphView/MainPanel.h>
 #include <FabricUI/GraphView/SidePanel.h>
+#include <FabricUI/GraphView/InfoOverlay.h>
 
 #if QT_VERSION > 0x040602
 # define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
@@ -128,6 +129,7 @@ namespace FabricUI
 
       void updateOverlays(float width, float height);
       void setupBackgroundOverlay(QPointF pos, QString filePath);
+      void setCentralOverlayText(QString text);
 
     public slots:
 
@@ -202,6 +204,7 @@ namespace FabricUI
       void * m_connectionContextMenuCallbackUD;
       void * m_portContextMenuCallbackUD;
       void * m_sidePanelContextMenuCallbackUD;
+      InfoOverlay * m_centralOverlay;
       bool m_isEditable;
       QPointF m_overlayPos;
       QPixmap m_overlayPixmap;
