@@ -21,8 +21,6 @@ void DFGUICmd_RemovePort::invoke( unsigned &coreUndoCount )
     m_portName,
     coreUndoCount
     );
-
-  getBinding().execute();
 }
 
 void DFGUICmd_RemovePort::Perform(

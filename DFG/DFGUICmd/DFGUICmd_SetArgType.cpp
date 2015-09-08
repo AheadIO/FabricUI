@@ -23,8 +23,6 @@ void DFGUICmd_SetArgType::invoke( unsigned &coreUndoCount )
   FabricCore::RTVal value = DFGCreateDefaultValue( context, m_typeName );
   binding.setArgValue( m_argName.c_str(), value, true );
   ++coreUndoCount;
-
-  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -25,8 +25,6 @@ void DFGUICmd_ImplodeNodes::invoke( unsigned &coreUndoCount )
       m_desiredImplodedNodeName,
       coreUndoCount
       );
-
-  getBinding().execute();
 }
 
 std::string DFGUICmd_ImplodeNodes::Perform(

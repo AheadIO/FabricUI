@@ -16,8 +16,6 @@ FTL::CStrRef DFGUICmd_AddGraph::invokeAdd( unsigned &coreUndoCount )
     getExec().addInstWithNewGraph( getTitle().c_str() );
   ++coreUndoCount;
 
-  getBinding().execute();
-  
   return actualNodeName;
 }
 

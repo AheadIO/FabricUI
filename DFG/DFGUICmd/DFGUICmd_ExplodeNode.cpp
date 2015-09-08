@@ -24,8 +24,6 @@ void DFGUICmd_ExplodeNode::invoke( unsigned &coreUndoCount )
       m_nodeName,
       coreUndoCount
       );
-
-  getBinding().execute();
 }
 
 std::vector<std::string> DFGUICmd_ExplodeNode::Perform(

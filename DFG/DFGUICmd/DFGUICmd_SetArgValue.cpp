@@ -16,8 +16,6 @@ void DFGUICmd_SetArgValue::invoke( unsigned &coreUndoCount )
 {
   getBinding().setArgValue( m_argName.c_str(), m_value, true );
   ++coreUndoCount;
-
-  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

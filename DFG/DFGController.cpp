@@ -1290,10 +1290,15 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
 
 bool DFGController::bindUnboundRTVals()
 {
+  return bindUnboundRTVals(m_client, m_binding);
+}
+
+bool DFGController::bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding)
+{
   bool argsHaveChanged = false;
   try
   {
-    FabricCore::DFGExec rootExec = m_binding.getExec();
+    FabricCore::DFGExec rootExec = binding.getExec();
     unsigned argCount = rootExec.getExecPortCount();
     for ( unsigned i = 0; i < argCount; ++i )
     {
@@ -1305,7 +1310,7 @@ bool DFGController::bindUnboundRTVals()
       FabricCore::RTVal value;
       try
       {
-        value = m_binding.getArgValue( i );
+        value = binding.getArgValue( i );
       }
       catch ( FabricCore::Exception e )
       {
@@ -1314,9 +1319,9 @@ bool DFGController::bindUnboundRTVals()
       if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
         continue;
 
-      m_binding.setArgValue(
+      binding.setArgValue(
         i,
-        DFGCreateDefaultValue( m_client.getContext(), dataTypeToCheck ),
+        DFGCreateDefaultValue( client.getContext(), dataTypeToCheck ),
         false
         );
 
@@ -1325,7 +1330,7 @@ bool DFGController::bindUnboundRTVals()
   }
   catch ( FabricCore::Exception e )
   {
-    logError( e.getDesc_cstr() );
+    // logError( e.getDesc_cstr() );
   }
   return argsHaveChanged;
 }

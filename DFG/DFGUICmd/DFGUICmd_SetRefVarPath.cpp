@@ -18,8 +18,6 @@ void DFGUICmd_SetRefVarPath::invoke( unsigned &coreUndoCount )
 {
   getExec().setRefVarPath( m_refName.c_str(), m_varPath.c_str(), true );
   ++coreUndoCount;
-
-  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

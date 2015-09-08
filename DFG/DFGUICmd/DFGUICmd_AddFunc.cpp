@@ -21,8 +21,6 @@ FTL::CStrRef DFGUICmd_AddFunc::invokeAdd( unsigned &coreUndoCount )
   subExec.setCode( m_initialCode.c_str() );
   ++coreUndoCount;
 
-  getBinding().execute();
-  
   return actualNodeName;
 }
 

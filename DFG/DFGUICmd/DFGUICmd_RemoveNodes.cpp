@@ -19,8 +19,6 @@ void DFGUICmd_RemoveNodes::invoke( unsigned &coreUndoCount )
     getExec().removeNode( m_nodeNames[i].c_str() );
     ++coreUndoCount;
   }
-
-  getBinding().execute();
 }
 
 FABRIC_UI_DFG_NAMESPACE_END
