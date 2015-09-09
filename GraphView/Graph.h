@@ -213,7 +213,9 @@ namespace FabricUI
       QPointF m_overlayPos;
       QPixmap m_overlayPixmap;
       QGraphicsPixmapItem * m_overlayItem;
-      double m_maxZValue;
+      double m_nodeZValue;
+      double m_backdropZValue;
+      double m_connectionZValue;
 
     };
 

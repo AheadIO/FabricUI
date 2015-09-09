@@ -329,8 +329,11 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
     {
       result->addSeparator();
 
+      result->addAction("Move top");
       result->addAction("Move up");
       result->addAction("Move down");
+      result->addAction("Move bottom");
+      result->addAction("Move inputs to end");
       result->addAction("Move outputs to end");
     }
   }
@@ -1037,8 +1040,11 @@ void DFGWidget::onExecPortAction(QAction * action)
     //   // setup the value editor
     // }
   }
-  else if(action->text() == "Move up" ||
+  else if(action->text() == "Move top" ||
+    action->text() == "Move up" ||
     action->text() == "Move down" ||
+    action->text() == "Move bottom" ||
+    action->text() == "Move inputs to end" || 
     action->text() == "Move outputs to end")
   {
     try
@@ -1049,84 +1055,143 @@ void DFGWidget::onExecPortAction(QAction * action)
 
       // create an index list with the inputs first
       std::vector<unsigned int> inputsFirst;
+      std::vector<unsigned int> outputsFirst;
       for(unsigned int i=0;i<exec.getExecPortCount();i++)
       {
         if(exec.getExecPortType(i) == FEC_DFGPortType_IO)
+        {
           inputsFirst.push_back(i);
+          outputsFirst.push_back(i);
+        }
       }
       for(unsigned int i=0;i<exec.getExecPortCount();i++)
       {
         if(exec.getExecPortType(i) == FEC_DFGPortType_In)
           inputsFirst.push_back(i);
+        else if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
+          outputsFirst.push_back(i);
       }
       for(unsigned int i=0;i<exec.getExecPortCount();i++)
       {
-        if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
+        if(exec.getExecPortType(i) == FEC_DFGPortType_In)
+          outputsFirst.push_back(i);
+        else if(exec.getExecPortType(i) == FEC_DFGPortType_Out)
           inputsFirst.push_back(i);
       }
 
+      FTL::StrRef portNameRef = portName;
+      FabricCore::DFGPortType portType = exec.getExecPortType(portNameRef.data());
       std::vector<unsigned int> indices;
+      bool reorder = false;
 
-      if(action->text() == "Move up")
+      if(exec.getExecPortType(exec.getExecPortCount()-1) == FEC_DFGPortType_Out)
+        indices = inputsFirst;
+      else
+        indices = outputsFirst;
+
+      unsigned a = UINT_MAX;
+      unsigned b = UINT_MAX;
+
+      if(action->text() == "Move top")
       {
-        unsigned index = UINT_MAX;
-        FTL::StrRef portNameRef = portName;
-        for(size_t i=0;i<inputsFirst.size();i++)
+        for(size_t i=0;i<indices.size();i++)
         {
-          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
+          if(b == UINT_MAX && exec.getExecPortType(indices[i]) == portType)
           {
-            index = i;
-            break;
+            b = i;
+          }
+          if(portNameRef == exec.getExecPortName(indices[i]))
+          {
+            a = i;
+            reorder = a > 0;
           }
         }
-        if(index != UINT_MAX && index != 0)
+
+        if(a != b)
         {
-          for(size_t i=0;i<inputsFirst.size();i++)
+          unsigned int temp = indices[a];
+          for(int i=a;i>b;i--)
+            indices[i] = indices[i-1];
+          indices[b] = temp;
+
+          a = UINT_MAX;
+          b = UINT_MAX;
+        }
+      }
+      else if(action->text() == "Move up")
+      {
+        for(size_t i=0;i<indices.size();i++)
+        {
+          if(portNameRef == exec.getExecPortName(indices[i]))
           {
-            if(i == index - 1)
-            {
-              indices.push_back(inputsFirst[index]);
-              indices.push_back(inputsFirst[i]);
-            }
-            else if(i != index)
-            {
-              indices.push_back(inputsFirst[i]);
-            }
+            a = i;
+            b = a - 1;
+            reorder = a > 0;
+            break;
           }
         }
       }
       else if(action->text() == "Move down")
       {
-        unsigned index = UINT_MAX;
-        FTL::StrRef portNameRef = portName;
-        for(unsigned int i=0;i<inputsFirst.size();i++)
+        for(unsigned int i=0;i<indices.size();i++)
         {
-          if(portNameRef == exec.getExecPortName(inputsFirst[i]))
+          if(portNameRef == exec.getExecPortName(indices[i]))
           {
-            index = i;
+            a = i;
+            b = a + 1;
+            reorder = true;
             break;
           }
         }
-        if(index != UINT_MAX && index != inputsFirst.size() - 1)
+      }
+      else if(action->text() == "Move bottom")
+      {
+        for(size_t i=0;i<indices.size();i++)
         {
-          for(unsigned int i=0;i<inputsFirst.size();i++)
+          if(portNameRef == exec.getExecPortName(indices[i]))
           {
-            if(i == index)
-            {
-              indices.push_back(inputsFirst[index + 1]);
-              indices.push_back(inputsFirst[index]);
-            }
-            else if(i != index + 1)
-            {
-              indices.push_back(inputsFirst[i]);
-            }
+            a = i;
+          }
+          if(exec.getExecPortType(indices[i]) == portType)
+          {
+            b = i;
           }
         }
+
+        if(a != b)
+        {
+          unsigned int temp = indices[a];
+          for(unsigned int i=a;i<b;i++)
+            indices[i] = indices[i+1];
+          indices[b] = temp;
+
+          a = UINT_MAX;
+          b = UINT_MAX;
+          reorder = true;
+        }
+      }
+      else if(action->text() == "Move inputs to end")
+      {
+        indices = outputsFirst;
+        reorder = true;
       }
       else if(action->text() == "Move outputs to end")
       {
         indices = inputsFirst;
+        reorder = true;
       }
+
+      if(a != UINT_MAX && b != UINT_MAX && a != b)
+      {
+        // swap indices
+        unsigned int temp = indices[a];
+        indices[a] = indices[b];
+        indices[b] = temp;
+        reorder = true;
+      }
+
+      if(!reorder)
+        return;
 
       if(indices.size() > 0)
         m_uiController->cmdReorderPorts(binding, execPath, exec, indices);
