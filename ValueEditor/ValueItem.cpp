@@ -119,3 +119,21 @@ void ValueItem::onEndInteraction( ValueItem * item )
   m_valueAtInteractionEnter.invalidate();
 }
 
+void ValueItem::onFilePathChosen(const QString & filePath)
+{
+  if(filePath.length() == 0)
+    return;
+
+  try
+  {
+    FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, filePath.toUtf8().constData());
+    FabricCore::RTVal filePathVal = FabricCore::RTVal::Create(*m_client, "FilePath", 1, &stringVal);
+    setValue(filePathVal);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf(e.getDesc_cstr());
+  }
+
+  updatePixmap();
+}

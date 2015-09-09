@@ -60,6 +60,7 @@ namespace FabricUI
 
       void onBeginInteraction(ValueItem * item);
       void onEndInteraction(ValueItem * item);
+      void onFilePathChosen(const QString & filePath);
 
     private:
 
