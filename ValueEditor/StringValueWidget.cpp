@@ -133,5 +133,5 @@ void StringValueWidget::setFocusToFirstInput()
   if(m_lineEdit)
     m_lineEdit->setFocus();
   if(m_comboBox)
-    m_lineEdit->setFocus();
+    m_comboBox->setFocus();
 }
