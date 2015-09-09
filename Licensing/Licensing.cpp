@@ -27,15 +27,34 @@ namespace FabricUI
     bool valid = jsonObject->getBoolean( FTL_STR( "valid" ) );
     if ( valid )
     {
-      static bool checkedExpiry = false;
-      if ( !checkedExpiry )
+      static bool s_checkedExpiry = false;
+      static const FTL::CStrRef s_months[12] = { "jan", "feb", "mar", "apr",
+                                                 "may", "jun", "jul", "aug",
+                                                 "sep", "oct", "nov", "dec" };
+
+      if ( !s_checkedExpiry )
       {
-        checkedExpiry = true;
+        s_checkedExpiry = true;
+
         FTL::CStrRef expiry = jsonObject->getString( FTL_STR( "exp" ) );
+
+        int day, year;
+        char mon[4];
+        sscanf( expiry.c_str(), "%d-%3s-%d", &day, mon, &year );
 
         struct tm expiry_tm;
         memset( &expiry_tm, 0, sizeof( struct tm ) );
-        strptime( expiry.c_str(), "%d-%b-%Y", &expiry_tm );
+        expiry_tm.tm_year = year - 1900;
+        expiry_tm.tm_mday = day;
+        for ( int i = 0; i < 12; i++ )
+        {
+          if ( s_months[i] == FTL::CStrRef( mon ) )
+          {
+            expiry_tm.tm_mon = i;
+            break;
+          }
+        }
+
         if ( mktime( &expiry_tm ) - time( NULL ) < EXPIRY_PRE_WARNING_SECONDS )
         {
           ExpiryWarningDialog expiryDialog( widgetParent, expiry );
