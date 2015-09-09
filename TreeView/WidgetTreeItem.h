@@ -41,7 +41,7 @@ namespace FabricUI
       
       TreeEditorWidget * editor();
 
-    private slots:
+    protected slots:
 
       void onEditorDestroyed(QObject * obj);
       void updateFromUI();

@@ -72,18 +72,8 @@ void FilePathValueWidget::onBrowseClicked()
   fileDialog.setOption(QFileDialog::DontConfirmOverwrite, true);
   fileDialog.setLabelText(QFileDialog::Accept, "Accept");
 
-  if(fileDialog.exec())
-  {
-    QStringList fileNames;
-    fileNames = fileDialog.selectedFiles();
-    if(fileNames.length() > 0)
-      filePath = fileNames[0];
-  }
-
-  stringVal = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), filePath.toUtf8().constData());
-  m_value = FabricCore::RTVal::Create(*((ValueItem*)item())->client(), "FilePath", 1, &stringVal);
-  m_lineEdit->setText(filePath);
-  emit dataChanged();
+  QObject::connect(&fileDialog, SIGNAL(fileSelected(const QString &)), valueItem(), SLOT(onFilePathChosen(const QString &)));
+  fileDialog.exec();
 }
 
 TreeEditorWidget * FilePathValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
