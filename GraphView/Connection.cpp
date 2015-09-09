@@ -100,7 +100,10 @@ Connection::Connection(
 
     if(target->targetType() == TargetType_Pin)
     {
-      Node * node = ((Pin*)target)->node();
+      Pin * pin = (Pin*)target;
+      Node * node = pin->node();
+      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()));
+      QObject::connect(pin, SIGNAL(yChanged()), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(geometryChanged()), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(selectionChanged(FabricUI::GraphView::Node *, bool)), this, SLOT(dependencySelected()));
