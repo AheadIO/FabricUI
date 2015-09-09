@@ -39,7 +39,9 @@ Graph::Graph(
   m_portContextMenuCallbackUD = NULL;
   m_sidePanelContextMenuCallbackUD = NULL;
   m_overlayItem = NULL;
-  m_maxZValue = 0.1;
+  m_nodeZValue = 3.0;
+  m_backdropZValue = 1.0;
+  m_connectionZValue = 2.0;
   m_centralOverlay = NULL;
 }
 
@@ -139,15 +141,18 @@ Node * Graph::addNode(Node * node, bool quiet)
   m_nodeMap.insert(std::pair<FTL::StrRef, size_t>(key, m_nodes.size()));
   m_nodes.push_back(node);
 
-  double zValue = m_maxZValue;
-  if(!node->isBackDropNode())
-    zValue += 3.0;
-  node->setZValue(zValue);
-  m_maxZValue += 0.0001;
+  double * zValue;
+  if(node->isBackDropNode())
+    zValue = &m_backdropZValue;
+  else
+    zValue = &m_nodeZValue;
+
+  node->setZValue(*zValue);
+  (*zValue) += 0.0001;
   if(node->bubble())
   {
-    m_maxZValue += 0.0001;
-    node->bubble()->setZValue(zValue + 0.0001);
+    node->bubble()->setZValue(*zValue);
+    (*zValue) += 0.0001;
   }
 
   QObject::connect(
@@ -408,6 +413,9 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
     Node * node = ((Pin*)connection->dst())->node();
     node->onConnectionsChanged();
   }
+
+  connection->setZValue(m_connectionZValue);
+  m_connectionZValue += 0.0001;
 
   if(!quiet)
     emit connectionAdded(connection);
