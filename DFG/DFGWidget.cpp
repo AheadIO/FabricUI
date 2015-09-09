@@ -174,8 +174,13 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   result->addAction("Write Variable (Set)");
   result->addAction("Cache Node");
   result->addSeparator();
-  result->addAction("Paste - Ctrl V");
+
+  QAction * pasteAction = new QAction("Paste", graphWidget);
+  pasteAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_V) );
+  result->addAction(pasteAction);
+
   result->addSeparator();
+
   QAction * resetZoomAction = new QAction("Reset Zoom", graphWidget);
   resetZoomAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_0) );
   result->addAction(resetZoomAction);
@@ -518,8 +523,7 @@ dfgEntry {\n\
   }
   else if(action->text() == "Reset Zoom")
   {
-    DFGController * controller = getUIController();
-    controller->zoomCanvas(1.0);
+    onResetZoom();
   }
   else if(action->text() == "Paste - Ctrl V")
   {
@@ -1311,6 +1315,11 @@ void DFGWidget::onCut()
 void DFGWidget::onPaste()
 {
   getUIController()->cmdPaste();
+}
+
+void DFGWidget::onResetZoom()
+{
+  getUIController()->zoomCanvas(1.0);
 }
 
 bool DFGWidget::maybeEditNode(

@@ -245,6 +245,10 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     m_dfgWidget->getUIController()->relaxNodes();
   }
+  else if(hotkey == "reset zoom")
+  {
+    m_dfgWidget->onResetZoom();
+  }
 }
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
@@ -263,6 +267,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
       graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
       graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
       graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, "relax nodes");
+      graph->defineHotkey(Qt::Key_0, Qt::ControlModifier, "reset zoom");
 
       QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
         this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
