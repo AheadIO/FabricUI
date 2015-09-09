@@ -214,7 +214,6 @@ void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
   QGraphicsWidget::resizeEvent(event);
   m_itemGroup->resize(event->newSize().width(), m_itemGroup->size().height());
-  printf("event->newSize().height() %f\n", event->newSize().height());
   updateItemGroupScroll();
 }
 
