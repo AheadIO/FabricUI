@@ -18,7 +18,7 @@ Port::Port(
   QColor color,
   FTL::StrRef label
   )
-  : ConnectionTarget( parent )
+  : ConnectionTarget( parent->itemGroup() )
   , m_sidePanel( parent )
   , m_name( name )
   , m_labelCaption( !label.empty()? label: name )

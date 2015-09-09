@@ -114,6 +114,7 @@ Connection::Connection(
     {
       Port * port = (Port*)target;
       QObject::connect(port, SIGNAL(positionChanged()), this, SLOT(dependencyMoved()));
+      QObject::connect(port->sidePanel(), SIGNAL(scrolled()), this, SLOT(dependencyMoved()));
     }
   }
 }

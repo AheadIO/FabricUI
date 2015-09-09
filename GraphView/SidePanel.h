@@ -30,6 +30,8 @@ namespace FabricUI
 
       Graph * graph();
       const Graph * graph() const;
+      QGraphicsWidget * itemGroup();
+      const QGraphicsWidget * itemGroup() const;
 
       QString path() const;
       QString name() const;
@@ -44,7 +46,10 @@ namespace FabricUI
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
       virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event);
+      virtual void wheelEvent(QGraphicsSceneWheelEvent * event);
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+
+      virtual void resizeEvent(QGraphicsSceneResizeEvent * event);
 
       // accessed through controller
       virtual Port * addPort(Port * port);
@@ -52,6 +57,11 @@ namespace FabricUI
 
     signals:
       void doubleClicked(FabricUI::GraphView::SidePanel *);
+      void scrolled();
+
+    private slots:
+
+      void onItemGroupGeometryChanged();
 
     private:
 
@@ -62,6 +72,7 @@ namespace FabricUI
       QPen m_pen;
       PortType m_portType;
       bool m_requiresToSendSignalsForPorts;
+      QGraphicsWidget * m_itemGroup;
 
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;

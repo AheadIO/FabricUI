@@ -31,9 +31,7 @@ MainPanel::MainPanel(Graph * parent)
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-  // m_backGround = new MainPanelBackground(this);
   m_itemGroup = new QGraphicsWidget(this);
-  // m_itemGroup = new QGraphicsWidget(parent);
 
   m_manipulationMode = ManipulationMode_None;
   m_draggingSelRect = false;
