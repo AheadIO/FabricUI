@@ -1511,7 +1511,7 @@ void DFGWidget::onExecChanged()
 
     QString filePath = getenv("FABRIC_DIR");
     filePath += "/Resources/PoweredByFabric_black.png";
-    m_uiGraph->setupBackgroundOverlay(QPointF(-160, -70), filePath);
+    m_uiGraph->setupBackgroundOverlay(QPointF(1, -70), filePath);
 
     // FE-4277
     emit onGraphSet(m_uiGraph);
