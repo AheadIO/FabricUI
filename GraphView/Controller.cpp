@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <iostream>
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Node.h>
@@ -176,11 +177,24 @@ bool Controller::frameAllNodes()
   return frameAndFitNodes(m_graph->nodes());
 }
 
+void Controller::collapseNodes(int state, const std::vector<Node*> & nodes) {
+  for(size_t i=0;i<nodes.size();i++)
+    nodes[i]->setCollapsedState((Node::CollapseState)state);
+}
+
+void Controller::collapseSelectedNodes(int state)
+{
+  collapseNodes(state, m_graph->selectedNodes());
+}
+
 void Controller::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
+  std::cerr << "onNodeHeaderButtonTriggered " << std::endl;
   if(button->name() == "node_collapse")
   {
     int state = (button->state() + 1) % 3;
+    std::vector<Node*> nodes;
+    nodes.push_back(button->header()->node());
     button->header()->node()->setCollapsedState((Node::CollapseState)state);
   }
 }

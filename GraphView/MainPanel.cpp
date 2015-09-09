@@ -178,7 +178,6 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
   }
   else
     QGraphicsWidget::mousePressEvent(event);
-
 }
 
 void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)

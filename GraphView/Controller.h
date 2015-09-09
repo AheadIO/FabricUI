@@ -102,7 +102,6 @@ namespace FabricUI
       virtual bool frameAndFitNodes(const std::vector<Node*> & nodes);
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
-
       virtual bool canConnectTo(
         char const *pathA,
         char const *pathB,
@@ -111,6 +110,9 @@ namespace FabricUI
 
       bool gvcDoRemoveConnection(Connection * conn);
 
+    virtual void collapseNodes(int state, const std::vector<Node*> & nodes);
+    virtual void collapseSelectedNodes(int state);
+    
     public slots:
       virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
