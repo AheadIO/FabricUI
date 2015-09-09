@@ -1,4 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+#include <QtGui/QGraphicsView>
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Graph.h>
@@ -569,7 +570,18 @@ void Graph::setCentralOverlayText(QString text)
     return;
   m_centralOverlay = new InfoOverlay(this, text, m_config);
   m_centralOverlayText = text;
-  updateOverlays(rect().width(), rect().height());
+
+  float height = rect().height();
+  if(scene())
+  {
+    if(scene()->views().count() > 0)
+    {
+      QGraphicsView * view = scene()->views()[0];
+      height = (float)view->size().height();
+    }
+  }
+ 
+  updateOverlays(rect().width(), height);
 }
 
 void Graph::defineHotkey(Qt::Key key, Qt::KeyboardModifier modifiers, QString name)
