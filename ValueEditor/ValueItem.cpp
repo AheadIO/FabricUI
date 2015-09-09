@@ -132,7 +132,7 @@ void ValueItem::onFilePathChosen(const QString & filePath)
   }
   catch(FabricCore::Exception e)
   {
-    printf(e.getDesc_cstr());
+    printf("%s\n", e.getDesc_cstr());
   }
 
   updatePixmap();
