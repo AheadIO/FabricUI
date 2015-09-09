@@ -1110,7 +1110,7 @@ void DFGWidget::onExecPortAction(QAction * action)
         if(a != b)
         {
           unsigned int temp = indices[a];
-          for(int i=a;i>b;i--)
+          for(unsigned i=a;i>b;i--)
             indices[i] = indices[i-1];
           indices[b] = temp;
 
