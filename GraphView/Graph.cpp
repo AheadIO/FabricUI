@@ -524,22 +524,34 @@ void Graph::updateOverlays(float width, float height)
 {
   if(m_overlayItem != NULL)
   {
-    QPointF pos = m_overlayPos;
-    if(pos.x() < 0.0f) 
-    {
-      if(m_rightPanel)
-        pos.setX(width + pos.x() - m_rightPanel->rect().width());
-      else
-        pos.setX(width + pos.x());
-    }
-    else if(m_leftPanel)
-    {
-      pos.setX(pos.x() + m_leftPanel->rect().width());
-    }
-    
-    if(pos.y() < 0.0) pos.setY(height + pos.y());
+    QSizeF overlaySize = m_overlayItem->boundingRect().size();
 
-    m_overlayItem->setPos(pos);
+    if ( 3 * overlaySize.width() > width
+      || 3 * overlaySize.height() > height )
+    {
+      m_overlayItem->hide();
+    }
+    else
+    {
+      m_overlayItem->show();
+
+      QPointF pos = m_overlayPos;
+      if(pos.x() < 0.0f) 
+      {
+        if(m_rightPanel)
+          pos.setX(width + pos.x() - m_rightPanel->rect().width());
+        else
+          pos.setX(width + pos.x());
+      }
+      else if(m_leftPanel)
+      {
+        pos.setX(pos.x() + m_leftPanel->rect().width());
+      }
+      
+      if(pos.y() < 0.0) pos.setY(height + pos.y());
+
+      m_overlayItem->setPos(pos);
+    }
   }
 
   if(m_centralOverlay != NULL)
