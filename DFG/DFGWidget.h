@@ -65,9 +65,9 @@ namespace FabricUI
       void refreshExtDeps( FTL::CStrRef extDeps );
 
       void populateMenuBar(QMenuBar * menuBar);
-      bool maybeEditNode(
-        FabricUI::GraphView::Node * node
-        );
+      bool maybeEditNode(FabricUI::GraphView::Node * node);
+
+      void inspectPropertiesForCurrentSelection();
 
     signals:
 
