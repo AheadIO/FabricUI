@@ -759,14 +759,17 @@ void DFGController::cmdPaste()
     if (!clipboard->text().isEmpty())
     {
       QGraphicsView *graphicsView = graph()->scene()->views()[0];
+      QPointF pos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
+      float   zoom = graph()->mainPanel()->canvasZoom();
+      QPointF pan  = graph()->mainPanel()->canvasPan();
+      pos -= pan;
+      if (zoom != 0)  pos /= zoom;
       m_cmdHandler->dfgDoPaste(
         getBinding(),
         getExecPath(),
         getExec(),
         clipboard->text().toUtf8().constData(),
-        graphicsView->mapToScene(
-          graphicsView->mapFromGlobal(QCursor::pos())
-          )
+        pos
         );
     }
   }
