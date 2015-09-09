@@ -112,6 +112,7 @@ namespace FabricUI
       FabricUI::GraphView::Node * m_contextNode;
       FabricUI::GraphView::Port * m_contextPort;
       FabricUI::GraphView::PortType m_contextPortType;
+      FabricUI::GraphView::SidePanel * m_contextSidePanel;
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
       DFGExecHeaderWidget * m_uiHeader;

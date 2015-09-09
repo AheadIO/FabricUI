@@ -8,12 +8,17 @@
 
 #include <QtGui/QPainter>
 #include <QtGui/QGraphicsSceneMouseEvent>
+#include <QtGui/QGraphicsView>
 
 using namespace FabricUI::GraphView;
 
 SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 : QGraphicsWidget(parent)
 {
+  m_itemGroup = new QGraphicsWidget(this);
+  m_itemGroup->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+  m_itemGroupScroll = 0.0f;
+
   const GraphConfig & config = parent->config();
 
   m_graph = parent;
@@ -29,13 +34,10 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   setContentsMargins(0, 0, 0, 0);
 
   m_proxyPort = new ProxyPort(this, m_portType);
-
+  
   resetLayout();
 
-  // todo: this is causing wrong drawing for some reason
-  // // setup caching
-  // CachingEffect * effect = new CachingEffect(this);
-  // this->setGraphicsEffect(effect);
+  QObject::connect(m_itemGroup, SIGNAL(geometryChanged()), this, SLOT(onItemGroupGeometryChanged()));
 }
 
 Graph * SidePanel::graph()
@@ -46,6 +48,16 @@ Graph * SidePanel::graph()
 const Graph * SidePanel::graph() const
 {
   return m_graph;
+}
+
+QGraphicsWidget * SidePanel::itemGroup()
+{
+  return m_itemGroup;
+}
+
+const QGraphicsWidget * SidePanel::itemGroup() const
+{
+  return m_itemGroup;
 }
 
 QColor SidePanel::color() const
@@ -160,6 +172,12 @@ void SidePanel::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
   QGraphicsWidget::mouseDoubleClickEvent(event);
 }
 
+void SidePanel::wheelEvent(QGraphicsSceneWheelEvent * event)
+{
+  QGraphicsWidget::wheelEvent(event);
+  scroll(event->delta() * 0.1);
+} 
+
 void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   QRectF rect = windowFrameRect();
@@ -187,6 +205,19 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
   }
 }
 
+void SidePanel::onItemGroupGeometryChanged()
+{
+  setMinimumWidth(m_itemGroup->size().width());
+}
+
+void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
+{
+  QGraphicsWidget::resizeEvent(event);
+  m_itemGroup->resize(event->newSize().width(), m_itemGroup->size().height());
+  printf("event->newSize().height() %f\n", event->newSize().height());
+  updateItemGroupScroll();
+}
+
 void SidePanel::resetLayout()
 {
   const GraphConfig & config = graph()->config();
@@ -208,7 +239,44 @@ void SidePanel::resetLayout()
   }
   portsLayout->addStretch(2);
 
-  setLayout(portsLayout);
+  m_itemGroup->setLayout(portsLayout);
 
   m_requiresToSendSignalsForPorts = true;
+}
+
+void SidePanel::scroll(float delta)
+{
+  m_itemGroupScroll += delta;
+  updateItemGroupScroll();
+}
+
+void SidePanel::updateItemGroupScroll()
+{
+  float height = m_graph->rect().height();
+
+  if(scene())
+  {
+    if(scene()->views().count() > 0)
+    {
+      QGraphicsView * view = scene()->views()[0];
+      height = (float)view->size().height();
+    }
+  }
+
+  if(m_itemGroup->size().height() < height)
+    m_itemGroupScroll = 0.0f;
+  else
+  {
+    float maxScroll =  height - m_itemGroup->size().height();
+    maxScroll -= 50.0f;
+    if(m_itemGroupScroll < maxScroll)
+      m_itemGroupScroll = maxScroll;
+  }
+
+  if(m_itemGroupScroll > 0.0f)
+    m_itemGroupScroll = 0.0;
+
+  m_itemGroup->setTransform(QTransform::fromTranslate(0, m_itemGroupScroll), false);
+
+  emit scrolled();
 }

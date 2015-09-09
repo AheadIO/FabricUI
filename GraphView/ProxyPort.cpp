@@ -11,7 +11,7 @@
 using namespace FabricUI::GraphView;
 
 ProxyPort::ProxyPort(SidePanel * parent, PortType portType)
-: ConnectionTarget(parent)
+: ConnectionTarget(parent->itemGroup())
 {
   m_sidePanel = parent;
   m_portType = portType;
