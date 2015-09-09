@@ -340,9 +340,13 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
+  graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
   result->addAction("Create Port");
+  result->addSeparator();
+  result->addAction("Scroll Up");
+  result->addAction("Scroll Down");
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
   return result;
 }
@@ -1215,6 +1219,14 @@ void DFGWidget::onSidePanelAction(QAction * action)
         printf("Exception: %s\n", e.getDesc_cstr());
       }
     }
+  }
+  else if(action->text() == "Scroll Up")
+  {
+    m_contextSidePanel->scroll(m_contextSidePanel->size().height());
+  }
+  else if(action->text() == "Scroll Down")
+  {
+    m_contextSidePanel->scroll(-m_contextSidePanel->size().height());
   }
 }
 

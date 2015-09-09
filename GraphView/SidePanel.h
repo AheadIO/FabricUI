@@ -55,6 +55,8 @@ namespace FabricUI
       virtual Port * addPort(Port * port);
       virtual bool removePort(Port * port);
 
+      void scroll(float delta);
+
     signals:
       void doubleClicked(FabricUI::GraphView::SidePanel *);
       void scrolled();
@@ -66,6 +68,7 @@ namespace FabricUI
     private:
 
       void resetLayout();
+      void updateItemGroupScroll();
 
       Graph * m_graph;
       QColor m_color;
@@ -73,6 +76,7 @@ namespace FabricUI
       PortType m_portType;
       bool m_requiresToSendSignalsForPorts;
       QGraphicsWidget * m_itemGroup;
+      float m_itemGroupScroll;
 
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;
