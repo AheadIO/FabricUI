@@ -833,9 +833,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Properties - F2")
   {
-    DFGNodePropertiesDialog dialog( this, m_uiController.get(), nodeName, m_dfgConfig );
-    if(!dialog.exec())
-      return;
+    inspectPropertiesForCurrentSelection();
   }
   else if(action->text() == "Set Comment")
   {
@@ -1325,7 +1323,6 @@ bool DFGWidget::maybeEditNode(
   return false;
 }
 
-
 bool DFGWidget::maybeEditNode(
   FTL::StrRef execPath,
   FabricCore::DFGExec &exec
@@ -1363,6 +1360,43 @@ bool DFGWidget::maybeEditNode(
     return false;
   }
   return true;  
+}
+
+void DFGWidget::inspectPropertiesForCurrentSelection()
+{
+  FabricUI::DFG::DFGController *controller = getUIController();
+  if (controller)
+  {
+    std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
+    if (nodes.size() != 1)
+    {
+      if (nodes.size() == 0)  controller->log("cannot open node editor: no node selected.");
+      else                    controller->log("cannot open node editor: more than one node selected.");
+      return;
+    }
+
+    const char *nodeName = nodes[0]->name().c_str();
+    FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( nodeName );
+    if (   nodeType == FabricCore::DFGNodeType_Var
+        || nodeType == FabricCore::DFGNodeType_Get
+        || nodeType == FabricCore::DFGNodeType_Set)
+    {
+      controller->log("the node editor is not available for variable nodes.");
+      return;
+    }
+
+    DFG::DFGNodePropertiesDialog dialog(this, controller, nodeName, getConfig());
+    if(dialog.exec())
+    {
+      controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
+      controller->setNodeToolTip        (nodeName, dialog.getToolTip().toStdString().c_str());  // not undoable.
+      controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
+
+      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());                      // not undoable.
+      controller->setNodeHeaderColor    (nodeName, dialog.getHeaderColor());                    // not undoable.
+      controller->setNodeTextColor      (nodeName, dialog.getTextColor());                      // not undoable.
+    }
+  }
 }
 
 QSettings * DFGWidget::getSettings()

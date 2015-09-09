@@ -239,39 +239,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   }
   else if(hotkey == "rename node")
   {
-    FabricUI::DFG::DFGController *controller = m_dfgWidget->getUIController();
-    if (controller)
-    {
-      std::vector<GraphView::Node *> nodes = m_dfgWidget->getUIGraph()->selectedNodes();
-      if (nodes.size() != 1)
-      {
-        if (nodes.size() == 0)  controller->log("cannot open node editor: no node selected.");
-        else                    controller->log("cannot open node editor: more than one node selected.");
-        return;
-      }
-
-      const char *nodeName = nodes[0]->name().c_str();
-      FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( nodeName );
-      if (   nodeType == FabricCore::DFGNodeType_Var
-          || nodeType == FabricCore::DFGNodeType_Get
-          || nodeType == FabricCore::DFGNodeType_Set)
-      {
-        controller->log("the node editor is not available for variable nodes.");
-        return;
-      }
-
-      DFG::DFGNodePropertiesDialog dialog(this, controller, nodeName, m_dfgWidget->getConfig());
-      if(dialog.exec())
-      {
-        controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
-        controller->setNodeToolTip        (nodeName, dialog.getToolTip().toStdString().c_str());  // not undoable.
-        controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
-
-        controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());                      // not undoable.
-        controller->setNodeHeaderColor    (nodeName, dialog.getHeaderColor());                    // not undoable.
-        controller->setNodeTextColor      (nodeName, dialog.getTextColor());                      // not undoable.
-      }
-    }
+    m_dfgWidget->inspectPropertiesForCurrentSelection();
   }
   else if(hotkey == "relax nodes")
   {
