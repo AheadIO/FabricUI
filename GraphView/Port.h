@@ -6,6 +6,7 @@
 #include <QtGui/QGraphicsWidget>
 #include <QtGui/QColor>
 #include <QtGui/QPen>
+#include <QtGui/QGraphicsSceneMouseEvent>
 
 #include <FTL/CStrRef.h>
 
@@ -80,6 +81,8 @@ namespace FabricUI
       
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
+
+      virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
 
     signals:
 
