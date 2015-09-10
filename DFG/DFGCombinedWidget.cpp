@@ -104,7 +104,7 @@ void DFGCombinedWidget::init(
         this, SLOT(onValueChanged())
         );
       QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
-      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*)));
+      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)));
 
       QObject::connect(
         m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
@@ -334,9 +334,9 @@ void DFGCombinedWidget::onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * d
   emit portEditDialogCreated(dialog);
 }
 
-void DFGCombinedWidget::onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog)
+void DFGCombinedWidget::onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog, FTL::JSONObjectEnc<> * additionalMetaData)
 {
-  emit portEditDialogInvoked(dialog);
+  emit portEditDialogInvoked(dialog, additionalMetaData);
 }
 
 void DFGCombinedWidget::log(const char * message)

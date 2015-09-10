@@ -996,7 +996,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       if(dialog.exec() != QDialog::Accepted)
         return;
 
-      emit portEditDialogInvoked(&dialog);
+      emit portEditDialogInvoked(&dialog, NULL);
 
       if(dialog.hidden())
         exec.setExecPortMetadata(portName, "uiHidden", "true", false);
@@ -1269,7 +1269,48 @@ void DFGWidget::onSidePanelAction(QAction * action)
     if(dialog.exec() != QDialog::Accepted)
       return;
 
-    emit portEditDialogInvoked(&dialog);
+    std::string metaData;
+    {
+      FTL::JSONEnc<> metaDataEnc( metaData );
+      FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
+      if(dialog.hidden())
+      {
+        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiHidden") );
+        FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
+      }
+      if(dialog.opaque())
+      {
+        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiOpaque") );
+        FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
+      }
+      if(dialog.hasRange())
+      {
+        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiRange") );
+        std::string rangeStr = range.toUtf8().constData();
+        FTL::CStrRef rangeRef = rangeStr;
+        FTL::JSONStringEnc<> valueEnc( enc, rangeRef );
+      }
+      if(dialog.hasCombo())
+      {
+        QStringList combo = dialog.comboValues();
+        QString flat = "(";
+        for(int i=0;i<combo.length();i++)
+        {
+          if(i > 0)
+            flat += ", ";
+          flat += "\"" + combo[i] + "\"";
+        }
+        flat += ")";
+
+        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiCombo") );
+        std::string flatStr = flat.toUtf8().constData();
+        FTL::CStrRef flatRef = flatStr;
+        FTL::JSONStringEnc<> valueEnc( enc, flatRef );
+      }
+
+      emit portEditDialogInvoked(&dialog, &metaDataObjectEnc);
+    }
 
     QString title = dialog.title();
 
@@ -1301,43 +1342,16 @@ void DFGWidget::onSidePanelAction(QAction * action)
       else if ( dialog.portType() == "IO" )
         portType = FabricCore::DFGPortType_IO;
 
-      std::string portName =
-        m_uiController->cmdAddPort(
-          title.toUtf8().constData(),
-          portType, 
-          dataType.toUtf8().constData(),
-          FTL::CStrRef() // portToConnect
-          );
+      if(metaData == "{}")
+        metaData = "";
 
-      try
-      {
-        if(dialog.hidden())
-          exec.setExecPortMetadata(portName.c_str(), "uiHidden", "true", false);
-        if(dialog.opaque())
-          exec.setExecPortMetadata(portName.c_str(), "uiOpaque", "true", false);
-        if(dialog.hasRange())
-        {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
-          exec.setExecPortMetadata(portName.c_str(), "uiRange", range.toUtf8().constData(), false);
-        }
-        if(dialog.hasCombo())
-        {
-          QStringList combo = dialog.comboValues();
-          QString flat = "(";
-          for(int i=0;i<combo.length();i++)
-          {
-            if(i > 0)
-              flat += ", ";
-            flat += "\"" + combo[i] + "\"";
-          }
-          flat += ")";
-          exec.setExecPortMetadata(portName.c_str(), "uiCombo", flat.toUtf8().constData(), false);
-        }
-      }
-      catch(FabricCore::Exception e)
-      {
-        printf("Exception: %s\n", e.getDesc_cstr());
-      }
+      m_uiController->cmdAddPort(
+        title.toUtf8().constData(),
+        portType, 
+        dataType.toUtf8().constData(),
+        FTL::CStrRef(), // portToConnect
+        metaData
+        );
     }
   }
   else if(action->text() == "Scroll Up")

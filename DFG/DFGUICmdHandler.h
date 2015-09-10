@@ -106,7 +106,8 @@ public:
     FTL::CStrRef desiredPortName,
     FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
-    FTL::CStrRef portToConnect
+    FTL::CStrRef portToConnect,
+    FTL::CStrRef metaData
     ) = 0;
 
   virtual void dfgDoRemovePort(

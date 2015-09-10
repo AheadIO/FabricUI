@@ -18,6 +18,7 @@
 #include <QtGui/QVBoxLayout>
 
 #include <FTL/OwnedPtr.h>
+#include <FTL/JSONEnc.h>
 
 namespace FabricUI
 {
@@ -76,7 +77,7 @@ namespace FabricUI
       void newPresetSaved(QString presetFilePath);
       void onGraphSet(FabricUI::GraphView::Graph* graph);
       void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
-      void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog);
+      void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog, FTL::JSONObjectEnc<> * additionalMetaData);
       void nodeInspectRequested(FabricUI::GraphView::Node *);
 
     public slots:

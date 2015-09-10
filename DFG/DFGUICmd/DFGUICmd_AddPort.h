@@ -19,7 +19,8 @@ public:
     FTL::StrRef desiredPortName,
     FabricCore::DFGPortType portType,
     FTL::StrRef typeSpec,
-    FTL::StrRef portToConnectWith
+    FTL::StrRef portToConnectWith,
+    FTL::StrRef metaData
     )
     : DFGUICmd_Exec(
       binding,
@@ -30,6 +31,7 @@ public:
     , m_portType( portType )
     , m_typeSpec( typeSpec )
     , m_portToConnectWith( portToConnectWith )
+    , m_metaData( metaData )
     {}
 
   static FTL::CStrRef CmdName()
@@ -55,6 +57,7 @@ protected:
     FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
     FTL::CStrRef portToConnect,
+    FTL::CStrRef metaData,
     unsigned &coreUndoCount
     );
 
@@ -64,6 +67,7 @@ private:
   FabricCore::DFGPortType m_portType;
   std::string m_typeSpec;
   std::string m_portToConnectWith;
+  std::string m_metaData;
   
   std::string m_actualPortName;
 };
