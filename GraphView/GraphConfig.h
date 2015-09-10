@@ -97,6 +97,7 @@ namespace FabricUI
       QColor connectionColor;
       bool connectionUsePinColor;
       float connectionNodePortColorRatio;
+      bool portsCentered;
 
       QColor selectionRectColor;
       QPen selectionRectPen;

@@ -1411,6 +1411,13 @@ void DFGWidget::onToggleDimConnections()
     connections[i]->update();
 }
 
+void DFGWidget::onTogglePortsCentered()
+{
+  m_uiGraph->config().portsCentered = !m_uiGraph->config().portsCentered;
+  m_uiGraph->sidePanel(GraphView::PortType_Input)->updateItemGroupScroll();  
+  m_uiGraph->sidePanel(GraphView::PortType_Output)->updateItemGroupScroll();  
+}
+
 bool DFGWidget::maybeEditNode(
   FabricUI::GraphView::Node * node
   )
@@ -1563,11 +1570,15 @@ void DFGWidget::populateMenuBar(QMenuBar * menuBar)
   pasteAction->setShortcut( QKeySequence::Paste );
   QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
 
-  // edit menu
+  // view menu
   QAction * dimLinesAction = viewMenu->addAction("Dim Connections");
   dimLinesAction->setCheckable(true);
   dimLinesAction->setChecked(m_uiGraph->config().dimConnectionLines);
   QObject::connect(dimLinesAction, SIGNAL(triggered()), this, SLOT(onToggleDimConnections()));
+  QAction * portsCenteredAction = viewMenu->addAction("Side Ports Centered");
+  portsCenteredAction->setCheckable(true);
+  portsCenteredAction->setChecked(m_uiGraph->config().portsCentered);
+  QObject::connect(portsCenteredAction, SIGNAL(triggered()), this, SLOT(onTogglePortsCentered()));
 
   // emit the suffix menu entry requests
   emit additionalMenuActionsRequested("File", fileMenu, false);

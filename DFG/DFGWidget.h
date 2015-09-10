@@ -97,6 +97,7 @@ namespace FabricUI
       void onPaste();
       void onResetZoom();
       void onToggleDimConnections();
+      void onTogglePortsCentered();
 
     private:
 

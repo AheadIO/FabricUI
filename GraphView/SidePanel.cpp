@@ -84,6 +84,7 @@ Port * SidePanel::addPort(Port * port)
   m_ports.push_back(port);
 
   resetLayout();
+  updateItemGroupScroll();
 
   return port;
 }
@@ -111,6 +112,7 @@ bool SidePanel::removePort(Port * port)
   delete(port);
 
   resetLayout();
+  updateItemGroupScroll();
 
   return true;
 }
@@ -263,17 +265,21 @@ void SidePanel::updateItemGroupScroll()
   }
 
   if(m_itemGroup->size().height() < height)
-    m_itemGroupScroll = 0.0f;
+  {
+    if(graph()->config().portsCentered)
+      m_itemGroupScroll = 0.5f * (height - m_itemGroup->size().height());
+    else
+      m_itemGroupScroll = 0.0f;
+  }
   else
   {
     float maxScroll =  height - m_itemGroup->size().height();
     maxScroll -= 50.0f;
     if(m_itemGroupScroll < maxScroll)
       m_itemGroupScroll = maxScroll;
+    if(m_itemGroupScroll > 0.0f)
+      m_itemGroupScroll = 0.0;
   }
-
-  if(m_itemGroupScroll > 0.0f)
-    m_itemGroupScroll = 0.0;
 
   m_itemGroup->setTransform(QTransform::fromTranslate(0, m_itemGroupScroll), false);
 

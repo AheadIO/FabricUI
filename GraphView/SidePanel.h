@@ -56,6 +56,7 @@ namespace FabricUI
       virtual bool removePort(Port * port);
 
       void scroll(float delta);
+      void updateItemGroupScroll();
 
     signals:
       void doubleClicked(FabricUI::GraphView::SidePanel *);
@@ -68,7 +69,6 @@ namespace FabricUI
     private:
 
       void resetLayout();
-      void updateItemGroupScroll();
 
       Graph * m_graph;
       QColor m_color;

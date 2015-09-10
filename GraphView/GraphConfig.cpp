@@ -83,6 +83,7 @@ GraphConfig::GraphConfig()
   connectionHoverPen = QPen(QColor(170, 170, 170), 2.0, Qt::SolidLine);
   connectionFixedTangentLength = 10.0f;
   connectionPercentualTangentLength = 45.0f;
+  portsCentered = true;
 
   sidePanelBackgroundColor = nodeDefaultColor;
   sidePanelCollapsedWidth = 24.0f;
