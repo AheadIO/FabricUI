@@ -500,7 +500,9 @@ void KLSourceCodeWidget::updateSourceCode(bool updateAST)
     }      
   }
 
-  if(m_codeAssistant->updateCurrentCodeAndFile(klCode, klFile, updateAST))
+  // [andrew 20150910] ignore 'updateAST' for now and always pass false since we
+  // can't properly parse AST in DFG KL code, FE-5214
+  if(m_codeAssistant->updateCurrentCodeAndFile(klCode, klFile, false))
   {
     m_isHighlighting = true;
     m_highlighter->rehighlight();
