@@ -37,6 +37,11 @@ namespace FabricUI
 
       virtual void showEvent(QShowEvent * event);
 
+      // Filter the QLineEdit text (here the title) with the regexFilter
+      void alphaNumicStringOnly();
+      // Filter the QLineEdit text (here the title) with the setRegexFilter
+      void setRegexFilter(QString regex);
+
       QString getTitle();
       QString getToolTip();
       QString getDocUrl();
