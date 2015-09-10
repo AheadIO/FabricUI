@@ -67,7 +67,7 @@ void FilePathValueWidget::onBrowseClicked()
   else
     filter = filter + " files (*." + filter + ");;All files (*.*)";
 
-  QFileDialog fileDialog(this, valueItem()->name().c_str(), info.dir().absolutePath(), filter);
+  QFileDialog fileDialog(NULL, valueItem()->name().c_str(), info.dir().absolutePath(), filter);
   fileDialog.setFileMode(QFileDialog::AnyFile);
   fileDialog.setOption(QFileDialog::DontConfirmOverwrite, true);
   fileDialog.setLabelText(QFileDialog::Accept, "Accept");
