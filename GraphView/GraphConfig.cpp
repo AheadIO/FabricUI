@@ -43,8 +43,8 @@ GraphConfig::GraphConfig()
   nodeErrorPen.setWidth(1);
   nodeContentMargins = 2.0f;
   nodeWidthReduction = 15.0f;
-  nodeHeaderContentMargins = 2.0f;
-  nodeHeaderSpacing = 3.0f;
+  nodeHeaderContentMargins = 4.0f;
+  nodeHeaderSpacing = 5.0f;
   nodeHeaderAlwaysShowPins = true;
   nodeCornerRadius = 5.0f;
   nodeSpaceAbovePorts = 4.0f;
