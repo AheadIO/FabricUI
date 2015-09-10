@@ -29,7 +29,8 @@ NodeHeader::NodeHeader(
   float contentsMargins = graph->config().nodeHeaderContentMargins;
   float nodeWidthReduction = graph->config().nodeWidthReduction * 0.5;
 
-  layout->setContentsMargins(nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceTop, nodeWidthReduction, contentsMargins + graph->config().nodeHeaderSpaceBottom);
+  setContentsMargins(0, 0, 0, 0);
+  layout->setContentsMargins(0, contentsMargins + 1, 0, contentsMargins);
   layout->setSpacing(graph->config().nodeHeaderSpacing);
   layout->setOrientation(Qt::Horizontal);
   setLayout(layout);
@@ -37,13 +38,13 @@ NodeHeader::NodeHeader(
   m_title = new NodeLabel(this, text, graph->config().nodeFontColor, graph->config().nodeFontHighlightColor, graph->config().nodeFont);
 
   m_inCircle = new PinCircle(this, PortType_Input, m_node->color());
-  m_inCircle->setClipping(false);
+  // m_inCircle->setClipping(true);
   layout->addItem(m_inCircle);
   layout->setAlignment(m_inCircle, Qt::AlignLeft | Qt::AlignVCenter);
 
   layout->addStretch(1);
   layout->addItem(m_title);
-  layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignTop);
+  layout->setAlignment(m_title, Qt::AlignHCenter | Qt::AlignVCenter);
 
   layout->addStretch(1);
 

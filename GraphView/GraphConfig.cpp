@@ -44,9 +44,7 @@ GraphConfig::GraphConfig()
   nodeContentMargins = 2.0f;
   nodeWidthReduction = 15.0f;
   nodeHeaderContentMargins = 2.0f;
-  nodeHeaderSpacing = 4.0f;
-  nodeHeaderSpaceTop = 3.0;
-  nodeHeaderSpaceBottom = 2.0;
+  nodeHeaderSpacing = 3.0f;
   nodeHeaderAlwaysShowPins = true;
   nodeCornerRadius = 5.0f;
   nodeSpaceAbovePorts = 4.0f;
