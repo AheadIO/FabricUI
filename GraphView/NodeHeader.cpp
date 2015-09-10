@@ -27,7 +27,6 @@ NodeHeader::NodeHeader(
 
   QGraphicsLinearLayout * layout = new QGraphicsLinearLayout();
   float contentsMargins = graph->config().nodeHeaderContentMargins;
-  float nodeWidthReduction = graph->config().nodeWidthReduction * 0.5;
 
   setContentsMargins(0, 0, 0, 0);
   layout->setContentsMargins(0, contentsMargins + 1, 0, contentsMargins);
