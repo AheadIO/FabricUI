@@ -189,7 +189,6 @@ void Controller::collapseSelectedNodes(int state)
 
 void Controller::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
-  std::cerr << "onNodeHeaderButtonTriggered " << std::endl;
   if(button->name() == "node_collapse")
   {
     int state = (button->state() + 1) % 3;
