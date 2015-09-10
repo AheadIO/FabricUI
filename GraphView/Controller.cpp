@@ -154,7 +154,7 @@ bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
   // Compute the appropriate zoom
   float zoom = std::min( boundingRect.width()/bounds.width(), boundingRect.height()/bounds.height() );
   // Zoom out a bit more, otherwise nodes will lies on the panel border
-  zoom *= 0.9f;
+  zoom *= 0.8f;
 
   // Apply the zoom
   if(zoom != 0.0f)
