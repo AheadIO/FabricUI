@@ -35,24 +35,17 @@ DFGTabSearchWidget::~DFGTabSearchWidget()
 
 void DFGTabSearchWidget::mousePressEvent(QMouseEvent * event)
 {
+  // If we get a left click
   if(event->button() == Qt::LeftButton)
   {
+    // Get the element index from the click pos
     int index = indexFromPos( event->pos() );
     if ( index >= 0 )
     {
-      QPoint localPos = geometry().topLeft();
-      QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
-      
-      DFGController *controller = m_parent->getUIController();
-      // DFGUICmdHandler *cmdHandler = controller->getCmdHandler();
-      controller->cmdAddInstFromPreset(
-        m_results[index].toUtf8().constData(),
-        scenePos
-        );
-
-      hide();
-      event->accept();
+      // Then add the node to the graph
+      addNodeFromPath( m_results[index]);
       m_parent->getGraphViewWidget()->setFocus(Qt::OtherFocusReason);
+      event->accept();
       return;
     }
   }
