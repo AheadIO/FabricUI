@@ -15,7 +15,7 @@ FilePathValueWidget::FilePathValueWidget(QString label, QWidget * parent)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
-  m_lineEdit = new QLineEdit(this);
+  m_lineEdit = new LineEdit(this);
   m_browseButton = new QPushButton("...", this);
   m_browseButton->setMinimumWidth(60);
   m_browseButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -26,7 +26,7 @@ FilePathValueWidget::FilePathValueWidget(QString label, QWidget * parent)
   m_browseButton->setFocusPolicy(Qt::NoFocus);
   m_browseButton->installEventFilter(new BackspaceDeleteEventFilter(this));
 
-  QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEdit, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_browseButton, SIGNAL(clicked()), this, SLOT(onBrowseClicked()));
 }
 
@@ -39,7 +39,7 @@ void FilePathValueWidget::setValue(FabricCore::RTVal v)
   ValueWidget::setValue(v);
   FabricCore::RTVal stringVal = v.callMethod("String", "string", 0, 0);
   QString s = stringVal.getStringCString();
-  m_lineEdit->setText(s);
+  m_lineEdit->setLineEditText(s);
 }
 
 void FilePathValueWidget::setEnabled(bool state)

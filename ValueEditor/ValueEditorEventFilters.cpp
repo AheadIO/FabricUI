@@ -4,7 +4,6 @@
 
 #include <QtCore/Qt>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QLineEdit>
 
 using namespace FabricUI::ValueEditor;
 

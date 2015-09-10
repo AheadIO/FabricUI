@@ -44,9 +44,7 @@ GraphConfig::GraphConfig()
   nodeContentMargins = 2.0f;
   nodeWidthReduction = 15.0f;
   nodeHeaderContentMargins = 2.0f;
-  nodeHeaderSpacing = 4.0f;
-  nodeHeaderSpaceTop = 3.0;
-  nodeHeaderSpaceBottom = 2.0;
+  nodeHeaderSpacing = 3.0f;
   nodeHeaderAlwaysShowPins = true;
   nodeCornerRadius = 5.0f;
   nodeSpaceAbovePorts = 4.0f;
@@ -79,7 +77,8 @@ GraphConfig::GraphConfig()
   connectionColor = QColor(130, 130, 130);
   connectionDefaultPen = QPen(connectionColor, 1.5);
   connectionExposePen = QPen(connectionColor, 1.5);
-  connectionExposePen.setStyle(Qt::DotLine);
+  connectionExposePen.setStyle(Qt::DashLine);
+  connectionExposePen.setDashOffset(6.0);
   connectionExposeRadius = 50.0;
   connectionHoverPen = QPen(QColor(170, 170, 170), 2.0, Qt::SolidLine);
   connectionFixedTangentLength = 10.0f;

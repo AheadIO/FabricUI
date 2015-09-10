@@ -3,10 +3,10 @@
 #ifndef __UI_ValueEditor_FilePathValueWidget__
 #define __UI_ValueEditor_FilePathValueWidget__
 
-#include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 
 #include "ValueWidget.h"
+#include "LineEdit.h"
 
 namespace FabricUI
 {
@@ -36,7 +36,7 @@ namespace FabricUI
 
     private:
 
-      QLineEdit * m_lineEdit;
+      LineEdit * m_lineEdit;
       QPushButton * m_browseButton;
     };
 

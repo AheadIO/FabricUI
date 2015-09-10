@@ -69,14 +69,15 @@ Node::Node(
   setLayout(layout);
 
   layout = new QGraphicsLinearLayout();
-  layout->setContentsMargins(contentMargins, contentMargins, contentMargins, contentMargins);
+  m_mainWidget->setContentsMargins(0, 0, 0, 0);
+  layout->setContentsMargins(contentMargins, 0, contentMargins, 0);
   layout->setSpacing(1);
   layout->setOrientation(Qt::Vertical);
   m_mainWidget->setLayout(layout);
 
   m_header = new NodeHeader(this, QSTRING_FROM_FTL_UTF8(title) );
   layout->addItem(m_header);
-  layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignTop);
+  layout->setAlignment(m_header, Qt::AlignHCenter | Qt::AlignVCenter);
 
   if(!m_isBackDropNode)
   {

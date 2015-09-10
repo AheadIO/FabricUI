@@ -96,6 +96,7 @@ namespace FabricUI
       void onCopy();
       void onPaste();
       void onResetZoom();
+      void onToggleDimConnections();
 
     private:
 

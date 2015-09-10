@@ -485,6 +485,9 @@ void DFGNotificationRouter::onNodeInserted(
     FTL::CStrRef uiAlwaysShowDaisyChainPorts = subExec.getMetadata("uiAlwaysShowDaisyChainPorts");
     if(!uiAlwaysShowDaisyChainPorts.empty())
       onNodeMetadataChanged(nodeName, "uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts);
+    FTL::CStrRef uiCollapsedState = subExec.getMetadata("uiCollapsedState");
+    if(!uiCollapsedState.empty())
+      onNodeMetadataChanged(nodeName, "uiCollapsedState", uiCollapsedState);
   }
 
   if ( exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_User )

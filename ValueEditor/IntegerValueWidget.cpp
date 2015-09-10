@@ -87,7 +87,7 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
 
     if(m_comboBox == NULL)
     {
-      m_lineEdit = new QLineEdit(this);
+      m_lineEdit = new LineEdit(this);
       QIntValidator * validator = new QIntValidator(m_lineEdit);
       m_lineEdit->setValidator(validator);
       m_lineEdit->setMinimumWidth(60);
@@ -101,7 +101,7 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
       m_slider->setFocusPolicy(Qt::NoFocus);
       m_slider->installEventFilter(new BackspaceDeleteEventFilter(this));
 
-      QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+      QObject::connect(m_lineEdit, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
       QObject::connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onValueChangedInSlider()));
       QObject::connect(m_slider, SIGNAL(sliderPressed()), this, SLOT(onBeginInteraction()));
       QObject::connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(onEndInteraction()));
@@ -162,7 +162,7 @@ void IntegerValueWidget::setValue(FabricCore::RTVal v)
 
   if(m_lineEdit)
   {
-    m_lineEdit->setText(QString::number(i));
+    m_lineEdit->setLineEditText(QString::number(i));
   }
 
   if(m_comboBox)
@@ -227,7 +227,7 @@ void IntegerValueWidget::onValueChangedInSlider()
   m_changingValue = true;
 
   int i = m_slider->value();
-  m_lineEdit->setText(QString::number(i));
+  m_lineEdit->setLineEditText(QString::number(i));
 
   if(m_typeName == "SInt8")
     m_value = FabricCore::RTVal::ConstructSInt8(*((ValueItem*)item())->client(), i);

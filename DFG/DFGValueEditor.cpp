@@ -243,13 +243,14 @@ void DFGValueEditor::onArgsChanged()
           FabricCore::RTVal varPathVal = FabricCore::RTVal::ConstructString(m_controller->getClient(), varPath.c_str());
 
           VariablePathValueItem * item = new VariablePathValueItem(
-            "variable",
+            m_nodeName + ".variable",
             m_factory,
             &m_client,
             m_controller->getBinding(),
             m_controller->getExecPath(),
             m_treeView,
-            varPathVal
+            varPathVal,
+            "variable"
             );
 
           std::string portPathFromRoot = m_execPath;
@@ -258,7 +259,7 @@ void DFGValueEditor::onArgsChanged()
           portPathFromRoot += m_nodeName;
           portPathFromRoot += FTL_STR(".variable");
 
-          addValue( portPathFromRoot, item, "variable", true, true );
+          addValue( portPathFromRoot, item, true );
         }
 
         std::string portPath = m_nodeName + ".value";
@@ -307,13 +308,14 @@ void DFGValueEditor::onArgsChanged()
 
         VariablePathValueItem * item =
           new VariablePathValueItem(
-            "variable",
+            m_nodeName + ".variable",
             m_factory,
             &m_client,
             m_controller->getBinding(),
             m_controller->getExecPath(),
             m_treeView,
-            varPathVal
+            varPathVal,
+            "variable"
             );
 
         std::string portPathFromRoot = m_execPath;
@@ -322,7 +324,7 @@ void DFGValueEditor::onArgsChanged()
         portPathFromRoot += m_nodeName;
         portPathFromRoot += FTL_STR(".variable");
         
-        addValue( portPathFromRoot, item, "variable", true, true );
+        addValue( portPathFromRoot, item, true );
       }
 
       // expand the node level tree item

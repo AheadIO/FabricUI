@@ -90,10 +90,10 @@ ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
   m_colorPicker = new ColorPickerWidget(this);
-  m_lineEditR = new QLineEdit(this);
-  m_lineEditG = new QLineEdit(this);
-  m_lineEditB = new QLineEdit(this);
-  m_lineEditA = new QLineEdit(this);
+  m_lineEditR = new LineEdit(this);
+  m_lineEditG = new LineEdit(this);
+  m_lineEditB = new LineEdit(this);
+  m_lineEditA = new LineEdit(this);
   QDoubleValidator * validator = new QDoubleValidator(this);
   validator->setDecimals(3);
   m_lineEditR->setValidator(validator);
@@ -122,10 +122,10 @@ ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
   hbox->addWidget(m_lineEditA);
   hbox->addWidget(m_colorPicker);
 
-  QObject::connect(m_lineEditR, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditG, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditB, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditA, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditR, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditG, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditB, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditA, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_colorPicker, SIGNAL( colorChanged(float, float, float, float) ), this , SLOT( onValueChangedColorPicker(float, float, float, float) ) );
 }
 
@@ -147,10 +147,10 @@ void ColorValueWidget::onValueChangedInLineEdit()
 void ColorValueWidget::onValueChangedColorPicker(float r, float g, float b, float a)
 {
   m_value = genRtVal(r, g, b, a);
-  m_lineEditR->setText(QString::number(r));
-  m_lineEditG->setText(QString::number(g));
-  m_lineEditB->setText(QString::number(b));
-  m_lineEditA->setText(QString::number(a));
+  m_lineEditR->setLineEditText(QString::number(r));
+  m_lineEditG->setLineEditText(QString::number(g));
+  m_lineEditB->setLineEditText(QString::number(b));
+  m_lineEditA->setLineEditText(QString::number(a));
   emit dataChanged();
 }
 
@@ -186,10 +186,10 @@ void ColorValueWidget::setValue(FabricCore::RTVal v)
     r = g = b = 0.0;
     a = 1.0;
   }
-  m_lineEditR->setText(QString::number(r));
-  m_lineEditG->setText(QString::number(g));
-  m_lineEditB->setText(QString::number(b));
-  m_lineEditA->setText(QString::number(a));
+  m_lineEditR->setLineEditText(QString::number(r));
+  m_lineEditG->setLineEditText(QString::number(g));
+  m_lineEditB->setLineEditText(QString::number(b));
+  m_lineEditA->setLineEditText(QString::number(a));
   m_colorPicker->set(r, g, b, a);
 }
 

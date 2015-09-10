@@ -205,6 +205,22 @@ QPointF Port::connectionPos(PortType pType) const
   return m_circle->centerInSceneCoords();
 }
 
+void Port::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
+  if(event->button() == Qt::RightButton)
+  {
+    event->accept();
+
+    QMenu * menu = graph()->getPortContextMenu(this);
+    if(menu)
+    {
+      menu->exec(QCursor::pos());
+      menu->deleteLater();
+    }
+    return;
+  }
+  ConnectionTarget::mousePressEvent(event);  
+}
 
 std::string Port::path() const
 {

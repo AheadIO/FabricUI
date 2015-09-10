@@ -3,9 +3,8 @@
 #ifndef __UI_ValueEditor_Vec4ValueWidget__
 #define __UI_ValueEditor_Vec4ValueWidget__
 
-#include <QtGui/QLineEdit>
-
 #include "ValueWidget.h"
+#include "LineEdit.h"
 
 namespace FabricUI
 {
@@ -36,10 +35,10 @@ namespace FabricUI
 
     private:
 
-      QLineEdit * m_lineEditX;
-      QLineEdit * m_lineEditY;
-      QLineEdit * m_lineEditZ;
-      QLineEdit * m_lineEditT;
+      LineEdit * m_lineEditX;
+      LineEdit * m_lineEditY;
+      LineEdit * m_lineEditZ;
+      LineEdit * m_lineEditT;
     };
 
   };
