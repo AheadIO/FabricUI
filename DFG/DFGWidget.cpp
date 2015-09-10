@@ -9,6 +9,7 @@
 #include <FabricUI/DFG/Dialogs/DFGGetStringDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGGetTextDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
+#include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 #include <FabricUI/GraphView/NodeBubble.h>
@@ -389,7 +390,7 @@ void DFGWidget::onGraphAction(QAction * action)
 
   if(action->text() == "New empty graph")
   {
-    DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -404,7 +405,7 @@ void DFGWidget::onGraphAction(QAction * action)
   }
   else if(action->text() == "New empty function")
   {
-    DFGGetStringDialog dialog(this, "func", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "func", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -433,7 +434,7 @@ dfgEntry {\n\
   }
   else if(action->text() == "New backdrop")
   {
-    DFGGetStringDialog dialog(this, "backdrop", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -448,7 +449,7 @@ dfgEntry {\n\
   }
   else if(action->text() == "Implode nodes")
   {
-    DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -500,23 +501,38 @@ dfgEntry {\n\
 
     pos += QPointF(30, 30);
   }
-  else if(action->text() == "Read Variable (Get)")
+  else if(action->text() == "Read Variable (Get)" ||
+    action->text() == "Write Variable (Set)")
   {
-    // todo: show an auto completing text field
-    m_uiController->cmdAddGet(
-      "get",
-      "",
-      QPointF(pos.x(), pos.y())
-      );
-  }
-  else if(action->text() == "Write Variable (Set)")
-  {
-    // todo: show an auto completing text field
-    m_uiController->cmdAddSet(
-      "set",
-      "",
-      QPointF(pos.x(), pos.y())
-      );
+    DFGController *controller = getUIController();
+    FabricCore::Client client = controller->getClient();
+    FabricCore::DFGBinding &binding = controller->getBinding();
+    FTL::CStrRef execPath = controller->getExecPath();
+
+    DFGPickVariableDialog dialog(NULL, client, binding, execPath);
+    if(dialog.exec() != QDialog::Accepted)
+      return;
+
+    QString name = dialog.name();
+    if(name.length() == 0)
+      return;
+
+    if(action->text() == "Read Variable (Get)")
+    {
+      m_uiController->cmdAddGet(
+        "get",
+        name.toUtf8().constData(),
+        QPointF(pos.x(), pos.y())
+        );
+    }
+    else
+    {
+      m_uiController->cmdAddSet(
+        "set",
+        name.toUtf8().constData(),
+        QPointF(pos.x(), pos.y())
+        );
+    }
   }
   else if(action->text() == "Cache Node")
   {
@@ -808,7 +824,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Implode nodes")
   {
-    DFGGetStringDialog dialog(this, "graph", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -1347,7 +1363,7 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
     bubble->expand();
   }
 
-  DFGGetTextDialog dialog(this, text);
+  DFGGetTextDialog dialog(NULL, text);
   if ( dialog.exec() == QDialog::Accepted )
   {
     m_uiController->cmdSetNodeComment(
@@ -1488,7 +1504,7 @@ void DFGWidget::inspectPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(this, controller, nodeName, getConfig());
+    DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
