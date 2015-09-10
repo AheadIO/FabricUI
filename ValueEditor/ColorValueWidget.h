@@ -3,10 +3,10 @@
 #ifndef __UI_ValueEditor_ColorValueWidget__
 #define __UI_ValueEditor_ColorValueWidget__
 
-#include <QtGui/QLineEdit>
 #include <QtGui/QMouseEvent>
 
 #include "ValueWidget.h"
+#include "LineEdit.h"
 
 namespace FabricUI
 {
@@ -118,10 +118,10 @@ namespace FabricUI
 
       ColorPickerWidget * m_colorPicker;
       std::string m_typeName;
-      QLineEdit * m_lineEditR;
-      QLineEdit * m_lineEditG;
-      QLineEdit * m_lineEditB;
-      QLineEdit * m_lineEditA;
+      LineEdit * m_lineEditR;
+      LineEdit * m_lineEditG;
+      LineEdit * m_lineEditB;
+      LineEdit * m_lineEditA;
     };
 
   };

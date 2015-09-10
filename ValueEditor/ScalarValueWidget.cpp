@@ -15,7 +15,7 @@ ScalarValueWidget::ScalarValueWidget(QString label, QWidget * parent)
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
   m_changingValue = false;
 
-  m_lineEdit = new QLineEdit(this);
+  m_lineEdit = new LineEdit(this);
   QDoubleValidator * validator = new QDoubleValidator(m_lineEdit);
   validator->setDecimals(3);
   m_lineEdit->setValidator(validator);
@@ -33,7 +33,7 @@ ScalarValueWidget::ScalarValueWidget(QString label, QWidget * parent)
   m_lineEdit->installEventFilter(new TabEventFilter(this));
   m_slider->installEventFilter(new BackspaceDeleteEventFilter(this));
 
-  QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEdit, SIGNAL(lineEditTextEdited(const QString &)), this, SLOT(onValueChangedInLineEdit()));
   QObject::connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onValueChangedInSlider()));
   QObject::connect(m_slider, SIGNAL(sliderPressed()), this, SLOT(onBeginInteraction()));
   QObject::connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(onEndInteraction()));
@@ -102,7 +102,7 @@ void ScalarValueWidget::setValue(FabricCore::RTVal v)
   float ratio = (f - m_minimum)  / (m_maximum - m_minimum);
   m_slider->setValue(int(10000.0f * ratio));
 
-  m_lineEdit->setText(QString::number(f));
+  m_lineEdit->setLineEditText(QString::number(f));
 
   m_changingValue = false;
 }
@@ -144,7 +144,7 @@ void ScalarValueWidget::onValueChangedInSlider()
   m_changingValue = true;
   float ratio = float(m_slider->value()) / 10000.0f;
   float f = m_minimum + (m_maximum - m_minimum) * ratio;
-  m_lineEdit->setText(QString::number(f));
+  m_lineEdit->setLineEditText(QString::number(f));
 
   if(m_typeName == "Float32" || m_typeName == "Scalar")
     m_value = FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), f);

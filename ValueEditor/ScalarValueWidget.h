@@ -4,9 +4,9 @@
 #define __UI_ValueEditor_ScalarValueWidget__
 
 #include <QtGui/QSlider>
-#include <QtGui/QLineEdit>
 
 #include "ValueWidget.h"
+#include "LineEdit.h"
 
 namespace FabricUI
 {
@@ -41,7 +41,7 @@ namespace FabricUI
 
     private:
 
-      QLineEdit * m_lineEdit;
+      LineEdit * m_lineEdit;
       QSlider * m_slider;
       float m_minimum;
       float m_maximum;

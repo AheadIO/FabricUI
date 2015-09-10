@@ -14,8 +14,8 @@ Vec2ValueWidget::Vec2ValueWidget(QString label, QWidget * parent)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
-  m_lineEditX = new QLineEdit(this);
-  m_lineEditY = new QLineEdit(this);
+  m_lineEditX = new LineEdit(this);
+  m_lineEditY = new LineEdit(this);
   QDoubleValidator * validator = new QDoubleValidator(this);
   validator->setDecimals(3);
   m_lineEditX->setValidator(validator);
@@ -26,8 +26,8 @@ Vec2ValueWidget::Vec2ValueWidget(QString label, QWidget * parent)
   m_lineEditX->setFocusPolicy(Qt::StrongFocus);
   m_lineEditY->setFocusPolicy(Qt::StrongFocus);
 
-  QObject::connect(m_lineEditX, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditY, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditX, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditY, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
 }
 
 Vec2ValueWidget::~Vec2ValueWidget()
@@ -50,8 +50,8 @@ void Vec2ValueWidget::setValue(FabricCore::RTVal v)
 
   float x = value().maybeGetMember("x").getFloat32();
   float y = value().maybeGetMember("y").getFloat32();
-  m_lineEditX->setText(QString::number(x));
-  m_lineEditY->setText(QString::number(y));
+  m_lineEditX->setLineEditText(QString::number(x));
+  m_lineEditY->setLineEditText(QString::number(y));
 }
 
 void Vec2ValueWidget::setEnabled(bool state)

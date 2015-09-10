@@ -5,9 +5,9 @@
 
 #include <QtGui/QSlider>
 #include <QtGui/QComboBox>
-#include <QtGui/QLineEdit>
 
 #include "ValueWidget.h"
+#include "LineEdit.h"
 
 namespace FabricUI
 {
@@ -43,7 +43,7 @@ namespace FabricUI
 
     private:
 
-      QLineEdit * m_lineEdit;
+      LineEdit * m_lineEdit;
       QSlider * m_slider;
       QComboBox * m_comboBox;
       std::string m_typeName;

@@ -14,9 +14,9 @@ Vec3ValueWidget::Vec3ValueWidget(QString label, QWidget * parent)
 {
   QHBoxLayout * hbox = (QHBoxLayout *)layout();
 
-  m_lineEditX = new QLineEdit(this);
-  m_lineEditY = new QLineEdit(this);
-  m_lineEditZ = new QLineEdit(this);
+  m_lineEditX = new LineEdit(this);
+  m_lineEditY = new LineEdit(this);
+  m_lineEditZ = new LineEdit(this);
   QDoubleValidator * validator = new QDoubleValidator(this);
   validator->setDecimals(3);
   m_lineEditX->setValidator(validator);
@@ -30,9 +30,9 @@ Vec3ValueWidget::Vec3ValueWidget(QString label, QWidget * parent)
   m_lineEditY->setFocusPolicy(Qt::StrongFocus);
   m_lineEditZ->setFocusPolicy(Qt::StrongFocus);
 
-  QObject::connect(m_lineEditX, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditY, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
-  QObject::connect(m_lineEditZ, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditX, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditY, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
+  QObject::connect(m_lineEditZ, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
 }
 
 Vec3ValueWidget::~Vec3ValueWidget()
@@ -58,9 +58,9 @@ void Vec3ValueWidget::setValue(FabricCore::RTVal v)
   float x = value().maybeGetMember("x").getFloat32();
   float y = value().maybeGetMember("y").getFloat32();
   float z = value().maybeGetMember("z").getFloat32();
-  m_lineEditX->setText(QString::number(x));
-  m_lineEditY->setText(QString::number(y));
-  m_lineEditZ->setText(QString::number(z));
+  m_lineEditX->setLineEditText(QString::number(x));
+  m_lineEditY->setLineEditText(QString::number(y));
+  m_lineEditZ->setLineEditText(QString::number(z));
 }
 
 void Vec3ValueWidget::setEnabled(bool state)

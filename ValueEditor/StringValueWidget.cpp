@@ -58,15 +58,15 @@ void StringValueWidget::setValue(FabricCore::RTVal v)
 
     if(m_comboBox == NULL)
     {
-      m_lineEdit = new QLineEdit(this);
+      m_lineEdit = new LineEdit(this);
       m_lineEdit->setFocusPolicy(Qt::StrongFocus);
       hbox->addWidget(m_lineEdit);
-      QObject::connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(onValueChangedInLineEdit()));
+      QObject::connect(m_lineEdit, SIGNAL(lineEditTextEdited(const QString&)), this, SLOT(onValueChangedInLineEdit()));
     }
   }
 
   if(m_lineEdit)
-    m_lineEdit->setText(s);
+    m_lineEdit->setLineEditText(s);
   if(m_comboBox)
   {
     for(int i=0;i<m_comboBox->count();i++)
