@@ -1387,6 +1387,14 @@ void DFGWidget::onResetZoom()
   getUIController()->zoomCanvas(1.0);
 }
 
+void DFGWidget::onToggleDimConnections()
+{
+  m_uiGraph->config().dimConnectionLines = !m_uiGraph->config().dimConnectionLines;
+  std::vector<GraphView::Connection *> connections = m_uiGraph->connections();
+  for(size_t i=0;i<connections.size();i++)
+    connections[i]->update();
+}
+
 bool DFGWidget::maybeEditNode(
   FabricUI::GraphView::Node * node
   )
@@ -1538,6 +1546,12 @@ void DFGWidget::populateMenuBar(QMenuBar * menuBar)
   QAction * pasteAction = editMenu->addAction("Paste");
   pasteAction->setShortcut( QKeySequence::Paste );
   QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
+
+  // edit menu
+  QAction * dimLinesAction = viewMenu->addAction("Dim Connections");
+  dimLinesAction->setCheckable(true);
+  dimLinesAction->setChecked(m_uiGraph->config().dimConnectionLines);
+  QObject::connect(dimLinesAction, SIGNAL(triggered()), this, SLOT(onToggleDimConnections()));
 
   // emit the suffix menu entry requests
   emit additionalMenuActionsRequested("File", fileMenu, false);

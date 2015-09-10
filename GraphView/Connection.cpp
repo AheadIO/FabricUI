@@ -38,7 +38,6 @@ Connection::Connection(
 
   if(m_isExposedConnection)
   {
-    // setBrush(m_graph->config().connectionExposePenGradient);
     m_defaultPen = m_graph->config().connectionExposePen;
   }
   else
@@ -174,15 +173,7 @@ void Connection::setColor(QColor color)
   }
 
   m_color = color;
-
-  if(m_isExposedConnection)
-  {
-    m_defaultPen.setColor(color);
-  }
-  else
-  {
-    m_defaultPen.setColor(color);
-  }
+  m_defaultPen.setColor(color);
   setPen(m_defaultPen);
 }
 
