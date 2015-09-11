@@ -450,6 +450,10 @@ dfgEntry {\n\
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
+    // Allows only alpha-numeric text only 
+    // We do this because the the nodes's name must be alpha-numerical only
+    // and not contains "-, +, ?,"
+    dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -691,18 +695,23 @@ void DFGWidget::onNodeAction(QAction * action)
 
     try
     {
+      // Get the title (name) of the preset
       FabricCore::DFGExec subExec = exec.getSubExec(nodeName);
-      QString title = subExec.getTitle();
-
+      // QString title = subExec.getTitle();
+      // Get the name of the last selected nodes instead
+      const std::vector<GraphView::Node*> &nodes = m_uiController->graph()->selectedNodes();
+      QString title = QString(nodes[nodes.size()-1]->name().c_str());
+       
       FabricCore::DFGHost &host = m_uiController->getHost();
 
       DFGSavePresetDialog dialog( this, m_uiController.get(), title );
+      dialog.alphaNumicStringOnly();
 
       while(true)
       {
         if(dialog.exec() != QDialog::Accepted)
           return;
-  
+
         QString name = dialog.name();
         // QString version = dialog.version();
         QString location = dialog.location();
@@ -825,6 +834,10 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
+    // Allows only alpha-numeric text only 
+    // We do this because the the nodes's name must be alpha-numerical only
+    // and not contains "-, +, ?,"
+    dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -1527,6 +1540,7 @@ void DFGWidget::inspectPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
+    dialog.alphaNumicStringOnly();
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.

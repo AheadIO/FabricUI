@@ -30,6 +30,11 @@ namespace FabricUI
       QString name() const;
       QString location() const;
 
+      // Filter the QLineEdit text with the regexFilter
+      void alphaNumicStringOnly();
+      // Filter the QLineEdit text with the setRegexFilter
+      void setRegexFilter(QString regex);
+
     public slots:
       void onItemSelected(FabricUI::TreeView::TreeItem * item);
       void onCustomContextMenuRequested(QPoint globalPos, FabricUI::TreeView::TreeItem * item);
