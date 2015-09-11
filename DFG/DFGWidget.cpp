@@ -951,7 +951,9 @@ void DFGWidget::onExecPortAction(QAction * action)
       DFGEditPortDialog dialog( this, client, false, canEditPortType, m_dfgConfig );
 
       dialog.setTitle(portName);
-      dialog.setDataType(exec.getExecPortResolvedType(portName));
+      bool canEditDataType = m_uiController->isViewingRootGraph();
+      if ( canEditDataType )
+        dialog.setDataType(exec.getExecPortResolvedType(portName));
 
       FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
       if(uiHidden == "true")
