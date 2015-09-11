@@ -19,6 +19,10 @@ namespace FabricUI
 
       DFGGetStringDialog(QWidget * parent, QString text, const DFGConfig & dfgConfig = DFGConfig());
       virtual ~DFGGetStringDialog();
+      // Filter the QLineEdit text with the regexFilter
+      void alphaNumicStringOnly();
+      // Filter the QLineEdit text with the setRegexFilter
+      void setRegexFilter(QString regex);
 
       QString text() const;
 

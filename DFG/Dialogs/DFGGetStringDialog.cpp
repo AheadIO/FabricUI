@@ -18,6 +18,21 @@ DFGGetStringDialog::~DFGGetStringDialog()
 {
 }
 
+// Allows only alpha-numeric text only 
+void DFGGetStringDialog::alphaNumicStringOnly() {
+  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+}
+
+// Filters the QLineEdit text with the regexFilter
+void DFGGetStringDialog::setRegexFilter(QString regexFilter) {
+  if(m_lineEdit)
+  {
+    QRegExp regex(regexFilter);
+    QValidator *validator = new QRegExpValidator(regex, 0);
+    m_lineEdit->setValidator(validator);
+  }
+}
+
 QString DFGGetStringDialog::text() const
 {
   return m_lineEdit->text();

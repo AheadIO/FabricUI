@@ -76,7 +76,6 @@ DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
 {
 }
 
-
 void DFGNodePropertiesDialog::setTitle(QString value)
 {
   m_titleEdit->setText(value);
@@ -96,6 +95,21 @@ void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
 {
   QTimer::singleShot(0, m_titleEdit, SLOT(setFocus()));
   DFGBaseDialog::showEvent(event);  
+}
+
+// Allows only alpha-numeric text (here the title) only 
+void DFGNodePropertiesDialog::alphaNumicStringOnly() {
+  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+}
+
+// Filters the QLineEdit text (here the title) with the regexFilter
+void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
+  if(m_titleEdit)
+  {
+    QRegExp regex(regexFilter);
+    QValidator *validator = new QRegExpValidator(regex, 0);
+    m_titleEdit->setValidator(validator);
+  }
 }
 
 QString DFGNodePropertiesDialog::getTitle()

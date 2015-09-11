@@ -455,6 +455,10 @@ dfgEntry {\n\
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
+    // Allows only alpha-numeric text only 
+    // We do this because the the nodes's name must be alpha-numerical only
+    // and not contains "-, +, ?,"
+    dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -696,18 +700,23 @@ void DFGWidget::onNodeAction(QAction * action)
 
     try
     {
+      // Get the title (name) of the preset
       FabricCore::DFGExec subExec = exec.getSubExec(nodeName);
-      QString title = subExec.getTitle();
-
+      // QString title = subExec.getTitle();
+      // Get the name of the last selected nodes instead
+      const std::vector<GraphView::Node*> &nodes = m_uiController->graph()->selectedNodes();
+      QString title = QString(nodes[nodes.size()-1]->name().c_str());
+       
       FabricCore::DFGHost &host = m_uiController->getHost();
 
       DFGSavePresetDialog dialog( this, m_uiController.get(), title );
+      dialog.alphaNumicStringOnly();
 
       while(true)
       {
         if(dialog.exec() != QDialog::Accepted)
           return;
-  
+
         QString name = dialog.name();
         // QString version = dialog.version();
         QString location = dialog.location();
@@ -830,6 +839,10 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
+    // Allows only alpha-numeric text only 
+    // We do this because the the nodes's name must be alpha-numerical only
+    // and not contains "-, +, ?,"
+    dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -934,7 +947,8 @@ void DFGWidget::onExecPortAction(QAction * action)
       FabricCore::Client &client = m_uiController->getClient();
       FabricCore::DFGExec &exec = m_uiController->getExec();
 
-      DFGEditPortDialog dialog( this, client, false, m_dfgConfig );
+      bool canEditPortType = m_uiController->isViewingRootGraph();
+      DFGEditPortDialog dialog( this, client, false, canEditPortType, m_dfgConfig );
 
       dialog.setTitle(portName);
       dialog.setDataType(exec.getExecPortResolvedType(portName));
@@ -1027,11 +1041,10 @@ void DFGWidget::onExecPortAction(QAction * action)
       m_uiController->beginInteraction();
       if(dialog.dataType().length() > 0 && dialog.dataType() != exec.getExecPortResolvedType(portName))
       {
-        if(m_uiController->isViewingRootGraph())
-          m_uiController->cmdSetArgType(
-            portName,
-            dialog.dataType().toUtf8().constData()
-            );
+        m_uiController->cmdSetArgType(
+          portName,
+          dialog.dataType().toUtf8().constData()
+          );
       }
 
       if(dialog.title() != portName)
@@ -1041,6 +1054,27 @@ void DFGWidget::onExecPortAction(QAction * action)
           dialog.title().toUtf8().constData()
           );
       }
+
+      // To fix: this must be part of a command / undo stack,
+      // but so is all the meta-data changes above
+      QString extension = dialog.extension();
+      if(extension.length() > 0)
+      {
+        FTL::CStrRef execPath = m_uiController->getExecPath();
+        std::string errorMessage;
+        if ( !m_uiController->addExtensionDependency(
+          extension.toUtf8().constData(),
+          execPath.c_str(),
+          errorMessage
+          ) )
+        {
+          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
+            errorMessage.c_str());
+          msg.addButton("Ok", QMessageBox::AcceptRole);
+          msg.exec();
+        }
+      }
+
       m_uiController->endInteraction();
     }
     catch(FabricCore::Exception e)
@@ -1048,14 +1082,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       printf("Exception: %s\n", e.getDesc_cstr());
     }
 
-
     // QString dataType = dialog.dataType();
-    // QString extension = dialog.extension();
-
-    // if(extension.length() > 0)
-    // {
-    //   m_uiController->addExtensionDependency(extension, m_uiGraph->path());
-    // }
     // if(m_uiController->setArg(m_contextPort->name(), dataType))
     // {
     //   // setup the value editor
@@ -1234,7 +1261,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
     FTL::CStrRef execPath = m_uiController->getExecPath();
     FabricCore::DFGExec &exec = m_uiController->getExec();
 
-    DFGEditPortDialog dialog( this, client, true, m_dfgConfig );
+    bool canEditPortType = m_uiController->isViewingRootGraph();
+    DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -1517,6 +1545,7 @@ void DFGWidget::inspectPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
+    dialog.alphaNumicStringOnly();
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.

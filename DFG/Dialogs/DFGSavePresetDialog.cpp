@@ -28,6 +28,7 @@ DFGSavePresetDialog::DFGSavePresetDialog(
       false
       );
 
+
   addInput(m_presetTree, "location");
   m_nameEdit = new QLineEdit(name, this);
   addInput(m_nameEdit, "name");
@@ -51,6 +52,21 @@ QString DFGSavePresetDialog::name() const
 QString DFGSavePresetDialog::location() const
 {
   return m_location;
+}
+
+// Allows only alpha-numeric text only 
+void DFGSavePresetDialog::alphaNumicStringOnly() {
+  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+}
+
+// Filters the QLineEdit text with the regexFilter
+void DFGSavePresetDialog::setRegexFilter(QString regexFilter) {
+  if(m_nameEdit)
+  {
+    QRegExp regex(regexFilter);
+    QValidator *validator = new QRegExpValidator(regex, 0);
+    m_nameEdit->setValidator(validator);
+  }
 }
 
 void DFGSavePresetDialog::onItemSelected(FabricUI::TreeView::TreeItem * item)
