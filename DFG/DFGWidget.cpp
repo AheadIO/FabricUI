@@ -942,8 +942,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       FabricCore::Client &client = m_uiController->getClient();
       FabricCore::DFGExec &exec = m_uiController->getExec();
 
-      bool canEditPortType = m_uiController->isViewingRootGraph();
-      DFGEditPortDialog dialog( this, client, false, canEditPortType, m_dfgConfig );
+      DFGEditPortDialog dialog( this, client, false, m_dfgConfig );
 
       dialog.setTitle(portName);
       dialog.setDataType(exec.getExecPortResolvedType(portName));
@@ -1036,10 +1035,11 @@ void DFGWidget::onExecPortAction(QAction * action)
       m_uiController->beginInteraction();
       if(dialog.dataType().length() > 0 && dialog.dataType() != exec.getExecPortResolvedType(portName))
       {
-        m_uiController->cmdSetArgType(
-          portName,
-          dialog.dataType().toUtf8().constData()
-          );
+        if(m_uiController->isViewingRootGraph())
+          m_uiController->cmdSetArgType(
+            portName,
+            dialog.dataType().toUtf8().constData()
+            );
       }
 
       if(dialog.title() != portName)
@@ -1049,27 +1049,6 @@ void DFGWidget::onExecPortAction(QAction * action)
           dialog.title().toUtf8().constData()
           );
       }
-
-      // To fix: this must be part of a command / undo stack,
-      // but so is all the meta-data changes above
-      QString extension = dialog.extension();
-      if(extension.length() > 0)
-      {
-        FTL::CStrRef execPath = m_uiController->getExecPath();
-        std::string errorMessage;
-        if ( !m_uiController->addExtensionDependency(
-          extension.toUtf8().constData(),
-          execPath.c_str(),
-          errorMessage
-          ) )
-        {
-          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-            errorMessage.c_str());
-          msg.addButton("Ok", QMessageBox::AcceptRole);
-          msg.exec();
-        }
-      }
-
       m_uiController->endInteraction();
     }
     catch(FabricCore::Exception e)
@@ -1077,7 +1056,14 @@ void DFGWidget::onExecPortAction(QAction * action)
       printf("Exception: %s\n", e.getDesc_cstr());
     }
 
+
     // QString dataType = dialog.dataType();
+    // QString extension = dialog.extension();
+
+    // if(extension.length() > 0)
+    // {
+    //   m_uiController->addExtensionDependency(extension, m_uiGraph->path());
+    // }
     // if(m_uiController->setArg(m_contextPort->name(), dataType))
     // {
     //   // setup the value editor
@@ -1256,8 +1242,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
     FTL::CStrRef execPath = m_uiController->getExecPath();
     FabricCore::DFGExec &exec = m_uiController->getExec();
 
-    bool canEditPortType = m_uiController->isViewingRootGraph();
-    DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
+    DFGEditPortDialog dialog( this, client, true, m_dfgConfig );
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");

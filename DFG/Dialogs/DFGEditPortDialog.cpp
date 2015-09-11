@@ -9,7 +9,7 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, bool showDataType, const DFGConfig & dfgConfig)
+DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, const DFGConfig & dfgConfig)
 : DFGBaseDialog(parent, true, dfgConfig)
 {
   setWindowTitle("Edit Port");
@@ -25,13 +25,8 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
     m_portTypeCombo = NULL;
   m_titleEdit = new QLineEdit("", this);
 
-  if( showDataType ) {
-    m_dataTypeEdit = new DFGRegisteredTypeLineEdit( this, client, "" );
-    m_extensionEdit = new DFGExtensionLineEdit( this, client );
-  } else {
-    m_dataTypeEdit = NULL;
-    m_extensionEdit = NULL;
-  }
+  m_dataTypeEdit = new DFGRegisteredTypeLineEdit(this, client, "");
+  m_extensionEdit = new DFGExtensionLineEdit(this, client);
 
   m_visibilityCombo = new QComboBox(this);
   m_visibilityCombo->addItem("normal");
@@ -52,10 +47,8 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   if(m_portTypeCombo)
     addInput(m_portTypeCombo, "type", "required");
   addInput(m_titleEdit, "title", "required");
-  if( showDataType ) {
-    addInput( m_dataTypeEdit, "data type", "required" );
-    addInput( m_extensionEdit, "extension", "advanced" );
-  }
+  addInput(m_dataTypeEdit, "data type", "required");
+  addInput(m_extensionEdit, "extension", "advanced");
   addInput(m_visibilityCombo, "visibility", "metadata");
   addInput(m_hasRange, "use range", "metadata");
   addInput(m_rangeMin, "range min", "metadata");
@@ -102,28 +95,22 @@ void DFGEditPortDialog::setTitle(QString value)
 
 QString DFGEditPortDialog::dataType() const
 {
-  return m_dataTypeEdit ? m_dataTypeEdit->text() : QString();
+  return m_dataTypeEdit->text();
 }
 
 void DFGEditPortDialog::setDataType(QString value)
 {
-  if( m_dataTypeEdit )
-    m_dataTypeEdit->setText( value );
-  else
-    assert( false );
+  m_dataTypeEdit->setText(value);
 }
 
 QString DFGEditPortDialog::extension() const
 {
-  return m_extensionEdit ? m_extensionEdit->text() : QString();
+  return m_extensionEdit->text();
 }
 
 void DFGEditPortDialog::setExtension(QString value)
 {
-  if( m_extensionEdit )
-    m_extensionEdit->setText( value );
-  else
-    assert( false );
+  m_extensionEdit->setText(value);
 }
 
 bool DFGEditPortDialog::hidden() const
