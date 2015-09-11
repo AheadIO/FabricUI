@@ -267,6 +267,7 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
   FabricCore::DFGPortType dfgPortType,
   FTL::CStrRef typeSpec,
   FTL::CStrRef portToConnect,
+  FTL::StrRef extDep,
   FTL::CStrRef metaData
   )
 {
@@ -279,10 +280,37 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
       dfgPortType,
       typeSpec,
       portToConnect,
+      extDep,
       metaData
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualPortName();
+}
+
+std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::StrRef oldPortName,
+  FTL::StrRef desiredNewPortName,
+  FTL::StrRef typeSpec,
+  FTL::StrRef extDep,
+  FTL::StrRef uiMetadata
+  )
+{
+  DFGUICmd_EditPort *cmd =
+    new DFGUICmd_EditPort(
+      binding,
+      execPath,
+      exec,
+      oldPortName,
+      desiredNewPortName,
+      typeSpec,
+      extDep,
+      uiMetadata
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getActualNewPortName();
 }
 
 void DFGUICmdHandler_QUndo::dfgDoRemovePort(

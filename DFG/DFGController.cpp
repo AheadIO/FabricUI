@@ -306,6 +306,7 @@ void DFGController::gvcDoAddPort(
   GraphView::PortType portType,
   FTL::CStrRef typeSpec,
   GraphView::ConnectionTarget *connectWith,
+  FTL::StrRef extDep,
   FTL::CStrRef metaData
   )
 {
@@ -337,6 +338,7 @@ void DFGController::gvcDoAddPort(
     dfgPortType,
     typeSpec,
     connectWith? FTL::CStrRef( connectWith->path() ): FTL::CStrRef(),
+    extDep,
     metaData
     );
 }
@@ -414,30 +416,6 @@ bool DFGController::gvcDoRemoveConnection(
 
   cmdDisconnect( srcPath.c_str(), dstPath.c_str() );
 
-  return true;
-}
-
-bool DFGController::addExtensionDependency(char const * extension, char const * execPath, std::string & errorMessage)
-{
-  if(!validPresetSplit())
-    return false;
-
-  try
-  {
-    m_client.loadExtension(extension, "", false);
-
-    FabricCore::DFGExec &exec = getExec();
-    FTL::StrRef execPathRef(execPath);
-    if(execPathRef.size() > 0)
-      exec = exec.getSubExec(execPathRef.data());
-    exec.addExtDep(extension);
-  }
-  catch(FabricCore::Exception e)
-  {
-    errorMessage = e.getDesc_cstr();
-    logError(e.getDesc_cstr());
-    return false;
-  }
   return true;
 }
 
@@ -1927,6 +1905,7 @@ std::string DFGController::cmdAddPort(
   FabricCore::DFGPortType portType,
   FTL::CStrRef typeSpec,
   FTL::CStrRef portToConnect,
+  FTL::StrRef extDep,
   FTL::CStrRef metaData
   )
 {
@@ -1943,7 +1922,33 @@ std::string DFGController::cmdAddPort(
     portType,
     typeSpec,
     portToConnect,
+    extDep,
     metaData
+    );
+}
+
+std::string DFGController::cmdEditPort(
+  FTL::StrRef oldPortName,
+  FTL::StrRef desiredNewPortName,
+  FTL::StrRef typeSpec,
+  FTL::StrRef extDep,
+  FTL::StrRef uiMetadata
+  )
+{
+  if(!validPresetSplit())
+    return "";
+
+  UpdateSignalBlocker blocker( this );
+  
+  return m_cmdHandler->dfgDoEditPort(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    oldPortName,
+    desiredNewPortName,
+    typeSpec,
+    extDep,
+    uiMetadata
     );
 }
 

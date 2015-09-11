@@ -74,6 +74,7 @@ namespace FabricUI
         PortType portType,
         FTL::CStrRef typeSpec = FTL::CStrRef(),
         ConnectionTarget *connectWith = 0,
+        FTL::StrRef extDep = FTL::StrRef(),
         FTL::CStrRef metaData = FTL::CStrRef()
         ) = 0;
       

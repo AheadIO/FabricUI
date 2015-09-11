@@ -205,6 +205,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
           infos[i].portType,
           infos[i].dataType.c_str(),
           FTL::CStrRef(), // portToConnectWith
+          FTL::StrRef(), // extDep
           FTL::CStrRef() // metaData
           ); 
         modified = true;
@@ -269,6 +270,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
       infos[indexToAdd].portType,
       infos[indexToAdd].dataType,
       FTL::CStrRef(), // portToConnectWith
+      FTL::StrRef(), // extDep
       FTL::CStrRef() // metaData
       );
     

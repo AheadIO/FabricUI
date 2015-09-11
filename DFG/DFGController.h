@@ -119,6 +119,7 @@ namespace FabricUI
         GraphView::PortType portType,
         FTL::CStrRef typeSpec = FTL::CStrRef(),
         GraphView::ConnectionTarget *connectWith = 0,
+        FTL::StrRef extDep = FTL::StrRef(),
         FTL::CStrRef metaData = FTL::CStrRef()
         );
 
@@ -196,7 +197,16 @@ namespace FabricUI
         FabricCore::DFGPortType dfgPortType,
         FTL::CStrRef typeSpec,
         FTL::CStrRef portToConnect,
-        FTL::CStrRef metaData
+        FTL::StrRef extDep,
+        FTL::CStrRef uiMetadata
+        );
+
+      std::string cmdEditPort(
+        FTL::StrRef oldPortName,
+        FTL::StrRef desiredNewPortName,
+        FTL::StrRef typeSpec,
+        FTL::StrRef extDep,
+        FTL::StrRef uiMetadata
         );
 
       void cmdRemovePort(
@@ -297,7 +307,6 @@ namespace FabricUI
         const std::vector<unsigned int> & indices
         );
 
-      virtual bool addExtensionDependency(char const *  extension, char const *  execPath, std::string  & errorMessage);
       virtual std::string reloadCode();
 
       virtual bool zoomCanvas(float zoom);

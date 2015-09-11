@@ -111,7 +111,19 @@ public:
     FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
     FTL::CStrRef portToConnect,
+    FTL::StrRef extDep,
     FTL::CStrRef metaData
+    ) = 0;
+
+  virtual std::string dfgDoEditPort(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef oldPortName,
+    FTL::StrRef desiredNewPortName,
+    FTL::StrRef typeSpec,
+    FTL::StrRef extDep,
+    FTL::StrRef uiMetadata
     ) = 0;
 
   virtual void dfgDoRemovePort(

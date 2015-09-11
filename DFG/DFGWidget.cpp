@@ -1005,79 +1005,65 @@ void DFGWidget::onExecPortAction(QAction * action)
 
       emit portEditDialogInvoked(&dialog, NULL);
 
-      if(dialog.hidden())
-        exec.setExecPortMetadata(portName, "uiHidden", "true", false);
-      else if(uiHidden.size() > 0)
-        exec.setExecPortMetadata(portName, "uiHidden", NULL, false);
-      if(dialog.opaque())
-        exec.setExecPortMetadata(portName, "uiOpaque", "true", false);
-      else if(uiOpaque.size() > 0)
-        exec.setExecPortMetadata(portName, "uiOpaque", NULL, false);
-      if(dialog.hasRange())
+      std::string newPortName = dialog.title().toUtf8().constData();
+
+      std::string typeSpec = dialog.dataType().toUtf8().constData();
+
+      std::string extDep = dialog.extension().toUtf8().constData();
+
+      std::string uiMetadata;
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
-        exec.setExecPortMetadata(portName, "uiRange", range.toUtf8().constData(), false);
-      }
-      else if(uiRange.size() > 0)
-      {
-        exec.setExecPortMetadata(portName, "uiRange", NULL, false);
-      }
-      if(dialog.hasCombo())
-      {
-        QStringList combo = dialog.comboValues();
-        QString flat = "(";
-        for(int i=0;i<combo.length();i++)
+        FTL::JSONEnc<> metaDataEnc( uiMetadata );
+        FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
+        if(dialog.hidden())
         {
-          if(i > 0)
-            flat += ", ";
-          flat += "\"" + combo[i] + "\"";
+          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiHidden") );
+          FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
         }
-        flat += ")";
-        exec.setExecPortMetadata(portName, "uiCombo", flat.toUtf8().constData(), false);
-      }
-      else if(uiComboStr.length() > 0)
-      {
-        exec.setExecPortMetadata(portName, "uiCombo", NULL, false);
-      }
-
-      m_uiController->beginInteraction();
-      if(dialog.dataType().length() > 0 && dialog.dataType() != exec.getExecPortResolvedType(portName))
-      {
-        m_uiController->cmdSetArgType(
-          portName,
-          dialog.dataType().toUtf8().constData()
-          );
-      }
-
-      if(dialog.title() != portName)
-      {
-        m_uiController->cmdRenameExecPort(
-          portName,
-          dialog.title().toUtf8().constData()
-          );
-      }
-
-      // To fix: this must be part of a command / undo stack,
-      // but so is all the meta-data changes above
-      QString extension = dialog.extension();
-      if(extension.length() > 0)
-      {
-        FTL::CStrRef execPath = m_uiController->getExecPath();
-        std::string errorMessage;
-        if ( !m_uiController->addExtensionDependency(
-          extension.toUtf8().constData(),
-          execPath.c_str(),
-          errorMessage
-          ) )
+        if(dialog.opaque())
         {
-          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-            errorMessage.c_str());
-          msg.addButton("Ok", QMessageBox::AcceptRole);
-          msg.exec();
+          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiOpaque") );
+          FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
         }
+        if(dialog.hasRange())
+        {
+          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiRange") );
+          std::string rangeStr = range.toUtf8().constData();
+          FTL::CStrRef rangeRef = rangeStr;
+          FTL::JSONStringEnc<> valueEnc( enc, rangeRef );
+        }
+        if(dialog.hasCombo())
+        {
+          QStringList combo = dialog.comboValues();
+          QString flat = "(";
+          for(int i=0;i<combo.length();i++)
+          {
+            if(i > 0)
+              flat += ", ";
+            flat += "\"" + combo[i] + "\"";
+          }
+          flat += ")";
+
+          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiCombo") );
+          std::string flatStr = flat.toUtf8().constData();
+          FTL::CStrRef flatRef = flatStr;
+          FTL::JSONStringEnc<> valueEnc( enc, flatRef );
+        }
+
+        emit portEditDialogInvoked(&dialog, &metaDataObjectEnc);
       }
 
-      m_uiController->endInteraction();
+      if ( FTL::StrRef( uiMetadata ) == FTL_STR("{}") )
+        uiMetadata.clear();
+
+      m_uiController->cmdEditPort(
+        portName,
+        newPortName,
+        typeSpec,
+        extDep,
+        uiMetadata
+        );
     }
     catch(FabricCore::Exception e)
     {
@@ -1260,7 +1246,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
   if(action->text() == "Create Port")
   {
     FabricCore::Client &client = m_uiController->getClient();
-    FTL::CStrRef execPath = m_uiController->getExecPath();
 
     bool canEditPortType = m_uiController->isViewingRootGraph();
     DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
@@ -1325,23 +1310,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
     if(title.length() > 0)
     {
-      if(extension.length() > 0)
-      {
-        std::string errorMessage;
-        if ( !m_uiController->addExtensionDependency(
-          extension.toUtf8().constData(),
-          execPath.c_str(),
-          errorMessage
-          ) )
-        {
-          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-            errorMessage.c_str());
-          msg.addButton("Ok", QMessageBox::AcceptRole);
-          msg.exec();
-          return;
-        }
-      }
-
       FabricCore::DFGPortType portType = FabricCore::DFGPortType_Out;
       if ( dialog.portType() == "In" )
         portType = FabricCore::DFGPortType_In;
@@ -1356,6 +1324,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
         portType, 
         dataType.toUtf8().constData(),
         FTL::CStrRef(), // portToConnect
+        FTL::StrRef( extension.toUtf8().constData() ).trim(),
         metaData
         );
     }

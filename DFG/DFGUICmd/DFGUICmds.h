@@ -14,6 +14,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddVar.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Connect.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Disconnect.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_EditPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ExplodeNode.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ImplodeNodes.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_InstPreset.h>
