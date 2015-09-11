@@ -145,12 +145,11 @@ void ColorValueWidget::onValueChangedInLineEdit()
 
 void ColorValueWidget::onValueChangedColorPicker(float r, float g, float b, float a)
 {
-  m_value = genRtVal(r, g, b, a);
   m_lineEditR->setLineEditText(QString::number(r));
   m_lineEditG->setLineEditText(QString::number(g));
   m_lineEditB->setLineEditText(QString::number(b));
   m_lineEditA->setLineEditText(QString::number(a));
-  emit dataChanged();
+  ValueWidget::setValue(genRtVal(r, g, b, a));
 }
 
 void ColorValueWidget::setValue(FabricCore::RTVal v)
