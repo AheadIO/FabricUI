@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
@@ -64,12 +65,14 @@ void DFGCombinedWidget::init(
         overTakeBindingNotifications
         );
 
+    // preset library
+    // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
     m_treeWidget =
       new DFG::PresetTreeWidget(
         m_dfgWidget->getDFGController(),
         config,
         true,
-        true,
+        false,
         true
         );
 
