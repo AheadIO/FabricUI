@@ -40,6 +40,7 @@ namespace FabricUI
       static bool canDisplay(TreeView::WidgetTreeItem * item);
 
     public slots:
+      virtual void onValueItemDelta( ValueItem *valueItem );
       virtual void setFocusToFirstInput() {}
 
     signals:

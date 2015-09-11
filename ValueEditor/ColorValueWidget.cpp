@@ -139,9 +139,8 @@ void ColorValueWidget::onValueChangedInLineEdit()
   float g = m_lineEditG->text().toFloat();
   float b = m_lineEditB->text().toFloat();
   float a = m_lineEditA->text().toFloat();
-  m_value = genRtVal(r, g, b, a);
   m_colorPicker->set(r, g, b, a);
-  emit dataChanged();
+  ValueWidget::setValue(genRtVal(r, g, b, a));
 }
 
 void ColorValueWidget::onValueChangedColorPicker(float r, float g, float b, float a)

@@ -42,9 +42,6 @@ namespace FabricUI
 
       FabricCore::Client * client() const;
 
-      void onUIChanged();
-      void onDataChanged();
-
       void setMetaData(const char * key, const char * value);
       const char * getMetaData(const char * key);
 

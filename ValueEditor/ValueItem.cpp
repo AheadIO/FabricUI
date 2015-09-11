@@ -43,7 +43,11 @@ void ValueItem::setValue(FabricCore::RTVal v)
   m_isSettingValue = true;
   m_value = v;
   m_needsUpdate = true;
-  onDataChanged();
+
+  if ( !!m_valueAtInteractionEnter )
+    emit valueItemInteractionDelta( this );
+  else emit valueItemDelta( this );
+
   m_isSettingValue = false;
 }
 
@@ -60,25 +64,6 @@ bool ValueItem::enabled() const
 FabricCore::Client * ValueItem::client() const
 {
   return m_client;
-}
-
-void ValueItem::onUIChanged()
-{
-  if(!editor())
-    return;
-
-  m_value = ((ValueWidget*)editor())->value();
-
-  if ( !!m_valueAtInteractionEnter )
-    emit valueItemInteractionDelta( this );
-  else emit valueItemDelta( this );
-}
-
-void ValueItem::onDataChanged()
-{
-  if(!editor())
-    return;
-  ((ValueWidget*)editor())->setValue(m_value);
 }
 
 void ValueItem::setMetaData(const char * key, const char * value)
