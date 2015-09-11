@@ -1,6 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include <iostream>
 #include "DFGLogWidget.h"
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
@@ -98,7 +97,6 @@ void DFGLogWidget::callback(
 }
 
 void DFGLogWidget::keyPressEvent(QKeyEvent * event) {
-  std::cerr << "Handeling event" << std::endl;
   event->accept();
 }
 
