@@ -36,6 +36,7 @@ namespace FabricUI
       QString captionSuffix() const;
       QFont font() const;
       QColor fontColor() const;
+      bool italic() const;
       
       void refreshExtDeps( FTL::CStrRef extDeps );
 

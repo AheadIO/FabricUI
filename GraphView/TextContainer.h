@@ -37,6 +37,8 @@ namespace FabricUI
       virtual void setHighlighted(bool state = true);
       virtual QFont font() const;
       virtual void setFont(QFont font);
+      virtual bool italic() const;
+      virtual void setItalic(bool flag);
 
       QGraphicsSimpleTextItem * textItem();
 

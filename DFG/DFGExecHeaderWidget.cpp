@@ -128,6 +128,11 @@ QColor DFGExecHeaderWidget::fontColor() const
   return m_fontColor;
 }
 
+bool DFGExecHeaderWidget::italic() const
+{
+  return m_font.italic();
+}
+
 void DFGExecHeaderWidget::setFont(QFont f)
 {
   m_font = f;
@@ -170,6 +175,7 @@ void DFGExecHeaderWidget::onExecChanged()
     m_captionSuffix = "";
 
   m_caption += m_captionSuffix;
+  m_font.setItalic(m_captionSuffix.length() > 0);
   update();
 }
 

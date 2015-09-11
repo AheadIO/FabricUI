@@ -92,6 +92,18 @@ void TextContainer::setFont(QFont font)
   refresh();
 }
 
+bool TextContainer::italic() const
+{
+  return m_textItem->font().italic();
+}
+
+void TextContainer::setItalic(bool flag)
+{
+  QFont font = m_textItem->font();
+  font.setItalic(flag);
+  setFont(font);
+}
+
 QGraphicsSimpleTextItem * TextContainer::textItem()
 {
   return m_textItem;

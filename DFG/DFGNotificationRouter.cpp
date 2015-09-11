@@ -306,6 +306,17 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
       FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
       onInstExecDidAttachPreset( nodeName, presetFilePath );
     }
+    else if (descStr == FTL_STR("execWillDetachPreset") )
+    {
+      FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+      onExecWillDetachPreset( presetFilePath );
+    }
+    else if (descStr == FTL_STR("instExecWillDetachPreset") )
+    {
+      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+      FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+      onInstExecWillDetachPreset( nodeName, presetFilePath );
+    }
     else if (descStr == FTL_STR("execPresetFileRefCountDidChange") )
     {
       int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
@@ -1336,6 +1347,21 @@ void DFGNotificationRouter::onInstExecDidAttachPreset(
   // nothing to be done here for now.
 }
 
+void DFGNotificationRouter::onExecWillDetachPreset(
+  FTL::CStrRef presetFilePath
+  )
+{
+  // nothing to be done here for now.
+}
+
+void DFGNotificationRouter::onInstExecWillDetachPreset(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef presetFilePath
+  )
+{
+  // nothing to be done here for now.
+}
+
 void DFGNotificationRouter::onExecPresetFileRefCountDidChange(
   int newPresetFileRefCount
   )
@@ -1349,7 +1375,6 @@ void DFGNotificationRouter::onInstExecPresetFileRefCountDidChange(
   int newPresetFileRefCount
   )
 {
-
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;

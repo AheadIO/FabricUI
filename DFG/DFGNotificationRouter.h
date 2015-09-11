@@ -175,6 +175,13 @@ namespace FabricUI
         FTL::CStrRef nodeName,
         FTL::CStrRef presetFilePath
         );
+      void onExecWillDetachPreset(
+        FTL::CStrRef presetFilePath
+        );
+      void onInstExecWillDetachPreset(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef presetFilePath
+        );
       void onExecPresetFileRefCountDidChange(
         int newPresetFileRefCount
         );
