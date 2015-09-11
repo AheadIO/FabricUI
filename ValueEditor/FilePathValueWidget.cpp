@@ -52,8 +52,7 @@ void FilePathValueWidget::onValueChangedInLineEdit()
 {
   QString s = m_lineEdit->text();
   FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), s.toUtf8().constData());
-  m_value = FabricCore::RTVal::Create(*((ValueItem*)item())->client(), "FilePath", 1, &stringVal);
-  emit dataChanged();
+  ValueWidget::setValue(FabricCore::RTVal::Create(*((ValueItem*)item())->client(), "FilePath", 1, &stringVal));
 }
 
 void FilePathValueWidget::onBrowseClicked()

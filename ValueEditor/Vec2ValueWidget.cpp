@@ -41,7 +41,7 @@ void Vec2ValueWidget::onValueChangedInLineEdit()
   m_value = FabricCore::RTVal::Construct(*((ValueItem*)item())->client(), "Vec2", 0, 0);
   m_value.setMember("x", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), x));
   m_value.setMember("y", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), y));
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
 }
 
 void Vec2ValueWidget::setValue(FabricCore::RTVal v)

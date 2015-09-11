@@ -53,7 +53,7 @@ void VariablePathValueWidget::onValueChangedInLineEdit()
 
   QString s = m_lineEdit->text();
   m_value = FabricCore::RTVal::ConstructString(*((ValueEditor::ValueItem*)item())->client(), s.toUtf8().constData());
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
 
   m_changingValue = false;
 }
