@@ -6,6 +6,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
+#include <QtGui/QMessageBox>
 
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
@@ -138,6 +139,34 @@ void DFGController::setRouter(DFGNotificationRouter * router)
   }
 }
 
+bool DFGController::validPresetSplit() const
+{
+  if(isViewingRootGraph())
+    return true;
+
+  if(!m_exec.isValid())
+    return true;
+
+  FTL::StrRef presetName = m_exec.getPresetName();
+  if(presetName.empty())
+    return true;
+
+  QMessageBox msgBox;
+  msgBox.setText( "You are about to split this node from the preset. Are you sure?" );
+  msgBox.setInformativeText( "The node will no longer be referencing the preset." );
+  msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
+  msgBox.setDefaultButton( QMessageBox::Cancel );
+  switch(msgBox.exec())
+  {
+    case QMessageBox::Ok:
+      return true;
+    case QMessageBox::Cancel:
+      return false;
+  }
+
+  return false;
+}
+
 bool DFGController::gvcDoRemoveNodes(
   FTL::ArrayRef<GraphView::Node *> nodes
   )
@@ -159,6 +188,9 @@ void DFGController::cmdAddBackDrop(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoAddBackDrop(
@@ -175,6 +207,9 @@ void DFGController::cmdSetNodeTitle(
   FTL::CStrRef newTitle
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetNodeTitle(
@@ -191,6 +226,9 @@ void DFGController::cmdSetNodeComment(
   FTL::CStrRef comment
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetNodeComment(
@@ -221,6 +259,9 @@ void DFGController::setNodeToolTip(
   FTL::CStrRef newToolTip
   )
 {
+  if(!validPresetSplit())
+    return;
+
   m_exec.setNodeMetadata(
     nodeName.c_str(),
     "uiTooltip",
@@ -235,6 +276,9 @@ void DFGController::setNodeDocUrl(
   FTL::CStrRef newDocUrl
   )
 {
+  if(!validPresetSplit())
+    return;
+
   m_exec.setNodeMetadata(
     nodeName.c_str(),
     "uiDocUrl",
@@ -308,6 +352,9 @@ std::string DFGController::cmdRenameExecPort(
   FTL::CStrRef desiredNewName
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
 
   std::string result = m_cmdHandler->dfgDoRenamePort(
@@ -370,6 +417,9 @@ bool DFGController::gvcDoRemoveConnection(
 
 bool DFGController::addExtensionDependency(char const * extension, char const * execPath, std::string & errorMessage)
 {
+  if(!validPresetSplit())
+    return false;
+
   try
   {
     m_client.loadExtension(extension, "", false);
@@ -391,6 +441,9 @@ bool DFGController::addExtensionDependency(char const * extension, char const * 
 
 void DFGController::cmdSetCode( FTL::CStrRef code )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetCode(
@@ -403,6 +456,9 @@ void DFGController::cmdSetCode( FTL::CStrRef code )
 
 std::string DFGController::reloadCode()
 {
+  if(!validPresetSplit())
+    return "";
+
   FabricCore::DFGExec &func = getExec();
   if ( func.getType() != FabricCore::DFGExecType_Func )
     return "";
@@ -455,6 +511,9 @@ void DFGController::cmdSetArgType(
   FTL::CStrRef typeName
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoSetArgType(
@@ -608,6 +667,9 @@ bool DFGController::setNodeColor(
   QColor color
   )
 {
+  if(!validPresetSplit())
+    return false;
+
   try
   {
     std::string uiNodeColorString;
@@ -647,16 +709,25 @@ bool DFGController::setNodeColor(
 
 bool DFGController::setNodeBackgroundColor(const char * nodeName, QColor color)
 {
+  if(!validPresetSplit())
+    return false;
+
   return setNodeColor(nodeName, "uiNodeColor", color);
 }
 
 bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
 {
+  if(!validPresetSplit())
+    return false;
+
   return setNodeColor(nodeName, "uiHeaderColor", color);
 }
 
 bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
 {
+  if(!validPresetSplit())
+    return false;
+
   return setNodeColor(nodeName, "uiTextColor", color);
 }
 
@@ -706,6 +777,9 @@ std::string DFGController::copy()
 
 void DFGController::cmdCut()
 {
+  if(!validPresetSplit())
+    return;
+
   try
   {
     const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
@@ -755,6 +829,9 @@ void DFGController::cmdCut()
 
 void DFGController::cmdPaste()
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   try
@@ -1063,6 +1140,9 @@ void DFGController::cmdSetDefaultValue(
   FabricCore::RTVal const &value
   )
 {
+  if(!validPresetSplit())
+    return;
+
   FabricCore::RTVal currentDefaultValue =
     exec.getPortDefaultValue(
       portPath.c_str(),
@@ -1088,6 +1168,9 @@ void DFGController::cmdSetArgValue(
   FabricCore::RTVal const &value
   )
 {
+  if(!validPresetSplit())
+    return;
+
   FabricCore::RTVal currentValue = m_binding.getArgValue( argName.c_str() );
   if ( !currentValue
     || !currentValue.isExEQTo( value ) )
@@ -1110,6 +1193,9 @@ void DFGController::cmdSetRefVarPath(
   FTL::CStrRef varPath
   )
 {
+  if(!validPresetSplit())
+    return;
+
   FTL::CStrRef currentVarPath = exec.getRefVarPath( refName.c_str() );
   if ( currentVarPath != varPath )
   {
@@ -1132,6 +1218,9 @@ void DFGController::cmdReorderPorts(
   const std::vector<unsigned int> & indices
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoReorderPorts(
@@ -1661,6 +1750,9 @@ void DFGController::cmdRemoveNodes(
   FTL::ArrayRef<FTL::CStrRef> nodeNames
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoRemoveNodes(
@@ -1676,6 +1768,9 @@ void DFGController::cmdConnect(
   FTL::CStrRef dstPath
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoConnect(
@@ -1692,6 +1787,9 @@ void DFGController::cmdDisconnect(
   FTL::CStrRef dstPath
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoDisconnect(
@@ -1708,6 +1806,9 @@ std::string DFGController::cmdAddInstWithEmptyGraph(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGraph(
     getBinding(),
@@ -1724,6 +1825,9 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddFunc(
     getBinding(),
@@ -1740,6 +1844,9 @@ std::string DFGController::cmdAddInstFromPreset(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoInstPreset(
     getBinding(),
@@ -1757,6 +1864,9 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddVar(
     getBinding(),
@@ -1775,6 +1885,9 @@ std::string DFGController::cmdAddGet(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGet(
     getBinding(),
@@ -1792,6 +1905,9 @@ std::string DFGController::cmdAddSet(
   QPointF pos
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddSet(
@@ -1811,6 +1927,9 @@ std::string DFGController::cmdAddPort(
   FTL::CStrRef portToConnect
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddPort(
@@ -1828,6 +1947,9 @@ void DFGController::cmdRemovePort(
   FTL::CStrRef portName
   )
 {
+  if(!validPresetSplit())
+    return;
+
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoRemovePort(
@@ -1877,6 +1999,9 @@ std::string DFGController::cmdImplodeNodes(
   FTL::CStrRef desiredNodeName
   )
 {
+  if(!validPresetSplit())
+    return "";
+
   UpdateSignalBlocker blocker( this );
 
   return m_cmdHandler->dfgDoImplodeNodes(
@@ -1892,6 +2017,9 @@ std::vector<std::string> DFGController::cmdExplodeNode(
   FTL::CStrRef nodeName
   )
 {
+  if(!validPresetSplit())
+    return std::vector<std::string>();
+
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoExplodeNode(

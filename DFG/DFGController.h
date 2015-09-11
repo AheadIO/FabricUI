@@ -85,10 +85,13 @@ namespace FabricUI
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
 
-      bool isViewingRootGraph()
+      bool isViewingRootGraph() const
         { return m_execPath.empty(); }
       FabricServices::ASTWrapper::KLASTManager * astManager()
         { return m_manager; }
+
+      // returns true if the user allows a preset edit
+      bool validPresetSplit() const;
 
       // Parent virtual functions
 
