@@ -1254,7 +1254,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
   {
     FabricCore::Client &client = m_uiController->getClient();
     FTL::CStrRef execPath = m_uiController->getExecPath();
-    FabricCore::DFGExec &exec = m_uiController->getExec();
 
     bool canEditPortType = m_uiController->isViewingRootGraph();
     DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
