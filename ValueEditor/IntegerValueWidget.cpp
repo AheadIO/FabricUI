@@ -215,7 +215,7 @@ void IntegerValueWidget::onValueChangedInLineEdit()
   else if(m_typeName == "UInt64")
     m_value = FabricCore::RTVal::ConstructUInt64(*((ValueItem*)item())->client(), i);
   
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
 
   m_changingValue = false;
 }
@@ -246,7 +246,7 @@ void IntegerValueWidget::onValueChangedInSlider()
   else if(m_typeName == "UInt64")
     m_value = FabricCore::RTVal::ConstructUInt64(*((ValueItem*)item())->client(), i);
 
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
   m_changingValue = false;
 }
 
@@ -275,7 +275,7 @@ void IntegerValueWidget::onValueChangedInComboBox(int index)
   else if(m_typeName == "UInt64")
     m_value = FabricCore::RTVal::ConstructUInt64(*((ValueItem*)item())->client(), i);
   
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
 
   m_changingValue = false;
 }

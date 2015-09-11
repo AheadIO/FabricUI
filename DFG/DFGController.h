@@ -118,7 +118,8 @@ namespace FabricUI
         FTL::CStrRef desiredPortName,
         GraphView::PortType portType,
         FTL::CStrRef typeSpec = FTL::CStrRef(),
-        GraphView::ConnectionTarget *connectWith = 0
+        GraphView::ConnectionTarget *connectWith = 0,
+        FTL::CStrRef metaData = FTL::CStrRef()
         );
 
       virtual void gvcDoSetNodeCommentExpanded(
@@ -194,7 +195,8 @@ namespace FabricUI
         FTL::CStrRef desiredPortName,
         FabricCore::DFGPortType dfgPortType,
         FTL::CStrRef typeSpec,
-        FTL::CStrRef portToConnect
+        FTL::CStrRef portToConnect,
+        FTL::CStrRef metaData
         );
 
       void cmdRemovePort(

@@ -266,7 +266,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
   FTL::CStrRef desiredPortName,
   FabricCore::DFGPortType dfgPortType,
   FTL::CStrRef typeSpec,
-  FTL::CStrRef portToConnect
+  FTL::CStrRef portToConnect,
+  FTL::CStrRef metaData
   )
 {
   DFGUICmd_AddPort *cmd =
@@ -277,7 +278,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
       desiredPortName,
       dfgPortType,
       typeSpec,
-      portToConnect
+      portToConnect,
+      metaData
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualPortName();

@@ -41,8 +41,7 @@ void BooleanValueWidget::setEnabled(bool state)
 void BooleanValueWidget::onValueChangedInCheckBox()
 {
   bool b = m_checkBox->checkState() == Qt::Checked;
-  m_value = FabricCore::RTVal::ConstructBoolean(*((ValueItem*)item())->client(), b);
-  emit dataChanged();
+  ValueWidget::setValue(FabricCore::RTVal::ConstructBoolean(*((ValueItem*)item())->client(), b));
 }
 
 TreeEditorWidget * BooleanValueWidget::creator(QWidget * parent, WidgetTreeItem * item)

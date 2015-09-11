@@ -73,7 +73,8 @@ namespace FabricUI
         FTL::CStrRef desiredPortName,
         PortType portType,
         FTL::CStrRef typeSpec = FTL::CStrRef(),
-        ConnectionTarget *connectWith = 0
+        ConnectionTarget *connectWith = 0,
+        FTL::CStrRef metaData = FTL::CStrRef()
         ) = 0;
       
       virtual void gvcDoSetNodeCommentExpanded(

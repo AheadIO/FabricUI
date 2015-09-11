@@ -305,7 +305,8 @@ void DFGController::gvcDoAddPort(
   FTL::CStrRef desiredPortName,
   GraphView::PortType portType,
   FTL::CStrRef typeSpec,
-  GraphView::ConnectionTarget *connectWith
+  GraphView::ConnectionTarget *connectWith,
+  FTL::CStrRef metaData
   )
 {
   FabricCore::DFGPortType dfgPortType;
@@ -335,7 +336,8 @@ void DFGController::gvcDoAddPort(
     desiredPortName,
     dfgPortType,
     typeSpec,
-    connectWith? FTL::CStrRef( connectWith->path() ): FTL::CStrRef()
+    connectWith? FTL::CStrRef( connectWith->path() ): FTL::CStrRef(),
+    metaData
     );
 }
 
@@ -1924,7 +1926,8 @@ std::string DFGController::cmdAddPort(
   FTL::CStrRef desiredPortName,
   FabricCore::DFGPortType portType,
   FTL::CStrRef typeSpec,
-  FTL::CStrRef portToConnect
+  FTL::CStrRef portToConnect,
+  FTL::CStrRef metaData
   )
 {
   if(!validPresetSplit())
@@ -1939,7 +1942,8 @@ std::string DFGController::cmdAddPort(
     desiredPortName,
     portType,
     typeSpec,
-    portToConnect
+    portToConnect,
+    metaData
     );
 }
 

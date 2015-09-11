@@ -23,6 +23,10 @@ public:
 
   virtual ~DFGUICmdHandler() {}
 
+  // json encoding / decoding
+  static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
+  static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json);
+
   virtual void dfgDoRemoveNodes(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
@@ -106,7 +110,8 @@ public:
     FTL::CStrRef desiredPortName,
     FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
-    FTL::CStrRef portToConnect
+    FTL::CStrRef portToConnect,
+    FTL::CStrRef metaData
     ) = 0;
 
   virtual void dfgDoRemovePort(

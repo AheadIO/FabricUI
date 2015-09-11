@@ -133,7 +133,7 @@ void ScalarValueWidget::onValueChangedInLineEdit()
   else
     m_value = FabricCore::RTVal::ConstructFloat64(*((ValueItem*)item())->client(), f);
 
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
   m_changingValue = false;
 }
 
@@ -151,7 +151,7 @@ void ScalarValueWidget::onValueChangedInSlider()
   else
     m_value = FabricCore::RTVal::ConstructFloat64(*((ValueItem*)item())->client(), f);
 
-  emit dataChanged();
+  ValueWidget::setValue(m_value);
   m_changingValue = false;
 }
 

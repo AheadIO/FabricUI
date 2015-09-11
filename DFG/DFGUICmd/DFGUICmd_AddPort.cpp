@@ -2,6 +2,9 @@
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddPort.h>
 
+#include <FTL/JSONValue.h>
+#include <FTL/JSONException.h>
+
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 void DFGUICmd_AddPort::appendDesc( std::string &desc )
@@ -21,6 +24,7 @@ void DFGUICmd_AddPort::invoke( unsigned &coreUndoCount )
       m_portType,
       m_typeSpec,
       m_portToConnectWith,
+      m_metaData,
       coreUndoCount
       );
 }
@@ -33,6 +37,7 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
   FabricCore::DFGPortType portType,
   FTL::CStrRef typeSpec,
   FTL::CStrRef portToConnect,
+  FTL::CStrRef metaData,
   unsigned &coreUndoCount
   )
 {
@@ -43,6 +48,29 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
       typeSpec.c_str()
       );
   ++coreUndoCount;
+
+  if ( !metaData.empty() )
+  {
+    try
+    {
+      FTL::JSONStrWithLoc swl( metaData );
+      FTL::OwnedPtr<FTL::JSONObject> jo(
+        FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
+        );
+
+      FTL::JSONObject::const_iterator it = jo->begin();
+      for(;it!=jo->end();it++)
+      {
+        FTL::CStrRef key = it->first;
+        FTL::CStrRef value = it->second->getStringValue();
+        exec.setExecPortMetadata(portName.c_str(), key.c_str(), value.c_str(), false);
+      }
+    }
+    catch(FTL::JSONException e)
+    {
+      printf("DFGUICmd_AddPort: Json exception: '%s'\n", e.getDescCStr());
+    }
+  }
 
   if ( !portToConnect.empty() )
   {

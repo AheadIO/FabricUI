@@ -42,8 +42,10 @@ FabricCore::RTVal ValueWidget::value() const
 
 void ValueWidget::setValue(FabricCore::RTVal v)
 {
-  m_value = v;
-  emit dataChanged();
+  if(m_value.isValid())
+    ((ValueItem*)item())->setValue(v);
+  else
+    m_value = v;
 }
 
 ValueItem * ValueWidget::valueItem()
@@ -56,6 +58,12 @@ TreeEditorWidget * ValueWidget::creator(QWidget * parent, WidgetTreeItem * item)
   ValueWidget * widget = new ValueWidget( item->label().c_str(), parent );
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
+
+  QObject::connect(
+    item, SIGNAL(valueItemDelta(ValueItem*)),
+    widget, SLOT(onValueItemDelta(ValueItem*))
+    );
+
   return widget;
 }
 
@@ -81,4 +89,10 @@ ValueEditorWidget * ValueWidget::mainEditorWidget()
     p = p2;
   }
   return NULL;
+}
+
+void ValueWidget::onValueItemDelta( ValueItem *valueItem )
+{
+  m_value = FabricCore::RTVal();
+  setValue(valueItem->value());
 }
