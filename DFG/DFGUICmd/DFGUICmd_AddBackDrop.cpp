@@ -20,6 +20,7 @@ FTL::CStrRef DFGUICmd_AddBackDrop::invokeAdd( unsigned &coreUndoCount )
     actualNodeName.c_str(),
     "uiTitle",
     getTitle().c_str(),
+    true,
     true
     );
   ++coreUndoCount;

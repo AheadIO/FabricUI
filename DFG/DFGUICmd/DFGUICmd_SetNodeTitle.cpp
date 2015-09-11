@@ -22,6 +22,7 @@ void DFGUICmd_SetNodeTitle::invoke( unsigned &coreUndoCount )
         m_nodeName.c_str(),
         "uiTitle",
         m_title.c_str(),
+        true,
         true
         );
       ++coreUndoCount;

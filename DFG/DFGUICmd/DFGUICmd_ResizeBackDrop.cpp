@@ -30,7 +30,7 @@ void DFGUICmd_ResizeBackDrop::invoke( unsigned &coreUndoCount )
       }
     }
     getExec().setNodeMetadata(
-      m_backDropName.c_str(), "uiGraphPos", json.c_str(), true
+      m_backDropName.c_str(), "uiGraphPos", json.c_str(), true, false
       );
     ++coreUndoCount;
   }
@@ -50,7 +50,7 @@ void DFGUICmd_ResizeBackDrop::invoke( unsigned &coreUndoCount )
       }
     }
     getExec().setNodeMetadata(
-      m_backDropName.c_str(), "uiGraphSize", json.c_str(), true
+      m_backDropName.c_str(), "uiGraphSize", json.c_str(), true, false
       );
     ++coreUndoCount;
   }

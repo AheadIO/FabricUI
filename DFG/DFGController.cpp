@@ -211,6 +211,7 @@ void DFGController::setNodeCommentExpanded(
     nodeName.c_str(),
     "uiCommentExpanded",
     expanded? "true": "",
+    false,
     false
     );
 }
@@ -224,7 +225,8 @@ void DFGController::setNodeToolTip(
     nodeName.c_str(),
     "uiTooltip",
     newToolTip.c_str(),
-    false
+    false,
+    true
     );
 }
 
@@ -237,7 +239,8 @@ void DFGController::setNodeDocUrl(
     nodeName.c_str(),
     "uiDocUrl",
     newDocUrl.c_str(),
-    false
+    false,
+    true
     );
 }
 
@@ -479,7 +482,7 @@ bool DFGController::zoomCanvas(
       }
     }
 
-    exec.setMetadata("uiGraphZoom", json.c_str(), false);
+    exec.setMetadata("uiGraphZoom", json.c_str(), false, false);
   }
   catch(FabricCore::Exception e)
   {
@@ -509,7 +512,7 @@ bool DFGController::panCanvas(QPointF pan)
       }
     }
 
-    exec.setMetadata("uiGraphPan", json.c_str(), false);
+    exec.setMetadata("uiGraphPan", json.c_str(), false, false);
   }
   catch(FabricCore::Exception e)
   {
@@ -630,7 +633,8 @@ bool DFGController::setNodeColor(
       nodeName,
       key,
       uiNodeColorString.c_str(),
-      false
+      false, 
+      true
       );
   }
   catch(FabricCore::Exception e)
@@ -896,14 +900,15 @@ void DFGController::checkErrors()
               nodeName,
               "uiTitle",
               jo->getString( FTL_STR("title") ).c_str(),
-              false
+              false,
+              true
               );
 
             FTL::JSONObject const *posJO =
               jo->getObject( FTL_STR("pos") );
             std::string posStr = posJO->encode();
             m_exec.setNodeMetadata(
-              nodeName, "uiGraphPos", posStr.c_str(), false
+              nodeName, "uiGraphPos", posStr.c_str(), false, false
               );
 
             FTL::JSONObject const *sizeJO =
@@ -926,17 +931,17 @@ void DFGController::checkErrors()
               }
             }
             m_exec.setNodeMetadata(
-              nodeName, "uiGraphSize", sizeStr.c_str(), false
+              nodeName, "uiGraphSize", sizeStr.c_str(), false, false
               );
 
             FTL::JSONObject const *colorJO =
               jo->getObject( FTL_STR("color") );
             std::string colorStr = colorJO->encode();
             m_exec.setNodeMetadata(
-              nodeName, "uiNodeColor", colorStr.c_str(), false
+              nodeName, "uiNodeColor", colorStr.c_str(), false, true
               );
 
-            m_exec.setMetadata( uiBackDropKey.c_str(), "", false );
+            m_exec.setMetadata( uiBackDropKey.c_str(), "", false, false );
           }
         }
         catch ( ... )
@@ -945,7 +950,7 @@ void DFGController::checkErrors()
         split = split.second.split(',');
       }
   
-      m_exec.setMetadata( "uiBackDrops", "", false );
+      m_exec.setMetadata( "uiBackDrops", "", false, false );
     }
     upgradingBackDrops = false;
   }
@@ -1374,7 +1379,7 @@ void DFGController::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderB
     int collapsedState = (int)node->collapsedState();
     FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
     FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false);
+    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false, false);
   }
   else if(button->name() == "node_edit")
   {
@@ -1947,6 +1952,7 @@ void DFGController::gvcDoMoveNodes(
         nodeName.c_str(),
         "uiGraphPos",
         newPosJSON.c_str(),
+        false,
         false
         );
     }
@@ -1989,6 +1995,7 @@ void DFGController::gvcDoResizeBackDropNode(
         backDropNode->name().c_str(),
         "uiGraphPos",
         newPosJSON.c_str(),
+        false,
         false
         );
     }
@@ -2012,6 +2019,7 @@ void DFGController::gvcDoResizeBackDropNode(
         backDropNode->name().c_str(),
         "uiGraphSize",
         newSizeJSON.c_str(),
+        false,
         false
         );
     }

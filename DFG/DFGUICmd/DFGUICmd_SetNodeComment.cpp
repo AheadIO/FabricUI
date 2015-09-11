@@ -18,6 +18,7 @@ void DFGUICmd_SetNodeComment::invoke( unsigned &coreUndoCount )
     m_nodeName.c_str(),
     "uiComment",
     m_comment.c_str(),
+    true,
     true
     );
   ++coreUndoCount;

@@ -37,7 +37,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 {
   try
   {
-    // printf( "notif = %s\n", jsonStr.c_str() );
+    printf( "notif = %s\n", jsonStr.c_str() );
     
     // FabricCore::DFGStringResult desc = m_exec.getDesc();
     // printf( "exec = %s\n", desc.getCString() );

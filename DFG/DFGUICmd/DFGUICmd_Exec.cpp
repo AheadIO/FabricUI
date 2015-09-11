@@ -93,7 +93,7 @@ void DFGUICmd_Exec::MoveNodes(
       }
     }
     exec.setNodeMetadata(
-      nodeName.c_str(), "uiGraphPos", json.c_str(), true
+      nodeName.c_str(), "uiGraphPos", json.c_str(), true, false
       );
     ++coreUndoCount;
   }

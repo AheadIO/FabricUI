@@ -606,22 +606,22 @@ void DFGWidget::onNodeAction(QAction * action)
 
     FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
     if(!uiNodeColor.empty())
-      subExec.setMetadata("uiNodeColor", uiNodeColor.c_str());
+      subExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
     FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
     if(!uiHeaderColor.empty())
-      subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str());
+      subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str(), true, true);
     FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
     if(!uiTextColor.empty())
-      subExec.setMetadata("uiTextColor", uiTextColor.c_str());
+      subExec.setMetadata("uiTextColor", uiTextColor.c_str(), true, true);
     FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
     if(!uiTooltip.empty())
-      subExec.setMetadata("uiTooltip", uiTooltip.c_str());
+      subExec.setMetadata("uiTooltip", uiTooltip.c_str(), true, true);
     FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
     if(!uiDocUrl.empty())
-      subExec.setMetadata("uiDocUrl", uiDocUrl.c_str());
+      subExec.setMetadata("uiDocUrl", uiDocUrl.c_str(), true, true);
     FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
     if(!uiAlwaysShowDaisyChainPorts.empty())
-      subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str());
+      subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str(), true, true);
 
     QString lastPresetFolder = title;
     if(getSettings())
@@ -749,22 +749,22 @@ void DFGWidget::onNodeAction(QAction * action)
 
         FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
         if(!uiNodeColor.empty())
-          subExec.setMetadata("uiNodeColor", uiNodeColor.c_str());
+          subExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
         FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
         if(!uiHeaderColor.empty())
-          subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str());
+          subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str(), true, true);
         FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
         if(!uiTextColor.empty())
-          subExec.setMetadata("uiTextColor", uiTextColor.c_str());
+          subExec.setMetadata("uiTextColor", uiTextColor.c_str(), true, true);
         FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
         if(!uiTooltip.empty())
-          subExec.setMetadata("uiTooltip", uiTooltip.c_str());
+          subExec.setMetadata("uiTooltip", uiTooltip.c_str(), true, true);
         FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
         if(!uiDocUrl.empty())
-          subExec.setMetadata("uiDocUrl", uiDocUrl.c_str());
+          subExec.setMetadata("uiDocUrl", uiDocUrl.c_str(), true, true);
         FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
         if(!uiAlwaysShowDaisyChainPorts.empty())
-          subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str());
+          subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str(), true, true);
 
         // copy all defaults
         for(unsigned int i=0;i<subExec.getExecPortCount();i++)
