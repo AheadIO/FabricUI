@@ -70,6 +70,11 @@ namespace FabricUI
       FTL::CStrRef title() const
         { return m_title; }
       void setTitle( FTL::CStrRef title );
+      FTL::CStrRef titleSuffix() const
+        { return m_titleSuffix; }
+      void setTitleSuffix( FTL::CStrRef titleSuffix );
+      void setTitleSuffixAsterisk() { setTitleSuffix(" *"); }
+      void removeTitleSuffix() { setTitleSuffix(""); }
       QColor color() const;
       virtual void setColor(QColor col);
       virtual void setColorAsGradient(QColor a, QColor b);
@@ -168,6 +173,7 @@ namespace FabricUI
       Graph * m_graph;
       std::string m_name;
       std::string m_title;
+      std::string m_titleSuffix;
       NodeBubble * m_bubble;
 
       QColor m_colorA;

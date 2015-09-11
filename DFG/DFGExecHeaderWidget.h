@@ -33,6 +33,7 @@ namespace FabricUI
       virtual ~DFGExecHeaderWidget();
 
       QString caption() const;
+      QString captionSuffix() const;
       QFont font() const;
       QColor fontColor() const;
       
@@ -65,6 +66,7 @@ namespace FabricUI
       QFont m_font;
       QColor m_fontColor;
       QString m_caption;
+      QString m_captionSuffix;
       QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;

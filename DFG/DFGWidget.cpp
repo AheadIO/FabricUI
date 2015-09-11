@@ -152,6 +152,11 @@ DFGGraphViewWidget * DFGWidget::getGraphViewWidget()
   return m_uiGraphViewWidget;
 }
 
+DFGExecHeaderWidget * DFGWidget::getHeaderWidget()
+{
+  return m_uiHeader;
+}
+
 QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;

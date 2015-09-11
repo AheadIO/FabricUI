@@ -55,6 +55,7 @@ namespace FabricUI
       DFGController * getUIController();
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
+      DFGExecHeaderWidget * getHeaderWidget();
 
       void setExecExtDeps( FTL::CStrRef extDeps );
 

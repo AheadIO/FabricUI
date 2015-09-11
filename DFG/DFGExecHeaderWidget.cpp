@@ -63,7 +63,7 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 
 void DFGExecHeaderWidget::refresh()
 {
-  m_caption = getExec().getTitle();
+  m_caption = m_dfgController->getExecPath().c_str();
   m_reqExtLineEdit->setText( getExec().getExtDeps().getCString() );
   update();
 }
@@ -113,6 +113,11 @@ QString DFGExecHeaderWidget::caption() const
   return m_caption;
 }
 
+QString DFGExecHeaderWidget::captionSuffix() const
+{
+  return m_captionSuffix;
+}
+
 QFont DFGExecHeaderWidget::font() const
 {
   return m_font;
@@ -153,6 +158,18 @@ void DFGExecHeaderWidget::onExecChanged()
   }
 
   m_caption = m_dfgController->getExecPath().c_str();
+  if(getExec().isValid() && m_caption.length() > 0)
+  {
+    FTL::StrRef presetName = getExec().getPresetName();
+    if(presetName.empty())
+      m_captionSuffix = " *";
+    else
+      m_captionSuffix = "";
+  }
+  else
+    m_captionSuffix = "";
+
+  m_caption += m_captionSuffix;
   update();
 }
 

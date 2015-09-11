@@ -161,7 +161,16 @@ void Node::setTitle( FTL::CStrRef title )
 {
   m_title = title;
   if(m_header)
-    m_header->setTitle( QSTRING_FROM_FTL_UTF8(title) );
+  {
+    std::string titleToSet = m_title + m_titleSuffix;
+    m_header->setTitle( QSTRING_FROM_FTL_UTF8(titleToSet) );
+  }
+}
+
+void Node::setTitleSuffix( FTL::CStrRef titleSuffix )
+{
+  m_titleSuffix = titleSuffix;
+  setTitle(m_title);
 }
 
 QColor Node::color() const

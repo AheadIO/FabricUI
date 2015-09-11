@@ -168,6 +168,20 @@ namespace FabricUI
         unsigned int indexCount,
         unsigned int * indices
         );
+      void onExecDidAttachPreset(
+        FTL::CStrRef presetFilePath
+        );
+      void onInstExecDidAttachPreset(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef presetFilePath
+        );
+      void onExecPresetFileRefCountDidChange(
+        int newPresetFileRefCount
+        );
+      void onInstExecPresetFileRefCountDidChange(
+        FTL::CStrRef nodeName,
+        int newPresetFileRefCount
+        );
 
     private:
 

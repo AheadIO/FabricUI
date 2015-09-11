@@ -37,7 +37,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 {
   try
   {
-    printf( "notif = %s\n", jsonStr.c_str() );
+    // printf( "notif = %s\n", jsonStr.c_str() );
     
     // FabricCore::DFGStringResult desc = m_exec.getDesc();
     // printf( "exec = %s\n", desc.getCString() );
@@ -295,6 +295,28 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
           onNodePortsReordered( nodeName, indices.size(), &indices[ 0 ] );
       }
     }
+    else if (descStr == FTL_STR("execDidAttachPreset") )
+    {
+      FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+      onExecDidAttachPreset( presetFilePath );
+    }
+    else if (descStr == FTL_STR("instExecDidAttachPreset") )
+    {
+      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+      FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+      onInstExecDidAttachPreset( nodeName, presetFilePath );
+    }
+    else if (descStr == FTL_STR("execPresetFileRefCountDidChange") )
+    {
+      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
+      onExecPresetFileRefCountDidChange( newPresetFileRefCount );
+    }
+    else if (descStr == FTL_STR("instExecPresetFileRefCountDidChange") )
+    {
+      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
+      onInstExecPresetFileRefCountDidChange( nodeName, newPresetFileRefCount );
+    }
     else
     {
       printf(
@@ -442,6 +464,11 @@ void DFGNotificationRouter::onNodeInserted(
   {
     if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
       onNodeTitleChanged( nodeName, title );
+
+    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+    FTL::StrRef presetName = subExec.getPresetName();
+    if(presetName.empty())
+      uiNode->setTitleSuffixAsterisk();
   }
   else if(nodeType == FabricCore::DFGNodeType_Var)
   {
@@ -1292,4 +1319,46 @@ void DFGNotificationRouter::onNodePortsReordered(
 {
   // refresh the view
   m_dfgController->refreshExec();
+}
+
+void DFGNotificationRouter::onExecDidAttachPreset(
+  FTL::CStrRef presetFilePath
+  )
+{
+  // nothing to be done here for now.
+}
+
+void DFGNotificationRouter::onInstExecDidAttachPreset(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef presetFilePath
+  )
+{
+  // nothing to be done here for now.
+}
+
+void DFGNotificationRouter::onExecPresetFileRefCountDidChange(
+  int newPresetFileRefCount
+  )
+{
+  // refresh the caption on the exec
+  m_dfgController->getDFGWidget()->getHeaderWidget()->onExecChanged();
+}
+
+void DFGNotificationRouter::onInstExecPresetFileRefCountDidChange(
+  FTL::CStrRef nodeName,
+  int newPresetFileRefCount
+  )
+{
+
+  GraphView::Graph * uiGraph = m_dfgController->graph();
+  if(!uiGraph)
+    return;
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
+  if(!uiNode)
+    return;
+
+  if(newPresetFileRefCount == 0)
+    uiNode->setTitleSuffixAsterisk();
+  else
+    uiNode->removeTitleSuffix();
 }
