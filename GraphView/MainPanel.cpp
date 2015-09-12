@@ -296,6 +296,15 @@ void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
   QGraphicsWidget::paint(painter, option, widget);
 }
 
+void MainPanel::resizeEvent(QGraphicsSceneResizeEvent * event)
+{
+  QGraphicsWidget::resizeEvent(event);
+  if(m_graph->sidePanel(PortType_Input))
+    emit m_graph->sidePanel(PortType_Input)->scrolled();
+  if(m_graph->sidePanel(PortType_Output))
+    emit m_graph->sidePanel(PortType_Output)->scrolled();
+}
+
 #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
 void MainPanel::updateGeometry()
 {
