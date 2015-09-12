@@ -333,6 +333,26 @@ Port * Graph::port(FTL::StrRef name) const
   return NULL;
 }
 
+std::vector<Port *> Graph::ports(FTL::StrRef name) const
+{ 
+  std::vector<Port *> result;
+  if(!hasSidePanels())
+    return result;
+
+  for(unsigned int i=0;i<m_leftPanel->portCount();i++)
+  {
+    if(name == m_leftPanel->port(i)->name())
+      result.push_back(m_leftPanel->port(i));
+  }
+  for(unsigned int i=0;i<m_rightPanel->portCount();i++)
+  {
+    if(name == m_rightPanel->port(i)->name())
+      result.push_back(m_rightPanel->port(i));
+  }
+
+  return result;
+}
+
 std::vector<Connection *> Graph::connections() const
 {
   return m_connections;

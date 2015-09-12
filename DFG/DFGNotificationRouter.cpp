@@ -1161,16 +1161,22 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;
-  GraphView::Port * uiPort = uiGraph->port(portName);
-  if(!uiPort)
+
+  // we query for a vector because in case of an io port
+  // we might actually have two
+  std::vector<GraphView::Port *> uiPorts = uiGraph->ports(portName);
+  if(uiPorts.size() == 0)
     return;
 
-  if(newResolvedType != uiPort->dataType())
+  if(newResolvedType != uiPorts[0]->dataType())
   {
-    uiPort->setDataType(newResolvedType);
     FabricCore::DFGExec &exec = m_dfgController->getExec();
-    uiPort->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.data()));
-    uiGraph->updateColorForConnections(uiPort);
+    for(size_t i=0;i<uiPorts.size();i++)
+    {
+      uiPorts[i]->setDataType(newResolvedType);
+      uiPorts[i]->setColor(m_config.getColorForDataType(newResolvedType, &exec, portName.c_str()));
+    }
+    uiGraph->updateColorForConnections(uiPorts[0]);
   }
 }
 
