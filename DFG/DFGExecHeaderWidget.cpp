@@ -68,8 +68,9 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 void DFGExecHeaderWidget::refresh()
 {
   m_caption = m_dfgController->getExecPath().c_str();
-  char const *extDepsDesc = getExec().getExtDeps().getCStr();
-  m_reqExtLineEdit->setText( extDepsDesc? extDepsDesc: "" );
+  FabricCore::String extDepsDesc = getExec().getExtDeps();
+  char const *extDepsDescCStr = extDepsDesc.getCStr();
+  m_reqExtLineEdit->setText( extDepsDescCStr? extDepsDescCStr: "" );
   update();
 }
 
