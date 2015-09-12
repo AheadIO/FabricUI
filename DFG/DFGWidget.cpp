@@ -246,7 +246,6 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 
     QMenu* result = new QMenu(NULL);
 
-    bool needsSeparator = false;
     if(onlyInstNodes)
     {
       if(instNodeCount == 1)
