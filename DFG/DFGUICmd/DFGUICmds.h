@@ -28,6 +28,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgType.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetCode.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetExtDeps.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetNodeComment.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetNodeTitle.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetPortDefaultValue.h>

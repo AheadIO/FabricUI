@@ -469,7 +469,7 @@ dfgEntry {\n\
     const std::vector<GraphView::Node*> & nodes =
       m_uiController->graph()->selectedNodes();
 
-    std::vector<FTL::CStrRef> nodeNames;
+    std::vector<FTL::StrRef> nodeNames;
     nodeNames.reserve( nodes.size() );
     for ( size_t i = 0; i < nodes.size(); ++i )
       nodeNames.push_back( nodes[i]->name() );
@@ -853,7 +853,7 @@ void DFGWidget::onNodeAction(QAction * action)
     const std::vector<GraphView::Node*> & nodes =
       m_uiController->graph()->selectedNodes();
 
-    std::vector<FTL::CStrRef> nodeNames;
+    std::vector<FTL::StrRef> nodeNames;
     nodeNames.reserve( nodes.size() );
     for ( size_t i = 0; i < nodes.size(); ++i )
       nodeNames.push_back( nodes[i]->name() );

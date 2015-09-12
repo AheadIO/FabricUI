@@ -173,7 +173,7 @@ bool DFGController::gvcDoRemoveNodes(
 {
   if ( !nodes.empty() )
   {
-    std::vector<FTL::CStrRef> nodeNames;
+    std::vector<FTL::StrRef> nodeNames;
     nodeNames.reserve( nodes.size() );
     for ( unsigned i = 0; i < nodes.size(); ++i )
       nodeNames.push_back( nodes[i]->name() );
@@ -626,7 +626,7 @@ bool DFGController::relaxNodes(QStringList paths)
 
   relaxer.relax(50);
 
-  std::vector<FTL::CStrRef> nodeNames;
+  std::vector<FTL::StrRef> nodeNames;
   nodeNames.reserve( relaxer.numNodes() );
   std::vector<QPointF> newTopLeftPoss;
   newTopLeftPoss.reserve( relaxer.numNodes() );
@@ -794,7 +794,7 @@ void DFGController::cmdCut()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText( json.c_str() );
 
-    std::vector<FTL::CStrRef> pathCStrRefs;
+    std::vector<FTL::StrRef> pathCStrRefs;
     pathCStrRefs.reserve( pathStrs.size() );
     for ( size_t i = 0; i < pathStrs.size(); ++i )
       pathCStrRefs.push_back( pathStrs[i] );
@@ -1208,6 +1208,23 @@ void DFGController::cmdReorderPorts(
     execPath,
     exec,
     indices
+    );
+}
+
+void DFGController::cmdSetExtDeps(
+  FTL::ArrayRef<FTL::StrRef> nameAndVers
+  )
+{
+  if(!validPresetSplit())
+    return;
+
+  UpdateSignalBlocker blocker( this );
+  
+  m_cmdHandler->dfgDoSetExtDeps(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nameAndVers
     );
 }
 
@@ -1727,7 +1744,7 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
 }
 
 void DFGController::cmdRemoveNodes(
-  FTL::ArrayRef<FTL::CStrRef> nodeNames
+  FTL::ArrayRef<FTL::StrRef> nodeNames
   )
 {
   if(!validPresetSplit())
@@ -1970,7 +1987,7 @@ void DFGController::cmdRemovePort(
 }
 
 void DFGController::cmdMoveNodes(
-  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<FTL::StrRef> nodeNames,
   FTL::ArrayRef<QPointF> newTopLeftPoss
   )
 {
@@ -2004,7 +2021,7 @@ void DFGController::cmdResizeBackDropNode(
 }
 
 std::string DFGController::cmdImplodeNodes(
-  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<FTL::StrRef> nodeNames,
   FTL::CStrRef desiredNodeName
   )
 {
@@ -2047,7 +2064,7 @@ void DFGController::gvcDoMoveNodes(
 {
   if ( allowUndo )
   {
-    std::vector<FTL::CStrRef> nodeNames;
+    std::vector<FTL::StrRef> nodeNames;
     std::vector<QPointF> newTopLeftPoss;
     nodeNames.reserve( nodes.size() );
     newTopLeftPoss.reserve( nodes.size() );

@@ -202,7 +202,7 @@ void DFGUICmdHandler_QUndo::dfgDoRemoveNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::CStrRef> nodeNames
+  FTL::ArrayRef<FTL::StrRef> nodeNames
   )
 {
   m_qUndoStack->push(
@@ -334,7 +334,7 @@ void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<FTL::StrRef> nodeNames,
   FTL::ArrayRef<QPointF> newTopLeftPoss
   )
 {
@@ -374,7 +374,7 @@ std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  FTL::ArrayRef<FTL::StrRef> nodeNames,
   FTL::CStrRef desiredImplodedNodeName
   )
 {
@@ -617,6 +617,23 @@ void DFGUICmdHandler_QUndo::dfgDoReorderPorts(
       execPath,
       exec,
       indices
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoSetExtDeps(
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::ArrayRef<FTL::StrRef> extDeps
+  )
+{
+  DFGUICmd_SetExtDeps *cmd =
+    new DFGUICmd_SetExtDeps(
+      binding,
+      execPath,
+      exec,
+      extDeps
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }

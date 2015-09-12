@@ -144,7 +144,7 @@ namespace FabricUI
       // Commands
 
       void cmdRemoveNodes(
-        FTL::ArrayRef<FTL::CStrRef> nodeNames
+        FTL::ArrayRef<FTL::StrRef> nodeNames
         );
 
       void cmdConnect(
@@ -214,7 +214,7 @@ namespace FabricUI
         );
 
       void cmdMoveNodes(
-        FTL::ArrayRef<FTL::CStrRef> nodeNames,
+        FTL::ArrayRef<FTL::StrRef> nodeNames,
         FTL::ArrayRef<QPointF> newTopLeftPoss
         );
 
@@ -225,7 +225,7 @@ namespace FabricUI
         );
 
       std::string cmdImplodeNodes(
-        FTL::ArrayRef<FTL::CStrRef> nodeNames,
+        FTL::ArrayRef<FTL::StrRef> nodeNames,
         FTL::CStrRef desiredNodeName
         );
 
@@ -305,6 +305,10 @@ namespace FabricUI
         FTL::CStrRef execPath,
         FabricCore::DFGExec &exec,
         const std::vector<unsigned int> & indices
+        );
+
+      void cmdSetExtDeps(
+        FTL::ArrayRef<FTL::StrRef> nameAndVers
         );
 
       virtual std::string reloadCode();

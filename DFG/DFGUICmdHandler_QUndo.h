@@ -23,7 +23,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames
+    FTL::ArrayRef<FTL::StrRef> nodeNames
     );
 
   virtual void dfgDoConnect(
@@ -138,7 +138,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::ArrayRef<FTL::StrRef> nodeNames,
     FTL::ArrayRef<QPointF> newTopLeftPoss
     );
 
@@ -146,7 +146,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::ArrayRef<FTL::StrRef> nodeNames,
     FTL::CStrRef desiredNodeName
     );
 
@@ -239,6 +239,13 @@ public:
     const std::vector<unsigned int> & indices
     );
 
+  virtual void dfgDoSetExtDeps(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::ArrayRef<FTL::StrRef> extDeps
+    );
+  
 protected:
 
   class WrappedCommand;
