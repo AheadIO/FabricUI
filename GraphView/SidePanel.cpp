@@ -216,7 +216,7 @@ void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
   QGraphicsWidget::resizeEvent(event);
   m_itemGroup->resize(event->newSize().width(), m_itemGroup->size().height());
-  updateItemGroupScroll();
+  updateItemGroupScroll(event->newSize().height());
 }
 
 void SidePanel::resetLayout()
@@ -251,16 +251,19 @@ void SidePanel::scroll(float delta)
   updateItemGroupScroll();
 }
 
-void SidePanel::updateItemGroupScroll()
+void SidePanel::updateItemGroupScroll(float height)
 {
-  float height = m_graph->rect().height();
-
-  if(scene())
+  if(height == 0.0f)
   {
-    if(scene()->views().count() > 0)
+    height = m_graph->rect().height();
+
+    if(scene())
     {
-      QGraphicsView * view = scene()->views()[0];
-      height = (float)view->size().height();
+      if(scene()->views().count() > 0)
+      {
+        QGraphicsView * view = scene()->views()[0];
+        height = (float)view->size().height();
+      }
     }
   }
 

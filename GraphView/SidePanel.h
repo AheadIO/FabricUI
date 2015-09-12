@@ -56,7 +56,7 @@ namespace FabricUI
       virtual bool removePort(Port * port);
 
       void scroll(float delta);
-      void updateItemGroupScroll();
+      void updateItemGroupScroll(float height = 0.0f);
 
     signals:
       void doubleClicked(FabricUI::GraphView::SidePanel *);

@@ -18,7 +18,7 @@ Graph::Graph(
   m_isEditable = true;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  setMinimumSize(400, 400);
+  setMinimumSize(100, 10);
   setContentsMargins(0, 0, 0, 0);
 
   m_controller = NULL;
