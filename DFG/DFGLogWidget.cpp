@@ -1,7 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include "DFGLogWidget.h"
-
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
 #include <QtGui/QVBoxLayout>
@@ -95,6 +94,10 @@ void DFGLogWidget::callback(
     (*s_logFunc)(stringData);
   else
     printf("%s\n", stringData);
+}
+
+void DFGLogWidget::keyPressEvent(QKeyEvent * event) {
+  event->accept();
 }
 
 void DFGLogWidget::setLogFunc(DFGController::LogFunc func)

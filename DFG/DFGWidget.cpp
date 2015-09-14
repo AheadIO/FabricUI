@@ -1,5 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
+ 
 #include <assert.h>
 #include <FabricCore.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
@@ -21,8 +21,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include <QtGui/QVBoxLayout>
-
+ 
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -183,12 +182,16 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 
   QAction * pasteAction = new QAction("Paste", graphWidget);
   pasteAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_V) );
+  // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+  pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
   result->addAction(pasteAction);
 
   result->addSeparator();
 
   QAction * resetZoomAction = new QAction("Reset Zoom", graphWidget);
   resetZoomAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_0) );
+  // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+  pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
   result->addAction(resetZoomAction);
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
@@ -471,7 +474,7 @@ dfgEntry {\n\
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // Allows only alpha-numeric text only 
+    // [Julien] Allows only alpha-numeric text only 
     // We do this because the the nodes's name must be alpha-numerical only
     // and not contains "-, +, ?,"
     dialog.alphaNumicStringOnly();
@@ -855,7 +858,7 @@ void DFGWidget::onNodeAction(QAction * action)
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // Allows only alpha-numeric text only 
+    // [Julien] Allows only alpha-numeric text only 
     // We do this because the the nodes's name must be alpha-numerical only
     // and not contains "-, +, ?,"
     dialog.alphaNumicStringOnly();
@@ -1595,14 +1598,22 @@ void DFGWidget::populateMenuBar(QMenuBar * menuBar)
 
   // edit menu
   QAction * cutAction = editMenu->addAction("Cut");
-  cutAction->setShortcut( QKeySequence::Cut );
   QObject::connect(cutAction, SIGNAL(triggered()), this, SLOT(onCut()));
   QAction * copyAction = editMenu->addAction("Copy");
-  copyAction->setShortcut( QKeySequence::Copy );
   QObject::connect(copyAction, SIGNAL(triggered()), this, SLOT(onCopy()));
   QAction * pasteAction = editMenu->addAction("Paste");
-  pasteAction->setShortcut( QKeySequence::Paste );
   QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
+
+  // [Julien]  When using shortcut in Qt, set the flag WidgetWithChildrenShortcut
+  // [Julien]  so the shortcut is specific to the widget
+  // [Julien]  http://doc.qt.io/qt-4.8/qaction.html#shortcutContext-prop
+  // [Julien]  http://doc.qt.io/qt-4.8/qt.html#ShortcutContext-enum
+  cutAction->setShortcut( QKeySequence::Cut );
+  cutAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  copyAction->setShortcut( QKeySequence::Copy );
+  copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  pasteAction->setShortcut( QKeySequence::Paste );
+  pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
   // view menu
   QAction * dimLinesAction = viewMenu->addAction("Dim Connections");
