@@ -158,7 +158,8 @@ TimeLineWidget::TimeLineWidget()
   // In this bug, the TimeLineWidget height is too small when displayed
   // To fix it, we set the widget minimum size.
   QSize size = sizeHint();
-  setMinimumSize(sizeHint());
+  if(size.height() < 80) size.setHeight(80);
+  setMinimumSize(size);
 
   // QLine * line = new QLine();
   // line->setOrientation(Qt::Vertical);
