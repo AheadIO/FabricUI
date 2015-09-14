@@ -103,7 +103,6 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
     m_pixmaps.append(highlightPixmap);
   }
 
-  int index = 2 * m_state + (m_highlighted ? 1 : 0);
   // Hardcode size of the icons
   setMinimumWidth(s_pixmapSize);
   setMaximumWidth(s_pixmapSize);
