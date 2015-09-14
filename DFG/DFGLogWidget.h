@@ -33,6 +33,9 @@ namespace FabricUI
         char const * stringData,
         uint32_t stringLength
         );
+
+      virtual void keyPressEvent(QKeyEvent * event);
+
       static void setLogFunc(DFGController::LogFunc func);
 
     public slots:

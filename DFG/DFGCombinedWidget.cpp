@@ -64,12 +64,14 @@ void DFGCombinedWidget::init(
         overTakeBindingNotifications
         );
 
+    // preset library
+    // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
     m_treeWidget =
       new DFG::PresetTreeWidget(
         m_dfgWidget->getDFGController(),
         config,
         true,
-        true,
+        false,
         true
         );
 
@@ -216,6 +218,10 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     m_dfgWidget->getUIController()->copy();
   }
+  else if(hotkey == "cut")
+  {
+    m_dfgWidget->getUIController()->cmdCut();
+  }
   else if(hotkey == "paste")
   {
     m_dfgWidget->getUIController()->cmdPaste();
@@ -275,6 +281,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
       graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
       graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
       graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
+      graph->defineHotkey(Qt::Key_X, Qt::ControlModifier, "cut");
       graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
       graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
       graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
@@ -368,9 +375,13 @@ void DFGCombinedWidget::onAdditionalMenuActionsRequested(QString name, QMenu * m
     {
       QAction *undoAction = menu->addAction("Undo");
       undoAction->setShortcut( QKeySequence::Undo );
+      // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+      undoAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
       menu->addAction( undoAction );
       QAction *redoAction = menu->addAction("Redo");
       redoAction->setShortcut( QKeySequence::Redo );
+      // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+      redoAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
       menu->addAction( redoAction );
 
       QObject::connect(undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
