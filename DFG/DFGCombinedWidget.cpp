@@ -64,12 +64,15 @@ void DFGCombinedWidget::init(
         overTakeBindingNotifications
         );
 
+    // [Julien] FE-5252
+    // preset library
+    // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
     m_treeWidget =
       new DFG::PresetTreeWidget(
         m_dfgWidget->getDFGController(),
         config,
         true,
-        true,
+        false,
         true
         );
 

@@ -219,6 +219,20 @@ void DFGEditPortDialog::showEvent(QShowEvent * event)
   DFGBaseDialog::showEvent(event);  
 }
 
+// Allows only alpha-numeric text only 
+void DFGEditPortDialog::alphaNumicStringOnly() {
+  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+}
+
+// Filters the QLineEdit text with the regexFilter
+void DFGEditPortDialog::setRegexFilter(QString regexFilter) {
+  if(m_titleEdit)
+  {
+    QRegExp regex(regexFilter);
+    QValidator *validator = new QRegExpValidator(regex, 0);
+    m_titleEdit->setValidator(validator);
+  }
+}
 
 void DFGEditPortDialog::onRangeToggled(int state)
 {

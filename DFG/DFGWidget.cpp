@@ -471,9 +471,8 @@ dfgEntry {\n\
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // Allows only alpha-numeric text only 
-    // We do this because the the nodes's name must be alpha-numerical only
-    // and not contains "-, +, ?,"
+    // [Julien] FE-5188, FE-5276 Allows only alpha-numeric text only 
+    // We do this because the the nodes's name must be alpha-numerical only and not contains "-, +, ?,"
     dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
@@ -726,6 +725,7 @@ void DFGWidget::onNodeAction(QAction * action)
       FabricCore::DFGHost &host = m_uiController->getHost();
 
       DFGSavePresetDialog dialog( this, m_uiController.get(), title );
+      // [Julien] FE-5188, FE-5276
       dialog.alphaNumicStringOnly();
 
       while(true)
@@ -1265,6 +1265,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
     bool canEditPortType = m_uiController->isViewingRootGraph();
     DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
+    // [Julien] FE-5188, FE-5276
+    dialog.alphaNumicStringOnly();
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -1545,6 +1547,7 @@ void DFGWidget::inspectPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
+    // [Julien] FE-5188, FE-5276
     dialog.alphaNumicStringOnly();
     if(dialog.exec())
     {
