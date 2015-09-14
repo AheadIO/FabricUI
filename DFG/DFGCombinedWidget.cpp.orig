@@ -64,7 +64,10 @@ void DFGCombinedWidget::init(
         overTakeBindingNotifications
         );
 
+<<<<<<< HEAD
     // [Julien] FE-5252
+=======
+>>>>>>> origin/pablo
     // preset library
     // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
     m_treeWidget =
