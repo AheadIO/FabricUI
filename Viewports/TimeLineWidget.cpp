@@ -155,8 +155,9 @@ TimeLineWidget::TimeLineWidget()
   layout()->addWidget(m_simModeComBox);
 
   // [Julien] Fix FE-4596.
-  // In this bug, the TimeLineWidget height is too small when displayed
-  // To fix it, we set the widget minimum size.
+  // The TimeLineWidget height is sometimes too small when displayed
+  // It might happend with 4K or retina display, should be fixe when using Qt5
+  // To fix it, we set the widget minimum size to 80.
   QSize size = sizeHint();
   if(size.height() < 80) size.setHeight(80);
   setMinimumSize(size);
