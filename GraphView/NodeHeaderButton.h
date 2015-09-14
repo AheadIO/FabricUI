@@ -56,6 +56,8 @@ namespace FabricUI
 
       static std::map<QString, QPixmap> s_pixmaps;
 
+      static const int s_pixmapSize = 12;
+
     };
 
 
