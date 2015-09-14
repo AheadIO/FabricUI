@@ -18,6 +18,33 @@
 
 namespace FabricUI
 {
+  static void EnterLicense( FabricCore::Client &client, QWidget *widgetParent )
+  {
+    while ( true )
+    {
+      EnterLicenseDialog enter( widgetParent );
+      if ( enter.exec() == QDialog::Accepted )
+      {
+        std::string text = enter.getTextBox()->toPlainText().toStdString();
+        if ( !text.empty() )
+          FabricCore::SetStandaloneLicense( text.c_str() );
+        if ( client.validateLicense() )
+        {
+          LicenseOkDialog ok( widgetParent );
+          ok.exec();
+          return;
+        }
+        else
+        {
+          LicenseFailDialog fail( widgetParent );
+          fail.exec();
+        }
+      }
+      else
+        break;
+    }
+  }
+
   void HandleLicenseData( QWidget *widgetParent, FabricCore::Client &client, FTL::StrRef jsonData )
   {
     FTL::JSONStrWithLoc jsonStrWithLoc( jsonData );
@@ -58,7 +85,8 @@ namespace FabricUI
         if ( mktime( &expiry_tm ) - time( NULL ) < EXPIRY_PRE_WARNING_SECONDS )
         {
           ExpiryWarningDialog expiryDialog( widgetParent, expiry );
-          expiryDialog.exec();
+          if ( expiryDialog.exec() == QDialog::Accepted )
+            EnterLicense( client, widgetParent );
         }
       }
     }
@@ -66,31 +94,7 @@ namespace FabricUI
     {
       MainLicenseDialog main( widgetParent, jsonObject.get() );
       if ( main.exec() == QDialog::Accepted )
-      {
-        while ( true )
-        {
-          EnterLicenseDialog enter( widgetParent );
-          if ( enter.exec() == QDialog::Accepted )
-          {
-            std::string text = enter.getTextBox()->toPlainText().toStdString();
-            if ( !text.empty() )
-              FabricCore::SetStandaloneLicense( text.c_str() );
-            if ( client.validateLicense() )
-            {
-              LicenseOkDialog ok( widgetParent );
-              ok.exec();
-              return;
-            }
-            else
-            {
-              LicenseFailDialog fail( widgetParent );
-              fail.exec();
-            }
-          }
-          else
-            break;
-        }
-      }
+        EnterLicense( client, widgetParent );
 
       LastWarningDialog last( widgetParent );
       last.exec();

@@ -35,10 +35,13 @@ public:
     info->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     layout()->addWidget( info );
 
+    QPushButton *enterNewButton = new QPushButton( "Enter New", this );
     QPushButton *continueButton = new QPushButton( "Continue", this );
 
-    QObject::connect( continueButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    QObject::connect( enterNewButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    QObject::connect( continueButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
+    layout()->addWidget( enterNewButton );
     layout()->addWidget( continueButton );
   }
 };
