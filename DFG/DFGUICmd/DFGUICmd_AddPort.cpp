@@ -72,6 +72,31 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
     }
   }
 
+  // we should always bind an rt val, even if we are
+  // going to create a connection lateron.
+  // the dccs require this given they listen to the 
+  // argTypeChanged notification.
+  if ( execPath.empty()
+    && !typeSpec.empty()
+    && typeSpec.find('$') == typeSpec.end() )
+  {
+    FabricCore::DFGHost host = binding.getHost();
+    FabricCore::Context context = host.getContext();
+    FabricCore::RTVal argValue =
+      FabricCore::RTVal::Construct(
+        context,
+        typeSpec.c_str(),
+        0,
+        0
+        );
+    binding.setArgValue(
+      portName.c_str(),
+      argValue,
+      true
+      );
+    ++coreUndoCount;
+  }
+
   if ( !portToConnect.empty() )
   {
     FabricCore::DFGPortType portToConnectNodePortType =
@@ -144,26 +169,6 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
       exec.connectTo( portToConnect.c_str(), portName.c_str() );
       ++coreUndoCount;
     }
-  }
-  else if ( execPath.empty()
-    && !typeSpec.empty()
-    && typeSpec.find('$') == typeSpec.end() )
-  {
-    FabricCore::DFGHost host = binding.getHost();
-    FabricCore::Context context = host.getContext();
-    FabricCore::RTVal argValue =
-      FabricCore::RTVal::Construct(
-        context,
-        typeSpec.c_str(),
-        0,
-        0
-        );
-    binding.setArgValue(
-      portName.c_str(),
-      argValue,
-      true
-      );
-    ++coreUndoCount;
   }
 
   return portName;
