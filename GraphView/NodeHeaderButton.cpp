@@ -104,10 +104,11 @@ NodeHeaderButton::NodeHeaderButton(NodeHeader * parent, QString name, QStringLis
   }
 
   int index = 2 * m_state + (m_highlighted ? 1 : 0);
-  setMinimumWidth(m_pixmaps[index].width());
-  setMaximumWidth(m_pixmaps[index].width());
-  setMinimumHeight(m_pixmaps[index].height());
-  setMaximumHeight(m_pixmaps[index].height());
+  // Hardcode size of the icons
+  setMinimumWidth(s_pixmapSize);
+  setMaximumWidth(s_pixmapSize);
+  setMinimumHeight(s_pixmapSize);
+  setMaximumHeight(s_pixmapSize);
 
   setState(state);
 }
@@ -190,7 +191,7 @@ void NodeHeaderButton::paint(QPainter * painter, const QStyleOptionGraphicsItem 
   if(m_pixmaps.count() > index)
   {
     QPixmap pixmap = m_pixmaps[index];
-    painter->drawPixmap(QPointF(0, 0), pixmap);
+    painter->drawPixmap(0, 0, s_pixmapSize, s_pixmapSize, pixmap);
   }
 
   QGraphicsWidget::paint(painter, option, widget);
