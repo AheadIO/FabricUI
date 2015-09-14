@@ -16,6 +16,29 @@ namespace FabricUI
   namespace GraphView
   {
 
+    // The GraphViewScene specializes QGraphicsScene for intercepting events that need to be treated
+    // globally (eg: click for panning the camera) and not forwareded to individual scene widgets.
+    // Note: using event filters on scene widgets doesn't work because 'hover' and 'mouse grabber'
+    //       features are bypassing the normal event propagation process.
+    class GraphViewScene : public QGraphicsScene
+    {
+      Q_OBJECT
+
+    public:
+
+      GraphViewScene(
+        Graph * graph
+        );
+
+    protected:
+
+      virtual bool event(QEvent * e);
+
+    private:
+
+      Graph * m_graph;
+    };
+
     class GraphViewWidget : public QGraphicsView
     {
       Q_OBJECT
@@ -56,7 +79,7 @@ namespace FabricUI
     private:
 
       QPoint m_lastEventPos;
-      QGraphicsScene * m_scene;
+      GraphViewScene * m_scene;
       Graph * m_graph;
     };
 

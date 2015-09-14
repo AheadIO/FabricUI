@@ -63,7 +63,7 @@ const Graph * GraphViewWidget::graph() const
 
 void GraphViewWidget::setGraph(Graph * graph)
 {
-  m_scene = new QGraphicsScene();
+  m_scene = new GraphViewScene( graph );
   setScene(m_scene);
 
   QObject::connect(m_scene, SIGNAL(changed(const QList<QRectF> &)), this, SLOT(onSceneChanged()));
@@ -123,7 +123,7 @@ void GraphViewWidget::mouseMoveEvent(QMouseEvent * event)
 
 void GraphViewWidget::keyPressEvent(QKeyEvent * event)
 {
-  if(graph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+  if(!event->isAutoRepeat() && graph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
     event->accept();
   else
     QGraphicsView::keyPressEvent(event);
@@ -131,7 +131,7 @@ void GraphViewWidget::keyPressEvent(QKeyEvent * event)
 
 void GraphViewWidget::keyReleaseEvent(QKeyEvent * event)
 {
-  if(graph()->releaseHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+  if(!event->isAutoRepeat() && graph()->releaseHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
     event->accept();
   else
     QGraphicsView::keyPressEvent(event);
@@ -174,4 +174,18 @@ bool GraphViewWidget::focusNextPrevChild(bool next)
 {
   // avoid focus switching
   return false;
+}
+
+GraphViewScene::GraphViewScene( Graph * graph ) {
+  m_graph = graph;
+}
+
+// Enable the MainPanel to grab specific events
+// (eg: panning with Space or Alt) before these
+// are redirected to sub-widgets.
+bool GraphViewScene::event( QEvent * e ) {
+  if( m_graph && m_graph->mainPanel()->grabsEvent( e ) ) {
+    return sendEvent( m_graph->mainPanel(), e );
+  } else
+    return QGraphicsScene::event( e );
 }

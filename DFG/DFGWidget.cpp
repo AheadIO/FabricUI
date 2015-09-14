@@ -1354,7 +1354,7 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString n
 {
   if(name == "PanGraph")
   {
-    m_uiGraph->mainPanel()->setSpaceBarDown(true);
+    m_uiGraph->mainPanel()->setAlwaysPan(true);
   }
 }
 
@@ -1362,14 +1362,21 @@ void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString 
 {
   if(name == "PanGraph")
   {
-    m_uiGraph->mainPanel()->setSpaceBarDown(false);
+    m_uiGraph->mainPanel()->setAlwaysPan(false);
   }
 }
 
 void DFGWidget::onKeyPressed(QKeyEvent * event)
 {
+  if(getUIGraph() && !event->isAutoRepeat() && getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+    event->accept();
+  else
+    keyPressEvent(event);  
+}
 
-  if(getUIGraph() && getUIGraph()->pressHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
+void DFGWidget::onKeyReleased(QKeyEvent * event)
+{
+  if(getUIGraph() && !event->isAutoRepeat() && getUIGraph()->releaseHotkey((Qt::Key)event->key(), (Qt::KeyboardModifier)(int)event->modifiers()))
     event->accept();
   else
     keyPressEvent(event);  
