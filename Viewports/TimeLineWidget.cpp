@@ -1,3 +1,5 @@
+
+#include <iostream>
 #include "TimeLineWidget.h"
 
 #include <QtGui/QMenu>
@@ -152,19 +154,23 @@ TimeLineWidget::TimeLineWidget()
   m_simModeComBox->setItemData(1, "Evaluate all frames, also in betweens.\nReset the stepping on first frame.", Qt::ToolTipRole);
   layout()->addWidget(m_simModeComBox);
 
+  // [Julien] Fix FE-4596.
+  // In this bug, the TimeLineWidget height is too small when displayed
+  // To fix it, we set the widget minimum size.
+  QSize size = sizeHint();
+  setMinimumSize(sizeHint());
+
   // QLine * line = new QLine();
   // line->setOrientation(Qt::Vertical);
   // layout()->addWidget(line);
 
   // now we setup the connection
   connect(m_frameSlider , SIGNAL(valueChanged(int)) , this , SLOT(sliderChanged(int)));
-
   connect(m_currentFrameSpinBox , SIGNAL(editingFinished()) , this , SLOT(currentFrameChanged()));
 
-//  there is an issue with doing that when we enter a value manually
-//  not doing it is also an issue because then changing the value with the wheel is not doing the correct thing .
-//  connect(m_currentFrameSpinBox , SIGNAL(valueChanged(double)) , this , SLOT(currentFrameChanged()));
-
+  // there is an issue with doing that when we enter a value manually
+  // not doing it is also an issue because then changing the value with the wheel is not doing the correct thing .
+  // connect(m_currentFrameSpinBox , SIGNAL(valueChanged(double)) , this , SLOT(currentFrameChanged()));
   connect(m_startSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
   connect(m_endSpinBox , SIGNAL(editingFinished()) , this , SLOT(updateFrameRange()));
 
@@ -181,7 +187,6 @@ TimeLineWidget::TimeLineWidget()
   connect( m_frameRateComboBox , SIGNAL(activated(int)) , this , SLOT( frameRateChanged(int))  );
   connect( m_loopModeComBox , SIGNAL(activated(int)) , this , SLOT( loopModeChanged(int))  );
   connect( m_simModeComBox , SIGNAL(activated(int)) , this , SLOT( simModeChanged(int))  );
-
 }
 
 void TimeLineWidget::setTime(int time)
@@ -307,7 +312,6 @@ void TimeLineWidget::updateFrameRange()
   m_frameSlider->setMinimum( static_cast<int>( m_startSpinBox->value() ) );
   m_frameSlider->setMaximum( static_cast<int>( m_endSpinBox->value() ) );
 }
-
 
 void TimeLineWidget::play()
 {
