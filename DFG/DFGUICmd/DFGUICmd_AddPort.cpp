@@ -24,6 +24,7 @@ void DFGUICmd_AddPort::invoke( unsigned &coreUndoCount )
       m_portType,
       m_typeSpec,
       m_portToConnectWith,
+      m_extDep,
       m_metaData,
       coreUndoCount
       );
@@ -37,10 +38,17 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
   FabricCore::DFGPortType portType,
   FTL::CStrRef typeSpec,
   FTL::CStrRef portToConnect,
+  FTL::CStrRef extDep,
   FTL::CStrRef metaData,
   unsigned &coreUndoCount
   )
 {
+  if ( !extDep.empty() )
+  {
+    exec.addExtDep( extDep.c_str() );
+    ++coreUndoCount;
+  }
+
   FTL::CStrRef portName =
     exec.addExecPort(
       desiredPortName.c_str(),

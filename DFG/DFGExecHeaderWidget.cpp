@@ -40,6 +40,10 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
   m_reqExtLineEdit = new QLineEdit;
   QObject::connect(
+    m_reqExtLineEdit, SIGNAL(returnPressed()),
+    this, SLOT(reqExtReturnPressed())
+    );
+  QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
     );
@@ -64,7 +68,9 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 void DFGExecHeaderWidget::refresh()
 {
   m_caption = m_dfgController->getExecPath().c_str();
-  m_reqExtLineEdit->setText( getExec().getExtDeps().getCString() );
+  FabricCore::String extDepsDesc = getExec().getExtDeps();
+  char const *extDepsDescCStr = extDepsDesc.getCStr();
+  m_reqExtLineEdit->setText( extDepsDescCStr? extDepsDescCStr: "" );
   update();
 }
 
@@ -74,11 +80,21 @@ void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
   update();
 }
 
-void DFGExecHeaderWidget::reqExtEditingFinished()
+void DFGExecHeaderWidget::reqExtReturnPressed()
 {
   m_reqExtLineEdit->clearFocus();
-  
+}
+
+void DFGExecHeaderWidget::reqExtEditingFinished()
+{
   std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();
+  FabricCore::String currentExtDepDesc = getExec().getExtDeps();
+  char const *currentExtDepDescCStr = currentExtDepDesc.getCStr();
+  if ( !currentExtDepDescCStr )
+    currentExtDepDescCStr = "";
+  if ( extDepDesc == currentExtDepDescCStr )
+    return;
+
   FTL::StrRef::Split split = FTL::StrRef( extDepDesc ).split(',');
   std::vector<std::string> nameAndVerStrings;
   while ( !split.first.empty() )
@@ -86,26 +102,15 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
     nameAndVerStrings.push_back( split.first.trim() );
     split = split.second.split(',');
   }
-
-  std::vector<char const *> nameAndVerCStrs;
-  nameAndVerCStrs.reserve( nameAndVerStrings.size() );
-  for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
-    nameAndVerCStrs.push_back( nameAndVerStrings[i].c_str() );
-
-  if(nameAndVerCStrs.size() == 0)
+  if ( nameAndVerStrings.empty() )
     return;
 
-  try
-  {
-    getExec().setExtDeps(
-      nameAndVerCStrs.size(),
-      &nameAndVerCStrs[0]
-      );
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf( "%s\n", e.getDesc_cstr() );
-  }
+  std::vector<FTL::StrRef> nameAndVerStrs;
+  nameAndVerStrs.reserve( nameAndVerStrings.size() );
+  for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
+    nameAndVerStrs.push_back( nameAndVerStrings[i] );
+
+  m_dfgController->cmdSetExtDeps( nameAndVerStrs );
 }
 
 QString DFGExecHeaderWidget::caption() const

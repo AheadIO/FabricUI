@@ -31,7 +31,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames
+    FTL::ArrayRef<FTL::StrRef> nodeNames
     ) = 0;
 
   virtual void dfgDoConnect(
@@ -111,7 +111,19 @@ public:
     FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
     FTL::CStrRef portToConnect,
+    FTL::StrRef extDep,
     FTL::CStrRef metaData
+    ) = 0;
+
+  virtual std::string dfgDoEditPort(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef oldPortName,
+    FTL::StrRef desiredNewPortName,
+    FTL::StrRef typeSpec,
+    FTL::StrRef extDep,
+    FTL::StrRef uiMetadata
     ) = 0;
 
   virtual void dfgDoRemovePort(
@@ -125,7 +137,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::ArrayRef<FTL::StrRef> nodeNames,
     FTL::ArrayRef<QPointF> newTopLeftPoss
     ) = 0;
 
@@ -142,7 +154,7 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    FTL::ArrayRef<FTL::StrRef> nodeNames,
     FTL::CStrRef desiredNodeName
     ) = 0;
 
@@ -233,6 +245,13 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     const std::vector<unsigned int> & indices
+    ) = 0;
+
+  virtual void dfgDoSetExtDeps(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::ArrayRef<FTL::StrRef> extDeps
     ) = 0;
 };
 
