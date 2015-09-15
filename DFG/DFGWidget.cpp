@@ -1,6 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
  
-#include <iostream>
 #include <assert.h>
 #include <FabricCore.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
@@ -121,6 +120,8 @@ DFGWidget::DFGWidget(
   }
 
   m_uiController->setHostBindingExec( host, binding, execPath, exec );
+
+
 }
 
 DFGWidget::~DFGWidget()
@@ -475,9 +476,8 @@ dfgEntry {\n\
   else if(action->text() == "Implode nodes")
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // [Julien] Allows only alpha-numeric text only 
-    // We do this because the the nodes's name must be alpha-numerical only
-    // and not contains "-, +, ?,"
+    // [Julien] FE-5188, FE-5276 Allows only alpha-numeric text only 
+    // We do this because the nodes's name must be alpha-numerical only and not contains "-, +, ?,"
     dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
       return;
@@ -730,6 +730,7 @@ void DFGWidget::onNodeAction(QAction * action)
       FabricCore::DFGHost &host = m_uiController->getHost();
 
       DFGSavePresetDialog dialog( this, m_uiController.get(), title );
+      // [Julien] FE-5188, FE-5276
       dialog.alphaNumicStringOnly();
 
       while(true)
@@ -860,7 +861,7 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     // [Julien] Allows only alpha-numeric text only 
-    // We do this because the the nodes's name must be alpha-numerical only
+    // We do this because the nodes's name must be alpha-numerical only
     // and not contains "-, +, ?,"
     dialog.alphaNumicStringOnly();
     if(dialog.exec() != QDialog::Accepted)
@@ -1269,6 +1270,8 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
     bool canEditPortType = m_uiController->isViewingRootGraph();
     DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
+    // [Julien] FE-5188, FE-5276
+    dialog.alphaNumicStringOnly();
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -1446,6 +1449,8 @@ void DFGWidget::onToggleDimConnections()
   std::vector<GraphView::Connection *> connections = m_uiGraph->connections();
   for(size_t i=0;i<connections.size();i++)
     connections[i]->update();
+  // [Julien] FE-5264 Sets the dimConnectionLines property to the settings
+  if(getSettings()) getSettings()->setValue( "DFGWidget/dimConnectionLines", m_uiGraph->config().dimConnectionLines );
 }
 
 void DFGWidget::onTogglePortsCentered()
@@ -1453,6 +1458,8 @@ void DFGWidget::onTogglePortsCentered()
   m_uiGraph->config().portsCentered = !m_uiGraph->config().portsCentered;
   m_uiGraph->sidePanel(GraphView::PortType_Input)->updateItemGroupScroll();  
   m_uiGraph->sidePanel(GraphView::PortType_Output)->updateItemGroupScroll();  
+  // [Julien] FE-5264 Sets the onTogglePortsCentered property to the settings
+  if(getSettings()) getSettings()->setValue( "DFGWidget/portsCentered", m_uiGraph->config().portsCentered );
 }
 
 bool DFGWidget::maybeEditNode(
@@ -1549,6 +1556,7 @@ void DFGWidget::editPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
+    // [Julien] FE-5188, FE-5276
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
@@ -1673,6 +1681,13 @@ void DFGWidget::onExecChanged()
       m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
     }
 
+    // [Julien] FE-5264
+    // Before initializing the graph, sets the dimConnectionLines and portsCentered properties
+    if(getSettings()) 
+    {
+      m_uiGraph->config().dimConnectionLines = getSettings()->value( "DFGWidget/dimConnectionLines").toBool();
+      m_uiGraph->config().portsCentered = getSettings()->value( "DFGWidget/portsCentered").toBool();
+    }
     m_uiGraph->initialize();
 
     m_router =
