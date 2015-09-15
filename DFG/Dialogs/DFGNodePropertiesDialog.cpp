@@ -34,7 +34,7 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   m_headerColor = 0;
   m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
   m_allowHeaderColor = new QCheckBox("", this);
-  FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
+  // FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
   // If the "uiHeaderColor" metadata already exists, displays the  header color property
   m_allowHeaderColor->setChecked(m_nodeDefaultHeaderColor != getColorFromExec("uiHeaderColor", m_nodeDefaultHeaderColor));
   QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( createHeaderColor() ) );
