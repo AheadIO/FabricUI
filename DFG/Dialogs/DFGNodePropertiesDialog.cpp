@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <iostream>
 #include <QtGui/QLayout>
 #include <QtGui/QDoubleValidator>
 #include <QtCore/QTimer>
@@ -26,16 +27,16 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   m_textColor   = new ValueEditor::ColorPickerWidget(this);
   setColorFromExec(m_nodeColor,   "uiNodeColor",   dfgConfig.graphConfig.nodeDefaultColor);
   setColorFromExec(m_textColor,   "uiTextColor",   dfgConfig.graphConfig.nodeFontColor);
-  m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
 
   // [Julien] FE-5246 
   // Header color property management
   // Create a checbox that creates the header color property when cliked
+  m_headerColor = 0;
+  m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
   m_allowHeaderColor = new QCheckBox("", this);
   FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
-  // If the "uiHeaderColor" metadata already exists, diplays the  header color property
-  m_allowHeaderColor->setChecked(!metadata.empty());
-  m_allowHeaderColor->setDisabled(!metadata.empty()); 
+  // If the "uiHeaderColor" metadata already exists, displays the  header color property
+  m_allowHeaderColor->setChecked(m_nodeDefaultHeaderColor != getColorFromExec("uiHeaderColor", m_nodeDefaultHeaderColor));
   QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( createHeaderColor() ) );
 
   try
@@ -161,7 +162,7 @@ QColor DFGNodePropertiesDialog::getNodeColor()
 QColor DFGNodePropertiesDialog::getHeaderColor()
 {
   // [Julien] FE-5246  
-  if( m_allowHeaderColor->isChecked() )
+  if( m_headerColor != 0 )
   {
     ValueEditor::ColorPickerWidget *cpw = m_headerColor;
     return QColor(cpw->getR_as8bit(),
@@ -169,7 +170,7 @@ QColor DFGNodePropertiesDialog::getHeaderColor()
                   cpw->getB_as8bit(),
                   cpw->getA_as8bit());
   }
-  return m_nodeDefaultHeaderColor;
+  else return m_nodeDefaultHeaderColor;
 }
 
 /// Gets the user selected node's text color 
@@ -189,15 +190,17 @@ void DFGNodePropertiesDialog::createHeaderColor() {
   // Thus, the option is disable by default 
   try
   {
-    FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
-
-    if( m_allowHeaderColor->isChecked() )
+    if( (m_headerColor == 0) && m_allowHeaderColor->isChecked())
     {
       m_headerColor = new ValueEditor::ColorPickerWidget(this);
       setColorFromExec(m_headerColor, "uiHeaderColor", m_nodeDefaultHeaderColor);
       addInput(m_headerColor, "header color", "properties");
-      m_allowHeaderColor->setChecked(true);
-      m_allowHeaderColor->setDisabled(true); 
+    }
+    else if( (m_headerColor != 0) && !m_allowHeaderColor->isChecked())
+    {
+      m_headerColor->set(m_nodeDefaultHeaderColor.redF(), m_nodeDefaultHeaderColor.greenF(), m_nodeDefaultHeaderColor.blueF(), m_nodeDefaultHeaderColor.alphaF());
+      removeSection(m_headerColor); 
+      m_headerColor = 0;
     }
   }
 
@@ -208,10 +211,10 @@ void DFGNodePropertiesDialog::createHeaderColor() {
 }
 
 /// \internal
-/// Sets the color property from the ColorPickerWidget widget
-void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)
+/// Gets the color property header color metadata
+QColor DFGNodePropertiesDialog::getColorFromExec(const char * key, QColor defaultCol)
 {
-  widget->set(defaultCol.redF(), defaultCol.greenF(), defaultCol.blueF(), defaultCol.alphaF());
+  QColor color = defaultCol;
 
   try
   {
@@ -223,26 +226,32 @@ void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * 
       FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
       metadata = subExec.getMetadata(key);
     }
-    if(metadata.empty())
-      return;
-
-    FTL::JSONStrWithLoc jsonStrWithLoc( metadata.c_str() );
-    FTL::OwnedPtr<FTL::JSONValue const> jsonValue(
-      FTL::JSONValue::Decode( jsonStrWithLoc )
-      );
-    if ( jsonValue )
+    if(!metadata.empty()) 
     {
-      FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
-      float r = float(jsonObject->getFloat64OrDefault( FTL_STR("r"), 0.0 )) / 255.0f;
-      float g = float(jsonObject->getFloat64OrDefault( FTL_STR("g"), 0.0 )) / 255.0f;
-      float b = float(jsonObject->getFloat64OrDefault( FTL_STR("b"), 0.0 )) / 255.0f;
-      float a = float(jsonObject->getFloat64OrDefault( FTL_STR("a"), 255.0 )) / 255.0f;
-
-      widget->set(r, g, b, a);
+      FTL::JSONStrWithLoc jsonStrWithLoc( metadata.c_str() );
+      FTL::OwnedPtr<FTL::JSONValue const> jsonValue(FTL::JSONValue::Decode( jsonStrWithLoc ) );
+      if ( jsonValue )
+      {
+        FTL::JSONObject const *jsonObject = jsonValue->cast<FTL::JSONObject>();
+        color.setRedF(float(jsonObject->getFloat64OrDefault( FTL_STR("r"), 0.0 )) / 255.0f);
+        color.setGreenF(float(jsonObject->getFloat64OrDefault( FTL_STR("g"), 0.0 )) / 255.0f);
+        color.setBlueF(float(jsonObject->getFloat64OrDefault( FTL_STR("b"), 0.0 )) / 255.0f);
+        color.setAlphaF(float(jsonObject->getFloat64OrDefault( FTL_STR("a"), 255.0 )) / 255.0f);
+      }
     }
   }
   catch(FabricCore::Exception e)
   {
     m_controller->logError(e.getDesc_cstr());
   }
+
+  return color;
+}
+
+/// \internal
+/// Sets the color property of the ColorPickerWidget widget
+void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)
+{
+  QColor color = getColorFromExec(key, defaultCol);
+  widget->set(color.redF(), color.greenF(), color.blueF(), color.alphaF());  
 }

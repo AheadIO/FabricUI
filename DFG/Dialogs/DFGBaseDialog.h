@@ -32,7 +32,7 @@ namespace FabricUI
       virtual unsigned int inputCount() const;
       virtual QWidget * input(unsigned int index);
       virtual QWidget * input(QString label);
-
+      virtual void removeSection(QWidget * widget);
       virtual void setSectionCollapsed(QString section, bool state = true);
       virtual void setSectionCollapsable(QString section, bool state = true);
 

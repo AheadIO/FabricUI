@@ -23,7 +23,7 @@ namespace FabricUI
 
       QString title() const;
       void addWidget(QWidget * widget, QString label = "");
-
+      void removeWidget(QWidget * widget);
       DFGCollapsableHeaderWidget * header() { return m_header; }
 
       bool collapsed() const { return m_collapsed; }

@@ -678,6 +678,14 @@ bool DFGController::setNodeColor(
       false, 
       true
       );
+
+    //exec.setNodeMetadata(
+    //  nodeName,
+    //  key,
+    //  "",
+    //  false, 
+    //  true
+    //  );
   }
   catch(FabricCore::Exception e)
   {

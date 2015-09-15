@@ -1556,7 +1556,7 @@ void DFGWidget::editPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
-    // [Julien] FE-5188, FE-5276
+    // [Julien] FE-5188, FE-5276, FE-5246
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
@@ -1564,14 +1564,7 @@ void DFGWidget::editPropertiesForCurrentSelection()
       controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
       controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.
-      
-      // [Julien] FE-5246 : Creates the node header color metadata
-      // Custom header colors can have contrast mistmatches with the body's color
-      // Thus, we create the metadata only if the custom color is different from the default color
-      QColor headerColor = dialog.getHeaderColor();    
-      if(headerColor != m_dfgConfig.graphConfig.nodeDefaultLabelColor)
-        controller->setNodeHeaderColor(nodeName, headerColor);                // not undoable.
-      
+      controller->setNodeHeaderColor(nodeName, dialog.getHeaderColor()); // not undoable.
       controller->setNodeTextColor(nodeName, dialog.getTextColor());    // not undoable.
     }
   }

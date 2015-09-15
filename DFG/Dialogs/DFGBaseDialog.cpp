@@ -162,6 +162,12 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label, QString section)
   }
 }
 
+void DFGBaseDialog::removeSection(QWidget * widget) {
+  unsigned int index = m_sections.size() - 1;
+  if(index >= 0 && index < m_sections.size() )
+    m_sections[index]->removeWidget(widget);
+}
+
 void DFGBaseDialog::setSectionCollapsed(QString section, bool state)
 {
   if(section.length() == 0)

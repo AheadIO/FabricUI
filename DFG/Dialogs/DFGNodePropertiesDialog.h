@@ -74,7 +74,10 @@ namespace FabricUI
 
     private:
       /// \internal
-      /// Sets the color property from the ColorPickerWidget widget
+      /// Gets the color property header color metadata
+      QColor getColorFromExec(const char * key, QColor defaultCol);
+      /// \internal
+      /// Sets the color property of the ColorPickerWidget widget
       void setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * json, QColor defaultCol);
 
       std::string                      m_nodeName;

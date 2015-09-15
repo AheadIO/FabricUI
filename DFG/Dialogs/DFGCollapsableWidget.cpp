@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <iostream>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QHBoxLayout>
@@ -74,6 +75,36 @@ void DFGCollapsableWidget::addWidget(QWidget * widget, QString label)
   {
     layout->addWidget(widget);
     // layout->setAlignment(widget, Qt::AlignLeft | Qt::AlignVCenter);
+  }
+}
+
+void DFGCollapsableWidget::removeWidget(QWidget * widget)
+{
+  QLayout * layout = m_content->layout();
+  if(m_usesGridLayout)
+  {
+    int index = ((QGridLayout*)layout)->indexOf(widget);
+
+    if(index > 0)
+    {
+      int row, column, rowSpan, columnSpan;
+      ((QGridLayout*)layout)->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+
+      QWidget * label = ((QGridLayout*)layout)->itemAtPosition(row, 0)->widget();
+      ((QGridLayout*)layout)->removeWidget(label);
+      delete label;
+      label = 0;
+
+      QWidget * widget2 = ((QGridLayout*)layout)->itemAtPosition(row, 1)->widget();
+      ((QGridLayout*)layout)->removeWidget(widget2);
+      delete widget2;
+      widget2 = 0;
+    }   
+  }
+  else 
+  {
+    layout->removeWidget(widget);
+    widget = 0;
   }
 }
 
