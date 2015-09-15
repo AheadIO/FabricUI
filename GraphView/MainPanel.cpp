@@ -36,7 +36,7 @@ MainPanel::MainPanel(Graph * parent)
   m_manipulationMode = ManipulationMode_None;
   m_draggingSelRect = false;
   m_selectionRect = NULL;
-  m_spaceBarDown = false;
+  m_alwaysPan = false;
 }
 
 Graph * MainPanel::graph()
@@ -136,10 +136,9 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
     delete(m_selectionRect);
     m_selectionRect = NULL;
   }
-
-  if(event->button() == Qt::LeftButton && !m_spaceBarDown && !event->modifiers().testFlag(Qt::AltModifier))
+  if(event->button() == Qt::LeftButton && !m_alwaysPan && !event->modifiers().testFlag(Qt::AltModifier))
   {
-    QPointF mouseDownPos = mapToItem(m_itemGroup, event->pos());
+    QPointF mouseDownPos = mapToItem(m_itemGroup, mapFromScene( event->scenePos() ) );
     m_selectionRect = new SelectionRect(this, mouseDownPos);
     m_draggingSelRect = false;
 
@@ -150,19 +149,20 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
     m_manipulationMode = ManipulationMode_Select;
   }
   else if((event->button() == DFG_QT_MIDDLE_MOUSE && event->modifiers().testFlag(Qt::AltModifier))
-    || (event->button() == Qt::LeftButton && m_spaceBarDown)
+    || (event->button() == Qt::LeftButton && m_alwaysPan)
     || (event->button() == Qt::LeftButton && event->modifiers().testFlag(Qt::AltModifier))
     )
   {
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Pan;
-    m_lastPanPoint = event->pos();
+    m_lastPanPoint = mapFromScene( event->scenePos() );
+    event->accept();
   }
   else if(event->button() == Qt::RightButton && event->modifiers().testFlag(Qt::AltModifier))
   {
     setCursor(Qt::OpenHandCursor);
     m_manipulationMode = ManipulationMode_Zoom;
-    m_lastPanPoint = event->pos();
+    m_lastPanPoint = mapFromScene( event->scenePos() );
     m_mouseAltZoomState = m_mouseWheelZoomState;
   }
   else if(event->button() == Qt::RightButton)
@@ -184,7 +184,7 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
   if(m_manipulationMode == ManipulationMode_Select)
   {
-    QPointF dragPoint = mapToItem(m_itemGroup, event->pos());
+    QPointF dragPoint = mapToItem(m_itemGroup, mapFromScene( event->scenePos() ) );
     m_selectionRect->setDragPoint(dragPoint);
 
     if(!event->modifiers().testFlag(Qt::ControlModifier) && !event->modifiers().testFlag(Qt::ShiftModifier))
@@ -212,9 +212,14 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   }
   else if(m_manipulationMode == ManipulationMode_Pan)
   {
+    // Note: in m_alwaysPan mode, the event might be relative to a sub-widget
+    QPointF pos = mapFromScene( event->scenePos() );
+
     QTransform xfo = m_itemGroup->transform().inverted();
-    QPointF delta = xfo.map(event->pos()) - xfo.map(m_lastPanPoint);
-    m_lastPanPoint = event->pos();
+    QPointF delta = xfo.map(pos) - xfo.map(m_lastPanPoint);
+    m_lastPanPoint = pos;
+    event->accept();
+
     if(m_graph->controller()->panCanvas(delta + canvasPan()))
     {
       // if(!m_graph->config().mainPanelBackGroundPanFixed)
@@ -224,7 +229,7 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {
-    QPointF delta = event->pos() - m_lastPanPoint;
+    QPointF delta = mapFromScene( event->scenePos() ) - m_lastPanPoint;
     float zoomFactor = powf( 1.005f, delta.x() - delta.y() );
     performZoom( m_mouseAltZoomState * zoomFactor, m_lastPanPoint );
   }
@@ -280,9 +285,29 @@ void MainPanel::wheelEvent(QGraphicsSceneWheelEvent * event)
   if ( m_manipulationMode == ManipulationMode_None )
   {
     float zoomFactor = 1.0f + float(event->delta()) * m_mouseWheelZoomRate;
-    m_lastPanPoint = event->pos();
-    performZoom( m_mouseWheelZoomState * zoomFactor, event->pos() );
+    m_lastPanPoint = mapFromScene( event->scenePos() );
+    performZoom( m_mouseWheelZoomState * zoomFactor, m_lastPanPoint );
   }
+}
+
+// Return true if we should gather mouse events for camera movements, instead of having
+// these forwarded to individual widgets.
+bool MainPanel::grabsEvent( QEvent * e ) {
+  // Try to be conservative; only graph the events we really need to
+  bool graphicsMouseEvent = 
+       e->type() == QEvent::GraphicsSceneMouseMove 
+    || e->type() == QEvent::GraphicsSceneMousePress 
+    || e->type() == QEvent::GraphicsSceneMouseRelease;
+
+  if( graphicsMouseEvent ) {
+    if( m_alwaysPan )
+      return true;
+
+    QGraphicsSceneMouseEvent * mouseEvent = (QGraphicsSceneMouseEvent*)e;
+    if( mouseEvent->modifiers().testFlag(Qt::AltModifier) )
+      return true;
+  }
+  return false;
 }
 
 void MainPanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)

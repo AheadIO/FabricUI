@@ -28,6 +28,8 @@ if buildOS == 'Darwin':
 
 if buildOS == 'Linux':
   env.Append(CPPPATH=['/usr/include/qt4'])
+  env.Replace( CC = '/opt/centos5/usr/bin/gcc' )
+  env.Replace( CXX = '/opt/centos5/usr/bin/gcc' )
 
 if buildOS == 'Windows':
   env.Append(CPPDEFINES = ['FABRIC_OS_WINDOWS'])
