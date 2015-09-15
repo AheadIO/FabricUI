@@ -9,6 +9,7 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
+/// Constructor
 DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController * controller, const char * nodeName, const DFGConfig & dfgConfig)
 : DFGBaseDialog(parent, true, dfgConfig)
 , m_nodeName(nodeName)
@@ -83,37 +84,42 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   createHeaderColor();
 }
 
+/// Destructor
 DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
 {
 }
 
+/// Sets the node's title
 void DFGNodePropertiesDialog::setTitle(QString value)
 {
   m_titleEdit->setText(value);
 }
 
+/// Sets the node's tool tip
 void DFGNodePropertiesDialog::setToolTip(QString value)
 {
   m_toolTipEdit->document()->setPlainText(value);
 }
 
+/// Sets the node's documentation url 
 void DFGNodePropertiesDialog::setDocUrl(QString value)
 {
   m_docUrlEdit->setText(value);
 }
 
+/// Shows this dialog widgets
 void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
 {
   QTimer::singleShot(0, m_titleEdit, SLOT(setFocus()));
   DFGBaseDialog::showEvent(event);  
 }
 
-// Allows only alpha-numeric text (here the title) only 
+/// Allows only alpha-numeric text (here the title) only 
 void DFGNodePropertiesDialog::alphaNumicStringOnly() {
   setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
 }
 
-// Filters the QLineEdit text (here the title) with the regexFilter
+/// Filters the QLineEdit text (here the title) with the regexFilter
 void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
   if(m_titleEdit)
   {
@@ -123,25 +129,25 @@ void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
   }
 }
 
-// Gets the user selected node's title
+/// Gets the user selected node's title
 QString DFGNodePropertiesDialog::getTitle()
 {
   return m_titleEdit->text();
 }
 
-// Gets the user selected node's tool tip 
+/// Gets the user selected node's tool tip 
 QString DFGNodePropertiesDialog::getToolTip()
 {
   return m_toolTipEdit->toPlainText();
 }
 
-// Gets the user selected node's url doc 
+/// Gets the user selected node's url doc 
 QString DFGNodePropertiesDialog::getDocUrl()
 {
   return m_docUrlEdit->text();
 }
 
-// Gets the user selected node's body color 
+/// Gets the user selected node's body color 
 QColor DFGNodePropertiesDialog::getNodeColor()
 {
   ValueEditor::ColorPickerWidget *cpw = m_nodeColor;
@@ -151,7 +157,7 @@ QColor DFGNodePropertiesDialog::getNodeColor()
                 cpw->getA_as8bit());
 }
 
-// Gets the user selected node's header color 
+/// Gets the user selected node's header color 
 QColor DFGNodePropertiesDialog::getHeaderColor()
 {
   // [Julien] FE-5246  
@@ -166,7 +172,7 @@ QColor DFGNodePropertiesDialog::getHeaderColor()
   return m_nodeDefaultHeaderColor;
 }
 
-// Gets the user selected node's text color 
+/// Gets the user selected node's text color 
 QColor DFGNodePropertiesDialog::getTextColor()
 {
   ValueEditor::ColorPickerWidget *cpw = m_textColor;
@@ -176,7 +182,7 @@ QColor DFGNodePropertiesDialog::getTextColor()
                 cpw->getA_as8bit());
 }
 
-// Creates the node header color property
+/// Creates the node header color property
 void DFGNodePropertiesDialog::createHeaderColor() {
   // [Julien] FE-5246 
   // Custom header colors can have contrast mistmatches with the body's color
@@ -201,6 +207,8 @@ void DFGNodePropertiesDialog::createHeaderColor() {
   }
 }
 
+/// \internal
+/// Sets the color property from the ColorPickerWidget widget
 void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)
 {
   widget->set(defaultCol.redF(), defaultCol.greenF(), defaultCol.blueF(), defaultCol.alphaF());
