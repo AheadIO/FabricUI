@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <iostream>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QGridLayout>
@@ -159,7 +160,6 @@ void DFGBaseDialog::addInput(QWidget * widget, QString label, QString section)
       m_labelToIndex.insert(std::pair<std::string,unsigned int>(label.toUtf8().constData(), index));
     }
   }
-
 }
 
 void DFGBaseDialog::setSectionCollapsed(QString section, bool state)

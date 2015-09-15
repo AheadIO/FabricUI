@@ -22,12 +22,20 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   m_docUrlEdit  = new QLineEdit("", this);
 
   m_nodeColor   = new ValueEditor::ColorPickerWidget(this);
-  m_headerColor = new ValueEditor::ColorPickerWidget(this);
   m_textColor   = new ValueEditor::ColorPickerWidget(this);
-
   setColorFromExec(m_nodeColor,   "uiNodeColor",   dfgConfig.graphConfig.nodeDefaultColor);
-  setColorFromExec(m_headerColor, "uiHeaderColor", dfgConfig.graphConfig.nodeDefaultLabelColor);
   setColorFromExec(m_textColor,   "uiTextColor",   dfgConfig.graphConfig.nodeFontColor);
+  m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
+
+  // [Julien] FE-5246 
+  // Header color property management
+  // Create a checbox that creates the header color property when cliked
+  m_allowHeaderColor = new QCheckBox("", this);
+  FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
+  // If the "uiHeaderColor" metadata already exists, diplays the  header color property
+  m_allowHeaderColor->setChecked(!metadata.empty());
+  m_allowHeaderColor->setDisabled(!metadata.empty()); 
+  QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( createHeaderColor() ) );
 
   try
   {
@@ -64,12 +72,15 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput(m_titleEdit,   "title",        "properties");
-  addInput(m_toolTipEdit, "tooltip",      "properties");
-  addInput(m_docUrlEdit,  "doc url",      "properties");
-  addInput(m_nodeColor,   "node color",   "properties");
-  addInput(m_headerColor, "header color", "properties");
-  addInput(m_textColor,   "text color",   "properties");
+  addInput(m_titleEdit,         "title",            "properties");
+  addInput(m_toolTipEdit,       "tooltip",          "properties");
+  addInput(m_docUrlEdit,        "doc url",          "properties");
+  addInput(m_nodeColor,         "node color",       "properties");
+  addInput(m_textColor,         "text color",       "properties");
+  addInput(m_allowHeaderColor,  "set header color", "properties");
+  
+  // Create the header color property
+  createHeaderColor();
 }
 
 DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
@@ -138,11 +149,16 @@ QColor DFGNodePropertiesDialog::getNodeColor()
 
 QColor DFGNodePropertiesDialog::getHeaderColor()
 {
-  ValueEditor::ColorPickerWidget *cpw = m_headerColor;
-  return QColor(cpw->getR_as8bit(),
-                cpw->getG_as8bit(),
-                cpw->getB_as8bit(),
-                cpw->getA_as8bit());
+  // [Julien] FE-5246  
+  if( m_allowHeaderColor->isChecked() )
+  {
+    ValueEditor::ColorPickerWidget *cpw = m_headerColor;
+    return QColor(cpw->getR_as8bit(),
+                  cpw->getG_as8bit(),
+                  cpw->getB_as8bit(),
+                  cpw->getA_as8bit());
+  }
+  return m_nodeDefaultHeaderColor;
 }
 
 QColor DFGNodePropertiesDialog::getTextColor()
@@ -152,6 +168,31 @@ QColor DFGNodePropertiesDialog::getTextColor()
                 cpw->getG_as8bit(),
                 cpw->getB_as8bit(),
                 cpw->getA_as8bit());
+}
+
+// Creates the node header color property
+void DFGNodePropertiesDialog::createHeaderColor() {
+  // [Julien] FE-5246 
+  // Custom header colors can have contrast mistmatches with the body's color
+  // Thus, the option is disable by default 
+  try
+  {
+    FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
+
+    if( m_allowHeaderColor->isChecked() )
+    {
+      m_headerColor = new ValueEditor::ColorPickerWidget(this);
+      setColorFromExec(m_headerColor, "uiHeaderColor", m_nodeDefaultHeaderColor);
+      addInput(m_headerColor, "header color", "properties");
+      m_allowHeaderColor->setChecked(true);
+      m_allowHeaderColor->setDisabled(true); 
+    }
+  }
+
+  catch(FabricCore::Exception e)
+  {
+    m_controller->logError(e.getDesc_cstr());
+  }
 }
 
 void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)

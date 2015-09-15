@@ -200,15 +200,15 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
       m_dfgWidget->getUIGraph()->selectedNodes()
       );
   }
-  else if(hotkey == "frameSelected")
+  else if(hotkey == "frame selected")
   {
     m_dfgWidget->getUIController()->frameSelectedNodes();
   }
-  else if(hotkey == "frameAll")
+  else if(hotkey == "frame all")
   {
     m_dfgWidget->getUIController()->frameAllNodes();
   }
-  else if(hotkey == "tabSearch")
+  else if(hotkey == "tab search")
   {
     QPoint pos = m_dfgWidget->getGraphViewWidget()->lastEventPos();
     pos = m_dfgWidget->getGraphViewWidget()->mapToGlobal(pos);
@@ -226,7 +226,7 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
   {
     m_dfgWidget->getUIController()->cmdPaste();
   }
-  else if(hotkey == "toggleSidePanels")
+  else if(hotkey == "toggle side panels")
   {
     QList<int> s = m_hSplitter->sizes();
     if(s[0] != 0 || s[2] != 0)
@@ -243,9 +243,9 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
     }
     m_hSplitter->setSizes(s);
   }
-  else if(hotkey == "rename node")
+  else if(hotkey == "edit properties")
   {
-    m_dfgWidget->inspectPropertiesForCurrentSelection();
+    m_dfgWidget->editPropertiesForCurrentSelection();
   }
   else if(hotkey == "relax nodes")
   {
@@ -277,14 +277,14 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
     {
       graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, "delete");
       graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, "delete2");
-      graph->defineHotkey(Qt::Key_F, Qt::NoModifier, "frameSelected");
-      graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frameAll");
-      graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tabSearch");
+      graph->defineHotkey(Qt::Key_F, Qt::NoModifier, "frame selected");
+      graph->defineHotkey(Qt::Key_A, Qt::NoModifier, "frame all");
+      graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, "tab search");
       graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, "copy");
       graph->defineHotkey(Qt::Key_X, Qt::ControlModifier, "cut");
       graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, "paste");
-      graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggleSidePanels");
-      graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "rename node");
+      graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, "toggle side panels");
+      graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, "edit properties");
       graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, "relax nodes");
       graph->defineHotkey(Qt::Key_0, Qt::ControlModifier, "reset zoom");
       graph->defineHotkey(Qt::Key_1, Qt::NoModifier, "collapse nodes level 1");

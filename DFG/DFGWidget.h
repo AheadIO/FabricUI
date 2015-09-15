@@ -69,7 +69,7 @@ namespace FabricUI
       void populateMenuBar(QMenuBar * menuBar);
       bool maybeEditNode(FabricUI::GraphView::Node * node);
 
-      void inspectPropertiesForCurrentSelection();
+      void editPropertiesForCurrentSelection();
 
     signals:
 

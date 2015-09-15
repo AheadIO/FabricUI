@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
  
+#include <iostream>
 #include <assert.h>
 #include <FabricCore.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
@@ -906,7 +907,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == "Properties - F2")
   {
-    inspectPropertiesForCurrentSelection();
+    editPropertiesForCurrentSelection();
   }
   else if(action->text() == "Set Comment")
   {
@@ -1524,7 +1525,7 @@ bool DFGWidget::maybeEditNode(
   return true;  
 }
 
-void DFGWidget::inspectPropertiesForCurrentSelection()
+void DFGWidget::editPropertiesForCurrentSelection()
 {
   FabricUI::DFG::DFGController *controller = getUIController();
   if (controller)
@@ -1548,16 +1549,22 @@ void DFGWidget::inspectPropertiesForCurrentSelection()
     }
 
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
-    dialog.alphaNumicStringOnly();
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
       controller->setNodeToolTip        (nodeName, dialog.getToolTip().toStdString().c_str());  // not undoable.
       controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
-      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());                      // not undoable.
-      controller->setNodeHeaderColor    (nodeName, dialog.getHeaderColor());                    // not undoable.
-      controller->setNodeTextColor      (nodeName, dialog.getTextColor());                      // not undoable.
+      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.
+      
+      // [Julien] FE-5246 : Creates the node header color property
+      // Custom header colors can have contrast mistmatches with the body's color
+      // Thus, the option is disable by default 
+      QColor headerColor = dialog.getHeaderColor();    
+      if(headerColor != m_dfgConfig.graphConfig.nodeDefaultLabelColor)
+        controller->setNodeHeaderColor(nodeName, headerColor);                // not undoable.
+      
+      controller->setNodeTextColor      (nodeName, dialog.getTextColor());    // not undoable.
     }
   }
 }

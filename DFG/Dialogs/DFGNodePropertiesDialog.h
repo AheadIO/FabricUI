@@ -8,7 +8,7 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QCheckBox>
 #include <QtGui/QShowEvent>
-
+#include <QtGui/QCheckBox>
 #include "DFGBaseDialog.h"
 #include "DFGRegisteredTypeLineEdit.h"
 #include "DFGExtensionLineEdit.h"
@@ -37,8 +37,10 @@ namespace FabricUI
 
       virtual void showEvent(QShowEvent * event);
 
+      // [Julien] 
       // Filter the QLineEdit text (here the title) with the regexFilter
       void alphaNumicStringOnly();
+      // [Julien] 
       // Filter the QLineEdit text (here the title) with the setRegexFilter
       void setRegexFilter(QString regex);
 
@@ -49,6 +51,12 @@ namespace FabricUI
       QColor getHeaderColor();
       QColor getTextColor();
 
+    public slots:
+      // [Julien] FE-5246 : Creates the node header color property
+      // Custom header colors can have contrast mistmatches with the body's color
+      // Thus, the option is disable by default 
+      void createHeaderColor();
+
     private:
 
       void setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * json, QColor defaultCol);
@@ -56,9 +64,11 @@ namespace FabricUI
       std::string                      m_nodeName;
       DFGController                   *m_controller;
 
+      QColor                           m_nodeDefaultHeaderColor;
       QLineEdit                       *m_titleEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;
+      QCheckBox                       *m_allowHeaderColor;
       ValueEditor::ColorPickerWidget  *m_nodeColor;
       ValueEditor::ColorPickerWidget  *m_headerColor;
       ValueEditor::ColorPickerWidget  *m_textColor;
