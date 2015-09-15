@@ -1557,14 +1557,14 @@ void DFGWidget::editPropertiesForCurrentSelection()
 
       controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.
       
-      // [Julien] FE-5246 : Creates the node header color property
+      // [Julien] FE-5246 : Creates the node header color metadata
       // Custom header colors can have contrast mistmatches with the body's color
-      // Thus, the option is disable by default 
+      // Thus, we create the metadata only if the custom color is different from the default color
       QColor headerColor = dialog.getHeaderColor();    
       if(headerColor != m_dfgConfig.graphConfig.nodeDefaultLabelColor)
         controller->setNodeHeaderColor(nodeName, headerColor);                // not undoable.
       
-      controller->setNodeTextColor      (nodeName, dialog.getTextColor());    // not undoable.
+      controller->setNodeTextColor(nodeName, dialog.getTextColor());    // not undoable.
     }
   }
 }

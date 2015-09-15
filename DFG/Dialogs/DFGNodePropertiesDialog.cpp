@@ -72,12 +72,12 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput(m_titleEdit,         "title",            "properties");
-  addInput(m_toolTipEdit,       "tooltip",          "properties");
-  addInput(m_docUrlEdit,        "doc url",          "properties");
-  addInput(m_nodeColor,         "node color",       "properties");
-  addInput(m_textColor,         "text color",       "properties");
-  addInput(m_allowHeaderColor,  "set header color", "properties");
+  addInput(m_titleEdit,         "title",                "properties");
+  addInput(m_toolTipEdit,       "tooltip",              "properties");
+  addInput(m_docUrlEdit,        "doc url",              "properties");
+  addInput(m_nodeColor,         "node color",           "properties");
+  addInput(m_textColor,         "text color",           "properties");
+  addInput(m_allowHeaderColor,  "custom header color",  "properties");
   
   // Create the header color property
   createHeaderColor();
@@ -123,21 +123,25 @@ void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
   }
 }
 
+// Gets the user selected node's title
 QString DFGNodePropertiesDialog::getTitle()
 {
   return m_titleEdit->text();
 }
 
+// Gets the user selected node's tool tip 
 QString DFGNodePropertiesDialog::getToolTip()
 {
   return m_toolTipEdit->toPlainText();
 }
 
+// Gets the user selected node's url doc 
 QString DFGNodePropertiesDialog::getDocUrl()
 {
   return m_docUrlEdit->text();
 }
 
+// Gets the user selected node's body color 
 QColor DFGNodePropertiesDialog::getNodeColor()
 {
   ValueEditor::ColorPickerWidget *cpw = m_nodeColor;
@@ -147,6 +151,7 @@ QColor DFGNodePropertiesDialog::getNodeColor()
                 cpw->getA_as8bit());
 }
 
+// Gets the user selected node's header color 
 QColor DFGNodePropertiesDialog::getHeaderColor()
 {
   // [Julien] FE-5246  
@@ -161,6 +166,7 @@ QColor DFGNodePropertiesDialog::getHeaderColor()
   return m_nodeDefaultHeaderColor;
 }
 
+// Gets the user selected node's text color 
 QColor DFGNodePropertiesDialog::getTextColor()
 {
   ValueEditor::ColorPickerWidget *cpw = m_textColor;
