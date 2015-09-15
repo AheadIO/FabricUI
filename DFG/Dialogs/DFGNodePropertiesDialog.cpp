@@ -34,10 +34,10 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   m_headerColor = 0;
   m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
   m_allowHeaderColor = new QCheckBox("", this);
+  // If the "uiHeaderColor" metadata already exists, diplays the  header color property
   FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
-  // If the "uiHeaderColor" metadata already exists, displays the  header color property
-  m_allowHeaderColor->setChecked(m_nodeDefaultHeaderColor != getColorFromExec("uiHeaderColor", m_nodeDefaultHeaderColor));
-  QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( createHeaderColor() ) );
+  m_allowHeaderColor->setChecked(!metadata.empty());
+  QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( addOrRemoveHeaderColor() ) );
 
   try
   {
@@ -81,8 +81,8 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   addInput(m_textColor,         "text color",           "properties");
   addInput(m_allowHeaderColor,  "custom header color",  "properties");
   
-  // Create the header color property
-  createHeaderColor();
+  // Create pr remove the header color property
+  addOrRemoveHeaderColor();
 }
 
 /// Destructor
@@ -159,18 +159,24 @@ QColor DFGNodePropertiesDialog::getNodeColor()
 }
 
 /// Gets the user selected node's header color 
-QColor DFGNodePropertiesDialog::getHeaderColor()
+bool DFGNodePropertiesDialog::getHeaderColor(QColor &color)
 {
-  // [Julien] FE-5246  
-  if( m_headerColor != 0 )
+  // [Julien] FE-5246 
+  if( (m_headerColor != 0) && m_allowHeaderColor->isChecked() )
   {
     ValueEditor::ColorPickerWidget *cpw = m_headerColor;
-    return QColor(cpw->getR_as8bit(),
+    color = QColor(cpw->getR_as8bit(),
                   cpw->getG_as8bit(),
                   cpw->getB_as8bit(),
                   cpw->getA_as8bit());
+    return true;
   }
-  else return m_nodeDefaultHeaderColor;
+  else 
+  {
+    color = getColorFromExec("uiHeaderColor", m_nodeDefaultHeaderColor);
+    color.setAlphaF(0.0);
+    return false;
+  }
 }
 
 /// Gets the user selected node's text color 
@@ -184,7 +190,7 @@ QColor DFGNodePropertiesDialog::getTextColor()
 }
 
 /// Creates the node header color property
-void DFGNodePropertiesDialog::createHeaderColor() {
+void DFGNodePropertiesDialog::addOrRemoveHeaderColor() {
   // [Julien] FE-5246 
   // Custom header colors can have contrast mistmatches with the body's color
   // Thus, the option is disable by default 
@@ -198,7 +204,6 @@ void DFGNodePropertiesDialog::createHeaderColor() {
     }
     else if( (m_headerColor != 0) && !m_allowHeaderColor->isChecked())
     {
-      m_headerColor->set(m_nodeDefaultHeaderColor.redF(), m_nodeDefaultHeaderColor.greenF(), m_nodeDefaultHeaderColor.blueF(), m_nodeDefaultHeaderColor.alphaF());
       removeSection(m_headerColor); 
       m_headerColor = 0;
     }

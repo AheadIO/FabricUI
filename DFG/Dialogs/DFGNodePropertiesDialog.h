@@ -61,7 +61,7 @@ namespace FabricUI
       /// Gets the user selected node's body color 
       QColor getNodeColor();
       /// Gets the user selected node's header color 
-      QColor getHeaderColor();
+      bool getHeaderColor(QColor &color);
       /// Gets the user selected node's text color 
       QColor getTextColor();
 
@@ -70,7 +70,7 @@ namespace FabricUI
       // Custom header colors can have contrast mistmatches with the body's color
       // Thus, the option is disable by default 
       /// Creates the node header color property
-      void createHeaderColor();
+      void addOrRemoveHeaderColor();
 
     private:
       /// \internal

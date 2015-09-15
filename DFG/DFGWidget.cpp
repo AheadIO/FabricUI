@@ -1570,9 +1570,14 @@ void DFGWidget::editPropertiesForCurrentSelection()
       controller->setNodeToolTip        (nodeName, dialog.getToolTip().toStdString().c_str());  // not undoable.
       controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
-      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.
-      controller->setNodeHeaderColor(nodeName, dialog.getHeaderColor()); // not undoable.
-      controller->setNodeTextColor(nodeName, dialog.getTextColor());    // not undoable.
+      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.  
+      QColor headerColor;  
+      if(dialog.getHeaderColor(headerColor)) controller->setNodeHeaderColor(nodeName, headerColor);  // not undoable.
+      else controller->removeNodeHeaderColor(nodeName);  // not undoable.
+      controller->setNodeTextColor(nodeName, dialog.getTextColor());          // not undoable.
+      // [Julien] FE-5246
+      // Force update the header/nody node color
+      onExecChanged();
     }
   }
 }

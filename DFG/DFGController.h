@@ -316,11 +316,13 @@ namespace FabricUI
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
+      virtual bool setNodeColor(const char * nodeName, const char * key, QColor color);
+      virtual bool removeNodeColor(const char * nodeName, const char * key);
       virtual bool setNodeBackgroundColor(const char * nodeName, QColor color);
       virtual bool setNodeHeaderColor(const char * nodeName, QColor color);
+      virtual bool removeNodeHeaderColor(const char * nodeName);
       virtual bool setNodeTextColor(const char * nodeName, QColor color);
-      virtual bool setNodeColor(const char * nodeName, const char * key, QColor color);
-
+      
       virtual std::string copy();
 
       virtual bool reloadExtensionDependencies(char const * path);

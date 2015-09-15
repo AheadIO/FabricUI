@@ -1,5 +1,6 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
+#include <iostream>
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 #include <QtGui/QApplication>
@@ -670,22 +671,45 @@ bool DFGController::setNodeColor(
       }
     }
 
+    // [Julien] FE-5246, remove header color meta-data if needed
+    // Very big hack
+    // 
     FabricCore::DFGExec &exec = getExec();
     exec.setNodeMetadata(
       nodeName,
       key,
-      uiNodeColorString.c_str(),
+      (color.alphaF() == 0.0) ? "" : uiNodeColorString.c_str(),
       false, 
       true
       );
+  }
+  catch(FabricCore::Exception e)
+  {
+    logError(e.getDesc_cstr());
+    return false;
+  }
+  return true;
+}
 
-    //exec.setNodeMetadata(
-    //  nodeName,
-    //  key,
-    //  "",
-    //  false, 
-    //  true
-    //  );
+bool DFGController::removeNodeColor(
+  const char * nodeName,
+  const char * key 
+)
+{
+  try {
+    if(!validPresetSplit())
+      return false;
+
+    // [Julien] FE-5246, remove header color meta-data if needed
+    // Very big hack
+    FabricCore::DFGExec &exec = getExec();
+    exec.setNodeMetadata(
+      nodeName,
+      key,
+      "",
+      false, 
+      true
+      );
   }
   catch(FabricCore::Exception e)
   {
@@ -709,6 +733,13 @@ bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
     return false;
 
   return setNodeColor(nodeName, "uiHeaderColor", color);
+}
+
+bool DFGController::removeNodeHeaderColor(const char * nodeName)
+{
+  if(!validPresetSplit())
+    return false;
+  return removeNodeColor(nodeName, "uiHeaderColor");
 }
 
 bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
