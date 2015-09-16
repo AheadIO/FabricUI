@@ -202,9 +202,10 @@ void DFGTabSearchWidget::showForSearch( QPoint globalPos )
                0 );
   updateGeometry();
 
-  grabKeyboard();
   emit enabled(true);
   show();
+
+  grabKeyboard();
 }
 
 void DFGTabSearchWidget::showForSearch()
