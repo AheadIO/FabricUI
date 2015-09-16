@@ -9,7 +9,13 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, bool showDataType, const DFGConfig & dfgConfig)
+DFGEditPortDialog::DFGEditPortDialog(
+  QWidget * parent, 
+  FabricCore::Client & client, 
+  bool showPortType, 
+  bool showDataType, 
+  const DFGConfig & dfgConfig,
+  bool setAlphaNum)
 : DFGBaseDialog(parent, true, dfgConfig)
 {
   setWindowTitle("Edit Port");
@@ -62,6 +68,10 @@ DFGEditPortDialog::DFGEditPortDialog(QWidget * parent, FabricCore::Client & clie
   addInput(m_rangeMax, "range max", "metadata");
   addInput(m_hasCombo, "use combo", "metadata");
   addInput(m_combo, "combo", "metadata");
+
+  // [Julien] FE-5188, FE-5276
+  if(setAlphaNum) alphaNumicStringOnly();
+
 
   QObject::connect(m_hasRange, SIGNAL(stateChanged(int)), this, SLOT(onRangeToggled(int)));
   QObject::connect(m_hasCombo, SIGNAL(stateChanged(int)), this, SLOT(onComboToggled(int)));

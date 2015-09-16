@@ -19,17 +19,26 @@ namespace FabricUI
       Q_OBJECT
 
     public:
-
+      /// Constructor
       DFGPickVariableDialog(
         QWidget * parent,
         FabricCore::Client & client,
         FabricCore::DFGBinding & binding,
         FTL::CStrRef currentExecPath,
+        bool setAlphaNum = false,
         QString name = "",
         const DFGConfig & dfgConfig = DFGConfig()
         );
+
+      /// Destuctor
       virtual ~DFGPickVariableDialog();
 
+      /// Filter the QLineEdit text with the regexFilter (here the name)
+      void alphaNumicStringOnly();
+      /// Filter the QLineEdit text with the setRegexFilter (here the name)
+      void setRegexFilter(QString regex);
+
+      /// Gets the name of the variable
       QString name() const;
 
     private:
