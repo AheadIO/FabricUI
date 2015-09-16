@@ -11,7 +11,12 @@ using namespace FabricUI;
 using namespace FabricUI::DFG;
 
 /// Constructor
-DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController * controller, const char * nodeName, const DFGConfig & dfgConfig)
+DFGNodePropertiesDialog::DFGNodePropertiesDialog(
+  QWidget * parent, 
+  DFGController * controller, 
+  const char * nodeName, 
+  const DFGConfig & dfgConfig,
+  bool setAlphaNum )
 : DFGBaseDialog(parent, true, dfgConfig)
 , m_nodeName(nodeName)
 , m_controller(controller)
@@ -80,7 +85,10 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(QWidget * parent, DFGController
   addInput(m_nodeColor,         "node color",           "properties");
   addInput(m_textColor,         "text color",           "properties");
   addInput(m_allowHeaderColor,  "custom header color",  "properties");
-  
+    
+  // [Julien] FE-5188, FE-5276
+  if(setAlphaNum) alphaNumicStringOnly();
+    
   // Create pr remove the header color property
   addOrRemoveHeaderColor();
 }

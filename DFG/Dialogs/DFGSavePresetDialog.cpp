@@ -9,9 +9,11 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
+/// Constructor
 DFGSavePresetDialog::DFGSavePresetDialog(
   QWidget * parent,
   DFGController *dfgController,
+  bool setAlphaNum,
   QString name,
   const DFGConfig & dfgConfig
   )
@@ -19,19 +21,16 @@ DFGSavePresetDialog::DFGSavePresetDialog(
   , m_dfgController( dfgController )
 {
   setWindowTitle("Save Preset");
-
-  m_presetTree =
-    new PresetTreeWidget(
-      dfgController,
-      dfgConfig,
-      true,
-      false
-      );
-
+  m_presetTree = new PresetTreeWidget(dfgController, dfgConfig, true, false);
 
   addInput(m_presetTree, "location");
   m_nameEdit = new QLineEdit(name, this);
   addInput(m_nameEdit, "name");
+
+  // [Julien] Allows only alpha-numeric text only 
+  // We do this because the nodes's name must be alpha-numerical only
+  // and not contains "-, +, ?,"
+  if(setAlphaNum) alphaNumicStringOnly();
 
   TreeView::TreeModel * model = m_presetTree->getTreeModel();
   QObject::connect(model, SIGNAL(itemSelected(FabricUI::TreeView::TreeItem*)), 
@@ -40,26 +39,29 @@ DFGSavePresetDialog::DFGSavePresetDialog(
     this, SLOT(onCustomContextMenuRequested(QPoint, FabricUI::TreeView::TreeItem *)));
 }
 
+/// Destructor
 DFGSavePresetDialog::~DFGSavePresetDialog()
 {
 }
 
+/// Gets the name of the preset
 QString DFGSavePresetDialog::name() const
 {
   return m_nameEdit->text();
 }
 
+/// Gets the location of the preset
 QString DFGSavePresetDialog::location() const
 {
   return m_location;
 }
 
-// Allows only alpha-numeric text only 
+/// Allows only alpha-numeric text only 
 void DFGSavePresetDialog::alphaNumicStringOnly() {
   setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
 }
 
-// Filters the QLineEdit text with the regexFilter
+/// Filters the QLineEdit text with the regexFilter
 void DFGSavePresetDialog::setRegexFilter(QString regexFilter) {
   if(m_nameEdit)
   {

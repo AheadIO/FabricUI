@@ -23,7 +23,14 @@ namespace FabricUI
 
     public:
 
-      DFGEditPortDialog(QWidget * parent, FabricCore::Client & client, bool showPortType, bool showDataType, const DFGConfig & dfgConfig = DFGConfig());
+      DFGEditPortDialog(
+        QWidget * parent, 
+        FabricCore::Client & client, 
+        bool showPortType, 
+        bool showDataType, 
+        const DFGConfig & dfgConfig = DFGConfig(),
+        bool setAlphaNum = false
+      );
       virtual ~DFGEditPortDialog();
 
       QString portType() const;
