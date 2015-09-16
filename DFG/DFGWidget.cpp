@@ -120,8 +120,6 @@ DFGWidget::DFGWidget(
   }
 
   m_uiController->setHostBindingExec( host, binding, execPath, exec );
-
-
 }
 
 DFGWidget::~DFGWidget()
