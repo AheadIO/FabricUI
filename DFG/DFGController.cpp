@@ -671,14 +671,11 @@ bool DFGController::setNodeColor(
       }
     }
 
-    // [Julien] FE-5246, remove header color meta-data if needed
-    // Very big hack
-    // 
     FabricCore::DFGExec &exec = getExec();
     exec.setNodeMetadata(
       nodeName,
       key,
-      (color.alphaF() == 0.0) ? "" : uiNodeColorString.c_str(),
+      uiNodeColorString.c_str(),
       false, 
       true
       );
@@ -691,6 +688,7 @@ bool DFGController::setNodeColor(
   return true;
 }
 
+/// Remove a color node
 bool DFGController::removeNodeColor(
   const char * nodeName,
   const char * key 
@@ -699,17 +697,10 @@ bool DFGController::removeNodeColor(
   try {
     if(!validPresetSplit())
       return false;
-
     // [Julien] FE-5246, remove header color meta-data if needed
-    // Very big hack
+    // Very big hack, we just set the value to the property to nothing
     FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(
-      nodeName,
-      key,
-      "",
-      false, 
-      true
-      );
+    exec.setNodeMetadata(nodeName, key, "", false, true);
   }
   catch(FabricCore::Exception e)
   {
