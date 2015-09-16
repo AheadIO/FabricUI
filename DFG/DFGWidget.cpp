@@ -630,8 +630,8 @@ void DFGWidget::onNodeAction(QAction * action)
     FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
     QString title = subExec.getTitle();
-    if(title.toLower().endsWith(".dfg.json"))
-      title = title.left(title.length() - 9);
+    if(title.toLower().endsWith(".canvas"))
+      title = title.left(title.length() - 7);
 
     FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
     if(!uiNodeColor.empty())
@@ -659,12 +659,12 @@ void DFGWidget::onNodeAction(QAction * action)
       lastPresetFolder += "/" + title;
     }
 
-    QString filter = "DFG Preset (*.dfg.json)";
+    QString filter = "DFG Preset (*.canvas)";
     QString filePath = QFileDialog::getSaveFileName(this, "Export JSON", lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
-    if(filePath.toLower().endsWith(".dfg.json.dfg.json"))
-      filePath = filePath.left(filePath.length() - 9);
+    if(filePath.toLower().endsWith(".canvas.canvas"))
+      filePath = filePath.left(filePath.length() - 7);
 
     if(getSettings())
     {
@@ -764,7 +764,7 @@ void DFGWidget::onNodeAction(QAction * action)
         std::string filePathStr = host.getPresetImportPathname(location.toUtf8().constData());
         filePathStr += "/";
         filePathStr += name.toUtf8().constData();
-        filePathStr += ".dfg.json";
+        filePathStr += ".canvas";
 
         FILE * file = fopen(filePathStr.c_str(), "rb");
         if(file)
