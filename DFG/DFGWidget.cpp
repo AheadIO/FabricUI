@@ -1573,7 +1573,7 @@ void DFGWidget::editPropertiesForCurrentSelection()
       controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.  
       QColor headerColor;  
       if(dialog.getHeaderColor(headerColor)) controller->setNodeHeaderColor(nodeName, headerColor);  // not undoable.
-      else controller->removeNodeHeaderColor(nodeName);  // not undoable.
+      else controller->removeNodeHeaderColor(nodeName);                       // not undoable.
       controller->setNodeTextColor(nodeName, dialog.getTextColor());          // not undoable.
       // [Julien] FE-5246
       // Force update the header/nody node color
