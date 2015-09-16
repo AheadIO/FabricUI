@@ -71,6 +71,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(
   splitter->setContentsMargins(0, 0, 0, 0);
   splitter->setChildrenCollapsible(false);
 
+  // [Julien] FE-5276 Validate the names in port creation and avoid illegal characters
   m_ports = new DFGKLEditorPortTableWidget( splitter, controller, config );
   QObject::connect(
     this, SIGNAL(execChanged()),

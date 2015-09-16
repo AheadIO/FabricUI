@@ -8,6 +8,8 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QAction>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QLineEdit>
 
 #include "DFGConfig.h"
 #include "DFGController.h"
@@ -17,6 +19,44 @@ namespace FabricUI
 
   namespace DFG
   {
+    /// Class to customize DFGKLEditorPortTableWidgetDelegate element
+    /// \note http://doc.qt.io/qt-4.8/qitemdelegate.html
+    /// \notehttp://stackoverflow.com/questions/22708623/qtablewidget-only-numbers-permitted
+    class DFGKLEditorPortTableWidgetDelegate : public QItemDelegate
+    {
+      public:
+        /// Default constructor
+        /// Sets alpha-numerical string
+        DFGKLEditorPortTableWidgetDelegate() {
+          m_regexFilter = QString("^[a-zA-Z0-9]*$*");
+        }
+
+        /// Constructor
+        /// Sets regex string
+        /// \params regexFilter The regex filter
+        DFGKLEditorPortTableWidgetDelegate(QString regexFilter) {
+          m_regexFilter = regexFilter;
+        }
+
+        /// \internal
+        /// Sets the QTableWidget target element with a specifid style and options
+        /// It is used to force the DFGKLEditorPortTableWidget text elements to support alpha-numerical string only
+        QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
+        {
+          QLineEdit *lineEdit = new QLineEdit(parent);
+          // Set validator
+          QRegExp regex(m_regexFilter);
+          QValidator *validator = new QRegExpValidator(regex, 0);
+          lineEdit->setValidator(validator);
+          return lineEdit;
+        }
+
+      private:
+        /// \internal
+        /// Regex filter definition
+        QString m_regexFilter;
+    };
+
 
     class DFGKLEditorPortTableWidget : public QTableWidget
     {
@@ -32,7 +72,7 @@ namespace FabricUI
         std::string extension;
       };
 
-      DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig());
+      DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config = DFGConfig(), bool setAlphaNum = true);
       virtual ~DFGKLEditorPortTableWidget();
 
       unsigned int nbPorts() const;

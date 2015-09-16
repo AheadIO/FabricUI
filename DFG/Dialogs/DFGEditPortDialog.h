@@ -51,9 +51,9 @@ namespace FabricUI
 
       virtual void showEvent(QShowEvent * event);
 
-      // Filter the QLineEdit text with the regexFilter
+      /// Filter the QLineEdit text with the regexFilter
       void alphaNumicStringOnly();
-      // Filter the QLineEdit text with the setRegexFilter
+      /// Filter the QLineEdit text with the setRegexFilter
       void setRegexFilter(QString regex);
 
     private slots:

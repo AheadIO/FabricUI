@@ -8,15 +8,17 @@
 
 namespace FabricUI
 {
-
   namespace DFG
   {
-
     class DFGExecPortListItem : public QListWidgetItem 
     {
     public:
 
-      DFGExecPortListItem(QListWidget * parent, char const * portType, char const * dataType, char const * name);
+      DFGExecPortListItem(
+        QListWidget * parent, 
+        char const * portType, 
+        char const * dataType, 
+        char const * name);
       virtual ~DFGExecPortListItem();
 
       char const * portType() const;
