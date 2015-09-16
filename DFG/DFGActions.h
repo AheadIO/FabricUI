@@ -12,7 +12,7 @@ namespace FabricUI
     #define DFG_CREATE_PRESET           "Create preset"
     #define DFG_OPEN_PRESET_DOC         "Documentation"
     #define DFG_INSPECT_PRESET          "Inspect - DoubleClick"
-    #define DFG_EDIT_PRESET             "Edit - Shift DoubleClick"
+    #define DFG_EDIT_PRESET             "Edit - Shift+DoubleClick"
     #define DFG_EDIT_PRESET_PROPERTIES  "Properties - F2"
     #define DFG_DELETE_PRESET           "Delete - Del"
     #define DFG_COPY_PRESET             "Copy - Ctrl+C"
@@ -25,8 +25,8 @@ namespace FabricUI
     #define DFG_NEW_FUNCTION            "New empty function"
     #define DFG_NEW_BACKDROP            "New backdrop"
     #define DFG_NEW_VARIABLE            "New variable"
-    #define DFG_READ_VARIABLE           "Read Variable (Get)"
-    #define DFG_WRITE_VARIABLE          "Write Variable (Set)"
+    #define DFG_READ_VARIABLE           "Read variable (Get)"
+    #define DFG_WRITE_VARIABLE          "Write variable (Set)"
     #define DFG_CACHE_NODE              "Cache node"
     #define DFG_RESET_ZOOM              "Reset zoom"
     #define DFG_RELOAD_EXTENSION        "Reload extension(s)"
@@ -42,7 +42,6 @@ namespace FabricUI
     #define DFG_MOVE_BOTTOM             "Move bottom"
     #define DFG_MOVE_INPUTS_TO_END      "Move inputs to end"
     #define DFG_MOVE_OUTPUTS_TO_END     "Move outputs to end"
-
  };
 };
 
