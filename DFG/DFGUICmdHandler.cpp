@@ -11,7 +11,10 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-std::string DFGUICmdHandler::encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal)
+std::string DFGUICmdHandler::encodeRTValToJSON(
+  FabricCore::Context const& context,
+  FabricCore::RTVal const& rtVal
+  )
 {
   if(rtVal.isValid())
   {
@@ -47,7 +50,11 @@ std::string DFGUICmdHandler::encodeRTValToJSON(FabricCore::Context const& contex
   return valueJSON.getStringCString();
 }
 
-void DFGUICmdHandler::decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json)
+void DFGUICmdHandler::decodeRTValFromJSON(
+  FabricCore::Context const& context,
+  FabricCore::RTVal & rtVal,
+  FTL::CStrRef json
+  )
 {
   if(json.size() > 2)
   {

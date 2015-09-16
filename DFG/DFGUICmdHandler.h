@@ -24,8 +24,17 @@ public:
   virtual ~DFGUICmdHandler() {}
 
   // json encoding / decoding
-  static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
-  static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json);
+
+  static std::string encodeRTValToJSON(
+    FabricCore::Context const& context,
+    FabricCore::RTVal const& rtVal
+    );
+
+  static void decodeRTValFromJSON(
+    FabricCore::Context const& context,
+    FabricCore::RTVal & rtVal,
+    FTL::CStrRef json
+    );
 
   virtual void dfgDoRemoveNodes(
     FabricCore::DFGBinding const &binding,
