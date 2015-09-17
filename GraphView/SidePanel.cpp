@@ -36,8 +36,6 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   m_proxyPort = new ProxyPort(this, m_portType);
   
   resetLayout();
-
-  QObject::connect(m_itemGroup, SIGNAL(geometryChanged()), this, SLOT(onItemGroupGeometryChanged()));
 }
 
 Graph * SidePanel::graph()
@@ -207,15 +205,11 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
   }
 }
 
-void SidePanel::onItemGroupGeometryChanged()
-{
-  setMinimumWidth(m_itemGroup->size().width());
-}
-
 void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
   QGraphicsWidget::resizeEvent(event);
   m_itemGroup->resize(event->newSize().width(), m_itemGroup->size().height());
+  setMinimumWidth(m_itemGroup->size().width());
   updateItemGroupScroll(event->newSize().height());
 }
 
