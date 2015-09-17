@@ -90,8 +90,8 @@ namespace FabricUI
       void onNodeEditRequested(FabricUI::GraphView::Node *);
       void onExecPortAction(QAction * action);
       void onSidePanelAction(QAction * action);
-      void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name);
-      void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name);
+      void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey);
+      void onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey);
       void onKeyPressed(QKeyEvent * event);
       void onKeyReleased(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);

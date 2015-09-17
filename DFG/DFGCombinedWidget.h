@@ -62,7 +62,7 @@ namespace FabricUI
       virtual void onRedo() = 0;
       virtual void onValueChanged();
       virtual void onStructureChanged();
-      virtual void hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
+      virtual void onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onGraphSet(FabricUI::GraphView::Graph * graph);
 
       virtual void onNodeInspectRequested(FabricUI::GraphView::Node * node);

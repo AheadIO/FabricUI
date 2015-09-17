@@ -12,6 +12,7 @@
 #include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
+#include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
 #include <QtCore/QCoreApplication>
@@ -1349,17 +1350,72 @@ void DFGWidget::onSidePanelAction(QAction * action)
   }
 }
 
-void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString name)
-{
-  if(name == "PanGraph")
+void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
+{ 
+  if(hotkey == DFG_DELETE || hotkey == DFG_DELETE_2)
+  {
+    std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
+    getUIController()->gvcDoRemoveNodes(nodes);
+  }
+  else if(hotkey == DFG_FRAME_SELECTED)
+  {
+    getUIController()->frameSelectedNodes();
+  }
+  else if(hotkey == DFG_FRAME_ALL)
+  {
+    getUIController()->frameAllNodes();
+  }
+  else if(hotkey == DFG_TAB_SEARCH)
+  {
+    QPoint pos = getGraphViewWidget()->lastEventPos();
+    pos = getGraphViewWidget()->mapToGlobal(pos);
+    getTabSearchWidget()->showForSearch(pos);
+  }
+  else if(hotkey == DFG_COPY)
+  {
+    getUIController()->copy();
+  }
+  else if(hotkey == DFG_CUT)
+  {
+    getUIController()->cmdCut();
+  }
+  else if(hotkey == DFG_PASTE)
+  {
+    getUIController()->cmdPaste();
+  }
+  else if(hotkey == DFG_EDIT_PROPERTIES)
+  {
+    editPropertiesForCurrentSelection();
+  }
+  else if(hotkey == DFG_RELAX_NODES)
+  {
+    getUIController()->relaxNodes();
+  }
+  else if(hotkey == DFG_RESET_ZOOM)
+  {
+    onResetZoom();
+  }
+  else if(hotkey == DFG_COLLAPSE_LEVEL_1)
+  {
+    getUIController()->setSelectedNodeCollapseState(2);
+  }
+  else if(hotkey == DFG_COLLAPSE_LEVEL_2)
+  {
+    getUIController()->setSelectedNodeCollapseState(1);
+  }
+  else if(hotkey == DFG_COLLAPSE_LEVEL_3)
+  {
+    getUIController()->setSelectedNodeCollapseState(0);
+  }
+  else if(hotkey == DFG_PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(true);
   }
 }
 
-void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString name)
+void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 {
-  if(name == "PanGraph")
+  if(hotkey == DFG_PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(false);
   }
@@ -1673,7 +1729,7 @@ void DFGWidget::onExecChanged()
         m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
       );  
-      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, "PanGraph");
+      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFG_PAN_GRAPH);
     }
 
     // [Julien] FE-5264

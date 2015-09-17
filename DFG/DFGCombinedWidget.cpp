@@ -9,7 +9,7 @@
 #include "DFGCombinedWidget.h"
 #include <FabricUI/Style/FabricStyle.h>
 #include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
-#include <FabricUI/DFG/DFGHotkeys.h>
+#include <FabricUI/DFG/DFGActions.h>
 
 using namespace FabricUI::DFG;
 
@@ -195,41 +195,9 @@ void DFGCombinedWidget::onStructureChanged()
   onValueChanged();
 }
 
-void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifiers, QString hotkey)
+void DFGCombinedWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifiers, QString hotkey)
 {
-  if(hotkey == DFG_DELETE || hotkey == DFG_DELETE_2)
-  {
-    m_dfgWidget->getUIController()->gvcDoRemoveNodes(
-      m_dfgWidget->getUIGraph()->selectedNodes()
-      );
-  }
-  else if(hotkey == DFG_FRAME_SELECTED)
-  {
-    m_dfgWidget->getUIController()->frameSelectedNodes();
-  }
-  else if(hotkey == DFG_FRAME_ALL)
-  {
-    m_dfgWidget->getUIController()->frameAllNodes();
-  }
-  else if(hotkey == DFG_TAB_SEARCH)
-  {
-    QPoint pos = m_dfgWidget->getGraphViewWidget()->lastEventPos();
-    pos = m_dfgWidget->getGraphViewWidget()->mapToGlobal(pos);
-    m_dfgWidget->getTabSearchWidget()->showForSearch(pos);
-  }
-  else if(hotkey == DFG_COPY)
-  {
-    m_dfgWidget->getUIController()->copy();
-  }
-  else if(hotkey == DFG_CUT)
-  {
-    m_dfgWidget->getUIController()->cmdCut();
-  }
-  else if(hotkey == DFG_PASTE)
-  {
-    m_dfgWidget->getUIController()->cmdPaste();
-  }
-  else if(hotkey == DFG_TOGGLE_SIDE_PANEL)
+  if(hotkey == DFG_TOGGLE_SIDE_PANEL)
   {
     QList<int> s = m_hSplitter->sizes();
     if(s[0] != 0 || s[2] != 0)
@@ -246,29 +214,9 @@ void DFGCombinedWidget::hotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifier
     }
     m_hSplitter->setSizes(s);
   }
-  else if(hotkey == DFG_EDIT_PROPERTIES)
+  else
   {
-    m_dfgWidget->editPropertiesForCurrentSelection();
-  }
-  else if(hotkey == DFG_RELAX_NODES)
-  {
-    m_dfgWidget->getUIController()->relaxNodes();
-  }
-  else if(hotkey == DFG_RESET_ZOOM)
-  {
-    m_dfgWidget->onResetZoom();
-  }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_1)
-  {
-    m_dfgWidget->getUIController()->collapseSelectedNodes(2);
-  }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_2)
-  {
-    m_dfgWidget->getUIController()->collapseSelectedNodes(1);
-  }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_3)
-  {
-    m_dfgWidget->getUIController()->collapseSelectedNodes(0);
+    m_dfgWidget->onHotkeyPressed(key, modifiers, hotkey);
   }
 }
 
@@ -295,7 +243,7 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
       graph->defineHotkey(Qt::Key_3, Qt::NoModifier, DFG_COLLAPSE_LEVEL_3);
 
       QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-        this, SLOT(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
+        this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
       QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)));
       QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)), 
