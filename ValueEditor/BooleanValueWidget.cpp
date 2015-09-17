@@ -18,8 +18,6 @@ BooleanValueWidget::BooleanValueWidget(QString label, QWidget * parent)
   hbox->addWidget(m_checkBox);
 
   m_checkBox->installEventFilter(new BackspaceDeleteEventFilter(this));
-
-  QObject::connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(onValueChangedInCheckBox()));
 }
 
 BooleanValueWidget::~BooleanValueWidget()
@@ -49,6 +47,11 @@ TreeEditorWidget * BooleanValueWidget::creator(QWidget * parent, WidgetTreeItem 
   BooleanValueWidget * widget = new BooleanValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
   widget->setValue(((ValueItem*)item)->value());
+
+  // [andrew 20150917] only create this connection after the setValue()
+  // call just above, otherwise that call triggers a value change event
+  QObject::connect(widget->m_checkBox, SIGNAL(stateChanged(int)), widget, SLOT(onValueChangedInCheckBox()));
+
   return widget;
 }
 
