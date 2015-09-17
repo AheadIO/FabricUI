@@ -63,10 +63,6 @@ namespace FabricUI
       void doubleClicked(FabricUI::GraphView::SidePanel *);
       void scrolled();
 
-    private slots:
-
-      void onItemGroupGeometryChanged();
-
     private:
 
       void resetLayout();
