@@ -12,6 +12,7 @@
 #include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
+#include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -21,7 +22,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
- 
+
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -162,22 +163,22 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   if(graph->controller() == NULL)
     return NULL;
   QMenu* result = new QMenu(NULL);
-  result->addAction("New empty graph");
-  result->addAction("New empty function");
-  result->addAction("New backdrop");
+  result->addAction(DFG_NEW_GRAPH);
+  result->addAction(DFG_NEW_FUNCTION);
+  result->addAction(DFG_NEW_BACKDROP);
 
   const std::vector<GraphView::Node*> & nodes = graphWidget->getUIController()->graph()->selectedNodes();
   if(nodes.size() > 0)
   {
     result->addSeparator();
-    result->addAction("Implode nodes");
+    result->addAction(DFG_IMPLODE_NODE);
   }
 
   result->addSeparator();
-  result->addAction("New Variable");
-  result->addAction("Read Variable (Get)");
-  result->addAction("Write Variable (Set)");
-  result->addAction("Cache Node");
+  result->addAction(DFG_NEW_VARIABLE);
+  result->addAction(DFG_READ_VARIABLE);
+  result->addAction(DFG_WRITE_VARIABLE);
+  result->addAction(DFG_CACHE_NODE);
   result->addSeparator();
 
   QAction * pasteAction = new QAction("Paste", graphWidget);
@@ -188,7 +189,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 
   result->addSeparator();
 
-  QAction * resetZoomAction = new QAction("Reset Zoom", graphWidget);
+  QAction * resetZoomAction = new QAction(DFG_RESET_ZOOM, graphWidget);
   resetZoomAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_0) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
   pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -261,33 +262,33 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
         }
         if(uiDocUrl.length() > 0)
         {
-          result->addAction("Documentation");
+          result->addAction(DFG_OPEN_PRESET_DOC);
           result->addSeparator();
         }
       }
 
-      result->addAction("Inspect - DoubleClick");
-      result->addAction("Edit - Shift DoubleClick");
+      result->addAction(DFG_INSPECT_PRESET);
+      result->addAction(DFG_EDIT_PRESET);
     }
      
     if(!someVarNodes && !someGetNodes && !someSetNodes)
     {
-      result->addAction("Properties - F2");
+      result->addAction(DFG_EDIT_PRESET_PROPERTIES);
     }
 
-    result->addAction("Delete - Del");
+    result->addAction(DFG_DELETE_PRESET);
     result->addSeparator();
 
     if(!someVarNodes)
     {
-      result->addAction("Copy - Ctrl C");
+      result->addAction(DFG_COPY_PRESET);
     }
 
-    result->addAction("Paste - Ctrl V");
+    result->addAction(DFG_PAST_PRESET);
 
     if(!someVarNodes)
     {
-      result->addAction("Cut - Ctrl X");
+      result->addAction(DFG_CUT_PRESET);
     }
 
     if(onlyInstNodes)
@@ -295,25 +296,25 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
       if(instNodeCount == 1)
       {
         result->addSeparator();
-        result->addAction("Save Preset");
-        result->addAction("Export JSON");
+        result->addAction(DFG_CREATE_PRESET);
+        result->addAction(DFG_EXPORT_PRESET);
       }
 
       result->addSeparator();
-      result->addAction("Implode nodes");
+      result->addAction(DFG_IMPLODE_NODE);
 
       if(instNodeCount == 1)
       {
         FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
         if(subExec.getType() == FabricCore::DFGExecType_Graph)
         {
-          result->addAction("Explode node");
+          result->addAction(DFG_EXPLODE_NODE);
         }
 
         if(subExec.getExtDepCount() > 0)
         {
           result->addSeparator();
-          result->addAction("Reload Extension(s)");
+          result->addAction(DFG_RELOAD_EXTENSION);
         }
       }
     }
@@ -321,8 +322,8 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     if(nodes.size() == 1)
     {
       result->addSeparator();
-      result->addAction("Set Comment");
-      result->addAction("Remove Comment");
+      result->addAction(DFG_SET_COMMENT);
+      result->addAction(DFG_REMOVE_COMMENT);
     }
 
     graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onNodeAction(QAction*)));
@@ -354,12 +355,12 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
     {
       result->addSeparator();
 
-      result->addAction("Move top");
-      result->addAction("Move up");
-      result->addAction("Move down");
-      result->addAction("Move bottom");
-      result->addAction("Move inputs to end");
-      result->addAction("Move outputs to end");
+      result->addAction(DFG_MOVE_TOP);
+      result->addAction(DFG_MOVE_UP);
+      result->addAction(DFG_MOVE_DOWN);
+      result->addAction(DFG_MOVE_BOTTOM);
+      result->addAction(DFG_MOVE_INPUTS_TO_END);
+      result->addAction(DFG_MOVE_OUTPUTS_TO_END);
     }
   }
   catch(FabricCore::Exception e)
@@ -380,10 +381,10 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
-  result->addAction("Create Port");
+  result->addAction(DFG_CREATE_PORT);
   result->addSeparator();
-  result->addAction("Scroll Up");
-  result->addAction("Scroll Down");
+  result->addAction(DFG_SCROLL_UP);
+  result->addAction(DFG_SCROLL_DOWN);
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
   return result;
 }
@@ -412,7 +413,7 @@ void DFGWidget::onGraphAction(QAction * action)
   pos = m_uiGraph->itemGroup()->mapFromScene(pos);
   pos += mouseOffset;
 
-  if(action->text() == "New empty graph")
+  if(action->text() == DFG_NEW_GRAPH)
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
@@ -427,7 +428,7 @@ void DFGWidget::onGraphAction(QAction * action)
       QPointF(pos.x(), pos.y())
       );
   }
-  else if(action->text() == "New empty function")
+  else if(action->text() == DFG_NEW_FUNCTION)
   {
     DFGGetStringDialog dialog(NULL, "func", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
@@ -456,7 +457,7 @@ dfgEntry {\n\
     }
     m_uiController->endInteraction();
   }
-  else if(action->text() == "New backdrop")
+  else if(action->text() == DFG_NEW_BACKDROP)
   {
     DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig);
     if(dialog.exec() != QDialog::Accepted)
@@ -471,7 +472,7 @@ dfgEntry {\n\
       QPointF( pos.x(), pos.y() )
       );
   }
-  else if(action->text() == "Implode nodes")
+  else if(action->text() == DFG_IMPLODE_NODE)
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     // [Julien] FE-5188, FE-5276 Allows only alpha-numeric text only 
@@ -502,7 +503,7 @@ dfgEntry {\n\
     if ( GraphView::Node *uiNode = m_uiGraph->node( newNodeName ) )
       uiNode->setSelected( true );
   }
-  else if(action->text() == "New Variable")
+  else if(action->text() == DFG_NEW_VARIABLE)
   {
     DFGController *controller = getUIController();
     FabricCore::Client client = controller->getClient();
@@ -528,8 +529,8 @@ dfgEntry {\n\
 
     pos += QPointF(30, 30);
   }
-  else if(action->text() == "Read Variable (Get)" ||
-    action->text() == "Write Variable (Set)")
+  else if(action->text() == DFG_READ_VARIABLE ||
+    action->text() == DFG_WRITE_VARIABLE)
   {
     DFGController *controller = getUIController();
     FabricCore::Client client = controller->getClient();
@@ -544,7 +545,7 @@ dfgEntry {\n\
     if(name.length() == 0)
       return;
 
-    if(action->text() == "Read Variable (Get)")
+    if(action->text() == DFG_READ_VARIABLE)
     {
       m_uiController->cmdAddGet(
         "get",
@@ -561,17 +562,17 @@ dfgEntry {\n\
         );
     }
   }
-  else if(action->text() == "Cache Node")
+  else if(action->text() == DFG_CACHE_NODE)
   {
     DFGController * controller = getUIController();
     controller->cmdAddInstFromPreset("Fabric.Core.Data.Cache", QPointF(pos.x(), pos.y()));
     pos += QPointF(30, 30);
   }
-  else if(action->text() == "Reset Zoom")
+  else if(action->text() == DFG_RESET_ZOOM)
   {
     onResetZoom();
   }
-  else if(action->text() == "Paste - Ctrl V")
+  else if(action->text() == DFG_PAST_PRESET)
   {
     getUIController()->cmdPaste();
   }
@@ -583,7 +584,7 @@ void DFGWidget::onNodeAction(QAction * action)
     return;
 
   char const * nodeName = m_contextNode->name().c_str();
-  if(action->text() == "Documentation")
+  if(action->text() == DFG_OPEN_PRESET_DOC)
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
     QString uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
@@ -595,31 +596,31 @@ void DFGWidget::onNodeAction(QAction * action)
     if(uiDocUrl.length() > 0)
       QDesktopServices::openUrl(uiDocUrl);
   }
-  else if(action->text() == "Inspect - DoubleClick")
+  else if(action->text() == DFG_INSPECT_PRESET)
   {
     emit nodeInspectRequested(m_contextNode);
   }
-  else if(action->text() == "Edit - Shift DoubleClick")
+  else if(action->text() == DFG_EDIT_PRESET)
   {
     maybeEditNode( m_contextNode );
   }
-  else if(action->text() == "Delete - Del")
+  else if(action->text() == DFG_DELETE_PRESET)
   {
     m_uiController->gvcDoRemoveNodes(m_contextNode);
   }
-  else if(action->text() == "Copy - Ctrl C")
+  else if(action->text() == DFG_COPY_PRESET)
   {
     m_uiController->copy();
   }
-  else if(action->text() == "Paste - Ctrl V")
+  else if(action->text() == DFG_PAST_PRESET)
   {
     m_uiController->cmdPaste();
   }
-  else if(action->text() == "Cut - Ctrl X")
+  else if(action->text() == DFG_CUT_PRESET)
   {
     m_uiController->cmdCut();
   }
-  else if(action->text() == "Export JSON")
+  else if(action->text() == DFG_EXPORT_PRESET)
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst )
@@ -658,7 +659,7 @@ void DFGWidget::onNodeAction(QAction * action)
     }
 
     QString filter = "DFG Preset (*.canvas)";
-    QString filePath = QFileDialog::getSaveFileName(this, "Export JSON", lastPresetFolder, filter, &filter);
+    QString filePath = QFileDialog::getSaveFileName(this, DFG_EXPORT_PRESET, lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
     if(filePath.toLower().endsWith(".canvas.canvas"))
@@ -710,7 +711,7 @@ void DFGWidget::onNodeAction(QAction * action)
       printf("Exception: %s\n", e.getDesc_cstr());
     }
   }
-  else if(action->text() == "Save Preset")
+  else if(action->text() == DFG_CREATE_PRESET)
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType( nodeName ) != FabricCore::DFGNodeType_Inst )
@@ -855,7 +856,7 @@ void DFGWidget::onNodeAction(QAction * action)
       return;
     }
   }
-  else if(action->text() == "Implode nodes")
+  else if(action->text() == DFG_IMPLODE_NODE)
   {
     DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
     // [Julien] Allows only alpha-numeric text only 
@@ -887,7 +888,7 @@ void DFGWidget::onNodeAction(QAction * action)
     if ( GraphView::Node *uiNode = m_uiGraph->node( newNodeName ) )
       uiNode->setSelected( true );
   }
-  else if(action->text() == "Explode node")
+  else if(action->text() == DFG_EXPLODE_NODE)
   {
     std::vector<std::string> newNodeNames =
       m_uiController->cmdExplodeNode( nodeName );
@@ -900,19 +901,19 @@ void DFGWidget::onNodeAction(QAction * action)
         uiNode->setSelected( true );
     }
   }
-  else if(action->text() == "Reload Extension(s)")
+  else if(action->text() == DFG_RELOAD_EXTENSION)
   {
     m_uiController->reloadExtensionDependencies(nodeName);
   }
-  else if(action->text() == "Properties - F2")
+  else if(action->text() == DFG_EDIT_PRESET_PROPERTIES)
   {
     editPropertiesForCurrentSelection();
   }
-  else if(action->text() == "Set Comment")
+  else if(action->text() == DFG_SET_COMMENT)
   {
     onBubbleEditRequested(m_contextNode);
   }
-  else if(action->text() == "Remove Comment")
+  else if(action->text() == DFG_REMOVE_COMMENT)
   {
     m_uiController->setNodeCommentExpanded( m_contextNode->name(), false );
     m_uiController->cmdSetNodeComment(
@@ -1095,12 +1096,12 @@ void DFGWidget::onExecPortAction(QAction * action)
     //   // setup the value editor
     // }
   }
-  else if(action->text() == "Move top" ||
-    action->text() == "Move up" ||
-    action->text() == "Move down" ||
-    action->text() == "Move bottom" ||
-    action->text() == "Move inputs to end" || 
-    action->text() == "Move outputs to end")
+  else if(action->text() == DFG_MOVE_TOP ||
+    action->text() == DFG_MOVE_TOP ||
+    action->text() == DFG_MOVE_DOWN ||
+    action->text() == DFG_MOVE_BOTTOM ||
+    action->text() == DFG_MOVE_INPUTS_TO_END || 
+    action->text() == DFG_MOVE_OUTPUTS_TO_END)
   {
     try
     {
@@ -1147,7 +1148,7 @@ void DFGWidget::onExecPortAction(QAction * action)
       unsigned a = UINT_MAX;
       unsigned b = UINT_MAX;
 
-      if(action->text() == "Move top")
+      if(action->text() == DFG_MOVE_TOP)
       {
         for(size_t i=0;i<indices.size();i++)
         {
@@ -1173,7 +1174,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           b = UINT_MAX;
         }
       }
-      else if(action->text() == "Move up")
+      else if(action->text() == DFG_MOVE_TOP)
       {
         for(size_t i=0;i<indices.size();i++)
         {
@@ -1186,7 +1187,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           }
         }
       }
-      else if(action->text() == "Move down")
+      else if(action->text() == DFG_MOVE_DOWN)
       {
         for(unsigned int i=0;i<indices.size();i++)
         {
@@ -1199,7 +1200,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           }
         }
       }
-      else if(action->text() == "Move bottom")
+      else if(action->text() == DFG_MOVE_BOTTOM)
       {
         for(size_t i=0;i<indices.size();i++)
         {
@@ -1225,12 +1226,12 @@ void DFGWidget::onExecPortAction(QAction * action)
           reorder = true;
         }
       }
-      else if(action->text() == "Move inputs to end")
+      else if(action->text() == DFG_MOVE_INPUTS_TO_END)
       {
         indices = outputsFirst;
         reorder = true;
       }
-      else if(action->text() == "Move outputs to end")
+      else if(action->text() == DFG_MOVE_OUTPUTS_TO_END)
       {
         indices = inputsFirst;
         reorder = true;
@@ -1262,7 +1263,7 @@ void DFGWidget::onExecPortAction(QAction * action)
 
 void DFGWidget::onSidePanelAction(QAction * action)
 {
-  if(action->text() == "Create Port")
+  if(action->text() == DFG_CREATE_PORT)
   {
     FabricCore::Client &client = m_uiController->getClient();
 
@@ -1350,11 +1351,11 @@ void DFGWidget::onSidePanelAction(QAction * action)
         );
     }
   }
-  else if(action->text() == "Scroll Up")
+  else if(action->text() == DFG_SCROLL_UP)
   {
     m_contextSidePanel->scroll(m_contextSidePanel->size().height());
   }
-  else if(action->text() == "Scroll Down")
+  else if(action->text() == DFG_SCROLL_DOWN)
   {
     m_contextSidePanel->scroll(-m_contextSidePanel->size().height());
   }
