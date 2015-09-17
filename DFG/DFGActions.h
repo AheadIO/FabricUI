@@ -4,6 +4,7 @@
 #define _DFGACTIONS_H_
  
 #include <QtGui/QKeyEvent>
+#include <FabricUI/DFG/DFGHotkeys.h>
 
 namespace FabricUI
 {

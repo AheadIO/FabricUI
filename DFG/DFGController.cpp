@@ -741,6 +741,23 @@ bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
   return setNodeColor(nodeName, "uiTextColor", color);
 }
 
+/// Sets the collpase state of the selected node.
+/// Saves it in the node preferences
+void DFGController::setSelectedNodeCollapseState(int collapsedState) {
+  // Call the parent function
+  collapseSelectedNodes(collapsedState);
+  // Now, set the collapse state in the node preferences
+  FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
+  FabricCore::DFGExec &exec = getExec();
+  const std::vector<GraphView::Node*> & nodes = graph()->selectedNodes();
+  for(unsigned int i=0;i<nodes.size();i++)
+  {
+    if(nodes[i]->type() != GraphView::QGraphicsItemType_Node)
+      continue;
+    exec.setNodeMetadata(nodes[i]->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false, false);
+  }
+} 
+
 std::string DFGController::copy()
 {
   std::string json;
@@ -1061,7 +1078,6 @@ void DFGController::setLogFunc(LogFunc func)
 {
   m_logFunc = func;
 }
-
 
 void DFGController::execute()
 {
@@ -1488,14 +1504,10 @@ bool DFGController::canConnectTo(
 void DFGController::onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button)
 {
   Controller::onNodeHeaderButtonTriggered(button);
-
   GraphView::Node * node = button->header()->node();  
   if(button->name() == "node_collapse")
   {
-    int collapsedState = (int)node->collapsedState();
-    FabricCore::Variant collapsedStateVar = FabricCore::Variant::CreateSInt32(collapsedState);
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(node->name().c_str(), "uiCollapsedState", collapsedStateVar.getJSONEncoding().getStringData(), false, false);
+    setSelectedNodeCollapseState((int)node->collapsedState());
   }
   else if(button->name() == "node_edit")
   {
