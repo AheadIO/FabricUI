@@ -25,7 +25,13 @@ namespace FabricUI
 
     public:
       /// Constructor
-      DFGNodePropertiesDialog(QWidget * parent, DFGController * controller, const char * nodeName, const DFGConfig & dfgConfig = DFGConfig());
+      DFGNodePropertiesDialog(
+        QWidget * parent, 
+        DFGController * controller, 
+        const char * nodeName, 
+        const DFGConfig & dfgConfig = DFGConfig(),
+        bool setAlphaNum = false
+        );
       /// Destructor
       virtual ~DFGNodePropertiesDialog();
 

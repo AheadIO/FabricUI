@@ -16,18 +16,20 @@ namespace FabricUI
       Q_OBJECT
 
     public:
-
-      DFGGetStringDialog(QWidget * parent, QString text, const DFGConfig & dfgConfig = DFGConfig());
+      /// Constructor
+      DFGGetStringDialog(QWidget * parent, QString text, const DFGConfig & dfgConfig = DFGConfig(), bool setAlphaNum = false);
+      /// Destuctor
       virtual ~DFGGetStringDialog();
-      // Filter the QLineEdit text with the regexFilter
-      void alphaNumicStringOnly();
-      // Filter the QLineEdit text with the setRegexFilter
-      void setRegexFilter(QString regex);
 
+      /// Filter the QLineEdit text with the regexFilter
+      void alphaNumicStringOnly();
+      /// Filter the QLineEdit text with the setRegexFilter
+      void setRegexFilter(QString regex);
+      /// Gets the text
       QString text() const;
 
     private:
-
+      /// \internal
       QLineEdit * m_lineEdit;
 
     };

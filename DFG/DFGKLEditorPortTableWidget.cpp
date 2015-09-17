@@ -15,12 +15,17 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGKLEditorPortTableWidget::DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config)
+
+
+DFGKLEditorPortTableWidget::DFGKLEditorPortTableWidget(QWidget * parent, DFGController * controller, const DFGConfig & config, bool setAlphaNum)
 : QTableWidget(parent)
 {
   m_controller = controller;
   m_config = config;
   m_signalsEnabled = true;
+
+  // [Julien] FE-5276 Validate the names in port creation and avoid illegal characters
+  if(setAlphaNum) setItemDelegate(new DFGKLEditorPortTableWidgetDelegate());
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
   setStyleSheet("QTableWidget::item { padding: 0px }");

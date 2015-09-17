@@ -415,7 +415,7 @@ void DFGWidget::onGraphAction(QAction * action)
 
   if(action->text() == DFG_NEW_GRAPH)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true); 
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -430,7 +430,7 @@ void DFGWidget::onGraphAction(QAction * action)
   }
   else if(action->text() == DFG_NEW_FUNCTION)
   {
-    DFGGetStringDialog dialog(NULL, "func", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "func", m_dfgConfig, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -459,7 +459,7 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_NEW_BACKDROP)
   {
-    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig);
+    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -474,10 +474,7 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_IMPLODE_NODE)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // [Julien] FE-5188, FE-5276 Allows only alpha-numeric text only 
-    // We do this because the nodes's name must be alpha-numerical only and not contains "-, +, ?,"
-    dialog.alphaNumicStringOnly();
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -510,7 +507,7 @@ dfgEntry {\n\
     FabricCore::DFGBinding &binding = controller->getBinding();
     FTL::CStrRef execPath = controller->getExecPath();
 
-    DFGNewVariableDialog dialog( this, client, binding, execPath );
+    DFGNewVariableDialog dialog( this, client, binding, execPath, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -537,7 +534,7 @@ dfgEntry {\n\
     FabricCore::DFGBinding &binding = controller->getBinding();
     FTL::CStrRef execPath = controller->getExecPath();
 
-    DFGPickVariableDialog dialog(NULL, client, binding, execPath);
+    DFGPickVariableDialog dialog(NULL, client, binding, execPath, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -728,10 +725,7 @@ void DFGWidget::onNodeAction(QAction * action)
        
       FabricCore::DFGHost &host = m_uiController->getHost();
 
-      DFGSavePresetDialog dialog( this, m_uiController.get(), title );
-      // [Julien] FE-5188, FE-5276
-      dialog.alphaNumicStringOnly();
-
+      DFGSavePresetDialog dialog( this, m_uiController.get(), true, title);
       while(true)
       {
         if(dialog.exec() != QDialog::Accepted)
@@ -858,11 +852,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == DFG_IMPLODE_NODE)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig);
-    // [Julien] Allows only alpha-numeric text only 
-    // We do this because the nodes's name must be alpha-numerical only
-    // and not contains "-, +, ?,"
-    dialog.alphaNumicStringOnly();
+    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -1268,9 +1258,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
     FabricCore::Client &client = m_uiController->getClient();
 
     bool canEditPortType = m_uiController->isViewingRootGraph();
-    DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig );
-    // [Julien] FE-5188, FE-5276
-    dialog.alphaNumicStringOnly();
+    DFGEditPortDialog dialog( this, client, true, canEditPortType, m_dfgConfig, true);
 
     if(m_contextPortType == FabricUI::GraphView::PortType_Output)
       dialog.setPortType("In");
@@ -1561,8 +1549,7 @@ void DFGWidget::editPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig());
-    // [Julien] FE-5188, FE-5276, FE-5246
+    DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig(), true);
     if(dialog.exec())
     {
       controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
@@ -1570,9 +1557,13 @@ void DFGWidget::editPropertiesForCurrentSelection()
       controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
       controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.  
+      
+      // [Julien] FE-5246
+      // Add or remove the geader colo node metadata
       QColor headerColor;  
       if(dialog.getHeaderColor(headerColor)) controller->setNodeHeaderColor(nodeName, headerColor);  // not undoable.
       else controller->removeNodeHeaderColor(nodeName);                       // not undoable.
+      
       controller->setNodeTextColor(nodeName, dialog.getTextColor());          // not undoable.
       // [Julien] FE-5246
       // Force update the header/nody node color

@@ -6,24 +6,31 @@
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGGetStringDialog::DFGGetStringDialog(QWidget * parent, QString text, const DFGConfig & dfgConfig)
+/// Constructor
+DFGGetStringDialog::DFGGetStringDialog(QWidget * parent, QString text, const DFGConfig & dfgConfig, bool setAlphaNum)
 : DFGBaseDialog(parent, false, dfgConfig)
 {
   m_lineEdit = new QLineEdit(text);
   m_lineEdit->selectAll();
   addInput(m_lineEdit);
+
+  // [Julien] Allows only alpha-numeric text only 
+  // We do this because the nodes's name must be alpha-numerical only
+  // and not contains "-, +, ?,"
+  if(setAlphaNum) alphaNumicStringOnly();
 }
 
+/// Destructor
 DFGGetStringDialog::~DFGGetStringDialog()
 {
 }
 
-// Allows only alpha-numeric text only 
+/// Allows only alpha-numeric text only 
 void DFGGetStringDialog::alphaNumicStringOnly() {
   setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
 }
 
-// Filters the QLineEdit text with the regexFilter
+/// Filters the QLineEdit text with the regexFilter
 void DFGGetStringDialog::setRegexFilter(QString regexFilter) {
   if(m_lineEdit)
   {
@@ -33,6 +40,7 @@ void DFGGetStringDialog::setRegexFilter(QString regexFilter) {
   }
 }
 
+/// Gets the text
 QString DFGGetStringDialog::text() const
 {
   return m_lineEdit->text();

@@ -19,20 +19,25 @@ namespace FabricUI
 
     public:
 
+      /// Constructor
       DFGSavePresetDialog(
         QWidget * parent,
         DFGController *dfgController,
+        bool setAlphaNum = false,
         QString name = "",
         const DFGConfig & dfgConfig = DFGConfig()
         );
+      /// Destrcutor
       virtual ~DFGSavePresetDialog();
 
+      /// Gets the name of the preset
       QString name() const;
+      /// Gets the location of the preset
       QString location() const;
 
-      // Filter the QLineEdit text with the regexFilter
+      /// Filter the QLineEdit text with the regexFilter
       void alphaNumicStringOnly();
-      // Filter the QLineEdit text with the setRegexFilter
+      /// Filter the QLineEdit text with the setRegexFilter
       void setRegexFilter(QString regex);
 
     public slots:
