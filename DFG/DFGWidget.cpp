@@ -898,7 +898,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == DFG_EDIT_PRESET_PROPERTIES)
   {
-    editPropertiesForCurrentSelection();
+    onEditPropertiesForCurrentSelection();
   }
   else if(action->text() == DFG_SET_COMMENT)
   {
@@ -1385,7 +1385,7 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   }
   else if(hotkey == DFG_EDIT_PROPERTIES)
   {
-    editPropertiesForCurrentSelection();
+    onEditPropertiesForCurrentSelection();
   }
   else if(hotkey == DFG_RELAX_NODES)
   {
@@ -1582,7 +1582,7 @@ bool DFGWidget::maybeEditNode(
   return true;  
 }
 
-void DFGWidget::editPropertiesForCurrentSelection()
+void DFGWidget::onEditPropertiesForCurrentSelection()
 {
   FabricUI::DFG::DFGController *controller = getUIController();
   if (controller)

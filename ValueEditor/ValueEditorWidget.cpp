@@ -204,7 +204,6 @@ ValueItem * ValueEditorWidget::addValue(
   return NULL;
 }
 
-
 bool ValueEditorWidget::removeValue( FTL::StrRef path )
 {
   TreeItem * item = m_treeModel->item(path);

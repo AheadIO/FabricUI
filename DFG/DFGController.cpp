@@ -1151,6 +1151,12 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     {
       cmdSetArgValue( portOrPinPath, valueItem->value() );
     }
+
+    // [Julien] FE-5324 splitting node from preset ambiguity
+    // When updating a value (valueItem) in the editor, the UI valueItem and the core-value may mistmatch.
+    // It might happend when the user set a value, and then cancelled it.
+    // We refresh the DFGValueEditor.
+    emit argsChanged();
   }
   catch(FabricCore::Exception e)
   {

@@ -69,7 +69,6 @@ namespace FabricUI
       void populateMenuBar(QMenuBar * menuBar);
       bool maybeEditNode(FabricUI::GraphView::Node * node);
 
-      void editPropertiesForCurrentSelection();
 
     signals:
 
@@ -101,6 +100,7 @@ namespace FabricUI
       void onResetZoom();
       void onToggleDimConnections();
       void onTogglePortsCentered();
+      void onEditPropertiesForCurrentSelection();
 
     private:
 
