@@ -285,6 +285,12 @@ std::vector<Node *> Graph::selectedNodes() const
   return result;
 }
 
+void Graph::selectAllNodes()
+{
+  for (size_t i=0;i<m_nodes.size();i++)
+    m_nodes[i]->setSelected( true );
+}
+
 void Graph::clearSelection() const
 {
   for (size_t i=0;i<m_nodes.size();i++)
