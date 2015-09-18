@@ -66,7 +66,7 @@ namespace FabricUI
       
       void refreshExtDeps( FTL::CStrRef extDeps );
 
-      void populateMenuBar(QMenuBar * menuBar);
+      void populateMenuBar(QMenuBar * menuBar, bool addFileMenu = true);
       bool maybeEditNode(FabricUI::GraphView::Node * node);
 
 
@@ -94,6 +94,7 @@ namespace FabricUI
       void onKeyPressed(QKeyEvent * event);
       void onKeyReleased(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
+      void onSelectAll();
       void onCut();
       void onCopy();
       void onPaste();

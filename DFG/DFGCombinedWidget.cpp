@@ -144,7 +144,9 @@ void DFGCombinedWidget::init(
       SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
       this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
       );
-    m_dfgWidget->populateMenuBar(menuBar);
+
+    // [Julien]
+    m_dfgWidget->populateMenuBar(menuBar, false);
 
     onGraphSet(m_dfgWidget->getUIGraph());
   }
@@ -226,21 +228,22 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
   {
     if(m_dfgWidget->isEditable())
     {
-      graph->defineHotkey(Qt::Key_Delete, Qt::NoModifier, DFG_DELETE);
-      graph->defineHotkey(Qt::Key_Backspace, Qt::NoModifier, DFG_DELETE_2);
-      graph->defineHotkey(Qt::Key_F, Qt::NoModifier, DFG_FRAME_SELECTED);
-      graph->defineHotkey(Qt::Key_A, Qt::NoModifier, DFG_FRAME_ALL);
-      graph->defineHotkey(Qt::Key_Tab, Qt::NoModifier, DFG_TAB_SEARCH);
-      graph->defineHotkey(Qt::Key_C, Qt::ControlModifier, DFG_COPY);
-      graph->defineHotkey(Qt::Key_X, Qt::ControlModifier, DFG_CUT);
-      graph->defineHotkey(Qt::Key_V, Qt::ControlModifier, DFG_PASTE);
-      graph->defineHotkey(Qt::Key_Tab, Qt::ControlModifier, DFG_TOGGLE_SIDE_PANEL);
-      graph->defineHotkey(Qt::Key_F2, Qt::NoModifier, DFG_EDIT_PROPERTIES);
-      graph->defineHotkey(Qt::Key_R, Qt::ControlModifier, DFG_RELAX_NODES);
-      graph->defineHotkey(Qt::Key_0, Qt::ControlModifier, DFG_RESET_ZOOM);
-      graph->defineHotkey(Qt::Key_1, Qt::NoModifier, DFG_COLLAPSE_LEVEL_1);
-      graph->defineHotkey(Qt::Key_2, Qt::NoModifier, DFG_COLLAPSE_LEVEL_2);
-      graph->defineHotkey(Qt::Key_3, Qt::NoModifier, DFG_COLLAPSE_LEVEL_3);
+      graph->defineHotkey(Qt::Key_Delete,     Qt::NoModifier,       DFG_DELETE);
+      graph->defineHotkey(Qt::Key_Backspace,  Qt::NoModifier,       DFG_DELETE_2);
+      graph->defineHotkey(Qt::Key_F,          Qt::NoModifier,       DFG_FRAME_SELECTED);
+      graph->defineHotkey(Qt::Key_A,          Qt::NoModifier,       DFG_FRAME_ALL);
+      graph->defineHotkey(Qt::Key_Tab,        Qt::NoModifier,       DFG_TAB_SEARCH);
+      graph->defineHotkey(Qt::Key_A,          Qt::ControlModifier,  DFG_SELECT_ALL);
+      graph->defineHotkey(Qt::Key_C,          Qt::ControlModifier,  DFG_COPY);
+      graph->defineHotkey(Qt::Key_X,          Qt::ControlModifier,  DFG_CUT);
+      graph->defineHotkey(Qt::Key_V,          Qt::ControlModifier,  DFG_PASTE);
+      graph->defineHotkey(Qt::Key_Tab,        Qt::ControlModifier,  DFG_TOGGLE_SIDE_PANEL);
+      graph->defineHotkey(Qt::Key_F2,         Qt::NoModifier,       DFG_EDIT_PROPERTIES);
+      graph->defineHotkey(Qt::Key_R,          Qt::ControlModifier,  DFG_RELAX_NODES);
+      graph->defineHotkey(Qt::Key_0,          Qt::ControlModifier,  DFG_RESET_ZOOM);
+      graph->defineHotkey(Qt::Key_1,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_1);
+      graph->defineHotkey(Qt::Key_2,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_2);
+      graph->defineHotkey(Qt::Key_3,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_3);
 
       QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
         this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
@@ -306,16 +309,17 @@ void DFGCombinedWidget::log(const char * message)
 
 void DFGCombinedWidget::onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix)
 {
+  // [Julien] FE-5244 : Add Save Graph action to the Canvas widget for DCC Integrations
+  // Don't construct the edit menu if called from DCC
+  // The loading/saving of graphs is DCC specialized and called with commands
   if(name == "File")
   {
     if(prefix)
     {
       // QAction * loadGraphAction = menu->addAction("Load Graph...");
       // loadGraphAction->setShortcut(QKeySequence::Open);
-
       // QAction * saveGraphAsAction = menu->addAction("Save Graph As...");
       // saveGraphAsAction->setShortcut(QKeySequence::SaveAs);
-    
       // QObject::connect(loadGraphAction, SIGNAL(triggered()), this, SLOT(onLoadGraph()));
       // QObject::connect(saveGraphAsAction, SIGNAL(triggered()), this, SLOT(onSaveGraphAs()));
     }
