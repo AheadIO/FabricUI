@@ -16,6 +16,7 @@ namespace FabricUI
     #define DFG_EDIT_PRESET             "Edit - Shift+DoubleClick"
     #define DFG_EDIT_PRESET_PROPERTIES  "Properties - F2"
     #define DFG_DELETE_PRESET           "Delete - Del"
+    #define DFG_SELECT_ALL_PRESET       "Select all - Ctrl+A"
     #define DFG_COPY_PRESET             "Copy - Ctrl+C"
     #define DFG_CUT_PRESET              "Cut - Ctrl+X"
     #define DFG_PAST_PRESET             "Past - Ctrl+V"
@@ -33,7 +34,6 @@ namespace FabricUI
     #define DFG_RELOAD_EXTENSION        "Reload extension(s)"
     #define DFG_SET_COMMENT             "Set comment"
     #define DFG_REMOVE_COMMENT          "Remove comment"
-
     #define DFG_CREATE_PORT             "Create port"
     #define DFG_SCROLL_UP               "Scroll up"
     #define DFG_SCROLL_DOWN             "Scroll down"
@@ -43,7 +43,7 @@ namespace FabricUI
     #define DFG_MOVE_BOTTOM             "Move bottom"
     #define DFG_MOVE_INPUTS_TO_END      "Move inputs to end"
     #define DFG_MOVE_OUTPUTS_TO_END     "Move outputs to end"
- };
+  };
 };
 
 #endif 

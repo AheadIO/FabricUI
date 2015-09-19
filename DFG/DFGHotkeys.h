@@ -16,6 +16,7 @@ namespace FabricUI
     #define DFG_FRAME_SELECTED      "Frame selected"
     #define DFG_FRAME_ALL           "Frame all"
     #define DFG_TAB_SEARCH          "Ttab search"
+    #define DFG_SELECT_ALL          "select all"
     #define DFG_COPY                "Copy"
     #define DFG_CUT                 "Cut"
     #define DFG_PASTE               "Past"

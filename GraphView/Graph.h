@@ -79,6 +79,7 @@ namespace FabricUI
         { return node( path ); }
 
       virtual std::vector<Node *> selectedNodes() const;
+      virtual void selectAllNodes();
       void clearSelection() const;
 
       // ports

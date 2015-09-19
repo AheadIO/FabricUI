@@ -183,11 +183,17 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   result->addAction(DFG_CACHE_NODE);
   result->addSeparator();
 
-  QAction * pasteAction = new QAction("Paste", graphWidget);
+  QAction * pasteAction = new QAction(DFG_PAST_PRESET, graphWidget);
   pasteAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_V) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
   pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
   result->addAction(pasteAction);
+
+  QAction * selectAllAction = new QAction(DFG_SELECT_ALL_PRESET, graphWidget);
+  selectAllAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_A) );
+  // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+  selectAllAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  result->addAction(selectAllAction);
 
   result->addSeparator();
 
@@ -284,13 +290,12 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     if(!someVarNodes)
     {
       result->addAction(DFG_COPY_PRESET);
-    }
-
-    result->addAction(DFG_PAST_PRESET);
-
-    if(!someVarNodes)
-    {
       result->addAction(DFG_CUT_PRESET);
+    }
+    else
+    {
+      result->addAction(DFG_SELECT_ALL_PRESET);
+      result->addAction(DFG_PAST_PRESET);
     }
 
     if(onlyInstNodes)
@@ -571,9 +576,13 @@ dfgEntry {\n\
   {
     onResetZoom();
   }
+  else if(action->text() == DFG_SELECT_ALL_PRESET)
+  {
+    onSelectAll();
+  }
   else if(action->text() == DFG_PAST_PRESET)
   {
-    getUIController()->cmdPaste();
+    onPaste();
   }
 }
 
@@ -609,15 +618,11 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == DFG_COPY_PRESET)
   {
-    m_uiController->copy();
-  }
-  else if(action->text() == DFG_PAST_PRESET)
-  {
-    m_uiController->cmdPaste();
+    onCopy();
   }
   else if(action->text() == DFG_CUT_PRESET)
   {
-    m_uiController->cmdCut();
+    onCut();
   }
   else if(action->text() == DFG_EXPORT_PRESET)
   {
@@ -914,7 +919,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == DFG_EDIT_PRESET_PROPERTIES)
   {
-    editPropertiesForCurrentSelection();
+    onEditPropertiesForCurrentSelection();
   }
   else if(action->text() == DFG_SET_COMMENT)
   {
@@ -1380,21 +1385,25 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
     pos = getGraphViewWidget()->mapToGlobal(pos);
     getTabSearchWidget()->showForSearch(pos);
   }
+  else if(hotkey == DFG_SELECT_ALL)
+  {
+    onSelectAll();
+  }
   else if(hotkey == DFG_COPY)
   {
-    getUIController()->copy();
+    onCopy();
   }
   else if(hotkey == DFG_CUT)
   {
-    getUIController()->cmdCut();
+    onCut();
   }
   else if(hotkey == DFG_PASTE)
   {
-    getUIController()->cmdPaste();
+    onPaste();
   }
   else if(hotkey == DFG_EDIT_PROPERTIES)
   {
-    editPropertiesForCurrentSelection();
+    onEditPropertiesForCurrentSelection();
   }
   else if(hotkey == DFG_RELAX_NODES)
   {
@@ -1480,6 +1489,11 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
       bubble->collapse();
     bubble->setVisible( visible );
   }
+}
+
+void DFGWidget::onSelectAll()
+{
+  getUIGraph()->selectAllNodes();
 }
 
 void DFGWidget::onCopy()
@@ -1591,7 +1605,7 @@ bool DFGWidget::maybeEditNode(
   return true;  
 }
 
-void DFGWidget::editPropertiesForCurrentSelection()
+void DFGWidget::onEditPropertiesForCurrentSelection()
 {
   FabricUI::DFG::DFGController *controller = getUIController();
   if (controller)
@@ -1652,41 +1666,53 @@ void DFGWidget::refreshExtDeps( FTL::CStrRef extDeps )
   m_uiHeader->refreshExtDeps( extDeps );
 }
 
-void DFGWidget::populateMenuBar(QMenuBar * menuBar)
+void DFGWidget::populateMenuBar(QMenuBar * menuBar, bool addFileMenu)
 {
-  QMenu *fileMenu = menuBar->addMenu(tr("&File"));
+  // [Julien] FE-5244 : Add Save Graph action to the Canvas widget for DCC Integrations
+  // Don't add the edit menu if called from DCC
+  QMenu *fileMenu = 0;
+  if(addFileMenu) {
+    fileMenu = menuBar->addMenu(tr("&File"));
+    emit additionalMenuActionsRequested("File", fileMenu, true);
+    if(fileMenu->actions().count() > 0)
+      fileMenu->addSeparator();
+  }
+
   QMenu *editMenu = menuBar->addMenu(tr("&Edit"));
   QMenu *viewMenu = menuBar->addMenu(tr("&View"));
 
   // emit the prefix menu entry requests
-  emit additionalMenuActionsRequested("File", fileMenu, true);
   emit additionalMenuActionsRequested("Edit", editMenu, true);
   emit additionalMenuActionsRequested("View", viewMenu, true);
 
   // add separators if required
-  if(fileMenu->actions().count() > 0)
-    fileMenu->addSeparator();
   if(editMenu->actions().count() > 0)
     editMenu->addSeparator();
   if(viewMenu->actions().count() > 0)
     viewMenu->addSeparator();
 
   // edit menu
+  // [Julien]  When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+  // http://doc.qt.io/qt-4.8/qaction.html#shortcutContext-prop
+  // http://doc.qt.io/qt-4.8/qt.html#ShortcutContext-enum
+  // http://doc.qt.io/qt-4.8/qkeysequence.html
+  QAction * selectAction = editMenu->addAction("Select all");
+  QObject::connect(selectAction, SIGNAL(triggered()), this, SLOT(onSelectAll()));
+  selectAction->setShortcut( QKeySequence::SelectAll );
+  selectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+
   QAction * cutAction = editMenu->addAction("Cut");
   QObject::connect(cutAction, SIGNAL(triggered()), this, SLOT(onCut()));
-  QAction * copyAction = editMenu->addAction("Copy");
-  QObject::connect(copyAction, SIGNAL(triggered()), this, SLOT(onCopy()));
-  QAction * pasteAction = editMenu->addAction("Paste");
-  QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
-
-  // [Julien]  When using shortcut in Qt, set the flag WidgetWithChildrenShortcut
-  // [Julien]  so the shortcut is specific to the widget
-  // [Julien]  http://doc.qt.io/qt-4.8/qaction.html#shortcutContext-prop
-  // [Julien]  http://doc.qt.io/qt-4.8/qt.html#ShortcutContext-enum
   cutAction->setShortcut( QKeySequence::Cut );
   cutAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+
+  QAction * copyAction = editMenu->addAction("Copy");
+  QObject::connect(copyAction, SIGNAL(triggered()), this, SLOT(onCopy()));
   copyAction->setShortcut( QKeySequence::Copy );
   copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+
+  QAction * pasteAction = editMenu->addAction("Paste");
+  QObject::connect(pasteAction, SIGNAL(triggered()), this, SLOT(onPaste()));
   pasteAction->setShortcut( QKeySequence::Paste );
   pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
@@ -1701,9 +1727,10 @@ void DFGWidget::populateMenuBar(QMenuBar * menuBar)
   QObject::connect(portsCenteredAction, SIGNAL(triggered()), this, SLOT(onTogglePortsCentered()));
 
   // emit the suffix menu entry requests
-  emit additionalMenuActionsRequested("File", fileMenu, false);
   emit additionalMenuActionsRequested("Edit", editMenu, false);
   emit additionalMenuActionsRequested("View", viewMenu, false);
+  // [Julien] FE-5244 : Add Save Graph action to the Canvas widget for DCC Integrations  // Don't add the edit menu if called from DCC
+  if(fileMenu) emit additionalMenuActionsRequested("File", fileMenu, false);
 }
 
 void DFGWidget::onExecChanged()
@@ -1776,7 +1803,6 @@ void DFGWidget::onExecChanged()
     filePath += "/Resources/PoweredByFabric_black.png";
     m_uiGraph->setupBackgroundOverlay(QPointF(1, -70), filePath);
 
-    // FE-4277
     emit onGraphSet(m_uiGraph);
   }
   else
