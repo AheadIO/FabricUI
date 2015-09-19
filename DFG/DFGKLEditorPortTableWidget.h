@@ -19,6 +19,13 @@ namespace FabricUI
 
   namespace DFG
   {
+    enum DFGKLEditorPortTableColumn
+    {
+      DFGKLEditorPortTableColumn_PortType,
+      DFGKLEditorPortTableColumn_Name,
+      DFGKLEditorPortTableColumn_Type
+    };
+    
     /// Class to customize DFGKLEditorPortTableWidgetDelegate element
     /// \note http://doc.qt.io/qt-4.8/qitemdelegate.html
     /// \notehttp://stackoverflow.com/questions/22708623/qtablewidget-only-numbers-permitted
@@ -44,10 +51,13 @@ namespace FabricUI
         QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
         {
           QLineEdit *lineEdit = new QLineEdit(parent);
-          // Set validator
-          QRegExp regex(m_regexFilter);
-          QValidator *validator = new QRegExpValidator(regex, 0);
-          lineEdit->setValidator(validator);
+          if ( index.column() == DFGKLEditorPortTableColumn_Name )
+          {
+            // Set validator
+            QRegExp regex(m_regexFilter);
+            QValidator *validator = new QRegExpValidator(regex, 0);
+            lineEdit->setValidator(validator);
+          }
           return lineEdit;
         }
 
