@@ -1,4 +1,5 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+#include <iostream>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
@@ -42,7 +43,7 @@ void DFGCombinedWidget::init(
 {
   if(m_dfgWidget)
     return;
-
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   QMenuBar * menuBar = new QMenuBar(this);
   menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   addWidget(menuBar);
@@ -86,12 +87,32 @@ void DFGCombinedWidget::init(
     setContentsMargins(0, 0, 0, 0);
 
     m_hSplitter = new QSplitter(this);
+    
+    this->installEventFilter(this);
+    //m_hSplitter->installEventFilter(this);
+    //m_hSplitter->setSizePolicy(QSizePolicy::Fixed);
     m_hSplitter->setOrientation(Qt::Horizontal);
     m_hSplitter->setContentsMargins(0, 0, 0, 0);
 
     m_hSplitter->addWidget(m_treeWidget);
     m_hSplitter->addWidget(m_dfgWidget);
     m_hSplitter->addWidget(m_dfgValueEditor);
+    resize(1000, 500);
+    QList<int> s = m_hSplitter->sizes();
+    s[0] = 0;
+    s[1] = 1000;
+    s[2] = 0;
+    m_hSplitter->setSizes(s);
+
+    m_hSplitter->setMinimumSize(m_hSplitter->size());
+    m_hSplitter->setMaximumSize(m_hSplitter->size());
+    m_hSplitter->setFixedSize(m_hSplitter->size());
+
+    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+
+    m_hSplitter->setSizePolicy(sizePolicy);
 
     addWidget(m_hSplitter);
 
@@ -156,14 +177,9 @@ void DFGCombinedWidget::init(
     return;
   }
 
-  resize(1000, 500);
-  QList<int> s = m_hSplitter->sizes();
-  s[0] = 0;
-  s[1] = 1000;
-  s[2] = 0;
-  m_hSplitter->setSizes(s);
+ 
 
-  s = sizes();
+  QList<int> s = sizes();
   s[0] = 10;
   s[1] = 500;
   s[2] = 0;
@@ -201,20 +217,20 @@ void DFGCombinedWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifi
 {
   if(hotkey == DFG_TOGGLE_SIDE_PANEL)
   {
-    QList<int> s = m_hSplitter->sizes();
-    if(s[0] != 0 || s[2] != 0)
-    {
-      s[1] += s[0] + s[2];
-      s[0] = 0;
-      s[2] = 0;
-    }
-    else
-    {
-      s[0] = (int)(float(s[1]) * 0.2f);
-      s[2] = s[0];
-      s[1] -= s[0] + s[2];
-    }
-    m_hSplitter->setSizes(s);
+    //QList<int> s = m_hSplitter->sizes();
+    //if(s[0] != 0 || s[2] != 0)
+    //{
+    //  s[1] += s[0] + s[2];
+    //  s[0] = 0;
+    //  s[2] = 0;
+    //}
+    //else
+    //{
+    //  s[0] = (int)(float(s[1]) * 0.2f);
+    //  s[2] = s[0];
+    //  s[1] -= s[0] + s[2];
+    //}
+    //m_hSplitter->setSizes(s);
   }
   else
   {
@@ -271,13 +287,13 @@ void DFGCombinedWidget::onNodeInspectRequested(FabricUI::GraphView::Node * node)
     node->name()
     );
 
-  QList<int> s = m_hSplitter->sizes();
-  if(s[2] == 0)
-  {
-    s[2] = (int)(float(s[1]) * 0.2f);
-    s[1] -= s[2];
-    m_hSplitter->setSizes(s);
-  }
+  //QList<int> s = m_hSplitter->sizes();
+  //if(s[2] == 0)
+  //{
+  //  s[2] = (int)(float(s[1]) * 0.2f);
+  //  s[1] -= s[2];
+  //  m_hSplitter->setSizes(s);
+  //}
 }
 
 void DFGCombinedWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
@@ -347,4 +363,29 @@ void DFGCombinedWidget::onAdditionalMenuActionsRequested(QString name, QMenu * m
   {
     // todo: here we might add view options for the canvas graph
   }
+}
+
+bool DFGCombinedWidget::eventFilter(QObject *obj, QEvent *event)
+{
+  if(event->type() == QEvent::Resize && obj == this)
+  {
+    std::cerr << "I am a this" << std::endl;
+    //QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+//
+    //QSize size( (int)( m_hSplitter->size().width() * (float)resizeEvent->size().width()/(float)resizeEvent->oldSize().width() ),
+    //            (int)( m_hSplitter->size().height() * (float)resizeEvent->size().height()/(float)resizeEvent->oldSize().height() ) );
+//
+    //m_hSplitter->setMinimumSize(size);
+    //m_hSplitter->setMaximumSize(size); 
+  }
+    //qDebug() << sg->parentWidget();
+  if(event->type() == QEvent::Resize && obj == m_hSplitter)
+  {
+    QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+    //m_hSplitter->resize(resizeEvent->oldSize());
+    //std::cerr << "I am a m_hSplitter" << std::endl; 
+    //  return true;
+  }
+ 
+  return false;
 }
