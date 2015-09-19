@@ -627,28 +627,34 @@ void DFGWidget::onNodeAction(QAction * action)
 
     FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
-    QString title = subExec.getTitle();
+    // Create a new binding from a copy of the subExec
+    FabricCore::DFGHost &host = m_uiController->getHost();
+    FabricCore::DFGBinding newBinding = host.createBindingFromJSON(
+      subExec.exportJSON().getCString() );
+    FabricCore::DFGExec newBindingExec = newBinding.getExec();
+
+    QString title = newBindingExec.getTitle();
     if(title.toLower().endsWith(".canvas"))
       title = title.left(title.length() - 7);
 
     FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
     if(!uiNodeColor.empty())
-      subExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
+      newBindingExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
     FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
     if(!uiHeaderColor.empty())
-      subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str(), true, true);
+      newBindingExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str(), true, true);
     FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
     if(!uiTextColor.empty())
-      subExec.setMetadata("uiTextColor", uiTextColor.c_str(), true, true);
+      newBindingExec.setMetadata("uiTextColor", uiTextColor.c_str(), true, true);
     FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
     if(!uiTooltip.empty())
-      subExec.setMetadata("uiTooltip", uiTooltip.c_str(), true, true);
+      newBindingExec.setMetadata("uiTooltip", uiTooltip.c_str(), true, true);
     FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
     if(!uiDocUrl.empty())
-      subExec.setMetadata("uiDocUrl", uiDocUrl.c_str(), true, true);
+      newBindingExec.setMetadata("uiDocUrl", uiDocUrl.c_str(), true, true);
     FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
     if(!uiAlwaysShowDaisyChainPorts.empty())
-      subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str(), true, true);
+      newBindingExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str(), true, true);
 
     QString lastPresetFolder = title;
     if(getSettings())
@@ -676,14 +682,16 @@ void DFGWidget::onNodeAction(QAction * action)
     try
     {
       // copy all defaults
-      for(unsigned int i=0;i<subExec.getExecPortCount();i++)
+      for(unsigned int i=0;i<newBindingExec.getExecPortCount();i++)
       {
+        char const *newBindingExecPortName = newBindingExec.getExecPortName(i);
+
         std::string pinPath = nodeName;
         pinPath += ".";
-        pinPath += subExec.getExecPortName(i);
+        pinPath += newBindingExecPortName;
 
         FTL::StrRef rType = exec.getNodePortResolvedType(pinPath.c_str());
-        if(rType.size() == 0 || rType.find('$') >= 0)
+        if(rType.size() == 0 || rType.find('$') != rType.end())
           continue;
         if(rType.size() == 0 || rType.find('$') != rType.end())
           rType = subExec.getExecPortResolvedType(i);
@@ -691,13 +699,20 @@ void DFGWidget::onNodeAction(QAction * action)
           rType = subExec.getExecPortTypeSpec(i);
         if(rType.size() == 0 || rType.find('$') != rType.end())
           continue;
+
         FabricCore::RTVal val =
           exec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
-        if(val.isValid())
-          subExec.setPortDefaultValue(subExec.getExecPortName(i), val, false);
+
+        if( val.isValid() ) {
+          newBindingExec.setPortDefaultValue( newBindingExecPortName, val, false );
+
+          // Reflect port values as binding args
+          newBinding.setArgValue( newBindingExecPortName, val, false );
+          newBindingExec.setExecPortMetadata( newBindingExecPortName, DFG_METADATA_UIPERSISTVALUE, "true" );
+        }
       }
 
-      std::string json = subExec.exportJSON().getCString();
+      std::string json = newBinding.exportJSON().getCString();
       FILE * file = fopen(filePathStr.c_str(), "wb");
       if(file)
       {
