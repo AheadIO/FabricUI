@@ -27,7 +27,7 @@ namespace FabricUI
         QWidget * parent, 
         FabricCore::Client & client, 
         bool showPortType, 
-        bool showDataType, 
+        bool topGraphPort, 
         const DFGConfig & dfgConfig = DFGConfig(),
         bool setAlphaNum = false
       );
@@ -45,6 +45,8 @@ namespace FabricUI
       void setHidden();
       bool opaque() const;
       void setOpaque();
+      bool persistValue() const;
+      void setPersistValue( bool value );
       bool hasRange() const;
       void setHasRange(bool value);
       float rangeMin() const;
@@ -75,6 +77,7 @@ namespace FabricUI
       DFGRegisteredTypeLineEdit * m_dataTypeEdit;
       DFGExtensionLineEdit * m_extensionEdit;
       QComboBox * m_visibilityCombo;
+      QCheckBox * m_persistValue;
       QCheckBox * m_hasRange;
       QLineEdit * m_rangeMin;
       QLineEdit * m_rangeMax;

@@ -23,6 +23,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <Persistence/RTValToJSONEncoder.hpp>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -920,6 +921,11 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   maybeEditNode( node );
 }
 
+void DFGAddMetaDataPair( FTL::JSONObjectEnc<>& metaDataObjectEnc, char const* key, char const* value ) {
+  FTL::JSONEnc<> enc( metaDataObjectEnc, FTL::CStrRef( key ) );
+  FTL::JSONStringEnc<> valueEnc( enc, FTL::CStrRef( value ) );
+}
+
 void DFGWidget::onExecPortAction(QAction * action)
 {
   if(m_contextPort == NULL)
@@ -967,11 +973,16 @@ void DFGWidget::onExecPortAction(QAction * action)
         dialog.setDataType(exec.getExecPortResolvedType(portName));
 
       FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
-      if(uiHidden == "true")
+      if( uiHidden == "true" )
         dialog.setHidden();
+
       FTL::StrRef uiOpaque = exec.getExecPortMetadata(portName, "uiOpaque");
-      if(uiOpaque == "true")
+      if( uiOpaque == "true" )
         dialog.setOpaque();
+
+      FTL::StrRef uiPersistValue = exec.getExecPortMetadata(portName, DFG_METADATA_UIPERSISTVALUE);
+      dialog.setPersistValue( uiPersistValue == "true" );
+
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
       if(uiRange.size() > 0)
       {
@@ -993,6 +1004,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           dialog.setRangeMax(maximum);
         }
       }
+
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
       std::string uiComboStr;
       if(uiCombo.size() > 0)
@@ -1026,24 +1038,18 @@ void DFGWidget::onExecPortAction(QAction * action)
       {
         FTL::JSONEnc<> metaDataEnc( uiMetadata );
         FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
-        if(dialog.hidden())
-        {
-          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiHidden") );
-          FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
-        }
-        if(dialog.opaque())
-        {
-          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiOpaque") );
-          FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
-        }
+
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHidden", dialog.hidden() ? "true" : "" );//"" will remove the metadata
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
+        DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
+
         if(dialog.hasRange())
         {
           QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
-          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiRange") );
-          std::string rangeStr = range.toUtf8().constData();
-          FTL::CStrRef rangeRef = rangeStr;
-          FTL::JSONStringEnc<> valueEnc( enc, rangeRef );
-        }
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
         if(dialog.hasCombo())
         {
           QStringList combo = dialog.comboValues();
@@ -1055,12 +1061,9 @@ void DFGWidget::onExecPortAction(QAction * action)
             flat += "\"" + combo[i] + "\"";
           }
           flat += ")";
-
-          FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiCombo") );
-          std::string flatStr = flat.toUtf8().constData();
-          FTL::CStrRef flatRef = flatStr;
-          FTL::JSONStringEnc<> valueEnc( enc, flatRef );
-        }
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiCombo", flat.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiCombo", "" );//"" will remove the metadata
 
         emit portEditDialogInvoked(&dialog, &metaDataObjectEnc);
       }
@@ -1276,22 +1279,17 @@ void DFGWidget::onSidePanelAction(QAction * action)
       FTL::JSONEnc<> metaDataEnc( metaData );
       FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
       if(dialog.hidden())
-      {
-        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiHidden") );
-        FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
-      }
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHidden", "true" );
       if(dialog.opaque())
-      {
-        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiOpaque") );
-        FTL::JSONStringEnc<> valueEnc( enc, FTL_STR("true") );
-      }
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", "true" );
+
+      if(dialog.persistValue())
+        DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
+
       if(dialog.hasRange())
       {
         QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
-        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiRange") );
-        std::string rangeStr = range.toUtf8().constData();
-        FTL::CStrRef rangeRef = rangeStr;
-        FTL::JSONStringEnc<> valueEnc( enc, rangeRef );
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
       }
       if(dialog.hasCombo())
       {
@@ -1304,11 +1302,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
           flat += "\"" + combo[i] + "\"";
         }
         flat += ")";
-
-        FTL::JSONEnc<> enc( metaDataObjectEnc, FTL_STR("uiCombo") );
-        std::string flatStr = flat.toUtf8().constData();
-        FTL::CStrRef flatRef = flatStr;
-        FTL::JSONStringEnc<> valueEnc( enc, flatRef );
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiCombo", flat.toUtf8().constData() );
       }
 
       emit portEditDialogInvoked(&dialog, &metaDataObjectEnc);

@@ -13,7 +13,7 @@ DFGEditPortDialog::DFGEditPortDialog(
   QWidget * parent, 
   FabricCore::Client & client, 
   bool showPortType, 
-  bool showDataType, 
+  bool topGraphPort, 
   const DFGConfig & dfgConfig,
   bool setAlphaNum)
 : DFGBaseDialog(parent, true, dfgConfig)
@@ -31,7 +31,7 @@ DFGEditPortDialog::DFGEditPortDialog(
     m_portTypeCombo = NULL;
   m_titleEdit = new QLineEdit("", this);
 
-  if( showDataType ) {
+  if( topGraphPort ) {
     m_dataTypeEdit = new DFGRegisteredTypeLineEdit( this, client, "" );
     m_extensionEdit = new DFGExtensionLineEdit( this, client );
   } else {
@@ -43,6 +43,7 @@ DFGEditPortDialog::DFGEditPortDialog(
   m_visibilityCombo->addItem("normal");
   m_visibilityCombo->addItem("opaque");
   m_visibilityCombo->addItem("hidden");
+  m_persistValue = new QCheckBox(this);
   m_hasRange = new QCheckBox(this);
   m_rangeMin = new QLineEdit("0.0", this);
   m_rangeMax = new QLineEdit("1.0", this);
@@ -58,11 +59,12 @@ DFGEditPortDialog::DFGEditPortDialog(
   if(m_portTypeCombo)
     addInput(m_portTypeCombo, "type", "required");
   addInput(m_titleEdit, "title", "required");
-  if( showDataType ) {
+  if( topGraphPort ) {
     addInput( m_dataTypeEdit, "data type", "required" );
     addInput( m_extensionEdit, "extension", "advanced" );
   }
   addInput(m_visibilityCombo, "visibility", "metadata");
+  addInput(m_persistValue, "persist value", "metadata");
   addInput(m_hasRange, "use range", "metadata");
   addInput(m_rangeMin, "range min", "metadata");
   addInput(m_rangeMax, "range max", "metadata");
@@ -154,6 +156,16 @@ bool DFGEditPortDialog::opaque() const
 void DFGEditPortDialog::setOpaque()
 {
   m_visibilityCombo->setCurrentIndex(1);
+}
+
+bool DFGEditPortDialog::persistValue() const
+{
+  return m_persistValue->checkState() == Qt::Checked;
+}
+
+void DFGEditPortDialog::setPersistValue(bool value)
+{
+  m_persistValue->setCheckState(value ? Qt::Checked : Qt::Unchecked);
 }
 
 bool DFGEditPortDialog::hasRange() const

@@ -66,7 +66,9 @@ FTL::CStrRef DFGUICmd_EditPort::Perform(
   else
     newPortName = oldPortName;
 
-  if ( !typeSpec.empty() )
+  // Only set type & value if the type is different (else we loose the value even if the type didn't change!)
+  FTL::CStrRef prevType = exec.getExecPortTypeSpec( newPortName.c_str() );
+  if ( !typeSpec.empty() && prevType != typeSpec )
   {
     exec.setExecPortTypeSpec(
       newPortName.c_str(),
@@ -80,6 +82,9 @@ FTL::CStrRef DFGUICmd_EditPort::Perform(
     {
       FabricCore::DFGHost host = binding.getHost();
       FabricCore::Context context = host.getContext();
+
+
+
       FabricCore::RTVal argValue =
         FabricCore::RTVal::Construct(
           context,
