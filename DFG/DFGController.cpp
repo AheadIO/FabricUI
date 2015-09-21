@@ -140,7 +140,7 @@ void DFGController::setRouter(DFGNotificationRouter * router)
   }
 }
 
-bool DFGController::validPresetSplit() const
+bool DFGController::validPresetSplit() 
 {
   if(isViewingRootGraph())
     return true;
@@ -162,7 +162,14 @@ bool DFGController::validPresetSplit() const
     case QMessageBox::Ok:
       return true;
     case QMessageBox::Cancel:
+    {
+      // [Julien] FE-5324 splitting node from preset ambiguity
+      // When updating a value (valueItem) in the editor, the UI valueItem and the core-value may mistmatch. 
+      // It might happend when the user sets a value, and then cancels it.
+      // The signal argsChanged() is emitted so the value editor is correctly refreshed.
+      emit argsChanged();
       return false;
+    }
   }
 
   return false;
@@ -1151,12 +1158,6 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     {
       cmdSetArgValue( portOrPinPath, valueItem->value() );
     }
-
-    // [Julien] FE-5324 splitting node from preset ambiguity
-    // When updating a value (valueItem) in the editor, the UI valueItem and the core-value may mistmatch. 
-    // It might happend when the user sets a value, and then cancels it.
-    // The signal argsChanged() is emitted so the value editor is correctly refreshed.
-    emit argsChanged();
   }
   catch(FabricCore::Exception e)
   {

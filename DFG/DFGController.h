@@ -91,7 +91,7 @@ namespace FabricUI
         { return m_manager; }
 
       // returns true if the user allows a preset edit
-      bool validPresetSplit() const;
+      bool validPresetSplit();
 
       // Parent virtual functions
 
