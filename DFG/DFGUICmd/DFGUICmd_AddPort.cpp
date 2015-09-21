@@ -4,6 +4,7 @@
 
 #include <FTL/JSONValue.h>
 #include <FTL/JSONException.h>
+#include <Persistence/RTValToJSONEncoder.hpp>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -143,14 +144,16 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
         FabricCore::DFGExec subExec =
           exec.getSubExec( nodeToConnect.c_str() );
 
-        char const *metadatasToCopy[3] =
+        char const *metadatasToCopy[5] =
         {
           "uiRange",
           "uiCombo",
-          "uiHidden"
+          "uiHidden",
+          "uiOpaque",
+          DFG_METADATA_UIPERSISTVALUE
         };
 
-        for ( unsigned i = 0; i < 3; ++i )
+        for ( unsigned i = 0; i < 5; ++i )
         {
           exec.setExecPortMetadata(
             portName.c_str(),

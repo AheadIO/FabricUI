@@ -3,8 +3,10 @@
  */
 
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <Persistence/RTValFromJSONDecoder.hpp>
-#include <Persistence/RTValToJSONEncoder.hpp>
+
+//NOTE: encode/decode behavior is partially a duplicate of the following:
+//  #include <Persistence/RTValFromJSONDecoder.hpp>
+//  #include <Persistence/RTValToJSONEncoder.hpp>
 
 #include <FTL/JSONValue.h>
 #include <FTL/JSONEnc.h>
