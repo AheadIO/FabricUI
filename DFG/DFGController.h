@@ -91,7 +91,7 @@ namespace FabricUI
         { return m_manager; }
 
       // returns true if the user allows a preset edit
-      bool validPresetSplit();
+      bool validPresetSplit() const;
 
       // Parent virtual functions
 
@@ -284,7 +284,7 @@ namespace FabricUI
         FabricCore::RTVal const &value
         );
 
-      void cmdSetDefaultValue(
+      bool cmdSetDefaultValue(
         FabricCore::DFGBinding &binding,
         FTL::CStrRef execPath,
         FabricCore::DFGExec &exec,

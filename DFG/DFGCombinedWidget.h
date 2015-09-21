@@ -5,7 +5,6 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QSplitter>
-#include <QtGui/QSizeGrip>
 
 #include <map>
 
@@ -57,7 +56,6 @@ namespace FabricUI
       virtual DFGLogWidget * getDfgLogWidget() { return m_dfgLogWidget; }
 
       virtual void keyPressEvent(QKeyEvent * event);
-      virtual bool eventFilter(QObject *obj, QEvent *event);
 
     public slots:
       virtual void onUndo() = 0;
