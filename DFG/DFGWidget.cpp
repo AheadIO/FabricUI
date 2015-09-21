@@ -200,7 +200,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   QAction * resetZoomAction = new QAction(DFG_RESET_ZOOM, graphWidget);
   resetZoomAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_0) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
-  pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  resetZoomAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
   result->addAction(resetZoomAction);
 
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onGraphAction(QAction*)));
