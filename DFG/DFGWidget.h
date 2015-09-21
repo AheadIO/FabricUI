@@ -53,6 +53,7 @@ namespace FabricUI
         { return m_uiController.get(); }
 
       GraphView::Graph * getUIGraph();
+      DFGKLEditorWidget * getKLEditor();
       DFGController * getUIController();
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();

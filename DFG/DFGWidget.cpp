@@ -139,6 +139,11 @@ GraphView::Graph * DFGWidget::getUIGraph()
   return m_uiGraph;
 }
 
+DFGKLEditorWidget * DFGWidget::getKLEditor()
+{
+  return m_klEditor;
+}
+
 DFGController * DFGWidget::getUIController()
 {
   return m_uiController.get();
