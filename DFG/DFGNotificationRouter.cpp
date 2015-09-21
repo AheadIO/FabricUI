@@ -656,45 +656,56 @@ void DFGNotificationRouter::onExecPortInserted(
   FTL::JSONObject const *jsonObject
   )
 {
-  GraphView::Graph * uiGraph = m_dfgController->graph();
-  if(!uiGraph)
-    return;
-
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
-  QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
 
-  GraphView::Port * uiOutPort = NULL;
-  GraphView::Port * uiInPort = NULL;
-
-  FTL::CStrRef execPortType =
-    jsonObject->getStringOrEmpty( FTL_STR("execPortType") );
-  if(execPortType != FTL_STR("In"))
+  if(exec.getType() == FabricCore::DFGExecType_Graph)
   {
-    GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
-    if(!uiPanel)
+    GraphView::Graph * uiGraph = m_dfgController->graph();
+    if(!uiGraph)
       return;
 
-    uiInPort = new GraphView::Port(
-      uiPanel, portName, GraphView::PortType_Input, dataType, color, portName
-      );
-    uiPanel->addPort(uiInPort);
-  }
-  if(execPortType != FTL_STR("Out"))
-  {
-    GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
-    if(!uiPanel)
-      return;
+    QColor color = m_config.getColorForDataType(dataType, &exec, portName.c_str());
 
-    uiOutPort = new GraphView::Port(
-      uiPanel, portName, GraphView::PortType_Output, dataType, color, portName
-      );
-    uiPanel->addPort(uiOutPort);
+    GraphView::Port * uiOutPort = NULL;
+    GraphView::Port * uiInPort = NULL;
+
+    FTL::CStrRef execPortType =
+      jsonObject->getStringOrEmpty( FTL_STR("execPortType") );
+    if(execPortType != FTL_STR("In"))
+    {
+      GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
+      if(!uiPanel)
+        return;
+
+      uiInPort = new GraphView::Port(
+        uiPanel, portName, GraphView::PortType_Input, dataType, color, portName
+        );
+      uiPanel->addPort(uiInPort);
+    }
+    if(execPortType != FTL_STR("Out"))
+    {
+      GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
+      if(!uiPanel)
+        return;
+
+      uiOutPort = new GraphView::Port(
+        uiPanel, portName, GraphView::PortType_Output, dataType, color, portName
+        );
+      uiPanel->addPort(uiOutPort);
+    }
+    if(uiOutPort && uiInPort)
+    {
+      uiGraph->addConnection(uiOutPort, uiInPort, false);
+    }
   }
-  if(uiOutPort && uiInPort)
+  else if(exec.getType() == FabricCore::DFGExecType_Func)
   {
-    uiGraph->addConnection(uiOutPort, uiInPort, false);
+    DFGKLEditorWidget * uiKlEditor = m_dfgController->getDFGWidget()->getKLEditor();
+    if(!uiKlEditor)
+      return;
+    uiKlEditor->onExecChanged();
   }
 }
 
@@ -702,35 +713,46 @@ void DFGNotificationRouter::onExecPortRemoved(
   FTL::CStrRef portName
   )
 {
-  GraphView::Graph * uiGraph = m_dfgController->graph();
-  if(!uiGraph)
-    return;
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if(exec.getType() == FabricCore::DFGExecType_Graph)
+  {
+    GraphView::Graph * uiGraph = m_dfgController->graph();
+    if(!uiGraph)
+      return;
 
-  GraphView::SidePanel * uiOutPanel = uiGraph->sidePanel(GraphView::PortType_Output);
-  if(!uiOutPanel)
-    return;
-  GraphView::SidePanel * uiInPanel = uiGraph->sidePanel(GraphView::PortType_Input);
-  if(!uiInPanel)
-    return;
-  GraphView::Port * uiOutPort = uiOutPanel->port(portName);
-  GraphView::Port * uiInPort = uiInPanel->port(portName);
+    GraphView::SidePanel * uiOutPanel = uiGraph->sidePanel(GraphView::PortType_Output);
+    if(!uiOutPanel)
+      return;
+    GraphView::SidePanel * uiInPanel = uiGraph->sidePanel(GraphView::PortType_Input);
+    if(!uiInPanel)
+      return;
+    GraphView::Port * uiOutPort = uiOutPanel->port(portName);
+    GraphView::Port * uiInPort = uiInPanel->port(portName);
 
-  if(uiOutPort && uiInPort)
-  {
-    uiGraph->removeConnection(uiOutPort, uiInPort);
-  }
-  if(uiInPort)
-  {
-    uiInPanel->removePort(uiInPort);
-  }
-  if(uiOutPort)
-  {
-    uiOutPanel->removePort(uiOutPort);
-  }
+    if(uiOutPort && uiInPort)
+    {
+      uiGraph->removeConnection(uiOutPort, uiInPort);
+    }
+    if(uiInPort)
+    {
+      uiInPanel->removePort(uiInPort);
+    }
+    if(uiOutPort)
+    {
+      uiOutPanel->removePort(uiOutPort);
+    }
 
-  if(m_performChecks)
+    if(m_performChecks)
+    {
+      ((DFGController*)m_dfgController)->checkErrors();
+    }
+  }
+  else if(exec.getType() == FabricCore::DFGExecType_Func)
   {
-    ((DFGController*)m_dfgController)->checkErrors();
+    DFGKLEditorWidget * uiKlEditor = m_dfgController->getDFGWidget()->getKLEditor();
+    if(!uiKlEditor)
+      return;
+    uiKlEditor->onExecChanged();
   }
 }
 
@@ -1185,7 +1207,14 @@ void DFGNotificationRouter::onExecPortTypeSpecChanged(
   FTL::CStrRef newTypeSpec
   )
 {
-  // todo: we don't do anything here...
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if(exec.getType() == FabricCore::DFGExecType_Func)
+  {
+    DFGKLEditorWidget * uiKlEditor = m_dfgController->getDFGWidget()->getKLEditor();
+    if(!uiKlEditor)
+      return;
+    uiKlEditor->onExecChanged();
+  }
 }
 
 void DFGNotificationRouter::onNodePortResolvedTypeChanged(
@@ -1242,7 +1271,14 @@ void DFGNotificationRouter::onExecPortTypeChanged(
   FTL::CStrRef execPortType
   )
 {
-  // todo: we don't do anything here...
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if(exec.getType() == FabricCore::DFGExecType_Func)
+  {
+    DFGKLEditorWidget * uiKlEditor = m_dfgController->getDFGWidget()->getKLEditor();
+    if(!uiKlEditor)
+      return;
+    uiKlEditor->onExecChanged();
+  }
 }
 
 void DFGNotificationRouter::onNodePortTypeChanged(

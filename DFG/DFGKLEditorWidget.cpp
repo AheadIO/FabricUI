@@ -12,6 +12,8 @@
 
 #include "DFGKLEditorWidget.h"
 
+#include <FTL/AutoSet.h>
+
 using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -26,6 +28,7 @@ DFGKLEditorWidget::DFGKLEditorWidget(
   , m_controller( controller )
   , m_config( config )
   , m_unsavedChanges( false )
+  , m_isSettingPorts( false )
 {
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   setMinimumSize(QSize(300, 250));
@@ -114,6 +117,9 @@ DFGKLEditorWidget::~DFGKLEditorWidget()
 
 void DFGKLEditorWidget::onExecChanged()
 {
+  if(m_isSettingPorts)
+    return;
+  
   FabricCore::DFGExec &exec = m_controller->getExec();
 
   if ( exec.getType() == FabricCore::DFGExecType_Func )
@@ -147,6 +153,8 @@ void DFGKLEditorWidget::onExecChanged()
 
 void DFGKLEditorWidget::onExecPortsChanged()
 {
+  FTL::AutoSet<bool> isSettingPorts(m_isSettingPorts, true);
+
   std::vector<DFGKLEditorPortTableWidget::PortInfo> infos;
   for(unsigned int i=0;i<m_ports->nbPorts();i++)
     infos.push_back(m_ports->portInfo(i));

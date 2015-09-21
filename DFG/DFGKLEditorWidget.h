@@ -63,6 +63,7 @@ namespace FabricUI
       QListView *m_diagsView;
       DFGConfig m_config;
       bool m_unsavedChanges;
+      bool m_isSettingPorts;
     };
 
   };
