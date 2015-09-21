@@ -1127,13 +1127,15 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
       {
         std::string portPath = nodeName + "." + portName;
 
-        cmdSetDefaultValue(
-          m_binding,
-          execPath,
-          exec,
-          portPath,
-          valueItem->value()
-          );
+        if(!cmdSetDefaultValue(
+            m_binding,
+            execPath,
+            exec,
+            portPath,
+            valueItem->value())
+          )
+        emit argsChanged();
+
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 
         nodeType == FabricCore::DFGNodeType_Set) && FTL::CStrRef(portName) == FTL_STR("variable"))
@@ -1151,12 +1153,6 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
     {
       cmdSetArgValue( portOrPinPath, valueItem->value() );
     }
-
-    // [Julien] FE-5324 splitting node from preset ambiguity
-    // When updating a value (valueItem) in the editor, the UI valueItem and the core-value may mistmatch. 
-    // It might happend when the user sets a value, and then cancels it.
-    // The signal argsChanged() is emitted so the value editor is correctly refreshed.
-    emit argsChanged();
   }
   catch(FabricCore::Exception e)
   {
@@ -1164,7 +1160,7 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
   }
 }
 
-void DFGController::cmdSetDefaultValue(
+bool DFGController::cmdSetDefaultValue(
   FabricCore::DFGBinding &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec &exec,
@@ -1173,7 +1169,7 @@ void DFGController::cmdSetDefaultValue(
   )
 {
   if(!validPresetSplit())
-    return;
+    return false;
 
   FabricCore::RTVal currentDefaultValue =
     exec.getPortDefaultValue(
@@ -1193,6 +1189,8 @@ void DFGController::cmdSetDefaultValue(
       value.copy()
       );
   }
+
+  return true;
 }
 
 void DFGController::cmdSetArgValue(
