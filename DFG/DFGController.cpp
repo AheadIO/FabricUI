@@ -1489,7 +1489,8 @@ bool DFGController::canConnectTo(
 {
   try
   {
-    FabricCore::DFGStringResult result = getExec().canConnectTo( pathA, pathB );
+    FabricCore::DFGStringResult result =
+      getExec().canConnectTo( pathA, pathB, "\n" );
     char const *resultData;
     uint32_t resultSize;
     result.getStringDataAndLength( resultData, resultSize );
