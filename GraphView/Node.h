@@ -138,6 +138,7 @@ namespace FabricUI
 
       void onConnectionsChanged();
       void onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble);
+      void canvasPanned();
       
     signals:
 

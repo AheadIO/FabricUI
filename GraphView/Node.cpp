@@ -85,6 +85,11 @@ Node::Node(
       m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
   }
 
+  QObject::connect(
+    m_graph->mainPanel(), SIGNAL(canvasPanChanged(QPointF)),
+    this, SLOT(canvasPanned())
+    );
+
   m_pinsWidget = new QGraphicsWidget(m_mainWidget);
   layout->addItem(m_pinsWidget);
   layout->setAlignment(m_pinsWidget, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -116,6 +121,11 @@ Node::Node(
   m_bubble->hide();
 
   setAcceptHoverEvents(true);
+}
+
+void Node::canvasPanned()
+{
+  m_mainWidget->update();
 }
 
 Node::~Node()
