@@ -115,7 +115,7 @@ namespace FabricUI
         );
       connect(
         dialog, SIGNAL(rejected()),
-        this, SLOT(onFinish())
+        this, SLOT(onFinished())
         );
       dialog->setAttribute( Qt::WA_DeleteOnClose );
       dialog->show();
