@@ -34,7 +34,12 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   setContentsMargins(0, 0, 0, 0);
 
   m_proxyPort = new ProxyPort(this, m_portType);
-  
+
+  // geometryChanged does not exist on linux  
+#ifndef FABRIC_OS_LINUX
+  QObject::connect(m_itemGroup, SIGNAL(geometryChanged()), this, SLOT(onItemGroupGeometryChanged()));
+#endif
+
   resetLayout();
 }
 
@@ -204,6 +209,13 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
     m_requiresToSendSignalsForPorts = false;
   }
 }
+
+#ifndef FABRIC_OS_LINUX
+void SidePanel::onItemGroupGeometryChanged()
+{
+  setMinimumWidth(m_itemGroup->size().width());
+}
+#endif
 
 void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
