@@ -647,6 +647,9 @@ void Graph::defineHotkey(Qt::Key key, Qt::KeyboardModifier modifiers, QString na
 
 bool Graph::pressHotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
 {
+  if(m_mouseGrabber != NULL)
+    return false;
+  
   Hotkey hotkey(key, modifiers);
   std::map<Hotkey, QString>::iterator it = m_hotkeys.find(hotkey);
   if(it == m_hotkeys.end())
