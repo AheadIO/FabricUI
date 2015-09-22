@@ -209,7 +209,6 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
 
 void SidePanel::onItemGroupResized()
 {
-  printf("m_itemGroup->size().width() %f\n", m_itemGroup->size().width());
   setMinimumWidth(m_itemGroup->size().width());
   setMaximumWidth(m_itemGroup->size().width());
 }
