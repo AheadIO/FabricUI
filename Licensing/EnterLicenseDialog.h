@@ -17,6 +17,7 @@ class EnterLicenseDialog : public QDialog
   Q_OBJECT
 
 public:
+
   EnterLicenseDialog( QWidget *parent )
     : QDialog( parent )
     , m_textBox( new QTextEdit( this ) )
@@ -45,14 +46,26 @@ public:
 
     layout()->addWidget( okButton );
     layout()->addWidget( cancelButton );
+
+    connect(
+      this, SIGNAL(accepted()),
+      this, SLOT(onAccepted())
+      );
   }
 
-  QTextEdit *getTextBox() const
+signals:
+
+  void licenseEntered( QString licenseText );
+
+protected slots:
+  
+  void onAccepted()
   {
-    return m_textBox;
+    emit licenseEntered( m_textBox->toPlainText() );
   }
 
 private:
+
   QTextEdit *m_textBox;
 };
 

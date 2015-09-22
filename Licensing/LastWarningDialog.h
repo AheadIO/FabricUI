@@ -20,7 +20,8 @@ public:
   LastWarningDialog( QWidget *parent )
     : QDialog( parent )
   {
-    setModal( true );
+    // setModal( true );
+    setWindowModality( Qt::ApplicationModal );
     setWindowTitle( "Fabric Licensing" );
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 

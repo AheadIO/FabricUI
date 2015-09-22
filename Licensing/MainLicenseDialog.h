@@ -21,7 +21,8 @@ public:
   MainLicenseDialog( QWidget *parent, FTL::JSONObject const *json )
     : QDialog( parent )
   {
-    setModal( true );
+    // setModal( true );
+    setWindowModality( Qt::ApplicationModal );
     setWindowTitle( "Fabric Licensing" );
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     setMinimumSize( 500, 350 );
