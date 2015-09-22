@@ -15,7 +15,7 @@ using namespace FabricUI::GraphView;
 SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 : QGraphicsWidget(parent)
 {
-  m_itemGroup = new QGraphicsWidget(this);
+  m_itemGroup = new SidePanelItemGroup(this);
   m_itemGroup->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
   m_itemGroupScroll = 0.0f;
 
@@ -34,7 +34,9 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   setContentsMargins(0, 0, 0, 0);
 
   m_proxyPort = new ProxyPort(this, m_portType);
-  
+
+  QObject::connect(m_itemGroup, SIGNAL(resized()), this, SLOT(onItemGroupResized()));
+
   resetLayout();
 }
 
@@ -203,6 +205,12 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
     }
     m_requiresToSendSignalsForPorts = false;
   }
+}
+
+void SidePanel::onItemGroupResized()
+{
+  setMinimumWidth(m_itemGroup->size().width());
+  setMaximumWidth(m_itemGroup->size().width());
 }
 
 void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)

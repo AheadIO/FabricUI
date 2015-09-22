@@ -98,13 +98,12 @@ const PinCircle * Port::circle() const
 
 void Port::setName( FTL::CStrRef name )
 {
-  if(m_name == m_labelCaption)
-  {
-    m_labelCaption = name;
-    m_label->setText(QSTRING_FROM_STL_UTF8(m_labelCaption));
-  }
+  bool labelUsesName = m_name == m_labelCaption;
   m_name = name;
-  update();
+  if(labelUsesName)
+    setLabel(name.c_str());
+  else
+    update();
 }
 
 char const * Port::label() const
@@ -115,7 +114,7 @@ char const * Port::label() const
 void Port::setLabel(char const * n)
 {
   m_labelCaption = n;
-  m_label->setText(m_labelCaption.c_str());
+  m_label->setText(QSTRING_FROM_STL_UTF8(m_labelCaption));
   update();
 }
 

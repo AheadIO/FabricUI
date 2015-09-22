@@ -9,6 +9,7 @@
 #include "PortType.h"
 #include "Port.h"
 #include "ProxyPort.h"
+#include "SidePanelItemGroup.h"
 
 namespace FabricUI
 {
@@ -63,6 +64,9 @@ namespace FabricUI
       void doubleClicked(FabricUI::GraphView::SidePanel *);
       void scrolled();
 
+    private slots:
+      void onItemGroupResized();
+
     private:
 
       void resetLayout();
@@ -72,7 +76,7 @@ namespace FabricUI
       QPen m_pen;
       PortType m_portType;
       bool m_requiresToSendSignalsForPorts;
-      QGraphicsWidget * m_itemGroup;
+      SidePanelItemGroup * m_itemGroup;
       float m_itemGroupScroll;
 
       ProxyPort* m_proxyPort;
