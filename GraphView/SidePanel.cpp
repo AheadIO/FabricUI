@@ -15,7 +15,7 @@ using namespace FabricUI::GraphView;
 SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 : QGraphicsWidget(parent)
 {
-  m_itemGroup = new QGraphicsWidget(this);
+  m_itemGroup = new SidePanelItemGroup(this);
   m_itemGroup->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
   m_itemGroupScroll = 0.0f;
 
@@ -35,10 +35,7 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
 
   m_proxyPort = new ProxyPort(this, m_portType);
 
-  // geometryChanged does not exist on linux  
-#ifndef FABRIC_OS_LINUX
-  QObject::connect(m_itemGroup, SIGNAL(geometryChanged()), this, SLOT(onItemGroupGeometryChanged()));
-#endif
+  QObject::connect(m_itemGroup, SIGNAL(resized()), this, SLOT(onItemGroupResized()));
 
   resetLayout();
 }
@@ -210,12 +207,12 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
   }
 }
 
-#ifndef FABRIC_OS_LINUX
-void SidePanel::onItemGroupGeometryChanged()
+void SidePanel::onItemGroupResized()
 {
+  printf("m_itemGroup->size().width() %f\n", m_itemGroup->size().width());
   setMinimumWidth(m_itemGroup->size().width());
+  setMaximumWidth(m_itemGroup->size().width());
 }
-#endif
 
 void SidePanel::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
