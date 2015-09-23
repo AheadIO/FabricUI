@@ -19,10 +19,10 @@ class ExpiryWarningDialog : public QDialog
   Q_OBJECT
 
 public:
+
   ExpiryWarningDialog( QWidget *parent, FTL::CStrRef expiryDate )
     : QDialog( parent )
   {
-    setModal( true );
     setWindowTitle( "Fabric Licensing" );
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 

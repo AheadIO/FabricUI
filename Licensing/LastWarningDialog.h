@@ -20,16 +20,18 @@ public:
   LastWarningDialog( QWidget *parent )
     : QDialog( parent )
   {
-    setModal( true );
+    // setModal( true );
+    setWindowModality( Qt::ApplicationModal );
     setWindowTitle( "Fabric Licensing" );
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     setLayout( new QVBoxLayout() );
 
     QLabel *info = new QLabel( this );
-    info->setText( "Fabric will pause now for up to 15 seconds, it "
-                   "will resume automatically once this is "
-                   "complete." );
+    info->setText( "Fabric will continue to run unlicensed.  However, "
+                   "it will pause for 15 seconds every 15 minutes,\nresuming "
+                   "automatically after each pause.  These pauses will go "
+                   "away once Fabric is licensed." );
     info->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     layout()->addWidget( info );
 

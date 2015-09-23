@@ -11,7 +11,12 @@
 
 namespace FabricUI
 {
-  void HandleLicenseData( QWidget *widgetParent, FabricCore::Client &client, FTL::StrRef jsonData );
+  void HandleLicenseData(
+    QWidget *widgetParent,
+    FabricCore::Client &client,
+    FTL::StrRef jsonData,
+    bool modalDialogs
+    );
 }
 
 #endif // __FABRICUI_LICENSING__
