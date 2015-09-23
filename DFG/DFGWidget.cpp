@@ -1116,7 +1116,7 @@ void DFGWidget::onExecPortAction(QAction * action)
     // }
   }
   else if(action->text() == DFG_MOVE_TOP ||
-    action->text() == DFG_MOVE_TOP ||
+    action->text() == DFG_MOVE_UP ||
     action->text() == DFG_MOVE_DOWN ||
     action->text() == DFG_MOVE_BOTTOM ||
     action->text() == DFG_MOVE_INPUTS_TO_END || 
@@ -1193,7 +1193,7 @@ void DFGWidget::onExecPortAction(QAction * action)
           b = UINT_MAX;
         }
       }
-      else if(action->text() == DFG_MOVE_TOP)
+      else if(action->text() == DFG_MOVE_UP)
       {
         for(size_t i=0;i<indices.size();i++)
         {

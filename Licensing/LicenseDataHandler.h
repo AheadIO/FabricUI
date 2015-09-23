@@ -79,7 +79,13 @@ namespace FabricUI
 
         onFinished();
       }
-      else onMainDialog();
+      else
+      {
+        onMainDialog();
+        return;
+      }
+
+      onFinished();
     }
 
   protected slots:

@@ -4,6 +4,7 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QInputDialog>
+#include <QtGui/QDesktopWidget>
 
 #include <algorithm>
 
@@ -30,6 +31,9 @@ TimeLineWidget::TimeLineWidget()
 
   // layout
   setLayout(new QHBoxLayout());
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
+  setContentsMargins(0, 0, 0, 0);
+  layout()->setContentsMargins(0, 0, 0, 0);
 
   // elements
   m_startSpinBox = new QDoubleSpinBox(this);
@@ -158,9 +162,10 @@ TimeLineWidget::TimeLineWidget()
   // The TimeLineWidget height is sometimes too small when displayed
   // It might happend with 4K or retina display, should be fixe when using Qt5
   // To fix it, we set the widget minimum size to 80.
-  QSize size = sizeHint();
-  if(size.height() < 80) size.setHeight(80);
-  setMinimumSize(size);
+  QDesktopWidget desktop;
+  QRect mainScreenSize = desktop.availableGeometry(desktop.primaryScreen());
+  if(mainScreenSize.height() > 1560)
+    setMinimumHeight(80);
 
   // QLine * line = new QLine();
   // line->setOrientation(Qt::Vertical);
