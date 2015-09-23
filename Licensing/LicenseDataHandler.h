@@ -71,8 +71,13 @@ namespace FabricUI
           }
 
           if ( mktime( &expiry_tm ) - time( NULL ) < EXPIRY_PRE_WARNING_SECONDS )
+          {
             onExpiryWarning( expiry );
+            return;
+          }
         }
+
+        onFinished();
       }
       else onMainDialog();
     }
