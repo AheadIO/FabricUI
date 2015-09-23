@@ -76,8 +76,6 @@ namespace FabricUI
             return;
           }
         }
-
-        onFinished();
       }
       else
       {
