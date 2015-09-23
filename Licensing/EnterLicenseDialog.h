@@ -53,6 +53,9 @@ public:
       );
   }
 
+  QString licenseText()
+    { return m_textBox->toPlainText(); }
+
 signals:
 
   void licenseEntered( QString licenseText );
@@ -61,7 +64,7 @@ protected slots:
   
   void onAccepted()
   {
-    emit licenseEntered( m_textBox->toPlainText() );
+    emit licenseEntered( licenseText() );
   }
 
 private:

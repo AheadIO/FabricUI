@@ -29,16 +29,16 @@ namespace FabricUI
 
     LicenseDataHandler(
       FabricCore::Client &client,
-      FTL::OwnedPtr<FTL::JSONObject const> &jsonObject
+      FTL::OwnedPtr<FTL::JSONObject const> &jsonObject,
+      bool modal
       )
       : m_client( client )
       , m_jsonObject( jsonObject.take() )
+      , m_modal( modal )
       {}
 
     void run()
     {
-      QDialog *dialog = NULL;
-
       bool valid = m_jsonObject->getBoolean( FTL_STR( "valid" ) );
       if ( valid )
       {
@@ -71,22 +71,28 @@ namespace FabricUI
           }
 
           if ( mktime( &expiry_tm ) - time( NULL ) < EXPIRY_PRE_WARNING_SECONDS )
-          {
-            dialog = new ExpiryWarningDialog( 0, expiry );
-            connect(
-              dialog, SIGNAL(accepted()),
-              this, SLOT(onEnterLicense())
-              );
-            connect(
-              dialog, SIGNAL(rejected()),
-              this, SLOT(onFinished())
-              );
-          }
+            onExpiryWarning( expiry );
         }
+      }
+      else onMainDialog();
+    }
+
+  protected slots:
+
+    void onMainDialog()
+    {
+      QDialog *dialog = new MainLicenseDialog( 0, m_jsonObject.get() );
+      if ( m_modal )
+      {
+        int result = dialog->exec();
+        delete dialog;
+        if ( result == QDialog::Accepted )
+          onEnterLicense();
+        else
+          onContinueWithoutLicense();
       }
       else
       {
-        dialog = new MainLicenseDialog( 0, m_jsonObject.get() );
         connect(
           dialog, SIGNAL(accepted()),
           this, SLOT(onEnterLicense())
@@ -95,30 +101,64 @@ namespace FabricUI
           dialog, SIGNAL(rejected()),
           this, SLOT(onContinueWithoutLicense())
           );
-      }
-
-      if ( dialog )
-      {
         dialog->setAttribute( Qt::WA_DeleteOnClose );
         dialog->show();
       }
     }
 
-  protected slots:
+    void onExpiryWarning( FTL::CStrRef expiry )
+    {
+      QDialog *dialog = new ExpiryWarningDialog( 0, expiry );
+      if ( m_modal )
+      {
+        int result = dialog->exec();
+        delete dialog;
+        if ( result == QDialog::Accepted )
+          onEnterLicense();
+        else
+          onFinished();
+      }
+      else
+      {
+        connect(
+          dialog, SIGNAL(accepted()),
+          this, SLOT(onEnterLicense())
+          );
+        connect(
+          dialog, SIGNAL(rejected()),
+          this, SLOT(onFinished())
+          );
+        dialog->setAttribute( Qt::WA_DeleteOnClose );
+        dialog->show();
+      }
+    }
 
     void onEnterLicense()
     {
       EnterLicenseDialog *dialog = new EnterLicenseDialog( NULL );
-      connect(
-        dialog, SIGNAL(licenseEntered(QString)),
-        this, SLOT(onLiceseEntered(QString))
-        );
-      connect(
-        dialog, SIGNAL(rejected()),
-        this, SLOT(onContinueWithoutLicense())
-        );
-      dialog->setAttribute( Qt::WA_DeleteOnClose );
-      dialog->show();
+      if ( m_modal )
+      {
+        int result = dialog->exec();
+        QString licenseText = dialog->licenseText();
+        delete dialog;
+        if ( result == QDialog::Accepted )
+          onLiceseEntered( licenseText );
+        else
+          onContinueWithoutLicense();
+      }
+      else
+      {
+        connect(
+          dialog, SIGNAL(licenseEntered(QString)),
+          this, SLOT(onLiceseEntered(QString))
+          );
+        connect(
+          dialog, SIGNAL(rejected()),
+          this, SLOT(onContinueWithoutLicense())
+          );
+        dialog->setAttribute( Qt::WA_DeleteOnClose );
+        dialog->show();
+      }
     }
 
     void onLiceseEntered( QString licenseText )
@@ -126,49 +166,70 @@ namespace FabricUI
       std::string text = licenseText.toStdString();
       if ( !text.empty() )
         FabricCore::SetStandaloneLicense( text.c_str() );
-
-      QDialog *dialog;
       if ( m_client.validateLicense() )
+        onValidLicenseEntered();
+      else
+        onInvalidLicenseEntered();
+    }
+
+    void onValidLicenseEntered()
+    {
+      QDialog *dialog = new LicenseOkDialog( NULL );
+      if ( m_modal )
       {
-        dialog = new LicenseOkDialog( NULL );
-        connect(
-          dialog, SIGNAL(accepted()),
-          this, SLOT(onFinished())
-          );
-        connect(
-          dialog, SIGNAL(rejected()),
-          this, SLOT(onFinished())
-          );
+        dialog->exec();
+        delete dialog;
+        onFinished();
       }
       else
       {
-        dialog = new LicenseFailDialog( NULL );
         connect(
-          dialog, SIGNAL(accepted()),
-          this, SLOT(onEnterLicense())
+          dialog, SIGNAL(finished(int)),
+          this, SLOT(onFinished())
           );
-        connect(
-          dialog, SIGNAL(rejected()),
-          this, SLOT(onEnterLicense())
-          );
+        dialog->setAttribute( Qt::WA_DeleteOnClose );
+        dialog->show();
       }
-      dialog->setAttribute( Qt::WA_DeleteOnClose );
-      dialog->show();
+    }
+
+    void onInvalidLicenseEntered()
+    {
+      QDialog *dialog = new LicenseFailDialog( NULL );
+      if ( m_modal )
+      {
+        dialog->exec();
+        delete dialog;
+        onEnterLicense();
+      }
+      else
+      {
+        connect(
+          dialog, SIGNAL(finished(int)),
+          this, SLOT(onEnterLicense())
+          );
+        dialog->setAttribute( Qt::WA_DeleteOnClose );
+        dialog->show();
+      }
     }
 
     void onContinueWithoutLicense()
     {
       LastWarningDialog *dialog = new LastWarningDialog( NULL );
-      connect(
-        dialog, SIGNAL(accepted()),
-        this, SLOT(onFinished())
-        );
-      connect(
-        dialog, SIGNAL(rejected()),
-        this, SLOT(onFinished())
-        );
-      dialog->setAttribute( Qt::WA_DeleteOnClose );
-      dialog->show();
+      if ( m_modal )
+      {
+        dialog->exec();
+        delete dialog;
+        onFinished();
+      }
+      else
+      {
+        connect(
+          dialog, SIGNAL(finished(int)),
+          this, SLOT(onFinished())
+          );
+        dialog->setAttribute( Qt::WA_DeleteOnClose );
+        dialog->show();
+      }
     }
 
     void onFinished()
@@ -180,6 +241,7 @@ namespace FabricUI
 
     FabricCore::Client m_client;
     FTL::OwnedPtr<FTL::JSONObject const> m_jsonObject;
+    bool m_modal;
   };
 }
 

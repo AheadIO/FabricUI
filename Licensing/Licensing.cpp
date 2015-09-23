@@ -12,7 +12,8 @@ namespace FabricUI
   void HandleLicenseData(
     QWidget *widgetParent,
     FabricCore::Client &client,
-    FTL::StrRef jsonData
+    FTL::StrRef jsonData,
+    bool modalDialogs
     )
   {
     FTL::JSONStrWithLoc jsonStrWithLoc( jsonData );
@@ -20,7 +21,7 @@ namespace FabricUI
       FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>() );
 
     LicenseDataHandler *licenseDataHandler =
-      new LicenseDataHandler( client, jsonObject );
+      new LicenseDataHandler( client, jsonObject, modalDialogs );
     licenseDataHandler->run();
   }
 }
