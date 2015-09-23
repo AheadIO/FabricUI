@@ -28,9 +28,9 @@ public:
     setLayout( new QVBoxLayout() );
 
     QLabel *info = new QLabel( this );
-    info->setText( "Fabric will pause now for up to 15 seconds, it "
-                   "will resume automatically once this is "
-                   "complete." );
+    info->setText( "Fabric will continue to run unlicensed.  However, "
+                   "it will periodically pause for up to 15 seconds.  "
+                   "These pauses will go away once Fabric is licensed." );
     info->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     layout()->addWidget( info );
 
