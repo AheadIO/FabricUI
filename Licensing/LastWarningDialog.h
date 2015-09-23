@@ -29,8 +29,9 @@ public:
 
     QLabel *info = new QLabel( this );
     info->setText( "Fabric will continue to run unlicensed.  However, "
-                   "it will periodically pause for up to 15 seconds.  "
-                   "These pauses will go away once Fabric is licensed." );
+                   "it will pause for 15 seconds every 15 minutes,\nresuming "
+                   "automatically after each pause.  These pauses will go "
+                   "away once Fabric is licensed." );
     info->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     layout()->addWidget( info );
 
