@@ -433,6 +433,19 @@ bool Node::removePin(Pin * pin, bool quiet)
   return true;
 }
 
+void Node::reorderPins(QStringList names)
+{
+  std::vector<Pin*> pins;
+  for(unsigned int i=0;i<names.length();i++)
+  {
+    pins.push_back(pin(names[i].toUtf8().constData()));
+    pins[i]->setIndex(i);
+  }
+  m_pins = pins;
+  updatePinLayout();
+  update();
+}
+
 std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> rootNodes)
 {
   int maxCol = 0;

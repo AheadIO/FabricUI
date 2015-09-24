@@ -1360,8 +1360,26 @@ void DFGNotificationRouter::onExecPortsReordered(
   unsigned int * indices
   )
 {
-  // refresh the view
-  m_dfgController->refreshExec();
+  GraphView::Graph * uiGraph = m_dfgController->graph();
+  if(!uiGraph)
+    return;
+
+  GraphView::SidePanel * leftPanel = uiGraph->sidePanel(GraphView::PortType_Input);
+  GraphView::SidePanel * rightPanel = uiGraph->sidePanel(GraphView::PortType_Output);
+
+  FabricCore::DFGExec & exec = m_dfgController->getExec();
+  QStringList inputs, outputs;
+  for(unsigned int i=0;i<exec.getExecPortCount();i++)
+  {
+    QString name = exec.getExecPortName(i);
+    if(exec.getExecPortType(i) != FabricCore::DFGPortType_Out)
+      inputs.append(name);
+    if(exec.getExecPortType(i) != FabricCore::DFGPortType_In)
+      outputs.append(name);
+  }
+
+  leftPanel->reorderPorts(outputs);
+  rightPanel->reorderPorts(inputs);
 }
 
 void DFGNotificationRouter::onNodePortsReordered(
@@ -1370,8 +1388,24 @@ void DFGNotificationRouter::onNodePortsReordered(
   unsigned int * indices
   )
 {
-  // refresh the view
-  m_dfgController->refreshExec();
+  GraphView::Graph * uiGraph = m_dfgController->graph();
+  if(!uiGraph)
+    return;
+
+  GraphView::Node * uiNode = uiGraph->node(nodeName);
+  if(!uiNode)
+    return;
+
+  FabricCore::DFGExec & exec = m_dfgController->getExec();
+  FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+  QStringList names;
+  for(unsigned int i=0;i<subExec.getExecPortCount();i++)
+  {
+    QString name = subExec.getExecPortName(i);
+    names.append(name);
+  }
+
+  uiNode->reorderPins(names);
 }
 
 void DFGNotificationRouter::onExecDidAttachPreset(

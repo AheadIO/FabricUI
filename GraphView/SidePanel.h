@@ -56,6 +56,7 @@ namespace FabricUI
       // accessed through controller
       virtual Port * addPort(Port * port);
       virtual bool removePort(Port * port);
+      virtual void reorderPorts(QStringList names);
 
       void scroll(float delta);
       void updateItemGroupScroll(float height = 0.0f);
