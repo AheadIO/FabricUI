@@ -309,7 +309,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
       {
         result->addSeparator();
         result->addAction(DFG_CREATE_PRESET);
-        result->addAction(DFG_EXPORT_PRESET);
+        result->addAction(DFG_EXPORT_GRAPH);
       }
 
       result->addSeparator();
@@ -629,7 +629,7 @@ void DFGWidget::onNodeAction(QAction * action)
   {
     onCut();
   }
-  else if(action->text() == DFG_EXPORT_PRESET)
+  else if(action->text() == DFG_EXPORT_GRAPH)
   {
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType(nodeName) != FabricCore::DFGNodeType_Inst )
@@ -674,7 +674,7 @@ void DFGWidget::onNodeAction(QAction * action)
     }
 
     QString filter = "DFG Preset (*.canvas)";
-    QString filePath = QFileDialog::getSaveFileName(this, DFG_EXPORT_PRESET, lastPresetFolder, filter, &filter);
+    QString filePath = QFileDialog::getSaveFileName(this, DFG_EXPORT_GRAPH, lastPresetFolder, filter, &filter);
     if(filePath.length() == 0)
       return;
     if(filePath.toLower().endsWith(".canvas.canvas"))
@@ -802,6 +802,9 @@ void DFGWidget::onNodeAction(QAction * action)
 
         subExec.setTitle(name.toUtf8().constData());
 
+        // NOTE: isn't this is actually modifying the meta-data of an active
+        //       executable for the current graph, and not a copy of it;
+        //       should instead do like in the DFG_EXPORT_GRAPH case..
         FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
         if(!uiNodeColor.empty())
           subExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
@@ -841,7 +844,17 @@ void DFGWidget::onNodeAction(QAction * action)
             subExec.setPortDefaultValue(subExec.getExecPortName(i), val, false);
         }
 
+        // Important: set the preset file association BEFORE getting the JSON,
+        // as with this association the Core will generate a presetGUID.
+        subExec.setImportPathname(filePathStr.c_str());
+        subExec.attachPresetFile(
+          location.toUtf8().constData(),
+          name.toUtf8().constData(),
+          true // replaceExisting
+          );
+
         std::string json = subExec.exportJSON().getCString();
+
         file = fopen(filePathStr.c_str(), "wb");
         if(!file)
         {
@@ -854,13 +867,6 @@ void DFGWidget::onNodeAction(QAction * action)
 
         fwrite(json.c_str(), json.length(), 1, file);
         fclose(file);
-
-        subExec.setImportPathname(filePathStr.c_str());
-        subExec.attachPresetFile(
-          location.toUtf8().constData(),
-          name.toUtf8().constData(),
-          true // replaceExisting
-          );
 
         emit newPresetSaved(filePathStr.c_str());
         // update the preset search paths within the controller

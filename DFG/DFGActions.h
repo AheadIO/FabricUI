@@ -20,7 +20,7 @@ namespace FabricUI
     #define DFG_COPY_PRESET             "Copy - Ctrl+C"
     #define DFG_CUT_PRESET              "Cut - Ctrl+X"
     #define DFG_PAST_PRESET             "Past - Ctrl+V"
-    #define DFG_EXPORT_PRESET           "Export graph"
+    #define DFG_EXPORT_GRAPH           "Export graph"
     #define DFG_IMPLODE_NODE            "Implode nodes"
     #define DFG_EXPLODE_NODE            "Explode node"
     #define DFG_NEW_GRAPH               "New empty graph"
