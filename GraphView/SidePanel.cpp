@@ -120,7 +120,7 @@ bool SidePanel::removePort(Port * port)
 void SidePanel::reorderPorts(QStringList names)
 {
   std::vector<Port*> ports;
-  for(unsigned int i=0;i<names.length();i++)
+  for(int i=0;i<names.length();i++)
   {
     ports.push_back(port(names[i].toUtf8().constData()));
     ports[i]->setIndex(i);

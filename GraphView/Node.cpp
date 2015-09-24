@@ -436,7 +436,7 @@ bool Node::removePin(Pin * pin, bool quiet)
 void Node::reorderPins(QStringList names)
 {
   std::vector<Pin*> pins;
-  for(unsigned int i=0;i<names.length();i++)
+  for(int i=0;i<names.length();i++)
   {
     pins.push_back(pin(names[i].toUtf8().constData()));
     pins[i]->setIndex(i);
