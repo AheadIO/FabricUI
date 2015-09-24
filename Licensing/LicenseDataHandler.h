@@ -71,10 +71,19 @@ namespace FabricUI
           }
 
           if ( mktime( &expiry_tm ) - time( NULL ) < EXPIRY_PRE_WARNING_SECONDS )
+          {
             onExpiryWarning( expiry );
+            return;
+          }
         }
       }
-      else onMainDialog();
+      else
+      {
+        onMainDialog();
+        return;
+      }
+
+      onFinished();
     }
 
   protected slots:
