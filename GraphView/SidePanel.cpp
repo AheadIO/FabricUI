@@ -117,6 +117,19 @@ bool SidePanel::removePort(Port * port)
   return true;
 }
 
+void SidePanel::reorderPorts(QStringList names)
+{
+  std::vector<Port*> ports;
+  for(unsigned int i=0;i<names.length();i++)
+  {
+    ports.push_back(port(names[i].toUtf8().constData()));
+    ports[i]->setIndex(i);
+  }
+
+  m_ports = ports;
+  resetLayout();
+}
+
 unsigned int SidePanel::portCount() const
 {
   return m_ports.size();

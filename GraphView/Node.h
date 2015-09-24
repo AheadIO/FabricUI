@@ -121,6 +121,7 @@ namespace FabricUI
       void setTopLeftGraphPos(QPointF pos, bool quiet = false);
       virtual Pin * addPin(Pin * pin, bool quiet = false);
       virtual bool removePin(Pin * pin, bool quiet = false);
+      virtual void reorderPins(QStringList names);
 
       virtual std::vector<Node*> upStreamNodes(bool sortForPins = false, std::vector<Node*> rootNodes = std::vector<Node*>());
       // temporary information around row and col
