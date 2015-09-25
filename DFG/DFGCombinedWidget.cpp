@@ -216,10 +216,6 @@ void DFGCombinedWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifi
     }
     m_hSplitter->setSizes(s);
   }
-  else
-  {
-    m_dfgWidget->onHotkeyPressed(key, modifiers, hotkey);
-  }
 }
 
 void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
@@ -245,13 +241,8 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
       graph->defineHotkey(Qt::Key_2,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_2);
       graph->defineHotkey(Qt::Key_3,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_3);
 
-      // we don't need to connect this signal, because we are invoking the slot
-      // in our own hotkeypressed method          
-      // QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)),
-      //   this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
-      // QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-      //   this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
-      
+      QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)),
+        this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
       QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)));
       QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)), 
