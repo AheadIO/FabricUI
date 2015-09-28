@@ -1133,7 +1133,9 @@ void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
             portPath,
             valueItem->value())
           )
-        emit argsChanged();
+          // we are emitting this so that the value editor resets,
+          // and all widget reflect the values prior to the edit.
+          emit argsChanged();
 
       }
       else if((nodeType == FabricCore::DFGNodeType_Get || 

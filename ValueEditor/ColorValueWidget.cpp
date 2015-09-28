@@ -5,7 +5,6 @@
 #include "ValueEditorEventFilters.h"
 
 #include <QtGui/QDoubleValidator>
-#include <QtGui/QColorDialog>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -20,38 +19,28 @@ ColorPickerWidget::ColorPickerWidget(QWidget * parent)
   m_colorG = 0.0;
   m_colorB = 0.0;
   m_colorA = 1.0;
+
+  m_dialog = new QColorDialog( this );
+  m_dialog->setOptions(QColorDialog::ShowAlphaChannel);
+  m_dialog->setModal(true);
 }
 
 void ColorPickerWidget::mousePressEvent ( QMouseEvent * event )
 {
   if(m_enabled)
   {
-    float prevR = m_colorR;
-    float prevG = m_colorG;
-    float prevB = m_colorB;
-    float prevA = m_colorA;
-    m_dialogRejected = false;
+    m_prevColorR = m_colorR;
+    m_prevColorG = m_colorG;
+    m_prevColorB = m_colorB;
+    m_prevColorA = m_colorA;
 
-    QColorDialog dialog( this );
-    dialog.setOptions(QColorDialog::ShowAlphaChannel);
-    dialog.setModal(true);
-    dialog.setCurrentColor(
+    m_dialog->setCurrentColor(
       QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
               int( m_colorB * 255.0f ), int( m_colorA * 255.0f ) ) );
-    connect(&dialog, SIGNAL(rejected()), this, SLOT(colorDialogRejected()));
-    connect(&dialog, SIGNAL(currentColorChanged(const QColor &)), this, SLOT(colorDialogChanged(const QColor &)));
+    connect(m_dialog, SIGNAL(rejected()), this, SLOT(colorDialogRejected()));
+    connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), this, SLOT(colorDialogChanged(const QColor &)));
 
-    dialog.exec();
-
-    if(m_dialogRejected)
-    {
-      m_colorR = prevR;
-      m_colorG = prevG;
-      m_colorB = prevB;
-      m_colorA = prevA;
-      emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
-      update();
-    }
+    m_dialog->show();
     return;
   }
 
@@ -81,7 +70,12 @@ void ColorPickerWidget::colorDialogChanged(const QColor & color)
 
 void ColorPickerWidget::colorDialogRejected()
 {
-  m_dialogRejected = true;
+  m_colorR = m_prevColorR;
+  m_colorG = m_prevColorG;
+  m_colorB = m_prevColorB;
+  m_colorA = m_prevColorA;
+  emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
+  update();
 }
 
 ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
@@ -105,7 +99,7 @@ ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
   m_colorPicker->setContentsMargins(0, 0, 0, 0);
   m_colorPicker->setMinimumWidth(60);
   m_colorPicker->setMinimumHeight(m_lineEditR->minimumHeight());
-  m_colorPicker->set(0, 0, 0, 0);
+  m_colorPicker->set(0, 0, 0, 0, true);
 
   m_lineEditR->setFocusPolicy(Qt::StrongFocus);
   m_lineEditG->setFocusPolicy(Qt::StrongFocus);
@@ -139,7 +133,7 @@ void ColorValueWidget::onValueChangedInLineEdit()
   float g = m_lineEditG->text().toFloat();
   float b = m_lineEditB->text().toFloat();
   float a = m_lineEditA->text().toFloat();
-  m_colorPicker->set(r, g, b, a);
+  m_colorPicker->set(r, g, b, a, true);
   ValueWidget::setValue(genRtVal(r, g, b, a));
 }
 
@@ -188,7 +182,7 @@ void ColorValueWidget::setValue(FabricCore::RTVal v)
   m_lineEditG->setLineEditText(QString::number(g));
   m_lineEditB->setLineEditText(QString::number(b));
   m_lineEditA->setLineEditText(QString::number(a));
-  m_colorPicker->set(r, g, b, a);
+  m_colorPicker->set(r, g, b, a, true);
 }
 
 void ColorValueWidget::setEnabled(bool state)
