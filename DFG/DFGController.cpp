@@ -148,8 +148,7 @@ bool DFGController::validPresetSplit() const
   if(!m_exec.isValid())
     return true;
 
-  FTL::StrRef presetName = m_exec.getPresetName();
-  if(presetName.empty())
+  if(!m_exec.editWouldSplitFromPreset())
     return true;
 
   QMessageBox msgBox;
