@@ -1344,15 +1344,41 @@ void DFGNotificationRouter::onRemovedFromOwner()
   if ( execPath.empty() )
     return;
 
-  FTL::StrRef::Split split = execPath.rsplit('.');
-  std::string parentExecPath = split.first;
+  // [FE-5435] we need to go up as high as required
+  // the level above might not exist anymore either.
+  while(true)
+  {
+    if(execPath.empty())
+      break;
+    
+    FTL::StrRef::Split split = execPath.rsplit('.');
 
-  FabricCore::DFGBinding &binding = m_dfgController->getBinding();
-  FabricCore::DFGExec rootExec = binding.getExec();
-  FabricCore::DFGExec parentExec =
-    rootExec.getSubExec( parentExecPath.c_str() );
+    std::string parentExecPath;
+    if( split.first.empty() || split.second.empty() )
+      parentExecPath = "";
+    else
+      parentExecPath = split.first;
 
-  m_dfgController->setExec( parentExecPath, parentExec );
+    FabricCore::DFGExec parentExec;
+    try
+    {
+      FabricCore::DFGBinding &binding = m_dfgController->getBinding();
+      FabricCore::DFGExec rootExec = binding.getExec();
+      if(parentExecPath.empty())
+        parentExec = rootExec;
+      else
+        parentExec = rootExec.getSubExec( parentExecPath.c_str() );
+    }
+    catch ( FabricCore::Exception e )
+    {
+      // the sub exec does not exist... let's go up higher
+      execPath = parentExecPath;
+      continue;
+    }
+
+    m_dfgController->setExec( parentExecPath, parentExec );
+    break;
+  }
 }
 
 void DFGNotificationRouter::onExecPortsReordered(
