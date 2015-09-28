@@ -61,6 +61,7 @@ namespace FabricUI
 
       void reqExtEditingFinished();
       void reqExtReturnPressed();
+      void onSplitFromPresetClicked();
 
     private:
 
@@ -74,6 +75,7 @@ namespace FabricUI
       QColor m_backgroundColor;
       QPen m_pen;
       GraphView::GraphConfig m_config;
+      QWidget *m_presetSplitWidget;
 
     };
 

@@ -151,18 +151,18 @@ bool DFGController::validPresetSplit() const
   if(!m_exec.editWouldSplitFromPreset())
     return true;
 
-  QMessageBox msgBox;
-  msgBox.setText( "You are about to split this node from the preset. Are you sure?" );
-  msgBox.setInformativeText( "The node will no longer be referencing the preset." );
-  msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
-  msgBox.setDefaultButton( QMessageBox::Cancel );
-  switch(msgBox.exec())
-  {
-    case QMessageBox::Ok:
-      return true;
-    case QMessageBox::Cancel:
-      return false;
-  }
+  // QMessageBox msgBox;
+  // msgBox.setText( "You are about to split this node from the preset. Are you sure?" );
+  // msgBox.setInformativeText( "The node will no longer be referencing the preset." );
+  // msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
+  // msgBox.setDefaultButton( QMessageBox::Cancel );
+  // switch(msgBox.exec())
+  // {
+  //   case QMessageBox::Ok:
+  //     return true;
+  //   case QMessageBox::Cancel:
+  //     return false;
+  // }
 
   return false;
 }
@@ -1274,6 +1274,17 @@ void DFGController::cmdSetExtDeps(
     getExecPath(),
     getExec(),
     nameAndVers
+    );
+}
+
+void DFGController::cmdSplitFromPreset()
+{
+  UpdateSignalBlocker blocker( this );
+  
+  m_cmdHandler->dfgDoSplitFromPreset(
+    getBinding(),
+    getExecPath(),
+    getExec()
     );
 }
 

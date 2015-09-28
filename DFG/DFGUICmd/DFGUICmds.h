@@ -33,5 +33,6 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetNodeTitle.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetPortDefaultValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetRefVarPath.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_SplitFromPreset.h>
 
 #endif // __UI_DFG_DFGUICmds__

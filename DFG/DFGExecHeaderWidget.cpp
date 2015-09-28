@@ -26,7 +26,6 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
   QHBoxLayout * layout = new QHBoxLayout();
   layout->setContentsMargins(config.headerMargins, config.headerMargins, config.headerMargins, config.headerMargins);
-  setLayout(layout);
 
   m_backgroundColor = config.headerBackgroundColor;
   m_pen = config.headerPen;
@@ -53,6 +52,31 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   layout->addStretch(2);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
+
+  QWidget *regWidget = new QWidget;
+  regWidget->setLayout( layout );
+
+  QHBoxLayout *presetSplitLayout = new QHBoxLayout;
+  presetSplitLayout->addWidget( new QLabel( "\
+This node is an instance of a preset and\n\
+cannot be changed unless split from the preset" ) );
+  QPushButton *presetSplitButton = new QPushButton( "Split from Preset" );
+  connect(
+    presetSplitButton, SIGNAL(clicked()),
+    this, SLOT(onSplitFromPresetClicked())
+    );
+  presetSplitLayout->addWidget( presetSplitButton );
+  m_presetSplitWidget = new QWidget;
+  m_presetSplitWidget->setLayout( presetSplitLayout );
+  QPalette presetSplitPalette( palette() );
+  presetSplitPalette.setColor( QPalette::Background, Qt::red );
+  m_presetSplitWidget->setPalette( presetSplitPalette );
+  m_presetSplitWidget->setAutoFillBackground( true );
+
+  QVBoxLayout *vLayout = new QVBoxLayout;
+  vLayout->addWidget( m_presetSplitWidget );
+  vLayout->addWidget( regWidget );
+  setLayout(vLayout);
 
   QObject::connect(
     m_dfgController, SIGNAL(execChanged()),
@@ -158,6 +182,10 @@ void DFGExecHeaderWidget::setFontColor(QColor c)
 
 void DFGExecHeaderWidget::onExecChanged()
 {
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if ( !!exec )
+    m_presetSplitWidget->setVisible( exec.editWouldSplitFromPreset() );
+
   if(m_dfgController->isViewingRootGraph())
   {
     m_goUpButton->hide();
@@ -168,9 +196,9 @@ void DFGExecHeaderWidget::onExecChanged()
   }
 
   m_caption = m_dfgController->getExecPath().c_str();
-  if(getExec().isValid() && m_caption.length() > 0)
+  if(exec.isValid() && m_caption.length() > 0)
   {
-    FTL::StrRef presetName = getExec().getPresetName();
+    FTL::StrRef presetName = exec.getPresetName();
     if(presetName.empty())
       m_captionSuffix = " *";
     else
@@ -209,4 +237,9 @@ void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
 FabricCore::DFGExec &DFGExecHeaderWidget::getExec()
 {
   return m_dfgController->getExec();
+}
+
+void DFGExecHeaderWidget::onSplitFromPresetClicked()
+{
+  m_dfgController->cmdSplitFromPreset();
 }

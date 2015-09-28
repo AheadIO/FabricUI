@@ -311,6 +311,8 @@ namespace FabricUI
         FTL::ArrayRef<FTL::StrRef> nameAndVers
         );
 
+      void cmdSplitFromPreset();
+
       virtual std::string reloadCode();
 
       virtual bool zoomCanvas(float zoom);

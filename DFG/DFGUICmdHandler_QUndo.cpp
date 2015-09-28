@@ -638,4 +638,19 @@ void DFGUICmdHandler_QUndo::dfgDoSetExtDeps(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
+void DFGUICmdHandler_QUndo::dfgDoSplitFromPreset(
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec
+  )
+{
+  DFGUICmd_SplitFromPreset *cmd =
+    new DFGUICmd_SplitFromPreset(
+      binding,
+      execPath,
+      exec
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

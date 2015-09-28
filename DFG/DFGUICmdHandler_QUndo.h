@@ -245,6 +245,12 @@ public:
     FabricCore::DFGExec const &exec,
     FTL::ArrayRef<FTL::StrRef> extDeps
     );
+
+  virtual void dfgDoSplitFromPreset(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec
+    );
   
 protected:
 

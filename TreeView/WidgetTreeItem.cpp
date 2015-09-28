@@ -104,7 +104,7 @@ void WidgetTreeItem::paint(QPainter * painter, const QStyleOptionViewItem & opti
     m_editor = NULL;
   }
 
-  if(!m_editor)
+  if(!m_editor && m_pixmap)
     painter->drawPixmap(option.rect.topLeft(), *m_pixmap);
 }
 

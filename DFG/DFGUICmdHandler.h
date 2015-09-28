@@ -262,6 +262,12 @@ public:
     FabricCore::DFGExec const &exec,
     FTL::ArrayRef<FTL::StrRef> extDeps
     ) = 0;
+
+  virtual void dfgDoSplitFromPreset(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec
+    ) = 0;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
