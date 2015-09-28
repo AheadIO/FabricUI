@@ -34,9 +34,6 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   QObject::connect(m_goUpButton, SIGNAL(clicked()), this, SIGNAL(goUpPressed()));
   m_goUpButton->setAutoFillBackground(false);
 
-  setFont(config.headerFont);
-  setFontColor(config.headerFontColor);
-
   m_reqExtLineEdit = new QLineEdit;
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(returnPressed()),
@@ -49,7 +46,10 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
   layout->addWidget( new QLabel("Required Extensions:") );
   layout->addWidget( m_reqExtLineEdit );
-  layout->addStretch(2);
+  layout->addStretch(1);
+  m_captionLabel = new QLabel();
+  layout->addWidget( m_captionLabel );
+  layout->addStretch(1);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
 
@@ -57,6 +57,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   regWidget->setLayout( layout );
 
   QHBoxLayout *presetSplitLayout = new QHBoxLayout;
+  presetSplitLayout->setContentsMargins(config.headerMargins, config.headerMargins, config.headerMargins, config.headerMargins);
   presetSplitLayout->addWidget( new QLabel( "\
 This node is an instance of a preset and\n\
 cannot be changed unless split from the preset" ) );
@@ -65,18 +66,24 @@ cannot be changed unless split from the preset" ) );
     presetSplitButton, SIGNAL(clicked()),
     this, SLOT(onSplitFromPresetClicked())
     );
+  presetSplitLayout->addStretch(1);
   presetSplitLayout->addWidget( presetSplitButton );
   m_presetSplitWidget = new QWidget;
   m_presetSplitWidget->setLayout( presetSplitLayout );
   QPalette presetSplitPalette( palette() );
-  presetSplitPalette.setColor( QPalette::Background, Qt::red );
+  presetSplitPalette.setColor( QPalette::Background, QColor("#ccb455") );
+  presetSplitPalette.setColor( QPalette::Foreground, QColor("#000000") );
   m_presetSplitWidget->setPalette( presetSplitPalette );
   m_presetSplitWidget->setAutoFillBackground( true );
 
   QVBoxLayout *vLayout = new QVBoxLayout;
+  vLayout->setContentsMargins(0, 0, 0, 0);
   vLayout->addWidget( m_presetSplitWidget );
   vLayout->addWidget( regWidget );
   setLayout(vLayout);
+
+  setFont( config.headerFont );
+  setFontColor( config.headerFontColor );
 
   QObject::connect(
     m_dfgController, SIGNAL(execChanged()),
@@ -92,6 +99,7 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 void DFGExecHeaderWidget::refresh()
 {
   m_caption = m_dfgController->getExecPath().c_str();
+  m_captionLabel->setText( m_caption );
   FabricCore::String extDepsDesc = getExec().getExtDeps();
   char const *extDepsDescCStr = extDepsDesc.getCStr();
   m_reqExtLineEdit->setText( extDepsDescCStr? extDepsDescCStr: "" );
@@ -165,6 +173,7 @@ bool DFGExecHeaderWidget::italic() const
 void DFGExecHeaderWidget::setFont(QFont f)
 {
   m_font = f;
+  m_captionLabel->setFont( f );
   m_goUpButton->setFont(f);
   update();
 }
@@ -173,10 +182,15 @@ void DFGExecHeaderWidget::setFontColor(QColor c)
 {
   m_fontColor = c;
 
+  QPalette captionLabelPalette = palette();
+  captionLabelPalette.setColor( QPalette::Foreground, c );
+  m_captionLabel->setPalette( captionLabelPalette );
+
   QPalette p = m_goUpButton->palette();
   p.setColor(QPalette::ButtonText, c);
   p.setColor(QPalette::Button, m_config.nodeDefaultColor);
   m_goUpButton->setPalette(p);
+
   update();
 }
 
@@ -208,7 +222,9 @@ void DFGExecHeaderWidget::onExecChanged()
     m_captionSuffix = "";
 
   m_caption += m_captionSuffix;
+  m_captionLabel->setText( m_caption );
   m_font.setItalic(m_captionSuffix.length() > 0);
+  m_captionLabel->setFont( m_font );
   update();
 }
 
@@ -221,15 +237,6 @@ void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
 
   painter.setPen(m_pen);
   painter.drawLine(rect.bottomLeft(), rect.bottomRight());
-
-  QFontMetrics metrics(m_font);
-
-  painter.setFont(m_font);
-  painter.setPen(m_fontColor);
-
-  int left = int(size().width() * 0.5 - metrics.width(m_caption) * 0.5);
-  int top = int(size().height() * 0.5 + metrics.height() * 0.5);
-  painter.drawText(left, top, m_caption);
 
   QWidget::paintEvent(event);
 }

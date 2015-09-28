@@ -12,6 +12,8 @@
 
 #include <FabricUI/GraphView/GraphConfig.h>
 
+class QLabel;
+
 namespace FabricUI
 {
   namespace DFG
@@ -76,6 +78,7 @@ namespace FabricUI
       QPen m_pen;
       GraphView::GraphConfig m_config;
       QWidget *m_presetSplitWidget;
+      QLabel *m_captionLabel;
 
     };
 
