@@ -4,6 +4,7 @@
 #define __UI_ValueEditor_ColorValueWidget__
 
 #include <QtGui/QMouseEvent>
+#include <QtGui/QColorDialog>
 
 #include "ValueWidget.h"
 #include "LineEdit.h"
@@ -23,14 +24,15 @@ namespace FabricUI
       virtual void  mousePressEvent ( QMouseEvent * event );
       virtual void  paintEvent ( QPaintEvent * event );
 
-      void set(float r, float g, float b, float a)
+      void set(float r, float g, float b, float a, bool silent = false)
       {
         m_colorR = r;
         m_colorG = g;
         m_colorB = b;
         m_colorA = a;
         update();
-        emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
+        if(!silent)
+          emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
       }
 
       void setR(float value)
@@ -86,7 +88,12 @@ namespace FabricUI
       float m_colorG;
       float m_colorB;
       float m_colorA;
-      bool m_dialogRejected;
+      float m_prevColorR;
+      float m_prevColorG;
+      float m_prevColorB;
+      float m_prevColorA;
+
+      QColorDialog * m_dialog;
     };
 
     class ColorValueWidget : public ValueWidget
