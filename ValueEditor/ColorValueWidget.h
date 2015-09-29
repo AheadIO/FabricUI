@@ -15,7 +15,7 @@ namespace FabricUI
   namespace ValueEditor
   {
     class ColorValueWidget;
-    
+
     class ColorPickerWidget : public QWidget
     {
       Q_OBJECT
@@ -97,6 +97,7 @@ namespace FabricUI
       float m_prevColorA;
 
       QColorDialog * m_dialog;
+      bool m_dialogConnected;
       ValueItem * m_valueItem;
     };
 

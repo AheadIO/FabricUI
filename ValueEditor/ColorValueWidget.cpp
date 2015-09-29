@@ -21,6 +21,7 @@ ColorPickerWidget::ColorPickerWidget(QWidget * parent)
   m_colorB = 0.0;
   m_colorA = 1.0;
 
+  m_dialogConnected = false;
   m_dialog = new QColorDialog( this );
   m_dialog->setOptions(QColorDialog::ShowAlphaChannel);
   m_dialog->setModal(true);
@@ -38,9 +39,14 @@ void ColorPickerWidget::mousePressEvent ( QMouseEvent * event )
     m_dialog->setCurrentColor(
       QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
               int( m_colorB * 255.0f ), int( m_colorA * 255.0f ) ) );
-    connect(m_dialog, SIGNAL(accepted()), m_valueItem, SLOT(onDialogAccepted()));
-    connect(m_dialog, SIGNAL(rejected()), m_valueItem, SLOT(onDialogCanceled()));
-    connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), m_valueItem, SLOT(onColorChosen(const QColor &)));
+
+    if(!m_dialogConnected)
+    {
+      connect(m_dialog, SIGNAL(accepted()), m_valueItem, SLOT(onDialogAccepted()));
+      connect(m_dialog, SIGNAL(rejected()), m_valueItem, SLOT(onDialogCanceled()));
+      connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), m_valueItem, SLOT(onColorChosen(const QColor &)));
+      m_dialogConnected = true;
+    }
 
     m_valueItem->onBeginInteraction(m_valueItem);
 
