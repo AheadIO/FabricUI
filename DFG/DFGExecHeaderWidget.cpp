@@ -58,16 +58,16 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
   QHBoxLayout *presetSplitLayout = new QHBoxLayout;
   presetSplitLayout->setContentsMargins(config.headerMargins, config.headerMargins, config.headerMargins, config.headerMargins);
-  presetSplitLayout->addWidget( new QLabel( "\
-This node is an instance of a preset and\n\
-cannot be changed unless split from the preset" ) );
   QPushButton *presetSplitButton = new QPushButton( "Split from Preset" );
   connect(
     presetSplitButton, SIGNAL(clicked()),
     this, SLOT(onSplitFromPresetClicked())
     );
-  presetSplitLayout->addStretch(1);
   presetSplitLayout->addWidget( presetSplitButton );
+  presetSplitLayout->addWidget( new QLabel( "\
+This node is an instance of a preset and\n\
+cannot be changed unless split from the preset" ) );
+  presetSplitLayout->addStretch(1);
   m_presetSplitWidget = new QWidget;
   m_presetSplitWidget->setLayout( presetSplitLayout );
   QPalette presetSplitPalette( palette() );
