@@ -162,6 +162,8 @@ void DFGValueEditor::onArgsChanged()
         nodePathFromRoot += '.';
       nodePathFromRoot += m_nodeName;
 
+      bool isEditable = m_controller->validPresetSplit();
+
       if ( m_exec.getNodeType( m_nodeName.c_str() )
         == FabricCore::DFGNodeType_Inst )
       {
@@ -222,7 +224,7 @@ void DFGValueEditor::onArgsChanged()
               portPathFromRoot,
               value,
               portName,
-              true, // enabled
+              isEditable, // enabled
               true // parentToRoot
               );
           if(item)
@@ -250,7 +252,8 @@ void DFGValueEditor::onArgsChanged()
             m_controller->getExecPath(),
             m_treeView,
             varPathVal,
-            "variable"
+            "variable",
+            isEditable
             );
 
           std::string portPathFromRoot = m_execPath;
@@ -292,7 +295,7 @@ void DFGValueEditor::onArgsChanged()
             portPathFromRoot += m_nodeName;
             portPathFromRoot += FTL_STR(".value");
             
-            addValue( portPathFromRoot, value, "value", true, true );
+            addValue( portPathFromRoot, value, "value", isEditable, true );
           }
         }
       }
@@ -315,7 +318,8 @@ void DFGValueEditor::onArgsChanged()
             m_controller->getExecPath(),
             m_treeView,
             varPathVal,
-            "variable"
+            "variable",
+            isEditable
             );
 
         std::string portPathFromRoot = m_execPath;
