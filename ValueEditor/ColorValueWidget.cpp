@@ -11,6 +11,7 @@ using namespace FabricUI::ValueEditor;
 
 ColorPickerWidget::ColorPickerWidget(QWidget * parent)
   : QWidget(parent)
+  , m_valueItem(NULL)
 {
   setMinimumSize(60, 25);
   setMaximumSize(100, 25);
@@ -37,8 +38,11 @@ void ColorPickerWidget::mousePressEvent ( QMouseEvent * event )
     m_dialog->setCurrentColor(
       QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
               int( m_colorB * 255.0f ), int( m_colorA * 255.0f ) ) );
-    connect(m_dialog, SIGNAL(rejected()), this, SLOT(colorDialogRejected()));
-    connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), this, SLOT(colorDialogChanged(const QColor &)));
+    connect(m_dialog, SIGNAL(accepted()), m_valueItem, SLOT(onDialogAccepted()));
+    connect(m_dialog, SIGNAL(rejected()), m_valueItem, SLOT(onDialogCanceled()));
+    connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), m_valueItem, SLOT(onColorChosen(const QColor &)));
+
+    m_valueItem->onBeginInteraction(m_valueItem);
 
     m_dialog->show();
     return;
@@ -58,25 +62,15 @@ void ColorPickerWidget::paintEvent ( QPaintEvent * event )
   painter.end();  
 }
 
-void ColorPickerWidget::colorDialogChanged(const QColor & color)
-{
-  m_colorR = color.redF();
-  m_colorG = color.greenF();
-  m_colorB = color.blueF();
-  m_colorA = color.alphaF();
-  emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
-  update();
-}
-
-void ColorPickerWidget::colorDialogRejected()
-{
-  m_colorR = m_prevColorR;
-  m_colorG = m_prevColorG;
-  m_colorB = m_prevColorB;
-  m_colorA = m_prevColorA;
-  emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
-  update();
-}
+// void ColorPickerWidget::colorDialogRejected()
+// {
+//   m_colorR = m_prevColorR;
+//   m_colorG = m_prevColorG;
+//   m_colorB = m_prevColorB;
+//   m_colorA = m_prevColorA;
+//   emit colorChanged(m_colorR, m_colorG, m_colorB, m_colorA);
+//   update();
+// }
 
 ColorValueWidget::ColorValueWidget(QString label, QWidget * parent)
 : ValueWidget(label, parent, true)
@@ -208,6 +202,7 @@ TreeEditorWidget * ColorValueWidget::creator(QWidget * parent, WidgetTreeItem * 
 {
   ColorValueWidget * widget = new ColorValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
+  widget->colorPicker()->setValueItem((ValueItem*)item);
   widget->setValue(((ValueItem*)item)->value());
   return widget;
 }
@@ -224,28 +219,34 @@ bool ColorValueWidget::canDisplay(WidgetTreeItem * item)
     typeName == "ARGB";
 }
 
+FabricCore::RTVal ColorValueWidget::genRtVal(ValueItem * item, const std::string & typeName, float r, float g, float b, float a)
+{
+  FabricCore::RTVal val = FabricCore::RTVal::Construct(*item->client(), typeName.c_str(), 0, 0);
+  if(typeName == "Color")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructFloat32(*item->client(), r));
+    val.setMember("g", FabricCore::RTVal::ConstructFloat32(*item->client(), g));
+    val.setMember("b", FabricCore::RTVal::ConstructFloat32(*item->client(), b));
+    val.setMember("a", FabricCore::RTVal::ConstructFloat32(*item->client(), a));
+  }
+  else if(typeName == "RGB")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*item->client(), int(r * 255.0f)));
+    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*item->client(), int(g * 255.0f)));
+    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*item->client(), int(b * 255.0f)));
+  }
+  else if(typeName == "RGBA" || typeName == "ARGB")
+  {
+    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*item->client(), int(r * 255.0f)));
+    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*item->client(), int(g * 255.0f)));
+    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*item->client(), int(b * 255.0f)));
+    val.setMember("a", FabricCore::RTVal::ConstructUInt8(*item->client(), int(a * 255.0f)));
+  }
+
+  return val;
+}
+
 FabricCore::RTVal ColorValueWidget::genRtVal(float r, float g, float b, float a)
 {
-  FabricCore::RTVal val = FabricCore::RTVal::Construct(*((ValueItem*)item())->client(), m_typeName.c_str(), 0, 0);
-  if(m_typeName == "Color")
-  {
-    val.setMember("r", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), r));
-    val.setMember("g", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), g));
-    val.setMember("b", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), b));
-    val.setMember("a", FabricCore::RTVal::ConstructFloat32(*((ValueItem*)item())->client(), a));
-  }
-  else if(m_typeName == "RGB")
-  {
-    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(r * 255.0f)));
-    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(g * 255.0f)));
-    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(b * 255.0f)));
-  }
-  else if(m_typeName == "RGBA" || m_typeName == "ARGB")
-  {
-    val.setMember("r", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(r * 255.0f)));
-    val.setMember("g", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(g * 255.0f)));
-    val.setMember("b", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(b * 255.0f)));
-    val.setMember("a", FabricCore::RTVal::ConstructUInt8(*((ValueItem*)item())->client(), int(a * 255.0f)));
-  }
-  return val;
+  return genRtVal(valueItem(), m_typeName, r, g, b, a);
 }

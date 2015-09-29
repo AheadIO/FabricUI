@@ -14,12 +14,16 @@ namespace FabricUI
 
   namespace ValueEditor
   {
+    class ColorValueWidget;
+    
     class ColorPickerWidget : public QWidget
     {
       Q_OBJECT
 
     public:
       ColorPickerWidget(QWidget * parent);
+
+      void setValueItem(ValueItem * item) { m_valueItem = item; }
 
       virtual void  mousePressEvent ( QMouseEvent * event );
       virtual void  paintEvent ( QPaintEvent * event );
@@ -78,9 +82,8 @@ namespace FabricUI
     signals:
       void colorChanged(float r, float g, float b, float a);
 
-    private slots:
-      void colorDialogChanged(const QColor & color);
-      void colorDialogRejected();
+    // private slots:
+    //   void colorDialogRejected();
 
     private:
       bool m_enabled;
@@ -94,6 +97,7 @@ namespace FabricUI
       float m_prevColorA;
 
       QColorDialog * m_dialog;
+      ValueItem * m_valueItem;
     };
 
     class ColorValueWidget : public ValueWidget
@@ -105,11 +109,15 @@ namespace FabricUI
       ColorValueWidget(QString label, QWidget * parent);
       virtual ~ColorValueWidget();
 
+      ColorPickerWidget * colorPicker() { return m_colorPicker; }
+
       virtual void setValue(FabricCore::RTVal v);
       virtual void setEnabled(bool state);
 
       static TreeView::TreeEditorWidget * creator(QWidget * parent, TreeView::WidgetTreeItem * item);
       static bool canDisplay(TreeView::WidgetTreeItem * item);
+
+      static FabricCore::RTVal genRtVal(ValueItem * item, const std::string & typeName, float r, float g, float b, float a);
 
     public slots:
 

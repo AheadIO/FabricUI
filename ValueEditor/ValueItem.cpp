@@ -2,6 +2,8 @@
 
 #include "ValueItem.h"
 #include "ValueWidget.h"
+#include "ColorValueWidget.h"
+#include "ValueEditorWidget.h"
 #include <assert.h>
 
 using namespace FabricUI::TreeView;
@@ -104,6 +106,16 @@ void ValueItem::onEndInteraction( ValueItem * item )
   m_valueAtInteractionEnter.invalidate();
 }
 
+void ValueItem::onDialogAccepted()
+{
+  onEndInteraction(this);
+}
+
+void ValueItem::onDialogCanceled()
+{
+  onEndInteraction(this);
+}
+
 void ValueItem::onFilePathChosen(const QString & filePath)
 {
   if(filePath.length() == 0)
@@ -114,6 +126,24 @@ void ValueItem::onFilePathChosen(const QString & filePath)
     FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, filePath.toUtf8().constData());
     FabricCore::RTVal filePathVal = FabricCore::RTVal::Create(*m_client, "FilePath", 1, &stringVal);
     setValue(filePathVal);
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("%s\n", e.getDesc_cstr());
+  }
+
+  updatePixmap();
+}
+
+void ValueItem::onColorChosen(const QColor & color)
+{
+  try
+  {
+    float r = color.redF();
+    float g = color.greenF();
+    float b = color.blueF();
+    float a = color.alphaF();
+    setValue(ColorValueWidget::genRtVal(this, m_valueTypeName.toUtf8().constData(), r, g, b, a));
   }
   catch(FabricCore::Exception e)
   {
