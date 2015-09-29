@@ -56,7 +56,7 @@ namespace FabricUI
     public slots:
 
       void onBeginInteraction(ValueItem * item);
-      void onEndInteraction(ValueItem * item);
+      void onEndInteraction(ValueItem * item, bool cancel = false);
       void onDialogAccepted();
       void onDialogCanceled();
       void onFilePathChosen(const QString & filePath);

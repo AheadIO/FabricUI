@@ -97,10 +97,13 @@ void ValueItem::onBeginInteraction( ValueItem * item )
   m_valueAtInteractionEnter = m_value.copy();
 }
 
-void ValueItem::onEndInteraction( ValueItem * item )
+void ValueItem::onEndInteraction( ValueItem * item, bool cancel )
 {
   assert( !!m_valueAtInteractionEnter );
 
+  if(cancel)
+    m_value = m_valueAtInteractionEnter;
+  
   emit valueItemInteractionLeave( this );
 
   m_valueAtInteractionEnter.invalidate();
@@ -113,7 +116,7 @@ void ValueItem::onDialogAccepted()
 
 void ValueItem::onDialogCanceled()
 {
-  onEndInteraction(this);
+  onEndInteraction(this, true /* cancel */);
 }
 
 void ValueItem::onFilePathChosen(const QString & filePath)
