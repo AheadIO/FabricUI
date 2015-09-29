@@ -65,8 +65,8 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
     );
   presetSplitLayout->addWidget( presetSplitButton );
   presetSplitLayout->addWidget( new QLabel( "\
-This node is an instance of a preset and\n\
-cannot be changed unless split from the preset" ) );
+This node or one of its parents is an instance of a preset\n\
+and cannot be changed unless split from the preset" ) );
   presetSplitLayout->addStretch(1);
   m_presetSplitWidget = new QWidget;
   m_presetSplitWidget->setLayout( presetSplitLayout );
