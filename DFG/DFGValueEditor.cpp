@@ -21,6 +21,7 @@ DFGValueEditor::DFGValueEditor(
 {
   // todo: really the value editor should be using a notificationrouter... 
   QObject::connect(m_controller, SIGNAL(argsChanged()), this, SLOT(onArgsChanged()));
+  QObject::connect(m_controller, SIGNAL(execSplitChanged()), this, SLOT(onArgsChanged()));
   QObject::connect(
     m_controller, SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
     this, SLOT(setBinding(FabricCore::DFGBinding const &))

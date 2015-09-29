@@ -394,6 +394,11 @@ namespace FabricUI
           emit dirty();
       }
 
+      void emitExecSplitChanged()
+      {
+        emit execSplitChanged();
+      }
+
       void setBlockCompilations( bool blockCompilations );
 
       class UpdateSignalBlocker
@@ -456,6 +461,7 @@ namespace FabricUI
       void argValuesChanged();
       void defaultValuesChanged();
       void dirty();
+      void execSplitChanged();
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);

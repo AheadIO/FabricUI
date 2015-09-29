@@ -89,6 +89,10 @@ cannot be changed unless split from the preset" ) );
     m_dfgController, SIGNAL(execChanged()),
     this, SLOT(onExecChanged())
     );
+  QObject::connect(
+    m_dfgController, SIGNAL(execSplitChanged()),
+    this, SLOT(onExecChanged())
+    );
   onExecChanged();
 }
 

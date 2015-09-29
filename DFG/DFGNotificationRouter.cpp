@@ -1468,8 +1468,7 @@ void DFGNotificationRouter::onExecPresetFileRefCountDidChange(
   int newPresetFileRefCount
   )
 {
-  // refresh the caption on the exec
-  m_dfgController->getDFGWidget()->getHeaderWidget()->onExecChanged();
+  m_dfgController->emitExecSplitChanged();
 }
 
 void DFGNotificationRouter::onInstExecPresetFileRefCountDidChange(

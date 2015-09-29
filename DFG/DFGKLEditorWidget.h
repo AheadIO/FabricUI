@@ -27,7 +27,6 @@ namespace FabricUI
       DFGKLEditorWidget(QWidget * parent, DFGController * controller, FabricServices::ASTWrapper::KLASTManager * manager, const DFGConfig & config = DFGConfig());
       virtual ~DFGKLEditorWidget();
 
-      void setFunc(FabricCore::DFGExec func, char const * execPath);
       bool hasUnsavedChanges() const { return m_unsavedChanges; }
       KLEditor::KLEditorWidget * klEditor() { return m_klEditor; }
 
@@ -40,6 +39,7 @@ namespace FabricUI
       void save();
       void reload();
       void onNewUnsavedChanges();
+      void onExecSplitChanged();
 
     signals:
 

@@ -104,6 +104,10 @@ DFGKLEditorWidget::DFGKLEditorWidget(
     controller, SIGNAL(execChanged()),
     this, SLOT(onExecChanged())
     );
+  QObject::connect(
+    controller, SIGNAL(execSplitChanged()),
+    this, SLOT(onExecSplitChanged())
+    );
   QObject::connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
   QObject::connect(reloadButton, SIGNAL(clicked()), this, SLOT(reload()));
   QObject::connect(m_klEditor->sourceCodeWidget(), SIGNAL(newUnsavedChanged()), this, SLOT(onNewUnsavedChanges()));
@@ -121,6 +125,8 @@ void DFGKLEditorWidget::onExecChanged()
     return;
   
   FabricCore::DFGExec &exec = m_controller->getExec();
+  bool isEditable = m_controller->validPresetSplit();
+  setEnabled(isEditable);
 
   if ( exec.getType() == FabricCore::DFGExecType_Func )
   {
@@ -361,6 +367,16 @@ void DFGKLEditorWidget::reload()
 void DFGKLEditorWidget::onNewUnsavedChanges()
 {
   m_unsavedChanges = true;
+}
+
+void DFGKLEditorWidget::onExecSplitChanged()
+{
+  if(!isVisible())
+    return;
+
+  FabricCore::DFGExec exec = m_controller->getExec();
+  if(exec.getType() == FabricCore::DFGExecType_Func)
+    onExecChanged();
 }
 
 void DFGKLEditorWidget::closeEvent(QCloseEvent * event)
