@@ -103,7 +103,7 @@ void ValueItem::onEndInteraction( ValueItem * item, bool cancel )
 
   if(cancel)
     m_value = m_valueAtInteractionEnter;
-  
+
   emit valueItemInteractionLeave( this );
 
   m_valueAtInteractionEnter.invalidate();
@@ -152,6 +152,10 @@ void ValueItem::onColorChosen(const QColor & color)
   {
     printf("%s\n", e.getDesc_cstr());
   }
+
+  ValueWidget * widget = (ValueWidget *)editor();
+  if(widget)
+    widget->onValueItemDelta(this);
 
   updatePixmap();
 }
