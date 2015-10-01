@@ -4,7 +4,7 @@
 
 #include "WidgetTreeItem.h"
 #include "TreeEditorFactory.h"
-
+#include <iostream>
 using namespace FabricUI::TreeView;
 
 WidgetTreeItem::WidgetTreeItem(
@@ -16,6 +16,7 @@ WidgetTreeItem::WidgetTreeItem(
   : TreeItem(name, label)
   , m_parent(parent)
 {
+  //std::cerr << "WidgetTreeItem::WidgetTreeItem" << std::endl;
   m_editor = NULL;
   m_factory = factory;
   m_pixmap = NULL;
@@ -24,6 +25,7 @@ WidgetTreeItem::WidgetTreeItem(
 
 WidgetTreeItem::~WidgetTreeItem()
 {
+  //std::cerr << "WidgetTreeItem::~WidgetTreeItem" << std::endl;
   if(m_pixmap)
     delete(m_pixmap);
 }
@@ -34,12 +36,14 @@ TreeItemType WidgetTreeItem::itemType() const
 }
 
 void WidgetTreeItem::onEditorDestroyed(QObject * obj)
-{
+{  
+  //std::cerr << "WidgetTreeItem::onEditorDestroyed" << std::endl;
   m_editor = NULL;
 }
 
 QSize WidgetTreeItem::sizeHint(const QStyleOptionViewItem & option) const
 {
+  //std::cerr << "WidgetTreeItem::sizeHint" << std::endl;
   if(!m_minimumSize.isValid())
   {
     if(m_editor)
@@ -61,6 +65,7 @@ QSize WidgetTreeItem::sizeHint(const QStyleOptionViewItem & option) const
 
 void WidgetTreeItem::paint(QPainter * painter, const QStyleOptionViewItem & option) const
 {
+  //std::cerr << "WidgetTreeItem::paint" << std::endl;
   QSize size(option.rect.width(), option.rect.height());
 
   bool needsUpdate = m_needsUpdate;
@@ -110,11 +115,13 @@ void WidgetTreeItem::paint(QPainter * painter, const QStyleOptionViewItem & opti
 
 TreeEditorWidget * WidgetTreeItem::editor()
 {
+  //std::cerr << "WidgetTreeItem::editor" << std::endl;
   return m_editor;
 }
 
 void WidgetTreeItem::setEditor(TreeEditorWidget * editor)
 {
+  //std::cerr << "WidgetTreeItem::setEditor" << std::endl;
   m_editor = editor;
   if(m_editor)
   {
@@ -126,6 +133,7 @@ void WidgetTreeItem::setEditor(TreeEditorWidget * editor)
 
 void WidgetTreeItem::setSelected(bool state)
 {
+  //std::cerr << "WidgetTreeItem::setSelected" << std::endl;
   bool prev = selected();
   TreeItem::setSelected(state);
   if(prev != state)
@@ -137,6 +145,7 @@ void WidgetTreeItem::setSelected(bool state)
 
 void WidgetTreeItem::setExpanded(bool state)
 {
+  //std::cerr << "WidgetTreeItem::setExpanded" << std::endl;
   bool prev = expanded();
   TreeItem::setExpanded(state);
   if(prev != state)
@@ -158,17 +167,20 @@ void WidgetTreeItem::setExpanded(bool state)
 
 TreeEditorWidget * WidgetTreeItem::createTempEditor() const
 {
+  //std::cerr << "WidgetTreeItem::createTempEditor" << std::endl;
   QStyleOptionViewItem option;
   return m_factory->createEditor(m_parent, (WidgetTreeItem*)this);
 }
 
 void WidgetTreeItem::updateFromUI()
 {
+  //std::cerr << "WidgetTreeItem::updateFromUI" << std::endl;
   onUIChanged();
 }
 
 void WidgetTreeItem::updatePixmap() const
 {
+  //std::cerr << "WidgetTreeItem::updatePixmap" << std::endl;
   if(m_editor && m_pixmap)
   {
     if(m_editor->size() == m_pixmap->size())
@@ -181,6 +193,7 @@ void WidgetTreeItem::updatePixmap() const
 
 void WidgetTreeItem::onDataChanged()
 {
+  //std::cerr << "WidgetTreeItem::onDataChanged" << std::endl;
   if(m_editor)
   {
     m_editor->changeData();

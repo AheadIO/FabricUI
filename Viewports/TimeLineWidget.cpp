@@ -196,6 +196,21 @@ TimeLineWidget::TimeLineWidget()
   connect( m_simModeComBox , SIGNAL(activated(int)) , this , SLOT( simModeChanged(int))  );
 }
 
+void TimeLineWidget::setFrameRate( float framesPerSecond ) {
+  // For now just clamp to existing options
+  int index = 0; // max fps
+  if( framesPerSecond <= 15 )
+    index = 1; // 12 fps
+  else if( framesPerSecond <= 30 )
+    index = 2; // 24 fps
+  else if( framesPerSecond <= 50 )
+    index = 3; // 48 fps
+  else if( framesPerSecond <= 70 )
+    index = 4; // 60 fps
+  frameRateChanged( index );
+  m_frameRateComboBox->setCurrentIndex( index );
+}
+
 void TimeLineWidget::setTime(int time)
 {
   if(m_settingTime)

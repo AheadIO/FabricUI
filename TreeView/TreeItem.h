@@ -67,6 +67,8 @@ namespace FabricUI
       virtual unsigned int numChildren();
       virtual void addChild(TreeItem * childToAdd);
       virtual bool removeChild(TreeItem * childToRemove);
+      virtual void removeChildrenRecursively();
+
       virtual TreeItem * child( unsigned int i );
       virtual TreeItem * child( FTL::StrRef path );
       virtual TreeItem * child( QModelIndex index );
