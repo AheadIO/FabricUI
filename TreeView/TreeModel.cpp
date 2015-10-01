@@ -4,37 +4,27 @@
 
 #include "TreeModel.h"
 #include "WidgetTreeItem.h"
-#include <iostream>
+
 using namespace FabricUI::TreeView;
 
 TreeModel::TreeModel(QObject * parent)
 :QAbstractItemModel(parent)
 {
-  //std::cerr << "TreeModel::TreeModel" << std::endl;
 }
 
 TreeModel::~TreeModel()
 {
-  //std::cerr << "TreeModel::~TreeModel" << std::endl;
-
-
   for(size_t i=0;i<m_items.size();i++)
     delete(m_items[i]);
 }
 
 unsigned int TreeModel::numItems()
 {
-  //std::cerr << "TreeModel::numItems" << std::endl;
-
-
   return m_items.size();
 }
 
 void TreeModel::addItem(TreeItem * itemToAdd)
 {
-  //std::cerr << "TreeModel::addItem" << std::endl;
-
-
   beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
   itemToAdd->setParent(NULL);
   itemToAdd->setModel(this);
@@ -45,9 +35,6 @@ void TreeModel::addItem(TreeItem * itemToAdd)
 
 bool TreeModel::removeItem(TreeItem * itemToRemove)
 {
-  //std::cerr << "TreeModel::removeItem" << std::endl;
-
-
   unsigned int index = m_items.size();
   for(unsigned int i=0;i<m_items.size();i++)
   {
@@ -69,9 +56,6 @@ bool TreeModel::removeItem(TreeItem * itemToRemove)
 
 TreeItem * TreeModel::item(unsigned int index)
 {
-  //std::cerr << "TreeModel::item 1" << std::endl;
-
-
   return m_items[index];
 }
 
@@ -79,7 +63,6 @@ TreeItem * TreeModel::item( FTL::StrRef path )
 {
   FTL::StrRef::Split split = path.split('.');
   if ( !split.first.empty() )
-
   {
     for ( size_t i = 0; i < m_items.size(); ++i )
     {
@@ -111,9 +94,6 @@ TreeItem * TreeModel::item( QModelIndex index )
 
 void TreeModel::clear()
 {
-  //std::cerr << "TreeModel::clear" << std::endl;
-
-
   size_t prevSize = m_items.size();
   if(prevSize == 0)
     return;
@@ -127,15 +107,11 @@ void TreeModel::clear()
 
 int TreeModel::columnCount(const QModelIndex & parent) const
 {
-  //std::cerr << "TreeModel::columnCount" << std::endl;
-
   return 1;
 }
 
 QVariant TreeModel::data(const QModelIndex & index, int role) const
 {
-  //std::cerr << "TreeModel::data" << std::endl;
-
   if(!index.isValid())
     return QVariant();
 
@@ -145,27 +121,19 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
 
 void TreeModel::fetchMore(const QModelIndex & parent)
 {
-  //std::cerr << "TreeModel::fetchMore" << std::endl;
 }
 
 bool TreeModel::hasChildren(const QModelIndex & parent) const
 {
-  //std::cerr << "TreeModel::hasChildren" << std::endl;
-
   return rowCount(parent) > 0;
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) const
 {
-
-  //std::cerr << "TreeModel::index 1" << std::endl;
   if(!parent.isValid())
   {
     if(size_t(row) >= m_items.size())
-    {
-      //std::cerr << "TreeModel::index 1.1" << std::endl;
       return QModelIndex();
-    }
 
     QModelIndex idx = m_items[row]->modelIndex();
     if(!idx.isValid())
@@ -173,42 +141,25 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex & parent) co
       idx = createIndex(row, column, m_items[row]);
       m_items[row]->setModelIndex(idx);
     }
-    //std::cerr << "TreeModel::index 1.2" << std::endl;
     return idx;
   }
 
-  //std::cerr << "TreeModel::index 2" << std::endl;
   TreeItem * parentItem = (TreeItem *)parent.internalPointer();
   if(size_t(row) >= parentItem->numChildren())
-  {
-    //std::cerr << "TreeModel::index 2.1" << std::endl;
     return QModelIndex();
-  }
 
-  //std::cerr << "TreeModel::index 3" << std::endl;
   TreeItem * item = parentItem->child(row);
-  if( !item )
-    return QModelIndex();
-
-  //std::cerr << "TreeModel::index 3.1" << std::endl;
   QModelIndex idx = item->modelIndex();
-  //std::cerr << "TreeModel::index 3.2" << std::endl;
   if(!idx.isValid())
   {
-    //std::cerr << "TreeModel::index 3.3" << std::endl;
     idx = createIndex(row, column, item);
-    //std::cerr << "TreeModel::index 3.4" << std::endl;
     item->setModelIndex(idx);
   }
-
-  //std::cerr << "TreeModel::index 3.5" << std::endl;
   return idx;
 }
 
 QModelIndex TreeModel::parent(const QModelIndex & index) const
 {
-  //std::cerr << "TreeModel::parent" << std::endl;
-
   if(!index.isValid())
     return QModelIndex();
 
@@ -227,8 +178,6 @@ QModelIndex TreeModel::parent(const QModelIndex & index) const
 
 int TreeModel::rowCount(const QModelIndex & parent) const
 {
-  //std::cerr << "TreeModel::rowCount" << std::endl;
-
   if(!parent.isValid())
     return ((TreeModel*)this)->numItems();
 
@@ -238,21 +187,17 @@ int TreeModel::rowCount(const QModelIndex & parent) const
 
 void TreeModel::invalidateItem(TreeItem * item)
 {
-  //std::cerr << "TreeModel::invalidateItem" << std::endl;
   emit dataChanged(item->modelIndex(), item->modelIndex());
 }
 
 void TreeModel::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-  //std::cerr << "TreeModel::selectionChanged" << std::endl;
   for(size_t i=0;i<m_items.size();i++)
     m_items[i]->selectionChanged(selected, deselected);
 }
 
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
-  //std::cerr << "TreeModel::flags" << std::endl;
-
   Qt::ItemFlags result = QAbstractItemModel::flags(index);
   TreeItem * item = (TreeItem *)index.internalPointer();
   if(item)
@@ -262,8 +207,6 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 
 QMimeData * TreeModel::mimeData(const QModelIndexList &indexes) const
 {
-  //std::cerr << "TreeModel::mimeData" << std::endl;
-
   QMimeData *mimeData = new QMimeData();
 
   QString text;
