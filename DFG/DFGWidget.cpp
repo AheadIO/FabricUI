@@ -188,7 +188,7 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   result->addAction(DFG_CACHE_NODE);
   result->addSeparator();
 
-  QAction * pasteAction = new QAction(DFG_PAST_PRESET, graphWidget);
+  QAction * pasteAction = new QAction(DFG_PASTE_PRESET, graphWidget);
   pasteAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_V) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
   pasteAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -300,7 +300,7 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     else
     {
       result->addAction(DFG_SELECT_ALL_PRESET);
-      result->addAction(DFG_PAST_PRESET);
+      result->addAction(DFG_PASTE_PRESET);
     }
 
     if(onlyInstNodes)
@@ -585,7 +585,7 @@ dfgEntry {\n\
   {
     onSelectAll();
   }
-  else if(action->text() == DFG_PAST_PRESET)
+  else if(action->text() == DFG_PASTE_PRESET)
   {
     onPaste();
   }
