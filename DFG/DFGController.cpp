@@ -865,26 +865,51 @@ void DFGController::cmdPaste()
     QClipboard *clipboard = QApplication::clipboard();
     if (!clipboard->text().isEmpty())
     {
-      // calculate paste position.
+      // calculate the position where the nodes will get pasted.
       QGraphicsView *graphicsView = graph()->scene()->views()[0];
       QPointF pos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
       float   zoom = graph()->mainPanel()->canvasZoom();
       QPointF pan  = graph()->mainPanel()->canvasPan();
       pos -= pan;
       if (zoom != 0)  pos /= zoom;
+
       // paste.
       std::vector<std::string> pastedNodes = m_cmdHandler->dfgDoPaste(getBinding(),
                                                                       getExecPath(),
                                                                       getExec(),
                                                                       clipboard->text().toUtf8().constData(),
                                                                       pos);
-      // clear current selection.
+
+      // clear the current selection.
       graph()->clearSelection();
-      // select pasted nodes.
-      for (int i=0;i<pastedNodes.size();i++)
+
+      // select the freshly pasted nodes.
+      // note: some integrations (e.g. Standalone, Softimage) return the names
+      //       of the pasted node as an array while others (e.g. Maya) return
+      //       them as a single string with the names separated by '|'.
+      if (pastedNodes.size() != 1 || pastedNodes[0].find('|') == std::string::npos)
       {
-        FabricUI::GraphView::Node *n = graph()->node(pastedNodes[i].c_str());
-        if (n)  n->setSelected(true);
+        // we have an array of names.
+        for (int i=0;i<pastedNodes.size();i++)
+        {
+          FabricUI::GraphView::Node *n = graph()->node(pastedNodes[i].c_str());
+          if (n)  n->setSelected(true);
+        }
+      }
+      else
+      {
+        // we have a single string and the names are separated by '|'.
+        FTL::StrRef names = pastedNodes[0].c_str();
+        while (!names.empty())
+        {
+          FTL::StrRef::Split split = names.trimSplit('|');
+          if (!split.first.empty())
+          {
+            FabricUI::GraphView::Node *n = graph()->node(split.first);
+            if (n)  n->setSelected(true);
+          }
+          names = split.second;
+        }
       }
     }
   }
