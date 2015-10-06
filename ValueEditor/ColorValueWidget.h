@@ -22,6 +22,7 @@ namespace FabricUI
 
     public:
       ColorPickerWidget(QWidget * parent);
+      ~ColorPickerWidget();
 
       void setValueItem(ValueItem * item) { m_valueItem = item; }
 
@@ -91,13 +92,8 @@ namespace FabricUI
       float m_colorG;
       float m_colorB;
       float m_colorA;
-      float m_prevColorR;
-      float m_prevColorG;
-      float m_prevColorB;
-      float m_prevColorA;
 
       QColorDialog * m_dialog;
-      bool m_dialogConnected;
       ValueItem * m_valueItem;
     };
 

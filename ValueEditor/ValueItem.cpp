@@ -112,11 +112,15 @@ void ValueItem::onEndInteraction( ValueItem * item, bool cancel )
 void ValueItem::onDialogAccepted()
 {
   onEndInteraction(this);
+
+  updatePixmap();
 }
 
 void ValueItem::onDialogCanceled()
 {
   onEndInteraction(this, true /* cancel */);
+
+  updatePixmap();
 }
 
 void ValueItem::onFilePathChosen(const QString & filePath)
