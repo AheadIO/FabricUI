@@ -865,19 +865,27 @@ void DFGController::cmdPaste()
     QClipboard *clipboard = QApplication::clipboard();
     if (!clipboard->text().isEmpty())
     {
+      // calculate paste position.
       QGraphicsView *graphicsView = graph()->scene()->views()[0];
       QPointF pos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
       float   zoom = graph()->mainPanel()->canvasZoom();
       QPointF pan  = graph()->mainPanel()->canvasPan();
       pos -= pan;
       if (zoom != 0)  pos /= zoom;
-      m_cmdHandler->dfgDoPaste(
-        getBinding(),
-        getExecPath(),
-        getExec(),
-        clipboard->text().toUtf8().constData(),
-        pos
-        );
+      // paste.
+      std::vector<std::string> pastedNodes = m_cmdHandler->dfgDoPaste(getBinding(),
+                                                                      getExecPath(),
+                                                                      getExec(),
+                                                                      clipboard->text().toUtf8().constData(),
+                                                                      pos);
+      // clear current selection.
+      graph()->clearSelection();
+      // select pasted nodes.
+      for (int i=0;i<pastedNodes.size();i++)
+      {
+        FabricUI::GraphView::Node *n = graph()->node(pastedNodes[i].c_str());
+        if (n)  n->setSelected(true);
+      }
     }
   }
   catch(FabricCore::Exception e)
