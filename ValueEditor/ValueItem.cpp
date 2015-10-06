@@ -2,6 +2,8 @@
 
 #include "ValueItem.h"
 #include "ValueWidget.h"
+#include "ColorValueWidget.h"
+#include "ValueEditorWidget.h"
 #include <assert.h>
 
 using namespace FabricUI::TreeView;
@@ -95,13 +97,30 @@ void ValueItem::onBeginInteraction( ValueItem * item )
   m_valueAtInteractionEnter = m_value.copy();
 }
 
-void ValueItem::onEndInteraction( ValueItem * item )
+void ValueItem::onEndInteraction( ValueItem * item, bool cancel )
 {
   assert( !!m_valueAtInteractionEnter );
+
+  if(cancel)
+    m_value = m_valueAtInteractionEnter;
 
   emit valueItemInteractionLeave( this );
 
   m_valueAtInteractionEnter.invalidate();
+}
+
+void ValueItem::onDialogAccepted()
+{
+  onEndInteraction(this);
+
+  updatePixmap();
+}
+
+void ValueItem::onDialogCanceled()
+{
+  onEndInteraction(this, true /* cancel */);
+
+  updatePixmap();
 }
 
 void ValueItem::onFilePathChosen(const QString & filePath)
@@ -119,6 +138,28 @@ void ValueItem::onFilePathChosen(const QString & filePath)
   {
     printf("%s\n", e.getDesc_cstr());
   }
+
+  updatePixmap();
+}
+
+void ValueItem::onColorChosen(const QColor & color)
+{
+  try
+  {
+    float r = color.redF();
+    float g = color.greenF();
+    float b = color.blueF();
+    float a = color.alphaF();
+    setValue(ColorValueWidget::genRtVal(this, m_valueTypeName.toUtf8().constData(), r, g, b, a));
+  }
+  catch(FabricCore::Exception e)
+  {
+    printf("%s\n", e.getDesc_cstr());
+  }
+
+  ValueWidget * widget = (ValueWidget *)editor();
+  if(widget)
+    widget->onValueItemDelta(this);
 
   updatePixmap();
 }
