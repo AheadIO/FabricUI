@@ -740,7 +740,7 @@ bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
   return setNodeColor(nodeName, "uiTextColor", color);
 }
 
-/// Sets the collpase state of the selected node.
+/// Sets the collapse state of the selected node.
 /// Saves it in the node preferences
 void DFGController::setSelectedNodeCollapseState(int collapsedState) {
   // Call the parent function

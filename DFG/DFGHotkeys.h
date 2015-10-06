@@ -15,11 +15,11 @@ namespace FabricUI
     #define DFG_PAN_GRAPH           "Pan graph"
     #define DFG_FRAME_SELECTED      "Frame selected"
     #define DFG_FRAME_ALL           "Frame all"
-    #define DFG_TAB_SEARCH          "Ttab search"
-    #define DFG_SELECT_ALL          "select all"
+    #define DFG_TAB_SEARCH          "Tab search"
+    #define DFG_SELECT_ALL          "Select all"
     #define DFG_COPY                "Copy"
     #define DFG_CUT                 "Cut"
-    #define DFG_PASTE               "Past"
+    #define DFG_PASTE               "Paste"
     #define DFG_NEW_SCENE           "New scene"
     #define DFG_OPEN_SCENE          "Open scene"
     #define DFG_SAVE_SCENE          "Save scene"
@@ -27,9 +27,9 @@ namespace FabricUI
     #define DFG_RELAX_NODES         "Relax nodes"
     #define DFG_TOGGLE_SIDE_PANEL   "Toggle side panel"
     #define DFG_TOGGLE_MANIPULATION "Toggle manipulation"
-    #define DFG_COLLAPSE_LEVEL_1    "Collpase level 1"
-    #define DFG_COLLAPSE_LEVEL_2    "Collpase level 2"
-    #define DFG_COLLAPSE_LEVEL_3    "Collpase level 3"
+    #define DFG_COLLAPSE_LEVEL_1    "Collapse level 1"
+    #define DFG_COLLAPSE_LEVEL_2    "Collapse level 2"
+    #define DFG_COLLAPSE_LEVEL_3    "Collapse level 3"
   };
 };
 
