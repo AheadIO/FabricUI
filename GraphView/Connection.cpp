@@ -29,6 +29,7 @@ Connection::Connection(
   , m_dragging( false )
   , m_aboutToBeDeleted( false )
   , m_hasSelectedTarget( false )
+  , m_hasNeverDrawn( true )
 {
   m_isExposedConnection = 
     m_src->targetType() == TargetType_ProxyPort ||
@@ -295,6 +296,11 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
 void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
+  if(m_hasNeverDrawn)
+  {
+    m_hasNeverDrawn = false;
+    dependencyMoved();
+  }
   if(m_isExposedConnection && !m_hovered && !m_hasSelectedTarget && m_graph->config().dimConnectionLines)
   {
     painter->setOpacity(0.15);
@@ -313,6 +319,8 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
 
 void Connection::dependencyMoved()
 {
+  if(m_hasNeverDrawn)
+    return;
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
   float tangentLength = computeTangentLength();

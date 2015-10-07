@@ -82,6 +82,7 @@ namespace FabricUI
       bool m_aboutToBeDeleted;
       bool m_isExposedConnection;
       bool m_hasSelectedTarget;
+      bool m_hasNeverDrawn;
       float m_clipRadius;
       QPainterPath m_clipPath;
     };
