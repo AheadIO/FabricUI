@@ -35,10 +35,6 @@ namespace FabricUI
       /// Destructor
       virtual ~DFGNodePropertiesDialog();
 
-      /// Gets the node's title
-      QString title() const { return m_titleEdit->text(); }
-      /// Sets the node's title
-      void setTitle(QString value);
       /// Gets the node's tool tip
       QString toolTip() const { return m_toolTipEdit->toPlainText(); }
       /// Sets the node's tool tip
@@ -58,8 +54,8 @@ namespace FabricUI
       /// Filter the QLineEdit text (here the title) with the setRegexFilter
       void setRegexFilter(QString regex);
 
-      /// Gets the user selected node's title
-      QString getTitle();
+      /// Gets the user selected node's script name
+      QString getScriptName();
       /// Gets the user selected node's tool tip
       QString getToolTip();
       /// Gets the user selected node's url doc
@@ -71,12 +67,19 @@ namespace FabricUI
       /// Gets the user selected node's text color 
       QColor getTextColor();
 
+      void updateNodeName( FTL::StrRef newNodeName )
+        { m_nodeName = newNodeName; }
+
     public slots:
       // [Julien] FE-5246 : Creates the node header color property
       // Custom header colors can have contrast mistmatches with the body's color
       // Thus, the option is disable by default 
       /// Creates the node header color property
       void addOrRemoveHeaderColor();
+
+    protected:
+      /// Sets the node's title
+      void setTitle(QString value);
 
     private:
       /// \internal
@@ -90,7 +93,8 @@ namespace FabricUI
       DFGController                   *m_controller;
 
       QColor                           m_nodeDefaultHeaderColor;
-      QLineEdit                       *m_titleEdit;
+      QLabel                          *m_titleLabel;
+      QLineEdit                       *m_nameEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;
       QCheckBox                       *m_allowHeaderColor;

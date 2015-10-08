@@ -766,3 +766,19 @@ void Graph::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, Q
 {
   QGraphicsWidget::paint(painter, option, widget);
 }
+
+void Graph::renameNode( FTL::StrRef oldName, FTL::StrRef newName )
+{
+  std::map<FTL::StrRef, size_t>::iterator it = m_nodeMap.find( oldName );
+  if ( it != m_nodeMap.end() )
+  {
+    size_t index = it->second;
+    m_nodeMap.erase( it );
+    m_nodes[index]->m_name = newName;
+    m_nodeMap.insert(
+      std::pair<FTL::StrRef, size_t>(
+        m_nodes[index]->m_name, index
+        )
+      );
+  }
+}

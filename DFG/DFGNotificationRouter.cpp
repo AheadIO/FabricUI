@@ -115,11 +115,18 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("value") )
         );
     }
-    else if(descStr == FTL_STR("nodeTitleChanged"))
+    else if(descStr == FTL_STR("instExecTitleChanged"))
     {
       onNodeTitleChanged(
-        jsonObject->getString( FTL_STR("nodeName") ),
-        jsonObject->getString( FTL_STR("title") )
+        jsonObject->getString( FTL_STR("instName") ),
+        jsonObject->getString( FTL_STR("execTitle") )
+        );
+    }
+    else if(descStr == FTL_STR("nodeRenamed"))
+    {
+      onNodeRenamed(
+        jsonObject->getString( FTL_STR("oldNodeName") ),
+        jsonObject->getString( FTL_STR("newNodeName") )
         );
     }
     else if(descStr == FTL_STR("execPortRenamed"))
@@ -237,6 +244,12 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     {
       onFuncCodeChanged(
         jsonObject->getString( FTL_STR("code") )
+        );
+    }
+    else if(descStr == FTL_STR("execTitleChanged"))
+    {
+      onExecTitleChanged(
+        jsonObject->getString( FTL_STR("title") )
         );
     }
     else if(descStr == FTL_STR("extDepsChanged"))
@@ -477,7 +490,7 @@ void DFGNotificationRouter::onNodeInserted(
   FTL::CStrRef title;
   if(nodeType == FabricCore::DFGNodeType_Inst)
   {
-    if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
+    if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
       onNodeTitleChanged( nodeName, title );
 
     FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
@@ -1048,6 +1061,19 @@ void DFGNotificationRouter::onNodeTitleChanged(
 }
 
 
+void DFGNotificationRouter::onNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  GraphView::Graph * uiGraph = m_dfgController->graph();
+  if(!uiGraph)
+    return;
+
+  uiGraph->renameNode( oldNodeName, newNodeName );
+}
+
+
 void DFGNotificationRouter::onExecPortRenamed(
   FTL::CStrRef oldPortName,
   FTL::CStrRef newPortName,
@@ -1317,6 +1343,14 @@ void DFGNotificationRouter::onFuncCodeChanged(
   )
 {
   // todo: we don't do anything here...
+}
+
+void DFGNotificationRouter::onExecTitleChanged(
+  FTL::CStrRef title
+  )
+{
+  DFGWidget *dfgWidget = m_dfgController->getDFGWidget();
+  dfgWidget->refreshTitle( title );
 }
 
 void DFGNotificationRouter::onExecExtDepsChanged(

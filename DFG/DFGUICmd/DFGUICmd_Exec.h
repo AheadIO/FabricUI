@@ -35,7 +35,7 @@ protected:
   {
     desc += '\'';
     desc += m_execPath;
-    if ( !m_execPath.empty() )
+    if ( !m_execPath.empty() && !path.empty() )
       desc += '.';
     desc += path;
     desc += '\'';
