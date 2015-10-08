@@ -18,7 +18,8 @@ Connection::Connection(
   Graph * graph,
   ConnectionTarget * src,
   ConnectionTarget * dst,
-  bool forceUseOfPinColor
+  bool forceUseOfPinColor,
+  bool createdUponLoad
   )
   : QObject( graph->itemGroup() )
   , QGraphicsPathItem( graph->itemGroup() )
@@ -29,7 +30,7 @@ Connection::Connection(
   , m_dragging( false )
   , m_aboutToBeDeleted( false )
   , m_hasSelectedTarget( false )
-  , m_hasNeverDrawn( true )
+  , m_hasNeverDrawn( createdUponLoad )
 {
   m_isExposedConnection = 
     m_src->targetType() == TargetType_ProxyPort ||

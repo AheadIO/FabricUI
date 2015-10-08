@@ -30,7 +30,8 @@ namespace FabricUI
         Graph * parent,
         ConnectionTarget * src,
         ConnectionTarget * dst,
-        bool forceUseOfPinColor = false
+        bool forceUseOfPinColor = false,
+        bool createdUponLoad = false
         );
 
       ~Connection();

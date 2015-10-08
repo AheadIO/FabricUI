@@ -391,7 +391,7 @@ void Graph::updateColorForConnections(const ConnectionTarget * target) const
   }
 }
 
-Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet)
+Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet, bool createdOnLoad)
 {
   if(src == dst)
     return NULL;
@@ -429,7 +429,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
   prepareGeometryChange();
   controller()->beginInteraction();
 
-  Connection * connection = new Connection(this, src, dst);
+  Connection * connection = new Connection(this, src, dst, false, createdOnLoad);
   m_connections.push_back(connection);
 
   if(connection->src()->targetType() == TargetType_Pin)

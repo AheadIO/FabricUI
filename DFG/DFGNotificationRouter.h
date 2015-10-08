@@ -209,6 +209,7 @@ namespace FabricUI
       FabricCore::DFGView m_coreDFGView;
       DFGConfig m_config;
       bool m_performChecks;
+      bool m_settingGraph;
     };
 
   };
