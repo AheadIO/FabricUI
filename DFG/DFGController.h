@@ -238,8 +238,7 @@ namespace FabricUI
         QPointF pos
         );
 
-      void cmdSetNodeTitle(
-        FTL::CStrRef nodeName, 
+      void cmdSetTitle(
         FTL::CStrRef newTitle
         );
 
@@ -264,6 +263,11 @@ namespace FabricUI
         );
 
       void cmdSetCode( FTL::CStrRef code );
+
+      std::string cmdRenameNode(
+        FTL::CStrRef oldName,
+        FTL::CStrRef desiredNewName
+        );
 
       std::string cmdRenameExecPort(
         FTL::CStrRef oldName,

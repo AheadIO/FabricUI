@@ -30,6 +30,7 @@ namespace FabricUI
     {
       Q_OBJECT
 
+      friend class Graph;
       friend class NodeRectangle;
       friend class NodeBubble;
       friend class NodeHeaderButton;
@@ -66,7 +67,7 @@ namespace FabricUI
 
       FTL::CStrRef name() const
         { return m_name; }
-      
+        
       FTL::CStrRef title() const
         { return m_title; }
       void setTitle( FTL::CStrRef title );

@@ -77,6 +77,7 @@ namespace FabricUI
       virtual Node * node( FTL::StrRef name ) const;
       virtual Node * nodeFromPath( FTL::StrRef path ) const
         { return node( path ); }
+      void renameNode( FTL::StrRef oldName, FTL::StrRef newName );
 
       virtual std::vector<Node *> selectedNodes() const;
       virtual void selectAllNodes();

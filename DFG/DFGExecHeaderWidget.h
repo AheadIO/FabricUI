@@ -29,17 +29,11 @@ namespace FabricUI
       DFGExecHeaderWidget(
         QWidget * parent,
         DFGController *dfgController,
-        QString caption,
         const GraphView::GraphConfig & config = GraphView::GraphConfig()
         );
       virtual ~DFGExecHeaderWidget();
-
-      QString caption() const;
-      QString captionSuffix() const;
-      QFont font() const;
-      QColor fontColor() const;
-      bool italic() const;
       
+      void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
 
     signals:
@@ -49,18 +43,19 @@ namespace FabricUI
     public slots:
 
       void refresh();
-      void setFont(QFont f);
-      void setFontColor(QColor c);
       void onExecChanged();
 
     protected:
 
+      FTL::CStrRef getExecPath();
       FabricCore::DFGExec &getExec();
 
       virtual void paintEvent(QPaintEvent * event);
 
     protected slots:
 
+      void titleEditingFinished();
+      void titleReturnPressed();
       void reqExtEditingFinished();
       void reqExtReturnPressed();
       void onSplitFromPresetClicked();
@@ -68,17 +63,13 @@ namespace FabricUI
     private:
 
       DFGController *m_dfgController;
-      QFont m_font;
-      QColor m_fontColor;
-      QString m_caption;
-      QString m_captionSuffix;
+      QLabel *m_execPathLabel;
+      QLineEdit *m_titleLineEdit;
       QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;
       QPen m_pen;
-      GraphView::GraphConfig m_config;
       QWidget *m_presetSplitWidget;
-      QLabel *m_captionLabel;
 
     };
 
