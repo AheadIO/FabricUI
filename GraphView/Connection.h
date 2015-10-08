@@ -48,6 +48,8 @@ namespace FabricUI
         { return m_color; }
       virtual void setColor(QColor color);
 
+      virtual QRectF boundingRect() const;
+
       QPointF srcPoint() const;
       QPointF dstPoint() const;
 

@@ -178,6 +178,16 @@ void Connection::setColor(QColor color)
   setPen(m_defaultPen);
 }
 
+QRectF Connection::boundingRect() const
+{
+  if(m_hasNeverDrawn)
+  {
+    // if we haven't drawn, use an infinite bounding box
+    return QRectF(-100000.0f, -100000.0f, 200000.0f, 200000.0f);
+  }
+  return QGraphicsPathItem::boundingRect();
+}
+
 QPointF Connection::srcPoint() const
 {
   if(m_aboutToBeDeleted)
