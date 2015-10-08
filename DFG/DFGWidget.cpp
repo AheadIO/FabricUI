@@ -1003,14 +1003,6 @@ void DFGWidget::onExecPortAction(QAction * action)
       if ( canEditDataType )
         dialog.setDataType(exec.getExecPortResolvedType(portName));
 
-      FTL::StrRef uiHidden = exec.getExecPortMetadata(portName, "uiHidden");
-      if( uiHidden == "true" )
-        dialog.setHidden();
-
-      FTL::StrRef uiOpaque = exec.getExecPortMetadata(portName, "uiOpaque");
-      if( uiOpaque == "true" )
-        dialog.setOpaque();
-
       FTL::StrRef uiPersistValue = exec.getExecPortMetadata(portName, DFG_METADATA_UIPERSISTVALUE);
       dialog.setPersistValue( uiPersistValue == "true" );
 
@@ -1070,8 +1062,6 @@ void DFGWidget::onExecPortAction(QAction * action)
         FTL::JSONEnc<> metaDataEnc( uiMetadata );
         FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
 
-        DFGAddMetaDataPair( metaDataObjectEnc, "uiHidden", dialog.hidden() ? "true" : "" );//"" will remove the metadata
-        DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
         if(dialog.hasRange())
@@ -1309,10 +1299,6 @@ void DFGWidget::onSidePanelAction(QAction * action)
     {
       FTL::JSONEnc<> metaDataEnc( metaData );
       FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
-      if(dialog.hidden())
-        DFGAddMetaDataPair( metaDataObjectEnc, "uiHidden", "true" );
-      if(dialog.opaque())
-        DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", "true" );
 
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );

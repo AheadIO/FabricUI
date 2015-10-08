@@ -41,10 +41,6 @@ namespace FabricUI
       void setDataType(QString value);
       QString extension() const;
       void setExtension(QString value);
-      bool hidden() const;
-      void setHidden();
-      bool opaque() const;
-      void setOpaque();
       bool persistValue() const;
       void setPersistValue( bool value );
       bool hasRange() const;
@@ -76,7 +72,6 @@ namespace FabricUI
       QLineEdit * m_titleEdit;
       DFGRegisteredTypeLineEdit * m_dataTypeEdit;
       DFGExtensionLineEdit * m_extensionEdit;
-      QComboBox * m_visibilityCombo;
       QCheckBox * m_persistValue;
       QCheckBox * m_hasRange;
       QLineEdit * m_rangeMin;
