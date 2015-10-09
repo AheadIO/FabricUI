@@ -65,6 +65,7 @@ namespace FabricUI
       DFGController *m_dfgController;
       QLabel *m_execPathLabel;
       QLineEdit *m_titleLineEdit;
+      QLabel *m_reqExtLabel;
       QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;
