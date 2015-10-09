@@ -22,8 +22,10 @@ env.Append(BUILDERS = {'QTMOC': qtMOCBuilder})
 env.Append(CPPPATH = [env.Dir('#').Dir('Native').srcnode()])
 
 if buildOS == 'Darwin':
+  env.Append(CCFLAGS = ['-fvisibility=hidden'])
   env.Append(CXXFLAGS = ['-std=c++03'])
   env.Append(CXXFLAGS = ['-stdlib=libstdc++'])
+  env.Append(CXXFLAGS = ['-fvisibility=hidden'])
   env.Append(LINKFLAGS = ['-stdlib=libstdc++'])
 
 if buildOS == 'Linux':
