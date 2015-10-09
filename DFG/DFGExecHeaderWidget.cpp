@@ -94,7 +94,7 @@ and cannot be changed unless split from the preset" ) );
   setLayout(vLayout);
 
   QPalette captionLabelPalette = palette();
-  captionLabelPalette.setColor( QPalette::Text, config.headerFontColor );
+  captionLabelPalette.setColor( QPalette::Text, QColor("#C7D2DA") );
   captionLabelPalette.setColor( QPalette::WindowText, config.headerFontColor );
   m_execPathLabel->setPalette( captionLabelPalette );
   m_titleLineEdit->setPalette( captionLabelPalette );
@@ -127,11 +127,12 @@ void DFGExecHeaderWidget::refresh()
   FabricCore::DFGExec &exec = getExec();
   if ( exec )
   {
+    bool isRoot = execPath.empty();
     bool isPreset = exec.editWouldSplitFromPreset();
 
     m_presetSplitWidget->setVisible( isPreset );
 
-    m_goUpButton->setVisible( !execPath.empty() );
+    m_goUpButton->setVisible( !isRoot );
 
     FTL::CStrRef::Split split = execPath.rsplit('.');
     QString pathLabelText( "Title: " );
@@ -140,10 +141,11 @@ void DFGExecHeaderWidget::refresh()
     if ( !split.first.empty() )
       pathLabelText += '.';
 
-    m_titleLineEdit->setVisible( !isPreset );
+    m_titleLineEdit->setVisible( !isRoot && !isPreset );
     if ( !isPreset )
       m_titleLineEdit->setText( exec.getTitle() );
     else pathLabelText += exec.getTitle();
+    m_execPathLabel->setVisible( !isRoot );
     m_execPathLabel->setText( pathLabelText );
 
     FabricCore::String extDepsDesc = exec.getExtDeps();
