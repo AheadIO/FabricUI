@@ -1067,6 +1067,8 @@ void DFGNotificationRouter::onNodeRenamed(
     return;
 
   uiGraph->renameNode( oldNodeName, newNodeName );
+
+  m_dfgController->emitNodeRenamed( oldNodeName, newNodeName );
 }
 
 

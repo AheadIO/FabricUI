@@ -44,7 +44,15 @@ namespace FabricUI
       void updateOutputs();
       void onArgsChanged();
 
-      void onNodeRemoved( FTL::CStrRef nodePathFromRoot );
+      void onNodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName 
+        );
+      void onNodeRemoved(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName
+        );
 
     private:
 

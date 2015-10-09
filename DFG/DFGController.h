@@ -452,6 +452,10 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
+      void emitNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        );
       void emitNodeRemoved( FTL::CStrRef nodeName );
 
     signals:
@@ -470,7 +474,15 @@ namespace FabricUI
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
 
-      void nodeRemoved( FTL::CStrRef nodePathFromRoot );
+      void nodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName 
+        );
+      void nodeRemoved(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName
+        );
 
     public slots:
 
