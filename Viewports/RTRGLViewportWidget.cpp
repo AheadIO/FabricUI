@@ -29,6 +29,7 @@
 #include "QtToKLEvent.h"
 #include <FabricUI/SceneHub/macros.h>
 
+using namespace FabricUI::Viewports;
 
 RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore::RTVal testObject, QGLContext *qglContext, QWidget *parent) :
 	QGLWidget(qglContext, parent),

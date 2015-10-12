@@ -2,6 +2,8 @@
 
 #import <AppKit/AppKit.h>
 
+using namespace FabricUI::Viewports;
+
 static inline int def(int val, int defVal)
 {
   return val != -1 ? val : defVal;
