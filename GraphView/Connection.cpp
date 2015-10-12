@@ -18,7 +18,8 @@ Connection::Connection(
   Graph * graph,
   ConnectionTarget * src,
   ConnectionTarget * dst,
-  bool forceUseOfPinColor
+  bool forceUseOfPinColor,
+  bool createdUponLoad
   )
   : QObject( graph->itemGroup() )
   , QGraphicsPathItem( graph->itemGroup() )
@@ -29,6 +30,7 @@ Connection::Connection(
   , m_dragging( false )
   , m_aboutToBeDeleted( false )
   , m_hasSelectedTarget( false )
+  , m_hasNeverDrawn( createdUponLoad )
 {
   m_isExposedConnection = 
     m_src->targetType() == TargetType_ProxyPort ||
@@ -177,6 +179,16 @@ void Connection::setColor(QColor color)
   setPen(m_defaultPen);
 }
 
+QRectF Connection::boundingRect() const
+{
+  if(m_hasNeverDrawn)
+  {
+    // if we haven't drawn, use an infinite bounding box
+    return QRectF(-100000.0f, -100000.0f, 200000.0f, 200000.0f);
+  }
+  return QGraphicsPathItem::boundingRect();
+}
+
 QPointF Connection::srcPoint() const
 {
   if(m_aboutToBeDeleted)
@@ -295,6 +307,11 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 
 void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
+  if(m_hasNeverDrawn)
+  {
+    m_hasNeverDrawn = false;
+    dependencyMoved();
+  }
   if(m_isExposedConnection && !m_hovered && !m_hasSelectedTarget && m_graph->config().dimConnectionLines)
   {
     painter->setOpacity(0.15);
@@ -313,6 +330,8 @@ void Connection::paint(QPainter * painter, const QStyleOptionGraphicsItem * opti
 
 void Connection::dependencyMoved()
 {
+  if(m_hasNeverDrawn)
+    return;
   QPointF currSrcPoint = srcPoint();
   QPointF currDstPoint = dstPoint();
   float tangentLength = computeTangentLength();

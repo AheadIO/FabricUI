@@ -1,22 +1,21 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __UI_DFG_DFGUICmd_SetNodeTitle__
-#define __UI_DFG_DFGUICmd_SetNodeTitle__
+#ifndef __UI_DFG_DFGUICmd_SetTitle__
+#define __UI_DFG_DFGUICmd_SetTitle__
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Exec.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-class DFGUICmd_SetNodeTitle
+class DFGUICmd_SetTitle
   : public DFGUICmd_Exec
 {
 public:
 
-  DFGUICmd_SetNodeTitle(
+  DFGUICmd_SetTitle(
     FabricCore::DFGBinding const &binding,
     FTL::StrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef nodeName,
     FTL::StrRef title
     )
     : DFGUICmd_Exec(
@@ -24,12 +23,11 @@ public:
       execPath,
       exec
       )
-    , m_nodeName( nodeName )
     , m_title( title )
     {}
 
   static FTL::CStrRef CmdName()
-    { return DFG_CMD_NAME("SetNodeTitle"); }
+    { return DFG_CMD_NAME("SetTitle"); }
 
 protected:
   
@@ -39,10 +37,9 @@ protected:
 
 private:
 
-  std::string m_nodeName;
   std::string m_title;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
 
-#endif // __UI_DFG_DFGUICmd_SetNodeTitle__
+#endif // __UI_DFG_DFGUICmd_SetTitle__

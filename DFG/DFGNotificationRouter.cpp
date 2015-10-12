@@ -8,6 +8,7 @@
 #include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>
+#include <FTL/AutoSet.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -20,6 +21,7 @@ DFGNotificationRouter::DFGNotificationRouter(
   : m_dfgController( dfgController )
   , m_config( config )
   , m_performChecks( true )
+  , m_settingGraph( false )
 {
   onExecChanged();
 }
@@ -113,11 +115,18 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("value") )
         );
     }
-    else if(descStr == FTL_STR("nodeTitleChanged"))
+    else if(descStr == FTL_STR("instExecTitleChanged"))
     {
       onNodeTitleChanged(
-        jsonObject->getString( FTL_STR("nodeName") ),
-        jsonObject->getString( FTL_STR("title") )
+        jsonObject->getString( FTL_STR("instName") ),
+        jsonObject->getString( FTL_STR("execTitle") )
+        );
+    }
+    else if(descStr == FTL_STR("nodeRenamed"))
+    {
+      onNodeRenamed(
+        jsonObject->getString( FTL_STR("oldNodeName") ),
+        jsonObject->getString( FTL_STR("newNodeName") )
         );
     }
     else if(descStr == FTL_STR("execPortRenamed"))
@@ -237,6 +246,12 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
         jsonObject->getString( FTL_STR("code") )
         );
     }
+    else if(descStr == FTL_STR("execTitleChanged"))
+    {
+      onExecTitleChanged(
+        jsonObject->getString( FTL_STR("title") )
+        );
+    }
     else if(descStr == FTL_STR("extDepsChanged"))
     {
       onExecExtDepsChanged(
@@ -354,6 +369,8 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
 
 void DFGNotificationRouter::onGraphSet()
 {
+  FTL::AutoSet<bool> settingGraph(m_settingGraph, true);
+
   FabricCore::DFGExec &exec = m_dfgController->getExec();
   if ( !exec )
     return;
@@ -473,7 +490,7 @@ void DFGNotificationRouter::onNodeInserted(
   FTL::CStrRef title;
   if(nodeType == FabricCore::DFGNodeType_Inst)
   {
-    if ( jsonObject->maybeGetString( FTL_STR("title"), title ) )
+    if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
       onNodeTitleChanged( nodeName, title );
 
     FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
@@ -697,7 +714,7 @@ void DFGNotificationRouter::onExecPortInserted(
     }
     if(uiOutPort && uiInPort)
     {
-      uiGraph->addConnection(uiOutPort, uiInPort, false);
+      uiGraph->addConnection(uiOutPort, uiInPort, false, m_settingGraph);
     }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
@@ -801,7 +818,7 @@ void DFGNotificationRouter::onPortsConnected(
   if(!uiSrcTarget || !uiDstTarget)
     return;
 
-  uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
+  uiGraph->addConnection(uiSrcTarget, uiDstTarget, false, m_settingGraph);
 
   if(m_performChecks)
   {
@@ -1041,6 +1058,19 @@ void DFGNotificationRouter::onNodeTitleChanged(
     return;
   uiNode->setTitle(title);
   uiNode->update();
+}
+
+
+void DFGNotificationRouter::onNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  GraphView::Graph * uiGraph = m_dfgController->graph();
+  if(!uiGraph)
+    return;
+
+  uiGraph->renameNode( oldNodeName, newNodeName );
 }
 
 
@@ -1313,6 +1343,14 @@ void DFGNotificationRouter::onFuncCodeChanged(
   )
 {
   // todo: we don't do anything here...
+}
+
+void DFGNotificationRouter::onExecTitleChanged(
+  FTL::CStrRef title
+  )
+{
+  DFGWidget *dfgWidget = m_dfgController->getDFGWidget();
+  dfgWidget->refreshTitle( title );
 }
 
 void DFGNotificationRouter::onExecExtDepsChanged(

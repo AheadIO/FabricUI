@@ -391,7 +391,7 @@ void Graph::updateColorForConnections(const ConnectionTarget * target) const
   }
 }
 
-Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet)
+Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet, bool createdOnLoad)
 {
   if(src == dst)
     return NULL;
@@ -429,7 +429,7 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
   prepareGeometryChange();
   controller()->beginInteraction();
 
-  Connection * connection = new Connection(this, src, dst);
+  Connection * connection = new Connection(this, src, dst, false, createdOnLoad);
   m_connections.push_back(connection);
 
   if(connection->src()->targetType() == TargetType_Pin)
@@ -765,4 +765,20 @@ QMenu* Graph::getSidePanelContextMenu(SidePanel * sidePanel)
 void Graph::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
   QGraphicsWidget::paint(painter, option, widget);
+}
+
+void Graph::renameNode( FTL::StrRef oldName, FTL::StrRef newName )
+{
+  std::map<FTL::StrRef, size_t>::iterator it = m_nodeMap.find( oldName );
+  if ( it != m_nodeMap.end() )
+  {
+    size_t index = it->second;
+    m_nodeMap.erase( it );
+    m_nodes[index]->m_name = newName;
+    m_nodeMap.insert(
+      std::pair<FTL::StrRef, size_t>(
+        m_nodes[index]->m_name, index
+        )
+      );
+  }
 }

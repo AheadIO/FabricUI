@@ -238,8 +238,7 @@ namespace FabricUI
         QPointF pos
         );
 
-      void cmdSetNodeTitle(
-        FTL::CStrRef nodeName, 
+      void cmdSetTitle(
         FTL::CStrRef newTitle
         );
 
@@ -264,6 +263,11 @@ namespace FabricUI
         );
 
       void cmdSetCode( FTL::CStrRef code );
+
+      std::string cmdRenameNode(
+        FTL::CStrRef oldName,
+        FTL::CStrRef desiredNewName
+        );
 
       std::string cmdRenameExecPort(
         FTL::CStrRef oldName,
@@ -319,9 +323,9 @@ namespace FabricUI
       virtual bool panCanvas(QPointF pan);
       virtual bool relaxNodes(QStringList paths = QStringList());
       virtual bool setNodeColor(const char * nodeName, const char * key, QColor color);
-      /// Sets the collpase state of the selected node.
+      /// Sets the collapse state of the selected node.
       /// Saves it in the node preferences    
-      virtual void setSelectedNodeCollapseState(int collpaseState);
+      virtual void setSelectedNodeCollapseState(int collapseState);
       virtual bool removeNodeColor(const char * nodeName, const char * key);
       virtual bool setNodeBackgroundColor(const char * nodeName, QColor color);
       virtual bool setNodeHeaderColor(const char * nodeName, QColor color);
