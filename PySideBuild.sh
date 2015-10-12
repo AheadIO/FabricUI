@@ -17,7 +17,7 @@ g++ \
   -IDFG/ \
   -IGraphView/ \
   -I. \
-  -I../Services/ \
+  -I../FabricServices/ \
   -I../../stage/Darwin/x86_64/Debug/include/ \
   -L/usr/local/Cellar/pyside/1.2.2/lib \
   -L/usr/local/Cellar/shiboken/1.2.2/lib \
