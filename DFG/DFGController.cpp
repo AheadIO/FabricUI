@@ -890,7 +890,7 @@ void DFGController::cmdPaste()
       if (pastedNodes.size() != 1 || pastedNodes[0].find('|') == std::string::npos)
       {
         // we have an array of names.
-        for (int i=0;i<pastedNodes.size();i++)
+        for (size_t i=0;i<pastedNodes.size();i++)
         {
           FabricUI::GraphView::Node *n = graph()->node(pastedNodes[i].c_str());
           if (n)  n->setSelected(true);
