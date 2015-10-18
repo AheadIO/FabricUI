@@ -33,7 +33,6 @@ bool SGBaseManagerDialog::init(QWidget* parent, FabricCore::Client *client, Fabr
   klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
   m_color = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
 
-  FABRIC_TRY_RETURN("SGBaseManagerDialog::init", false, m_viewport = m_testObject.callMethod("Viewport2", "getViewport", 0, 0); );
   setWindowTitle ("");
   setMouseTracking( true );
   setFixedSize(400, 400);
