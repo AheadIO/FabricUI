@@ -60,7 +60,9 @@ RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore
 }
 
 RTRGLViewportWidget::~RTRGLViewportWidget() {
-  emit viewportDestroying( m_viewportIndex );
+  FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
+    m_viewport = m_testObject.callMethod("Viewport2", "removeViewport", 1, &m_viewportIndexRTVal); 
+  emit viewportDestroying();
 }
  
 void RTRGLViewportWidget::initialize() {
