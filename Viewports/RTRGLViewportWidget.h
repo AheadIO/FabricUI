@@ -28,7 +28,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, int, QGLContext *, QWidget *parent = NULL);
+        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, int, QGLContext *, QWidget *parent = NULL, QGLWidget *shared = NULL);
         virtual ~RTRGLViewportWidget();
 
         void initialize();

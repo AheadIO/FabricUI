@@ -31,8 +31,8 @@
 
 using namespace FabricUI::Viewports;
 
-RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore::RTVal testObject, int viewportIndex, QGLContext *qglContext, QWidget *parent) :
-	QGLWidget(qglContext, parent),
+RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore::RTVal testObject, int viewportIndex, QGLContext *qglContext, QWidget *parent, QGLWidget *share) :
+	QGLWidget(qglContext, parent, share),
   m_client(client),
   m_viewportIndex( viewportIndex ),
   m_testObject(testObject),
@@ -61,7 +61,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore
 
 RTRGLViewportWidget::~RTRGLViewportWidget() {
   FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
-    m_viewport = m_testObject.callMethod("Viewport2", "removeViewport", 1, &m_viewportIndexRTVal); 
+    m_testObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
   );
   emit viewportDestroying();
 }
