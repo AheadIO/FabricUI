@@ -39,7 +39,7 @@ namespace FabricUI
         double fps() const { return m_fps; }
 
       signals:
-        void onDrop();
+        void sceneChanged();
         void manipsAcceptedEvent();
         void viewportDestroying();
 

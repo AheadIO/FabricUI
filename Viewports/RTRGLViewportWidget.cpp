@@ -61,7 +61,8 @@ RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore
 
 RTRGLViewportWidget::~RTRGLViewportWidget() {
   FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
-    m_testObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
+    if( m_testObject.isValid() )
+      m_testObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
   );
   emit viewportDestroying();
 }
@@ -179,7 +180,7 @@ void RTRGLViewportWidget::addExternalFile(QStringList paths, QPoint mousePos, bo
       klParams.push_back(FabricCore::RTVal::ConstructBoolean(*m_client, forceExpand));
 
       m_testObject.callMethod("", "onAddExternalFile", 4, &klParams[0]);
-      emit onDrop();
+      emit sceneChanged();
     );
   }
 }
@@ -250,7 +251,7 @@ void RTRGLViewportWidget::addLight() {
     klParams[1] = FabricCore::RTVal::ConstructUInt32(*m_client, lightType);
     klParams[2] = QtToKLMousePosition(m_screenPos, *m_client, m_viewport);
     m_testObject.callMethod("", "onAddLight", 3, &klParams[0]); 
-    emit onDrop();
+    emit sceneChanged();
   );
 }
 
@@ -331,7 +332,7 @@ void RTRGLViewportWidget::editObjectColor( bool local ) {
       args[0] = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
       args[1] = FabricCore::RTVal::ConstructBoolean(*m_client, local);
       m_testObject.callMethod("", "onSetObjectColor", 2, args); 
-      update();
+      emit sceneChanged();
     );
   }
 }
@@ -387,10 +388,8 @@ void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
     m_testObject.callMethod("", "onEvent", 1, &klevent);
     bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     event->setAccepted(result);
-    if( result ) {
-      update();
+    if( result )
       emit manipsAcceptedEvent();
-    }
   );
 }
 
@@ -401,10 +400,8 @@ bool RTRGLViewportWidget::onMouseEvent(QEvent *event) {
     m_testObject.callMethod("", "onEvent", 1, &klevent);
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     event->setAccepted(result);
-    if( result ) {
-      update();
+    if( result )
       emit manipsAcceptedEvent();
-    }
   );
   return result;
 }
@@ -440,7 +437,4 @@ void RTRGLViewportWidget::dropEvent(QDropEvent *event) {
     paths.append(url.toLocalFile());
   addExternalFile(paths, event->pos(), forceExpand);
   event->acceptProposedAction();
-  update();
 }
-
- 
