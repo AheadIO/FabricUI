@@ -15,45 +15,24 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   QWidget * parent, 
   DFGController * controller, 
   const char * nodeName, 
-  const DFGConfig & dfgConfig
-  )
+  const DFGConfig & dfgConfig,
+  bool setAlphaNum )
 : DFGBaseDialog(parent, true, dfgConfig)
 , m_nodeName(nodeName)
 , m_controller(controller)
 {
   setWindowTitle("Node Properties");
 
-  DFGExec &exec = controller.getExec();
-  DFGExec subExec = exec.getSubExec( nodeName );
-  m_isPreset = subExec.editWouldSplitFromPreset();
+  m_titleLabel  = new QLabel("", this);
+  m_nameEdit    = new QLineEdit("", this);
+  m_nameEdit->setMinimumWidth(250);
+  m_toolTipEdit = new QPlainTextEdit("", this);
+  m_docUrlEdit  = new QLineEdit("", this);
 
-  if ( m_isPreset )
-    m_titleWidget = new QLabel( "", this );
-  else
-    m_titleWidget = new QLineEdit( "", this );
-  m_nameLabel = new QLabel( "", this );
-  if ( m_isPreset )
-    m_toolTipWidget = new QLabel( "", this );
-  else
-    m_toolTipWidget = new QPlainTextEdit( "", this );
-  if ( m_isPreset )
-    m_docUrlEdit = new QLabel( "", this );
-  else
-    m_docUrlEdit  = new QLineEdit("", this);
-  m_nodeColorPushButton = new QPushButton( this );
-  m_nodeColorPushButton->setWidth( 60 ); 
-  setColorFromExec(
-    m_nodeColorPushButton,
-    "uiNodeColor",
-    dfgConfig.graphConfig.nodeDefaultColor
-    );
-  m_textColorPushButton = new QPushButton( this );
-  m_textColorPushButton->setWidth( 60 ); 
-  setColorFromExec(
-    m_textColorPushButton,
-    "uiTextColor",
-    dfgConfig.graphConfig.nodeFontColor
-    );
+  m_nodeColor   = new ValueEditor::ColorPickerWidget(this);
+  m_textColor   = new ValueEditor::ColorPickerWidget(this);
+  setColorFromExec(m_nodeColor,   "uiNodeColor",   dfgConfig.graphConfig.nodeDefaultColor);
+  setColorFromExec(m_textColor,   "uiTextColor",   dfgConfig.graphConfig.nodeFontColor);
 
   // [Julien] FE-5246 
   // Header color property management
@@ -61,14 +40,10 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   m_headerColor = 0;
   m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
   m_allowHeaderColor = new QCheckBox("", this);
-  m_allowHeaderColor->setEnabled( !m_isPreset );
   // If the "uiHeaderColor" metadata already exists, diplays the  header color property
   FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
   m_allowHeaderColor->setChecked(!metadata.empty());
-  QObject::connect(
-    m_allowHeaderColor, SIGNAL(clicked()),
-    this, SLOT(onAllowHeaderColorCheckBoxClicked())
-    );
+  QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( addOrRemoveHeaderColor() ) );
 
   try
   {
@@ -107,16 +82,19 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput( m_titleWidget, "title", "properties" );
-  addInput( m_nameLabel, "script name", "properties" );
-  addInput( m_toolTipWidget, "tooltip", "properties" );
-  addInput( m_docUrlWidget, "doc url", "properties" );
-  addInput( m_nodeColorPushButton, "node color", "properties" );
-  addInput( m_textColorPushButton, "text color", "properties" );
-  addInput( m_allowHeaderColorCheckBox, "custom header color", "properties" );
+  addInput(m_titleLabel,        "title",                "properties");
+  addInput(m_nameEdit,          "script name",          "properties");
+  addInput(m_toolTipEdit,       "tooltip",              "properties");
+  addInput(m_docUrlEdit,        "doc url",              "properties");
+  addInput(m_nodeColor,         "node color",           "properties");
+  addInput(m_textColor,         "text color",           "properties");
+  addInput(m_allowHeaderColor,  "custom header color",  "properties");
+    
+  // [Julien] FE-5188, FE-5276
+  if(setAlphaNum) alphaNumicStringOnly();
     
   // Create pr remove the header color property
-  onAllowHeaderColorCheckBoxClicked( m_allowHeaderColor->checked() );
+  addOrRemoveHeaderColor();
 }
 
 /// Destructor
@@ -147,6 +125,39 @@ void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
 {
   QTimer::singleShot(0, m_nameEdit, SLOT(setFocus()));
   DFGBaseDialog::showEvent(event);  
+}
+
+/// Allows only alpha-numeric text (here the title) only 
+void DFGNodePropertiesDialog::alphaNumicStringOnly() {
+  setRegexFilter(QString("^[a-zA-Z][a-zA-Z0-9]*$"));
+}
+
+/// Filters the QLineEdit text (here the title) with the regexFilter
+void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
+  if(m_nameEdit)
+  {
+    QRegExp regex(regexFilter);
+    QValidator *validator = new QRegExpValidator(regex, 0);
+    m_nameEdit->setValidator(validator);
+  }
+}
+
+/// Gets the user selected node's title
+QString DFGNodePropertiesDialog::getScriptName()
+{
+  return m_nameEdit->text();
+}
+
+/// Gets the user selected node's tool tip 
+QString DFGNodePropertiesDialog::getToolTip()
+{
+  return m_toolTipEdit->toPlainText();
+}
+
+/// Gets the user selected node's url doc 
+QString DFGNodePropertiesDialog::getDocUrl()
+{
+  return m_docUrlEdit->text();
 }
 
 /// Gets the user selected node's body color 
@@ -191,7 +202,7 @@ QColor DFGNodePropertiesDialog::getTextColor()
 }
 
 /// Creates the node header color property
-void DFGNodePropertiesDialog::onAllowHeaderColorCheckBoxClicked() {
+void DFGNodePropertiesDialog::addOrRemoveHeaderColor() {
   // [Julien] FE-5246 
   // Custom header colors can have contrast mistmatches with the body's color
   // Thus, the option is disable by default 

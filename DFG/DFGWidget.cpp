@@ -1638,23 +1638,18 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(
-      NULL,
-      controller,
-      node->name().c_str(),
-      getConfig()
-      );
-    if ( dialog.exec() && !dialog.isPreset() )
+    DFG::DFGNodePropertiesDialog dialog(NULL, controller, node->name().c_str(), getConfig(), true);
+    if(dialog.exec())
     {
       controller->cmdRenameNode(
         node->name().c_str(),
         dialog.getScriptName().toStdString()
         );  // undoable.
       dialog.updateNodeName( node->name() ); // since this can change the node name
-      controller->setNodeToolTip        (node->name().c_str(), dialog.toolTip().toStdString().c_str());  // not undoable.
-      controller->setNodeDocUrl         (node->name().c_str(), dialog.docUrl() .toStdString().c_str());  // not undoable.
+      controller->setNodeToolTip        (node->name().c_str(), dialog.getToolTip().toStdString().c_str());  // not undoable.
+      controller->setNodeDocUrl         (node->name().c_str(), dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
-      controller->setNodeBackgroundColor(node->name().c_str(), dialog.nodeColor());    // not undoable.  
+      controller->setNodeBackgroundColor(node->name().c_str(), dialog.getNodeColor());    // not undoable.  
       
       // [Julien] FE-5246
       // Add or remove the geader colo node metadata
