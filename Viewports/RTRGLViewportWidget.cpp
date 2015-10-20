@@ -387,9 +387,10 @@ void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
     m_testObject.callMethod("", "onEvent", 1, &klevent);
     bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
-    event->setAccepted(result);
+    bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
+    event->setAccepted( result );
     if( result )
-      emit manipsAcceptedEvent();
+      emit manipsAcceptedEvent( redrawAllViewports );
   );
 }
 
@@ -399,9 +400,10 @@ bool RTRGLViewportWidget::onMouseEvent(QEvent *event) {
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
     m_testObject.callMethod("", "onEvent", 1, &klevent);
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
+    bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted(result);
     if( result )
-      emit manipsAcceptedEvent();
+      emit manipsAcceptedEvent( redrawAllViewports );
   );
   return result;
 }

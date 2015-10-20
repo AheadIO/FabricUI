@@ -40,7 +40,7 @@ namespace FabricUI
 
       signals:
         void sceneChanged();
-        void manipsAcceptedEvent();
+        void manipsAcceptedEvent( bool );
         void viewportDestroying();
 
       public slots:
