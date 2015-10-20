@@ -36,7 +36,6 @@ namespace FabricUI
         FabricCore::RTVal m_color;
         FabricCore::Client *m_client;
         FabricCore::RTVal m_testObject;
-        FabricCore::RTVal m_viewport;
         QWidget* m_parent;
     };
   };

@@ -28,8 +28,8 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, QGLContext *, QWidget *parent = NULL);
-        virtual ~RTRGLViewportWidget() {};
+        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, int, QGLContext *, QWidget *parent = NULL, QGLWidget *shared = NULL);
+        virtual ~RTRGLViewportWidget();
 
         void initialize();
         void resetRTVals();
@@ -39,8 +39,9 @@ namespace FabricUI
         double fps() const { return m_fps; }
 
       signals:
-        void onDrop();
-        void manipsAcceptedEvent();
+        void sceneChanged();
+        void manipsAcceptedEvent( bool );
+        void viewportDestroying();
 
       public slots:
         void onContextMenu(const QPoint &point);
@@ -75,8 +76,12 @@ namespace FabricUI
 
         QWidget *m_parent;
         FabricCore::Client *m_client;
+
+        int m_viewportIndex;
+
         FabricCore::RTVal m_viewport;
         FabricCore::RTVal m_testObject;
+        FabricCore::RTVal m_viewportIndexRTVal;
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
 

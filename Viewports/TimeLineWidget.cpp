@@ -343,12 +343,14 @@ void TimeLineWidget::play()
   {
     m_timer->stop();
     m_playButton->setText(">");
+    emit playbackChanged(false);
   }
   else
   {
     m_timer->start();
     m_lastFrameTime.start();
     m_playButton->setText( "||" );
+    emit playbackChanged(true);
   }
 }
 
@@ -358,6 +360,7 @@ void TimeLineWidget::pause()
   {
     m_timer->stop();
     m_playButton->setText(">");
+    emit playbackChanged(false);
   }
 }
 
