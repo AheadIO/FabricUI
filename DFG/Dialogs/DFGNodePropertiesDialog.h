@@ -71,20 +71,50 @@ namespace FabricUI
       /// Gets the user selected node's text color 
       QColor getTextColor();
 
-    public slots:
+    protected slots:
+
+      void onNodeColorButtonClicked();
+      void onHeaderColorButtonClicked();
+      void onTextColorButtonClicked();
+
       // [Julien] FE-5246 : Creates the node header color property
       // Custom header colors can have contrast mistmatches with the body's color
       // Thus, the option is disable by default 
       /// Creates the node header color property
-      void addOrRemoveHeaderColor();
+      void onAllowHeaderColorCheckBoxClicked();
 
     private:
+
+      class ColorButton : public QPushButton
+      {
+      public:
+
+        ColorButton( QColor const &color, QWidget *parent )
+          : QPushButton( parent )
+          , m_color( color )
+          {}
+
+        QColor const &color() const
+          { return m_color; }
+
+        void setColor( QColor const &color )
+        {
+          m_color = color;
+          update();
+        }
+
+      protected:
+        
+        virtual void paintEvent( QPaintEvent *event );
+
+      private:
+
+        QColor m_color;
+      };
+
       /// \internal
       /// Gets the color property header color metadata
-      QColor getColorFromExec(const char * key, QColor defaultCol);
-      /// \internal
-      /// Sets the color property of the ColorPickerWidget widget
-      void setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * json, QColor defaultCol);
+      QColor getColorFromExec( FTL::CStrRef key, QColor const &defaultCol );
 
       std::string                      m_nodeName;
       DFGController                   *m_controller;
@@ -93,10 +123,10 @@ namespace FabricUI
       QLineEdit                       *m_titleEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;
-      QCheckBox                       *m_allowHeaderColor;
-      ValueEditor::ColorPickerWidget  *m_nodeColor;
-      ValueEditor::ColorPickerWidget  *m_headerColor;
-      ValueEditor::ColorPickerWidget  *m_textColor;
+      ColorButton *m_nodeColorButton;
+      ColorButton *m_headerColorButton;
+      QCheckBox *m_allowHeaderColorCheckBox;
+      ColorButton *m_textColorButton;
     };
 
   };
