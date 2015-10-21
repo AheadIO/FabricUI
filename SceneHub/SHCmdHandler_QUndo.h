@@ -17,6 +17,9 @@ namespace FabricUI
       private:
         QUndoStack *m_qUndoStack;
 
+      protected:
+        class WrappedCmd;
+
       public:
         SHCmdHandler_QUndo(QUndoStack *qUndoStack) : m_qUndoStack(qUndoStack) {};
        

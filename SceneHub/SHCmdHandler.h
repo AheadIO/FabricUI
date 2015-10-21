@@ -18,7 +18,8 @@
 #include <vector>
 #include <assert.h>
 #include <iostream>
- 
+#include "SHCmd.h"
+
 namespace FabricUI
 {
   namespace SceneHub

@@ -2,18 +2,19 @@
  *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
  */
 
-#include <FabricUI/DFG/DFGUICmd/DFGUICmds.h>
-#include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
+#include "SHCmd.h"
+#include "SHCmdHandler_QUndo.h"
+#include <FTL/OwnedPtr.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-class DFGUICmdHandler_QUndo::SHWrappedCommand : public QUndoCommand
+class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand
 {
   public:
-    SHWrappedCommand( DFGUICmd *dfgUICmd )
+    WrappedCmd( SHCmd *shCmd )
       : QUndoCommand()
-      , m_dfgUICmd( dfgUICmd )
+      , m_shCmd( shCmd )
       , m_didit( false )
     {
     }
@@ -26,13 +27,13 @@ class DFGUICmdHandler_QUndo::SHWrappedCommand : public QUndoCommand
       {
         if ( m_didit )
         {
-          m_dfgUICmd->redo();
+          m_shCmd->redo();
         }
         else
         {
           m_didit = true;
-          m_dfgUICmd->doit();
-          QUndoCommand::setText( m_dfgUICmd->getDesc().c_str() );
+          m_shCmd->doit();
+          QUndoCommand::setText( m_shCmd->getDesc().c_str() );
         }
       }
       catch ( FabricCore::Exception e )
@@ -49,7 +50,7 @@ class DFGUICmdHandler_QUndo::SHWrappedCommand : public QUndoCommand
       try
       {
         assert( m_didit );
-        m_dfgUICmd->undo();
+        m_shCmd->undo();
       }
       catch ( FabricCore::Exception e )
       {
@@ -62,6 +63,6 @@ class DFGUICmdHandler_QUndo::SHWrappedCommand : public QUndoCommand
 
   private:
 
-    FTL::OwnedPtr<DFGUICmd> m_dfgUICmd;
+    FTL::OwnedPtr<SHCmd> m_shCmd;
     bool m_didit;
 };
