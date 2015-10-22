@@ -23,6 +23,7 @@ g++ \
   -I. \
   -I../.. \
   -I../FabricServices/ \
+  -I../FabricServices/ASTWrapper/ \
   -I../../stage/Linux/x86_64/Release/include/ \
   -L/usr/local/pyside/lib \
   -L../../stage/Linux/x86_64/Release/lib \

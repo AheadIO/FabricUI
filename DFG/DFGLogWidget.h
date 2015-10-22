@@ -21,7 +21,7 @@ namespace FabricUI
 
     public:
 
-      DFGLogWidget( const DFGConfig & config = DFGConfig() );
+      DFGLogWidget( const DFGConfig & config );
       virtual ~DFGLogWidget();
 
       static void log(const char * message);

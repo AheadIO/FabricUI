@@ -22,7 +22,7 @@ namespace FabricUI
 
       DFGValueEditor(
         DFGController * controller,
-        const DFGConfig & config = DFGConfig()
+        const DFGConfig & config
         );
       virtual ~DFGValueEditor();
 

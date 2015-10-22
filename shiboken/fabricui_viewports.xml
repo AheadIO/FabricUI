@@ -13,8 +13,7 @@
             if (!SWIG_IsOK(res1) || !argp1) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
             }
-
-            if (!PyErr_Occurred()) {
+            else {
               FabricCore::Client *client_ptr = reinterpret_cast&lt; FabricCore::Client * &gt;(argp1);
               %0 = new %TYPE(client_ptr, %2, %3, %4, %5);
             }
@@ -22,6 +21,8 @@
         </modify-function>
 
         <rejection field-name="m_fpsStack"/>
+      </object-type>
+      <object-type name="TimeLineWidget" copyable="false">
       </object-type>
     </namespace-type>
   </namespace-type>

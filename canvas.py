@@ -1,5 +1,6 @@
 import optparse, os, sys
-from FabricUI import DFG, Viewports
+import FabricUI
+from FabricUI import DFG, Style, Viewports
 import FabricEngine.Core as Core
 from PySide import QtCore, QtGui, QtOpenGL
 
@@ -22,9 +23,9 @@ class MainWindow(DFG.DFGMainWindow):
         DFG.DFGMainWindow.__init__(self)
 
         self.settings = settings
-        self.dfguiCommandHandler = None
-
         DFG.DFGWidget.setSettings(settings)
+
+        config = DFG.DFGConfig()
 
         # autosaveBasename = 'autosave.'+str(os.getpid())+'.canvas'
 
@@ -48,8 +49,10 @@ class MainWindow(DFG.DFGMainWindow):
         client.loadExtension("Util")
         client.setStatusCallback(statusCallback)
 
-        #astManager = ASTWrapper.KLASTManager(client)
-        astManager = None
+        undoStack = QtGui.QUndoStack()
+        dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(undoStack)
+
+        astManager = FabricUI.KLASTManager(client._client)
 
         evalContext = client.RT.types.EvalContext.create()
         evalContext = evalContext.getInstance('EvalContext')
@@ -70,123 +73,68 @@ class MainWindow(DFG.DFGMainWindow):
         glFormat.setSampleBuffers(True)
         glFormat.setSamples(4)
 
-        defaultWindowColor = QtGui.QColor()
-        viewport = Viewports.GLViewportWidget(client._client, defaultWindowColor, glFormat, None, None)
+        viewport = Viewports.GLViewportWidget(client._client, config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        #dfgWidget = DFG.DFGWidget(None, client._client, host, binding, "", graph, astManager, self.dfguiCommandHandler, None)
-        '''
-        self.contentChanged.connect(viewport.redraw)
-        viewport.portManipulationRequested.connect(this.onPortManipulationRequested)
-
+        dfgWidget = DFG.DFGWidget(None, client._client, host, binding, "", graph, astManager, dfguiCommandHandler, None)
+        #self.contentChanged.connect(viewport.redraw)
+        #viewport.portManipulationRequested.connect(this.onPortManipulationRequested)
 
         dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
         dfgDock = QtGui.QDockWidget("Canvas Graph", self)
         dfgDock.setObjectName("Canvas Graph")
         dfgDock.setFeatures(dockFeatures)
-        dfgDock.setWidget(dfgWidget)
-        self.addDockWidget(Qt.BottomDockWidgetArea, dfgDock, Qt.Vertical)
+        #dfgDock.setWidget(dfgWidget)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
+
+        timeLine = Viewports.TimeLineWidget()
+        timeLine.setTimeRange(1, 50)
+        timeLine.updateTime(1)
+        timeLineDock = QtGui.QDockWidget("TimeLine", self)
+        timeLineDock.setObjectName("TimeLine")
+        timeLineDock.setFeatures(dockFeatures)
+        timeLineDock.setWidget(timeLine)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock, QtCore.Qt.Vertical)
+
+        '''
+        treeWidget = DFG.PresetTreeWidget(dfgWidget.getDFGController(), config, True, False, True)
+        treeDock = QtGui.QDockWidget("Explorer", self)
+        treeDock.setObjectName("Explorer")
+        treeDock.setFeatures(dockFeatures)
+        treeDock.setWidget(treeWidget)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, treeDock)
         '''
 
-    def updateFPS(self):
-        print 'called updateFPS'
+        #QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
 
+        '''
+        dfgValueEditor = DFG.DFGValueEditor(dfgWidget.getUIController(), config)
+        dfgValueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
+        dfgValueEditorDockWidget.setObjectName("Values")
+        dfgValueEditorDockWidget.setFeatures(dockFeatures)
+        dfgValueEditorDockWidget.setWidget(dfgValueEditor)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dfgValueEditorDockWidget)
+        '''
 
+        logWidget = DFG.DFGLogWidget(config)
+        logDockWidget = QtGui.QDockWidget("Log Messages", self)
+        logDockWidget.setObjectName("Log")
+        logDockWidget.setFeatures(dockFeatures)
+        logDockWidget.setWidget(logWidget)
+        logDockWidget.hide()
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, logDockWidget, QtCore.Qt.Vertical)
 
-app = QtGui.QApplication([])
-app.setOrganizationName( 'Fabric Software Inc' )
-app.setApplicationName( 'Fabric Canvas Standalone' )
-app.setApplicationVersion( '2.0.0' )
-#app.setStyle( FabricUI.Style.FabricStyle() )
+        qUndoView = QtGui.QUndoView(undoStack)
+        qUndoView.setEmptyLabel("New Graph")
+        undoDockWidget = QtGui.QDockWidget("History", self)
+        undoDockWidget.setObjectName("History")
+        undoDockWidget.setFeatures(dockFeatures)
+        undoDockWidget.setWidget(qUndoView)
+        undoDockWidget.hide()
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
 
-fabricDir = os.environ.get('FABRIC_DIR', None)
-if fabricDir:
-    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
-    app.setWindowIcon(QtGui.QIcon(logoPath))
-
-opt_parser = optparse.OptionParser(
-        usage='Usage: %prog [options] [graph]')
-opt_parser.add_option('-u', '--unguarded',
-                                            action='store_true',
-                                            dest='unguarded',
-                                            help='compile KL code in unguarded mode')
-(opts, args) = opt_parser.parse_args()
-
-unguarded = opts.unguarded
-
-settings = QtCore.QSettings()
-mainWin = MainWindow(settings, unguarded)
-mainWin.show()
-
-#for ( ; argi < argc; ++argi )
-#    mainWin.loadGraph( argv[argi] );
-
-#l = FabricUI.LastWarningDialog(None)
-#l.show()
-app.exec_()
-
-
-'''
-    try
-    {
-        // timeline
-        m_timeLine = new Viewports::TimeLineWidget();
-        m_timeLine->setTimeRange(TimeRange_Default_Frame_In, TimeRange_Default_Frame_Out);
-        m_timeLine->updateTime(TimeRange_Default_Frame_In);
-        QDockWidget *timeLineDock = new QDockWidget("TimeLine", this);
-        timeLineDock->setObjectName( "TimeLine" );
-        timeLineDock->setFeatures( dockFeatures );
-        timeLineDock->setWidget(m_timeLine);
-        addDockWidget(Qt::BottomDockWidgetArea, timeLineDock, Qt::Vertical);
- 
-        // [Julien] FE-5252
-        // preset library
-        // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
-        m_treeWidget = new DFG::PresetTreeWidget( m_dfgWidget->getDFGController(), config, true, false, true );
-        QDockWidget *treeDock = new QDockWidget("Explorer", this);
-        treeDock->setObjectName( "Explorer" );
-        treeDock->setFeatures( dockFeatures );
-        treeDock->setWidget(m_treeWidget);
-        addDockWidget(Qt::LeftDockWidgetArea, treeDock);
-
-        QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
-
-        // value editor
-        m_dfgValueEditor =
-            new DFG::DFGValueEditor(
-                m_dfgWidget->getUIController(),
-                config
-                );
-        QDockWidget *dfgValueEditorDockWidget =
-            new QDockWidget(
-                "Value Editor",
-                this
-                );
-        dfgValueEditorDockWidget->setObjectName( "Values" );
-        dfgValueEditorDockWidget->setFeatures( dockFeatures );
-        dfgValueEditorDockWidget->setWidget( m_dfgValueEditor );
-        addDockWidget( Qt::RightDockWidgetArea, dfgValueEditorDockWidget );
-
-        // log widget
-        m_logWidget = new DFG::DFGLogWidget;
-        QDockWidget *logDockWidget = new QDockWidget( "Log Messages", this );
-        logDockWidget->setObjectName( "Log" );
-        logDockWidget->setFeatures( dockFeatures );
-        logDockWidget->setWidget( m_logWidget );
-        logDockWidget->hide();
-        addDockWidget( Qt::TopDockWidgetArea, logDockWidget, Qt::Vertical );
-
-        // History widget
-        m_qUndoView = new QUndoView( &m_qUndoStack );
-        m_qUndoView->setEmptyLabel( "New Graph" );
-        QDockWidget *undoDockWidget = new QDockWidget("History", this);
-        undoDockWidget->setObjectName( "History" );
-        undoDockWidget->setFeatures( dockFeatures );
-        undoDockWidget->setWidget(m_qUndoView);
-        undoDockWidget->hide();
-        addDockWidget(Qt::LeftDockWidgetArea, undoDockWidget);
-
+        '''
         QObject::connect(
             m_dfgWidget->getUIController(), SIGNAL(varsChanged()),
             m_treeWidget, SLOT(refresh())
@@ -231,20 +179,23 @@ app.exec_()
 
         QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)),
             this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+        '''
 
-        restoreGeometry( settings->value("mainWindow/geometry").toByteArray() );
-        restoreState( settings->value("mainWindow/state").toByteArray() );
+        #self.restoreGeometry( settings.value("mainWindow/geometry").toByteArray() )
+        #self.restoreState( settings.value("mainWindow/state").toByteArray() )
 
-        // populate the menu bar
+        '''
         QObject::connect(
             m_dfgWidget, 
             SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
             this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
             );
-        m_dfgWidget->populateMenuBar(menuBar());
+        dfgWidget.populateMenuBar(menuBar())
+        '''
 
-        // window menu
-        QMenu *windowMenu = menuBar()->addMenu(tr("&Window"));
+        windowMenu = self.menuBar().addMenu("&Window")
+
+        '''
         QAction * toggleAction = NULL;
         toggleAction = dfgDock->toggleViewAction();
         toggleAction->setShortcut( Qt::CTRL + Qt::Key_4 );
@@ -269,16 +220,45 @@ app.exec_()
         onFrameChanged(m_timeLine->getTime());
         onGraphSet(m_dfgWidget->getUIGraph());
         onSidePanelInspectRequested();
-    }
-    catch(FabricCore::Exception e)
-    {
-        throw e;
-    }
+        '''
 
-    installEventFilter(new MainWindowEventFilter(this));
-}
-'''
 
+    def updateFPS(self):
+        print 'called updateFPS'
+
+
+
+app = QtGui.QApplication([])
+app.setOrganizationName( 'Fabric Software Inc' )
+app.setApplicationName( 'Fabric Canvas Standalone' )
+app.setApplicationVersion( '2.0.0' )
+#app.setStyle( Style.FabricStyle() )
+
+fabricDir = os.environ.get('FABRIC_DIR', None)
+if fabricDir:
+    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
+    app.setWindowIcon(QtGui.QIcon(logoPath))
+
+opt_parser = optparse.OptionParser(
+        usage='Usage: %prog [options] [graph]')
+opt_parser.add_option('-u', '--unguarded',
+                                            action='store_true',
+                                            dest='unguarded',
+                                            help='compile KL code in unguarded mode')
+(opts, args) = opt_parser.parse_args()
+
+unguarded = opts.unguarded
+
+settings = QtCore.QSettings()
+mainWin = MainWindow(settings, unguarded)
+mainWin.show()
+
+#for ( ; argi < argc; ++argi )
+#    mainWin.loadGraph( argv[argi] );
+
+#l = FabricUI.LastWarningDialog(None)
+#l.show()
+app.exec_()
 
 
 '''
