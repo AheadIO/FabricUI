@@ -28,7 +28,7 @@ namespace FabricUI
     {
       public:
 
-        SHCmdHandler() {};
+        //SHCmdHandler() {};
         virtual ~SHCmdHandler() {};
 
         static std::string encodeRTValToJSON(
