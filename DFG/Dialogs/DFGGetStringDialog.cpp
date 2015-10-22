@@ -27,7 +27,7 @@ DFGGetStringDialog::~DFGGetStringDialog()
 
 /// Allows only alpha-numeric text only 
 void DFGGetStringDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+  setRegexFilter(QString("[a-zA-Z][a-zA-Z0-9]*(_+[a-zA-Z][a-zA-Z0-9]*)*(_[0-9]+)?"));
 }
 
 /// Filters the QLineEdit text with the regexFilter

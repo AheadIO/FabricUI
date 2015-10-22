@@ -129,7 +129,7 @@ void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
 
 /// Allows only alpha-numeric text (here the title) only 
 void DFGNodePropertiesDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("^[a-zA-Z][a-zA-Z0-9]*$"));
+  setRegexFilter(QString("[a-zA-Z][a-zA-Z0-9]*(_+[a-zA-Z][a-zA-Z0-9]*)*(_[0-9]+)?"));
 }
 
 /// Filters the QLineEdit text (here the title) with the regexFilter
