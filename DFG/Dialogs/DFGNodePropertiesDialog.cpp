@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+  // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <iostream>
 #include <QtGui/QLayout>
@@ -29,21 +29,43 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   m_toolTipEdit = new QPlainTextEdit("", this);
   m_docUrlEdit  = new QLineEdit("", this);
 
-  m_nodeColor   = new ValueEditor::ColorPickerWidget(this);
-  m_textColor   = new ValueEditor::ColorPickerWidget(this);
-  setColorFromExec(m_nodeColor,   "uiNodeColor",   dfgConfig.graphConfig.nodeDefaultColor);
-  setColorFromExec(m_textColor,   "uiTextColor",   dfgConfig.graphConfig.nodeFontColor);
+  m_nodeColorButton = new ColorButton(
+    getColorFromExec(
+      FTL_STR("uiNodeColor"),
+      dfgConfig.graphConfig.nodeDefaultColor
+      ),
+    this
+    );
+  connect(
+    m_nodeColorButton, SIGNAL(clicked()),
+    this, SLOT(onNodeColorButtonClicked())
+    );
+
+  m_textColorButton = new ColorButton(
+    getColorFromExec(
+      FTL_STR("uiTextColor"),
+      dfgConfig.graphConfig.nodeFontColor
+      ),
+    this
+    );
+  connect(
+    m_textColorButton, SIGNAL(clicked()),
+    this, SLOT(onTextColorButtonClicked())
+    );
 
   // [Julien] FE-5246 
   // Header color property management
   // Create a checbox that creates the header color property when cliked
-  m_headerColor = 0;
+  m_headerColorButton = 0;
   m_nodeDefaultHeaderColor = dfgConfig.graphConfig.nodeDefaultLabelColor;
-  m_allowHeaderColor = new QCheckBox("", this);
+  m_allowHeaderColorCheckBox = new QCheckBox("", this);
   // If the "uiHeaderColor" metadata already exists, diplays the  header color property
   FTL::CStrRef metadata = m_controller->getExec().getNodeMetadata(m_nodeName.c_str(), "uiHeaderColor");
-  m_allowHeaderColor->setChecked(!metadata.empty());
-  QObject::connect(m_allowHeaderColor, SIGNAL(released()), this, SLOT( addOrRemoveHeaderColor() ) );
+  m_allowHeaderColorCheckBox->setChecked(!metadata.empty());
+  QObject::connect(
+    m_allowHeaderColorCheckBox, SIGNAL(clicked()),
+    this, SLOT(onAllowHeaderColorCheckBoxClicked())
+    );
 
   try
   {
@@ -86,15 +108,15 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   addInput(m_nameEdit,          "script name",          "properties");
   addInput(m_toolTipEdit,       "tooltip",              "properties");
   addInput(m_docUrlEdit,        "doc url",              "properties");
-  addInput(m_nodeColor,         "node color",           "properties");
-  addInput(m_textColor,         "text color",           "properties");
-  addInput(m_allowHeaderColor,  "custom header color",  "properties");
+  addInput( m_nodeColorButton, "node color", "properties" );
+  addInput( m_textColorButton, "text color", "properties" );
+  addInput( m_allowHeaderColorCheckBox, "custom header color", "properties" );
     
   // [Julien] FE-5188, FE-5276
   if(setAlphaNum) alphaNumicStringOnly();
     
   // Create pr remove the header color property
-  addOrRemoveHeaderColor();
+  onAllowHeaderColorCheckBoxClicked();
 }
 
 /// Destructor
@@ -163,24 +185,17 @@ QString DFGNodePropertiesDialog::getDocUrl()
 /// Gets the user selected node's body color 
 QColor DFGNodePropertiesDialog::getNodeColor()
 {
-  ValueEditor::ColorPickerWidget *cpw = m_nodeColor;
-  return QColor(cpw->getR_as8bit(),
-                cpw->getG_as8bit(),
-                cpw->getB_as8bit(),
-                cpw->getA_as8bit());
+  return m_nodeColorButton->color();
 }
 
 /// Gets the user selected node's header color 
 bool DFGNodePropertiesDialog::getHeaderColor(QColor &color)
 {
   // [Julien] FE-5246 
-  if( (m_headerColor != 0) && m_allowHeaderColor->isChecked() )
+  if ( !!m_headerColorButton
+    && m_allowHeaderColorCheckBox->isChecked() )
   {
-    ValueEditor::ColorPickerWidget *cpw = m_headerColor;
-    color = QColor(cpw->getR_as8bit(),
-                  cpw->getG_as8bit(),
-                  cpw->getB_as8bit(),
-                  cpw->getA_as8bit());
+    color = m_headerColorButton->color();
     return true;
   }
   else 
@@ -194,33 +209,40 @@ bool DFGNodePropertiesDialog::getHeaderColor(QColor &color)
 /// Gets the user selected node's text color 
 QColor DFGNodePropertiesDialog::getTextColor()
 {
-  ValueEditor::ColorPickerWidget *cpw = m_textColor;
-  return QColor(cpw->getR_as8bit(),
-                cpw->getG_as8bit(),
-                cpw->getB_as8bit(),
-                cpw->getA_as8bit());
+  return m_textColorButton->color();
 }
 
 /// Creates the node header color property
-void DFGNodePropertiesDialog::addOrRemoveHeaderColor() {
+void DFGNodePropertiesDialog::onAllowHeaderColorCheckBoxClicked()
+{
   // [Julien] FE-5246 
   // Custom header colors can have contrast mistmatches with the body's color
   // Thus, the option is disable by default 
   try
   {
-    if( (m_headerColor == 0) && m_allowHeaderColor->isChecked())
+    if ( !m_headerColorButton
+      && m_allowHeaderColorCheckBox->isChecked() )
     {
-      m_headerColor = new ValueEditor::ColorPickerWidget(this);
-      setColorFromExec(m_headerColor, "uiHeaderColor", m_nodeDefaultHeaderColor);
-      addInput(m_headerColor, "header color", "properties");
+      m_headerColorButton = new ColorButton(
+        getColorFromExec(
+          FTL_STR("uiHeaderColor"),
+          m_nodeDefaultHeaderColor
+          ),
+        this
+        );
+      connect(
+        m_headerColorButton, SIGNAL(clicked()),
+        this, SLOT(onHeaderColorButtonClicked())
+        );
+      addInput(m_headerColorButton, "header color", "properties");
     }
-    else if( (m_headerColor != 0) && !m_allowHeaderColor->isChecked())
+    else if ( !!m_headerColorButton
+      && !m_allowHeaderColorCheckBox->isChecked() )
     {
-      removeSection(m_headerColor); 
-      m_headerColor = 0;
+      removeSection(m_headerColorButton);
+      m_headerColorButton = 0;
     }
   }
-
   catch(FabricCore::Exception e)
   {
     m_controller->logError(e.getDesc_cstr());
@@ -229,7 +251,10 @@ void DFGNodePropertiesDialog::addOrRemoveHeaderColor() {
 
 /// \internal
 /// Gets the color property header color metadata
-QColor DFGNodePropertiesDialog::getColorFromExec(const char * key, QColor defaultCol)
+QColor DFGNodePropertiesDialog::getColorFromExec(
+  FTL::CStrRef key,
+  QColor const &defaultCol
+  )
 {
   QColor color = defaultCol;
 
@@ -237,11 +262,13 @@ QColor DFGNodePropertiesDialog::getColorFromExec(const char * key, QColor defaul
   {
     FabricCore::DFGExec exec = m_controller->getExec();
 
-    FTL::CStrRef metadata = exec.getNodeMetadata(m_nodeName.c_str(), key);
-    if(metadata.empty() && exec.getNodeType(m_nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
+    FTL::CStrRef metadata =
+      exec.getNodeMetadata( m_nodeName.c_str(), key.c_str() );
+    if ( metadata.empty()
+      && exec.getNodeType( m_nodeName.c_str() ) == FabricCore::DFGNodeType_Inst )
     {
       FabricCore::DFGExec subExec = exec.getSubExec(m_nodeName.c_str());
-      metadata = subExec.getMetadata(key);
+      metadata = subExec.getMetadata( key.c_str() );
     }
     if(!metadata.empty()) 
     {
@@ -265,10 +292,32 @@ QColor DFGNodePropertiesDialog::getColorFromExec(const char * key, QColor defaul
   return color;
 }
 
-/// \internal
-/// Sets the color property of the ColorPickerWidget widget
-void DFGNodePropertiesDialog::setColorFromExec(ValueEditor::ColorPickerWidget * widget, const char * key, QColor defaultCol)
+void DFGNodePropertiesDialog::onNodeColorButtonClicked()
 {
-  QColor color = getColorFromExec(key, defaultCol);
-  widget->set(color.redF(), color.greenF(), color.blueF(), color.alphaF());  
+  QColorDialog colorDialog( m_nodeColorButton->color(), this );
+  if ( colorDialog.exec() == QDialog::Accepted )
+    m_nodeColorButton->setColor( colorDialog.currentColor() );
+}
+
+void DFGNodePropertiesDialog::onHeaderColorButtonClicked()
+{
+  QColorDialog colorDialog( m_headerColorButton->color(), this );
+  if ( colorDialog.exec() == QDialog::Accepted )
+    m_headerColorButton->setColor( colorDialog.currentColor() );
+}
+
+void DFGNodePropertiesDialog::onTextColorButtonClicked()
+{
+  QColorDialog colorDialog( m_textColorButton->color(), this );
+  if ( colorDialog.exec() == QDialog::Accepted )
+    m_textColorButton->setColor( colorDialog.currentColor() );
+}
+
+void DFGNodePropertiesDialog::ColorButton::paintEvent(
+  QPaintEvent *event
+  )
+{
+  QPainter painter( this );
+  painter.fillRect( event->rect(), QBrush( m_color ) );
+  event->accept();
 }

@@ -189,12 +189,9 @@ namespace FabricUI
         FTL::CStrRef nodeName,
         FTL::CStrRef presetFilePath
         );
-      void onExecPresetFileRefCountDidChange(
-        int newPresetFileRefCount
-        );
-      void onInstExecPresetFileRefCountDidChange(
-        FTL::CStrRef nodeName,
-        int newPresetFileRefCount
+      void onExecEditWouldSplitFromPresetMayHaveChanged();
+      void onInstExecEditWouldSplitFromPresetMayHaveChanged(
+        FTL::CStrRef instName
         );
 
     private:

@@ -330,16 +330,14 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
       FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
       onInstExecWillDetachPreset( nodeName, presetFilePath );
     }
-    else if (descStr == FTL_STR("execPresetFileRefCountDidChange") )
+    else if (descStr == FTL_STR("execEditWouldSplitFromPresetMayHaveChanged") )
     {
-      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
-      onExecPresetFileRefCountDidChange( newPresetFileRefCount );
+      onExecEditWouldSplitFromPresetMayHaveChanged();
     }
-    else if (descStr == FTL_STR("instExecPresetFileRefCountDidChange") )
+    else if (descStr == FTL_STR("instExecEditWouldSplitFromPresetMayHaveChanged") )
     {
-      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
-      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
-      onInstExecPresetFileRefCountDidChange( nodeName, newPresetFileRefCount );
+      FTL::CStrRef instName = jsonObject->getString( FTL_STR("instName") );
+      onInstExecEditWouldSplitFromPresetMayHaveChanged( instName );
     }
     else
     {
@@ -1500,26 +1498,25 @@ void DFGNotificationRouter::onInstExecWillDetachPreset(
   // nothing to be done here for now.
 }
 
-void DFGNotificationRouter::onExecPresetFileRefCountDidChange(
-  int newPresetFileRefCount
-  )
+void DFGNotificationRouter::onExecEditWouldSplitFromPresetMayHaveChanged()
 {
   m_dfgController->emitExecSplitChanged();
 }
 
-void DFGNotificationRouter::onInstExecPresetFileRefCountDidChange(
-  FTL::CStrRef nodeName,
-  int newPresetFileRefCount
+void DFGNotificationRouter::onInstExecEditWouldSplitFromPresetMayHaveChanged(
+  FTL::CStrRef instName
   )
 {
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;
-  GraphView::Node * uiNode = uiGraph->node(nodeName);
+  GraphView::Node * uiNode = uiGraph->node(instName);
   if(!uiNode)
     return;
 
-  if(newPresetFileRefCount == 0)
+  FabricCore::DFGExec & exec = m_dfgController->getExec();
+  FabricCore::DFGExec subExec = exec.getSubExec( instName.c_str() );
+  if ( !subExec.editWouldSplitFromPreset() )
     uiNode->setTitleSuffixAsterisk();
   else
     uiNode->removeTitleSuffix();
