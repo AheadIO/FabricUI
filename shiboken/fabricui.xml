@@ -1,0 +1,21 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <load-typesystem name="typesystem_core.xml"  generate="no"/>
+  <load-typesystem name="typesystem_gui.xml"  generate="no"/>
+  <load-typesystem name="typesystem_opengl.xml"  generate="no"/>
+
+  <load-typesystem name="fabricui_core.xml"  generate="yes"/>
+
+  <namespace-type name="FabricUI"  generate="no">
+    <load-typesystem name="fabricui_dfg.xml"  generate="yes"/>
+    <load-typesystem name="fabricui_viewports.xml"  generate="yes"/>
+
+    <namespace-type name="Style"  generate="yes">
+      <object-type name="FabricStyle" />
+    </namespace-type>
+
+    <function signature="HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" />
+  </namespace-type>
+
+  <object-type name="LastWarningDialog"  />
+</typesystem>

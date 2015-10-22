@@ -1,0 +1,106 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <primitive-type name="FTL::StrRef" target-lang-api-name="PyString">
+    <include file-name="../../FTL/StrRef.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = PyString_FromStringAndSize(%in.data(), %in.size());
+        return %out;
+        </native-to-target>
+        <target-to-native>
+            <add-conversion type="PyString" check="PyString_Check(%in)">
+            const char* str = %CONVERTTOCPP[const char*](%in);
+            %out = %OUTTYPE(str);
+            </add-conversion>
+            <add-conversion type="Py_None">
+            %out = %OUTTYPE();
+            </add-conversion>
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+  <primitive-type name="FabricCore::Client" target-lang-api-name="PyObject">
+    <include file-name="CAPI_swig.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = SWIG_NewPointerObj(SWIG_as_voidptr(&amp;%in), SWIGTYPE_p_FabricCore__Client, SWIG_POINTER_NEW |  0 );
+        return %out;
+        </native-to-target>
+        <target-to-native>
+          void *argp1 = 0;
+          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
+          if (!SWIG_IsOK(res1) || !argp1) {
+            PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
+          }
+          %out = *reinterpret_cast&lt; %OUTTYPE *&gt;(argp1);
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+  <primitive-type name="FabricCore::DFGHost" target-lang-api-name="PyObject">
+    <include file-name="CAPI_swig.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = SWIG_NewPointerObj(SWIG_as_voidptr(&amp;%in), SWIGTYPE_p_FabricCore__DFGHost, SWIG_POINTER_NEW |  0 );
+        return %out;
+        </native-to-target>
+        <target-to-native>
+          void *argp1 = 0;
+          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__DFGHost, 0 | 0);
+          if (!SWIG_IsOK(res1) || !argp1) {
+            PyErr_SetString(PyExc_TypeError, "FabricCore::DFGHost argument is of wrong type");
+          }
+          %out = *reinterpret_cast&lt; %OUTTYPE *&gt;(argp1);
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+  <primitive-type name="FabricCore::DFGExec" target-lang-api-name="PyObject">
+    <include file-name="CAPI_swig.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = SWIG_NewPointerObj(SWIG_as_voidptr(&amp;%in), SWIGTYPE_p_FabricCore__DFGExec, SWIG_POINTER_NEW |  0 );
+        return %out;
+        </native-to-target>
+        <target-to-native>
+          void *argp1 = 0;
+          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__DFGExec, 0 | 0);
+          if (!SWIG_IsOK(res1) || !argp1) {
+            PyErr_SetString(PyExc_TypeError, "FabricCore::DFGExec argument is of wrong type");
+          }
+          %out = *reinterpret_cast&lt; %OUTTYPE *&gt;(argp1);
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+  <primitive-type name="FabricCore::DFGBinding" target-lang-api-name="PyObject">
+    <include file-name="CAPI_swig.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = SWIG_NewPointerObj(SWIG_as_voidptr(&amp;%in), SWIGTYPE_p_FabricCore__DFGBinding, SWIG_POINTER_NEW |  0 );
+        return %out;
+        </native-to-target>
+        <target-to-native>
+          void *argp1 = 0;
+          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__DFGBinding, 0 | 0);
+          if (!SWIG_IsOK(res1) || !argp1) {
+            PyErr_SetString(PyExc_TypeError, "FabricCore::DFGBinding argument is of wrong type");
+          }
+          %out = *reinterpret_cast&lt; %OUTTYPE *&gt;(argp1);
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+  <primitive-type name="FabricCore::RTVal" target-lang-api-name="PyObject">
+    <include file-name="CAPI_swig.h" location="global"/>
+    <conversion-rule>
+        <native-to-target>
+        PyObject* %out = SWIG_NewPointerObj(SWIG_as_voidptr(&amp;%in), SWIGTYPE_p_FabricCore__RTVal, SWIG_POINTER_NEW |  0 );
+        return %out;
+        </native-to-target>
+        <target-to-native>
+          void *argp1 = 0;
+          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__RTVal, 0 | 0);
+          if (!SWIG_IsOK(res1) || !argp1) {
+            PyErr_SetString(PyExc_TypeError, "FabricCore::RTVal argument is of wrong type");
+          }
+          %out = *reinterpret_cast&lt; %OUTTYPE * &gt;(argp1);
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+</typesystem>

@@ -1,31 +1,39 @@
 #!/bin/sh
 g++ \
-  -stdlib=libstdc++ \
-   -undefined dynamic_lookup \
-  -F/usr/local/Cellar/qt/4.8.6/lib/ \
-  -framework QtCore \
-  -framework QtGui \
-  -framework QtOpenGL \
-  -I/usr/local/Cellar/pyside/1.2.2/include/PySide/ \
-  -I/usr/local/Cellar/shiboken/1.2.2/include/shiboken/ \
-  -I/Applications/Xcode-5.0.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7/ \
-  -I/usr/local/Cellar/pyside/1.2.2/include/PySide/QtCore/ \
-  -I/usr/local/Cellar/pyside/1.2.2/include/PySide/QtGui/ \
-  -I/usr/local/Cellar/pyside/1.2.2/include/PySide/QtOpenGL/ \
-  -I/usr/local/include/QtCore \
-  -I/usr/local/Cellar/qt/4.8.6/lib/QtGui.framework/Versions/4/Headers/ \
+  -I/usr/local/pyside/include/PySide/ \
+  -I/usr/local/pyside/include/shiboken/ \
+  -I/usr/local/pyside/include/PySide/QtCore/ \
+  -I/usr/local/pyside/include/PySide/QtGui/ \
+  -I/usr/local/pyside/include/PySide/QtOpenGL/ \
+  -I/usr/include/Qt \
+  -I/usr/include/QtCore \
+  -I/usr/include/QtGui \
+  -I/usr/local/include/python2.7 \
   -IDFG/ \
   -IGraphView/ \
+  -IKLEditor/ \
+  -ILicensing/ \
+  -ISceneHub/ \
+  -IStyle/ \
+  -ITreeView/ \
+  -IValueEditor/ \
+  -IViewports/ \
+  -Ishiboken/ \
+  -Iout/FabricUI/ \
   -I. \
+  -I../.. \
   -I../FabricServices/ \
-  -I../../stage/Darwin/x86_64/Debug/include/ \
-  -L/usr/local/Cellar/pyside/1.2.2/lib \
-  -L/usr/local/Cellar/shiboken/1.2.2/lib \
-  -lpyside-python2.7 \
-  -lshiboken-python2.7 \
-  -L../../stage/Darwin/x86_64/Debug/lib \
+  -I../../stage/Linux/x86_64/Release/include/ \
+  -L/usr/local/pyside/lib \
+  -L../../stage/Linux/x86_64/Release/lib \
+  -g -O0 \
+  -fPIC -DFEC_PROVIDE_STL_BINDINGS -DFEC_SHARED -shared -o FabricUI.so out/FabricUI/*.cpp \
   -lFabricUI \
   -lFabricServices \
   -lFabricSplitSearch \
   -lFabricCore \
-  -DFEC_SHARED -shared -o FabricUI.so out/FabricUI/*.cpp
+  -lQtCore \
+  -lQtGui \
+  -lQtOpenGL \
+  -lpyside-python2.7 \
+  -lshiboken-python2.7

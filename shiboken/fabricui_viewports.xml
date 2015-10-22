@@ -1,0 +1,28 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <namespace-type name="FabricUI"  generate="no">
+    <namespace-type name="Viewports"  generate="yes">
+      <object-type name="GLViewportWidget" copyable="false">
+        <modify-function signature="GLViewportWidget(FabricCore::Client*,QColor,QGLFormat,QWidget*,QSettings*)">
+          <modify-argument index="1">
+            <replace-type modified-type="PyObject"/>
+          </modify-argument>
+          <inject-code class="target" position="beginning">
+            void *argp1 = 0;
+            int res1 = SWIG_ConvertPtr(%PYARG_1, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
+            if (!SWIG_IsOK(res1) || !argp1) {
+              PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
+            }
+
+            if (!PyErr_Occurred()) {
+              FabricCore::Client *client_ptr = reinterpret_cast&lt; FabricCore::Client * &gt;(argp1);
+              %0 = new %TYPE(client_ptr, %2, %3, %4, %5);
+            }
+            </inject-code>
+        </modify-function>
+
+        <rejection field-name="m_fpsStack"/>
+      </object-type>
+    </namespace-type>
+  </namespace-type>
+</typesystem>
