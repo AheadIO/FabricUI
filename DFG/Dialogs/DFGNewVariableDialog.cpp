@@ -43,7 +43,7 @@ DFGNewVariableDialog::~DFGNewVariableDialog()
 
 // Allows only alpha-numeric text only 
 void DFGNewVariableDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("[a-zA-Z][a-zA-Z0-9]*(_+[a-zA-Z][a-zA-Z0-9]*)*(_[0-9]+)?"));
+  setRegexFilter(QString("[a-zA-Z][_a-zA-Z0-9]*"));
 }
 
 // Filters the QLineEdit text with the regexFilter
