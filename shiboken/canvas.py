@@ -75,17 +75,17 @@ class MainWindow(DFG.DFGMainWindow):
         viewport = Viewports.GLViewportWidget(client, self.config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        self.dfgWidget = DFG.DFGWidget(QtGui.QWidget(), client, self.host, binding, "", graph, astManager, dfguiCommandHandler, self.config)
+        self.dfgWidget = DFG.DFGWidget(None, client._client, self.host, binding, "", graph, astManager, dfguiCommandHandler, self.config)
 
         #self.contentChanged.connect(viewport.redraw)
-        viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
+        #viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
 
         dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
         dfgDock = QtGui.QDockWidget("Canvas Graph", self)
         dfgDock.setObjectName("Canvas Graph")
         dfgDock.setFeatures(dockFeatures)
-        #dfgDock.setWidget(self.dfgWidget)
+        dfgDock.setWidget(self.dfgWidget)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
 
         self.timeLinePortIndex = 0
@@ -98,8 +98,7 @@ class MainWindow(DFG.DFGMainWindow):
         timeLineDock.setWidget(self.timeLine)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock, QtCore.Qt.Vertical)
 
-        '''
-        treeWidget = DFG.PresetTreeWidget(self.dfgWidget.getDFGController(), config, True, False, True)
+        treeWidget = DFG.PresetTreeWidget(self.dfgWidget.getDFGController(), self.config, True, False, True)
         treeDock = QtGui.QDockWidget("Explorer", self)
         treeDock.setObjectName("Explorer")
         treeDock.setFeatures(dockFeatures)
@@ -108,15 +107,14 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.newPresetSaved.connect(treeWidget.refresh)
 
-        self.dfgValueEditor = DFG.DFGValueEditor(dfgWidget.getDFGController(), config)
+        self.dfgValueEditor = DFG.DFGValueEditor(self.dfgWidget.getDFGController(), self.config)
         dfgValueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
         dfgValueEditorDockWidget.setObjectName("Values")
         dfgValueEditorDockWidget.setFeatures(dockFeatures)
-        dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
+        #dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dfgValueEditorDockWidget)
-        '''
 
-        logWidget = DFG.DFGLogWidget(config)
+        logWidget = DFG.DFGLogWidget(self.config)
         logDockWidget = QtGui.QDockWidget("Log Messages", self)
         logDockWidget.setObjectName("Log")
         logDockWidget.setFeatures(dockFeatures)
@@ -153,7 +151,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
         '''
         
-        dfgWidget.populateMenuBar(self.menuBar())
+        self.dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
 
         toggleAction = dfgDock.toggleViewAction()
