@@ -17,9 +17,8 @@ class MainWindow(DFG.DFGMainWindow):
     defaultFrameIn = 1
     defaultFrameOut = 50
 
-
     def __init__(self, settings, unguarded):
-        DFG.DFGMainWindow.__init__(self)
+        super(MainWindow, self).__init__()
 
         self.settings = settings
         DFG.DFGWidget.setSettings(settings)
@@ -43,9 +42,9 @@ class MainWindow(DFG.DFGMainWindow):
         #options.licenseType = FabricCore::ClientLicenseType_Interactive;
         #options.rtValToJSONEncoder = &sRTValEncoder;
         #options.rtValFromJSONDecoder = &sRTValDecoder;
-        client.loadExtension("Math")
-        client.loadExtension("Parameters")
-        client.loadExtension("Util")
+        client.loadExtension('Math')
+        client.loadExtension('Parameters')
+        client.loadExtension('Util')
         client.setStatusCallback(self.statusCallback)
 
         self.qUndoStack = QtGui.QUndoStack()
@@ -75,15 +74,15 @@ class MainWindow(DFG.DFGMainWindow):
         viewport = Viewports.GLViewportWidget(client, self.config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        self.dfgWidget = DFG.DFGWidget(None, client._client, self.host, binding, "", graph, astManager, dfguiCommandHandler, self.config)
+        self.dfgWidget = DFG.DFGWidget(None, client._client, self.host, binding, '', graph, astManager, dfguiCommandHandler, self.config)
 
-        #self.contentChanged.connect(viewport.redraw)
-        #viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
+        self.contentChanged.connect(viewport.redraw)
+        viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
 
         dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
-        dfgDock = QtGui.QDockWidget("Canvas Graph", self)
-        dfgDock.setObjectName("Canvas Graph")
+        dfgDock = QtGui.QDockWidget('Canvas Graph', self)
+        dfgDock.setObjectName('Canvas Graph')
         dfgDock.setFeatures(dockFeatures)
         dfgDock.setWidget(self.dfgWidget)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
@@ -154,6 +153,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
 
+        '''
         toggleAction = dfgDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_4)
         windowMenu.addAction(toggleAction)
@@ -174,7 +174,6 @@ class MainWindow(DFG.DFGMainWindow):
         toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_8)
         windowMenu.addAction(toggleAction)
 
-        '''
         onFrameChanged(timeLine.getTime())
         onGraphSet(self.dfgWidget.getUIGraph())
         onSidePanelInspectRequested()
