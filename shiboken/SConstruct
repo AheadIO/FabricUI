@@ -1,0 +1,121 @@
+#
+# Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+#
+
+import os
+import platform
+
+if not os.environ.has_key('FABRIC_DIR'):
+  raise Exception("No FABRIC_DIR environment variable specified.")
+fabricDir = os.environ['FABRIC_DIR']
+
+buildOS = 'Darwin'
+if platform.system().lower().startswith('win'):
+  buildOS = 'Windows'
+elif platform.system().lower().startswith('lin'):
+  buildOS = 'Linux'
+
+buildArch = 'x86_64'
+buildType = 'Release'
+
+env = Environment(MSVC_VERSION = "12.0")
+
+pysideBase = '/usr/local/pyside'
+qtIncludeBase = '/usr/include'
+py27Includes = '/usr/local/include/python2.7'
+baseDir = os.path.join(env.Dir('#').srcnode().abspath, '..')
+
+env.Append(CPPPATH = [
+  baseDir,
+  os.path.join(baseDir, '..', '..'),
+  os.path.join(baseDir, 'DFG'),
+  os.path.join(baseDir, 'GraphView'),
+  os.path.join(baseDir, 'KLEditor'),
+  os.path.join(baseDir, 'Licensing'),
+  os.path.join(baseDir, 'SceneHub'),
+  os.path.join(baseDir, 'Style'),
+  os.path.join(baseDir, 'TreeView'),
+  os.path.join(baseDir, 'ValueEditor'),
+  os.path.join(baseDir, 'Viewports'),
+  os.path.join(baseDir, 'shiboken'),
+  os.path.join(baseDir, 'out', 'FabricUI'),
+  os.path.join(baseDir, '..', 'FabricServices'),
+  os.path.join(baseDir, '..', 'FabricServices', 'ASTWrapper'),
+  os.path.join(pysideBase, 'include', 'PySide'),
+  os.path.join(pysideBase, 'include', 'PySide', 'QtCore'),
+  os.path.join(pysideBase, 'include', 'PySide', 'QtGui'),
+  os.path.join(pysideBase, 'include', 'PySide', 'QtOpenGL'),
+  os.path.join(pysideBase, 'include', 'shiboken'),
+  os.path.join(qtIncludeBase, 'Qt'),
+  os.path.join(qtIncludeBase, 'QtCore'),
+  os.path.join(qtIncludeBase, 'QtGui'),
+  os.path.join(py27Includes),
+  os.path.join(fabricDir, 'include'),
+])
+env.Append(LIBPATH = [
+  os.path.join(pysideBase, 'lib'),
+  os.path.join(fabricDir, 'lib'),
+])
+env.Append(LIBS = [
+  'FabricUI',
+  'FabricServices',
+  'FabricSplitSearch',
+  'FabricCore',
+  'QtCore',
+  'QtGui',
+  'QtOpenGL',
+  'pyside-python2.7',
+  'shiboken-python2.7',
+])
+env.Append(CPPDEFINES = [
+  'FEC_PROVIDE_STL_BINDINGS',
+  'FEC_SHARED',
+])
+env.Append(CCFLAGS = [
+ '-fPIC',
+ '-g',
+ '-O0'
+])
+
+qtDir = None
+
+qtFlags = {}
+qtMOC = None
+if buildOS == 'Windows':
+  if not os.environ.has_key('QT_DIR'):
+    raise Exception("No QT_DIR environment variable specified.")
+
+  qtDir = os.environ['QT_DIR']
+  if buildType == 'Debug':
+    suffix = 'd4'
+  else:
+    suffix = '4'
+  qtFlags['CPPPATH'] = [os.path.join(qtDir, 'include')]
+  qtFlags['LIBPATH'] = [os.path.join(qtDir, 'lib')]
+  qtFlags['LIBS'] = ['QtCore'+suffix, 'QtGui'+suffix, 'QtOpenGL'+suffix]
+  qtMOC = os.path.join(qtDir, 'bin', 'moc.exe')
+if buildOS == 'Darwin':
+  qtFlags['CPPPATH'] = ['/usr/local/include']
+  qtFlags['FRAMEWORKPATH'] = ['/usr/local/lib']
+  qtFlags['FRAMEWORKS'] = ['QtCore', 'QtGui', 'QtOpenGL']
+  qtMOC = '/usr/local/bin/moc'
+if buildOS == 'Linux':
+  qtFlags['CPPPATH'] = ['/usr/include']
+  qtFlags['LIBPATH'] = ['/usr/lib']
+  qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
+  qtMOC = '/usr/bin/moc-qt4'
+
+if buildOS == 'Windows':
+  env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
+  env['CCPDBFLAGS']  = ['${(PDB and "/Fd%s.pdb /Zi" % File(PDB)) or ""}']
+  env.Append(CCFLAGS = ['/FS'])
+
+env.MergeFlags(qtFlags)
+
+sharedLib = env.LoadableModule(
+    'FabricUI',
+    Glob(os.path.join(baseDir, 'out', 'FabricUI', '*.cpp')),
+    LDMODULEPREFIX='',
+    )
+env.Default(sharedLib)
+
