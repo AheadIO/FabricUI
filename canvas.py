@@ -19,6 +19,8 @@ def statusCallback(target, data):
     print 'unknown status target'
 
 class MainWindow(DFG.DFGMainWindow):
+    contentChanged = QtCore.Signal()
+
     def __init__(self, settings, unguarded):
         DFG.DFGMainWindow.__init__(self)
 
@@ -76,16 +78,17 @@ class MainWindow(DFG.DFGMainWindow):
         viewport = Viewports.GLViewportWidget(client._client, config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        dfgWidget = DFG.DFGWidget(None, client._client, host, binding, "", graph, astManager, dfguiCommandHandler, None)
+        self.dfgWidget = DFG.DFGWidget(None, client._client, host, binding, "", graph, astManager, dfguiCommandHandler, None)
+
         #self.contentChanged.connect(viewport.redraw)
-        #viewport.portManipulationRequested.connect(this.onPortManipulationRequested)
+        viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
 
         dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
         dfgDock = QtGui.QDockWidget("Canvas Graph", self)
         dfgDock.setObjectName("Canvas Graph")
         dfgDock.setFeatures(dockFeatures)
-        #dfgDock.setWidget(dfgWidget)
+        #dfgDock.setWidget(self.dfgWidget)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
 
         timeLine = Viewports.TimeLineWidget()
@@ -98,22 +101,20 @@ class MainWindow(DFG.DFGMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock, QtCore.Qt.Vertical)
 
         '''
-        treeWidget = DFG.PresetTreeWidget(dfgWidget.getDFGController(), config, True, False, True)
+        treeWidget = DFG.PresetTreeWidget(self.dfgWidget.getDFGController(), config, True, False, True)
         treeDock = QtGui.QDockWidget("Explorer", self)
         treeDock.setObjectName("Explorer")
         treeDock.setFeatures(dockFeatures)
         treeDock.setWidget(treeWidget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, treeDock)
-        '''
 
-        #QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
+        self.dfgWidget.newPresetSaved.connect(treeWidget.refresh)
 
-        '''
-        dfgValueEditor = DFG.DFGValueEditor(dfgWidget.getUIController(), config)
+        self.dfgValueEditor = DFG.DFGValueEditor(dfgWidget.getDFGController(), config)
         dfgValueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
         dfgValueEditorDockWidget.setObjectName("Values")
         dfgValueEditorDockWidget.setFeatures(dockFeatures)
-        dfgValueEditorDockWidget.setWidget(dfgValueEditor)
+        dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dfgValueEditorDockWidget)
         '''
 
@@ -135,97 +136,95 @@ class MainWindow(DFG.DFGMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
 
         '''
-        QObject::connect(
-            m_dfgWidget->getUIController(), SIGNAL(varsChanged()),
-            m_treeWidget, SLOT(refresh())
-            );
-        QObject::connect(
-            m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
-            this, SLOT(onStructureChanged())
-            );
-        QObject::connect(
-            m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
-            this, SLOT(onValueChanged())
-            );
-        QObject::connect(
-            m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
-            this, SLOT(onValueChanged())
-            );
-        QObject::connect(
-            m_dfgWidget, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
-            this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
-            );
-        QObject::connect(
-            m_dfgWidget->getDFGController(), SIGNAL(dirty()),
-            this, SLOT(onDirty())
-            );
+        controller = self.dfgWidget.getDFGController()
+        controller.varsChanged.connect(treeWidget.refresh)
+        controller.argsChanged.connect(self.onStructureChanged)
+        controller.argValuesChanged.connect(self.onValueChanged)
+        controller.defaultValuesChanged.connect(self.onValueChanged)
+        self.dfgWidget.nodeInspectRequested.connect(self.onNodeInspectRequested)
+        controller.dirty.connect(self.dirty)
+        controller.bindingChanged.connect(dfgValueEditor.setBinding)
+        controller.nodeRemoved.connect(dfgValueEditor.onNodeRemoved)
+        self.dfgWidget.getTabSearchWidget().enabled.connect(self.enableShortCuts)
+        timeLine.frameChanged.connect(self.onFrameChanged)
+        self.dfgWidget.onGraphSet.connect(self.onGraphSet)
 
-        QObject::connect(
-            m_dfgWidget->getDFGController(), SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
-            m_dfgValueEditor, SLOT(setBinding(FabricCore::DFGBinding const &))
-            );
-        QObject::connect(
-            m_dfgWidget->getDFGController(), SIGNAL(nodeRemoved(FTL::CStrRef)),
-            m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef))
-            );
+        self.restoreGeometry(settings.value("mainWindow/geometry"))
+        self.restoreState(settings.value("mainWindow/state"))
 
-        QObject::connect(
-            m_dfgWidget->getTabSearchWidget(), SIGNAL(enabled(bool)),
-            this, SLOT(enableShortCuts(bool))
-            );
-
-        QObject::connect(m_timeLine, SIGNAL(frameChanged(int)), this, SLOT(onFrameChanged(int)));
-        // QObject::connect(m_manipAction, SIGNAL(triggered()), m_viewport, SLOT(toggleManipulation()));
-
-        QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)),
-            this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+        self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
         '''
-
-        #self.restoreGeometry( settings.value("mainWindow/geometry").toByteArray() )
-        #self.restoreState( settings.value("mainWindow/state").toByteArray() )
-
-        '''
-        QObject::connect(
-            m_dfgWidget, 
-            SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
-            this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
-            );
-        dfgWidget.populateMenuBar(menuBar())
-        '''
-
+        
+        dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
 
-        '''
-        QAction * toggleAction = NULL;
-        toggleAction = dfgDock->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_4 );
-        windowMenu->addAction( toggleAction );
-        toggleAction = treeDock->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_5 );
-        windowMenu->addAction( toggleAction );
-        toggleAction = dfgValueEditorDockWidget->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_6 );
-        windowMenu->addAction( toggleAction );
-        toggleAction = timeLineDock->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_9 );
-        windowMenu->addAction( toggleAction );
-        windowMenu->addSeparator();
-        toggleAction = undoDockWidget->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_7 );
-        windowMenu->addAction( toggleAction );
-        toggleAction = logDockWidget->toggleViewAction();
-        toggleAction->setShortcut( Qt::CTRL + Qt::Key_8 );
-        windowMenu->addAction( toggleAction );
+        toggleAction = dfgDock.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_4)
+        windowMenu.addAction(toggleAction)
+        toggleAction = treeDock.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_5)
+        windowMenu.addAction(toggleAction)
+        toggleAction = dfgValueEditorDockWidget.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_6)
+        windowMenu.addAction(toggleAction)
+        toggleAction = timeLineDock.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_9)
+        windowMenu.addAction(toggleAction)
+        windowMenu.addSeparator()
+        toggleAction = undoDockWidget.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_7)
+        windowMenu.addAction(toggleAction)
+        toggleAction = logDockWidget.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL+QtCore.Qt.Key_8)
+        windowMenu.addAction(toggleAction)
 
-        onFrameChanged(m_timeLine->getTime());
-        onGraphSet(m_dfgWidget->getUIGraph());
-        onSidePanelInspectRequested();
+        '''
+        onFrameChanged(timeLine.getTime())
+        onGraphSet(self.dfgWidget.getUIGraph())
+        onSidePanelInspectRequested()
         '''
 
 
     def updateFPS(self):
         print 'called updateFPS'
 
+    def onPortManipulationRequested(self, portName):
+        try:
+            controller = self.dfgWidget.getDFGController()
+            binding = controller.getBinding()
+            dfgExec = binding.getExec()
+            portResolvedType = dfgExec.getExecPortResolvedType(portName)
+            value = self.viewport.getManipTool().getLastManipVal()
+            if portResolvedType == 'Xfo':
+                pass
+            elif portResolvedType == 'Mat44':
+                value = value.toMat44('Mat44')
+            elif portResolvedType == 'Vec3':
+                value = value.tr
+            elif portResolvedType == 'Quat':
+                value = value.ori
+            else:
+                message = "Port '"+portName
+                message += "'to be driven has unsupported type '"
+                message += portResolvedType.data()
+                message += "'."
+                self.dfgWidget.getDFGController().logError(message)
+                return
+            controller.cmdSetArgValue(portName, value)
+        except Exception as e:
+            self.dfgWidget.getDFGController().logError(e)
+
+    def onDirty(self):
+        self.dfgWidget.getDFGController().execute()
+        onValueChanged()
+        self.contentChanged.emit()
+
+
+    def onValueChanged(self):
+        try:
+            self.dfgValueEditor.updateOutputs()
+        except Exception as e:
+            self.dfgWidget.getDFGController().logError(e)
 
 
 app = QtGui.QApplication([])
@@ -262,34 +261,6 @@ app.exec_()
 
 
 '''
-//
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-//
-
-#include "CanvasMainWindow.h"
-
-#include <FabricServices/Persistence/RTValToJSONEncoder.hpp>
-#include <FabricServices/Persistence/RTValFromJSONDecoder.hpp>
-#include <FabricUI/Licensing/Licensing.h>
-#include <FabricUI/DFG/DFGActions.h>
-
-#include <FTL/CStrRef.h>
-#include <FTL/FS.h>
-#include <FTL/Path.h>
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QMessageBox>
-#include <QtGui/QUndoView>
-#include <QtGui/QVBoxLayout>
-
-#include <sstream>
-
 FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder;
 FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder;
 
@@ -386,7 +357,7 @@ void MainWindow::closeEvent( QCloseEvent *event )
 
 bool MainWindow::checkUnsavedChanged()
 {
-    FabricCore::DFGBinding binding = m_dfgWidget->getUIController()->getBinding();
+    FabricCore::DFGBinding binding = m_dfgWidget->getDFGController()->getBinding();
     if ( binding.getVersion() != m_lastSavedBindingVersion )
     {
         QMessageBox msgBox;
@@ -454,7 +425,7 @@ void MainWindow::onFrameChanged(int frame)
     }
     catch(FabricCore::Exception e)
     {
-        m_dfgWidget->getUIController()->logError(e.getDesc_cstr());
+        m_dfgWidget->getDFGController()->logError(e.getDesc_cstr());
     }
 
     if ( m_timelinePortIndex == -1 )
@@ -463,7 +434,7 @@ void MainWindow::onFrameChanged(int frame)
     try
     {
         FabricCore::DFGBinding binding =
-            m_dfgWidget->getUIController()->getBinding();
+            m_dfgWidget->getDFGController()->getBinding();
         FabricCore::DFGExec exec = binding.getExec();
         if ( exec.isExecPortResolvedType( m_timelinePortIndex, "SInt32" ) )
             binding.setArgValue(
@@ -492,88 +463,19 @@ void MainWindow::onFrameChanged(int frame)
     }
     catch(FabricCore::Exception e)
     {
-        m_dfgWidget->getUIController()->logError(e.getDesc_cstr());
-    }
-}
-
-void MainWindow::onPortManipulationRequested(QString portName)
-{
-    try
-    {
-        DFG::DFGController * controller = m_dfgWidget->getUIController();
-        FabricCore::DFGBinding &binding = controller->getBinding();
-        FabricCore::DFGExec exec = binding.getExec();
-        FTL::StrRef portResolvedType = exec.getExecPortResolvedType(portName.toUtf8().constData());
-        FabricCore::RTVal value = m_viewport->getManipTool()->getLastManipVal();
-        if(portResolvedType == "Xfo")
-        {
-            // pass
-        }
-        else if(portResolvedType == "Mat44")
-            value = value.callMethod("Mat44", "toMat44", 0, 0);
-        else if(portResolvedType == "Vec3")
-            value = value.maybeGetMember("tr");
-        else if(portResolvedType == "Quat")
-            value = value.maybeGetMember("ori");
-        else
-        {
-            QString message = "Port '"+portName;
-            message += "'to be driven has unsupported type '";
-            message += portResolvedType.data();
-            message += "'.";
-            m_dfgWidget->getUIController()->logError(message.toUtf8().constData());
-            return;
-        }
-        controller->cmdSetArgValue(
-            portName.toUtf8().constData(),
-            value
-            );
-    }
-    catch(FabricCore::Exception e)
-    {
-        m_dfgWidget->getUIController()->logError(e.getDesc_cstr());
-    }
-}
-
-void MainWindow::onDirty()
-{
-    m_dfgWidget->getUIController()->execute();
-
-    onValueChanged();
-
-    emit contentChanged();
-}
-
-void MainWindow::onValueChanged()
-{
-    try
-    {
-        // FabricCore::DFGExec graph = m_dfgWidget->getUIController()->getGraph();
-        // DFGWrapper::ExecPortList ports = graph->getPorts();
-        // for(size_t i=0;i<ports.size();i++)
-        // {
-        //     if(ports[i]->getPortType() == FabricCore::DFGPortType_Out)
-        //         continue;
-        //     FabricCore::RTVal argVal = graph.getWrappedCoreBinding().getArgValue(ports[i]->getName());
-        //     m_dfgWidget->getUIController()->log(argVal.getJSON().getStringCString());
-        // }
-        m_dfgValueEditor->updateOutputs();
-    }
-    catch(FabricCore::Exception e)
-    {
-        m_dfgWidget->getUIController()->logError(e.getDesc_cstr());
+        m_dfgWidget->getDFGController()->logError(e.getDesc_cstr());
     }
 }
 
 void MainWindow::onStructureChanged()
 {
-    if(m_dfgWidget->getUIController()->isViewingRootGraph())
+    if(m_dfgWidget->getDFGController()->isViewingRootGraph())
     {
         m_timelinePortIndex = -1;
         try
         {
             FabricCore::DFGExec graph =
-                m_dfgWidget->getUIController()->getExec();
+                m_dfgWidget->getDFGController()->getExec();
             unsigned portCount = graph.getExecPortCount();
             for(unsigned i=0;i<portCount;i++)
             {
@@ -593,7 +495,7 @@ void MainWindow::onStructureChanged()
         }
         catch(FabricCore::Exception e)
         {
-            m_dfgWidget->getUIController()->logError(e.getDesc_cstr());
+            m_dfgWidget->getDFGController()->logError(e.getDesc_cstr());
         }
     }
 }
@@ -659,7 +561,7 @@ void MainWindow::onNodeInspectRequested(
         return;
 
     FabricUI::DFG::DFGController *dfgController =
-        m_dfgWidget->getUIController();
+        m_dfgWidget->getDFGController();
 
     m_dfgValueEditor->setNode(
         dfgController->getBinding(),
@@ -679,7 +581,7 @@ void MainWindow::onNodeEditRequested(
 void MainWindow::onSidePanelInspectRequested()
 {
     FabricUI::DFG::DFGController *dfgController =
-        m_dfgWidget->getUIController();
+        m_dfgWidget->getDFGController();
 
     if ( dfgController->isViewingRootGraph() )
         m_dfgValueEditor->setBinding( dfgController->getBinding() );
@@ -700,7 +602,7 @@ void MainWindow::onNewGraph()
     try
     {
         FabricUI::DFG::DFGController *dfgController =
-            m_dfgWidget->getUIController();
+            m_dfgWidget->getDFGController();
 
         FabricCore::DFGBinding binding = dfgController->getBinding();
         binding.deallocValues();
@@ -772,7 +674,7 @@ void MainWindow::loadGraph( QString const &filePath )
     try
     {
         FabricUI::DFG::DFGController *dfgController =
-            m_dfgWidget->getUIController();
+            m_dfgWidget->getDFGController();
 
         FabricCore::DFGBinding binding = dfgController->getBinding();
         binding.deallocValues();
@@ -811,12 +713,12 @@ void MainWindow::loadGraph( QString const &filePath )
             dfgController->setBindingExec( binding, FTL::StrRef(), exec );
             onSidePanelInspectRequested();
 
-            m_dfgWidget->getUIController()->checkErrors();
+            m_dfgWidget->getDFGController()->checkErrors();
 
             m_evalContext.setMember("currentFilePath", FabricCore::RTVal::ConstructString(m_client, filePath.toUtf8().constData()));
 
-            m_dfgWidget->getUIController()->bindUnboundRTVals();
-            m_dfgWidget->getUIController()->execute();
+            m_dfgWidget->getDFGController()->bindUnboundRTVals();
+            m_dfgWidget->getDFGController()->execute();
 
             QString tl_start = exec.getMetadata("timeline_start");
             QString tl_end = exec.getMetadata("timeline_end");
@@ -979,7 +881,7 @@ bool MainWindow::saveGraph(bool saveAs)
     m_settings->setValue( "mainWindow/lastPresetFolder", dir.path() );
 
     FabricCore::DFGBinding &binding =
-        m_dfgWidget->getUIController()->getBinding();
+        m_dfgWidget->getDFGController()->getBinding();
 
     if ( performSave( binding, filePath ) )
         m_evalContext.setMember("currentFilePath", FabricCore::RTVal::ConstructString(m_client, filePath.toUtf8().constData()));
@@ -1157,10 +1059,10 @@ void MainWindow::autosave()
 {
     // [andrew 20150909] can happen if this triggers while the licensing
     // dialogs are up
-    if ( !m_dfgWidget || !m_dfgWidget->getUIController() )
+    if ( !m_dfgWidget || !m_dfgWidget->getDFGController() )
         return;
 
-    FabricCore::DFGBinding binding = m_dfgWidget->getUIController()->getBinding();
+    FabricCore::DFGBinding binding = m_dfgWidget->getDFGController()->getBinding();
     if ( !!binding )
     {
         uint32_t bindingVersion = binding.getVersion();

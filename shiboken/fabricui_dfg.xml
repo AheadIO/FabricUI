@@ -6,6 +6,7 @@
       <object-type name="DFGController" />-
       <object-type name="DFGLogWidget" />
       <object-type name="DFGMainWindow" />
+      <object-type name="DFGUICmdHandler" />
       <object-type name="DFGUICmdHandler_QUndo" />
       <object-type name="DFGValueEditor" />
       <object-type name="DFGWidget" />
