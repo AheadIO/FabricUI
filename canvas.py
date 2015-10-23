@@ -11,15 +11,12 @@ def reportCallback(source, level, line):
   else:
     sys.stderr.write(line+"\n")
 
-def statusCallback(target, data):
-  #MainWindow.CoreStatusCallback
-  if target == 'licensing':
-    print 'Error handler for licensing: ' + str( data )
-  else:
-    print 'unknown status target'
-
 class MainWindow(DFG.DFGMainWindow):
     contentChanged = QtCore.Signal()
+
+    defaultFrameIn = 1
+    defaultFrameOut = 50
+
 
     def __init__(self, settings, unguarded):
         DFG.DFGMainWindow.__init__(self)
@@ -49,20 +46,20 @@ class MainWindow(DFG.DFGMainWindow):
         client.loadExtension("Math")
         client.loadExtension("Parameters")
         client.loadExtension("Util")
-        client.setStatusCallback(statusCallback)
+        client.setStatusCallback(self.statusCallback)
 
-        undoStack = QtGui.QUndoStack()
-        dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(undoStack)
+        self.qUndoStack = QtGui.QUndoStack()
+        #dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
 
-        astManager = FabricUI.KLASTManager(client._client)
+        astManager = FabricUI.KLASTManager(client)
 
-        evalContext = client.RT.types.EvalContext.create()
-        evalContext = evalContext.getInstance('EvalContext')
-        evalContext.host = 'Canvas'
-        evalContext.graph = ''
+        self.evalContext = client.RT.types.EvalContext.create()
+        self.evalContext = self.evalContext.getInstance('EvalContext')
+        self.evalContext.host = 'Canvas'
+        self.evalContext.graph = ''
 
-        host = client.getDFGHost()
-        binding = host.createBindingToNewGraph()
+        self.host = client.getDFGHost()
+        binding = self.host.createBindingToNewGraph()
         self.lastSavedBindingVersion = binding.getVersion()
         self.lastAutosaveBindingVersion = self.lastSavedBindingVersion
 
@@ -75,10 +72,10 @@ class MainWindow(DFG.DFGMainWindow):
         glFormat.setSampleBuffers(True)
         glFormat.setSamples(4)
 
-        viewport = Viewports.GLViewportWidget(client._client, config.defaultWindowColor, glFormat, None, None)
+        viewport = Viewports.GLViewportWidget(client, config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        self.dfgWidget = DFG.DFGWidget(None, client._client, host, binding, "", graph, astManager, dfguiCommandHandler, None)
+        self.dfgWidget = DFG.DFGWidget(None, client, self.host, binding, "", graph, astManager, dfguiCommandHandler, None)
 
         #self.contentChanged.connect(viewport.redraw)
         viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
@@ -91,13 +88,14 @@ class MainWindow(DFG.DFGMainWindow):
         #dfgDock.setWidget(self.dfgWidget)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
 
-        timeLine = Viewports.TimeLineWidget()
-        timeLine.setTimeRange(1, 50)
-        timeLine.updateTime(1)
+        self.timeLinePortIndex = 0
+        self.timeLine = Viewports.TimeLineWidget()
+        self.timeLine.setTimeRange(self.defaultFrameIn, self.defaultFrameOut)
+        self.timeLine.updateTime(1)
         timeLineDock = QtGui.QDockWidget("TimeLine", self)
         timeLineDock.setObjectName("TimeLine")
         timeLineDock.setFeatures(dockFeatures)
-        timeLineDock.setWidget(timeLine)
+        timeLineDock.setWidget(self.timeLine)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock, QtCore.Qt.Vertical)
 
         '''
@@ -126,12 +124,12 @@ class MainWindow(DFG.DFGMainWindow):
         logDockWidget.hide()
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, logDockWidget, QtCore.Qt.Vertical)
 
-        qUndoView = QtGui.QUndoView(undoStack)
-        qUndoView.setEmptyLabel("New Graph")
+        self.qUndoView = QtGui.QUndoView(self.qUndoStack)
+        self.qUndoView.setEmptyLabel("New Graph")
         undoDockWidget = QtGui.QDockWidget("History", self)
         undoDockWidget.setObjectName("History")
         undoDockWidget.setFeatures(dockFeatures)
-        undoDockWidget.setWidget(qUndoView)
+        undoDockWidget.setWidget(self.qUndoView)
         undoDockWidget.hide()
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
 
@@ -184,6 +182,13 @@ class MainWindow(DFG.DFGMainWindow):
         onSidePanelInspectRequested()
         '''
 
+    def statusCallback(self, target, data):
+        if target == "licensing":
+            try:
+                pass
+                #FabricUI_HandleLicenseData(self, self.client, data, True)
+            except Exception as e:
+                self.dfgWidget.getDFGController().logError(e)
 
     def updateFPS(self):
         print 'called updateFPS'
@@ -226,6 +231,94 @@ class MainWindow(DFG.DFGMainWindow):
         except Exception as e:
             self.dfgWidget.getDFGController().logError(e)
 
+    def loadGraph(self, filePath):
+        self.timeLine.pause()
+        self.timelinePortIndex = -1
+
+        try:
+            dfgController = self.dfgWidget.getDFGController()
+            binding = dfgController.getBinding()
+            binding.deallocValues()
+
+            self.dfgValueEditor.clear()
+            self.host.flushUndoRedo()
+            self.qUndoStack.clear()
+            self.qUndoView.setEmptyLabel("Load Graph")
+            self.viewport.clearInlineDrawing()
+
+            QtCore.QCoreApplication.processEvents()
+
+            json = open(filePath, 'rb').read()
+            binding = self.host.createBindingFromJSON(json)
+            self.lastSavedBindingVersion = binding.getVersion()
+            dfgExec = binding.getExec()
+            dfgController.setBindingExec(binding, "", dfgExec)
+            self.onSidePanelInspectRequested()
+
+            dfgController.checkErrors()
+            self.evalContext.currentFilePath = filePath
+            dfgController.bindUnboundRTVals()
+            dfgController.execute()
+
+            tl_start = dfgExec.getMetadata("timeline_start")
+            tl_end = dfgExec.getMetadata("timeline_end")
+            tl_loopMode = dfgExec.getMetadata("timeline_loopMode")
+            tl_simulationMode = dfgExec.getMetadata("timeline_simMode")
+            tl_current = dfgExec.getMetadata("timeline_current")
+
+            if len(tl_start) > 0 and len(tl_end) > 0:
+                self.timeLine.setTimeRange(int(tl_start), int(tl_end))
+            else:
+                self.timeLine.setTimeRange(self.defaultFrameIn, self.defaultFrameOut)
+
+            if len(tl_loopMode) > 0:
+                self.timeLine.setLoopMode(int(tl_loopMode))
+            else:
+                self.timeLine.setLoopMode(1)
+
+            if len(tl_simulationMode) > 0:
+                self.timeLine.setSimulationMode(int(tl_simulationMode))
+            else:
+                self.timeLine.setSimulationMode(0)
+
+            camera_mat44 = dfgExec.getMetadata("camera_mat44")
+            camera_focalDistance = dfgExec.getMetadata("camera_focalDistance")
+            if len(camera_mat44) > 0 and len(camera_focalDistance) > 0:
+                try:
+                    mat44 = self.client.RT.types.Mat44(camera_mat44)
+                    focalDistance = self.client.RT.types.Float32(camera_focalDistance)
+
+                    camera = self.viewport.getCamera()
+
+                    camera.setFromMat44("", mat44)
+                    camera.setFocalDistance("", focalDistance)
+                except Exception as e:
+                    sys.stderr.write("Exception: " + str(e) + "\n")
+
+            self.contentChanged.emit()
+            self.onStructureChanged()
+
+            self.onFileNameChanged(filePath)
+
+            # then set it to the current value if we still have it.
+            # this will ensure that sim mode scenes will play correctly.
+            if len(tl_current) > 0:
+                self.timeLine.updateTime(int(tl_current), True)
+            else:
+                self.timeLine.updateTime(self.defaultFrameIn, True)
+
+            self.viewport.update()
+
+        except Exception as e:
+            sys.stderr.write("Exception: " + str(e) + "\n")
+
+        self.lastFileName = filePath
+
+    def onSaveGraph(self):
+        self.saveGraph(False)
+
+    def onSaveGraphAs(self):
+        self.saveGraph(True)
 
 app = QtGui.QApplication([])
 app.setOrganizationName( 'Fabric Software Inc' )
@@ -252,44 +345,15 @@ settings = QtCore.QSettings()
 mainWin = MainWindow(settings, unguarded)
 mainWin.show()
 
-#for ( ; argi < argc; ++argi )
-#    mainWin.loadGraph( argv[argi] );
+for arg in args:
+    mainWin.loadGraph( arg )
 
-#l = FabricUI.LastWarningDialog(None)
-#l.show()
 app.exec_()
 
 
 '''
 FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder;
 FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder;
-
-void MainWindow::CoreStatusCallback(
-    void *userdata,
-    char const *destinationData, uint32_t destinationLength,
-    char const *payloadData, uint32_t payloadLength
-    )
-{
-    MainWindow *mainWindow = reinterpret_cast<MainWindow *>( userdata );
-    FTL::StrRef destination( destinationData, destinationLength );
-    FTL::StrRef payload( payloadData, payloadLength );
-    if ( destination == FTL_STR( "licensing" ) )
-    {
-        try
-        {
-            FabricUI::HandleLicenseData(
-                mainWindow,
-                mainWindow->m_client,
-                payload,
-                true // modalDialogs
-                );
-        }
-        catch ( FabricCore::Exception e )
-        {
-            DFG::DFGLogWidget::log( e.getDesc_cstr() );
-        }
-    }
-}
 
 MainWindowEventFilter::MainWindowEventFilter(MainWindow * window)
 : QObject(window)
@@ -664,133 +728,6 @@ void MainWindow::onLoadGraph()
         loadGraph( filePath );
     }
     // m_saveGraphAction->setEnabled(true);
-}
-
-void MainWindow::loadGraph( QString const &filePath )
-{
-    m_timeLine->pause();
-    m_timelinePortIndex = -1;
-
-    try
-    {
-        FabricUI::DFG::DFGController *dfgController =
-            m_dfgWidget->getDFGController();
-
-        FabricCore::DFGBinding binding = dfgController->getBinding();
-        binding.deallocValues();
-
-        m_dfgValueEditor->clear();
-
-        m_host.flushUndoRedo();
-        m_qUndoStack.clear();
-        m_qUndoView->setEmptyLabel( "Load Graph" );
-
-        m_viewport->clearInlineDrawing();
-
-        QCoreApplication::processEvents();
-
-        FILE * file = fopen(filePath.toUtf8().constData(), "rb");
-        if(file)
-        {
-            fseek( file, 0, SEEK_END );
-            int fileSize = ftell( file );
-            rewind( file );
-
-            char * buffer = (char*) malloc(fileSize + 1);
-            buffer[fileSize] = '\0';
-
-            fread(buffer, 1, fileSize, file);
-
-            fclose(file);
-
-            std::string json = buffer;
-            free(buffer);
-
-            FabricCore::DFGBinding binding =
-                m_host.createBindingFromJSON( json.c_str() );
-            m_lastSavedBindingVersion = binding.getVersion();
-            FabricCore::DFGExec exec = binding.getExec();
-            dfgController->setBindingExec( binding, FTL::StrRef(), exec );
-            onSidePanelInspectRequested();
-
-            m_dfgWidget->getDFGController()->checkErrors();
-
-            m_evalContext.setMember("currentFilePath", FabricCore::RTVal::ConstructString(m_client, filePath.toUtf8().constData()));
-
-            m_dfgWidget->getDFGController()->bindUnboundRTVals();
-            m_dfgWidget->getDFGController()->execute();
-
-            QString tl_start = exec.getMetadata("timeline_start");
-            QString tl_end = exec.getMetadata("timeline_end");
-            QString tl_loopMode = exec.getMetadata("timeline_loopMode");
-            QString tl_simulationMode = exec.getMetadata("timeline_simMode");
-            QString tl_current = exec.getMetadata("timeline_current");
-
-            if(tl_start.length() > 0 && tl_end.length() > 0)
-                m_timeLine->setTimeRange(tl_start.toInt(), tl_end.toInt());
-            else
-                m_timeLine->setTimeRange(TimeRange_Default_Frame_In, TimeRange_Default_Frame_Out);
-
-            if(tl_loopMode.length() > 0)
-                m_timeLine->setLoopMode(tl_loopMode.toInt());
-            else
-                m_timeLine->setLoopMode(1);
-
-            if(tl_simulationMode.length() > 0)
-                m_timeLine->setSimulationMode(tl_simulationMode.toInt());
-            else
-                m_timeLine->setSimulationMode(0);
-
-            QString camera_mat44 = exec.getMetadata("camera_mat44");
-            QString camera_focalDistance = exec.getMetadata("camera_focalDistance");
-            if(camera_mat44.length() > 0 && camera_focalDistance.length() > 0)
-            {
-                try
-                {
-                    FabricCore::RTVal mat44 = FabricCore::ConstructRTValFromJSON(m_client, "Mat44", camera_mat44.toUtf8().constData());
-                    FabricCore::RTVal focalDistance = FabricCore::ConstructRTValFromJSON(m_client, "Float32", camera_focalDistance.toUtf8().constData());
-                    FabricCore::RTVal camera = m_viewport->getCamera();
-                    camera.callMethod("", "setFromMat44", 1, &mat44);
-                    camera.callMethod("", "setFocalDistance", 1, &focalDistance);
-                }
-                catch(FabricCore::Exception e)
-                {
-                    printf("Exception: %s\n", e.getDesc_cstr());
-                }
-            }
-
-            emit contentChanged();
-            onStructureChanged();
-
-            onFileNameChanged( filePath );
-
-            // then set it to the current value if we still have it.
-            // this will ensure that sim mode scenes will play correctly.
-            if(tl_current.length() > 0)
-                m_timeLine->updateTime(tl_current.toInt(), true);
-            else
-                m_timeLine->updateTime(TimeRange_Default_Frame_In, true);
-
-            m_viewport->update();
-        }
-    }
-    catch(FabricCore::Exception e)
-    {
-        printf("Exception: %s\n", e.getDesc_cstr());
-    }
-
-    m_lastFileName = filePath;
-    // m_saveGraphAction->setEnabled(true);
-}
-
-void MainWindow::onSaveGraph()
-{
-    saveGraph(false);
-}
-
-void MainWindow::onSaveGraphAs()
-{
-    saveGraph(true);
 }
 
 bool MainWindow::performSave(

@@ -1,32 +1,39 @@
 <?xml  version="1.0"?>
 <typesystem package="FabricUI">
-  <load-typesystem name="typesystem_core.xml"  generate="no"/>
-  <load-typesystem name="typesystem_gui.xml"  generate="no"/>
-  <load-typesystem name="typesystem_opengl.xml"  generate="no"/>
+  <load-typesystem name="typesystem_core.xml" generate="no"/>
+  <load-typesystem name="typesystem_gui.xml" generate="no"/>
+  <load-typesystem name="typesystem_opengl.xml" generate="no"/>
 
-  <load-typesystem name="fabricui_core.xml"  generate="yes"/>
+  <load-typesystem name="fabricui_core.xml" generate="yes"/>
 
-  <namespace-type name="FabricUI"  generate="no">
-    <load-typesystem name="fabricui_dfg.xml"  generate="yes"/>
-    <load-typesystem name="fabricui_viewports.xml"  generate="yes"/>
+  <namespace-type name="FabricUI" generate="no">
+    <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
+    <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
 
-    <namespace-type name="Style"  generate="yes">
+    <namespace-type name="Style" generate="yes">
       <object-type name="FabricStyle" />
     </namespace-type>
 
     <function signature="HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" />
   </namespace-type>
 
-  <namespace-type name="FabricServices"  generate="no">
-    <namespace-type name="ASTWrapper"  generate="no">
+  <namespace-type name="FabricServices" generate="no">
+    <namespace-type name="ASTWrapper" generate="no">
       <object-type name="KLASTManager" copyable="false">
         <modify-function signature="KLASTManager(const FabricCore::Client *)">
           <modify-argument index="1">
             <replace-type modified-type="PyObject"/>
           </modify-argument>
           <inject-code class="target" position="beginning">
+            // [andrew 20151023] the object returned from Core.createClient() is actually a _FabricClient,
+            // we need to get the handle to the underlying CAPI Client which is stored in its _client attr
+            PyObject *client = %PYARG_1;
+            PyObject *_client = PyObject_GetAttrString(client, "_client");
+            if (_client)
+            client = _client;
+
             void *argp1 = 0;
-            int res1 = SWIG_ConvertPtr(%PYARG_1, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
+            int res1 = SWIG_ConvertPtr(client, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
             if (!SWIG_IsOK(res1) || !argp1) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
             }
@@ -34,11 +41,14 @@
               FabricCore::Client *client_ptr = reinterpret_cast&lt; FabricCore::Client * &gt;(argp1);
               %0 = new %TYPE(client_ptr);
             }
+
+            if (_client)
+              Py_DECREF(_client);
             </inject-code>
         </modify-function>
       </object-type>
     </namespace-type>
   </namespace-type>
 
-  <object-type name="LastWarningDialog"  />
+  <object-type name="LastWarningDialog" />
 </typesystem>

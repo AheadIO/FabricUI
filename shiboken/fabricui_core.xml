@@ -26,12 +26,22 @@
         return %out;
         </native-to-target>
         <target-to-native>
+          // [andrew 20151023] the object returned from Core.createClient() is actually a _FabricClient,
+          // we need to get the handle to the underlying CAPI Client which is stored in its _client attr
+          PyObject *client = %in;
+          PyObject *_client = PyObject_GetAttrString(client, "_client");
+          if (_client)
+            client = _client;
+ 
           void *argp1 = 0;
-          int res1 = SWIG_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
+          int res1 = SWIG_ConvertPtr(client, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
           if (!SWIG_IsOK(res1) || !argp1) {
             PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
           }
           %out = *reinterpret_cast&lt; %OUTTYPE *&gt;(argp1);
+
+          if (_client)
+            Py_DECREF(_client);
         </target-to-native>
     </conversion-rule>
   </primitive-type>
