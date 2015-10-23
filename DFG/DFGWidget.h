@@ -59,8 +59,6 @@ namespace FabricUI
       DFGGraphViewWidget * getGraphViewWidget();
       DFGExecHeaderWidget * getHeaderWidget();
 
-      void setExecExtDeps( FTL::CStrRef extDeps );
-
       bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);

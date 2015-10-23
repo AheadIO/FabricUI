@@ -7,7 +7,7 @@
 
 #include <QtGui/QUndoStack>
 
-FABRIC_UI_DFG_NAMESPACE_BEGIN
+namespace FabricUI { namespace DFG {
 
 class DFGUICmdHandler_QUndo : public DFGUICmdHandler
 {
@@ -261,6 +261,6 @@ private:
   QUndoStack *m_qUndoStack;
 };
 
-FABRIC_UI_DFG_NAMESPACE_END
+}}
 
 #endif // __UI_DFG_DFGUICmdHandler_QUndo__

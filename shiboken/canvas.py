@@ -24,7 +24,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.settings = settings
         DFG.DFGWidget.setSettings(settings)
 
-        config = DFG.DFGConfig()
+        self.config = DFG.DFGConfig()
 
         # autosaveBasename = 'autosave.'+str(os.getpid())+'.canvas'
 
@@ -72,10 +72,10 @@ class MainWindow(DFG.DFGMainWindow):
         glFormat.setSampleBuffers(True)
         glFormat.setSamples(4)
 
-        viewport = Viewports.GLViewportWidget(client, config.defaultWindowColor, glFormat, None, None)
+        viewport = Viewports.GLViewportWidget(client, self.config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(viewport)
 
-        self.dfgWidget = DFG.DFGWidget(None, client, self.host, binding, "", graph, astManager, dfguiCommandHandler, None)
+        self.dfgWidget = DFG.DFGWidget(QtGui.QWidget(), client, self.host, binding, "", graph, astManager, dfguiCommandHandler, self.config)
 
         #self.contentChanged.connect(viewport.redraw)
         viewport.portManipulationRequested.connect(self.onPortManipulationRequested)

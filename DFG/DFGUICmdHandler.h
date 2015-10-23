@@ -15,7 +15,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSize>
 
-FABRIC_UI_DFG_NAMESPACE_BEGIN
+namespace FabricUI { namespace DFG {
 
 class DFGUICmdHandler
 {
@@ -270,6 +270,6 @@ public:
     ) = 0;
 };
 
-FABRIC_UI_DFG_NAMESPACE_END
+}}
 
 #endif // __UI_DFG_DFGUICmdHandler__

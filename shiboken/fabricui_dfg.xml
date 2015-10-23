@@ -6,10 +6,16 @@
       <object-type name="DFGController" />-
       <object-type name="DFGLogWidget" />
       <object-type name="DFGMainWindow" />
-      <!--<object-type name="DFGUICmdHandler" />-->
+      <object-type name="DFGUICmdHandler" />
       <object-type name="DFGUICmdHandler_QUndo" />
       <object-type name="DFGValueEditor" />
-      <object-type name="DFGWidget" />
+      <object-type name="DFGWidget">
+        <modify-function signature="DFGWidget(QWidget*,FabricCore::Client&amp;,FabricCore::DFGHost&amp;,FabricCore::DFGBinding&amp;,FTL::StrRef,FabricCore::DFGExec&amp;,FabricServices::ASTWrapper::KLASTManager*,FabricUI::DFG::DFGUICmdHandler*,const FabricUI::DFG::DFGConfig&amp;,bool)">
+          <modify-argument index="8">
+            <replace-type modified-type="FabricUI::DFG::DFGUICmdHandler_QUndo*"/>
+          </modify-argument>
+        </modify-function>
+      </object-type>
       <object-type name="PresetTreeWidget" />-
     </namespace-type>
   </namespace-type>
