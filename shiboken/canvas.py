@@ -49,7 +49,7 @@ class MainWindow(DFG.DFGMainWindow):
         client.setStatusCallback(self.statusCallback)
 
         self.qUndoStack = QtGui.QUndoStack()
-        #dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
+        dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
 
         astManager = FabricUI.KLASTManager(client)
 
@@ -320,129 +320,36 @@ class MainWindow(DFG.DFGMainWindow):
     def onSaveGraphAs(self):
         self.saveGraph(True)
 
-app = QtGui.QApplication([])
-app.setOrganizationName( 'Fabric Software Inc' )
-app.setApplicationName( 'Fabric Canvas Standalone' )
-app.setApplicationVersion( '2.0.0' )
-#app.setStyle( Style.FabricStyle() )
+    def closeEvent(self, event):
+        if not self.checkUnsavedChanges():
+            event.ignore()
+            return
 
-fabricDir = os.environ.get('FABRIC_DIR', None)
-if fabricDir:
-    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
-    app.setWindowIcon(QtGui.QIcon(logoPath))
+        self.viewport.setManipulationActive(False)
+        self.settings.setValue("mainWindow/geometry", saveGeometry())
+        self.settings.setValue("mainWindow/state", saveState())
 
-opt_parser = optparse.OptionParser(
-        usage='Usage: %prog [options] [graph]')
-opt_parser.add_option('-u', '--unguarded',
-                                            action='store_true',
-                                            dest='unguarded',
-                                            help='compile KL code in unguarded mode')
-(opts, args) = opt_parser.parse_args()
+        QMainWindow.closeEvent(self, event)
 
-unguarded = opts.unguarded
+    def checkUnsavedChanged(self):
+        binding = dfgWidget.getDFGController().getBinding()
 
-settings = QtCore.QSettings()
-mainWin = MainWindow(settings, unguarded)
-mainWin.show()
+        if binding.getVersion() != self.lastSavedBindingVersion:
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText( "Do you want to save your changes?" )
+            msgBox.setInformativeText( "Your changes will be lost if you don't save them." )
+            msgBox.setStandardButtons( QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel )
+            msgBox.setDefaultButton( QtGui.QMessageBox.Save )
+            result = msgBox.exec_()
+            if result == QtGui.QMessageBox.Discard:
+                return True
+            elif result == QtGui.QMessageBox.Cancel:
+                return False
+            else:
+                return self.saveGraph(False)
+        return True
 
-for arg in args:
-    mainWin.loadGraph( arg )
-
-app.exec_()
-
-
-'''
-FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder;
-FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder;
-
-MainWindowEventFilter::MainWindowEventFilter(MainWindow * window)
-: QObject(window)
-{
-    m_window = window;
-}
-
-bool MainWindowEventFilter::eventFilter(
-    QObject* object,
-    QEvent* event
-    )
-{
-    QEvent::Type eventType = event->type();
-
-    if (eventType == QEvent::KeyPress)
-    {
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
-
-        // forward this to the hotkeyPressed functionality...
-        if(keyEvent->key() != Qt::Key_Tab)
-        {
-            m_window->m_viewport->onKeyPressed(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
-
-            m_window->m_dfgWidget->onKeyPressed(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
-        }
-    }
-    else if (eventType == QEvent::KeyRelease)
-    {
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
-
-        // forward this to the hotkeyReleased functionality...
-        if(keyEvent->key() != Qt::Key_Tab)
-        {
-            //For now the viewport isn't listening to key releases
-            //m_window->m_viewport->onKeyReleased(keyEvent);
-            //if(keyEvent->isAccepted())
-            //    return true;
-
-            m_window->m_dfgWidget->onKeyReleased(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
-        }
-    }
-
-    return QObject::eventFilter(object, event);
-};
-
-void MainWindow::closeEvent( QCloseEvent *event )
-{
-    if(!checkUnsavedChanged())
-    {
-        event->ignore();
-        return;    
-    }
-    m_viewport->setManipulationActive(false);
-    m_settings->setValue( "mainWindow/geometry", saveGeometry() );
-    m_settings->setValue( "mainWindow/state", saveState() );
-
-    QMainWindow::closeEvent( event );
-}
-
-bool MainWindow::checkUnsavedChanged()
-{
-    FabricCore::DFGBinding binding = m_dfgWidget->getDFGController()->getBinding();
-    if ( binding.getVersion() != m_lastSavedBindingVersion )
-    {
-        QMessageBox msgBox;
-        msgBox.setText( "Do you want to save your changes?" );
-        msgBox.setInformativeText( "Your changes will be lost if you don't save them." );
-        msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
-        msgBox.setDefaultButton( QMessageBox::Save );
-        switch(msgBox.exec())
-        {
-            case QMessageBox::Discard:
-                return true;
-            case QMessageBox::Cancel:
-                return false;
-            case QMessageBox::Save:
-            default:
-                return saveGraph( false );
-        }
-    }
-    return true;
-}
-
+    '''
 MainWindow::~MainWindow()
 {
     if(m_manager)
@@ -1017,5 +924,93 @@ void MainWindow::autosave()
         }
     }
 }
+    '''
+
+
+app = QtGui.QApplication([])
+app.setOrganizationName( 'Fabric Software Inc' )
+app.setApplicationName( 'Fabric Canvas Standalone' )
+app.setApplicationVersion( '2.0.0' )
+#app.setStyle( Style.FabricStyle() )
+
+fabricDir = os.environ.get('FABRIC_DIR', None)
+if fabricDir:
+    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
+    app.setWindowIcon(QtGui.QIcon(logoPath))
+
+opt_parser = optparse.OptionParser(
+        usage='Usage: %prog [options] [graph]')
+opt_parser.add_option('-u', '--unguarded',
+                                            action='store_true',
+                                            dest='unguarded',
+                                            help='compile KL code in unguarded mode')
+(opts, args) = opt_parser.parse_args()
+
+unguarded = opts.unguarded
+
+settings = QtCore.QSettings()
+mainWin = MainWindow(settings, unguarded)
+mainWin.show()
+
+for arg in args:
+    mainWin.loadGraph( arg )
+
+app.exec_()
+
+
+'''
+FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder;
+FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder;
+
+MainWindowEventFilter::MainWindowEventFilter(MainWindow * window)
+: QObject(window)
+{
+    m_window = window;
+}
+
+bool MainWindowEventFilter::eventFilter(
+    QObject* object,
+    QEvent* event
+    )
+{
+    QEvent::Type eventType = event->type();
+
+    if (eventType == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
+
+        // forward this to the hotkeyPressed functionality...
+        if(keyEvent->key() != Qt::Key_Tab)
+        {
+            m_window->m_viewport->onKeyPressed(keyEvent);
+            if(keyEvent->isAccepted())
+                return true;
+
+            m_window->m_dfgWidget->onKeyPressed(keyEvent);
+            if(keyEvent->isAccepted())
+                return true;
+        }
+    }
+    else if (eventType == QEvent::KeyRelease)
+    {
+        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
+
+        // forward this to the hotkeyReleased functionality...
+        if(keyEvent->key() != Qt::Key_Tab)
+        {
+            //For now the viewport isn't listening to key releases
+            //m_window->m_viewport->onKeyReleased(keyEvent);
+            //if(keyEvent->isAccepted())
+            //    return true;
+
+            m_window->m_dfgWidget->onKeyReleased(keyEvent);
+            if(keyEvent->isAccepted())
+                return true;
+        }
+    }
+
+    return QObject::eventFilter(object, event);
+};
+
 '''
 
