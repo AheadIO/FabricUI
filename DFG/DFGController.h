@@ -27,7 +27,7 @@ namespace FabricUI
     class DFGNotificationRouter;
     class DFGWidget;
 
-    class DFGController : public GraphView::Controller
+    class DFGController : public FabricUI::GraphView::Controller
     {
       Q_OBJECT
 

@@ -14,7 +14,7 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGValueEditor : public ValueEditor::ValueEditorWidget
+    class DFGValueEditor : public FabricUI::ValueEditor::ValueEditorWidget
     {
       Q_OBJECT
 

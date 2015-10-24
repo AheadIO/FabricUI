@@ -12,8 +12,16 @@
     <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
     <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
 
+    <namespace-type name="GraphView" generate="yes">
+      <object-type name="Controller" />
+    </namespace-type>
+
     <namespace-type name="Style" generate="yes">
       <object-type name="FabricStyle" />
+    </namespace-type>
+
+    <namespace-type name="ValueEditor" generate="yes">
+      <object-type name="ValueEditorWidget" />
     </namespace-type>
 
     <function signature="HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" />
