@@ -8,6 +8,7 @@
 #include "pyside_global.h"
 #include "DFG/DFGConfig.h"
 #include "DFG/DFGController.h"
+#include "DFG/DFGHotkeys.h"
 #include "DFG/DFGLogWidget.h"
 #include "DFG/DFGUICmdHandler.h"
 #include "DFG/DFGUICmdHandler_QUndo.h"

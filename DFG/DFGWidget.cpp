@@ -1377,66 +1377,66 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
 void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 { 
-  if(hotkey == DFG_DELETE || hotkey == DFG_DELETE_2)
+  if(hotkey == DFGHotkeys::DELETE || hotkey == DFGHotkeys::DELETE_2)
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     getUIController()->gvcDoRemoveNodes(nodes);
   }
-  else if(hotkey == DFG_FRAME_SELECTED)
+  else if(hotkey == DFGHotkeys::FRAME_SELECTED)
   {
     getUIController()->frameSelectedNodes();
   }
-  else if(hotkey == DFG_FRAME_ALL)
+  else if(hotkey == DFGHotkeys::FRAME_ALL)
   {
     getUIController()->frameAllNodes();
   }
-  else if(hotkey == DFG_TAB_SEARCH)
+  else if(hotkey == DFGHotkeys::TAB_SEARCH)
   {
     QPoint pos = getGraphViewWidget()->lastEventPos();
     pos = getGraphViewWidget()->mapToGlobal(pos);
     getTabSearchWidget()->showForSearch(pos);
   }
-  else if(hotkey == DFG_SELECT_ALL)
+  else if(hotkey == DFGHotkeys::SELECT_ALL)
   {
     onSelectAll();
   }
-  else if(hotkey == DFG_COPY)
+  else if(hotkey == DFGHotkeys::COPY)
   {
     onCopy();
   }
-  else if(hotkey == DFG_CUT)
+  else if(hotkey == DFGHotkeys::CUT)
   {
     onCut();
   }
-  else if(hotkey == DFG_PASTE)
+  else if(hotkey == DFGHotkeys::PASTE)
   {
     onPaste();
   }
-  else if(hotkey == DFG_EDIT_PROPERTIES)
+  else if(hotkey == DFGHotkeys::EDIT_PROPERTIES)
   {
     onEditPropertiesForCurrentSelection();
   }
-  else if(hotkey == DFG_RELAX_NODES)
+  else if(hotkey == DFGHotkeys::RELAX_NODES)
   {
     getUIController()->relaxNodes();
   }
-  else if(hotkey == DFG_RESET_ZOOM)
+  else if(hotkey == DFGHotkeys::RESET_ZOOM)
   {
     onResetZoom();
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_1)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_1)
   {
     getUIController()->setSelectedNodeCollapseState(2);
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_2)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_2)
   {
     getUIController()->setSelectedNodeCollapseState(1);
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_3)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_3)
   {
     getUIController()->setSelectedNodeCollapseState(0);
   }
-  else if(hotkey == DFG_PAN_GRAPH)
+  else if(hotkey == DFGHotkeys::PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(true);
   }
@@ -1444,7 +1444,7 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
 
 void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 {
-  if(hotkey == DFG_PAN_GRAPH)
+  if(hotkey == DFGHotkeys::PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(false);
   }
@@ -1776,7 +1776,7 @@ void DFGWidget::onExecChanged()
         m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
       );  
-      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFG_PAN_GRAPH);
+      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
     }
 
     // [Julien] FE-5264

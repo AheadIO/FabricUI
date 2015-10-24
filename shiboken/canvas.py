@@ -4,6 +4,40 @@ from FabricUI import DFG, Style, Viewports
 import FabricEngine.Core as Core
 from PySide import QtCore, QtGui, QtOpenGL
 
+'''
+FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder
+FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder
+'''
+
+class MainWindowEventFilter(QtCore.QObject):
+    def __init__(self, window):
+        super(MainWindowEventFilter, self).__init__()
+        self.window = window
+
+    def eventFilter(self, obj, event):
+        eventType = event.type()
+
+        if eventType == QtCore.QEvent.KeyPress:
+            keyEvent = QtGui.QKeyEvent(event)
+
+            if keyEvent.key() != QtCore.Qt.Key_Tab:
+                self.window.viewport.onKeyPressed(keyEvent)
+                if keyEvent.isAccepted():
+                    return True
+
+                self.window.dfgWidget.onKeyPressed(keyEvent)
+                if keyEvent.isAccepted():
+                    return True
+        elif eventType == QtCore.QEvent.KeyRelease:
+            keyEvent = QtGui.QKeyEvent(event)
+
+            if keyEvent.key() != QtCore.Qt.Key_Tab:
+                self.window.dfgWidget.onKeyReleased(keyEvent)
+                if keyEvent.isAccepted():
+                    return True
+
+        return QtCore.QObject.eventFilter(obj, event)
+
 def reportCallback(source, level, line):
   #DFG.DFGLogWidget.callback
   if source == Core.ReportSource.User or level == Core.ReportLevel.Error or 'Ignoring' in line:
@@ -102,7 +136,7 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.timeLinePortIndex = 0
         self.timeLine = Viewports.TimeLineWidget()
-        self.timeLine.setTimeRange(self.defaultFrameIn, self.defaultFrameOut)
+        self.timeLine.setTimeRange(MainWindow.defaultFrameIn, MainWindow.defaultFrameOut)
         self.timeLine.updateTime(1)
         timeLineDock = QtGui.QDockWidget("TimeLine", self)
         timeLineDock.setObjectName("TimeLine")
@@ -126,11 +160,11 @@ class MainWindow(DFG.DFGMainWindow):
         dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dfgValueEditorDockWidget)
 
-        logWidget = DFG.DFGLogWidget(self.config)
+        self.logWidget = DFG.DFGLogWidget(self.config)
         logDockWidget = QtGui.QDockWidget("Log Messages", self)
         logDockWidget.setObjectName("Log")
         logDockWidget.setFeatures(dockFeatures)
-        logDockWidget.setWidget(logWidget)
+        logDockWidget.setWidget(self.logWidget)
         logDockWidget.hide()
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, logDockWidget, QtCore.Qt.Vertical)
 
@@ -187,6 +221,8 @@ class MainWindow(DFG.DFGMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         #self.onGraphSet(self.dfgWidget.getUIGraph())
         #self.onSidePanelInspectRequested()
+
+        self.installEventFilter(MainWindowEventFilter(self))
 
     def statusCallback(self, target, data):
         if target == "licensing":
@@ -271,7 +307,7 @@ class MainWindow(DFG.DFGMainWindow):
             if len(tl_start) > 0 and len(tl_end) > 0:
                 self.timeLine.setTimeRange(int(tl_start), int(tl_end))
             else:
-                self.timeLine.setTimeRange(self.defaultFrameIn, self.defaultFrameOut)
+                self.timeLine.setTimeRange(MainWindow.defaultFrameIn, MainWindow.defaultFrameOut)
 
             if len(tl_loopMode) > 0:
                 self.timeLine.setLoopMode(int(tl_loopMode))
@@ -307,7 +343,7 @@ class MainWindow(DFG.DFGMainWindow):
             if len(tl_current) > 0:
                 self.timeLine.updateTime(int(tl_current), True)
             else:
-                self.timeLine.updateTime(self.defaultFrameIn, True)
+                self.timeLine.updateTime(MainWindow.defaultFrameIn, True)
 
             self.viewport.update()
 
@@ -328,15 +364,16 @@ class MainWindow(DFG.DFGMainWindow):
             return
 
         self.viewport.setManipulationActive(False)
-        self.settings.setValue("mainWindow/geometry", saveGeometry())
-        self.settings.setValue("mainWindow/state", saveState())
+        self.settings.setValue("mainWindow/geometry", self.saveGeometry())
+        self.settings.setValue("mainWindow/state", self.saveState())
 
         QMainWindow.closeEvent(self, event)
 
-        #FTL::FSMaybeDeleteFile(self.autosaveFilename)
+        if os.path.exists(self.autosaveFilename):
+            os.remove(self.autosaveFilename)
 
     def checkUnsavedChanges(self):
-        binding = dfgWidget.getDFGController().getBinding()
+        binding = self.dfgWidget.getDFGController().getBinding()
 
         if binding.getVersion() != self.lastSavedBindingVersion:
             msgBox = QtGui.QMessageBox()
@@ -447,7 +484,7 @@ class MainWindow(DFG.DFGMainWindow):
                 tmpAutosaveFilename += ".tmp"
 
                 if self.performSave(binding, tmpAutosaveFilename):
-                    #FTL::FSMaybeMoveFile( tmpAutosaveFilename, self.autosaveFilename )
+                    os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
     def onSidePanelInspectRequested(self):
@@ -461,7 +498,7 @@ class MainWindow(DFG.DFGMainWindow):
     def onNewGraph(self):
         self.timeLine.pause()
 
-        if not checkUnsavedChanged():
+        if not self.checkUnsavedChanges():
             return
 
         self.lastFileName = ""
@@ -489,10 +526,10 @@ class MainWindow(DFG.DFGMainWindow):
 
             dfgController.setBindingExec(binding, '', dfgExec)
 
-            self.timeLine.setTimeRange(defaultFrameIn, defaultFrameOut)
+            self.timeLine.setTimeRange(MainWindow.defaultFrameIn, MainWindow.defaultFrameOut)
             self.timeLine.setLoopMode(1)
             self.timeLine.setSimulationMode(0)
-            self.timeLine.updateTime(defaultFrameIn, True)
+            self.timeLine.updateTime(MainWindow.defaultFrameIn, True)
 
             QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")
@@ -512,33 +549,26 @@ class MainWindow(DFG.DFGMainWindow):
     def onLoadGraph(self):
         self.timeLine.pause()
 
-        if not checkUnsavedChanged():
+        if not self.checkUnsavedChanges():
             return
 
         lastPresetFolder = self.settings.value("mainWindow/lastPresetFolder").toString()
-        filePath = QtGui.QFileDialog.getOpenFileName(this, "Load graph", lastPresetFolder, "*.canvas")
+        filePath = QtGui.QFileDialog.getOpenFileName(self, "Load graph", lastPresetFolder, "*.canvas")
         if len(filePath.length):
             folder  = QtCore.QDir(filePath)
             folder.cdUp()
             self.settings.setValue( "mainWindow/lastPresetFolder", folder.path() )
-            loadGraph(filePath)
+            self.loadGraph(filePath)
 
     def performSave(self, binding, filePath):
         graph = binding.getExec()
 
-        '''
-        QString num
-        num.setNum(self.timeLine.getRangeStart())
-        graph.setMetadata("timeline_start", num.toUtf8().constData(), False)
-        num.setNum(self.timeLine.getRangeEnd())
-        graph.setMetadata("timeline_end", num.toUtf8().constData(), False)
-        num.setNum(self.timeLine.getTime())
-        graph.setMetadata("timeline_current", num.toUtf8().constData(), False)
-        num.setNum(self.timeLine.loopMode())
-        graph.setMetadata("timeline_loopMode", num.toUtf8().constData(), False)
-        num.setNum(self.timeLine.simulationMode())
-        graph.setMetadata("timeline_simMode", num.toUtf8().constData(), False)
-        '''
+        graph.setMetadata("timeline_start", str(self.timeLine.getRangeStart()), False)
+        graph.setMetadata("timeline_end", str(self.timeLine.getRangeEnd()), False)
+        graph.setMetadata("timeline_current", str(self.timeLine.getTime()), False)
+        graph.setMetadata("timeline_loopMode", str(self.timeLine.loopMode()), False)
+        graph.setMetadata("timeline_simMode", str(self.timeLine.simulationMode()), False)
+
         try:
             camera = self.viewport.getCamera()
             mat44 = camera.getMat44('Mat44')
@@ -570,17 +600,17 @@ class MainWindow(DFG.DFGMainWindow):
             lastPresetFolder = self.settings.value("mainWindow/lastPresetFolder").toString()
             if len(self.lastFileName) > 0:
                 filePath = self.lastFileName
-                if filePath.toLower().endsWith(".canvas"):
-                    filePath = filePath.left(filePath.length() - 7)
+                if filePath.lower().endswith('.canvas'):
+                    filePath = filePath[0:-7]
             else:
                 filePath = lastPresetFolder
 
             filePath = QtGui.QFileDialog.getSaveFileName(self, "Save graph", filePath, "*.canvas")
             if len(filePath) == 0:
                 return False
-            if filePath.toLower().endsWith(".canvas.canvas"):
-                filePath = filePath.left(filePath.length() - 7)
-            elif not filePath.toLower().endsWith(".canvas"):
+            if filePath.lower().endswith(".canvas.canvas"):
+                filePath = filePath[0:-7]
+            elif not filePath.lower().endswith(".canvas"):
                 filePath += ".canvas"
 
         folder = QtCore.QDir(filePath)
@@ -666,7 +696,7 @@ class MainWindow(DFG.DFGMainWindow):
                 menu.addAction(redoAction)
             else:
                 menu.addSeparator()
-                self.manipAction = QtGui.QAction(DFG_TOGGLE_MANIPULATION, self.viewport)
+                self.manipAction = QtGui.QAction(DFG.DFGHotkeys.TOGGLE_MANIPULATION, self.viewport)
                 self.manipAction.setShortcut(QtCore.Qt.Key_Q)
                 self.manipAction.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
                 self.manipAction.setCheckable( True )
@@ -696,7 +726,6 @@ class MainWindow(DFG.DFGMainWindow):
                 self.blockCompilationsAction.setChecked( False )
                 self.blockCompilationsAction.triggered.connect(self.setBlockCompilations)
 
-                # [Julien] FE-4965
                 menu.addAction( self.setGridVisibleAction )
                 menu.addSeparator()
                 menu.addAction( self.resetCameraAction )
@@ -705,17 +734,16 @@ class MainWindow(DFG.DFGMainWindow):
                 menu.addSeparator()
                 menu.addAction( self.blockCompilationsAction )
 
-    '''
     def onHotkeyPressed(self, key, modifiers, hotkey):
-        if hotkey == DFG_EXECUTE:
+        if hotkey == DFG.DFGHotkeys.EXECUTE:
             self.onDirty()
-        elif hotkey == DFG_NEW_SCENE):
+        elif hotkey == DFG.DFGHotkeys.NEW_SCENE:
             self.onNewGraph()
-        elif hotkey == DFG_OPEN_SCENE):
+        elif hotkey == DFG.DFGHotkeys.OPEN_SCENE:
             self.onLoadGraph()
-        elif hotkey == DFG_SAVE_SCENE):
+        elif hotkey == DFG.DFGHotkeys.SAVE_SCENE:
             self.saveGraph(False)
-        elif hotkey == DFG_TOGGLE_MANIPULATION):
+        elif hotkey == DFG.DFGHotkeys.TOGGLE_MANIPULATION:
             # Make sure we use the Action path, so menu's "checked" state is updated
             if self.manipAction:
                 self.manipAction.trigger()
@@ -725,38 +753,32 @@ class MainWindow(DFG.DFGMainWindow):
     def onGraphSet(self, graph):
         if graph != self.currentGraph:
             graph = self.dfgWidget.getUIGraph()
-            graph.defineHotkey(QtCore.Qt.Key_Delete, QtCore.Qt.NoModifier, DFG_DELETE)
-            graph.defineHotkey(QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, DFG_DELETE_2)
-            graph.defineHotkey(QtCore.Qt.Key_F5, QtCore.Qt.NoModifier, DFG_EXECUTE)
-            graph.defineHotkey(QtCore.Qt.Key_F, QtCore.Qt.NoModifier, DFG_FRAME_SELECTED)
-            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.NoModifier, DFG_FRAME_ALL)
-            graph.defineHotkey(QtCore.Qt.Key_Tab, QtCore.Qt.NoModifier, DFG_TAB_SEARCH)
-            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.ControlModifier, DFG_SELECT_ALL)
-            graph.defineHotkey(QtCore.Qt.Key_C, QtCore.Qt.ControlModifier, DFG_COPY)
-            graph.defineHotkey(QtCore.Qt.Key_V, QtCore.Qt.ControlModifier, DFG_PASTE)
-            graph.defineHotkey(QtCore.Qt.Key_X, QtCore.Qt.ControlModifier, DFG_CUT)
-            graph.defineHotkey(QtCore.Qt.Key_N, QtCore.Qt.ControlModifier, DFG_NEW_SCENE)
-            graph.defineHotkey(QtCore.Qt.Key_O, QtCore.Qt.ControlModifier, DFG_OPEN_SCENE)
-            graph.defineHotkey(QtCore.Qt.Key_S, QtCore.Qt.ControlModifier, DFG_SAVE_SCENE)
-            graph.defineHotkey(QtCore.Qt.Key_F2, QtCore.Qt.NoModifier, DFG_EDIT_PROPERTIES)
-            graph.defineHotkey(QtCore.Qt.Key_R, QtCore.Qt.ControlModifier, DFG_RELAX_NODES)
-            graph.defineHotkey(QtCore.Qt.Key_Q, QtCore.Qt.NoModifier, DFG_TOGGLE_MANIPULATION)
-            graph.defineHotkey(QtCore.Qt.Key_0, QtCore.Qt.ControlModifier, DFG_RESET_ZOOM)
-            graph.defineHotkey(QtCore.Qt.Key_1, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_1)
-            graph.defineHotkey(QtCore.Qt.Key_2, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_2)
-            graph.defineHotkey(QtCore.Qt.Key_3, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_3)
+            graph.defineHotkey(QtCore.Qt.Key_Delete, QtCore.Qt.NoModifier, DFG.DFGHotkeys.DELETE)
+            graph.defineHotkey(QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, DFG.DFGHotkeys.DELETE_2)
+            graph.defineHotkey(QtCore.Qt.Key_F5, QtCore.Qt.NoModifier, DFG.DFGHotkeys.EXECUTE)
+            graph.defineHotkey(QtCore.Qt.Key_F, QtCore.Qt.NoModifier, DFG.DFGHotkeys.FRAME_SELECTED)
+            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.NoModifier, DFG.DFGHotkeys.FRAME_ALL)
+            graph.defineHotkey(QtCore.Qt.Key_Tab, QtCore.Qt.NoModifier, DFG.DFGHotkeys.TAB_SEARCH)
+            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.SELECT_ALL)
+            graph.defineHotkey(QtCore.Qt.Key_C, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.COPY)
+            graph.defineHotkey(QtCore.Qt.Key_V, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.PASTE)
+            graph.defineHotkey(QtCore.Qt.Key_X, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.CUT)
+            graph.defineHotkey(QtCore.Qt.Key_N, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.NEW_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_O, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.OPEN_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_S, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.SAVE_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_F2, QtCore.Qt.NoModifier, DFG.DFGHotkeys.EDIT_PROPERTIES)
+            graph.defineHotkey(QtCore.Qt.Key_R, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.RELAX_NODES)
+            graph.defineHotkey(QtCore.Qt.Key_Q, QtCore.Qt.NoModifier, DFG.DFGHotkeys.TOGGLE_MANIPULATION)
+            graph.defineHotkey(QtCore.Qt.Key_0, QtCore.Qt.ControlModifier, DFG.DFGHotkeys.RESET_ZOOM)
+            graph.defineHotkey(QtCore.Qt.Key_1, QtCore.Qt.NoModifier, DFG.DFGHotkeys.COLLAPSE_LEVEL_1)
+            graph.defineHotkey(QtCore.Qt.Key_2, QtCore.Qt.NoModifier, DFG.DFGHotkeys.COLLAPSE_LEVEL_2)
+            graph.defineHotkey(QtCore.Qt.Key_3, QtCore.Qt.NoModifier, DFG.DFGHotkeys.COLLAPSE_LEVEL_3)
 
-            QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
-                this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)))
-            QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)),
-                this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node*)))
-            QObject::connect(graph, SIGNAL(sidePanelInspectRequested()),
-                this, SLOT(onSidePanelInspectRequested()) )
+            graph.nodeInspectRequested.connect(self.onNodeInspectRequested)
+            graph.nodeEditRequested.connect(self.onNodeEditRequested)
+            graph.sidePanelInspectRequested.connect(self.onSidePanelInspectRequested)
 
             self.currentGraph = graph
-
-    '''
-
 
 app = QtGui.QApplication([])
 app.setOrganizationName( 'Fabric Software Inc' )
@@ -787,49 +809,4 @@ for arg in args:
     mainWin.loadGraph( arg )
 
 app.exec_()
-
-
-'''
-FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder
-FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder
-
-MainWindowEventFilter::MainWindowEventFilter(MainWindow * window)
-: QObject(window)
-    self.window = window
-
-bool MainWindowEventFilter::eventFilter(
-    QObject* object,
-    QEvent* event
-    )
-    QEvent::Type eventType = event.type()
-
-    if eventType == QEvent::KeyPress)
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event)
-
-        # forward this to the hotkeyPressed functionality...
-        if keyEvent.key() != QtCore.Qt.Key_Tab)
-            self.window.self.viewport.onKeyPressed(keyEvent)
-            if keyEvent.isAccepted())
-                return True
-
-            self.window.self.dfgWidget.onKeyPressed(keyEvent)
-            if keyEvent.isAccepted())
-                return True
-    elif eventType == QEvent::KeyRelease)
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event)
-
-        # forward this to the hotkeyReleased functionality...
-        if keyEvent.key() != QtCore.Qt.Key_Tab)
-            #For now the viewport isn't listening to key releases
-            #self.window.self.viewport.onKeyReleased(keyEvent)
-            #if keyEvent.isAccepted())
-            #    return True
-
-            self.window.self.dfgWidget.onKeyReleased(keyEvent)
-            if keyEvent.isAccepted())
-                return True
-
-    return QObject::eventFilter(object, event)
-
-'''
 
