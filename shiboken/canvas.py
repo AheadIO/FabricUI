@@ -24,10 +24,13 @@ class MainWindow(DFG.DFGMainWindow):
         self.settings = settings
         DFG.DFGWidget.setSettings(settings)
 
+        self.currentGraph = None
+
         self.config = DFG.DFGConfig()
 
         self.autosaveFilename = os.path.join(fabricDir, 'autosave')
-        os.makedirs(self.autosaveFilename)
+        if not os.path.exists(self.autosaveFilename):
+            os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.'+str(os.getpid())+'.canvas'
         self.autosaveFilename = os.path.join(self.autosaveFilename, autosaveBasename)
         print 'Will autosave to '+self.autosaveFilename+' every '+str(MainWindow.autosaveIntervalSecs)+' seconds'
@@ -48,9 +51,9 @@ class MainWindow(DFG.DFGMainWindow):
         fpsTimer.start()
 
         client = Core.createClient({'unguarded': unguarded, 'reportCallback': reportCallback})
-        #options.licenseType = FabricCore::ClientLicenseType_Interactive;
-        #options.rtValToJSONEncoder = &sRTValEncoder;
-        #options.rtValFromJSONDecoder = &sRTValDecoder;
+        #options.licenseType = FabricCore::ClientLicenseType_Interactive
+        #options.rtValToJSONEncoder = &sRTValEncoder
+        #options.rtValFromJSONDecoder = &sRTValDecoder
         client.loadExtension('Math')
         client.loadExtension('Parameters')
         client.loadExtension('Util')
@@ -183,7 +186,7 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.onFrameChanged(self.timeLine.getTime())
         #self.onGraphSet(self.dfgWidget.getUIGraph())
-        self.onSidePanelInspectRequested()
+        #self.onSidePanelInspectRequested()
 
     def statusCallback(self, target, data):
         if target == "licensing":
@@ -444,7 +447,7 @@ class MainWindow(DFG.DFGMainWindow):
                 tmpAutosaveFilename += ".tmp"
 
                 if self.performSave(binding, tmpAutosaveFilename):
-                    #FTL::FSMaybeMoveFile( tmpAutosaveFilename, m_autosaveFilename );
+                    #FTL::FSMaybeMoveFile( tmpAutosaveFilename, self.autosaveFilename )
                     self.lastAutosaveBindingVersion = bindingVersion
 
     def onSidePanelInspectRequested(self):
@@ -455,417 +458,302 @@ class MainWindow(DFG.DFGMainWindow):
         else:
             self.dfgValueEditor.clear()
 
+    def onNewGraph(self):
+        self.timeLine.pause()
+
+        if not checkUnsavedChanged():
+            return
+
+        self.lastFileName = ""
+
+        try:
+            dfgController = self.dfgWidget.getDFGController()
+
+            binding = dfgController.getBinding()
+            binding.deallocValues()
+
+            self.dfgValueEditor.clear()
+
+            self.host.flushUndoRedo()
+            self.qUndoStack.clear()
+            self.viewport.clearInlineDrawing()
+            QtCore.QCoreApplication.processEvents()
+
+            # Note: the previous binding is no longer functional
+            #             create the new one before resetting the timeline options
+
+            binding = self.host.createBindingToNewGraph()
+            self.lastSavedBindingVersion = binding.getVersion()
+            dfgExec = binding.getExec()
+            self.timeLinePortIndex = -1
+
+            dfgController.setBindingExec(binding, '', dfgExec)
+
+            self.timeLine.setTimeRange(defaultFrameIn, defaultFrameOut)
+            self.timeLine.setLoopMode(1)
+            self.timeLine.setSimulationMode(0)
+            self.timeLine.updateTime(defaultFrameIn, True)
+
+            QtCore.QCoreApplication.processEvents()
+            self.qUndoView.setEmptyLabel("New Graph")
+
+            self.onSidePanelInspectRequested()
+
+            self.contentChanged.emit()
+            self.onStructureChanged()
+
+            self.onFileNameChanged('')
+
+            self.viewport.update()
+
+        except Exception as e:
+            print 'Exception: '+str(e)
+
+    def onLoadGraph(self):
+        self.timeLine.pause()
+
+        if not checkUnsavedChanged():
+            return
+
+        lastPresetFolder = self.settings.value("mainWindow/lastPresetFolder").toString()
+        filePath = QtGui.QFileDialog.getOpenFileName(this, "Load graph", lastPresetFolder, "*.canvas")
+        if len(filePath.length):
+            folder  = QtCore.QDir(filePath)
+            folder.cdUp()
+            self.settings.setValue( "mainWindow/lastPresetFolder", folder.path() )
+            loadGraph(filePath)
+
+    def performSave(self, binding, filePath):
+        graph = binding.getExec()
+
+        '''
+        QString num
+        num.setNum(self.timeLine.getRangeStart())
+        graph.setMetadata("timeline_start", num.toUtf8().constData(), False)
+        num.setNum(self.timeLine.getRangeEnd())
+        graph.setMetadata("timeline_end", num.toUtf8().constData(), False)
+        num.setNum(self.timeLine.getTime())
+        graph.setMetadata("timeline_current", num.toUtf8().constData(), False)
+        num.setNum(self.timeLine.loopMode())
+        graph.setMetadata("timeline_loopMode", num.toUtf8().constData(), False)
+        num.setNum(self.timeLine.simulationMode())
+        graph.setMetadata("timeline_simMode", num.toUtf8().constData(), False)
+        '''
+        try:
+            camera = self.viewport.getCamera()
+            mat44 = camera.getMat44('Mat44')
+            focalDistance = camera.getFocalDistance('Float32')
+
+            if mat44.isValid() and focalDistance.isValid():
+                graph.setMetadata("camera_mat44", mat44.getJSON().getStringCString(), False)
+                graph.setMetadata("camera_focalDistance", focalDistance.getJSON().getStringCString(), False)
+        except Exception as e:
+            print 'Exception: '+str(e)
+
+        try:
+            json = binding.exportJSON()
+            jsonFile = open(filePath, "wb")
+            if jsonFile:
+                jsonFile.write(json)
+                jsonFile.close()
+        except Exception as e:
+            print 'Exception: '+str(e)
+            return False
+
+        return True
+
+    def saveGraph(self, saveAs):
+        self.timeLine.pause()
+
+        filePath = self.lastFileName
+        if len(filePath) == 0 or saveAs:
+            lastPresetFolder = self.settings.value("mainWindow/lastPresetFolder").toString()
+            if len(self.lastFileName) > 0:
+                filePath = self.lastFileName
+                if filePath.toLower().endsWith(".canvas"):
+                    filePath = filePath.left(filePath.length() - 7)
+            else:
+                filePath = lastPresetFolder
+
+            filePath = QtGui.QFileDialog.getSaveFileName(self, "Save graph", filePath, "*.canvas")
+            if len(filePath) == 0:
+                return False
+            if filePath.toLower().endsWith(".canvas.canvas"):
+                filePath = filePath.left(filePath.length() - 7)
+            elif not filePath.toLower().endsWith(".canvas"):
+                filePath += ".canvas"
+
+        folder = QtCore.QDir(filePath)
+        folder.cdUp()
+        self.settings.setValue("mainWindow/lastPresetFolder", folder.path())
+
+        binding = self.dfgWidget.getDFGController().getBinding()
+
+        if self.performSave(binding, filePath):
+            self.evalContext.setMember("currentFilePath", self.client.RT.types.String(filePath))
+
+        self.lastFileName = filePath
+
+        self.onFileNameChanged(filePath)
+
+        self.lastSavedBindingVersion = binding.getVersion()
+
+        return True
+
+    def setBlockCompilations(self, blockCompilations):
+        dfgController = self.dfgWidget.getDFGController()
+        dfgController.setBlockCompilations(blockCompilations)
+
+    def onFileNameChanged(self, fileName):
+        if fileName.isEmpty():
+            self.setWindowTitle(self.windowTitle)
+        else:
+            self.setWindowTitle(self.windowTitle + " - " + fileName)
+
+    def enableShortCuts(self, enabled):
+        if self.newGraphAction:
+            self.newGraphAction.blockSignals(enabled)
+        if self.loadGraphAction:
+            self.loadGraphAction.blockSignals(enabled)
+        if self.saveGraphAction:
+            self.saveGraphAction.blockSignals(enabled)
+        if self.saveGraphAsAction:
+            self.saveGraphAsAction.blockSignals(enabled)
+        if self.quitAction:
+            self.quitAction.blockSignals(enabled)
+        if self.manipAction:
+            self.manipAction.blockSignals(enabled)
+        if self.setGridVisibleAction:
+            self.setGridVisibleAction.blockSignals(enabled)
+        #if self.setUsingStageAction:
+        #    self.setUsingStageAction.blockSignals(enabled)
+        if self.resetCameraAction:
+            self.resetCameraAction.blockSignals(enabled)
+        if self.clearLogAction:
+            self.clearLogAction.blockSignals(enabled)
+        if self.blockCompilationsAction:
+            self.blockCompilationsAction.blockSignals(enabled)
+     
+    def onAdditionalMenuActionsRequested(self, name, menu, prefix):
+        if name == "File":
+            if prefix:
+                self.newGraphAction = menu.addAction("New Graph")
+                self.newGraphAction.setShortcut(QtGui.QKeySequence.New)
+                self.loadGraphAction = menu.addAction("Load Graph...")
+                self.loadGraphAction.setShortcut(QtGui.QKeySequence.Open)
+                self.saveGraphAction = menu.addAction("Save Graph")
+                self.saveGraphAction.setShortcut(QtGui.QKeySequence.Save)
+                self.saveGraphAsAction = menu.addAction("Save Graph As...")
+                self.saveGraphAsAction.setShortcut(QtGui.QKeySequence.SaveAs)
+
+                self.newGraphAction.triggered.connect(self.onNewGraph)
+                self.loadGraphAction.triggered.connect(self.onLoadGraph)
+                self.saveGraphAction.triggered.connect(self.onSaveGraph)
+                self.saveGraphAsAction.triggered.connect(self.onSaveGraphAs)
+            else:
+                menu.addSeparator()
+                self.quitAction = menu.addAction("Quit")
+                self.quitAction.setShortcut(QtGui.QKeySequence.Quit)
+               
+                self.quitAction.triggered.connect(self.close)
+        elif name == "Edit":
+            if prefix:
+                undoAction = self.qUndoStack.createUndoAction(menu)
+                undoAction.setShortcut(QtGui.QKeySequence.Undo)
+                menu.addAction(undoAction)
+                redoAction = self.qUndoStack.createRedoAction(menu)
+                redoAction.setShortcut(QtGui.QKeySequence.Redo)
+                menu.addAction(redoAction)
+            else:
+                menu.addSeparator()
+                self.manipAction = QtGui.QAction(DFG_TOGGLE_MANIPULATION, self.viewport)
+                self.manipAction.setShortcut(QtCore.Qt.Key_Q)
+                self.manipAction.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+                self.manipAction.setCheckable( True )
+                self.manipAction.setChecked( self.viewport.isManipulationActive() )
+                self.manipAction.triggered.connect(self.viewport.toggleManipulation)
+                self.viewport.addAction( self.manipAction )
+                menu.addAction( self.manipAction )
+        elif name == "View":
+            if prefix:
+                self.setGridVisibleAction = QtGui.QAction("&Display Grid", 0)
+                self.setGridVisibleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_G)
+                self.setGridVisibleAction.setCheckable( True )
+                self.setGridVisibleAction.setChecked( self.viewport.isStageVisible() )
+                self.setGridVisibleAction.toggled.connect(self.viewport.setStageVisible)
+
+                self.resetCameraAction = QtGui.QAction("&Reset Camera", self.viewport)
+                self.resetCameraAction.setShortcut(QtCore.Qt.Key_R)
+                self.resetCameraAction.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+                self.resetCameraAction.triggered.connect(self.viewport.resetCamera)
+                self.viewport.addAction(self.resetCameraAction)
+
+                self.clearLogAction = QtGui.QAction("&Clear Log Messages", 0)
+                self.clearLogAction.triggered.connect(self.logWidget.clear)
+
+                self.blockCompilationsAction = QtGui.QAction( "&Block compilations", 0 )
+                self.blockCompilationsAction.setCheckable( True )
+                self.blockCompilationsAction.setChecked( False )
+                self.blockCompilationsAction.triggered.connect(self.setBlockCompilations)
+
+                # [Julien] FE-4965
+                menu.addAction( self.setGridVisibleAction )
+                menu.addSeparator()
+                menu.addAction( self.resetCameraAction )
+                menu.addSeparator()
+                menu.addAction( self.clearLogAction )
+                menu.addSeparator()
+                menu.addAction( self.blockCompilationsAction )
+
     '''
-void MainWindow::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifiers, QString hotkey)
-{
-    if(hotkey == DFG_EXECUTE)
-    {
-        onDirty();
-    }
-    else if(hotkey == DFG_NEW_SCENE)
-    {
-        onNewGraph();
-    }
-    else if(hotkey == DFG_OPEN_SCENE)
-    {
-        onLoadGraph();
-    }
-    else if(hotkey == DFG_SAVE_SCENE)
-    {
-        saveGraph(false);
-    }
-    else if(hotkey == DFG_TOGGLE_MANIPULATION)
-    {
-        // Make sure we use the Action path, so menu's "checked" state is updated
-        if( m_manipAction )
-            m_manipAction->trigger();
-    }
-    else
-    {
-        m_dfgWidget->onHotkeyPressed(key, modifiers, hotkey);
-    }
-}
+    def onHotkeyPressed(self, key, modifiers, hotkey):
+        if hotkey == DFG_EXECUTE:
+            self.onDirty()
+        elif hotkey == DFG_NEW_SCENE):
+            self.onNewGraph()
+        elif hotkey == DFG_OPEN_SCENE):
+            self.onLoadGraph()
+        elif hotkey == DFG_SAVE_SCENE):
+            self.saveGraph(False)
+        elif hotkey == DFG_TOGGLE_MANIPULATION):
+            # Make sure we use the Action path, so menu's "checked" state is updated
+            if self.manipAction:
+                self.manipAction.trigger()
+        else:
+            self.dfgWidget.onHotkeyPressed(key, modifiers, hotkey)
 
-void MainWindow::onGraphSet(FabricUI::GraphView::Graph * graph)
-{
-    if(graph != m_setGraph)
-    {
-        GraphView::Graph * graph = m_dfgWidget->getUIGraph();
-        graph->defineHotkey(Qt::Key_Delete,         Qt::NoModifier,             DFG_DELETE);
-        graph->defineHotkey(Qt::Key_Backspace,    Qt::NoModifier,             DFG_DELETE_2);
-        graph->defineHotkey(Qt::Key_F5,                 Qt::NoModifier,             DFG_EXECUTE);
-        graph->defineHotkey(Qt::Key_F,                    Qt::NoModifier,             DFG_FRAME_SELECTED);
-        graph->defineHotkey(Qt::Key_A,                    Qt::NoModifier,             DFG_FRAME_ALL);
-        graph->defineHotkey(Qt::Key_Tab,                Qt::NoModifier,             DFG_TAB_SEARCH);
-        graph->defineHotkey(Qt::Key_A,                    Qt::ControlModifier,    DFG_SELECT_ALL);
-        graph->defineHotkey(Qt::Key_C,                    Qt::ControlModifier,    DFG_COPY);
-        graph->defineHotkey(Qt::Key_V,                    Qt::ControlModifier,    DFG_PASTE);
-        graph->defineHotkey(Qt::Key_X,                    Qt::ControlModifier,    DFG_CUT);
-        graph->defineHotkey(Qt::Key_N,                    Qt::ControlModifier,    DFG_NEW_SCENE);
-        graph->defineHotkey(Qt::Key_O,                    Qt::ControlModifier,    DFG_OPEN_SCENE);
-        graph->defineHotkey(Qt::Key_S,                    Qt::ControlModifier,    DFG_SAVE_SCENE);
-        graph->defineHotkey(Qt::Key_F2,                 Qt::NoModifier,             DFG_EDIT_PROPERTIES);
-        graph->defineHotkey(Qt::Key_R,                    Qt::ControlModifier,    DFG_RELAX_NODES);
-        graph->defineHotkey(Qt::Key_Q,                    Qt::NoModifier,             DFG_TOGGLE_MANIPULATION);
-        graph->defineHotkey(Qt::Key_0,                    Qt::ControlModifier,    DFG_RESET_ZOOM);
-        graph->defineHotkey(Qt::Key_1,                    Qt::NoModifier,             DFG_COLLAPSE_LEVEL_1);
-        graph->defineHotkey(Qt::Key_2,                    Qt::NoModifier,             DFG_COLLAPSE_LEVEL_2);
-        graph->defineHotkey(Qt::Key_3,                    Qt::NoModifier,             DFG_COLLAPSE_LEVEL_3);
+    def onGraphSet(self, graph):
+        if graph != self.currentGraph:
+            graph = self.dfgWidget.getUIGraph()
+            graph.defineHotkey(QtCore.Qt.Key_Delete, QtCore.Qt.NoModifier, DFG_DELETE)
+            graph.defineHotkey(QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, DFG_DELETE_2)
+            graph.defineHotkey(QtCore.Qt.Key_F5, QtCore.Qt.NoModifier, DFG_EXECUTE)
+            graph.defineHotkey(QtCore.Qt.Key_F, QtCore.Qt.NoModifier, DFG_FRAME_SELECTED)
+            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.NoModifier, DFG_FRAME_ALL)
+            graph.defineHotkey(QtCore.Qt.Key_Tab, QtCore.Qt.NoModifier, DFG_TAB_SEARCH)
+            graph.defineHotkey(QtCore.Qt.Key_A, QtCore.Qt.ControlModifier, DFG_SELECT_ALL)
+            graph.defineHotkey(QtCore.Qt.Key_C, QtCore.Qt.ControlModifier, DFG_COPY)
+            graph.defineHotkey(QtCore.Qt.Key_V, QtCore.Qt.ControlModifier, DFG_PASTE)
+            graph.defineHotkey(QtCore.Qt.Key_X, QtCore.Qt.ControlModifier, DFG_CUT)
+            graph.defineHotkey(QtCore.Qt.Key_N, QtCore.Qt.ControlModifier, DFG_NEW_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_O, QtCore.Qt.ControlModifier, DFG_OPEN_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_S, QtCore.Qt.ControlModifier, DFG_SAVE_SCENE)
+            graph.defineHotkey(QtCore.Qt.Key_F2, QtCore.Qt.NoModifier, DFG_EDIT_PROPERTIES)
+            graph.defineHotkey(QtCore.Qt.Key_R, QtCore.Qt.ControlModifier, DFG_RELAX_NODES)
+            graph.defineHotkey(QtCore.Qt.Key_Q, QtCore.Qt.NoModifier, DFG_TOGGLE_MANIPULATION)
+            graph.defineHotkey(QtCore.Qt.Key_0, QtCore.Qt.ControlModifier, DFG_RESET_ZOOM)
+            graph.defineHotkey(QtCore.Qt.Key_1, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_1)
+            graph.defineHotkey(QtCore.Qt.Key_2, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_2)
+            graph.defineHotkey(QtCore.Qt.Key_3, QtCore.Qt.NoModifier, DFG_COLLAPSE_LEVEL_3)
 
-        // we don't need to connect this signal, because we are invoking the slot
-        // in our own hotkeypressed method                    
-        // QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)),
-        //     this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));
+            QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
+                this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)))
+            QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)),
+                this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node*)))
+            QObject::connect(graph, SIGNAL(sidePanelInspectRequested()),
+                this, SLOT(onSidePanelInspectRequested()) )
 
-        QObject::connect(graph, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
-            this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*)));
-        QObject::connect(graph, SIGNAL(nodeEditRequested(FabricUI::GraphView::Node*)),
-            this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node*)));
-        QObject::connect(graph, SIGNAL(sidePanelInspectRequested()),
-            this, SLOT(onSidePanelInspectRequested()) );
-
-        m_setGraph = graph;
-    }
-}
-
-void MainWindow::onNewGraph()
-{
-    m_timeLine->pause();
-
-    if(!checkUnsavedChanged())
-        return;
-
-    m_lastFileName = "";
-    // m_saveGraphAction->setEnabled(false);
-
-    try
-    {
-        FabricUI::DFG::DFGController *dfgController =
-            m_dfgWidget->getDFGController();
-
-        FabricCore::DFGBinding binding = dfgController->getBinding();
-        binding.deallocValues();
-
-        m_dfgValueEditor->clear();
-
-        m_host.flushUndoRedo();
-        m_qUndoStack.clear();
-        m_viewport->clearInlineDrawing();
-        QCoreApplication::processEvents();
-
-        // Note: the previous binding is no longer functional;
-        //             create the new one before resetting the timeline options
-
-        binding = m_host.createBindingToNewGraph();
-        m_lastSavedBindingVersion = binding.getVersion();
-        FabricCore::DFGExec exec = binding.getExec();
-        m_timelinePortIndex = -1;
-
-        dfgController->setBindingExec( binding, FTL::StrRef(), exec );
-
-        m_timeLine->setTimeRange(TimeRange_Default_Frame_In, TimeRange_Default_Frame_Out);
-        m_timeLine->setLoopMode(1);
-        m_timeLine->setSimulationMode(0);
-        m_timeLine->updateTime(TimeRange_Default_Frame_In, true);
-
-        QCoreApplication::processEvents();
-        m_qUndoView->setEmptyLabel( "New Graph" );
-
-        onSidePanelInspectRequested();
-
-        emit contentChanged();
-        onStructureChanged();
-
-        onFileNameChanged( "" );
-
-        m_viewport->update();
-    }
-    catch(FabricCore::Exception e)
-    {
-        printf("Exception: %s\n", e.getDesc_cstr());
-    }
-}
-
-void MainWindow::onLoadGraph()
-{
-    m_timeLine->pause();
-
-    if(!checkUnsavedChanged())
-        return;
-
-    QString lastPresetFolder = m_settings->value("mainWindow/lastPresetFolder").toString();
-    QString filePath = QFileDialog::getOpenFileName(this, "Load graph", lastPresetFolder, "*.canvas");
-    if ( filePath.length() )
-    {
-        QDir dir(filePath);
-        dir.cdUp();
-        m_settings->setValue( "mainWindow/lastPresetFolder", dir.path() );
-        loadGraph( filePath );
-    }
-    // m_saveGraphAction->setEnabled(true);
-}
-
-bool MainWindow::performSave(
-    FabricCore::DFGBinding &binding,
-    QString const &filePath
-    )
-{
-    FabricCore::DFGExec graph = binding.getExec();
-
-    QString num;
-    num.setNum(m_timeLine->getRangeStart());
-    graph.setMetadata("timeline_start", num.toUtf8().constData(), false);
-    num.setNum(m_timeLine->getRangeEnd());
-    graph.setMetadata("timeline_end", num.toUtf8().constData(), false);
-    num.setNum(m_timeLine->getTime());
-    graph.setMetadata("timeline_current", num.toUtf8().constData(), false);
-    num.setNum(m_timeLine->loopMode());
-    graph.setMetadata("timeline_loopMode", num.toUtf8().constData(), false);
-    num.setNum(m_timeLine->simulationMode());
-    graph.setMetadata("timeline_simMode", num.toUtf8().constData(), false);
-    try
-    {
-        FabricCore::RTVal camera = m_viewport->getCamera();
-        FabricCore::RTVal mat44 = camera.callMethod("Mat44", "getMat44", 0, 0);
-        FabricCore::RTVal focalDistance = camera.callMethod("Float32", "getFocalDistance", 0, 0);
-
-        if(mat44.isValid() && focalDistance.isValid())
-        {
-            graph.setMetadata("camera_mat44", mat44.getJSON().getStringCString(), false);
-            graph.setMetadata("camera_focalDistance", focalDistance.getJSON().getStringCString(), false);
-        }
-    }
-    catch(FabricCore::Exception e)
-    {
-        printf("Exception: %s\n", e.getDesc_cstr());
-    }
-
-    try
-    {
-        FabricCore::DFGStringResult json = binding.exportJSON();
-        char const *jsonData;
-        uint32_t jsonSize;
-        json.getStringDataAndLength( jsonData, jsonSize );
-        FILE * file = fopen(filePath.toUtf8().constData(), "wb");
-        if(file)
-        {
-            fwrite(jsonData, jsonSize, 1, file);
-            fclose(file);
-        }
-    }
-    catch(FabricCore::Exception e)
-    {
-        printf("Exception: %s\n", e.getDesc_cstr());
-        return false;
-    }
-
-    return true;
-}
-
-bool MainWindow::saveGraph(bool saveAs)
-{
-    m_timeLine->pause();
-
-    QString filePath = m_lastFileName;
-    if(filePath.length() == 0 || saveAs)
-    {
-        QString lastPresetFolder = m_settings->value("mainWindow/lastPresetFolder").toString();
-        if(m_lastFileName.length() > 0)
-        {
-            filePath = m_lastFileName;
-            if(filePath.toLower().endsWith(".canvas"))
-                filePath = filePath.left(filePath.length() - 7);
-        }
-        else
-            filePath = lastPresetFolder;
-
-        filePath = QFileDialog::getSaveFileName(this, "Save graph", filePath, "*.canvas");
-        if(filePath.length() == 0)
-            return false;
-        if(filePath.toLower().endsWith(".canvas.canvas"))
-            filePath = filePath.left(filePath.length() - 7);
-        else if(!filePath.toLower().endsWith(".canvas"))
-            filePath += ".canvas";
-    }
-
-    QDir dir(filePath);
-    dir.cdUp();
-    m_settings->setValue( "mainWindow/lastPresetFolder", dir.path() );
-
-    FabricCore::DFGBinding &binding =
-        m_dfgWidget->getDFGController()->getBinding();
-
-    if ( performSave( binding, filePath ) )
-        m_evalContext.setMember("currentFilePath", FabricCore::RTVal::ConstructString(m_client, filePath.toUtf8().constData()));
-
-    m_lastFileName = filePath;
-
-    onFileNameChanged( filePath );
-
-    // m_saveGraphAction->setEnabled(true);
-
-    m_lastSavedBindingVersion = binding.getVersion();
-
-    return true;
-}
-
-void MainWindow::setBlockCompilations( bool blockCompilations )
-{
-    FabricUI::DFG::DFGController *dfgController =
-        m_dfgWidget->getDFGController();
-    dfgController->setBlockCompilations( blockCompilations );
-}
-
-void MainWindow::onFileNameChanged(QString fileName)
-{
-    if(fileName.isEmpty())
-        setWindowTitle( m_windowTitle );
-    else
-        setWindowTitle( m_windowTitle + " - " + fileName );
-}
-
-void MainWindow::enableShortCuts(bool enabled)
-{
-    if(m_newGraphAction)
-        m_newGraphAction->blockSignals(enabled);
-    if(m_loadGraphAction)
-        m_loadGraphAction->blockSignals(enabled);
-    if(m_saveGraphAction)
-        m_saveGraphAction->blockSignals(enabled);
-    if(m_saveGraphAsAction)
-        m_saveGraphAsAction->blockSignals(enabled);
-    if(m_quitAction)
-        m_quitAction->blockSignals(enabled);
-    if(m_manipAction)
-        m_manipAction->blockSignals(enabled);
-    if(m_setGridVisibleAction)
-        m_setGridVisibleAction->blockSignals(enabled);
-    if(m_setUsingStageAction)
-        m_setUsingStageAction->blockSignals(enabled);
-    if(m_resetCameraAction)
-        m_resetCameraAction->blockSignals(enabled);
-    if(m_clearLogAction)
-        m_clearLogAction->blockSignals(enabled);
-    if(m_blockCompilationsAction)
-        m_blockCompilationsAction->blockSignals(enabled);
-}
- 
-void MainWindow::onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix)
-{
-    if(name == "File")
-    {
-        if(prefix)
-        {
-            m_newGraphAction = menu->addAction("New Graph");
-            m_newGraphAction->setShortcut(QKeySequence::New);
-            m_loadGraphAction = menu->addAction("Load Graph...");
-            m_loadGraphAction->setShortcut(QKeySequence::Open);
-            m_saveGraphAction = menu->addAction("Save Graph");
-            m_saveGraphAction->setShortcut(QKeySequence::Save);
-            m_saveGraphAsAction = menu->addAction("Save Graph As...");
-            m_saveGraphAsAction->setShortcut(QKeySequence::SaveAs);
-        
-            QObject::connect(m_newGraphAction, SIGNAL(triggered()), this, SLOT(onNewGraph()));
-            QObject::connect(m_loadGraphAction, SIGNAL(triggered()), this, SLOT(onLoadGraph()));
-            QObject::connect(m_saveGraphAction, SIGNAL(triggered()), this, SLOT(onSaveGraph()));
-            QObject::connect(m_saveGraphAsAction, SIGNAL(triggered()), this, SLOT(onSaveGraphAs()));
-        }
-        else
-        {
-            menu->addSeparator();
-            m_quitAction = menu->addAction("Quit");
-            m_quitAction->setShortcut(QKeySequence::Quit);
-            
-            QObject::connect(m_quitAction, SIGNAL(triggered()), this, SLOT(close()));
-        }
-    }
-    else if(name == "Edit")
-    {
-        if(prefix)
-        {
-            QAction *undoAction = m_qUndoStack.createUndoAction( menu );
-            undoAction->setShortcut( QKeySequence::Undo );
-            menu->addAction( undoAction );
-            QAction *redoAction = m_qUndoStack.createRedoAction( menu );
-            redoAction->setShortcut( QKeySequence::Redo );
-            menu->addAction( redoAction );
-        }
-        else
-        {
-            menu->addSeparator();
-            m_manipAction = new QAction( DFG_TOGGLE_MANIPULATION, m_viewport );
-            m_manipAction->setShortcut(Qt::Key_Q);
-            m_manipAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-            m_manipAction->setCheckable( true );
-            m_manipAction->setChecked( m_viewport->isManipulationActive() );
-            QObject::connect(
-                m_manipAction, SIGNAL(triggered()),
-                m_viewport, SLOT(toggleManipulation())
-                );
-            m_viewport->addAction( m_manipAction );
-            menu->addAction( m_manipAction );
-        }
-    }
-    else if(name == "View")
-    {
-        if(prefix)
-        {
-            m_setGridVisibleAction = new QAction("&Display Grid", 0 );
-            m_setGridVisibleAction->setShortcut(Qt::CTRL + Qt::Key_G);
-            m_setGridVisibleAction->setCheckable( true );
-            m_setGridVisibleAction->setChecked( m_viewport->isStageVisible() );
-         
-            QObject::connect(
-                m_setGridVisibleAction, SIGNAL(toggled(bool)),
-                m_viewport, SLOT(setStageVisible(bool)) 
-                );
-            
-            /*
-                m_setUsingStageAction = new QAction( "Use &Stage", 0 );
-                m_setUsingStageAction->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_G);
-                m_setUsingStageAction->setCheckable( true );
-                m_setUsingStageAction->setChecked( m_viewport->isUsingStage() );
-                QObject::connect(
-                    m_setUsingStageAction, SIGNAL(toggled(bool)),
-                    m_viewport, SLOT(setUsingStage(bool))
-                    );
-            */
-
-            m_resetCameraAction = new QAction( "&Reset Camera", m_viewport );
-            m_resetCameraAction->setShortcut(Qt::Key_R);
-            m_resetCameraAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-            QObject::connect(
-                m_resetCameraAction, SIGNAL(triggered()),
-                m_viewport, SLOT(resetCamera())
-                );
-            m_viewport->addAction(m_resetCameraAction);
-
-            m_clearLogAction = new QAction( "&Clear Log Messages", 0 );
-            QObject::connect(
-                m_clearLogAction, SIGNAL(triggered()),
-                m_logWidget, SLOT(clear())
-                );
-
-            m_blockCompilationsAction = new QAction( "&Block compilations", 0 );
-            m_blockCompilationsAction->setCheckable( true );
-            m_blockCompilationsAction->setChecked( false );
-            QObject::connect(
-                m_blockCompilationsAction, SIGNAL(toggled(bool)),
-                this, SLOT(setBlockCompilations(bool))
-                );
-
-            // [Julien] FE-4965
-            menu->addAction( m_setGridVisibleAction );
-            //menu->addAction( m_setUsingStageAction );
-            menu->addSeparator();
-            menu->addAction( m_resetCameraAction );
-            menu->addSeparator();
-            menu->addAction( m_clearLogAction );
-            menu->addSeparator();
-            menu->addAction( m_blockCompilationsAction );
-        }
-    }
-}
+            self.currentGraph = graph
 
     '''
 
@@ -902,58 +790,46 @@ app.exec_()
 
 
 '''
-FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder;
-FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder;
+FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder
+FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder
 
 MainWindowEventFilter::MainWindowEventFilter(MainWindow * window)
 : QObject(window)
-{
-    m_window = window;
-}
+    self.window = window
 
 bool MainWindowEventFilter::eventFilter(
     QObject* object,
     QEvent* event
     )
-{
-    QEvent::Type eventType = event->type();
+    QEvent::Type eventType = event.type()
 
-    if (eventType == QEvent::KeyPress)
-    {
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
+    if eventType == QEvent::KeyPress)
+        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event)
 
-        // forward this to the hotkeyPressed functionality...
-        if(keyEvent->key() != Qt::Key_Tab)
-        {
-            m_window->m_viewport->onKeyPressed(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
+        # forward this to the hotkeyPressed functionality...
+        if keyEvent.key() != QtCore.Qt.Key_Tab)
+            self.window.self.viewport.onKeyPressed(keyEvent)
+            if keyEvent.isAccepted())
+                return True
 
-            m_window->m_dfgWidget->onKeyPressed(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
-        }
-    }
-    else if (eventType == QEvent::KeyRelease)
-    {
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
+            self.window.self.dfgWidget.onKeyPressed(keyEvent)
+            if keyEvent.isAccepted())
+                return True
+    elif eventType == QEvent::KeyRelease)
+        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event)
 
-        // forward this to the hotkeyReleased functionality...
-        if(keyEvent->key() != Qt::Key_Tab)
-        {
-            //For now the viewport isn't listening to key releases
-            //m_window->m_viewport->onKeyReleased(keyEvent);
-            //if(keyEvent->isAccepted())
-            //    return true;
+        # forward this to the hotkeyReleased functionality...
+        if keyEvent.key() != QtCore.Qt.Key_Tab)
+            #For now the viewport isn't listening to key releases
+            #self.window.self.viewport.onKeyReleased(keyEvent)
+            #if keyEvent.isAccepted())
+            #    return True
 
-            m_window->m_dfgWidget->onKeyReleased(keyEvent);
-            if(keyEvent->isAccepted())
-                return true;
-        }
-    }
+            self.window.self.dfgWidget.onKeyReleased(keyEvent)
+            if keyEvent.isAccepted())
+                return True
 
-    return QObject::eventFilter(object, event);
-};
+    return QObject::eventFilter(object, event)
 
 '''
 
