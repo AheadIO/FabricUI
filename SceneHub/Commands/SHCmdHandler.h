@@ -31,16 +31,9 @@ namespace FabricUI
         //SHCmdHandler() {};
         virtual ~SHCmdHandler() {};
 
-        static std::string encodeRTValToJSON(
-          FabricCore::Context const& context,
-          FabricCore::RTVal const& rtVal
-          );
+        static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
 
-        static void decodeRTValFromJSON(
-          FabricCore::Context const& context,
-          FabricCore::RTVal & rtVal,
-          FTL::CStrRef json
-          );
+        static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json);
 
         //virtual void dfgDoRemoveNodes(
         //  FabricCore::DFGBinding const &binding,

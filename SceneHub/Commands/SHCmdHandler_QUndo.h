@@ -25,7 +25,6 @@ namespace FabricUI
        
         virtual ~SHCmdHandler_QUndo() {};
 
-      
         //virtual void dfgDoRemoveNodes(
         //  FabricCore::DFGBinding const &binding,
         //  FTL::CStrRef execPath,
