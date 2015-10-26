@@ -956,10 +956,43 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   maybeEditNode( node );
 }
 
-void DFGAddMetaDataPair( FTL::JSONObjectEnc<>& metaDataObjectEnc, char const* key, char const* value ) {
-  FTL::JSONEnc<> enc( metaDataObjectEnc, FTL::CStrRef( key ) );
-  FTL::JSONStringEnc<> valueEnc( enc, FTL::CStrRef( value ) );
+static inline void DFGAddMetaDataPair(
+  FTL::JSONObjectEnc<>& metaDataObjectEnc,
+  FTL::StrRef key,
+  FTL::StrRef value
+  )
+{
+  FTL::JSONEnc<> enc( metaDataObjectEnc, key );
+  FTL::JSONStringEnc<> valueEnc( enc, value );
 }
+
+static inline void DFGAddMetaDataPair_Color(
+  FTL::JSONObjectEnc<>& metaDataObjectEnc,
+  FTL::StrRef key,
+  QColor const &color
+  )
+{
+  std::string value;
+  {
+    FTL::JSONEnc<> enc( value );
+    FTL::JSONObjectEnc<> objEnc( enc );
+    {
+      FTL::JSONEnc<> rEnc( objEnc, FTL_STR("r") );
+      FTL::JSONSInt32Enc<> rS32Enc( rEnc, color.red() );
+    }
+    {
+      FTL::JSONEnc<> gEnc( objEnc, FTL_STR("g") );
+      FTL::JSONSInt32Enc<> gS32Enc( gEnc, color.green() );
+    }
+    {
+      FTL::JSONEnc<> bEnc( objEnc, FTL_STR("b") );
+      FTL::JSONSInt32Enc<> bS32Enc( bEnc, color.blue() );
+    }
+  }
+
+  DFGAddMetaDataPair( metaDataObjectEnc, key, value );
+}
+
 
 void DFGWidget::onExecPortAction(QAction * action)
 {
@@ -1623,7 +1656,7 @@ bool DFGWidget::maybeEditNode(
 void DFGWidget::onEditPropertiesForCurrentSelection()
 {
   FabricUI::DFG::DFGController *controller = getUIController();
-  if (controller)
+  if ( controller )
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     if (nodes.size() != 1)
@@ -1634,7 +1667,10 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
     }
     GraphView::Node *node = nodes[0];
 
-    FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( node->name().c_str() );
+    FabricCore::DFGExec &exec = controller->getExec();
+    std::string oldNodeName = node->name();
+      
+    FabricCore::DFGNodeType nodeType = exec.getNodeType( oldNodeName.c_str() );
     if (   nodeType == FabricCore::DFGNodeType_Var
         || nodeType == FabricCore::DFGNodeType_Get
         || nodeType == FabricCore::DFGNodeType_Set)
@@ -1643,12 +1679,18 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(NULL, controller, node->name().c_str(), getConfig(), true);
-    if(dialog.exec())
+    DFG::DFGNodePropertiesDialog dialog(
+      NULL,
+      controller,
+      oldNodeName.c_str(),
+      getConfig(),
+      true
+      );
+    if ( dialog.exec() )
     {
-      std::string uiMetadata;
+      std::string nodeMetadata;
       {
-        FTL::JSONEnc<> metaDataEnc( uiMetadata );
+        FTL::JSONEnc<> metaDataEnc( nodeMetadata );
         FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
 
         if ( nodeType == FabricCore::DFGNodeType_User )
@@ -1658,36 +1700,108 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
             dialog.getText().toStdString().c_str()
             );
 
-        DFGAddMetaDataPair(
-          metaDataObjectEnc,
-          "uiTooltip",
-          dialog.getToolTip().toStdString().c_str()
-          );
+        if ( nodeType != FabricCore::DFGNodeType_Inst )
+        {
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTooltip",
+            dialog.getToolTip().toStdString().c_str()
+            );
 
-        DFGAddMetaDataPair(
-          metaDataObjectEnc,
-          "uiDocUrl",
-          dialog.getDocUrl().toStdString().c_str()
-          );
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiDocUrl",
+            dialog.getDocUrl().toStdString().c_str()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiNodeColor",
+            dialog.getNodeColor()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiTextColor",
+            dialog.getTextColor()
+            );
+          
+          // [Julien] FE-5246
+          // Add or remove the geader colo node metadata
+          QColor headerColor;  
+          if ( dialog.getHeaderColor( headerColor ) )
+            DFGAddMetaDataPair_Color(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              headerColor
+              );
+          else
+            DFGAddMetaDataPair(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              FTL::StrRef()
+              );
+        }
+      }
+
+      std::string execMetadata;
+      if ( nodeType == FabricCore::DFGNodeType_Inst )
+      {
+        FabricCore::DFGExec subExec = exec.getSubExec( oldNodeName.c_str() );
+        if ( !subExec.editWouldSplitFromPreset() )
+        {
+          FTL::JSONEnc<> metaDataEnc( execMetadata );
+          FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
+
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTooltip",
+            dialog.getToolTip().toStdString().c_str()
+            );
+
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiDocUrl",
+            dialog.getDocUrl().toStdString().c_str()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiNodeColor",
+            dialog.getNodeColor()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiTextColor",
+            dialog.getTextColor()
+            );
+          
+          // [Julien] FE-5246
+          // Add or remove the geader colo node metadata
+          QColor headerColor;  
+          if ( dialog.getHeaderColor( headerColor ) )
+            DFGAddMetaDataPair_Color(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              headerColor
+              );
+          else
+            DFGAddMetaDataPair(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              FTL::StrRef()
+              );
+        }
       }
 
       controller->cmdEditNode(
         node->name(),
         dialog.getScriptName().toStdString(),
-        uiMetadata
+        nodeMetadata,
+        execMetadata
         );  // undoable.
-      dialog.updateNodeName( node->name() ); // since this can change the node name
-
-      controller->setNodeBackgroundColor(node->name().c_str(), dialog.getNodeColor());    // not undoable.  
       
-      // [Julien] FE-5246
-      // Add or remove the geader colo node metadata
-      QColor headerColor;  
-      if(dialog.getHeaderColor(headerColor))
-        controller->setNodeHeaderColor(node->name().c_str(), headerColor);  // not undoable.
-      else controller->removeNodeHeaderColor(node->name().c_str());                       // not undoable.
-      
-      controller->setNodeTextColor(node->name().c_str(), dialog.getTextColor());          // not undoable.
       // [Julien] FE-5246
       // Force update the header/nody node color
       onExecChanged();

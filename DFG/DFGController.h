@@ -257,7 +257,8 @@ namespace FabricUI
       std::string cmdEditNode(
         FTL::StrRef oldName,
         FTL::StrRef desiredNewName,
-        FTL::StrRef uiMetadata
+        FTL::StrRef nodeMetadata,
+        FTL::StrRef execMetadata
         );
 
       std::string cmdRenameExecPort(
@@ -317,11 +318,6 @@ namespace FabricUI
       /// Sets the collapse state of the selected node.
       /// Saves it in the node preferences    
       virtual void setSelectedNodeCollapseState(int collapseState);
-      virtual bool removeNodeColor(const char * nodeName, const char * key);
-      virtual bool setNodeBackgroundColor(const char * nodeName, QColor color);
-      virtual bool setNodeHeaderColor(const char * nodeName, QColor color);
-      virtual bool removeNodeHeaderColor(const char * nodeName);
-      virtual bool setNodeTextColor(const char * nodeName, QColor color);
       
       virtual std::string copy();
 

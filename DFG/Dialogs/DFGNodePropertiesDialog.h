@@ -69,9 +69,6 @@ namespace FabricUI
       /// Gets the user selected node's text color 
       QColor getTextColor();
 
-      void updateNodeName( FTL::StrRef newNodeName )
-        { m_nodeName = newNodeName; }
-
     protected slots:
 
       void onNodeColorButtonClicked();

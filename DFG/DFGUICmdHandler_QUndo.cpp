@@ -513,7 +513,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
   FabricCore::DFGExec const &exec,
   FTL::StrRef oldNodeName,
   FTL::StrRef desiredNewNodeName,
-  FTL::StrRef uiMetadata
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
   )
 {
   DFGUICmd_EditNode *cmd =
@@ -523,7 +524,8 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
       exec,
       oldNodeName,
       desiredNewNodeName,
-      uiMetadata
+      nodeMetadata,
+      execMetadata
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewNodeName();

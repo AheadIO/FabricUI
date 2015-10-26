@@ -210,7 +210,8 @@ public:
     FabricCore::DFGExec const &exec,
     FTL::StrRef oldNodeName,
     FTL::StrRef desiredNewNodeName,
-    FTL::StrRef uiMetadata
+    FTL::StrRef nodeMetadata,
+    FTL::StrRef execMetadata
     ) = 0;
 
   virtual std::string dfgDoRenamePort(

@@ -18,7 +18,8 @@ public:
     FabricCore::DFGExec const &exec,
     FTL::StrRef oldNodeName,
     FTL::StrRef desiredNewNodeName,
-    FTL::StrRef uiMetadata
+    FTL::StrRef nodeMetadata,
+    FTL::StrRef execMetadata
     )
     : DFGUICmd_Exec(
       binding,
@@ -27,7 +28,8 @@ public:
       )
     , m_oldNodeName( oldNodeName )
     , m_desiredNewNodeName( desiredNewNodeName )
-    , m_uiMetadata( uiMetadata )
+    , m_nodeMetadata( nodeMetadata )
+    , m_execMetadata( execMetadata )
     {}
 
   static FTL::CStrRef CmdName()
@@ -46,7 +48,8 @@ private:
 
   std::string m_oldNodeName;
   std::string m_desiredNewNodeName;
-  std::string m_uiMetadata;
+  std::string m_nodeMetadata;
+  std::string m_execMetadata;
 
   std::string m_actualNewNodeName;
 };

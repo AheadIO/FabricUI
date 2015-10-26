@@ -222,7 +222,8 @@ void DFGController::cmdSetTitle(
 std::string DFGController::cmdEditNode(
   FTL::StrRef oldName,
   FTL::StrRef desiredNewName,
-  FTL::StrRef uiMetadata
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
   )
 {
   if(!validPresetSplit())
@@ -236,7 +237,8 @@ std::string DFGController::cmdEditNode(
     getExec(),
     oldName,
     desiredNewName,
-    uiMetadata
+    nodeMetadata,
+    execMetadata
     );
 }
 
@@ -670,59 +672,6 @@ bool DFGController::setNodeColor(
     return false;
   }
   return true;
-}
-
-/// Remove a color node
-bool DFGController::removeNodeColor(
-  const char * nodeName,
-  const char * key 
-)
-{
-  try {
-    if(!validPresetSplit())
-      return false;
-    // [Julien] FE-5246, remove header color meta-data if needed
-    // Very big hack, we just set the value to the property to nothing
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(nodeName, key, "", false, true);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
-bool DFGController::setNodeBackgroundColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiNodeColor", color);
-}
-
-bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiHeaderColor", color);
-}
-
-bool DFGController::removeNodeHeaderColor(const char * nodeName)
-{
-  if(!validPresetSplit())
-    return false;
-  return removeNodeColor(nodeName, "uiHeaderColor");
-}
-
-bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiTextColor", color);
 }
 
 /// Sets the collapse state of the selected node.
