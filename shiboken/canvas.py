@@ -128,7 +128,7 @@ class MainWindow(DFG.DFGMainWindow):
             client, self.config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(self.viewport)
 
-        self.dfgWidget = DFG.DFGWidget(None, client._client, self.host,
+        self.dfgWidget = DFG.DFGWidget(None, client, self.host,
                                        binding, '', graph, astManager,
                                        dfguiCommandHandler, self.config)
 
@@ -206,7 +206,7 @@ class MainWindow(DFG.DFGMainWindow):
         controller.nodeRemoved.connect(self.dfgValueEditor.onNodeRemoved)
         #self.dfgWidget.getTabSearchWidget().enabled.connect(self.enableShortCuts)
         self.timeLine.frameChanged.connect(self.onFrameChanged)
-        #self.dfgWidget.onGraphSet.connect(self.onGraphSet)
+        self.dfgWidget.onGraphSet.connect(self.onGraphSet)
 
         self.restoreGeometry(settings.value("mainWindow/geometry"))
         self.restoreState(settings.value("mainWindow/state"))

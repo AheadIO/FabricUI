@@ -8,26 +8,18 @@
             <replace-type modified-type="PyObject"/>
           </modify-argument>
           <inject-code class="target" position="beginning">
-            // [andrew 20151023] the object returned from Core.createClient() is actually a _FabricClient,
-            // we need to get the handle to the underlying CAPI Client which is stored in its _client attr
-            PyObject *client = %PYARG_1;
-            PyObject *_client = PyObject_GetAttrString(client, "_client");
-            if (_client)
-              client = _client;
- 
-            void *argp1 = 0;
-            int res1 = SWIG_Python_ConvertPtr(client, &amp;argp1, SWIGTYPE_p_FabricCore__Client, 0 | 0);
-            if (!SWIG_IsOK(res1) || !argp1) {
-              PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
-            }
-            else {
-              FabricCore::Client *client_ptr = reinterpret_cast&lt; FabricCore::Client * &gt;(argp1);
-              %0 = new %TYPE(client_ptr, %2, %3, %4, %5);
-            }
+            FabricCore::Client *client_ptr = 0;
 
-            if (_client)
-              Py_DECREF(_client);
-            </inject-code>
+            <insert-template name="to_cpp_Client">
+              <replace from="%INPUT" to="%PYARG_1"/>
+              <replace from="%OUTPUT" to="client_ptr"/>
+              <replace from="%DEREF" to=""/>
+            </insert-template>
+
+            if (!PyErr_Occurred()) {
+             %0 = new %TYPE(client_ptr, %2, %3, %4, %5);
+            }
+          </inject-code>
         </modify-function>
 
         <rejection field-name="m_fpsStack"/>
