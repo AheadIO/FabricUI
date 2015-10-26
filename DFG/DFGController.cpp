@@ -219,9 +219,10 @@ void DFGController::cmdSetTitle(
     );
 }
 
-std::string DFGController::cmdRenameNode(
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+std::string DFGController::cmdEditNode(
+  FTL::StrRef oldName,
+  FTL::StrRef desiredNewName,
+  FTL::StrRef uiMetadata
   )
 {
   if(!validPresetSplit())
@@ -229,12 +230,13 @@ std::string DFGController::cmdRenameNode(
 
   UpdateSignalBlocker blocker( this );
   
-  return m_cmdHandler->dfgDoRenameNode(
+  return m_cmdHandler->dfgDoEditNode(
     getBinding(),
     getExecPath(),
     getExec(),
     oldName,
-    desiredNewName
+    desiredNewName,
+    uiMetadata
     );
 }
 
@@ -268,40 +270,6 @@ void DFGController::setNodeCommentExpanded(
     expanded? "true": "",
     false,
     false
-    );
-}
-
-void DFGController::setNodeToolTip(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newToolTip
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiTooltip",
-    newToolTip.c_str(),
-    false,
-    true
-    );
-}
-
-void DFGController::setNodeDocUrl(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newDocUrl
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiDocUrl",
-    newDocUrl.c_str(),
-    false,
-    true
     );
 }
 

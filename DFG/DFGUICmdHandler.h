@@ -204,12 +204,13 @@ public:
     FTL::CStrRef code
     ) = 0;
 
-  virtual std::string dfgDoRenameNode(
+  virtual std::string dfgDoEditNode(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef oldName,
-    FTL::CStrRef desiredNewName
+    FTL::StrRef oldNodeName,
+    FTL::StrRef desiredNewNodeName,
+    FTL::StrRef uiMetadata
     ) = 0;
 
   virtual std::string dfgDoRenamePort(

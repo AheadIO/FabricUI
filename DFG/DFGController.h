@@ -252,21 +252,12 @@ namespace FabricUI
         bool expanded
         );
 
-      void setNodeToolTip(
-        FTL::CStrRef nodeName, 
-        FTL::CStrRef newToolTip
-        );
-
-      void setNodeDocUrl(
-        FTL::CStrRef nodeName, 
-        FTL::CStrRef newDocUrl
-        );
-
       void cmdSetCode( FTL::CStrRef code );
 
-      std::string cmdRenameNode(
-        FTL::CStrRef oldName,
-        FTL::CStrRef desiredNewName
+      std::string cmdEditNode(
+        FTL::StrRef oldName,
+        FTL::StrRef desiredNewName,
+        FTL::StrRef uiMetadata
         );
 
       std::string cmdRenameExecPort(

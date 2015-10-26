@@ -470,7 +470,7 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_NEW_BACKDROP)
   {
-    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig, true);
+    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig, false);
     if(dialog.exec() != QDialog::Accepted)
       return;
 
@@ -1646,13 +1646,37 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
     DFG::DFGNodePropertiesDialog dialog(NULL, controller, node->name().c_str(), getConfig(), true);
     if(dialog.exec())
     {
-      controller->cmdRenameNode(
-        node->name().c_str(),
-        dialog.getScriptName().toStdString()
+      std::string uiMetadata;
+      {
+        FTL::JSONEnc<> metaDataEnc( uiMetadata );
+        FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
+
+        if ( nodeType == FabricCore::DFGNodeType_User )
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTitle",
+            dialog.getText().toStdString().c_str()
+            );
+
+        DFGAddMetaDataPair(
+          metaDataObjectEnc,
+          "uiTooltip",
+          dialog.getToolTip().toStdString().c_str()
+          );
+
+        DFGAddMetaDataPair(
+          metaDataObjectEnc,
+          "uiDocUrl",
+          dialog.getDocUrl().toStdString().c_str()
+          );
+      }
+
+      controller->cmdEditNode(
+        node->name(),
+        dialog.getScriptName().toStdString(),
+        uiMetadata
         );  // undoable.
       dialog.updateNodeName( node->name() ); // since this can change the node name
-      controller->setNodeToolTip        (node->name().c_str(), dialog.getToolTip().toStdString().c_str());  // not undoable.
-      controller->setNodeDocUrl         (node->name().c_str(), dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
       controller->setNodeBackgroundColor(node->name().c_str(), dialog.getNodeColor());    // not undoable.  
       

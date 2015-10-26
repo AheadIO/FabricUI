@@ -507,21 +507,23 @@ std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
   return cmd->getActualNewPortName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoRenameNode(
+std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+  FTL::StrRef oldNodeName,
+  FTL::StrRef desiredNewNodeName,
+  FTL::StrRef uiMetadata
   )
 {
-  DFGUICmd_RenameNode *cmd =
-    new DFGUICmd_RenameNode(
+  DFGUICmd_EditNode *cmd =
+    new DFGUICmd_EditNode(
       binding,
       execPath,
       exec,
-      oldName,
-      desiredNewName
+      oldNodeName,
+      desiredNewNodeName,
+      uiMetadata
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewNodeName();

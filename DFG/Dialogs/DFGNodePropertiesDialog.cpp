@@ -24,6 +24,7 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   setWindowTitle("Node Properties");
 
   m_presetNameLabel = 0;
+  m_textEdit = 0;
   m_nameEdit    = new QLineEdit("", this);
   m_nameEdit->setMinimumWidth(250);
   m_toolTipEdit = new QPlainTextEdit("", this);
@@ -67,7 +68,6 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     this, SLOT(onAllowHeaderColorCheckBoxClicked())
     );
 
-  char const *presetNameDesc = 0;
   try
   {
     FabricCore::DFGExec     exec = m_controller->getExec();
@@ -78,19 +78,13 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     {
       subExec = exec.getSubExec( m_nodeName.c_str() );
       if ( subExec.isPreset() )
-      {
-        presetNameDesc = "preset name";
         m_presetNameLabel = new QLabel( subExec.getTitle(), this );
-      }
     }
-    else
+    else if ( nodeType == FabricCore::DFGNodeType_User )
     {
-      FTL::CStrRef uiTitle = exec.getNodeMetadata(m_nodeName.c_str(), "uiTitle");
-      if ( !uiTitle.empty() )
-      {
-        presetNameDesc = "title";
-        m_presetNameLabel = new QLabel( uiTitle.c_str(), this );
-      }
+      FTL::CStrRef uiTitle =
+        exec.getNodeMetadata( m_nodeName.c_str(), "uiTitle" );
+      m_textEdit = new QPlainTextEdit( uiTitle.c_str(), this );
     }
 
     m_nameEdit->setText( m_nodeName.c_str() );
@@ -113,7 +107,9 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
   }
 
   if ( m_presetNameLabel )
-    addInput( m_presetNameLabel, presetNameDesc, "properties" );
+    addInput( m_presetNameLabel, "preset name", "properties" );
+  if ( m_textEdit )
+    addInput( m_textEdit, "text", "properties" );
   addInput(m_nameEdit,          "script name",          "properties");
   addInput(m_toolTipEdit,       "tooltip",              "properties");
   addInput(m_docUrlEdit,        "doc url",              "properties");

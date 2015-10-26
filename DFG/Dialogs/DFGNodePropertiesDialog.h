@@ -54,6 +54,8 @@ namespace FabricUI
       /// Filter the QLineEdit text (here the title) with the setRegexFilter
       void setRegexFilter(QString regex);
 
+      QString getText() const
+        { return m_textEdit->toPlainText(); }
       /// Gets the user selected node's script name
       QString getScriptName();
       /// Gets the user selected node's tool tip
@@ -120,6 +122,7 @@ namespace FabricUI
 
       QColor                           m_nodeDefaultHeaderColor;
       QLabel                          *m_presetNameLabel;
+      QPlainTextEdit                  *m_textEdit;
       QLineEdit                       *m_nameEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;
