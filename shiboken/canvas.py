@@ -8,6 +8,51 @@ FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder
 FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder
 '''
 
+class FabricStyle(QtGui.QWindowsStyle):
+    def __init__(self):
+        super(FabricStyle, self).__init__()
+
+    def polish(self, palette):
+        if type(palette) != QtGui.QPalette:
+          return
+
+        baseColor = QtGui.QColor(60, 60, 60)
+        highlightColor = QtGui.QColor(240, 240, 240)
+        brightnessSpread = 4.5
+        spread = brightnessSpread
+
+        if baseColor.toHsv().valueF() > 0.5:
+            spread = float(100) / brightnessSpread
+        else:
+            spread = float(100) * brightnessSpread
+
+        if highlightColor.toHsv().valueF() > 0.6:
+            highlightedTextColor= baseColor.darker(int(spread*2))
+        else:
+            highlightedTextColor= baseColor.lighter(int(spread*2))
+
+        palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(baseColor))
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(baseColor))
+        palette.setBrush(QtGui.QPalette.Foreground, baseColor.lighter(int(spread)))
+        palette.setBrush(QtGui.QPalette.WindowText, baseColor.lighter(int(spread)))
+        palette.setBrush(QtGui.QPalette.Base, baseColor)
+        palette.setBrush(QtGui.QPalette.AlternateBase, baseColor.darker(int(spread)))
+        palette.setBrush(QtGui.QPalette.ToolTipBase, baseColor)
+        palette.setBrush(QtGui.QPalette.ToolTipText, baseColor.lighter(int(spread)))
+        palette.setBrush(QtGui.QPalette.Text, baseColor.lighter(int(spread*1.2)))
+        palette.setBrush(QtGui.QPalette.Button, baseColor)
+        palette.setBrush(QtGui.QPalette.ButtonText, baseColor.lighter(int(spread)))
+        palette.setBrush(QtGui.QPalette.BrightText, QtGui.QColor(240, 240, 240))
+        palette.setBrush(QtGui.QPalette.Light, baseColor.lighter(int(spread/2)))
+        palette.setBrush(QtGui.QPalette.Midlight, baseColor.lighter(int(spread/4)))
+        palette.setBrush(QtGui.QPalette.Dark, baseColor.darker(int(spread/4)))
+        palette.setBrush(QtGui.QPalette.Mid, baseColor)
+        palette.setBrush(QtGui.QPalette.Shadow, baseColor.darker(int(spread/2)))
+        palette.setBrush(QtGui.QPalette.Highlight, highlightColor)
+        palette.setBrush(QtGui.QPalette.HighlightedText, highlightedTextColor)
+
+    def standardPixmap(self, standardPixmap, option=None, widget=None):
+        return QtGui.QPixmap()
 
 class MainWindowEventFilter(QtCore.QObject):
     def __init__(self, window):
@@ -77,6 +122,9 @@ class MainWindow(DFG.DFGMainWindow):
         autosaveTimer.timeout.connect(self.autosave)
         autosaveTimer.start(MainWindow.autosaveIntervalSecs * 1000)
 
+        self.windowTitle = 'Fabric Engine'
+        self.onFileNameChanged('')
+
         statusBar = QtGui.QStatusBar(self)
         self.fpsLabel = QtGui.QLabel(statusBar)
         statusBar.addPermanentWidget(self.fpsLabel)
@@ -101,7 +149,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.client = client
 
         self.qUndoStack = QtGui.QUndoStack()
-        dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
+        self.dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
 
         astManager = FabricUI.KLASTManager(client)
 
@@ -130,7 +178,7 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.dfgWidget = DFG.DFGWidget(None, client, self.host,
                                        binding, '', graph, astManager,
-                                       dfguiCommandHandler, self.config)
+                                       self.dfguiCommandHandler, self.config)
 
         self.contentChanged.connect(self.viewport.redraw)
         self.viewport.portManipulationRequested.connect(
@@ -145,7 +193,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock,
                            QtCore.Qt.Vertical)
 
-        self.timeLinePortIndex = 0
+        self.timeLinePortIndex = -1
         self.timeLine = Viewports.TimeLineWidget()
         self.timeLine.setTimeRange(MainWindow.defaultFrameIn,
                                    MainWindow.defaultFrameOut)
@@ -565,6 +613,7 @@ class MainWindow(DFG.DFGMainWindow):
 
         except Exception as e:
             print 'Exception: ' + str(e)
+            raise e
 
     def onLoadGraph(self):
         self.timeLine.pause()
@@ -610,6 +659,7 @@ class MainWindow(DFG.DFGMainWindow):
                                   False)
         except Exception as e:
             print 'Exception: ' + str(e)
+            raise e
 
         try:
             json = binding.exportJSON()
@@ -669,7 +719,7 @@ class MainWindow(DFG.DFGMainWindow):
         dfgController.setBlockCompilations(blockCompilations)
 
     def onFileNameChanged(self, fileName):
-        if fileName.isEmpty():
+        if not fileName:
             self.setWindowTitle(self.windowTitle)
         else:
             self.setWindowTitle(self.windowTitle + " - " + fileName)
@@ -850,7 +900,7 @@ app = QtGui.QApplication([])
 app.setOrganizationName('Fabric Software Inc')
 app.setApplicationName('Fabric Canvas Standalone')
 app.setApplicationVersion('2.0.0')
-app.setStyle( Style.FabricStyle() )
+app.setStyle( FabricStyle() )
 
 fabricDir = os.environ.get('FABRIC_DIR', None)
 if fabricDir:

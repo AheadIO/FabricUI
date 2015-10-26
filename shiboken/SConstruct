@@ -16,7 +16,7 @@ elif platform.system().lower().startswith('lin'):
   buildOS = 'Linux'
 
 buildArch = 'x86_64'
-buildType = 'Release'
+buildType = 'Debug'
 
 env = Environment(MSVC_VERSION = "12.0")
 
