@@ -488,7 +488,6 @@ void DFGNotificationRouter::onNodeInserted(
       FTL::CStrRef title;
       if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
         uiNode->setTitle( title );
-      uiNode->removeTitleSuffix();
     }
     else
     {
@@ -498,9 +497,9 @@ void DFGNotificationRouter::onNodeInserted(
   }
   else if(nodeType == FabricCore::DFGNodeType_Var)
   {
-    FTL::CStrRef title;
-    if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
-      onNodeTitleChanged( nodeName, title );
+    FTL::CStrRef name;
+    if ( jsonObject->maybeGetString( FTL_STR("name"), name ) )
+      uiNode->setTitle( name );
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
@@ -1057,7 +1056,8 @@ void DFGNotificationRouter::onNodeTitleChanged(
     return;
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
-  if ( exec.instExecIsPreset( nodeName.c_str() ) )
+  if ( exec.getNodeType( nodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+    && exec.instExecIsPreset( nodeName.c_str() ) )
   {
     uiNode->setTitle( title );
     uiNode->update();
@@ -1077,7 +1077,8 @@ void DFGNotificationRouter::onNodeRenamed(
   GraphView::Node *uiNode = uiGraph->renameNode( oldNodeName, newNodeName );
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
-  if ( !exec.instExecIsPreset( newNodeName.c_str() ) )
+  if ( exec.getNodeType( oldNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+    && !exec.instExecIsPreset( newNodeName.c_str() ) )
   {
     assert( !!uiNode );
     uiNode->setTitle( newNodeName );
@@ -1348,7 +1349,14 @@ void DFGNotificationRouter::onRefVarPathChanged(
     title = "get "+title;
   else if(nodeType == FabricCore::DFGNodeType_Set)
     title = "set "+title;
-  onNodeTitleChanged(refName, title.c_str());
+
+  GraphView::Graph *uiGraph = m_dfgController->graph();
+  if ( !uiGraph )
+    return;
+  GraphView::Node *uiNode = uiGraph->node( refName );
+  if ( !uiNode )
+    return;
+  uiNode->setTitle( title );
 }
 
 void DFGNotificationRouter::onFuncCodeChanged(
