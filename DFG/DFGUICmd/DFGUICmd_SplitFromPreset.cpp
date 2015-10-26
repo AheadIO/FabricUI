@@ -21,13 +21,6 @@ void DFGUICmd_SplitFromPreset::invoke( unsigned &coreUndoCount )
 {
   getExec().maybeSplitFromPreset();
   ++coreUndoCount;
-
-  FTL::CStrRef::Split execPathSplit = getExecPath().rsplit('.');
-  if ( !execPathSplit.second.empty() )
-  {
-    getExec().setTitle( execPathSplit.second.c_str() );
-    ++coreUndoCount;
-  }
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

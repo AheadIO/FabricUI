@@ -13,7 +13,7 @@ void DFGUICmd_AddFunc::appendDesc( std::string &desc )
 FTL::CStrRef DFGUICmd_AddFunc::invokeAdd( unsigned &coreUndoCount )
 {
   FTL::CStrRef actualNodeName =
-    getExec().addInstWithNewFunc( getTitle().c_str() );
+    getExec().addInstWithNewFunc( getDesiredNodeName().c_str() );
   ++coreUndoCount;
 
   FabricCore::DFGExec subExec =

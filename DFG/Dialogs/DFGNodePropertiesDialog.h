@@ -82,10 +82,6 @@ namespace FabricUI
       /// Creates the node header color property
       void onAllowHeaderColorCheckBoxClicked();
 
-    protected:
-      /// Sets the node's title
-      void setTitle(QString value);
-
     private:
 
       class ColorButton : public QPushButton
@@ -123,7 +119,7 @@ namespace FabricUI
       DFGController                   *m_controller;
 
       QColor                           m_nodeDefaultHeaderColor;
-      QLabel                          *m_titleLabel;
+      QLabel                          *m_presetNameLabel;
       QLineEdit                       *m_nameEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;

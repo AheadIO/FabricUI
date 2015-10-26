@@ -13,7 +13,7 @@ void DFGUICmd_AddGraph::appendDesc( std::string &desc )
 FTL::CStrRef DFGUICmd_AddGraph::invokeAdd( unsigned &coreUndoCount )
 {
   FTL::CStrRef actualNodeName =
-    getExec().addInstWithNewGraph( getTitle().c_str() );
+    getExec().addInstWithNewGraph( getDesiredNodeName().c_str() );
   ++coreUndoCount;
 
   return actualNodeName;

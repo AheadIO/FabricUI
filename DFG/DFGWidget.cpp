@@ -642,9 +642,14 @@ void DFGWidget::onNodeAction(QAction * action)
       subExec.exportJSON().getCString() );
     FabricCore::DFGExec newBindingExec = newBinding.getExec();
 
-    QString title = newBindingExec.getTitle();
-    if(title.toLower().endsWith(".canvas"))
-      title = title.left(title.length() - 7);
+    QString title;
+    if ( newBindingExec.isPreset() )
+    {
+      title = newBindingExec.getTitle();
+      if ( title.toLower().endsWith(".canvas") )
+        title = title.left( title.length() - 7 );
+    }
+    else title = nodeName;
 
     FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
     if(!uiNodeColor.empty())

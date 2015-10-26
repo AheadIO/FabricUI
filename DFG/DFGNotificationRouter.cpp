@@ -481,19 +481,24 @@ void DFGNotificationRouter::onNodeInserted(
     uiNode->setTitleColor(m_config.varLabelDefaultColor);
   }
 
-  FTL::CStrRef title;
   if(nodeType == FabricCore::DFGNodeType_Inst)
   {
-    if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
-      onNodeTitleChanged( nodeName, title );
-
-    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
-    FTL::StrRef presetName = subExec.getPresetName();
-    if(presetName.empty())
+    if ( exec.instExecIsPreset( nodeName.c_str() ) )
+    {
+      FTL::CStrRef title;
+      if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
+        uiNode->setTitle( title );
+      uiNode->removeTitleSuffix();
+    }
+    else
+    {
+      uiNode->setTitle( nodeName );
       uiNode->setTitleSuffixAsterisk();
+    }
   }
   else if(nodeType == FabricCore::DFGNodeType_Var)
   {
+    FTL::CStrRef title;
     if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
       onNodeTitleChanged( nodeName, title );
   }
@@ -1050,8 +1055,13 @@ void DFGNotificationRouter::onNodeTitleChanged(
   GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
-  uiNode->setTitle(title);
-  uiNode->update();
+
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if ( exec.instExecIsPreset( nodeName.c_str() ) )
+  {
+    uiNode->setTitle( title );
+    uiNode->update();
+  }
 }
 
 
@@ -1060,11 +1070,18 @@ void DFGNotificationRouter::onNodeRenamed(
   FTL::CStrRef newNodeName
   )
 {
-  GraphView::Graph * uiGraph = m_dfgController->graph();
-  if(!uiGraph)
+  GraphView::Graph *uiGraph = m_dfgController->graph();
+  if ( !uiGraph )
     return;
 
-  uiGraph->renameNode( oldNodeName, newNodeName );
+  GraphView::Node *uiNode = uiGraph->renameNode( oldNodeName, newNodeName );
+
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if ( !exec.instExecIsPreset( newNodeName.c_str() ) )
+  {
+    assert( !!uiNode );
+    uiNode->setTitle( newNodeName );
+  }
 
   m_dfgController->emitNodeRenamed( oldNodeName, newNodeName );
 }
@@ -1516,8 +1533,14 @@ void DFGNotificationRouter::onInstExecEditWouldSplitFromPresetMayHaveChanged(
 
   FabricCore::DFGExec & exec = m_dfgController->getExec();
   FabricCore::DFGExec subExec = exec.getSubExec( instName.c_str() );
-  if ( !subExec.editWouldSplitFromPreset() )
+  if ( !subExec.isPreset() )
+  {
+    uiNode->setTitle( instName );
     uiNode->setTitleSuffixAsterisk();
+  }
   else
+  {
+    uiNode->setTitle( subExec.getTitle() );
     uiNode->removeTitleSuffix();
+  }
 }
