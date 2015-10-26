@@ -1,12 +1,7 @@
-import optparse, os, sys
-import FabricUI
-from FabricUI import DFG, Style, Viewports
+import json, optparse, os, sys
 import FabricEngine.Core as Core
+from FabricUI import DFG, KLASTManager, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
-'''
-FabricServices::Persistence::RTValToJSONEncoder sRTValEncoder
-FabricServices::Persistence::RTValFromJSONDecoder sRTValDecoder
-'''
 
 class FabricStyle(QtGui.QWindowsStyle):
     def __init__(self):
@@ -14,7 +9,7 @@ class FabricStyle(QtGui.QWindowsStyle):
 
     def polish(self, palette):
         if type(palette) != QtGui.QPalette:
-          return
+            return
 
         baseColor = QtGui.QColor(60, 60, 60)
         highlightColor = QtGui.QColor(240, 240, 240)
@@ -51,7 +46,7 @@ class FabricStyle(QtGui.QWindowsStyle):
         palette.setBrush(QtGui.QPalette.Highlight, highlightColor)
         palette.setBrush(QtGui.QPalette.HighlightedText, highlightedTextColor)
 
-    def standardPixmap(self, standardPixmap, option=None, widget=None):
+    def standardPixmap(self, _standardPixmap, _option=None, _widget=None):
         return QtGui.QPixmap()
 
 class MainWindowEventFilter(QtCore.QObject):
@@ -118,11 +113,12 @@ class MainWindow(DFG.DFGMainWindow):
         print 'Will autosave to ' + self.autosaveFilename + ' every ' + str(
             MainWindow.autosaveIntervalSecs) + ' seconds'
 
-        autosaveTimer = QtCore.QTimer()
-        autosaveTimer.timeout.connect(self.autosave)
-        autosaveTimer.start(MainWindow.autosaveIntervalSecs * 1000)
+        self.autosaveTimer = QtCore.QTimer()
+        self.autosaveTimer.timeout.connect(self.autosave)
+        self.autosaveTimer.start(MainWindow.autosaveIntervalSecs * 1000)
 
         self.windowTitle = 'Fabric Engine'
+        self.lastFileName = ''
         self.onFileNameChanged('')
 
         statusBar = QtGui.QStatusBar(self)
@@ -131,17 +127,16 @@ class MainWindow(DFG.DFGMainWindow):
         self.setStatusBar(statusBar)
         statusBar.show()
 
-        fpsTimer = QtCore.QTimer()
-        fpsTimer.setInterval(1000)
-        fpsTimer.timeout.connect(self.updateFPS)
-        fpsTimer.start()
+        self.fpsTimer = QtCore.QTimer()
+        self.fpsTimer.setInterval(1000)
+        self.fpsTimer.timeout.connect(self.updateFPS)
+        self.fpsTimer.start()
 
         client = Core.createClient(
             {'unguarded': unguarded,
-             'reportCallback': reportCallback})
+             'reportCallback': reportCallback,
+            })
         #options.licenseType = FabricCore::ClientLicenseType_Interactive
-        #options.rtValToJSONEncoder = &sRTValEncoder
-        #options.rtValFromJSONDecoder = &sRTValDecoder
         client.loadExtension('Math')
         client.loadExtension('Parameters')
         client.loadExtension('Util')
@@ -151,7 +146,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.qUndoStack = QtGui.QUndoStack()
         self.dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
 
-        astManager = FabricUI.KLASTManager(client)
+        astManager = KLASTManager(client)
 
         self.evalContext = client.RT.types.EvalContext.create()
         self.evalContext = self.evalContext.getInstance('EvalContext')
@@ -241,6 +236,17 @@ class MainWindow(DFG.DFGMainWindow):
         undoDockWidget.setWidget(self.qUndoView)
         undoDockWidget.hide()
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
+
+        self.newGraphAction = None
+        self.loadGraphAction = None
+        self.saveGraphAction = None
+        self.saveGraphAsAction = None
+        self.quitAction = None
+        self.manipAction = None
+        self.setGridVisibleAction = None
+        self.resetCameraAction = None
+        self.clearLogAction = None
+        self.blockCompilationsAction = None
 
         controller = self.dfgWidget.getDFGController()
         controller.varsChanged.connect(treeWidget.refresh)
@@ -353,8 +359,8 @@ class MainWindow(DFG.DFGMainWindow):
 
             QtCore.QCoreApplication.processEvents()
 
-            json = open(filePath, 'rb').read()
-            binding = self.host.createBindingFromJSON(json)
+            jsonVal = open(filePath, 'rb').read()
+            binding = self.host.createBindingFromJSON(jsonVal)
             self.lastSavedBindingVersion = binding.getVersion()
             dfgExec = binding.getExec()
             dfgController.setBindingExec(binding, "", dfgExec)
@@ -534,7 +540,7 @@ class MainWindow(DFG.DFGMainWindow):
         if not self.viewport:
             return
 
-        caption = str(self.viewport.fps()) + " FPS"
+        caption = str(round(self.viewport.fps(), 2)) + " FPS"
         self.fpsLabel.setText(caption)
 
     def autosave(self):
@@ -662,10 +668,10 @@ class MainWindow(DFG.DFGMainWindow):
             raise e
 
         try:
-            json = binding.exportJSON()
+            jsonVal = binding.exportJSON()
             jsonFile = open(filePath, "wb")
             if jsonFile:
-                jsonFile.write(json)
+                jsonFile.write(jsonVal)
                 jsonFile.close()
         except Exception as e:
             print 'Exception: ' + str(e)
@@ -749,14 +755,19 @@ class MainWindow(DFG.DFGMainWindow):
     def onAdditionalMenuActionsRequested(self, name, menu, prefix):
         if name == 'File':
             if prefix:
-                self.newGraphAction = menu.addAction('New Graph')
+                self.newGraphAction = QtGui.QAction('New Graph', menu)
                 self.newGraphAction.setShortcut(QtGui.QKeySequence.New)
-                self.loadGraphAction = menu.addAction('Load Graph...')
+                self.loadGraphAction = QtGui.QAction('Load Graph...', menu)
                 self.loadGraphAction.setShortcut(QtGui.QKeySequence.Open)
-                self.saveGraphAction = menu.addAction('Save Graph')
+                self.saveGraphAction = QtGui.QAction('Save Graph', menu)
                 self.saveGraphAction.setShortcut(QtGui.QKeySequence.Save)
-                self.saveGraphAsAction = menu.addAction('Save Graph As...')
+                self.saveGraphAsAction = QtGui.QAction('Save Graph As...', menu)
                 self.saveGraphAsAction.setShortcut(QtGui.QKeySequence.SaveAs)
+
+                menu.addAction(self.newGraphAction)
+                menu.addAction(self.loadGraphAction)
+                menu.addAction(self.saveGraphAction)
+                menu.addAction(self.saveGraphAsAction)
 
                 self.newGraphAction.triggered.connect(self.onNewGraph)
                 self.loadGraphAction.triggered.connect(self.onLoadGraph)
@@ -764,8 +775,9 @@ class MainWindow(DFG.DFGMainWindow):
                 self.saveGraphAsAction.triggered.connect(self.onSaveGraphAs)
             else:
                 menu.addSeparator()
-                self.quitAction = menu.addAction('Quit')
+                self.quitAction = QtGui.QAction('Quit', menu)
                 self.quitAction.setShortcut(QtGui.QKeySequence.Quit)
+                menu.addAction(self.quitAction)
 
                 self.quitAction.triggered.connect(self.close)
         elif name == 'Edit':
