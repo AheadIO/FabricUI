@@ -20,7 +20,6 @@
 #include "GraphView/Controller.h"
 #include "GraphView/Graph.h"
 #include "Licensing/Licensing.h"
-#include "Licensing/LastWarningDialog.h"
 #include "Style/FabricStyle.h"
 #include "ValueEditor/ValueEditorWidget.h"
 #include "Viewports/GLViewportWidget.h"

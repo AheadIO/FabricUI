@@ -9,14 +9,11 @@
 #include <FTL/StrRef.h>
 #include <QtGui/QDialog>
 
-namespace FabricUI
-{
-  void HandleLicenseData(
-    QWidget *widgetParent,
-    FabricCore::Client &client,
-    FTL::StrRef jsonData,
-    bool modalDialogs
-    );
-}
+void FabricUI_HandleLicenseData(
+  QWidget *widgetParent,
+  FabricCore::Client &client,
+  FTL::StrRef jsonData,
+  bool modalDialogs
+  );
 
 #endif // __FABRICUI_LICENSING__

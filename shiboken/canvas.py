@@ -1,5 +1,6 @@
 import json, optparse, os, sys
 import FabricEngine.Core as Core
+import FabricUI
 from FabricUI import DFG, KLASTManager, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 
@@ -100,6 +101,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.settings = settings
         DFG.DFGWidget.setSettings(settings)
 
+        self.viewport = None
         self.currentGraph = None
 
         self.config = DFG.DFGConfig()
@@ -300,8 +302,7 @@ class MainWindow(DFG.DFGMainWindow):
     def statusCallback(self, target, data):
         if target == "licensing":
             try:
-                pass
-                #FabricUI_HandleLicenseData(self, self.client, data, True)
+                FabricUI.HandleLicenseData(self, self.client, data, True)
             except Exception as e:
                 self.dfgWidget.getDFGController().logError(str(e))
 

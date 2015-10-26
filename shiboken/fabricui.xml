@@ -25,7 +25,6 @@
       <object-type name="ValueEditorWidget" />
     </namespace-type>
 
-    <function signature="HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" />
   </namespace-type>
 
   <namespace-type name="FabricServices" generate="no">
@@ -53,6 +52,6 @@
     </namespace-type>
   </namespace-type>
 
-  <object-type name="LastWarningDialog" />
+  <function signature="FabricUI_HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" rename="HandleLicenseData"/>
 
 </typesystem>
