@@ -28,3 +28,5 @@ sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
 sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
 sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
 
+sed -i 's/char \* cppResult =/const char \* cppResult =/' ./out/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp
+

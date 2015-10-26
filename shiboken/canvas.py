@@ -204,7 +204,8 @@ class MainWindow(DFG.DFGMainWindow):
         controller.dirty.connect(self.onDirty)
         controller.bindingChanged.connect(self.dfgValueEditor.setBinding)
         controller.nodeRemoved.connect(self.dfgValueEditor.onNodeRemoved)
-        #self.dfgWidget.getTabSearchWidget().enabled.connect(self.enableShortCuts)
+        tabSearchWidget = self.dfgWidget.getTabSearchWidget()
+        tabSearchWidget.enabled.connect(self.enableShortCuts)
         self.timeLine.frameChanged.connect(self.onFrameChanged)
         self.dfgWidget.onGraphSet.connect(self.onGraphSet)
 
@@ -688,8 +689,6 @@ class MainWindow(DFG.DFGMainWindow):
             self.manipAction.blockSignals(enabled)
         if self.setGridVisibleAction:
             self.setGridVisibleAction.blockSignals(enabled)
-        #if self.setUsingStageAction:
-        #    self.setUsingStageAction.blockSignals(enabled)
         if self.resetCameraAction:
             self.resetCameraAction.blockSignals(enabled)
         if self.clearLogAction:
@@ -698,15 +697,15 @@ class MainWindow(DFG.DFGMainWindow):
             self.blockCompilationsAction.blockSignals(enabled)
 
     def onAdditionalMenuActionsRequested(self, name, menu, prefix):
-        if name == "File":
+        if name == 'File':
             if prefix:
-                self.newGraphAction = menu.addAction("New Graph")
+                self.newGraphAction = menu.addAction('New Graph')
                 self.newGraphAction.setShortcut(QtGui.QKeySequence.New)
-                self.loadGraphAction = menu.addAction("Load Graph...")
+                self.loadGraphAction = menu.addAction('Load Graph...')
                 self.loadGraphAction.setShortcut(QtGui.QKeySequence.Open)
-                self.saveGraphAction = menu.addAction("Save Graph")
+                self.saveGraphAction = menu.addAction('Save Graph')
                 self.saveGraphAction.setShortcut(QtGui.QKeySequence.Save)
-                self.saveGraphAsAction = menu.addAction("Save Graph As...")
+                self.saveGraphAsAction = menu.addAction('Save Graph As...')
                 self.saveGraphAsAction.setShortcut(QtGui.QKeySequence.SaveAs)
 
                 self.newGraphAction.triggered.connect(self.onNewGraph)
@@ -715,11 +714,11 @@ class MainWindow(DFG.DFGMainWindow):
                 self.saveGraphAsAction.triggered.connect(self.onSaveGraphAs)
             else:
                 menu.addSeparator()
-                self.quitAction = menu.addAction("Quit")
+                self.quitAction = menu.addAction('Quit')
                 self.quitAction.setShortcut(QtGui.QKeySequence.Quit)
 
                 self.quitAction.triggered.connect(self.close)
-        elif name == "Edit":
+        elif name == 'Edit':
             if prefix:
                 undoAction = self.qUndoStack.createUndoAction(menu)
                 undoAction.setShortcut(QtGui.QKeySequence.Undo)
@@ -741,7 +740,7 @@ class MainWindow(DFG.DFGMainWindow):
                     self.viewport.toggleManipulation)
                 self.viewport.addAction(self.manipAction)
                 menu.addAction(self.manipAction)
-        elif name == "View":
+        elif name == 'View':
             if prefix:
                 self.setGridVisibleAction = QtGui.QAction('&Display Grid', None)
                 self.setGridVisibleAction.setShortcut(
@@ -851,7 +850,7 @@ app = QtGui.QApplication([])
 app.setOrganizationName('Fabric Software Inc')
 app.setApplicationName('Fabric Canvas Standalone')
 app.setApplicationVersion('2.0.0')
-#app.setStyle( Style.FabricStyle() )
+app.setStyle( Style.FabricStyle() )
 
 fabricDir = os.environ.get('FABRIC_DIR', None)
 if fabricDir:

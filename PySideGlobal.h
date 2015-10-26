@@ -10,6 +10,7 @@
 #include "DFG/DFGController.h"
 #include "DFG/DFGHotkeys.h"
 #include "DFG/DFGLogWidget.h"
+#include "DFG/DFGTabSearchWidget.h"
 #include "DFG/DFGUICmdHandler.h"
 #include "DFG/DFGUICmdHandler_QUndo.h"
 #include "DFG/DFGWidget.h"
