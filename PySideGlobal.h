@@ -17,6 +17,7 @@
 #include "DFG/DFGValueEditor.h"
 #include "DFG/PresetTreeWidget.h"
 #include "GraphView/Controller.h"
+#include "GraphView/Graph.h"
 #include "Licensing/Licensing.h"
 #include "Licensing/LastWarningDialog.h"
 #include "Style/FabricStyle.h"

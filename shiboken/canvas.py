@@ -211,7 +211,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.restoreGeometry(settings.value("mainWindow/geometry"))
         self.restoreState(settings.value("mainWindow/state"))
 
-        #self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
+        self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
 
         self.dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
@@ -237,8 +237,8 @@ class MainWindow(DFG.DFGMainWindow):
         windowMenu.addAction(toggleAction)
 
         self.onFrameChanged(self.timeLine.getTime())
-        #self.onGraphSet(self.dfgWidget.getUIGraph())
-        #self.onSidePanelInspectRequested()
+        self.onGraphSet(self.dfgWidget.getUIGraph())
+        self.onSidePanelInspectRequested()
 
         self.installEventFilter(MainWindowEventFilter(self))
 
@@ -731,7 +731,7 @@ class MainWindow(DFG.DFGMainWindow):
                 menu.addSeparator()
                 self.manipAction = QtGui.QAction(
                     DFG.DFGHotkeys.TOGGLE_MANIPULATION, self.viewport)
-                self.manipAction.setShortcut(QtCore.Qt.Key_Q)
+                self.manipAction.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Q))
                 self.manipAction.setShortcutContext(
                     QtCore.Qt.WidgetWithChildrenShortcut)
                 self.manipAction.setCheckable(True)
@@ -743,7 +743,7 @@ class MainWindow(DFG.DFGMainWindow):
                 menu.addAction(self.manipAction)
         elif name == "View":
             if prefix:
-                self.setGridVisibleAction = QtGui.QAction("&Display Grid", 0)
+                self.setGridVisibleAction = QtGui.QAction('&Display Grid', None)
                 self.setGridVisibleAction.setShortcut(
                     QtCore.Qt.CTRL + QtCore.Qt.Key_G)
                 self.setGridVisibleAction.setCheckable(True)
@@ -752,20 +752,20 @@ class MainWindow(DFG.DFGMainWindow):
                 self.setGridVisibleAction.toggled.connect(
                     self.viewport.setStageVisible)
 
-                self.resetCameraAction = QtGui.QAction("&Reset Camera",
+                self.resetCameraAction = QtGui.QAction('&Reset Camera',
                                                        self.viewport)
-                self.resetCameraAction.setShortcut(QtCore.Qt.Key_R)
+                self.resetCameraAction.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_R))
                 self.resetCameraAction.setShortcutContext(
                     QtCore.Qt.WidgetWithChildrenShortcut)
                 self.resetCameraAction.triggered.connect(
                     self.viewport.resetCamera)
                 self.viewport.addAction(self.resetCameraAction)
 
-                self.clearLogAction = QtGui.QAction("&Clear Log Messages", 0)
+                self.clearLogAction = QtGui.QAction('&Clear Log Messages', None)
                 self.clearLogAction.triggered.connect(self.logWidget.clear)
 
                 self.blockCompilationsAction = QtGui.QAction(
-                    "&Block compilations", 0)
+                    '&Block compilations', None)
                 self.blockCompilationsAction.setCheckable(True)
                 self.blockCompilationsAction.setChecked(False)
                 self.blockCompilationsAction.triggered.connect(
