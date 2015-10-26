@@ -17,7 +17,7 @@
           </modify-argument>
           <inject-code class="target" position="beginning">
             void *argp1 = 0;
-            int res1 = SWIG_ConvertPtr(%PYARG_1, &amp;argp1, SWIGTYPE_p_FabricCore__DFGHost, 0 | 0);
+            int res1 = SWIG_Python_ConvertPtr(%PYARG_1, &amp;argp1, SWIGTYPE_p_FabricCore__DFGHost, 0 | 0);
             if (!SWIG_IsOK(res1) || !argp1) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::DFGHost argument is of wrong type");
             }
@@ -46,21 +46,21 @@
           </modify-argument>
           <inject-code class="target" position="beginning">
             void *argp2 = 0;
-            int res2 = SWIG_ConvertPtr(%PYARG_2, &amp;argp2, SWIGTYPE_p_FabricCore__Client, 0 | 0);
+            int res2 = SWIG_Python_ConvertPtr(%PYARG_2, &amp;argp2, SWIGTYPE_p_FabricCore__Client, 0 | 0);
             if (!SWIG_IsOK(res2) || !argp2) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::Client argument is of wrong type");
             }
             FabricCore::Client &amp;arg2 = *reinterpret_cast&lt; FabricCore::Client * &gt;(argp2);
 
             void *argp3 = 0;
-            int res3 = SWIG_ConvertPtr(%PYARG_3, &amp;argp3, SWIGTYPE_p_FabricCore__DFGHost, 0 | 0);
+            int res3 = SWIG_Python_ConvertPtr(%PYARG_3, &amp;argp3, SWIGTYPE_p_FabricCore__DFGHost, 0 | 0);
             if (!SWIG_IsOK(res3) || !argp3) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::DFGHost argument is of wrong type");
             }
             FabricCore::DFGHost &amp;arg3 = *reinterpret_cast&lt; FabricCore::DFGHost * &gt;(argp3);
 
             void *argp4 = 0;
-            int res4 = SWIG_ConvertPtr(%PYARG_4, &amp;argp4, SWIGTYPE_p_FabricCore__DFGBinding, 0 | 0);
+            int res4 = SWIG_Python_ConvertPtr(%PYARG_4, &amp;argp4, SWIGTYPE_p_FabricCore__DFGBinding, 0 | 0);
             if (!SWIG_IsOK(res4) || !argp4) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::DFGBinding argument is of wrong type");
             }
@@ -69,7 +69,7 @@
             FTL::CStrRef arg5(PyString_AsString(%PYARG_5));
 
             void *argp6 = 0;
-            int res6 = SWIG_ConvertPtr(%PYARG_6, &amp;argp6, SWIGTYPE_p_FabricCore__DFGExec, 0 | 0);
+            int res6 = SWIG_Python_ConvertPtr(%PYARG_6, &amp;argp6, SWIGTYPE_p_FabricCore__DFGExec, 0 | 0);
             if (!SWIG_IsOK(res6) || !argp6) {
               PyErr_SetString(PyExc_TypeError, "FabricCore::DFGExec argument is of wrong type");
             }

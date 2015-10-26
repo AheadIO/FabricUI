@@ -114,7 +114,10 @@ env.MergeFlags(qtFlags)
 
 sharedLib = env.LoadableModule(
     'FabricUI',
-    Glob(os.path.join(baseDir, 'out', 'FabricUI', '*.cpp')),
+    [
+      Glob(os.path.join(baseDir, 'out', 'FabricUI', '*.cpp')),
+      Glob('*.cpp'),
+    ],
     LDMODULEPREFIX='',
     )
 env.Default(sharedLib)
