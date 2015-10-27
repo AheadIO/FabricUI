@@ -100,6 +100,11 @@ and cannot be changed unless split from the preset" ) );
   m_reqExtLabel->setPalette( captionLabelPalette );
   m_reqExtLineEdit->setPalette( captionLabelPalette );
 
+  QFont labelFont = m_execPathLabel->font();
+  labelFont.setBold( true );
+  m_execPathLabel->setFont( labelFont );
+  m_presetNameLabel->setFont( labelFont );
+
   QPalette p = m_goUpButton->palette();
   p.setColor( QPalette::ButtonText, config.headerFontColor );
   p.setColor( QPalette::Button, config.nodeDefaultColor);
