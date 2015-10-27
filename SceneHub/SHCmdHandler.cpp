@@ -2,7 +2,7 @@
  *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
  */
 
-#include "SHCmdHandler.h"
+#include <FabricUI/SceneHub/SHCmdHandler.h>
 #include <FTL/JSONValue.h>
 #include <FTL/JSONEnc.h>
 

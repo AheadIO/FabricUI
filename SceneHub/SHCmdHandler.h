@@ -10,6 +10,7 @@
 #include <QtGui/QTreeView>
 #include <QtCore/QPoint>
 #include <QtCore/QSize>
+#include <FabricUI/SceneHub/SHCmd.h>
 #include <FTL/OwnedPtr.h>
 #include <FTL/SharedPtr.h>
 #include <FTL/ArrayRef.h>
@@ -18,7 +19,6 @@
 #include <vector>
 #include <assert.h>
 #include <iostream>
-#include "SHCmd.h"
 
 namespace FabricUI
 {
@@ -27,28 +27,11 @@ namespace FabricUI
     class SHCmdHandler
     {
       public:
-
-        //SHCmdHandler() {};
         virtual ~SHCmdHandler() {};
 
         static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
 
-        static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json);
-
-        //virtual void dfgDoRemoveNodes(
-        //  FabricCore::DFGBinding const &binding,
-        //  FTL::CStrRef execPath,
-        //  FabricCore::DFGExec const &exec,
-        //  FTL::ArrayRef<FTL::StrRef> nodeNames
-        //  ) = 0;
-
-        //virtual void dfgDoConnect(
-        //  FabricCore::DFGBinding const &binding,
-        //  FTL::CStrRef execPath,
-        //  FabricCore::DFGExec const &exec,
-        //  FTL::CStrRef srcPath, 
-        //  FTL::CStrRef dstPath
-        //  ) = 0;
+        static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json); 
     };
   };
 };
