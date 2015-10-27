@@ -11,22 +11,33 @@ shiboken \
 sed -i '701d' ./out/FabricUI/fabricui_dfg_dfguicmdhandler_wrapper.cpp
 
 # [andrew 20151024] another class not detected as abstract
-sed -i '33d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
-sed -i '33d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
-sed -i '33d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
-sed -i '621d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
-sed -i '623d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
+sed -i '34d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
+sed -i '34d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
+sed -i '34d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
+sed -i '679d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
+sed -i '681d' ./out/FabricUI/fabricui_graphview_controller_wrapper.cpp
 
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
-sed -i '924d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
+sed -i '1121d' ./out/FabricUI/fabricui_graphview_graph_wrapper.cpp
 
 sed -i 's/char \* cppResult =/const char \* cppResult =/' ./out/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp
+
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
+sed -i '1444d' ./out/FabricUI/fabricui_graphview_node_wrapper.cpp
 

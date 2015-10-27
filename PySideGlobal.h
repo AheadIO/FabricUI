@@ -19,6 +19,7 @@
 #include "DFG/PresetTreeWidget.h"
 #include "GraphView/Controller.h"
 #include "GraphView/Graph.h"
+#include "GraphView/Node.h"
 #include "Licensing/Licensing.h"
 #include "Style/FabricStyle.h"
 #include "ValueEditor/ValueEditorWidget.h"

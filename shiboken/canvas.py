@@ -80,20 +80,12 @@ class MainWindowEventFilter(QtCore.QObject):
         return QtCore.QObject.eventFilter(obj, event)
 
 
-def reportCallback(source, level, line):
-    #DFG.DFGLogWidget.callback
-    if source == Core.ReportSource.User or level == Core.ReportLevel.Error or 'Ignoring' in line:
-        sys.stdout.write(line + "\n")
-    else:
-        sys.stderr.write(line + "\n")
-
-
 class MainWindow(DFG.DFGMainWindow):
     contentChanged = QtCore.Signal()
 
     defaultFrameIn = 1
     defaultFrameOut = 50
-    autosaveIntervalSecs = 30
+    autosaveIntervalSecs = 5
 
     def __init__(self, settings, unguarded):
         super(MainWindow, self).__init__()
@@ -102,6 +94,7 @@ class MainWindow(DFG.DFGMainWindow):
         DFG.DFGWidget.setSettings(settings)
 
         self.viewport = None
+        self.dfgWidget = None
         self.currentGraph = None
 
         self.config = DFG.DFGConfig()
@@ -136,7 +129,7 @@ class MainWindow(DFG.DFGMainWindow):
 
         client = Core.createClient(
             {'unguarded': unguarded,
-             'reportCallback': reportCallback,
+             'reportCallback': self.reportCallback
             })
         #options.licenseType = FabricCore::ClientLicenseType_Interactive
         client.loadExtension('Math')
@@ -298,6 +291,15 @@ class MainWindow(DFG.DFGMainWindow):
         self.onSidePanelInspectRequested()
 
         self.installEventFilter(MainWindowEventFilter(self))
+
+    def reportCallback(self, source, level, line):
+        if self.dfgWidget:
+            self.dfgWidget.getDFGController().log(line)
+
+        if source == Core.ReportSource.User or level == Core.ReportLevel.Error or 'Ignoring' in line:
+            sys.stdout.write(line + "\n")
+        else:
+            sys.stderr.write(line + "\n")
 
     def statusCallback(self, target, data):
         if target == "licensing":

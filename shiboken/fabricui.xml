@@ -15,6 +15,7 @@
     <namespace-type name="GraphView" generate="yes">
       <object-type name="Controller" />
       <object-type name="Graph" />
+      <object-type name="Node" />
     </namespace-type>
 
     <namespace-type name="Style" generate="yes">
