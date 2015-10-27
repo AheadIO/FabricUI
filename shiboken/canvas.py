@@ -1,6 +1,6 @@
 import json, optparse, os, sys
-import FabricEngine.Core as Core
 import FabricUI
+from FabricEngine import Core
 from FabricUI import DFG, KLASTManager, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 
@@ -85,7 +85,7 @@ class MainWindow(DFG.DFGMainWindow):
 
     defaultFrameIn = 1
     defaultFrameOut = 50
-    autosaveIntervalSecs = 5
+    autosaveIntervalSecs = 30
 
     def __init__(self, settings, unguarded):
         super(MainWindow, self).__init__()
@@ -641,6 +641,10 @@ class MainWindow(DFG.DFGMainWindow):
                                    folder.path())
             self.loadGraph(filePath)
 
+    # [andrew 20151027] FIXME Core.CAPI normally takes care of this
+    def wrapRTVal(self, rtVal):
+        return Core.Util.rtValToPyObject(self.client._client.getContext(), rtVal)
+
     def performSave(self, binding, filePath):
         graph = binding.getExec()
 
@@ -656,16 +660,15 @@ class MainWindow(DFG.DFGMainWindow):
                           str(self.timeLine.simulationMode()), False)
 
         try:
-            camera = self.viewport.getCamera()
+            camera = self.wrapRTVal(self.viewport.getCamera())
             mat44 = camera.getMat44('Mat44')
             focalDistance = camera.getFocalDistance('Float32')
 
-            if mat44.isValid() and focalDistance.isValid():
-                graph.setMetadata("camera_mat44",
-                                  mat44.getJSON().getStringCString(), False)
-                graph.setMetadata("camera_focalDistance",
-                                  focalDistance.getJSON().getStringCString(),
-                                  False)
+            graph.setMetadata("camera_mat44",
+                              str(mat44.getJSON()), False)
+            graph.setMetadata("camera_focalDistance",
+                              str(focalDistance.getJSON()),
+                              False)
         except Exception as e:
             print 'Exception: ' + str(e)
             raise e
