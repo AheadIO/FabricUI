@@ -84,7 +84,7 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     {
       FTL::CStrRef uiTitle =
         exec.getNodeMetadata( m_nodeName.c_str(), "uiTitle" );
-      m_textEdit = new QPlainTextEdit( uiTitle.c_str(), this );
+      m_textEdit = new QLineEdit( uiTitle.c_str(), this );
     }
 
     m_nameEdit->setText( m_nodeName.c_str() );
@@ -110,7 +110,7 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     addInput( m_presetNameLabel, "preset name", "properties" );
   if ( m_textEdit )
     addInput( m_textEdit, "text", "properties" );
-  addInput(m_nameEdit,          "script name",          "properties");
+  addInput( m_nameEdit, "node name", "properties" );
   addInput(m_toolTipEdit,       "tooltip",              "properties");
   addInput(m_docUrlEdit,        "doc url",              "properties");
   addInput( m_nodeColorButton, "node color", "properties" );

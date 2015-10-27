@@ -46,15 +46,22 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
     this, SLOT(reqExtEditingFinished())
     );
 
-  layout->addWidget( m_execPathLabel );
-  layout->addSpacing( 4 );
-  layout->addWidget( m_presetNameLabel );
+  QVBoxLayout *lhsLayout = new QVBoxLayout;
+  lhsLayout->addWidget( m_execPathLabel );
+  lhsLayout->addWidget( m_presetNameLabel );
+
+  QHBoxLayout *cenLayout = new QHBoxLayout;
+  cenLayout->addWidget( m_reqExtLabel );
+  cenLayout->addWidget( m_reqExtLineEdit );
+
+  layout->addLayout( lhsLayout );
+  layout->setAlignment( lhsLayout, Qt::AlignLeft | Qt::AlignTop );
   layout->addStretch( 1 );
-  layout->addWidget( m_reqExtLabel );
-  layout->addWidget( m_reqExtLineEdit );
+  layout->addLayout( cenLayout );
+  layout->setAlignment( cenLayout, Qt::AlignHCenter | Qt::AlignTop );
   layout->addStretch( 1 );
   layout->addWidget(m_goUpButton);
-  layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
+  layout->setAlignment( m_goUpButton, Qt::AlignRight | Qt::AlignTop );
 
   QWidget *regWidget = new QWidget;
   regWidget->setLayout( layout );
@@ -87,7 +94,7 @@ and cannot be changed unless split from the preset" ) );
 
   QPalette captionLabelPalette = palette();
   captionLabelPalette.setColor( QPalette::Text, QColor("#C7D2DA") );
-  captionLabelPalette.setColor( QPalette::WindowText, config.headerFontColor );
+  captionLabelPalette.setColor( QPalette::WindowText, QColor("#C7D2DA") );
   m_execPathLabel->setPalette( captionLabelPalette );
   m_presetNameLabel->setPalette( captionLabelPalette );
   m_reqExtLabel->setPalette( captionLabelPalette );
