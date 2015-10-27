@@ -184,6 +184,7 @@ class MainWindow(DFG.DFGMainWindow):
                            QtCore.Qt.Vertical)
 
         self.timeLinePortIndex = -1
+        self.timeLinePortPath = None
         self.timeLine = Viewports.TimeLineWidget()
         self.timeLine.setTimeRange(MainWindow.defaultFrameIn,
                                    MainWindow.defaultFrameOut)
@@ -347,7 +348,7 @@ class MainWindow(DFG.DFGMainWindow):
 
     def loadGraph(self, filePath):
         self.timeLine.pause()
-        self.timeLinePortIndex = -1
+        self.timeLinePortPath = None
 
         try:
             dfgController = self.dfgWidget.getDFGController()
@@ -400,13 +401,13 @@ class MainWindow(DFG.DFGMainWindow):
             camera_focalDistance = dfgExec.getMetadata("camera_focalDistance")
             if len(camera_mat44) > 0 and len(camera_focalDistance) > 0:
                 try:
-                    mat44 = self.client.RT.types.Mat44(camera_mat44)
-                    focalDistance = self.client.RT.types.Float32(
+                    mat44 = self.client.RT.constructRTValFromJSON('Mat44', camera_mat44)
+                    focalDistance = self.client.RT.constructRTValFromJSON('Float32',
                         camera_focalDistance)
 
-                    camera = self.viewport.getCamera()
+                    camera = self.wrapRTVal(self.viewport.getCamera())
 
-                    camera.setFromMat44("", mat44)
+                    camera.setFromMat44('', mat44)
                     camera.setFocalDistance("", focalDistance)
                 except Exception as e:
                     sys.stderr.write("Exception: " + str(e) + "\n")
@@ -473,7 +474,7 @@ class MainWindow(DFG.DFGMainWindow):
 
     def onStructureChanged(self):
         if self.dfgWidget.getDFGController().isViewingRootGraph():
-            self.timeLinePortIndex = -1
+            self.timeLinePortPath = None
             try:
                 graph = self.dfgWidget.getDFGController().getExec()
                 portCount = graph.getExecPortCount()
@@ -491,6 +492,7 @@ class MainWindow(DFG.DFGMainWindow):
                                 "Float32") and not graph.isExecPortResolvedType(
                                     i, "Float64"):
                         continue
+                    self.timeLinePortPath = "timeline"
                     self.timeLinePortIndex = i
                     break
             except Exception as e:
@@ -514,7 +516,7 @@ class MainWindow(DFG.DFGMainWindow):
         except Exception as e:
             self.dfgWidget.getDFGController().logError(str(e))
 
-        if self.timeLinePortIndex == -1:
+        if not self.timeLinePortPath:
             return
 
         try:
@@ -522,19 +524,19 @@ class MainWindow(DFG.DFGMainWindow):
             dfgExec = binding.getExec()
             if dfgExec.isExecPortResolvedType(self.timeLinePortIndex,
                                               "SInt32"):
-                binding.setArgValue(self.timeLinePortIndex,
+                binding.setArgValue(self.timeLinePortPath,
                                     self.client.RT.types.SInt32(frame), False)
             elif dfgExec.isExecPortResolvedType(self.timeLinePortIndex,
                                                 "UInt32"):
-                binding.setArgValue(self.timeLinePortIndex,
+                binding.setArgValue(self.timeLinePortPath,
                                     self.client.RT.types.UInt32(frame), False)
             elif dfgExec.isExecPortResolvedType(self.timeLinePortIndex,
                                                 "Float32"):
-                binding.setArgValue(self.timeLinePortIndex,
+                binding.setArgValue(self.timeLinePortPath,
                                     self.client.RT.types.Float32(frame), False)
             elif dfgExec.isExecPortResolvedType(self.timeLinePortIndex,
                                                 "Float64"):
-                binding.setArgValue(self.timeLinePortIndex,
+                binding.setArgValue(self.timeLinePortPath,
                                     self.client.RT.types.Float64(frame), False)
         except Exception as e:
             self.dfgWidget.getDFGController().logError(str(e))
@@ -598,7 +600,7 @@ class MainWindow(DFG.DFGMainWindow):
             binding = self.host.createBindingToNewGraph()
             self.lastSavedBindingVersion = binding.getVersion()
             dfgExec = binding.getExec()
-            self.timeLinePortIndex = -1
+            self.timeLinePortPath = None
 
             dfgController.setBindingExec(binding, '', dfgExec)
 
