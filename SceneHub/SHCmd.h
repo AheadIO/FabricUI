@@ -47,10 +47,10 @@ namespace FabricUI
 
         void doit() {
           assert( m_state == State_New );
-            ++m_coreUndoCount;
-            std::cerr << "SHCmd::doit() " <<   m_coreUndoCount << std::endl;
-            m_state = State_Done;
-          };
+          ++m_coreUndoCount;
+          std::cerr << "SHCmd::doit() " <<   m_coreUndoCount << std::endl;
+          m_state = State_Done;
+        };
 
         void undo() {
           assert( m_state == State_Done || m_state == State_Redone );

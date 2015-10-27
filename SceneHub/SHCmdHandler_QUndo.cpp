@@ -54,7 +54,7 @@ class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
     bool m_didit;
 };
  
- void SHCmdHandler_QUndo::addSGObject(std::string name, bool isGlobalObject) {
+void SHCmdHandler_QUndo::addSGObject(std::string name, bool isGlobalObject) {
 
   FABRIC_TRY("SHCmdHandler_QUndo::addSGObject", 
 
