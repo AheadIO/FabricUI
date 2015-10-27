@@ -76,8 +76,12 @@ namespace FabricUI
         FTL::CStrRef value
         );
       void onNodeTitleChanged(
-        FTL::CStrRef nodePath,
+        FTL::CStrRef nodeName,
         FTL::CStrRef title
+        );
+      void onNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
         );
       void onExecPortRenamed(
         FTL::CStrRef oldPortName,
@@ -147,6 +151,9 @@ namespace FabricUI
         );
       void onFuncCodeChanged(
         FTL::CStrRef code
+        );
+      void onExecTitleChanged(
+        FTL::CStrRef title
         );
       void onExecExtDepsChanged(
         FTL::CStrRef extDeps

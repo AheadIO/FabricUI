@@ -202,8 +202,7 @@ void DFGController::cmdAddBackDrop(
     );
 }
 
-void DFGController::cmdSetNodeTitle(
-  FTL::CStrRef nodeName,
+void DFGController::cmdSetTitle(
   FTL::CStrRef newTitle
   )
 {
@@ -212,12 +211,30 @@ void DFGController::cmdSetNodeTitle(
 
   UpdateSignalBlocker blocker( this );
   
-  m_cmdHandler->dfgDoSetNodeTitle(
+  return m_cmdHandler->dfgDoSetTitle(
     getBinding(),
     getExecPath(),
     getExec(),
-    nodeName,
     newTitle
+    );
+}
+
+std::string DFGController::cmdRenameNode(
+  FTL::CStrRef oldName,
+  FTL::CStrRef desiredNewName
+  )
+{
+  if(!validPresetSplit())
+    return oldName;
+
+  UpdateSignalBlocker blocker( this );
+  
+  return m_cmdHandler->dfgDoRenameNode(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    oldName,
+    desiredNewName
     );
 }
 
@@ -2284,12 +2301,15 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   }
 }
 
+void DFGController::emitNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  emit nodeRenamed( m_execPath, oldNodeName, newNodeName );
+}
+
 void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
-  std::string nodePathFromRoot = m_execPath;
-  if ( !nodePathFromRoot.empty() )
-    nodePathFromRoot += '.';
-  nodePathFromRoot += nodeName;
-
-  emit nodeRemoved( nodePathFromRoot );
+  emit nodeRemoved( m_execPath, nodeName );
 }

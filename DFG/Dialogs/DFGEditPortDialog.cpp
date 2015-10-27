@@ -243,7 +243,7 @@ void DFGEditPortDialog::showEvent(QShowEvent * event)
 
 // Allows only alpha-numeric text only 
 void DFGEditPortDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+  setRegexFilter(QString("[a-zA-Z][_a-zA-Z0-9]*"));
 }
 
 // Filters the QLineEdit text with the regexFilter

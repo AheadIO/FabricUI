@@ -23,8 +23,9 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
 {
   setWindowTitle("Node Properties");
 
-  m_titleEdit   = new QLineEdit("", this);
-  m_titleEdit->setMinimumWidth(250);
+  m_titleLabel  = new QLabel("", this);
+  m_nameEdit    = new QLineEdit("", this);
+  m_nameEdit->setMinimumWidth(250);
   m_toolTipEdit = new QPlainTextEdit("", this);
   m_docUrlEdit  = new QLineEdit("", this);
 
@@ -74,8 +75,8 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
 
     if(nodeType == FabricCore::DFGNodeType_Inst)
     {
-      subExec = exec.getSubExec(m_nodeName.c_str());
-      setTitle(exec.getInstTitle(m_nodeName.c_str()));
+      subExec = exec.getSubExec( m_nodeName.c_str() );
+      setTitle( subExec.getTitle() );
     }
     else
     {
@@ -83,6 +84,8 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
       if (uiTitle.empty())  setTitle(m_nodeName.c_str());
       else                  setTitle(uiTitle.c_str());
     }
+
+    m_nameEdit->setText( m_nodeName.c_str() );
 
     FTL::CStrRef uiTooltip = exec.getNodeMetadata(m_nodeName.c_str(), "uiTooltip");
     if(uiTooltip.empty() && subExec.isValid())
@@ -101,7 +104,8 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput(m_titleEdit,         "title",                "properties");
+  addInput(m_titleLabel,        "title",                "properties");
+  addInput(m_nameEdit,          "script name",          "properties");
   addInput(m_toolTipEdit,       "tooltip",              "properties");
   addInput(m_docUrlEdit,        "doc url",              "properties");
   addInput( m_nodeColorButton, "node color", "properties" );
@@ -123,7 +127,7 @@ DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
 /// Sets the node's title
 void DFGNodePropertiesDialog::setTitle(QString value)
 {
-  m_titleEdit->setText(value);
+  m_titleLabel->setText(value);
 }
 
 /// Sets the node's tool tip
@@ -141,29 +145,29 @@ void DFGNodePropertiesDialog::setDocUrl(QString value)
 /// Shows this dialog widgets
 void DFGNodePropertiesDialog::showEvent(QShowEvent * event)
 {
-  QTimer::singleShot(0, m_titleEdit, SLOT(setFocus()));
+  QTimer::singleShot(0, m_nameEdit, SLOT(setFocus()));
   DFGBaseDialog::showEvent(event);  
 }
 
 /// Allows only alpha-numeric text (here the title) only 
 void DFGNodePropertiesDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+  setRegexFilter(QString("[a-zA-Z][_a-zA-Z0-9]*"));
 }
 
 /// Filters the QLineEdit text (here the title) with the regexFilter
 void DFGNodePropertiesDialog::setRegexFilter(QString regexFilter) {
-  if(m_titleEdit)
+  if(m_nameEdit)
   {
     QRegExp regex(regexFilter);
     QValidator *validator = new QRegExpValidator(regex, 0);
-    m_titleEdit->setValidator(validator);
+    m_nameEdit->setValidator(validator);
   }
 }
 
 /// Gets the user selected node's title
-QString DFGNodePropertiesDialog::getTitle()
+QString DFGNodePropertiesDialog::getScriptName()
 {
-  return m_titleEdit->text();
+  return m_nameEdit->text();
 }
 
 /// Gets the user selected node's tool tip 

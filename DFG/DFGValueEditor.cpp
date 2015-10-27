@@ -345,14 +345,28 @@ void DFGValueEditor::onArgsChanged()
   }
 }
 
-void DFGValueEditor::onNodeRemoved( FTL::CStrRef nodePathFromRoot )
+void DFGValueEditor::onNodeRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName 
+  )
 {
-  if ( !m_nodeName.empty() )
-  {
-    FTL::CStrRef::Split split = nodePathFromRoot.rsplit('.');
-    if ( split.first == m_execPath && split.second == m_nodeName )
-      clear();
-  }
+  if ( execPath == m_execPath && oldNodeName == m_nodeName )
+    setNode(
+      m_binding,
+      m_execPath,
+      m_exec,
+      newNodeName
+      );
+}
+
+void DFGValueEditor::onNodeRemoved(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName
+  )
+{
+  if ( execPath == m_execPath && nodeName == m_nodeName )
+    clear();
 }
 
 void DFGValueEditor::updateOutputs()

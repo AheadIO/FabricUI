@@ -13,13 +13,10 @@ using namespace FabricUI::DFG;
 DFGExecHeaderWidget::DFGExecHeaderWidget(
   QWidget * parent,
   DFGController *dfgController,
-  QString caption,
   const GraphView::GraphConfig &config
   )
   : QWidget( parent )
   , m_dfgController( dfgController )
-  , m_caption( caption )
-  , m_config( config )
 {
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
   setContentsMargins(0, 0, 0, 0);
@@ -34,6 +31,20 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   QObject::connect(m_goUpButton, SIGNAL(clicked()), this, SIGNAL(goUpPressed()));
   m_goUpButton->setAutoFillBackground(false);
 
+  m_execPathLabel = new QLabel;
+
+  m_titleLineEdit = new QLineEdit;
+  QObject::connect(
+    m_titleLineEdit, SIGNAL(returnPressed()),
+    this, SLOT(titleReturnPressed())
+    );
+  QObject::connect(
+    m_titleLineEdit, SIGNAL(editingFinished()),
+    this, SLOT(titleEditingFinished())
+    );
+
+  m_reqExtLabel = new QLabel;
+
   m_reqExtLineEdit = new QLineEdit;
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(returnPressed()),
@@ -44,11 +55,11 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
     this, SLOT(reqExtEditingFinished())
     );
 
-  layout->addWidget( new QLabel("Required Extensions:") );
-  layout->addWidget( m_reqExtLineEdit );
+  layout->addWidget( m_execPathLabel );
+  layout->addWidget( m_titleLineEdit );
   layout->addStretch(1);
-  m_captionLabel = new QLabel();
-  layout->addWidget( m_captionLabel );
+  layout->addWidget( m_reqExtLabel );
+  layout->addWidget( m_reqExtLineEdit );
   layout->addStretch(1);
   layout->addWidget(m_goUpButton);
   layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -82,8 +93,18 @@ and cannot be changed unless split from the preset" ) );
   vLayout->addWidget( regWidget );
   setLayout(vLayout);
 
-  setFont( config.headerFont );
-  setFontColor( config.headerFontColor );
+  QPalette captionLabelPalette = palette();
+  captionLabelPalette.setColor( QPalette::Text, QColor("#C7D2DA") );
+  captionLabelPalette.setColor( QPalette::WindowText, config.headerFontColor );
+  m_execPathLabel->setPalette( captionLabelPalette );
+  m_titleLineEdit->setPalette( captionLabelPalette );
+  m_reqExtLabel->setPalette( captionLabelPalette );
+  m_reqExtLineEdit->setPalette( captionLabelPalette );
+
+  QPalette p = m_goUpButton->palette();
+  p.setColor( QPalette::ButtonText, config.headerFontColor );
+  p.setColor( QPalette::Button, config.nodeDefaultColor);
+  m_goUpButton->setPalette( p );
 
   QObject::connect(
     m_dfgController, SIGNAL(execChanged()),
@@ -102,18 +123,73 @@ DFGExecHeaderWidget::~DFGExecHeaderWidget()
 
 void DFGExecHeaderWidget::refresh()
 {
-  m_caption = m_dfgController->getExecPath().c_str();
-  m_captionLabel->setText( m_caption );
-  FabricCore::String extDepsDesc = getExec().getExtDeps();
-  char const *extDepsDescCStr = extDepsDesc.getCStr();
-  m_reqExtLineEdit->setText( extDepsDescCStr? extDepsDescCStr: "" );
-  update();
+  FTL::CStrRef execPath = getExecPath();
+  FabricCore::DFGExec &exec = getExec();
+  if ( exec )
+  {
+    bool isRoot = execPath.empty();
+    bool isPreset = exec.editWouldSplitFromPreset();
+
+    m_presetSplitWidget->setVisible( isPreset );
+
+    m_goUpButton->setVisible( !isRoot );
+
+    FTL::CStrRef::Split split = execPath.rsplit('.');
+    QString pathLabelText( "Title: " );
+    pathLabelText +=
+      QString::fromAscii( split.first.data(), split.first.size()  );
+    if ( !split.first.empty() )
+      pathLabelText += '.';
+
+    m_titleLineEdit->setVisible( !isRoot && !isPreset );
+    if ( !isPreset )
+      m_titleLineEdit->setText( exec.getTitle() );
+    else pathLabelText += exec.getTitle();
+    m_execPathLabel->setVisible( !isRoot );
+    m_execPathLabel->setText( pathLabelText );
+
+    FabricCore::String extDepsDesc = exec.getExtDeps();
+    FTL::CStrRef extDepsDescCStr =
+      extDepsDesc.getCStr()? extDepsDesc.getCStr() : "";
+
+    QString reqExtLabelText( "Required Extensions:" );
+    m_reqExtLineEdit->setVisible( !isPreset );
+    if ( isPreset )
+    {
+      reqExtLabelText += ' ';
+      reqExtLabelText +=
+        QString::fromAscii( extDepsDescCStr.data(), extDepsDescCStr.size() );
+    }
+    else m_reqExtLineEdit->setText( extDepsDescCStr.c_str() );
+    m_reqExtLabel->setText( reqExtLabelText );
+
+    update();
+  }
+}
+
+void DFGExecHeaderWidget::refreshTitle( FTL::CStrRef title )
+{
+  m_titleLineEdit->setText( title.c_str() );
 }
 
 void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   m_reqExtLineEdit->setText( extDeps.c_str() );
-  update();
+}
+
+void DFGExecHeaderWidget::titleReturnPressed()
+{
+  m_titleLineEdit->clearFocus();
+}
+
+void DFGExecHeaderWidget::titleEditingFinished()
+{
+  std::string newTitle = m_titleLineEdit->text().toUtf8().constData();
+  FTL::CStrRef curTitle = getExec().getTitle();
+  if ( curTitle == newTitle )
+    return;
+
+  m_dfgController->cmdSetTitle( newTitle );
 }
 
 void DFGExecHeaderWidget::reqExtReturnPressed()
@@ -149,87 +225,9 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
   m_dfgController->cmdSetExtDeps( nameAndVerStrs );
 }
 
-QString DFGExecHeaderWidget::caption() const
-{
-  return m_caption;
-}
-
-QString DFGExecHeaderWidget::captionSuffix() const
-{
-  return m_captionSuffix;
-}
-
-QFont DFGExecHeaderWidget::font() const
-{
-  return m_font;
-}
-
-QColor DFGExecHeaderWidget::fontColor() const
-{
-  return m_fontColor;
-}
-
-bool DFGExecHeaderWidget::italic() const
-{
-  return m_font.italic();
-}
-
-void DFGExecHeaderWidget::setFont(QFont f)
-{
-  m_font = f;
-  m_captionLabel->setFont( f );
-  m_goUpButton->setFont(f);
-  update();
-}
-
-void DFGExecHeaderWidget::setFontColor(QColor c)
-{
-  m_fontColor = c;
-
-  QPalette captionLabelPalette = palette();
-  captionLabelPalette.setColor( QPalette::Foreground, c );
-  m_captionLabel->setPalette( captionLabelPalette );
-
-  QPalette p = m_goUpButton->palette();
-  p.setColor(QPalette::ButtonText, c);
-  p.setColor(QPalette::Button, m_config.nodeDefaultColor);
-  m_goUpButton->setPalette(p);
-
-  update();
-}
-
 void DFGExecHeaderWidget::onExecChanged()
 {
-  FabricCore::DFGExec &exec = m_dfgController->getExec();
-  if ( !!exec )
-    m_presetSplitWidget->setVisible( exec.editWouldSplitFromPreset() );
-
-  if(m_dfgController->isViewingRootGraph())
-  {
-    m_goUpButton->hide();
-  }
-  else
-  {
-    m_goUpButton->show();
-  }
-
-  m_caption = m_dfgController->getExecPath().c_str();
-  if(exec.isValid() && m_caption.length() > 0)
-  {
-    FTL::StrRef presetName = exec.getPresetName();
-    if(presetName.empty())
-      m_captionSuffix = " *";
-    else
-      m_captionSuffix = "";
-  }
-  else
-    m_captionSuffix = "";
-
-  m_caption += m_captionSuffix;
-  m_captionLabel->setText( m_caption );
-  m_font.setItalic(m_captionSuffix.length() > 0);
-  m_captionLabel->setFont( m_font );
-  update();
+  refresh();
 }
 
 void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
@@ -243,6 +241,11 @@ void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)
   painter.drawLine(rect.bottomLeft(), rect.bottomRight());
 
   QWidget::paintEvent(event);
+}
+
+FTL::CStrRef DFGExecHeaderWidget::getExecPath()
+{
+  return m_dfgController->getExecPath();
 }
 
 FabricCore::DFGExec &DFGExecHeaderWidget::getExec()

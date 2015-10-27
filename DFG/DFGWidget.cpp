@@ -67,7 +67,6 @@ DFGWidget::DFGWidget(
     new DFGExecHeaderWidget(
       this,
       m_uiController.get(),
-      "Graph",
       dfgConfig.graphConfig
       );
   QObject::connect(
@@ -1628,9 +1627,9 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
       else                    controller->log("cannot open node editor: more than one node selected.");
       return;
     }
+    GraphView::Node *node = nodes[0];
 
-    const char *nodeName = nodes[0]->name().c_str();
-    FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( nodeName );
+    FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( node->name().c_str() );
     if (   nodeType == FabricCore::DFGNodeType_Var
         || nodeType == FabricCore::DFGNodeType_Get
         || nodeType == FabricCore::DFGNodeType_Set)
@@ -1639,22 +1638,27 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(NULL, controller, nodeName, getConfig(), true);
+    DFG::DFGNodePropertiesDialog dialog(NULL, controller, node->name().c_str(), getConfig(), true);
     if(dialog.exec())
     {
-      controller->cmdSetNodeTitle       (nodeName, dialog.getTitle()  .toStdString().c_str());  // undoable.
-      controller->setNodeToolTip        (nodeName, dialog.getToolTip().toStdString().c_str());  // not undoable.
-      controller->setNodeDocUrl         (nodeName, dialog.getDocUrl() .toStdString().c_str());  // not undoable.
+      controller->cmdRenameNode(
+        node->name().c_str(),
+        dialog.getScriptName().toStdString()
+        );  // undoable.
+      dialog.updateNodeName( node->name() ); // since this can change the node name
+      controller->setNodeToolTip        (node->name().c_str(), dialog.getToolTip().toStdString().c_str());  // not undoable.
+      controller->setNodeDocUrl         (node->name().c_str(), dialog.getDocUrl() .toStdString().c_str());  // not undoable.
 
-      controller->setNodeBackgroundColor(nodeName, dialog.getNodeColor());    // not undoable.  
+      controller->setNodeBackgroundColor(node->name().c_str(), dialog.getNodeColor());    // not undoable.  
       
       // [Julien] FE-5246
       // Add or remove the geader colo node metadata
       QColor headerColor;  
-      if(dialog.getHeaderColor(headerColor)) controller->setNodeHeaderColor(nodeName, headerColor);  // not undoable.
-      else controller->removeNodeHeaderColor(nodeName);                       // not undoable.
+      if(dialog.getHeaderColor(headerColor))
+        controller->setNodeHeaderColor(node->name().c_str(), headerColor);  // not undoable.
+      else controller->removeNodeHeaderColor(node->name().c_str());                       // not undoable.
       
-      controller->setNodeTextColor(nodeName, dialog.getTextColor());          // not undoable.
+      controller->setNodeTextColor(node->name().c_str(), dialog.getTextColor());          // not undoable.
       // [Julien] FE-5246
       // Force update the header/nody node color
       onExecChanged();
@@ -1670,6 +1674,11 @@ QSettings * DFGWidget::getSettings()
 void DFGWidget::setSettings(QSettings * settings)
 {
   g_settings = settings;
+}
+
+void DFGWidget::refreshTitle( FTL::CStrRef title )
+{
+  m_uiHeader->refreshTitle( title );
 }
 
 void DFGWidget::refreshExtDeps( FTL::CStrRef extDeps )

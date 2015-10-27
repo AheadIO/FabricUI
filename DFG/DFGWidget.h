@@ -63,6 +63,7 @@ namespace FabricUI
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);
       
+      void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
 
       void populateMenuBar(QMenuBar * menuBar, bool addFileMenu = true);

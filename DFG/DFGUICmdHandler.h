@@ -182,11 +182,10 @@ public:
     QPointF pos
     ) = 0;
 
-  virtual void dfgDoSetNodeTitle(
+  virtual void dfgDoSetTitle(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef nodeName,
     FTL::CStrRef title
     ) = 0;
 
@@ -203,6 +202,14 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef code
+    ) = 0;
+
+  virtual std::string dfgDoRenameNode(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::CStrRef oldName,
+    FTL::CStrRef desiredNewName
     ) = 0;
 
   virtual std::string dfgDoRenamePort(

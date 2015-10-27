@@ -108,8 +108,23 @@ void DFGCombinedWidget::init(
         m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
         this, SLOT(onValueChanged())
         );
-      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
-      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)));
+      QObject::connect(
+        m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)),
+        this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*))
+        );
+      QObject::connect(
+        m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)),
+        this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*))
+        );
+
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+        m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+        );
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+        m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
+        );
 
       QObject::connect(
         m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
