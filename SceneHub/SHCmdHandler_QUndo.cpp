@@ -74,8 +74,8 @@ void SHCmdHandler_QUndo::addSGObject(std::string name, bool isGlobalObject) {
     desc.params[0].value = name;
     desc.params[1].name = "isGlobalObject";
     desc.params[1].value = std::to_string(isGlobalObject);
-
     cmd->setDesc(desc);
+
     m_qUndoStack->push( new WrappedCmd( cmd ) );
   );
 }
