@@ -885,55 +885,68 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 
 void DFGController::checkErrors()
 {
-  unsigned errorCount = m_exec.getErrorCount();
-  for(unsigned i=0;i<errorCount;i++)
+  try
   {
-    std::string prefixedError = m_execPath;
-    prefixedError += " : ";
-    prefixedError += m_exec.getError(i);
-    logError( prefixedError.c_str() );
+    FabricCore::String errorsJSON = m_exec.getErrors( true );
+    FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+    FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+    FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+      FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+      );
+    unsigned errorCount = errorsJSONArray->size();
+    for(unsigned i=0;i<errorCount;i++)
+    {
+      FTL::JSONString *errorJSONString =
+        errorsJSONArray->get( i )->cast<FTL::JSONString>();
+      std::string prefixedError = m_execPath;
+      prefixedError += " : ";
+      prefixedError += errorJSONString->getValue();
+      logError( prefixedError.c_str() );
+    }
+  }
+  catch ( FTL::JSONException e )
+  {
+    std::cout
+      << "Caught exception: "
+      << e.getDesc()
+      << "\n";
   }
 
-  if(m_exec.getType() == FabricCore::DFGExecType_Graph)
+  GraphView::Graph *uiGraph = graph();
+  if ( uiGraph && m_exec.getType() == FabricCore::DFGExecType_Graph )
   {
     unsigned nodeCount = m_exec.getNodeCount();
     for(size_t j=0;j<nodeCount;j++)
     {
       char const *nodeName = m_exec.getNodeName(j);
 
-      if ( !graph() )
-        continue;
       GraphView::Node *uiNode = NULL;
-      if ( graph() )
-      {
-        uiNode = graph()->nodeFromPath( nodeName );
-        if ( uiNode )
-          uiNode->clearError();
-      }
+      uiNode = uiGraph->nodeFromPath( nodeName );
+      if ( !uiNode )
+        continue;
 
-      if ( m_exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
+      FabricCore::String errorsJSON =
+        m_exec.getNodeErrors( uiNode->name().c_str(), true );
+      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+        );
+      unsigned errorCount = errorsJSONArray->size();
+      if ( errorCount > 0 )
       {
-        FabricCore::DFGExec instExec = m_exec.getSubExec( nodeName );
-
-        unsigned errorCount = instExec.getErrorCount();
-        if ( errorCount > 0 )
+        std::string errorsComposed;
+        for(unsigned i=0;i<errorCount;i++)
         {
-          std::string errorComposed;
-          errorComposed += nodeName;
-          errorComposed += " : ";
-          for(size_t i=0;i<errorCount;i++)
-          {
-            if(i > 0)
-              errorComposed += "\n";
-            errorComposed += instExec.getError(i);
-          }
-    
-          logError( errorComposed.c_str() );
-          if ( uiNode )
-            uiNode->setError(errorComposed.c_str());
+          FTL::JSONString *errorJSONString =
+            errorsJSONArray->get( i )->cast<FTL::JSONString>();
+          if ( !errorsComposed.empty() )
+            errorsComposed += '\n';
+          errorsComposed += errorJSONString->getValue();
         }
-
+        uiNode->setError( errorsComposed.c_str() );
       }
+      else uiNode->clearError();
     }
   }
 
