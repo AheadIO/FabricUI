@@ -1983,6 +1983,24 @@ std::string DFGController::cmdAddPort(
     );
 }
 
+std::string DFGController::cmdCreatePreset(
+  FTL::StrRef nodeName,
+  FTL::StrRef presetDirPath,
+  FTL::StrRef presetName
+  )
+{
+  UpdateSignalBlocker blocker( this );
+  
+  return m_cmdHandler->dfgDoCreatePreset(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    presetDirPath,
+    presetName
+    );
+}
+
 std::string DFGController::cmdEditPort(
   FTL::StrRef oldPortName,
   FTL::StrRef desiredNewPortName,

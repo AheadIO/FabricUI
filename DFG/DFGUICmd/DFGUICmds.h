@@ -12,6 +12,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddSet.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddVar.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_CreatePreset.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Connect.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Disconnect.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_EditPort.h>

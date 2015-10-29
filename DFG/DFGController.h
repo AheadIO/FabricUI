@@ -200,6 +200,12 @@ namespace FabricUI
         FTL::StrRef extDep,
         FTL::CStrRef uiMetadata
         );
+      
+      std::string cmdCreatePreset(
+        FTL::StrRef nodeName,
+        FTL::StrRef presetDirPath,
+        FTL::StrRef presetName
+        );
 
       std::string cmdEditPort(
         FTL::StrRef oldPortName,

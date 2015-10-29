@@ -107,15 +107,24 @@ public:
     FTL::CStrRef metaData
     );
 
+  virtual std::string dfgDoCreatePreset(
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef nodeName,
+    FTL::StrRef presetDirPath,
+    FTL::StrRef presetName
+    );
+
   virtual std::string dfgDoEditPort(
-      FabricCore::DFGBinding const &binding,
-      FTL::CStrRef execPath,
-      FabricCore::DFGExec const &exec,
-      FTL::StrRef oldPortName,
-      FTL::StrRef desiredNewPortName,
-      FTL::StrRef typeSpec,
-      FTL::StrRef extDep,
-      FTL::StrRef uiMetadata
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef oldPortName,
+    FTL::StrRef desiredNewPortName,
+    FTL::StrRef typeSpec,
+    FTL::StrRef extDep,
+    FTL::StrRef uiMetadata
     );
 
   virtual void dfgDoRemovePort(
