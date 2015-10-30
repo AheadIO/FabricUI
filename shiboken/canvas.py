@@ -1,51 +1,14 @@
 import json, optparse, os, sys
 import FabricUI
 from FabricEngine import Core
-from FabricUI import DFG, KLASTManager, Viewports
+from FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 
-class FabricStyle(QtGui.QWindowsStyle):
+# [andrew 20151028] shiboken thinks FabricStyle is an abstract class
+# unless we re-define the virtual standardPixmap method
+class FabricStyle(Style.FabricStyle):
     def __init__(self):
         super(FabricStyle, self).__init__()
-
-    def polish(self, palette):
-        if type(palette) != QtGui.QPalette:
-            return
-
-        baseColor = QtGui.QColor(60, 60, 60)
-        highlightColor = QtGui.QColor(240, 240, 240)
-        brightnessSpread = 4.5
-        spread = brightnessSpread
-
-        if baseColor.toHsv().valueF() > 0.5:
-            spread = float(100) / brightnessSpread
-        else:
-            spread = float(100) * brightnessSpread
-
-        if highlightColor.toHsv().valueF() > 0.6:
-            highlightedTextColor= baseColor.darker(int(spread*2))
-        else:
-            highlightedTextColor= baseColor.lighter(int(spread*2))
-
-        palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(baseColor))
-        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(baseColor))
-        palette.setBrush(QtGui.QPalette.Foreground, baseColor.lighter(int(spread)))
-        palette.setBrush(QtGui.QPalette.WindowText, baseColor.lighter(int(spread)))
-        palette.setBrush(QtGui.QPalette.Base, baseColor)
-        palette.setBrush(QtGui.QPalette.AlternateBase, baseColor.darker(int(spread)))
-        palette.setBrush(QtGui.QPalette.ToolTipBase, baseColor)
-        palette.setBrush(QtGui.QPalette.ToolTipText, baseColor.lighter(int(spread)))
-        palette.setBrush(QtGui.QPalette.Text, baseColor.lighter(int(spread*1.2)))
-        palette.setBrush(QtGui.QPalette.Button, baseColor)
-        palette.setBrush(QtGui.QPalette.ButtonText, baseColor.lighter(int(spread)))
-        palette.setBrush(QtGui.QPalette.BrightText, QtGui.QColor(240, 240, 240))
-        palette.setBrush(QtGui.QPalette.Light, baseColor.lighter(int(spread/2)))
-        palette.setBrush(QtGui.QPalette.Midlight, baseColor.lighter(int(spread/4)))
-        palette.setBrush(QtGui.QPalette.Dark, baseColor.darker(int(spread/4)))
-        palette.setBrush(QtGui.QPalette.Mid, baseColor)
-        palette.setBrush(QtGui.QPalette.Shadow, baseColor.darker(int(spread/2)))
-        palette.setBrush(QtGui.QPalette.Highlight, highlightColor)
-        palette.setBrush(QtGui.QPalette.HighlightedText, highlightedTextColor)
 
     def standardPixmap(self, _standardPixmap, _option=None, _widget=None):
         return QtGui.QPixmap()

@@ -1,5 +1,6 @@
 <?xml  version="1.0"?>
 <typesystem package="FabricUI">
+
   <primitive-type name="std::string"/>
 
   <load-typesystem name="typesystem_core.xml" generate="no"/>

@@ -2,7 +2,7 @@
 <typesystem package="FabricUI">
 
   <extra-includes>
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
   </extra-includes>
   <inject-code class="target" position="end">
     init_CAPI();
@@ -29,7 +29,7 @@
   </template>
 
   <primitive-type name="FTL::CStrRef" target-lang-api-name="PyString">
-    <include file-name="../../FTL/CStrRef.h" location="global"/>
+    <include file-name="FTL/CStrRef.h" location="global"/>
     <conversion-rule>
         <native-to-target>
         PyObject* %out = PyString_FromStringAndSize(%in.data(), %in.size());
@@ -48,7 +48,7 @@
   </primitive-type>
 
   <primitive-type name="FTL::StrRef" target-lang-api-name="PyString">
-    <include file-name="../../FTL/StrRef.h" location="global"/>
+    <include file-name="FTL/StrRef.h" location="global"/>
     <conversion-rule>
         <native-to-target>
         PyObject* %out = PyString_FromStringAndSize(%in.data(), %in.size());
@@ -67,7 +67,7 @@
   </primitive-type>
 
   <primitive-type name="FabricCore::Client" target-lang-api-name="PyObject">
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
     <conversion-rule>
       <target-to-native>
         <add-conversion type="PyObject" check="true">
@@ -82,7 +82,7 @@
   </primitive-type>
 
   <primitive-type name="FabricCore::DFGHost" target-lang-api-name="PyObject">
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
     <conversion-rule>
         <native-to-target>
           PyObject* %out = SWIG_Python_NewPointerObj(
@@ -105,7 +105,7 @@
   </primitive-type>
 
   <primitive-type name="FabricCore::DFGExec" target-lang-api-name="PyObject">
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
     <conversion-rule>
         <native-to-target>
           PyObject* %out = SWIG_Python_NewPointerObj(
@@ -128,7 +128,7 @@
   </primitive-type>
 
   <primitive-type name="FabricCore::DFGBinding" target-lang-api-name="PyObject">
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
     <conversion-rule>
         <native-to-target>
           PyObject* %out = SWIG_Python_NewPointerObj(
@@ -151,7 +151,7 @@
   </primitive-type>
 
   <primitive-type name="FabricCore::RTVal" target-lang-api-name="PyObject">
-    <include file-name="CAPI_swig.h" location="global"/>
+    <include file-name="SWIG_CAPI.h" location="global"/>
     <include file-name="PythonCAPI.h" location="global"/>
     <conversion-rule>
         <native-to-target>

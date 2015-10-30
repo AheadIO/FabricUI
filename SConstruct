@@ -74,7 +74,7 @@ fabricFlags = {
     os.path.join(fabricDir, 'include', 'FabricServices'),
   ],
   'LIBPATH': [os.path.join(fabricDir, 'lib')],
-  'LIBS': ['FabricCore-2.0', 'FabricServices']
+  'LIBS': ['FabricCore', 'FabricServices']
 }
 uiLib = SConscript('SConscript',
 

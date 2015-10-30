@@ -3,7 +3,7 @@
 #
 
 import os
-Import('buildOS', 'buildArch', 'buildType', 'parentEnv', 'fabricFlags', 'qtFlags', 'qtMOC', 'uiLibPrefix', 'qtDir', 'stageDir')
+Import('buildDir', 'buildOS', 'buildArch', 'buildType', 'parentEnv', 'fabricFlags', 'qtFlags', 'qtMOC', 'uiLibPrefix', 'qtDir', 'stageDir', 'shibokenPysideDir', 'shibokenPysideFlags')
 
 suffix = '4'
 if buildType == 'Debug':
@@ -39,6 +39,12 @@ elif buildOS == 'Linux':
   env.Append(CPPDEFINES = ['FABRIC_OS_LINUX'])
 elif buildOS == 'Darwin':
   env.Append(CPPDEFINES = ['FABRIC_OS_DARWIN'])
+
+if buildOS != 'Windows':
+  if '-static-libstdc++' in env['LINKFLAGS']:
+    env['LINKFLAGS'].remove('-static-libstdc++')
+  if '-static-libgcc' in env['LINKFLAGS']:
+    env['LINKFLAGS'].remove('-static-libgcc')
 
 # # enable timers
 # env.Append(CPPDEFINES = ['FABRICUI_TIMERS'])
@@ -112,5 +118,102 @@ locals()[uiLibPrefix + 'Flags'] = {
 Export(uiLibPrefix + 'Lib', uiLibPrefix + 'IncludeDir', uiLibPrefix + 'Flags')
 
 env.Alias(uiLibPrefix + 'Lib', uiFiles)
+
+pysideEnv = env.Clone()
+pysideDir = pysideEnv.Dir('pyside')
+
+if buildOS != 'Windows':
+  pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare'])
+
+pysideGen = pysideEnv.Command(
+    pysideDir.File('fabricui_python.h'),
+    pysideEnv.File('PySideGlobal.h'),
+    [
+        [
+            os.path.join(shibokenPysideDir.abspath, 'bin', 'shiboken'),
+            '$SOURCE',
+            #'--no-suppress-warnings',
+            '--typesystem-paths='+shibokenPysideDir.Dir('share').Dir('PySide').Dir('typesystems').abspath+
+                ':'+pysideEnv.Dir('shiboken').srcnode().abspath,
+            '--include-paths='+shibokenPysideDir.Dir('include').Dir('PySide').abspath+
+                ':'+stageDir.Dir('include').abspath,
+            '--enable-pyside-extensions',
+            '--output-directory='+pysideDir.abspath,
+            pysideEnv.Dir('shiboken').File('fabricui.xml').srcnode().abspath
+        ],
+        [ 'cd', pysideDir.abspath, '&&', 'patch', '-p1',
+            '<'+pysideEnv.Dir('shiboken').File('fabricui.diff').srcnode().abspath ],
+    ]
+    )
+if uiLibPrefix == 'ui':
+  env.Alias('pysideGen', [pysideGen])
+
+pythonCAPIDir = env.Dir('#').Dir('Core').Dir('Clients').Dir('PythonCAPI')
+pysideEnv.Append(CPPPATH = [
+    pysideEnv.Dir('DFG').srcnode(),
+    pysideEnv.Dir('GraphView').srcnode(),
+    pysideEnv.Dir('Licensing').srcnode(),
+    pysideEnv.Dir('Style').srcnode(),
+    pysideEnv.Dir('ValueEditor').srcnode(),
+    pysideEnv.Dir('Viewports').srcnode(),
+    stageDir.Dir('include'),
+    stageDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
+    pythonCAPIDir,
+    pysideDir,
+    '/usr/local/include/python2.7',
+    '/usr/include/Qt',
+    '/usr/include/QtCore',
+    '/usr/include/QtGui',
+    ])
+pysideEnv.MergeFlags(shibokenPysideFlags)
+
+pysideEnv.Append(LIBS = [
+  'FabricUI',
+  'FabricServices',
+  'FabricSplitSearch',
+  'FabricCore',
+  'QtCore',
+  'QtGui',
+  'QtOpenGL',
+])
+pysideEnv.Append(CPPDEFINES = [
+  'FEC_PROVIDE_STL_BINDINGS',
+])
+
+copyPythonCAPI = pysideEnv.Command(
+  pysideDir.File('CAPI_wrap.cpp'),
+  buildDir.Dir('Core').Dir('Clients').Dir('PythonCAPI').Dir('2.7').File('CAPI_wrap.cpp'),
+  [
+    Copy('$TARGET', '$SOURCE'),
+    ['sed', '-i', 's/# define SWIGINTERN static SWIGUNUSED/# define SWIGINTERN SWIGUNUSED/', '$TARGET'],
+    ['sed', '-i', 's/static swig_type_info *swig_types/swig_type_info *swig_types/', '$TARGET'],
+  ]
+)
+
+copyCAPIHeader = pysideEnv.Command(
+  pysideDir.File('SWIG_CAPI.h'),
+  pysideEnv.Dir('shiboken').File('SWIG_CAPI.template.h'),
+  [
+    ['echo', '#ifndef SWIG_CAPI_h', '>$TARGET'],
+    ['echo', '#define SWIG_CAPI_h', '>>$TARGET'],
+    ['cat', '$SOURCE', '>>$TARGET'],
+    ['grep', '#define SWIGTYPE_p_', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
+    ['echo', '#endif // SWIG_CAPI_h', '>>$TARGET'],
+  ]
+)
+pysideEnv.Depends(copyCAPIHeader, copyPythonCAPI)
+
+pysideLib = pysideEnv.LoadableModule(
+    'FabricUI',
+    [
+      Glob('pyside/FabricUI/*.cpp'),
+      Glob('pyside/*.cpp'),
+    ],
+    LDMODULEPREFIX='',
+    )
+pysideEnv.Depends(pysideLib, [copyPythonCAPI, copyCAPIHeader])
+
+if uiLibPrefix == 'ui':
+  env.Alias('pysideLib', [pysideLib])
 
 Return('uiFiles')
