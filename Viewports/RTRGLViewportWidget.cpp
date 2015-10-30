@@ -35,15 +35,15 @@ RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore
 	QGLWidget(qglContext, parent, share),
   m_client(client),
   m_viewportIndex( viewportIndex ),
-  m_testObject(testObject),
+  m_shObject(testObject),
   m_alwaysRefresh(false)
   {
 
   m_fps = 0.0;
   for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
 
-  m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_testObject);
-  m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_testObject);
+  m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
+  m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_shObject);
   m_viewportIndexRTVal = FabricCore::RTVal::ConstructUInt32( *m_client, viewportIndex );
 
   // Force to track mouse movment when not clicking
@@ -55,14 +55,14 @@ RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(onContextMenu(const QPoint &)));
 
   FABRIC_TRY("RTRGLViewportWidget::RTRGLViewportWidget create viewport",
-    m_viewport = m_testObject.callMethod("Viewport2", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
+    m_viewport = m_shObject.callMethod("Viewport2", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
   );
 }
 
 RTRGLViewportWidget::~RTRGLViewportWidget() {
   FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
-    if( m_testObject.isValid() )
-      m_testObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
+    if( m_shObject.isValid() )
+      m_shObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
   );
   emit viewportDestroying();
 }
@@ -93,7 +93,7 @@ void RTRGLViewportWidget::paintGL() {
     args[0] = m_viewportIndexRTVal;
     args[1] = m_width;
     args[2] = m_height;
-    m_testObject.callMethod("", "render", 3, args);
+    m_shObject.callMethod("", "render", 3, args);
   );
 
   if(m_alwaysRefresh) update();
@@ -179,7 +179,7 @@ void RTRGLViewportWidget::addExternalFile(QStringList paths, QPoint mousePos, bo
       klParams.push_back(QtToKLMousePosition(mousePos, *m_client, m_viewport));
       klParams.push_back(FabricCore::RTVal::ConstructBoolean(*m_client, forceExpand));
 
-      m_testObject.callMethod("", "onAddExternalFile", 4, &klParams[0]);
+      m_shObject.callMethod("", "onAddExternalFile", 4, &klParams[0]);
       emit sceneChanged();
     );
   }
@@ -189,7 +189,7 @@ void RTRGLViewportWidget::onContextMenu(const QPoint &point) {
 
   std::string category = "";
   FABRIC_TRY("RTRGLViewportWidget::onContextMenu",
-    FabricCore::RTVal klCategory = m_testObject.callMethod("String", "getSelectionCategory", 0, 0);
+    FabricCore::RTVal klCategory = m_shObject.callMethod("String", "getSelectionCategory", 0, 0);
     category = klCategory.getStringCString();
    );
 
@@ -250,7 +250,7 @@ void RTRGLViewportWidget::addLight() {
     klParams[0] = m_viewportIndexRTVal;
     klParams[1] = FabricCore::RTVal::ConstructUInt32(*m_client, lightType);
     klParams[2] = QtToKLMousePosition(m_screenPos, *m_client, m_viewport);
-    m_testObject.callMethod("", "onAddLight", 3, &klParams[0]); 
+    m_shObject.callMethod("", "onAddLight", 3, &klParams[0]); 
     emit sceneChanged();
   );
 }
@@ -331,7 +331,7 @@ void RTRGLViewportWidget::editObjectColor( bool local ) {
       FabricCore::RTVal args[2];
       args[0] = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
       args[1] = FabricCore::RTVal::ConstructBoolean(*m_client, local);
-      m_testObject.callMethod("", "onSetObjectColor", 2, args); 
+      m_shObject.callMethod("", "onSetObjectColor", 2, args); 
       emit sceneChanged();
     );
   }
@@ -385,7 +385,7 @@ void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
 void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
   FABRIC_TRY("RTRGLViewportWidget::keyPressEvent", 
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
-    m_testObject.callMethod("", "onEvent", 1, &klevent);
+    m_shObject.callMethod("", "onEvent", 1, &klevent);
     bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted( result );
@@ -398,7 +398,7 @@ bool RTRGLViewportWidget::onMouseEvent(QEvent *event) {
   bool result = false;
   FABRIC_TRY_RETURN("RTRGLViewportWidget::onMouseEvent", false,
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
-    m_testObject.callMethod("", "onEvent", 1, &klevent);
+    m_shObject.callMethod("", "onEvent", 1, &klevent);
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted(result);

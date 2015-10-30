@@ -80,7 +80,7 @@ namespace FabricUI
         int m_viewportIndex;
 
         FabricCore::RTVal m_viewport;
-        FabricCore::RTVal m_testObject;
+        FabricCore::RTVal m_shObject;
         FabricCore::RTVal m_viewportIndexRTVal;
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
