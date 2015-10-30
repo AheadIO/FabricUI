@@ -69,6 +69,13 @@
   <primitive-type name="FabricCore::Client" target-lang-api-name="PyObject">
     <include file-name="SWIG_CAPI.h" location="global"/>
     <conversion-rule>
+      <native-to-target>
+        PyObject* %out = SWIG_Python_NewPointerObj(
+          new FabricCore::Client(%in),
+          SWIGTYPE_p_FabricCore__Client,
+          SWIG_POINTER_OWN);
+        return %out;
+      </native-to-target>
       <target-to-native>
         <add-conversion type="PyObject" check="true">
           <insert-template name="to_cpp_Client">

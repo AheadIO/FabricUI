@@ -123,7 +123,7 @@ pysideEnv = env.Clone()
 pysideDir = pysideEnv.Dir('pyside')
 
 if buildOS != 'Windows':
-  pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare'])
+  pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
 pysideGen = pysideEnv.Command(
     pysideDir.File('fabricui_python.h'),
@@ -180,13 +180,22 @@ pysideEnv.Append(CPPDEFINES = [
   'FEC_PROVIDE_STL_BINDINGS',
 ])
 
-copyPythonCAPI = pysideEnv.Command(
+copyPythonCAPI = []
+copyPythonCAPI += pysideEnv.Command(
   pysideDir.File('CAPI_wrap.cpp'),
   buildDir.Dir('Core').Dir('Clients').Dir('PythonCAPI').Dir('2.7').File('CAPI_wrap.cpp'),
   [
     Copy('$TARGET', '$SOURCE'),
     ['sed', '-i', 's/# define SWIGINTERN static SWIGUNUSED/# define SWIGINTERN SWIGUNUSED/', '$TARGET'],
-    ['sed', '-i', 's/static swig_type_info *swig_types/swig_type_info *swig_types/', '$TARGET'],
+    ['sed', '-i', 's/static swig_type_info \\*swig_types/swig_type_info \\*swig_types/', '$TARGET'],
+  ]
+)
+
+copyPythonCAPI += pysideEnv.Command(
+  pysideDir.File('PythonCAPI.cpp'),
+  pythonCAPIDir.File('PythonCAPI.cpp'),
+  [
+    Copy('$TARGET', '$SOURCE'),
   ]
 )
 
@@ -197,6 +206,8 @@ copyCAPIHeader = pysideEnv.Command(
     ['echo', '#ifndef SWIG_CAPI_h', '>$TARGET'],
     ['echo', '#define SWIG_CAPI_h', '>>$TARGET'],
     ['cat', '$SOURCE', '>>$TARGET'],
+    ['echo', '-n', 'extern ', '>>$TARGET'],
+    ['grep', 'swig_type_info \\*swig_types', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
     ['grep', '#define SWIGTYPE_p_', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
     ['echo', '#endif // SWIG_CAPI_h', '>>$TARGET'],
   ]

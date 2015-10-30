@@ -10,7 +10,6 @@
 
 extern "C" {
   struct swig_type_info;
-  extern struct swig_type_info *swig_types[];
 
   PyObject *SWIG_Python_NewPointerObj( void *ptr, struct swig_type_info *type,
                                        int flags );
