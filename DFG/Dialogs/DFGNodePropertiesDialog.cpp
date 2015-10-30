@@ -23,7 +23,8 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
 {
   setWindowTitle("Node Properties");
 
-  m_titleLabel  = new QLabel("", this);
+  m_presetNameLabel = 0;
+  m_textEdit = 0;
   m_nameEdit    = new QLineEdit("", this);
   m_nameEdit->setMinimumWidth(250);
   m_toolTipEdit = new QPlainTextEdit("", this);
@@ -73,16 +74,17 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     FabricCore::DFGExec     subExec;
     FabricCore::DFGNodeType nodeType = exec.getNodeType(m_nodeName.c_str());
 
-    if(nodeType == FabricCore::DFGNodeType_Inst)
+    if ( nodeType == FabricCore::DFGNodeType_Inst )
     {
       subExec = exec.getSubExec( m_nodeName.c_str() );
-      setTitle( subExec.getTitle() );
+      if ( subExec.isPreset() )
+        m_presetNameLabel = new QLabel( subExec.getTitle(), this );
     }
-    else
+    else if ( nodeType == FabricCore::DFGNodeType_User )
     {
-      FTL::CStrRef uiTitle = exec.getNodeMetadata(m_nodeName.c_str(), "uiTitle");
-      if (uiTitle.empty())  setTitle(m_nodeName.c_str());
-      else                  setTitle(uiTitle.c_str());
+      FTL::CStrRef uiTitle =
+        exec.getNodeMetadata( m_nodeName.c_str(), "uiTitle" );
+      m_textEdit = new QLineEdit( uiTitle.c_str(), this );
     }
 
     m_nameEdit->setText( m_nodeName.c_str() );
@@ -104,8 +106,11 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
     m_controller->logError(e.getDesc_cstr());
   }
 
-  addInput(m_titleLabel,        "title",                "properties");
-  addInput(m_nameEdit,          "script name",          "properties");
+  if ( m_presetNameLabel )
+    addInput( m_presetNameLabel, "preset name", "properties" );
+  if ( m_textEdit )
+    addInput( m_textEdit, "text", "properties" );
+  addInput( m_nameEdit, "node name", "properties" );
   addInput(m_toolTipEdit,       "tooltip",              "properties");
   addInput(m_docUrlEdit,        "doc url",              "properties");
   addInput( m_nodeColorButton, "node color", "properties" );
@@ -122,12 +127,6 @@ DFGNodePropertiesDialog::DFGNodePropertiesDialog(
 /// Destructor
 DFGNodePropertiesDialog::~DFGNodePropertiesDialog()
 {
-}
-
-/// Sets the node's title
-void DFGNodePropertiesDialog::setTitle(QString value)
-{
-  m_titleLabel->setText(value);
 }
 
 /// Sets the node's tool tip

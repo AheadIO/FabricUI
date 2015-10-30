@@ -54,6 +54,8 @@ namespace FabricUI
       /// Filter the QLineEdit text (here the title) with the setRegexFilter
       void setRegexFilter(QString regex);
 
+      QString getText() const
+        { return m_textEdit->text(); }
       /// Gets the user selected node's script name
       QString getScriptName();
       /// Gets the user selected node's tool tip
@@ -67,9 +69,6 @@ namespace FabricUI
       /// Gets the user selected node's text color 
       QColor getTextColor();
 
-      void updateNodeName( FTL::StrRef newNodeName )
-        { m_nodeName = newNodeName; }
-
     protected slots:
 
       void onNodeColorButtonClicked();
@@ -81,10 +80,6 @@ namespace FabricUI
       // Thus, the option is disable by default 
       /// Creates the node header color property
       void onAllowHeaderColorCheckBoxClicked();
-
-    protected:
-      /// Sets the node's title
-      void setTitle(QString value);
 
     private:
 
@@ -123,7 +118,8 @@ namespace FabricUI
       DFGController                   *m_controller;
 
       QColor                           m_nodeDefaultHeaderColor;
-      QLabel                          *m_titleLabel;
+      QLabel                          *m_presetNameLabel;
+      QLineEdit *m_textEdit;
       QLineEdit                       *m_nameEdit;
       QPlainTextEdit                  *m_toolTipEdit;
       QLineEdit                       *m_docUrlEdit;

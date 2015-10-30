@@ -36,6 +36,12 @@ public:
     FTL::CStrRef json
     );
 
+  static std::string NewPresetPathname(
+    FabricCore::DFGHost &host,
+    FTL::CStrRef presetDirPath,
+    FTL::CStrRef presetName
+    );
+
   virtual void dfgDoRemoveNodes(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
@@ -124,6 +130,15 @@ public:
     FTL::CStrRef metaData
     ) = 0;
 
+  virtual std::string dfgDoCreatePreset(
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef nodeName,
+    FTL::StrRef presetDirPath,
+    FTL::StrRef presetName
+    ) = 0;
+
   virtual std::string dfgDoEditPort(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
@@ -204,12 +219,14 @@ public:
     FTL::CStrRef code
     ) = 0;
 
-  virtual std::string dfgDoRenameNode(
+  virtual std::string dfgDoEditNode(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef oldName,
-    FTL::CStrRef desiredNewName
+    FTL::StrRef oldNodeName,
+    FTL::StrRef desiredNewNodeName,
+    FTL::StrRef nodeMetadata,
+    FTL::StrRef execMetadata
     ) = 0;
 
   virtual std::string dfgDoRenamePort(
