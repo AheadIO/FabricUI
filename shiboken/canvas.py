@@ -1,7 +1,6 @@
-import json, optparse, os, sys
-import FabricUI
-from FabricEngine import Core
-from FabricUI import DFG, KLASTManager, Style, Viewports
+import optparse, os, sys
+from FabricEngine import Core, FabricUI
+from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 
 # [andrew 20151028] shiboken thinks FabricStyle is an abstract class

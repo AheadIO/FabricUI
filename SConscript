@@ -226,6 +226,9 @@ pysideLib = pysideEnv.LoadableModule(
 pysideEnv.Depends(pysideLib, [copyPythonCAPI, copyCAPIHeader])
 
 if uiLibPrefix == 'ui':
-  env.Alias('pysideLib', [pysideLib])
+  installedPySideLib = pysideEnv.Install(
+    stageDir.Dir('Python').Dir('2.7').Dir('FabricEngine'),
+    pysideLib)
+  env.Alias('pysideLib', [pysideLib, installedPySideLib])
 
 Return('uiFiles')
