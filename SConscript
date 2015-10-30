@@ -121,13 +121,14 @@ env.Alias(uiLibPrefix + 'Lib', uiFiles)
 
 pysideEnv = env.Clone()
 pysideDir = pysideEnv.Dir('pyside')
+shibokenDir = pysideEnv.Dir('shiboken')
 
 if buildOS != 'Windows':
   pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
 pysideGen = pysideEnv.Command(
     pysideDir.File('fabricui_python.h'),
-    pysideEnv.File('PySideGlobal.h'),
+    shibokenDir.File('global.h'),
     [
         [
             os.path.join(shibokenPysideDir.abspath, 'bin', 'shiboken'),
@@ -139,10 +140,10 @@ pysideGen = pysideEnv.Command(
                 ':'+stageDir.Dir('include').abspath,
             '--enable-pyside-extensions',
             '--output-directory='+pysideDir.abspath,
-            pysideEnv.Dir('shiboken').File('fabricui.xml').srcnode().abspath
+            shibokenDir.File('fabricui.xml').srcnode().abspath
         ],
         [ 'cd', pysideDir.abspath, '&&', 'patch', '-p1',
-            '<'+pysideEnv.Dir('shiboken').File('fabricui.diff').srcnode().abspath ],
+            '<'+shibokenDir.File('fabricui.diff').srcnode().abspath ],
     ]
     )
 if uiLibPrefix == 'ui':
@@ -201,7 +202,7 @@ copyPythonCAPI += pysideEnv.Command(
 
 copyCAPIHeader = pysideEnv.Command(
   pysideDir.File('SWIG_CAPI.h'),
-  pysideEnv.Dir('shiboken').File('SWIG_CAPI.template.h'),
+  shibokenDir.File('SWIG_CAPI.template.h'),
   [
     ['echo', '#ifndef SWIG_CAPI_h', '>$TARGET'],
     ['echo', '#define SWIG_CAPI_h', '>>$TARGET'],
