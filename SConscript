@@ -126,7 +126,8 @@ shibokenDir = pysideEnv.Dir('shiboken')
 if buildOS != 'Windows':
   pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
-pysideGen = pysideEnv.Command(
+if uiLibPrefix == 'ui' and buildOS == 'Linux':
+  pysideGen = pysideEnv.Command(
     pysideDir.File('fabricui_python.h'),
     shibokenDir.File('global.h'),
     [
@@ -146,7 +147,6 @@ pysideGen = pysideEnv.Command(
             '<'+shibokenDir.File('fabricui.diff').srcnode().abspath ],
     ]
     )
-if uiLibPrefix == 'ui' and buildOS == 'Linux':
   env.Alias('pysideGen', [pysideGen])
 
 pythonCAPIDir = env.Dir('#').Dir('Core').Dir('Clients').Dir('PythonCAPI')
@@ -215,7 +215,8 @@ copyCAPIHeader = pysideEnv.Command(
 )
 pysideEnv.Depends(copyCAPIHeader, copyPythonCAPI)
 
-pysideLib = pysideEnv.LoadableModule(
+if uiLibPrefix == 'ui' and buildOS == 'Linux':
+  pysideLib = pysideEnv.LoadableModule(
     'FabricUI',
     [
       Glob('pyside/FabricUI/*.cpp'),
@@ -223,9 +224,8 @@ pysideLib = pysideEnv.LoadableModule(
     ],
     LDMODULEPREFIX='',
     )
-pysideEnv.Depends(pysideLib, [copyPythonCAPI, copyCAPIHeader])
+  pysideEnv.Depends(pysideLib, [copyPythonCAPI, copyCAPIHeader])
 
-if uiLibPrefix == 'ui' and buildOS == 'Linux':
   installedPySideLib = pysideEnv.Install(
     stageDir.Dir('Python').Dir('2.7').Dir('FabricEngine'),
     pysideLib)
