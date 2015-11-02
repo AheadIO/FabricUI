@@ -39,9 +39,9 @@ namespace FabricUI
           m_qUndoStack(qUndoStack) 
         {
           std::cerr << "SHCmdHandler_QUndo" << std::endl;
-          //addSGObject("named1", true);
-          //addSGObject("pinned", false);
-          //addSGObject("named2", true);
+          addSGObject("named1", true);
+          addSGObject("pinned", false);
+          addSGObject("named2", true);
         };
   
         virtual ~SHCmdHandler_QUndo() {};
