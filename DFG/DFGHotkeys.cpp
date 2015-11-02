@@ -6,7 +6,7 @@ namespace FabricUI
 {
   namespace DFG
   {
-    const char *DFGHotkeys::DELETE = "Delete";
+    const char *DFGHotkeys::DELETE_1 = "Delete";
     const char *DFGHotkeys::DELETE_2 = "Delete2";
     const char *DFGHotkeys::EXECUTE = "Execute";
     const char *DFGHotkeys::PAN_GRAPH = "Pan graph";

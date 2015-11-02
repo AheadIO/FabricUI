@@ -1393,7 +1393,7 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
 void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 { 
-  if(hotkey == DFGHotkeys::DELETE || hotkey == DFGHotkeys::DELETE_2)
+  if(hotkey == DFGHotkeys::DELETE_1 || hotkey == DFGHotkeys::DELETE_2)
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     getUIController()->gvcDoRemoveNodes(nodes);
