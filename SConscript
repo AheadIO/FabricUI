@@ -232,6 +232,8 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
   )
   pysideEnv.Depends(copyCAPIHeader, copyPythonCAPI)
   
+  if buildOS == 'Linux':
+    pysideEnv.Append(LINKFLAGS = [Literal('-Wl,-rpath,$ORIGIN/../../../lib/')])
   pysideLib = pysideEnv.LoadableModule(
     'FabricUI',
     [
