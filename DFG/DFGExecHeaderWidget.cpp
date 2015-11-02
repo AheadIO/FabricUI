@@ -38,10 +38,6 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   m_reqExtLabel = new QLabel;
   m_reqExtLineEdit = new QLineEdit;
   QObject::connect(
-    m_reqExtLineEdit, SIGNAL(returnPressed()),
-    this, SLOT(reqExtReturnPressed())
-    );
-  QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
     );
@@ -184,14 +180,9 @@ void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
   refresh();
 }
 
-void DFGExecHeaderWidget::reqExtReturnPressed()
-{
-  m_reqExtLineEdit->clearFocus();
-}
-
 void DFGExecHeaderWidget::reqExtEditingFinished()
 {
-  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();
+  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();  
   FabricCore::String currentExtDepDesc = getExec().getExtDeps();
   char const *currentExtDepDescCStr = currentExtDepDesc.getCStr();
   if ( !currentExtDepDescCStr )
@@ -206,8 +197,6 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
     nameAndVerStrings.push_back( split.first.trim() );
     split = split.second.split(',');
   }
-  if ( nameAndVerStrings.empty() )
-    return;
 
   std::vector<FTL::StrRef> nameAndVerStrs;
   nameAndVerStrs.reserve( nameAndVerStrings.size() );
