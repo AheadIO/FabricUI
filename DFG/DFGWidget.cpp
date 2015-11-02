@@ -745,17 +745,25 @@ void DFGWidget::onNodeAction(QAction * action)
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType( nodeName ) != FabricCore::DFGNodeType_Inst )
       return;
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
     try
     {
-      const std::vector<GraphView::Node*> &nodes =
-        m_uiController->graph()->selectedNodes();
-      QString title = QString(nodes[nodes.size()-1]->name().c_str());
+      FTL::CStrRef defaultPresetName;
+      if ( subExec.isPreset() )
+        defaultPresetName = subExec.getTitle();
+      else
+        defaultPresetName = nodeName;
        
       FabricCore::DFGHost &host = m_uiController->getHost();
 
-      DFGSavePresetDialog dialog( this, m_uiController.get(), true, title);
-      while(true)
+      DFGSavePresetDialog dialog(
+        this,
+        m_uiController.get(),
+        true,
+        defaultPresetName.c_str()
+        );
+      while ( true )
       {
         if(dialog.exec() != QDialog::Accepted)
           return;
