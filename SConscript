@@ -81,6 +81,9 @@ dirs = [
   'DFG/DFGUICmd',
   'DFG/Dialogs',
   'SceneHub',
+  'SceneHub/Managers',
+  'SceneHub/TreeView',
+  'SceneHub/Commands',
   'Viewports',
   'Licensing',
 ]

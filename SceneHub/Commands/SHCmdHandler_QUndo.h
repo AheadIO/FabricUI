@@ -6,18 +6,18 @@
 #define __FABRICUI_SceneHub_CmdHandler_QUndo__
 
 #include <QtGui/QUndoStack>
-#include <FabricUI/SceneHub/SHCmdHandler.h>
 #include <iostream>
 #include <string>
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
 #include <FTL/MapCharSingle.h>
+#include <FabricUI/SceneHub/Commands/SHCmd.h>
 
 namespace FabricUI
 {
   namespace SceneHub
   {
-    class SHCmdHandler_QUndo : public SHCmdHandler
+    class SHCmdHandler_QUndo 
     {
       private:
         QUndoStack *m_qUndoStack;
@@ -26,6 +26,7 @@ namespace FabricUI
 
       protected:
         class WrappedCmd;
+
 
       public:
         SHCmdHandler_QUndo() {};
@@ -46,9 +47,18 @@ namespace FabricUI
   
         virtual ~SHCmdHandler_QUndo() {};
 
-        /// Add an object to the scene-graph
-        void addSGObject(std::string name, bool isGlobalObject); 
+        /// Synchronize the Qt and KL stacks.
+        void synchronizeStack();
 
+        static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
+
+        static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json); 
+
+        /// Adds an object to the scene-graph
+        /// \param name The name of the object
+        /// \param isGlobal True to add a global object, False a pinned object
+        void addSGObject(std::string name, bool isGlobal, bool exec = true);
+ 
     };
   };
 };

@@ -8,33 +8,11 @@
 #include <FTL/StrRef.h>
 #include <QtGui/QUndoCommand>
 #include <FabricUI/SceneHub/macros.h>
-#include <FabricUI/SceneHub/SHCmdHandler.h>
-
+ 
 namespace FabricUI
 {
   namespace SceneHub
   {
-    struct SHCmdParam {
-      std::string name;
-      std::string value;
-    };
-
-    struct SHCmdDescription {
-      std::string name;
-      std::vector<SHCmdParam> params;
-
-      std::string asString() {
-        std::string str = "name " + name + "\n";
-        for(unsigned i=0; i<params.size(); ++i)
-          str += "params[" + std::to_string(i) + "] " + params[i].name + " " + params[i].value + "\n";
-        return str;
-      }
-
-      void print() {
-        std::cerr << asString() << std::endl;
-      }
-    };
-
     class SHCmd
     {
       public:
@@ -48,15 +26,12 @@ namespace FabricUI
         void doit() {
           assert( m_state == State_New );
           ++m_coreUndoCount;
-          std::cerr << "SHCmd::doit() " <<   m_coreUndoCount << std::endl;
           m_state = State_Done;
         };
 
         void undo() {
           assert( m_state == State_Done || m_state == State_Redone );
           m_state = State_Undone;
-          std::cerr << "SHCmd::undo() " << m_coreUndoCount << std::endl;
-
           FABRIC_TRY("SHCmd::undo", 
             for ( unsigned i = 0; i < m_coreUndoCount; ++i )
               FabricCore::RTVal res = m_cmdManager.callMethod("Boolean", "undo", 0, 0);
@@ -65,22 +40,20 @@ namespace FabricUI
 
         void redo() {
           assert( m_state = State_Undone );
-          m_state = State_Redone;
-          std::cerr << "SHCmd::redo() " << m_coreUndoCount << std::endl;
-          
+          m_state = State_Redone;          
           FABRIC_TRY("SHCmd::redo", 
             for ( unsigned i = 0; i < m_coreUndoCount; ++i )
               FabricCore::RTVal res = m_cmdManager.callMethod("", "redo", 0, 0);
           );
         };
 
-        SHCmdDescription getDesc() {
+        std::string getDesc() {
           assert(wasInvoked());
-          return m_cmdDescription;
+          return m_desc;
         };
 
-        void setDesc(SHCmdDescription cmdDescription) {
-          m_cmdDescription = cmdDescription;
+        void setDesc(std::string desc) {
+          m_desc = desc;
         };
 
       private:
@@ -93,7 +66,7 @@ namespace FabricUI
           State_Redone
         };
 
-        SHCmdDescription m_cmdDescription;
+        std::string m_desc;
         FabricCore::RTVal m_cmdManager;
         unsigned m_coreUndoCount;
         State m_state;

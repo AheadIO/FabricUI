@@ -1,6 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#include "SGGeometryManagerDialog.h"
+#include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
+#include <FabricUI/SceneHub/macros.h>
 #include <QtGui/QMenu>
 #include <QtGui/QLayout>
 #include <QtGui/QKeyEvent>
@@ -8,7 +9,6 @@
 #include <QtGui/QWheelEvent>
 #include <QtGui/QColorDialog>
 #include <iostream>
-#include "macros.h"
 #include <Core/Build.h>
 using namespace std;
 using namespace FabricUI;
