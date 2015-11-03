@@ -19,8 +19,7 @@ namespace FabricUI
     class SHAddSGObjectCmd 
     {
       public:
-        SHAddSGObjectCmd() {};
-
+        
         /// Adds an object to the scene-graph
         /// \param name The name of the object
         /// \param isGlobalObjet True to add a global object, False a pinned object

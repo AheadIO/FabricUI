@@ -17,6 +17,8 @@
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
+
+/// \internal
 /// Wrap a SHCmd into a Qt command
 class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
 
@@ -56,7 +58,7 @@ class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
     bool m_didit;
 };
  
-
+/// 
 std::string SHCmdHandler_QUndo::encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal) {
   if(rtVal.isValid())
   {
