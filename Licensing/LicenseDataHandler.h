@@ -172,9 +172,12 @@ namespace FabricUI
 
     void onLiceseEntered( QString licenseText )
     {
-      std::string text = licenseText.toStdString();
-      if ( !text.empty() )
-        FabricCore::SetStandaloneLicense( text.c_str() );
+      QByteArray text = licenseText.toUtf8();
+      if ( !text.isEmpty() )
+      {
+        text.append( '\0' );
+        FabricCore::SetStandaloneLicense( text.constData() );
+      }
       if ( m_client.validateLicense() )
         onValidLicenseEntered();
       else
