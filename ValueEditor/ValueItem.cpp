@@ -5,6 +5,7 @@
 #include "ColorValueWidget.h"
 #include "ValueEditorWidget.h"
 #include <assert.h>
+#include <FabricUI/Util/QString_Conversion.h>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -130,7 +131,7 @@ void ValueItem::onFilePathChosen(const QString & filePath)
 
   try
   {
-    FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, filePath.toUtf8().constData());
+    FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, QSTRING_TO_CONST_CHAR(filePath));
     FabricCore::RTVal filePathVal = FabricCore::RTVal::Create(*m_client, "FilePath", 1, &stringVal);
     setValue(filePathVal);
   }
