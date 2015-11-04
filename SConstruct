@@ -15,6 +15,9 @@ AddOption('--buildType',
 if not os.environ.has_key('FABRIC_DIR'):
   raise Exception("No FABRIC_DIR environment variable specified.")
 
+if not os.environ.has_key('SHIBOKEN_PYSIDE_DIR'):
+  raise Exception("No SHIBOKEN_PYSIDE_DIR environment variable specified.")
+
 buildOS = 'Darwin'
 if platform.system().lower().startswith('win'):
   buildOS = 'Windows'
@@ -29,6 +32,8 @@ if str(GetOption('buildType')).lower() == 'debug':
 
 env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
+
+shibokenPysideDir = env.Dir(os.environ['SHIBOKEN_PYSIDE_DIR'])
 
 qtDir = None
 
@@ -89,8 +94,10 @@ uiLib = SConscript('SConscript',
     'qtFlags': qtFlags,
     'qtDir': qtDir,
     'uiLibPrefix': 'ui',
+    'shibokenPysideDir': shibokenPysideDir,
   },
-  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'))
+  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'),
+  duplicate=0)
 
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')

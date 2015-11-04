@@ -3,7 +3,21 @@
 #
 
 import os
-Import('buildDir', 'buildOS', 'buildArch', 'buildType', 'parentEnv', 'fabricFlags', 'qtFlags', 'qtMOC', 'uiLibPrefix', 'qtDir', 'stageDir', 'shibokenPysideDir', 'shibokenPysideFlags')
+Import('buildOS', 'buildArch', 'buildType', 'parentEnv', 'fabricFlags', 'qtFlags', 'qtMOC', 'uiLibPrefix', 'qtDir', 'stageDir', 'shibokenPysideDir')
+
+shibokenPysideIncludeDirs = [
+  shibokenPysideDir.Dir('include'),
+  shibokenPysideDir.Dir('include').Dir('PySide'),
+  shibokenPysideDir.Dir('include').Dir('PySide').Dir('QtCore'),
+  shibokenPysideDir.Dir('include').Dir('PySide').Dir('QtGui'),
+  shibokenPysideDir.Dir('include').Dir('PySide').Dir('QtOpenGL'),
+  shibokenPysideDir.Dir('include').Dir('shiboken'),
+  ]
+shibokenPysideFlags = {
+  'CPPPATH': shibokenPysideIncludeDirs,
+  'LIBPATH': [shibokenPysideDir.Dir('lib')],
+  'LIBS': ['pyside-python2.7', 'shiboken-python2.7'],
+}
 
 suffix = '4'
 if buildType == 'Debug':
@@ -128,7 +142,7 @@ if buildOS != 'Windows':
 
 if uiLibPrefix == 'ui' and buildOS == 'Linux':
   pysideGen = pysideEnv.Command(
-    pysideDir.File('fabricui_python.h'),
+    pysideDir.Dir('FabricUI').File('fabricui_python.h'),
     shibokenDir.File('global.h'),
     [
         [
@@ -147,80 +161,84 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
             '<'+shibokenDir.File('fabricui.diff').srcnode().abspath ],
     ]
     )
-  env.Alias('pysideGen', [pysideGen])
+  pysideEnv.Alias('pysideGen', [pysideGen])
 
-pythonCAPIDir = env.Dir('#').Dir('Core').Dir('Clients').Dir('PythonCAPI')
-pysideEnv.Append(CPPPATH = [
-    pysideEnv.Dir('DFG').srcnode(),
-    pysideEnv.Dir('GraphView').srcnode(),
-    pysideEnv.Dir('Licensing').srcnode(),
-    pysideEnv.Dir('Style').srcnode(),
-    pysideEnv.Dir('ValueEditor').srcnode(),
-    pysideEnv.Dir('Viewports').srcnode(),
-    stageDir.Dir('include'),
-    stageDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
-    pythonCAPIDir,
-    pysideDir,
-    '/usr/local/include/python2.7',
-    '/usr/include/Qt',
-    '/usr/include/QtCore',
-    '/usr/include/QtGui',
-    ])
-pysideEnv.MergeFlags(shibokenPysideFlags)
-
-pysideEnv.Append(LIBS = [
-  'FabricUI',
-  'FabricServices',
-  'FabricSplitSearch',
-  'FabricCore',
-  'QtCore',
-  'QtGui',
-  'QtOpenGL',
-])
-pysideEnv.Append(CPPDEFINES = [
-  'FEC_PROVIDE_STL_BINDINGS',
-])
-
-copyPythonCAPI = []
-copyPythonCAPI += pysideEnv.Command(
-  pysideDir.File('CAPI_wrap.cpp'),
-  buildDir.Dir('Core').Dir('Clients').Dir('PythonCAPI').Dir('2.7').File('CAPI_wrap.cpp'),
-  [
-    Copy('$TARGET', '$SOURCE'),
-    ['sed', '-i', 's/# define SWIGINTERN static SWIGUNUSED/# define SWIGINTERN SWIGUNUSED/', '$TARGET'],
-    ['sed', '-i', 's/static swig_type_info \\*swig_types/swig_type_info \\*swig_types/', '$TARGET'],
-  ]
-)
-
-copyPythonCAPI += pysideEnv.Command(
-  pysideDir.File('PythonCAPI.cpp'),
-  pythonCAPIDir.File('PythonCAPI.cpp'),
-  [
-    Copy('$TARGET', '$SOURCE'),
-  ]
-)
-
-copyCAPIHeader = pysideEnv.Command(
-  pysideDir.File('SWIG_CAPI.h'),
-  shibokenDir.File('SWIG_CAPI.template.h'),
-  [
-    ['echo', '#ifndef SWIG_CAPI_h', '>$TARGET'],
-    ['echo', '#define SWIG_CAPI_h', '>>$TARGET'],
-    ['cat', '$SOURCE', '>>$TARGET'],
-    ['echo', '-n', 'extern ', '>>$TARGET'],
-    ['grep', 'swig_type_info \\*swig_types', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
-    ['grep', '#define SWIGTYPE_p_', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
-    ['echo', '#endif // SWIG_CAPI_h', '>>$TARGET'],
-  ]
-)
-pysideEnv.Depends(copyCAPIHeader, copyPythonCAPI)
-
-if uiLibPrefix == 'ui' and buildOS == 'Linux':
+  fabricDir = env.Dir(os.environ['FABRIC_DIR'])
+  pythonCAPISourceDir = fabricDir.Dir('Source').Dir('Python').Dir('Core').Dir('2.7')
+  pysideEnv.Append(CPPPATH = [
+      pysideEnv.Dir('DFG').srcnode(),
+      pysideEnv.Dir('GraphView').srcnode(),
+      pysideEnv.Dir('Licensing').srcnode(),
+      pysideEnv.Dir('Style').srcnode(),
+      pysideEnv.Dir('ValueEditor').srcnode(),
+      pysideEnv.Dir('Viewports').srcnode(),
+      fabricDir.Dir('include'),
+      fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
+      pythonCAPISourceDir,
+      pysideDir,
+      '/usr/local/include/python2.7',
+      '/usr/include/Qt',
+      '/usr/include/QtCore',
+      '/usr/include/QtGui',
+      ])
+  pysideEnv.MergeFlags(shibokenPysideFlags)
+  
+  pysideEnv.Append(LIBS = [
+    'FabricUI',
+    'FabricServices',
+    'FabricSplitSearch',
+    'FabricCore',
+    'QtCore',
+    'QtGui',
+    'QtOpenGL',
+  ])
+  pysideEnv.Append(CPPDEFINES = [
+    'FEC_PROVIDE_STL_BINDINGS',
+  ])
+  
+  copyPythonCAPI = []
+  copyPythonCAPI += pysideEnv.Command(
+    pysideDir.File('CAPI_wrap.cpp'),
+    pythonCAPISourceDir.File('CAPI_wrap.cpp'),
+    [
+      Copy('$TARGET', '$SOURCE'),
+      ['sed', '-i', 's/# define SWIGINTERN static SWIGUNUSED/# define SWIGINTERN SWIGUNUSED/', '$TARGET'],
+      ['sed', '-i', 's/static swig_type_info \\*swig_types/swig_type_info \\*swig_types/', '$TARGET'],
+      ['sed', '-i', 's/#include <Core\/Clients\/CAPI\//#include </', '$TARGET'],
+      ['sed', '-i', 's/#include <Core\/Clients\/PythonCAPI\//#include </', '$TARGET'],
+    ]
+  )
+  
+  copyPythonCAPI += pysideEnv.Command(
+    pysideDir.File('PythonCAPI.cpp'),
+    pythonCAPISourceDir.File('PythonCAPI.cpp'),
+    [
+      Copy('$TARGET', '$SOURCE'),
+    ]
+  )
+  
+  copyCAPIHeader = pysideEnv.Command(
+    pysideDir.File('SWIG_CAPI.h'),
+    shibokenDir.File('SWIG_CAPI.template.h'),
+    [
+      ['echo', '#ifndef SWIG_CAPI_h', '>$TARGET'],
+      ['echo', '#define SWIG_CAPI_h', '>>$TARGET'],
+      ['cat', '$SOURCE', '>>$TARGET'],
+      ['echo', '-n', 'extern ', '>>$TARGET'],
+      ['grep', 'swig_type_info \\*swig_types', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
+      ['grep', '#define SWIGTYPE_p_', pysideDir.File('CAPI_wrap.cpp'), '>>$TARGET'],
+      ['echo', '#endif // SWIG_CAPI_h', '>>$TARGET'],
+    ]
+  )
+  pysideEnv.Depends(copyCAPIHeader, copyPythonCAPI)
+  
+  if buildOS == 'Linux':
+    pysideEnv.Append(LINKFLAGS = [Literal('-Wl,-rpath,$ORIGIN/../../../lib/')])
   pysideLib = pysideEnv.LoadableModule(
     'FabricUI',
     [
-      Glob('pyside/FabricUI/*.cpp'),
-      Glob('pyside/*.cpp'),
+      pysideEnv.Glob('pyside/*.cpp'),
+      pysideEnv.Glob('pyside/FabricUI/*.cpp'),
     ],
     LDMODULEPREFIX='',
     )
@@ -229,6 +247,6 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
   installedPySideLib = pysideEnv.Install(
     stageDir.Dir('Python').Dir('2.7').Dir('FabricEngine'),
     pysideLib)
-  env.Alias('pysideLib', [pysideLib, installedPySideLib])
+  pysideEnv.Alias('pysideLib', [pysideLib, installedPySideLib])
 
 Return('uiFiles')
