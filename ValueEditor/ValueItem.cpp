@@ -131,7 +131,7 @@ void ValueItem::onFilePathChosen(const QString & filePath)
 
   try
   {
-    FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, QSTRING_TO_CONST_CHAR(filePath));
+    FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*m_client, QSTRING_TO_CONST_CHAR_VALUE(filePath));
     FabricCore::RTVal filePathVal = FabricCore::RTVal::Create(*m_client, "FilePath", 1, &stringVal);
     setValue(filePathVal);
   }

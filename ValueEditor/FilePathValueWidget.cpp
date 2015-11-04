@@ -52,7 +52,7 @@ void FilePathValueWidget::setEnabled(bool state)
 void FilePathValueWidget::onValueChangedInLineEdit()
 {
   QString s = m_lineEdit->text();
-  FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR(s));
+  FabricCore::RTVal stringVal = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR_VALUE(s));
   ValueWidget::setValue(FabricCore::RTVal::Create(*((ValueItem*)item())->client(), "FilePath", 1, &stringVal));
 }
 

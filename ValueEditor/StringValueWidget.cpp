@@ -93,7 +93,7 @@ void StringValueWidget::onValueChangedInLineEdit()
   m_changingValue = true;
 
   QString s = m_lineEdit->text();
-  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR(s));
+  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR_VALUE(s));
   ValueWidget::setValue(m_value);
 
   m_changingValue = false;
@@ -106,7 +106,7 @@ void StringValueWidget::onValueChangedInComboBox(int index)
   m_changingValue = true;
 
   QString s = m_comboBox->currentText();
-  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR(s));
+  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR_VALUE(s));
   ValueWidget::setValue(m_value);
 
   m_changingValue = false;
