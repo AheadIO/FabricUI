@@ -7,9 +7,9 @@
 #define QSTRING_FROM_STL_UTF8(s) QString::fromUtf8((s).c_str(), (s).length())
 
 #ifdef _WIN32
-  #define QSTRING_TO_CONST_CHAR(s) (s).toAscii().constData()  // QString::toAscii() works fine under Windows, but not under Linux and OS X.
+  #define QSTRING_TO_CONST_CHAR(s) (s).toAscii().constData()
 #else
-  #define QSTRING_TO_CONST_CHAR(s) (s).toUtf8().constData()   // QString::toUtf8() works fine under Linux and OS X, but not under Windows.
+  #define QSTRING_TO_CONST_CHAR(s) (s).toUtf8().constData()
 #endif
 
 #endif // __UI_Util_QString_Conversion__
