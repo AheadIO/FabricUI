@@ -6,8 +6,7 @@
 #define __FABRICUI_SceneHub_CmdHandler_QUndo__
 
 #include <QtGui/QUndoStack>
-#include <iostream>
-#include <string>
+#include <FabricUI/SceneHub/macros.h>
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
 #include <FTL/MapCharSingle.h>
@@ -21,7 +20,7 @@ namespace FabricUI
     {
       private:
         QUndoStack *m_qUndoStack;
-        FabricCore::Client *m_client;
+        FabricCore::Client m_client;
         FabricCore::RTVal m_shObject;
 
       protected:
@@ -31,34 +30,51 @@ namespace FabricUI
       public:
         SHCmdHandler_QUndo() {};
 
+        /// Constructs a new SHCmdHandler_QUndo.
+        /// \param client A reference to the fabric client
+        /// \param shObject A reference to SceneHub application
+        /// \param qUndoStack A pointer to the Qt undo-redo stack
         SHCmdHandler_QUndo(
-          FabricCore::Client client, 
-          FabricCore::RTVal shObject,
+          FabricCore::Client &client, 
+          FabricCore::RTVal &shObject, 
           QUndoStack *qUndoStack) : 
-          m_client(&client),
+          m_client(client),
           m_shObject(shObject),
           m_qUndoStack(qUndoStack) 
         {
           std::cerr << "SHCmdHandler_QUndo" << std::endl;
-          addSGObject("named1", true);
-          addSGObject("pinned", false);
-          addSGObject("named2", true);
+          addSGObject("named1");
+          addSGObject("addSGObject(pinned, 0)");
+          addSGObject("addSGObject(named2, 1)");
         };
   
         virtual ~SHCmdHandler_QUndo() {};
 
-        /// Synchronize the Qt and KL stacks.
-        void synchronizeStack();
+        /// Encodes a rtVal into a Json, saves the rtVal
+        /// \param context The core context
+        /// \param rtVal The value to encode
+        static std::string encodeRTValToJSON(
+          FabricCore::Context const& context, 
+          FabricCore::RTVal const& rtVal);
 
-        static std::string encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal);
+        /// Decodes a rtVal from a Json, reads the rtVal
+        /// \param context The core context
+        /// \param rtVal The result value
+        /// \param json The string to decode
+        static void decodeRTValFromJSON(
+          FabricCore::Context const& context, 
+          FabricCore::RTVal &rtVal, 
+          FTL::CStrRef json); 
 
-        static void decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json); 
+        /// Gets a pointer to the qt command stack.
+        QUndoStack* getUndoStack() { return m_qUndoStack; };
+
+        /// Synchronize the Qt stack with the KL stack.
+        void synchronize();
 
         /// Adds an object to the scene-graph
-        /// \param name The name of the object
-        /// \param isGlobal True to add a global object, False a pinned object
-        void addSGObject(std::string name, bool isGlobal, bool exec = true);
- 
+        /// \param command The command as string
+        void addSGObject(const std::string &command);
     };
   };
 };

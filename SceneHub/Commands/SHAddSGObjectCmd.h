@@ -8,9 +8,7 @@
 #include <FTL/StrRef.h>
 #include <FabricUI/SceneHub/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
-#include <iostream>
-#include <vector>
-#include <string>
+#include <FabricUI/SceneHub/macros.h>
 
 namespace FabricUI
 {
@@ -18,23 +16,25 @@ namespace FabricUI
   {
     class SHAddSGObjectCmd 
     {
-      public:
-        
+      public:        
         /// Adds an object to the scene-graph
+        /// \param client A reference to the fabric client
+        /// \param shObject A reference to SceneHub application
         /// \param name The name of the object
-        /// \param isGlobalObjet True to add a global object, False a pinned object
+        /// \param isGlobal True to add a global object, False a pinned object
+        /// \param exec If true executes the command, just add it to the Qt stack otherwise
         static SHCmd* exec(
-          FabricCore::Client *client,
+          FabricCore::Client &client,
           FabricCore::RTVal &shObject,
-          std::string name, 
-          bool isGlobalObject, 
-          bool exec) 
+          const std::string &name, 
+          bool isGlobal, 
+          bool exec = true) 
         {
           FABRIC_TRY_RETURN("SHAddSGObjectCmd::exec", false,
- 
             std::vector<FabricCore::RTVal> params(2);
-            params[0] = FabricCore::RTVal::ConstructString(*client, name.c_str());
-            params[1] = FabricCore::RTVal::ConstructBoolean(*client, isGlobalObject);
+            params[0] = FabricCore::RTVal::ConstructString(client, name.c_str());
+            params[1] = FabricCore::RTVal::ConstructBoolean(client, isGlobal);
+
             FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
             
             if(exec) sceneGraph.callMethod("", "addObjectCmd", 2, &params[0]);
@@ -42,14 +42,55 @@ namespace FabricUI
             FabricCore::RTVal cmdManager = sceneGraph.callMethod("SGCmdManager", "getOrCreateHierarchyCmdManager", 0, 0);
             SHCmd *cmd = new SHCmd(cmdManager);
 
-            cmd->setDesc("addObject : " + name);
+            cmd->setDesc("addSGObject : " + name);
+
             return cmd;
           );
         }
 
+        /// Adds an object to the scene-graph
+        /// \param client A reference to the fabric client
+        /// \param shObject A reference to SceneHub application
+        /// \param command The command to be parsed
+        static SHCmd* parseAndExec(FabricCore::Client &client, FabricCore::RTVal &shObject, const std::string &command) {
+
+          //FABRIC_TRY_RETURN("SHAddSGObjectCmd::exec", false,
+            std::cerr << "command " << command << std::endl;
+
+            std::vector<std::string> split1 = Split(command, '(');
+            if(split1.size() == 2)
+            {
+              std::vector<std::string> split2 = Split(split1[1], ')');
+              if(split2.size() == 2)
+              {                
+                std::vector<std::string> split = Split(split2[0], ',');
+                if(split.size() == 2)
+                {
+                  std::cerr << "name " << split[0] << std::endl;
+                  std::cerr << "isGlobal "  << ToNum<int>(split[1]) << std::endl;
+                  std::string name = split[0]; 
+                  bool isGlobal = bool(ToNum<int>(split[1]));
+                  return SHAddSGObjectCmd::exec(client, shObject, name, isGlobal);
+                }
+                return 0;
+              }
+              return 0;
+            }
+            return 0;
+          // );
+        }
+
+        /// Gets the KL command parameters.
+        /// \param client A reference to the fabric client
+        /// \param shObject A reference to SceneHub application
+        /// \param isRestorePoint The name of the object
+        /// \param name The name of the object
+        /// \param isGlobal True to add a global object, False a pinned object
+        /// \param fullPath The path of the object within the scenegraph
+        /// \param index The unique index of the object within the scenegraph
         static void getParams(
-          FabricCore::Client 
-          *client, FabricCore::RTVal &sgCmdVal,
+          FabricCore::Client &client, 
+          FabricCore::RTVal &sgCmdVal,
           bool &isRestorePoint,
           std::string &name,
           bool &isGlobal,
@@ -58,23 +99,23 @@ namespace FabricUI
         {
           FABRIC_TRY("SHAddSGObjectCmd::getParams",
 
-            FabricCore::RTVal keyVal = FabricCore::RTVal::ConstructString(*client, "isRestorePoint");
+            FabricCore::RTVal keyVal = FabricCore::RTVal::ConstructString(client, "isRestorePoint");
             FabricCore::RTVal isRestorePointVal = sgCmdVal.callMethod("Boolean", "getBooleanParam", 1, &keyVal);
             isRestorePoint = isRestorePointVal.getBoolean();
 
-            keyVal = FabricCore::RTVal::ConstructString(*client, "name");
+            keyVal = FabricCore::RTVal::ConstructString(client, "name");
             FabricCore::RTVal nameVal = sgCmdVal.callMethod("String", "getStringParam", 1, &keyVal);
             name = std::string(nameVal.getStringCString());
 
-            keyVal = FabricCore::RTVal::ConstructString(*client, "isGlobal");
+            keyVal = FabricCore::RTVal::ConstructString(client, "isGlobal");
             FabricCore::RTVal isGlobalVal = sgCmdVal.callMethod("Boolean", "getBooleanParam", 1, &keyVal);
             isGlobal = isGlobalVal.getBoolean();
 
-            keyVal = FabricCore::RTVal::ConstructString(*client, "fullPath");
+            keyVal = FabricCore::RTVal::ConstructString(client, "fullPath");
             FabricCore::RTVal fullPathVal = sgCmdVal.callMethod("String", "getStringParam", 1, &keyVal);
             fullPath = std::string(fullPathVal.getStringCString());
 
-            keyVal = FabricCore::RTVal::ConstructString(*client, "index");
+            keyVal = FabricCore::RTVal::ConstructString(client, "index");
             FabricCore::RTVal indexVal = sgCmdVal.callMethod("UInt32", "getUInt32Param", 1, &keyVal);
             index = indexVal.getUInt32();
             

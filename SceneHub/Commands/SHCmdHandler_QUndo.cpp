@@ -8,9 +8,6 @@
 #include <FabricUI/SceneHub/macros.h>
 #include <FTL/OwnedPtr.h>
 #include <FabricCore.h>
-#include <iostream>
-#include <vector>
-#include <string>
 #include <FTL/JSONValue.h>
 #include <FTL/JSONEnc.h>
 
@@ -58,7 +55,9 @@ class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
     bool m_didit;
 };
  
-/// 
+/// Encodes a rtVal into a Json, saves the rtVal
+/// \param context The core context
+/// \param rtVal The value to encode
 std::string SHCmdHandler_QUndo::encodeRTValToJSON(FabricCore::Context const& context, FabricCore::RTVal const& rtVal) {
   if(rtVal.isValid())
   {
@@ -94,6 +93,10 @@ std::string SHCmdHandler_QUndo::encodeRTValToJSON(FabricCore::Context const& con
   return valueJSON.getStringCString();
 }
 
+/// Decodes a rtVal from a Json, reads the rtVal
+/// \param context The core context
+/// \param rtVal The result value
+/// \param json The string to decode
 void SHCmdHandler_QUndo::decodeRTValFromJSON(FabricCore::Context const& context, FabricCore::RTVal & rtVal, FTL::CStrRef json) {
   if(json.size() > 2)
   {
@@ -104,17 +107,14 @@ void SHCmdHandler_QUndo::decodeRTValFromJSON(FabricCore::Context const& context,
         if(rtVal.isObject())
         {
           if(rtVal.isNullObject())
-          {
             rtVal = FabricCore::RTVal::Create( context, rtVal.getTypeName().getStringCString(), 0, NULL );
-          }
-
+          
           std::string decodedString;
           {
             FTL::JSONStrWithLoc strWithLoc( json );
             FTL::JSONDec jsonDec( strWithLoc );
             FTL::JSONEnt jsonEnt;
-            if ( jsonDec.getNext( jsonEnt )
-              && jsonEnt.getType() == jsonEnt.Type_String )
+            if ( jsonDec.getNext( jsonEnt ) && jsonEnt.getType() == jsonEnt.Type_String )
               jsonEnt.stringAppendTo( decodedString );
           }
 
@@ -155,7 +155,7 @@ void SHCmdHandler_QUndo::decodeRTValFromJSON(FabricCore::Context const& context,
 }
 
 /// Synchronizes the Qt and KL stacks.
-void SHCmdHandler_QUndo::synchronizeStack() {
+void SHCmdHandler_QUndo::synchronize() {
 
   // m_qUndoStack->clear();
   
@@ -168,7 +168,7 @@ void SHCmdHandler_QUndo::synchronizeStack() {
 
   for(uint32_t i=0; i<nbCommandsVal.getUInt32(); ++i)
   {
-    FabricCore::RTVal indexVal = FabricCore::RTVal::ConstructUInt32(*m_client, i);
+    FabricCore::RTVal indexVal = FabricCore::RTVal::ConstructUInt32(m_client, i);
     FabricCore::RTVal sgCmdVal = cmdManagerVal.callMethod("SGBaseCmd", "getCmdInUndoStack", 1, &indexVal);
     
     FabricCore::RTVal typeVal = sgCmdVal.callMethod("String", "type", 0, 0);
@@ -180,18 +180,16 @@ void SHCmdHandler_QUndo::synchronizeStack() {
       std::string name, fullPath;
       bool isRestorePoint, isGlobal;
 
-      SHAddSGObjectCmd::getParams(m_client, sgCmdVal,
-        isRestorePoint, name, isGlobal, fullPath, index);
+      SHAddSGObjectCmd::getParams(m_client, sgCmdVal, isRestorePoint, name, isGlobal, fullPath, index);
       //addSGObject(name, isGlobal, false);
     }
   }
 }
 
 /// Adds an object to the scene-graph
-/// \param name The name of the object
-/// \param isGlobal True to add a global object, False a pinned object
-void SHCmdHandler_QUndo::addSGObject(std::string name, bool isGlobal, bool exec) {
-  SHCmd *cmd = SHAddSGObjectCmd::exec(m_client, m_shObject, name, isGlobal, exec);
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
-  synchronizeStack();
+/// \param command The command as string
+void SHCmdHandler_QUndo::addSGObject(const std::string &command) {
+  SHCmd *cmd = SHAddSGObjectCmd::parseAndExec(m_client, m_shObject, command);
+  if(cmd) m_qUndoStack->push( new WrappedCmd(cmd) );
+  //synchronize();
 }

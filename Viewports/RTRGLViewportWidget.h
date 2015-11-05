@@ -16,8 +16,8 @@
 #include <QtCore/QTime>
 #include <QtGui/QMenuBar>
 #include <FabricCore.h>
-#include <FabricUI/SceneHub/SGLightManagerDialog.h>
-#include <FabricUI/SceneHub/SGGeometryManagerDialog.h>
+#include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
+#include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
 
 namespace FabricUI
 {

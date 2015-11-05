@@ -16,19 +16,23 @@ namespace FabricUI
     class SHCmd
     {
       public:
-        SHCmd(FabricCore::RTVal cmdManager) : 
+        /// Constructs a command.
+        /// \param cmdManager A reference to the SGCmdManager (kl).
+        SHCmd(FabricCore::RTVal &cmdManager) : 
           m_cmdManager(cmdManager), 
           m_coreUndoCount(0), 
           m_state(State_New) {};
 
         ~SHCmd() {};
 
+        /// Does nothing (don't call the command in KL).
         void doit() {
           assert( m_state == State_New );
           ++m_coreUndoCount;
           m_state = State_Done;
         };
 
+        /// Undoes the command.
         void undo() {
           assert( m_state == State_Done || m_state == State_Redone );
           m_state = State_Undone;
@@ -38,6 +42,7 @@ namespace FabricUI
           );
         };
 
+        /// Redoes the command.
         void redo() {
           assert( m_state = State_Undone );
           m_state = State_Redone;          
@@ -47,16 +52,19 @@ namespace FabricUI
           );
         };
 
+        /// Undoes the commands
         std::string getDesc() {
           assert(wasInvoked());
           return m_desc;
         };
 
+        /// Undoes the commands
         void setDesc(std::string desc) {
           m_desc = desc;
         };
 
       private:
+        /// Checks if the command has been already applied.
         bool wasInvoked() const { return m_state != State_New; };
  
         enum State {
