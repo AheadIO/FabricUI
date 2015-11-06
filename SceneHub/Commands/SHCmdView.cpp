@@ -22,7 +22,7 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   m_shCmdHandler = FabricUI::SceneHub::SHCmdHandler_QUndo(client, shObject, qUndoStack);
 
   m_qUndoView = new QUndoView(m_shCmdHandler.getUndoStack());
-  m_qUndoView->setEmptyLabel("New Scene");
+  m_qUndoView->setEmptyLabel("root");
   m_edit = new QLineEdit();
 
   QVBoxLayout * layout = new QVBoxLayout();
@@ -47,14 +47,14 @@ void SHCmdView::keyPressEvent(QKeyEvent *event) {
 /// \param command The command to execute
 bool SHCmdView::parseAndExecuteCmd(const std::string &command) {
 
-  std::vector<std::string> split = Split(command, '(');
+  std::vector<std::string> split = FabricUI::SceneHub::Split(command, '(');
   if(split.size() > 1)
   {   
     // Get the command's name
-    std::string cmdName = split[0];
+    std::string cmdName = ToLower(split[0]);
 
     // addSGObject
-    if(cmdName.compare("addSGObject") == 0) m_shCmdHandler.addSGObject(command);
+    if(cmdName.compare("addsgobject") == 0) m_shCmdHandler.addSGObject(command);
      
     // If the command is not recognized, do nothing
     else return false;

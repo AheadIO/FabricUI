@@ -7,9 +7,9 @@
 #include <FTL/StrRef.h>
 #include <FTL/StrRef.h>
 #include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/SceneHub/SHHotKeys.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
-#include <FabricUI/SceneHub/macros.h>
-
+ 
 namespace FabricUI
 {
   namespace SceneHub
@@ -54,8 +54,7 @@ namespace FabricUI
         /// \param command The command to be parsed
         static SHCmd* parseAndExec(FabricCore::Client &client, FabricCore::RTVal &shObject, const std::string &command) {
 
-          //FABRIC_TRY_RETURN("SHAddSGObjectCmd::exec", false,
-            std::cerr << "command " << command << std::endl;
+          FABRIC_TRY_RETURN("SHAddSGObjectCmd::parseAndExec", false,
 
             std::vector<std::string> split1 = Split(command, '(');
             if(split1.size() == 2)
@@ -66,10 +65,13 @@ namespace FabricUI
                 std::vector<std::string> split = Split(split2[0], ',');
                 if(split.size() == 2)
                 {
-                  std::cerr << "name " << split[0] << std::endl;
-                  std::cerr << "isGlobal "  << ToNum<int>(split[1]) << std::endl;
-                  std::string name = split[0]; 
-                  bool isGlobal = bool(ToNum<int>(split[1]));
+                  // Get the name of the object
+                  std::string name = RemoveWithSpace(split[0]); 
+                  std::string isGlobalStr = RemoveWithSpace(split[1]); 
+                  // Get if it a global object
+                  bool isGlobal = false;
+                  if(IsNumber(isGlobalStr)) isGlobal = bool(ToNum<int>(isGlobalStr));
+                  else isGlobal = (ToLower(isGlobalStr).compare("true") == 0) ? true : false;          
                   return SHAddSGObjectCmd::exec(client, shObject, name, isGlobal);
                 }
                 return 0;
@@ -77,7 +79,7 @@ namespace FabricUI
               return 0;
             }
             return 0;
-          // );
+          );
         }
 
         /// Gets the KL command parameters.

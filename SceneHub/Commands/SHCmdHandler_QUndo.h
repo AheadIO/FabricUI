@@ -44,8 +44,8 @@ namespace FabricUI
         {
           std::cerr << "SHCmdHandler_QUndo" << std::endl;
           addSGObject("named1");
-          addSGObject("addSGObject(pinned, 0)");
-          addSGObject("addSGObject(named2, 1)");
+          addSGObject("addSGObject(pinned, false)");
+          addSGObject("addSGObject(named2, true)");
         };
   
         virtual ~SHCmdHandler_QUndo() {};

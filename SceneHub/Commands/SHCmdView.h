@@ -13,7 +13,7 @@
 #include <FTL/JSONEnc.h>
 #include <FabricUI/SceneHub/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
-
+   
 namespace FabricUI
 {
   namespace SceneHub

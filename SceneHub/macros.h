@@ -2,50 +2,13 @@
 #define __MACROS_H__
 
 #include <FabricCore.h>
+#include <cctype>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
-
-template <typename T> std::string ToStr(T t) { 
-  std::ostringstream os; 
-  os<<t; 
-  return os.str(); 
-} 
-
-template<typename T> T ToNum(std::string number) {
-  T value;
-  std::stringstream stream(number);
-  stream >> value;
-  if(stream.fail()) 
-  {
-    std::runtime_error e(number);
-    throw e;
-  }
-  return value;
-}
-
-/// \internal
-/// Spits a string into a vector.
-/// \param s The string to split
-/// \param c The delimiter tat splits the string
-inline std::vector<std::string> Split(const std::string& s, char c) {
-
-  std::vector<std::string> v;
-  std::string::size_type i = 0;
-  std::string::size_type j = s.find(c);
-
-  while (j != std::string::npos) {
-    v.push_back(s.substr(i, j-i));
-    i = ++j;
-    j = s.find(c, j);
-
-    if (j == std::string::npos)
-     v.push_back(s.substr(i, s.length()));
-  }
-  return v;
-}
 
 
 #ifdef FABRIC_SPLICE_TRACE
