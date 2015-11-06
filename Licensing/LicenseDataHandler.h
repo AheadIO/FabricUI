@@ -117,6 +117,17 @@ namespace FabricUI
 
     void onExpiryWarning( FTL::CStrRef expiry )
     {
+      const char *noExpiryDialog = getenv( "FABRIC_NO_EXPIRY_DIALOG" );
+      if ( noExpiryDialog && ::atoi( noExpiryDialog ) > 0 )
+      {
+        fprintf( stderr,
+                 "WARNING: Your Fabric license will expire in less than a "
+                 "month on %s, please contact Fabric Software if you wish "
+                 "to renew it.\n",
+                 expiry.c_str() );
+        return;
+      }
+
       QDialog *dialog = new ExpiryWarningDialog( 0, expiry );
       if ( m_modal )
       {
