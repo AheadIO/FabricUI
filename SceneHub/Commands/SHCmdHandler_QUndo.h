@@ -20,8 +20,7 @@ namespace FabricUI
     {
       private:
         QUndoStack *m_qUndoStack;
-        FabricCore::Client m_client;
-        FabricCore::RTVal m_shObject;
+    
 
       protected:
         class WrappedCmd;
@@ -31,50 +30,20 @@ namespace FabricUI
         SHCmdHandler_QUndo() {};
 
         /// Constructs a new SHCmdHandler_QUndo.
-        /// \param client A reference to the fabric client
-        /// \param shObject A reference to SceneHub application
         /// \param qUndoStack A pointer to the Qt undo-redo stack
-        SHCmdHandler_QUndo(
-          FabricCore::Client &client, 
-          FabricCore::RTVal &shObject, 
-          QUndoStack *qUndoStack) : 
-          m_client(client),
-          m_shObject(shObject),
-          m_qUndoStack(qUndoStack) 
-        {
-          std::cerr << "SHCmdHandler_QUndo" << std::endl;
-          addSGObject("named1");
-          addSGObject("addSGObject(pinned, false)");
-          addSGObject("addSGObject(named2, true)");
-        };
+        SHCmdHandler_QUndo(QUndoStack *qUndoStack) : m_qUndoStack(qUndoStack) {};
   
         virtual ~SHCmdHandler_QUndo() {};
 
-        /// Encodes a rtVal into a Json, saves the rtVal
-        /// \param context The core context
-        /// \param rtVal The value to encode
-        static std::string encodeRTValToJSON(
-          FabricCore::Context const& context, 
-          FabricCore::RTVal const& rtVal);
-
-        /// Decodes a rtVal from a Json, reads the rtVal
-        /// \param context The core context
-        /// \param rtVal The result value
-        /// \param json The string to decode
-        static void decodeRTValFromJSON(
-          FabricCore::Context const& context, 
-          FabricCore::RTVal &rtVal, 
-          FTL::CStrRef json); 
+        /// Gets a pointer to the qt command stack.
+        QUndoStack* getStack() { return m_qUndoStack; };
 
         /// Gets a pointer to the qt command stack.
-        QUndoStack* getUndoStack() { return m_qUndoStack; };
+        void clearStack() { m_qUndoStack->clear(); };
 
-        /// Synchronize the Qt stack with the KL stack.
-        void synchronize();
-
-        /// Adds an object to the scene-graph
-        /// \param command The command as string
-        void addSGObject(const std::string &command);
+        /// Adds and executes a command
+        /// \param cmd The command
+        bool addCommand(SHCmd *cmd);
     };
   };
 };

@@ -13,7 +13,8 @@
 #include <FTL/JSONEnc.h>
 #include <FabricUI/SceneHub/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
-   
+
+
 namespace FabricUI
 {
   namespace SceneHub
@@ -38,20 +39,24 @@ namespace FabricUI
         virtual void keyPressEvent(QKeyEvent *event);
 
       private:
-        /// \internal
-        /// Parses and executes a command.
-        /// \param command The command to execute
-        bool parseAndExecuteCmd(const std::string &command);
+        /// Synchronizes the Qt stack from the KL stack.
+        void synchronize();
 
-        /// \internal
+        /// Adds a command.
+        /// \param command The command to execute
+        /// \param exec If true executes the command, just add it to the Qt stack otherwise
+        bool addCommand(const std::string &command, bool exec = true);
+
+
         /// Writes commands
         QLineEdit *m_edit;
-        /// \internal
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
-        /// \internal
         /// Reference on the SHCmdHandler.
         SHCmdHandler_QUndo m_shCmdHandler;
+
+        FabricCore::Client m_client;
+        FabricCore::RTVal m_shObject;
     };
   };
 };
