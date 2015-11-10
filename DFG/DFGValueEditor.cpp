@@ -4,6 +4,7 @@
 #include "VariablePathValueItem.h"
 #include "VariablePathValueWidget.h"
 #include <QtGui/QMessageBox>
+#include <FTL/AutoSet.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -371,6 +372,8 @@ void DFGValueEditor::onNodeRemoved(
 
 void DFGValueEditor::updateOutputs()
 {
+  FTL::AutoSet<bool> updatingOutputsAutoSet( m_updatingOutputs, true );
+
   if ( m_nodeName.empty() )
   {
     for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )

@@ -1536,7 +1536,8 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     }
     else if ( descStr == FTL_STR("argTypeChanged")
       || descStr == FTL_STR("argInserted")
-      || descStr == FTL_STR("argRemoved") )
+      || descStr == FTL_STR("argRemoved")
+      || descStr == FTL_STR("argsReordered") )
     {
       bindUnboundRTVals();
       emitArgsChanged();
