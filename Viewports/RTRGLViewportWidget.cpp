@@ -356,9 +356,9 @@ void RTRGLViewportWidget::constuctLightMenu() {
 void RTRGLViewportWidget::editLightProperties() {
   //if(m_geometryDialog->isVisible())
   //  m_geometryDialog->close();
-  int w = 0.2*this->width();
+  int w = int(0.2*this->width());
   w = (w < 50) ? 50 : w;
-  int h = 0.2*this->height();
+  int h = int(0.2*this->height());
   h = (h < 50) ? 50 : h;
   m_lightDialog->setFixedSize(w, h);
   m_lightDialog->show();

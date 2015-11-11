@@ -5,7 +5,8 @@
 #include <QtGui/QMessageBox>
 #include <FabricUI/SceneHub/Commands/SHCmdView.h>
 #include <FabricUI/SceneHub/Commands/SGAddObjectCmd.h>
-#include <FabricUI/SceneHub/Commands/SGSetPropertyCmd.h>
+#include <FabricUI/SceneHub/Commands/SGAddPropertyCmd.h>
+#include <FabricUI/SceneHub/Commands/SGSetPropertyValueCmd.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -61,13 +62,19 @@ bool SHCmdView::addCommand(const std::string &command, bool exec) {
         SGAddObjectCmd::Create(m_client, m_shObject, command, exec));
     }
 
-    // SGSetPropertyCmd
-    else if(ToLower(name).compare(ToLower(SGSetPropertyCmd_Str)) == 0) 
+    // SGAddPropertyCmd
+    else if(ToLower(name).compare(ToLower(SGAddPropertyCmd_Str)) == 0) 
     { 
       return m_shCmdHandler.addCommand(
-        SGSetPropertyCmd::Create(m_client, m_shObject, command, exec));
+        SGAddPropertyCmd::Create(m_client, m_shObject, command, exec));
     }
 
+    // SGSetPropertyValueCmd
+    else if(ToLower(name).compare(ToLower(SGSetPropertyValueCmd_Str)) == 0) 
+    { 
+      return m_shCmdHandler.addCommand(
+        SGSetPropertyValueCmd::Create(m_client, m_shObject, command, exec));
+    }
   }
   return false;
 }
@@ -91,10 +98,17 @@ void SHCmdView::synchronize() {
       addCommand(command, false);
     }
 
-    // SGSetPropertyCmd
-    else if(ToLower(type).compare(ToLower(SGSetPropertyCmd_Type_Str)) == 0)
+    // SGAddPropertyCmd
+    else if(ToLower(type).compare(ToLower(SGAddPropertyCmd_Type_Str)) == 0)
     {
-      std::string command = SGSetPropertyCmd::Get(m_client, m_shObject, i);
+      std::string command = SGAddPropertyCmd::Get(m_client, m_shObject, i);
+      addCommand(command, false);
+    }
+
+    // SGSetPropertyValueCmd
+    else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
+    {
+      std::string command = SGSetPropertyValueCmd::Get(m_client, m_shObject, i);
       addCommand(command, false);
     }
   }

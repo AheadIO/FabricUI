@@ -49,12 +49,6 @@ namespace FabricUI
             if(IsNumber(isGlobalStr)) isGlobal = bool(ToNum<int>(isGlobalStr));
             else isGlobal = (ToLower(isGlobalStr).compare("true") == 0) ? true : false;   
 
-            cerr << "\n\n\n" << endl;
-            string data = "{ 'row0' : { 'x' : 3, 'y' : 0, 'z' : 0, 't' : 0 }, 'row1' : { 'x' : 0, 'y' : 4, 'z' : 0, 't' : 0 }, 'row2' : { 'x' : 0, 'y' : 0, 'z' : 1, 't' : 0 }, 'row3' : { 'x' : 0, 'y' : 0, 'z' : 0, 't' : 1 } }";
-            RTVal val = SHCmd::SetParamValue(client, "Mat44", data);
-            cerr << SHCmd::EncodeRTValToJSON(client, val) << endl;
-            cerr << "\n\n\n" << endl;
-
             FABRIC_TRY_RETURN("SGAddObjectCmd::Create", false,
               vector<RTVal> params(2);
               params[0] = RTVal::ConstructString(client, name.c_str());

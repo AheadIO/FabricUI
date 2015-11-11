@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
-#ifndef __FABRICUI_SceneHub_SGSetPropertyCmd__
-#define __FABRICUI_SceneHub_SGSetPropertyCmd__
+#ifndef __FABRICUI_SceneHub_SGAddPropertyCmd__
+#define __FABRICUI_SceneHub_SGAddPropertyCmd__
 
 #include <FabricCore.h>
 #include <FTL/StrRef.h>
@@ -13,14 +13,15 @@
 using namespace std;
 using namespace FabricCore;
 
+
 namespace FabricUI
 {
   namespace SceneHub
   {
-    const string SGSetPropertyCmd_Str = "sg.setPropertyCmd";
-    const string SGSetPropertyCmd_Type_Str = "SGSetPropertyCmd";
+    const string SGAddPropertyCmd_Str = "sg.addPropertyCmd";
+    const string SGAddPropertyCmd_Type_Str = "SGAddPropertyCmd";
 
-    class SGSetPropertyCmd : SHCmd
+    class SGAddPropertyCmd : SHCmd
     {
       public:        
         /// Constructs and executes a command.
@@ -28,8 +29,8 @@ namespace FabricUI
         /// \param cmdDes The command desciprtion
         /// \param params The command parameters
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
-        SGSetPropertyCmd(RTVal &shObject, const string &cmdDes, vector<RTVal> &params, bool exec) :
-          SHCmd(shObject, SGSetPropertyCmd_Type_Str, cmdDes, params, exec) {};
+        SGAddPropertyCmd(RTVal &shObject, const string &cmdDes, vector<RTVal> &params, bool exec) :
+          SHCmd(shObject, SGAddPropertyCmd_Type_Str, cmdDes, params, exec) {};
 
         /// Adds an object to the scene-graph
         /// \param client A reference to the fabric client
@@ -38,52 +39,46 @@ namespace FabricUI
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         static SHCmd* Create(Client &client, RTVal &shObject, const string &command, bool exec) {
           vector<string> params;
-          if(SHCmd::ExtractParams(command, params) && params.size() == 3)
+          if(SHCmd::ExtractParams(command, params) && params.size() == 2)
           {
-            // Get the name of the object
             string ownerPath = RemoveSpace(params[0]); 
             string name = RemoveSpace(params[1]); 
-            float value = ToNum<float>(RemoveSpace(params[2])); 
-        
-            FABRIC_TRY_RETURN("SGSetPropertyCmd::Create", false,
-              vector<RTVal> params(3);
+         
+            FABRIC_TRY_RETURN("SGAddPropertyCmd::Create", false,
+              vector<RTVal> params(2);
               params[0] = RTVal::ConstructString(client, ownerPath.c_str());
               params[1] = RTVal::ConstructString(client, name.c_str());
-              params[2] = RTVal::ConstructFloat32(client, value);
-
-              return new SGSetPropertyCmd(shObject, command, params, exec);
+              return new SGAddPropertyCmd(shObject, command, params, exec);
             );
           }
           return 0;
         };
-
+ 
         /// Gets the KL command parameters.
         /// \param client A reference to the fabric client
         /// \param shObject A reference to SceneHub application
         /// \param index The name of the object
         static string Get(Client &client, RTVal &shObject, uint32_t index) {
 
-          FABRIC_TRY_RETURN("SGSetPropertyCmd::Get", false,
+          FABRIC_TRY_RETURN("SGAddPropertyCmd::Get", false,
      
             FabricCore::RTVal sgCmd = SHCmd::RetrieveCmd(client, shObject, index);
-              
+
             RTVal keyVal = RTVal::ConstructString(client, "ownerPath");
-            RTVal ownerPathVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
-            string ownerPath = string(ownerPathVal.getStringCString());
+            RTVal nameVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
+            string ownerPath = string(nameVal.getStringCString());
 
             keyVal = RTVal::ConstructString(client, "name");
-            RTVal nameVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
+            nameVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
             string name = string(nameVal.getStringCString());
 
-            //keyVal = RTVal::ConstructString(client, "value");
-            //RTVal valueVal = sgCmd.callMethod("Float32", "getFloat32Param", 1, &keyVal);
-            float value = 1.0;// valueVal.getFloat32();
-
-            return string( SGSetPropertyCmd_Str + "(" + ownerPath + ", " +  name + ", " + ToStr(value) + ")" );
+            return string( SGAddPropertyCmd_Str + "(" + ownerPath + ", " + name + ")" );
           );
-        };     
+        };
     };
   };  
 };
 
-#endif // __FABRICUI_SceneHub_SGSetPropertyCmd__
+#endif // __FABRICUI_SceneHub_SGAddPropertyCmd__
+
+

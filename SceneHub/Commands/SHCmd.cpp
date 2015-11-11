@@ -168,7 +168,7 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
 /// \param type The parameter type
 /// \param value The parameter value JSon encoded
 FabricCore::RTVal SHCmd::SetParamValue(FabricCore::Client const& client, std::string const& type, std::string const& value) {
-  FABRIC_TRY_RETURN("SHCmd::SetStructParamValue", false,
+  FABRIC_TRY_RETURN("SHCmd::SetParamValue", false,
     FabricCore::RTVal rtVal = FabricCore::RTVal::Construct(client, type.c_str(), 0, 0);
     DecodeRTValFromJSON(client, rtVal, value.c_str());
     return rtVal;
@@ -203,7 +203,7 @@ FabricCore::RTVal SHCmd::GetCmdManager(FabricCore::RTVal &shObject) {
 FabricCore::RTVal SHCmd::RetrieveCmd(FabricCore::Client &client, FabricCore::RTVal &shObject, uint32_t index) {
   FABRIC_TRY_RETURN("SHCmd::RetrieveCmd", false,
     FabricCore::RTVal indexVal = FabricCore::RTVal::ConstructUInt32(client, index);
-    return GetCmdManager(shObject).callMethod("SGBaseCmd", "getCmdInUndoStack", 1, &indexVal);
+    return GetCmdManager(shObject).callMethod("SGCmd", "getCmdInUndoStack", 1, &indexVal);
   );
 }
 
