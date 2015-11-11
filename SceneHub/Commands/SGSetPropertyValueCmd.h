@@ -38,7 +38,8 @@ namespace FabricUI
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         static SHCmd* Create(Client &client, RTVal &shObject, const string &command, bool exec) {
           vector<string> params;
-          if(SHCmd::ExtractParams(command, params) && params.size() == 4)
+          uint32_t nbParams = 4;
+          if(SHCmd::ExtractParams(command, params) && params.size() == nbParams)
           {
             // Get the name of the object
             string fullPath = RemoveSpace(params[0]); 
@@ -50,7 +51,7 @@ namespace FabricUI
 
               RTVal val = SHCmd::SetParamValue(client, type.c_str(), data);
               
-              vector<RTVal> params(4);
+              vector<RTVal> params(nbParams);
               params[0] = RTVal::ConstructString(client, fullPath.c_str());
               params[1] = val.callMethod("String", "type", 0, 0);
               params[2] = val;
@@ -68,10 +69,10 @@ namespace FabricUI
         /// \param index The name of the object
         static string Get(Client &client, RTVal &shObject, uint32_t index) {
 
-          //FABRIC_TRY_RETURN("SGSetPropertyValueCmd::Get", false,
+          FABRIC_TRY_RETURN("SGSetPropertyValueCmd::Get", false,
      
             FabricCore::RTVal sgCmd = SHCmd::RetrieveCmd(client, shObject, index);
-              
+                
             RTVal keyVal = RTVal::ConstructString(client, "fullPath");
             RTVal fullPathVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
             string fullPath = string(fullPathVal.getStringCString());
@@ -79,23 +80,24 @@ namespace FabricUI
             vector<RTVal> params(2);
             params[0] = RTVal::ConstructUInt64(client, 0);
             params[1] = RTVal::ConstructString(client, string("").c_str());
-            RTVal dataVal = sgCmd.callMethod("Data", "getPropertyParam", 2, &params[0]);
+            sgCmd.callMethod("", "getPropertyParam", 2, &params[0]);
             uint64_t dataSize = params[0].getUInt64();
             string type = string(params[1].getStringCString());
-            
-            std::cerr << "fullPath " << fullPath << std::endl;
-            std::cerr << "type " << type << std::endl;
 
-            RTVal objVal = RTVal::Construct(client, type.c_str(), 0, 0);//&dataVal);
-            string data = EncodeRTValToJSON(client, objVal);
-            std::cerr << "data " << data << std::endl;
-
+            RTVal propertyVal = sgCmd.callMethod("SGObjectProperty", "getProperty", 0, 0);
+            RTVal structVal = RTVal::Construct(client, type.c_str(), 0, 0);
+            params[0] = structVal.callMethod("Data", "data", 0, 0);
+            params[1] = structVal.callMethod("Size", "dataSize", 0, 0);
+            propertyVal.callMethod("", "getSimpleStructValue", 2, &params[0]);
+                 
+            string data = EncodeRTValToJSON(client, structVal);
+        
             string res = string( SGSetPropertyValueCmd_Str + "(" + fullPath + ", " + type + 
               ", " + RemoveSpace(RemoveNewLine(data)) + ", " + ToStr(dataSize) + ")" );
 
-            std::cerr << "res " << res << std::endl;
+            //std::cerr << "res " << res << std::endl;
             return res;
-          //);
+          );
         };     
     };
   };  
