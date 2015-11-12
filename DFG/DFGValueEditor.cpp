@@ -28,8 +28,8 @@ DFGValueEditor::DFGValueEditor(
     this, SLOT(setBinding(FabricCore::DFGBinding const &))
     );
   QObject::connect(
-    m_controller, SIGNAL(nodeRemoved(FTL::CStrRef)),
-    this, SLOT(onNodeRemoved(FTL::CStrRef))
+    m_controller, SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+    this, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
     );
 
   QObject::connect(
