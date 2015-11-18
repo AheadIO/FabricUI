@@ -148,7 +148,7 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
         params.push_back(params_);
         for(uint32_t i=index; i<tempArray.size(); ++i) params.push_back(tempArray[i]);
 
-        std::cerr << "index " << index << std::endl;
+        //std::cerr << "index " << index << std::endl;
         std::cerr << "params_ " << params_ << std::endl;
         std::cerr << "command " << command << std::endl;
         std::cerr << "paramArray " << paramArray << std::endl;

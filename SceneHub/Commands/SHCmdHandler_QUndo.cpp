@@ -28,8 +28,8 @@ class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
         else {
           m_didit = true;
           m_shCmd->doit();
-          QUndoCommand::setText( m_shCmd->getDesc().c_str() );
         }
+        QUndoCommand::setText( m_shCmd->getDesc().c_str() );
       }
       catch (FabricCore::Exception e) {
         printf("Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );

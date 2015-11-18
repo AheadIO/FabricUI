@@ -17,7 +17,7 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    const string SGSetPropertyValueCmd_Str = "sg.setPropertyValueCmd";
+    const string SGSetPropertyValueCmd_Str = "setPropertyValueCmd";
     const string SGSetPropertyValueCmd_Type_Str = "SGSetPropertyValueCmd";
 
     class SGSetPropertyValueCmd : SHCmd
@@ -29,7 +29,7 @@ namespace FabricUI
         /// \param params The command parameters
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         SGSetPropertyValueCmd(RTVal &shObject, const string &cmdDes, vector<RTVal> &params, bool exec) :
-          SHCmd(shObject, SGSetPropertyValueCmd_Type_Str, cmdDes, params, exec) {};
+          SHCmd(shObject, SGSetPropertyValueCmd_Str, cmdDes, params, exec) {};
 
         /// Adds an object to the scene-graph
         /// \param client A reference to the fabric client
@@ -45,7 +45,7 @@ namespace FabricUI
             string fullPath = RemoveSpace(params[0]); 
             string type = RemoveSpace(params[1]); 
             string data = RemoveSpace(params[2]); 
-            uint64_t dataSize = ToNum<uint32_t>(params[3]); 
+            uint64_t dataSize = ToNum<uint64_t>(params[3]); 
 
             FABRIC_TRY_RETURN("SGSetPropertyValueCmd::Create", false,
 
@@ -53,8 +53,8 @@ namespace FabricUI
               
               vector<RTVal> params(nbParams);
               params[0] = RTVal::ConstructString(client, fullPath.c_str());
-              params[1] = val.callMethod("String", "type", 0, 0);
-              params[2] = val;
+              params[1] = val.callMethod("Type", "type", 0, 0);
+              params[2] = val.callMethod("Data", "data", 0, 0);
               params[3] = RTVal::ConstructUInt64(client, dataSize);
 
               return new SGSetPropertyValueCmd(shObject, command, params, exec);
@@ -77,25 +77,22 @@ namespace FabricUI
             RTVal fullPathVal = sgCmd.callMethod("String", "getStringParam", 1, &keyVal);
             string fullPath = string(fullPathVal.getStringCString());
 
-            vector<RTVal> params(2);
+            vector<RTVal> params(3);
             params[0] = RTVal::ConstructUInt64(client, 0);
             params[1] = RTVal::ConstructString(client, string("").c_str());
             sgCmd.callMethod("", "getPropertyParam", 2, &params[0]);
             uint64_t dataSize = params[0].getUInt64();
             string type = string(params[1].getStringCString());
 
-            RTVal propertyVal = sgCmd.callMethod("SGObjectProperty", "getProperty", 0, 0);
             RTVal structVal = RTVal::Construct(client, type.c_str(), 0, 0);
-            params[0] = structVal.callMethod("Data", "data", 0, 0);
-            params[1] = structVal.callMethod("Size", "dataSize", 0, 0);
-            propertyVal.callMethod("", "getSimpleStructValue", 2, &params[0]);
-                 
+            RTVal dataVal = structVal.callMethod("Data", "data", 0, 0);
+            sgCmd.callMethod("", "getPropertyData", 1, &dataVal);
+                  
             string data = EncodeRTValToJSON(client, structVal);
         
             string res = string( SGSetPropertyValueCmd_Str + "(" + fullPath + ", " + type + 
               ", " + RemoveSpace(RemoveNewLine(data)) + ", " + ToStr(dataSize) + ")" );
 
-            //std::cerr << "res " << res << std::endl;
             return res;
           );
         };     

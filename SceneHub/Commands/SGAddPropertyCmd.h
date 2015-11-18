@@ -18,7 +18,7 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    const string SGAddPropertyCmd_Str = "sg.addPropertyCmd";
+    const string SGAddPropertyCmd_Str = "addPropertyCmd";
     const string SGAddPropertyCmd_Type_Str = "SGAddPropertyCmd";
 
     class SGAddPropertyCmd : SHCmd
@@ -30,7 +30,7 @@ namespace FabricUI
         /// \param params The command parameters
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         SGAddPropertyCmd(RTVal &shObject, const string &cmdDes, vector<RTVal> &params, bool exec) :
-          SHCmd(shObject, SGAddPropertyCmd_Type_Str, cmdDes, params, exec) {};
+          SHCmd(shObject, SGAddPropertyCmd_Str, cmdDes, params, exec) {};
 
         /// Adds an object to the scene-graph
         /// \param client A reference to the fabric client

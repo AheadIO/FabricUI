@@ -26,7 +26,7 @@ SHCmdView::SHCmdView(
   m_shCmdHandler = FabricUI::SceneHub::SHCmdHandler_QUndo(qUndoStack);
 
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
-  m_qUndoView->setEmptyLabel("sg.addObjectCmd(root, true)");
+  m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");
   m_edit = new QLineEdit();
 
   QVBoxLayout * layout = new QVBoxLayout();
