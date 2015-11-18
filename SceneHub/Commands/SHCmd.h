@@ -1,4 +1,6 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
 #ifndef __FABRICUI_SceneHub_Cmd__
 #define __FABRICUI_SceneHub_Cmd__

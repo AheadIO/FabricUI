@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
 #include <QtGui/QMessageBox>
@@ -35,15 +35,58 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   cmdLayout->addWidget(m_edit);
   cmdLayout->addWidget(m_synchronize);
 
+  m_text = new QPlainTextEdit(this);
+  //m_text->setFont( m_config.fixedFont );
+  m_text->setReadOnly(true);
+  m_text->setContextMenuPolicy( Qt::CustomContextMenu );
+
   QVBoxLayout *layout = new QVBoxLayout();
   layout->setSpacing(0);
   layout->addLayout(cmdLayout);
   layout->addWidget(m_qUndoView);
+  layout->addWidget(m_text);
   layout->setContentsMargins(0, 0, 0, 0);
   setLayout(layout);
 
   synchronize();
 };
+
+/// Logs the application callback within the log windows.
+/// \param stringData The string to log
+void SHCmdView::logCallBack(char const*stringData) {
+  QString message(stringData);
+  bool isError = message.toLower().indexOf("error") > -1;
+  if(isError) m_text->appendHtml("<font color=\"red\">"+message+"</font>");
+  else m_text->appendPlainText(QString(stringData));
+}
+ 
+/// Synchronizes the Qt stack from the KL stack.
+void SHCmdView::synchronize() {
+  
+  m_shCmdHandler.clearStack();
+    
+  // Get the number of commands already done in the KL stack
+  FabricCore::RTVal nbCommandsVal = SHCmd::GetCmdManager(m_shObject).callMethod("Size", "getNumCmdInUndoStack", 0, 0);
+  for(uint32_t i=0; i<nbCommandsVal.getUInt32(); ++i)
+  {
+    FabricCore::RTVal typeVal = SHCmd::RetrieveCmd(m_client, m_shObject, i).callMethod("String", "type", 0, 0);
+    std::string type = std::string(typeVal.getStringCString());
+ 
+    // SGAddObjectCmd
+    if(ToLower(type).compare(ToLower(SGAddObjectCmd_Type_Str)) == 0)
+      addCommand(SGAddObjectCmd::Get(m_client, m_shObject, i), false);
+
+    // SGAddPropertyCmd
+    else if(ToLower(type).compare(ToLower(SGAddPropertyCmd_Type_Str)) == 0)
+      addCommand(SGAddPropertyCmd::Get(m_client, m_shObject, i), false);
+
+    // SGSetPropertyValueCmd
+    else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
+      addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
+
+    else std::cerr << "SHCmdView::synchronize : Command type " << type << " wasn't founded" << std::endl;
+  }
+}
 
 /// Gets the "Return" key event, validate the command.
 /// \param event The Key event
@@ -77,32 +120,4 @@ bool SHCmdView::addCommand(const std::string &command, bool exec) {
     else std::cerr << "SHCmdView::addCommand : Command name " << name << " wasn't founded" << std::endl;
   }
   return false;
-}
- 
-/// Synchronizes the Qt stack from the KL stack.
-void SHCmdView::synchronize() {
-  
-  m_shCmdHandler.clearStack();
-    
-  // Get the number of commands already done in the KL stack
-  FabricCore::RTVal nbCommandsVal = SHCmd::GetCmdManager(m_shObject).callMethod("Size", "getNumCmdInUndoStack", 0, 0);
-  for(uint32_t i=0; i<nbCommandsVal.getUInt32(); ++i)
-  {
-    FabricCore::RTVal typeVal = SHCmd::RetrieveCmd(m_client, m_shObject, i).callMethod("String", "type", 0, 0);
-    std::string type = std::string(typeVal.getStringCString());
- 
-    // SGAddObjectCmd
-    if(ToLower(type).compare(ToLower(SGAddObjectCmd_Type_Str)) == 0)
-      addCommand(SGAddObjectCmd::Get(m_client, m_shObject, i), false);
-
-    // SGAddPropertyCmd
-    else if(ToLower(type).compare(ToLower(SGAddPropertyCmd_Type_Str)) == 0)
-      addCommand(SGAddPropertyCmd::Get(m_client, m_shObject, i), false);
-
-    // SGSetPropertyValueCmd
-    else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
-      addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
-
-    else std::cerr << "SHCmdView::synchronize : Command type " << type << " wasn't founded" << std::endl;
-  }
 }
