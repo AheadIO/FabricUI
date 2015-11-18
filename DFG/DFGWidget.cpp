@@ -456,13 +456,13 @@ void DFGWidget::onGraphAction(QAction * action)
 dfgEntry {\n\
   // result = a + b;\n\
 }\n");
-    FTL::CStrRef nodeName =
+    std::string nodeName =
       m_uiController->cmdAddInstWithEmptyFunc(
         text.toUtf8().constData(),
         initialCode,
         QPointF(pos.x(), pos.y())
         );
-    GraphView::Node * uiNode = m_uiGraph->node(nodeName);
+    GraphView::Node * uiNode = m_uiGraph->node(nodeName.c_str());
     if(uiNode)
     {
       maybeEditNode( uiNode );
