@@ -3,8 +3,6 @@
 #include <FTL/Config.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <string>
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -19,24 +17,33 @@
 # include <CoreFoundation/CFURL.h>
 #endif
 
-#include "RTRGLViewportWidget.h"
 #include <QtGui/qapplication.h>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFileDialog>
 #include <QtGui/QColorDialog>
-#include "QtToKLEvent.h"
+#include <FabricUI/SceneHub/RTR/RTRGLViewportWidget.h>
+#include <FabricUI/Viewports/QtToKLEvent.h>
 #include <FabricUI/SceneHub/macros.h>
 
 using namespace FabricUI::Viewports;
 
-RTRGLViewportWidget::RTRGLViewportWidget(FabricCore::Client * client, FabricCore::RTVal testObject, int viewportIndex, QGLContext *qglContext, QWidget *parent, QGLWidget *share) :
-	QGLWidget(qglContext, parent, share),
-  m_client(client),
-  m_viewportIndex( viewportIndex ),
-  m_shObject(testObject),
-  m_alwaysRefresh(false)
+
+RTRGLViewportWidget::RTRGLViewportWidget(
+  FabricCore::Client *client,
+  FabricCore::RTVal shObject, 
+  int viewportIndex, 
+  QGLContext *qglContext, 
+  FabricUI::SceneHub::SHCmdView *shCmdView, 
+  QWidget *parent, 
+  QGLWidget *share) :
+  	QGLWidget(qglContext, parent, share),
+    m_client(client),
+    m_shObject(shObject),
+    m_viewportIndex(viewportIndex),
+    m_shCmdView(shCmdView),
+    m_alwaysRefresh(false)
   {
 
   m_fps = 0.0;
@@ -109,6 +116,11 @@ void RTRGLViewportWidget::resizeGL(int width, int height) {
 void RTRGLViewportWidget::toggleAlwaysRefresh() {
   m_alwaysRefresh = !m_alwaysRefresh;
 }
+
+void RTRGLViewportWidget::setRefToCmdView(FabricUI::SceneHub::SHCmdView *cmdView) {
+  m_shCmdView = cmdView;
+}
+
 
 //*************
 
@@ -367,45 +379,41 @@ void RTRGLViewportWidget::editLightProperties() {
 //*************
 
 void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
-  onMouseEvent(event);
+  onEvent(event);
 }
 
 void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
-  onMouseEvent(event);
+  onEvent(event);
 }
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
-  onMouseEvent(event);
+  onEvent(event, true);
+  if(m_shCmdView) m_shCmdView->synchronize();
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
-  onMouseEvent(event);
+  onEvent(event);
 }
 
 void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
-  FABRIC_TRY("RTRGLViewportWidget::keyPressEvent", 
-    FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
-    m_shObject.callMethod("", "onEvent", 1, &klevent);
-    bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
-    bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
-    event->setAccepted( result );
-    if( result )
-      emit manipsAcceptedEvent( redrawAllViewports );
-  );
+  onEvent(event);
 }
 
-bool RTRGLViewportWidget::onMouseEvent(QEvent *event) {
+bool RTRGLViewportWidget::onEvent(QEvent *event, bool sceneChange) {
   bool result = false;
-  FABRIC_TRY_RETURN("RTRGLViewportWidget::onMouseEvent", false,
+  FABRIC_TRY_RETURN("RTRGLViewportWidget::onEvent", false,
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
     m_shObject.callMethod("", "onEvent", 1, &klevent);
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted(result);
-    if( result )
-      emit manipsAcceptedEvent( redrawAllViewports );
+    if(result) 
+    {
+      if(sceneChange) emit sceneChanged();
+      else emit manipsAcceptedEvent( redrawAllViewports );
+    }      
+    return result;
   );
-  return result;
 }
 
 //*************

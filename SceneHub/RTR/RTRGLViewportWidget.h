@@ -3,8 +3,6 @@
 #ifndef __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 #define __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 
-// #include <GL/glew.h>
-
 #include <QtCore/QtCore>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QDrag>
@@ -18,6 +16,7 @@
 #include <FabricCore.h>
 #include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
 #include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
+#include <FabricUI/SceneHub/Commands/SHCmdView.h>
 
 namespace FabricUI
 {
@@ -28,7 +27,15 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, int, QGLContext *, QWidget *parent = NULL, QGLWidget *shared = NULL);
+        RTRGLViewportWidget(
+          FabricCore::Client *, 
+          FabricCore::RTVal, 
+          int, 
+          QGLContext *, 
+          FabricUI::SceneHub::SHCmdView *, 
+          QWidget *parent = NULL, 
+          QGLWidget *shared = NULL);
+        
         virtual ~RTRGLViewportWidget();
 
         void initialize();
@@ -36,6 +43,7 @@ namespace FabricUI
         void setTime(float time);
         void toggleAlwaysRefresh();
         bool alwaysRefreshes() { return m_alwaysRefresh; }
+        void setRefToCmdView(FabricUI::SceneHub::SHCmdView *cmdView);
         double fps() const { return m_fps; }
 
       signals:
@@ -68,7 +76,7 @@ namespace FabricUI
         void mouseMoveEvent(QMouseEvent *event);
         void mouseReleaseEvent(QMouseEvent *event);
         void wheelEvent(QWheelEvent *event);
-        bool onMouseEvent(QEvent *event);
+        bool onEvent(QEvent *event, bool sceneChange = false);
         void keyPressEvent(QKeyEvent *event);
         void dragEnterEvent(QDragEnterEvent *event);
         void dragMoveEvent(QDragMoveEvent *event);
@@ -93,6 +101,7 @@ namespace FabricUI
 
         FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
         FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
+        FabricUI::SceneHub::SHCmdView *m_shCmdView;
     };
   };
 };

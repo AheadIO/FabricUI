@@ -85,6 +85,7 @@ dirs = [
   'SceneHub/TreeView',
   'SceneHub/Commands',
   'Viewports',
+  'SceneHub/RTR',
   'Licensing',
 ]
 

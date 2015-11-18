@@ -16,10 +16,7 @@ using namespace FabricUI::SceneHub;
 /// \param client A reference to the fabric client
 /// \param shObject A reference to SceneHub application
 /// \param qUndoStack A pointer to the Qt undo-redo stack
-SHCmdView::SHCmdView(
-  FabricCore::Client &client, 
-  FabricCore::RTVal &shObject, 
-  QUndoStack *qUndoStack) :
+SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QUndoStack *qUndoStack) :
   m_client(client),
   m_shObject(shObject) 
 {
@@ -28,10 +25,19 @@ SHCmdView::SHCmdView(
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
   m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");
   m_edit = new QLineEdit();
+  m_synchronize = new QPushButton("Synch");
+  QObject::connect(
+    m_synchronize, SIGNAL( clicked() ),
+    this, SLOT( synchronize() )
+  );
 
-  QVBoxLayout * layout = new QVBoxLayout();
+  QHBoxLayout *cmdLayout = new QHBoxLayout();
+  cmdLayout->addWidget(m_edit);
+  cmdLayout->addWidget(m_synchronize);
+
+  QVBoxLayout *layout = new QVBoxLayout();
   layout->setSpacing(0);
-  layout->addWidget(m_edit);
+  layout->addLayout(cmdLayout);
   layout->addWidget(m_qUndoView);
   layout->setContentsMargins(0, 0, 0, 0);
   setLayout(layout);
@@ -43,7 +49,7 @@ SHCmdView::SHCmdView(
 /// \param event The Key event
 void SHCmdView::keyPressEvent(QKeyEvent *event) {
   // Check if the user hit the Enter (Return) key -> validate the command
-  if ( (event->key()==Qt::Key_Enter) || (event->key()==Qt::Key_Return) ) 
+  if( (event->key()==Qt::Key_Enter) || (event->key()==Qt::Key_Return) ) 
     // Check if the QTextEdit m_edit has the focus
     if(m_edit->hasFocus()) addCommand(m_edit->text().toStdString());
 }
@@ -57,24 +63,18 @@ bool SHCmdView::addCommand(const std::string &command, bool exec) {
   {
     // SGAddObjectCmd
     if(ToLower(name).compare(ToLower(SGAddObjectCmd_Str)) == 0) 
-    { 
-      return m_shCmdHandler.addCommand(
-        SGAddObjectCmd::Create(m_client, m_shObject, command, exec));
-    }
-
+      return m_shCmdHandler.addCommand(SGAddObjectCmd::Create(m_client, m_shObject, command, exec));
+    
     // SGAddPropertyCmd
     else if(ToLower(name).compare(ToLower(SGAddPropertyCmd_Str)) == 0) 
-    { 
-      return m_shCmdHandler.addCommand(
-        SGAddPropertyCmd::Create(m_client, m_shObject, command, exec));
-    }
-
+      return m_shCmdHandler.addCommand(SGAddPropertyCmd::Create(m_client, m_shObject, command, exec));
+    
     // SGSetPropertyValueCmd
     else if(ToLower(name).compare(ToLower(SGSetPropertyValueCmd_Str)) == 0) 
-    { 
-      return m_shCmdHandler.addCommand(
-        SGSetPropertyValueCmd::Create(m_client, m_shObject, command, exec));
-    }
+      return m_shCmdHandler.addCommand(SGSetPropertyValueCmd::Create(m_client, m_shObject, command, exec));
+
+    // log an error
+    else std::cerr << "SHCmdView::addCommand : Command name " << name << " wasn't founded" << std::endl;
   }
   return false;
 }
@@ -93,23 +93,16 @@ void SHCmdView::synchronize() {
  
     // SGAddObjectCmd
     if(ToLower(type).compare(ToLower(SGAddObjectCmd_Type_Str)) == 0)
-    {
-      std::string command = SGAddObjectCmd::Get(m_client, m_shObject, i);
-      addCommand(command, false);
-    }
+      addCommand(SGAddObjectCmd::Get(m_client, m_shObject, i), false);
 
     // SGAddPropertyCmd
     else if(ToLower(type).compare(ToLower(SGAddPropertyCmd_Type_Str)) == 0)
-    {
-      std::string command = SGAddPropertyCmd::Get(m_client, m_shObject, i);
-      addCommand(command, false);
-    }
+      addCommand(SGAddPropertyCmd::Get(m_client, m_shObject, i), false);
 
     // SGSetPropertyValueCmd
     else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
-    {
-      std::string command = SGSetPropertyValueCmd::Get(m_client, m_shObject, i);
-      addCommand(command, false);
-    }
+      addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
+
+    else std::cerr << "SHCmdView::synchronize : Command type " << type << " wasn't founded" << std::endl;
   }
 }

@@ -185,7 +185,7 @@ namespace FabricUI
         State m_state;
         std::string m_desc;
         unsigned m_coreUndoCount;
-        FabricCore::RTVal m_cmdManager;
+        FabricCore::RTVal m_shObject;
     };
   };
 };

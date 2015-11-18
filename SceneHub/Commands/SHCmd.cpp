@@ -223,12 +223,12 @@ SHCmd::SHCmd(
   std::vector<FabricCore::RTVal> &params, 
   bool exec) : 
   m_coreUndoCount(0), 
+  m_shObject(shObject), 
   m_state(State_New) 
 {
   FABRIC_TRY("SHCmd::Constructor",
     setDesc(cmdDes);
-    FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
-    m_cmdManager = sceneGraph.callMethod("SGCmdManager", "getOrCreateHierarchyCmdManager", 0, 0);
+    FabricCore::RTVal sceneGraph = m_shObject.callMethod("SceneGraph", "getScene", 0, 0);
     if(exec) sceneGraph.callMethod("", cmdName.c_str(), params.size(), &params[0]);
   );
 }
@@ -246,7 +246,7 @@ void SHCmd::undo() {
   m_state = State_Undone;
   FABRIC_TRY("SHCmd::undo", 
     for(unsigned i=0; i<m_coreUndoCount; ++i)
-      FabricCore::RTVal res = m_cmdManager.callMethod("Boolean", "undo", 0, 0);
+      GetCmdManager(m_shObject).callMethod("Boolean", "undo", 0, 0);
   );
 }
 
@@ -255,9 +255,8 @@ void SHCmd::redo() {
   assert( m_state = State_Undone );
   m_state = State_Redone;          
   FABRIC_TRY("SHCmd::redo", 
-    for ( unsigned i = 0; i < m_coreUndoCount; ++i )
-      FabricCore::RTVal res = m_cmdManager.callMethod("", "redo", 0, 0);
+    for(unsigned i=0; i<m_coreUndoCount; ++i)
+      GetCmdManager(m_shObject).callMethod("Boolean", "redo", 0, 0);
   );
 }
-
  

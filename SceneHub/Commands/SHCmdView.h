@@ -8,6 +8,7 @@
 #include <QtGui/QUndoView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
 #include <QtGui/QKeyEvent>
 #include <FTL/OwnedPtr.h>
 #include <FTL/JSONEnc.h>
@@ -32,30 +33,39 @@ namespace FabricUI
 
         ~SHCmdView() {};
  
-
       public slots:
         /// Gets the "Return/Enter" key event, validate the command.
         /// \param event The Key event
         virtual void keyPressEvent(QKeyEvent *event);
 
-      private:
         /// Synchronizes the Qt stack from the KL stack.
         void synchronize();
-
+        
+      private:
+        /// \internal
         /// Adds a command.
         /// \param command The command to execute
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         bool addCommand(const std::string &command, bool exec = true);
+ 
 
-
+        /// \internal
         /// Writes commands
         QLineEdit *m_edit;
+        /// \internal
+        /// Synchronizes Qt and KL stacks
+        QPushButton *m_synchronize;
+        /// \internal
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
-        /// Reference on the SHCmdHandler.
+        /// \internal
+        /// Reference to the SHCmdHandler.
         SHCmdHandler_QUndo m_shCmdHandler;
-
+        /// \internal
+        /// Reference to the client --> construct RTVal.
         FabricCore::Client m_client;
+        /// \internal
+        /// Reference to the SceneHub app.
         FabricCore::RTVal m_shObject;
     };
   };
