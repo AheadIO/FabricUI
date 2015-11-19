@@ -435,10 +435,14 @@ void DFGWidget::onGraphAction(QAction * action)
     if(text.length() == 0)
       return;
 
-    m_uiController->cmdAddInstWithEmptyGraph(
-      text.toUtf8().constData(),
-      QPointF(pos.x(), pos.y())
-      );
+    std::string nodeName = m_uiController->cmdAddInstWithEmptyGraph(
+                            text.toUtf8().constData(),
+                            QPointF(pos.x(), pos.y())
+                            );
+
+    m_uiGraph->clearSelection();
+    if ( GraphView::Node *uiNode = m_uiGraph->node( nodeName ) )
+      uiNode->setSelected( true );
   }
   else if(action->text() == DFG_NEW_FUNCTION)
   {
