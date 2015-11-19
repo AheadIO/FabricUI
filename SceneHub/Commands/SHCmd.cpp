@@ -2,6 +2,7 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
+#include <iostream>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
 #include <FTL/OwnedPtr.h>
 #include <FabricCore.h>
@@ -147,13 +148,6 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
         for(uint32_t i=0; i<index; ++i) params.push_back(tempArray[i]);
         params.push_back(params_);
         for(uint32_t i=index; i<tempArray.size(); ++i) params.push_back(tempArray[i]);
-
-        //std::cerr << "index " << index << std::endl;
-        //std::cerr << "params_ " << params_ << std::endl;
-        //std::cerr << "command " << command << std::endl;
-        //std::cerr << "paramArray " << paramArray << std::endl;
-        //for(uint32_t i=0; i<params.size(); ++i)
-        //std::cerr << "params[" << i << "] " << params[i] << std::endl;
       }
       else params = Split(paramArray, ',');
 
