@@ -67,6 +67,10 @@ namespace FabricUI
       void valueItemInteractionDelta( ValueItem *valueItem );
       void valueItemInteractionLeave( ValueItem *valueItem );
 
+    protected slots:
+
+      void onValueItemDelta( ValueItem *valueItem );
+
     protected:
     
       EditorConfig m_config;
@@ -75,6 +79,7 @@ namespace FabricUI
       TreeView::TreeModel * m_treeModel;
       TreeView::TreeEditorFactory * m_factory;
 
+      bool m_updatingOutputs;
     };
 
   };

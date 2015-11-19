@@ -7,21 +7,20 @@
 #include "Licensing.h"
 #include "LicenseDataHandler.h"
 
-namespace FabricUI
+void FabricUI_HandleLicenseData(
+  QWidget *widgetParent,
+  FabricCore::Client &client,
+  FTL::StrRef jsonData,
+  bool modalDialogs
+  )
 {
-  void HandleLicenseData(
-    QWidget *widgetParent,
-    FabricCore::Client &client,
-    FTL::StrRef jsonData,
-    bool modalDialogs
-    )
-  {
-    FTL::JSONStrWithLoc jsonStrWithLoc( jsonData );
-    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>() );
+  FTL::JSONStrWithLoc jsonStrWithLoc( jsonData );
+  FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
+    FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>() );
 
-    LicenseDataHandler *licenseDataHandler =
-      new LicenseDataHandler( client, jsonObject, modalDialogs );
-    licenseDataHandler->run();
-  }
+  FabricUI::LicenseDataHandler *licenseDataHandler =
+    new FabricUI::LicenseDataHandler( client, jsonObject, modalDialogs );
+  licenseDataHandler->run();
 }
+
+

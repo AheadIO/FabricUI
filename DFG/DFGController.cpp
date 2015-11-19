@@ -219,9 +219,11 @@ void DFGController::cmdSetTitle(
     );
 }
 
-std::string DFGController::cmdRenameNode(
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+std::string DFGController::cmdEditNode(
+  FTL::StrRef oldName,
+  FTL::StrRef desiredNewName,
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
   )
 {
   if(!validPresetSplit())
@@ -229,12 +231,14 @@ std::string DFGController::cmdRenameNode(
 
   UpdateSignalBlocker blocker( this );
   
-  return m_cmdHandler->dfgDoRenameNode(
+  return m_cmdHandler->dfgDoEditNode(
     getBinding(),
     getExecPath(),
     getExec(),
     oldName,
-    desiredNewName
+    desiredNewName,
+    nodeMetadata,
+    execMetadata
     );
 }
 
@@ -268,40 +272,6 @@ void DFGController::setNodeCommentExpanded(
     expanded? "true": "",
     false,
     false
-    );
-}
-
-void DFGController::setNodeToolTip(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newToolTip
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiTooltip",
-    newToolTip.c_str(),
-    false,
-    true
-    );
-}
-
-void DFGController::setNodeDocUrl(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newDocUrl
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiDocUrl",
-    newDocUrl.c_str(),
-    false,
-    true
     );
 }
 
@@ -704,59 +674,6 @@ bool DFGController::setNodeColor(
   return true;
 }
 
-/// Remove a color node
-bool DFGController::removeNodeColor(
-  const char * nodeName,
-  const char * key 
-)
-{
-  try {
-    if(!validPresetSplit())
-      return false;
-    // [Julien] FE-5246, remove header color meta-data if needed
-    // Very big hack, we just set the value to the property to nothing
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(nodeName, key, "", false, true);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
-bool DFGController::setNodeBackgroundColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiNodeColor", color);
-}
-
-bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiHeaderColor", color);
-}
-
-bool DFGController::removeNodeHeaderColor(const char * nodeName)
-{
-  if(!validPresetSplit())
-    return false;
-  return removeNodeColor(nodeName, "uiHeaderColor");
-}
-
-bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiTextColor", color);
-}
-
 /// Sets the collapse state of the selected node.
 /// Saves it in the node preferences
 void DFGController::setSelectedNodeCollapseState(int collapsedState) {
@@ -968,55 +885,68 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 
 void DFGController::checkErrors()
 {
-  unsigned errorCount = m_exec.getErrorCount();
-  for(unsigned i=0;i<errorCount;i++)
+  try
   {
-    std::string prefixedError = m_execPath;
-    prefixedError += " : ";
-    prefixedError += m_exec.getError(i);
-    logError( prefixedError.c_str() );
+    FabricCore::String errorsJSON = m_exec.getErrors( true );
+    FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+    FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+    FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+      FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+      );
+    unsigned errorCount = errorsJSONArray->size();
+    for(unsigned i=0;i<errorCount;i++)
+    {
+      FTL::JSONString *errorJSONString =
+        errorsJSONArray->get( i )->cast<FTL::JSONString>();
+      std::string prefixedError = m_execPath;
+      prefixedError += " : ";
+      prefixedError += errorJSONString->getValue();
+      logError( prefixedError.c_str() );
+    }
+  }
+  catch ( FTL::JSONException e )
+  {
+    std::cout
+      << "Caught exception: "
+      << e.getDesc()
+      << "\n";
   }
 
-  if(m_exec.getType() == FabricCore::DFGExecType_Graph)
+  GraphView::Graph *uiGraph = graph();
+  if ( uiGraph && m_exec.getType() == FabricCore::DFGExecType_Graph )
   {
     unsigned nodeCount = m_exec.getNodeCount();
     for(size_t j=0;j<nodeCount;j++)
     {
       char const *nodeName = m_exec.getNodeName(j);
 
-      if ( !graph() )
-        continue;
       GraphView::Node *uiNode = NULL;
-      if ( graph() )
-      {
-        uiNode = graph()->nodeFromPath( nodeName );
-        if ( uiNode )
-          uiNode->clearError();
-      }
+      uiNode = uiGraph->nodeFromPath( nodeName );
+      if ( !uiNode )
+        continue;
 
-      if ( m_exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
+      FabricCore::String errorsJSON =
+        m_exec.getNodeErrors( uiNode->name().c_str(), true );
+      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+        );
+      unsigned errorCount = errorsJSONArray->size();
+      if ( errorCount > 0 )
       {
-        FabricCore::DFGExec instExec = m_exec.getSubExec( nodeName );
-
-        unsigned errorCount = instExec.getErrorCount();
-        if ( errorCount > 0 )
+        std::string errorsComposed;
+        for(unsigned i=0;i<errorCount;i++)
         {
-          std::string errorComposed;
-          errorComposed += nodeName;
-          errorComposed += " : ";
-          for(size_t i=0;i<errorCount;i++)
-          {
-            if(i > 0)
-              errorComposed += "\n";
-            errorComposed += instExec.getError(i);
-          }
-    
-          logError( errorComposed.c_str() );
-          if ( uiNode )
-            uiNode->setError(errorComposed.c_str());
+          FTL::JSONString *errorJSONString =
+            errorsJSONArray->get( i )->cast<FTL::JSONString>();
+          if ( !errorsComposed.empty() )
+            errorsComposed += '\n';
+          errorsComposed += errorJSONString->getValue();
         }
-
+        uiNode->setError( errorsComposed.c_str() );
       }
+      else uiNode->clearError();
     }
   }
 
@@ -1606,7 +1536,8 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     }
     else if ( descStr == FTL_STR("argTypeChanged")
       || descStr == FTL_STR("argInserted")
-      || descStr == FTL_STR("argRemoved") )
+      || descStr == FTL_STR("argRemoved")
+      || descStr == FTL_STR("argsReordered") )
     {
       bindUnboundRTVals();
       emitArgsChanged();
@@ -2053,6 +1984,24 @@ std::string DFGController::cmdAddPort(
     );
 }
 
+std::string DFGController::cmdCreatePreset(
+  FTL::StrRef nodeName,
+  FTL::StrRef presetDirPath,
+  FTL::StrRef presetName
+  )
+{
+  UpdateSignalBlocker blocker( this );
+  
+  return m_cmdHandler->dfgDoCreatePreset(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    presetDirPath,
+    presetName
+    );
+}
+
 std::string DFGController::cmdEditPort(
   FTL::StrRef oldPortName,
   FTL::StrRef desiredNewPortName,
@@ -2301,12 +2250,15 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   }
 }
 
+void DFGController::emitNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  emit nodeRenamed( m_execPath, oldNodeName, newNodeName );
+}
+
 void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
-  std::string nodePathFromRoot = m_execPath;
-  if ( !nodePathFromRoot.empty() )
-    nodePathFromRoot += '.';
-  nodePathFromRoot += nodeName;
-
-  emit nodeRemoved( nodePathFromRoot );
+  emit nodeRemoved( m_execPath, nodeName );
 }

@@ -14,7 +14,7 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGValueEditor : public ValueEditor::ValueEditorWidget
+    class DFGValueEditor : public FabricUI::ValueEditor::ValueEditorWidget
     {
       Q_OBJECT
 
@@ -22,7 +22,7 @@ namespace FabricUI
 
       DFGValueEditor(
         DFGController * controller,
-        const DFGConfig & config = DFGConfig()
+        const DFGConfig & config
         );
       virtual ~DFGValueEditor();
 
@@ -44,7 +44,15 @@ namespace FabricUI
       void updateOutputs();
       void onArgsChanged();
 
-      void onNodeRemoved( FTL::CStrRef nodePathFromRoot );
+      void onNodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName 
+        );
+      void onNodeRemoved(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName
+        );
 
     private:
 

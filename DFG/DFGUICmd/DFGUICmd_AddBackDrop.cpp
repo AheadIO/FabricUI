@@ -13,13 +13,13 @@ void DFGUICmd_AddBackDrop::appendDesc( std::string &desc )
 FTL::CStrRef DFGUICmd_AddBackDrop::invokeAdd( unsigned &coreUndoCount )
 {
   FTL::CStrRef actualNodeName =
-    getExec().addUser( getTitle().c_str() );
+    getExec().addUser( "backDrop" );
   ++coreUndoCount;
 
   getExec().setNodeMetadata(
     actualNodeName.c_str(),
     "uiTitle",
-    getTitle().c_str(),
+    getText().c_str(),
     true,
     true
     );

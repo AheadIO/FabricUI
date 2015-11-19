@@ -3,6 +3,7 @@
 #include "StringValueWidget.h"
 #include "ValueItem.h"
 #include "ValueEditorEventFilters.h"
+#include <FabricUI/Util/QString_Conversion.h>
 
 using namespace FabricUI::TreeView;
 using namespace FabricUI::ValueEditor;
@@ -92,7 +93,7 @@ void StringValueWidget::onValueChangedInLineEdit()
   m_changingValue = true;
 
   QString s = m_lineEdit->text();
-  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), s.toUtf8().constData());
+  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR_VALUE(s));
   ValueWidget::setValue(m_value);
 
   m_changingValue = false;
@@ -105,7 +106,7 @@ void StringValueWidget::onValueChangedInComboBox(int index)
   m_changingValue = true;
 
   QString s = m_comboBox->currentText();
-  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), s.toUtf8().constData());
+  m_value = FabricCore::RTVal::ConstructString(*((ValueItem*)item())->client(), QSTRING_TO_CONST_CHAR_VALUE(s));
   ValueWidget::setValue(m_value);
 
   m_changingValue = false;

@@ -27,7 +27,7 @@ namespace FabricUI
     class DFGNotificationRouter;
     class DFGWidget;
 
-    class DFGController : public GraphView::Controller
+    class DFGController : public FabricUI::GraphView::Controller
     {
       Q_OBJECT
 
@@ -200,6 +200,12 @@ namespace FabricUI
         FTL::StrRef extDep,
         FTL::CStrRef uiMetadata
         );
+      
+      std::string cmdCreatePreset(
+        FTL::StrRef nodeName,
+        FTL::StrRef presetDirPath,
+        FTL::StrRef presetName
+        );
 
       std::string cmdEditPort(
         FTL::StrRef oldPortName,
@@ -252,21 +258,13 @@ namespace FabricUI
         bool expanded
         );
 
-      void setNodeToolTip(
-        FTL::CStrRef nodeName, 
-        FTL::CStrRef newToolTip
-        );
-
-      void setNodeDocUrl(
-        FTL::CStrRef nodeName, 
-        FTL::CStrRef newDocUrl
-        );
-
       void cmdSetCode( FTL::CStrRef code );
 
-      std::string cmdRenameNode(
-        FTL::CStrRef oldName,
-        FTL::CStrRef desiredNewName
+      std::string cmdEditNode(
+        FTL::StrRef oldName,
+        FTL::StrRef desiredNewName,
+        FTL::StrRef nodeMetadata,
+        FTL::StrRef execMetadata
         );
 
       std::string cmdRenameExecPort(
@@ -326,11 +324,6 @@ namespace FabricUI
       /// Sets the collapse state of the selected node.
       /// Saves it in the node preferences    
       virtual void setSelectedNodeCollapseState(int collapseState);
-      virtual bool removeNodeColor(const char * nodeName, const char * key);
-      virtual bool setNodeBackgroundColor(const char * nodeName, QColor color);
-      virtual bool setNodeHeaderColor(const char * nodeName, QColor color);
-      virtual bool removeNodeHeaderColor(const char * nodeName);
-      virtual bool setNodeTextColor(const char * nodeName, QColor color);
       
       virtual std::string copy();
 
@@ -452,6 +445,10 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
+      void emitNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        );
       void emitNodeRemoved( FTL::CStrRef nodeName );
 
     signals:
@@ -470,7 +467,15 @@ namespace FabricUI
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
 
-      void nodeRemoved( FTL::CStrRef nodePathFromRoot );
+      void nodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName 
+        );
+      void nodeRemoved(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName
+        );
 
     public slots:
 

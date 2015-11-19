@@ -54,17 +54,15 @@ namespace FabricUI
 
     protected slots:
 
-      void titleEditingFinished();
-      void titleReturnPressed();
       void reqExtEditingFinished();
-      void reqExtReturnPressed();
       void onSplitFromPresetClicked();
 
     private:
 
       DFGController *m_dfgController;
       QLabel *m_execPathLabel;
-      QLineEdit *m_titleLineEdit;
+      QLabel *m_presetNameLabel;
+      QLabel *m_reqExtLabel;
       QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;

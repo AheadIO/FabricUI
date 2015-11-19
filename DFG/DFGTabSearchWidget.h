@@ -21,7 +21,7 @@ namespace FabricUI
 
     public:
 
-      DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & config = DFGConfig());
+      DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & config);
       virtual ~DFGTabSearchWidget();
 
       void showForSearch( QPoint globalPos );
