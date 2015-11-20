@@ -19,6 +19,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
+#include <QtGui/QApplication>
 #include <QtGui/QColorDialog>
 #include <QtGui/QCursor>
 #include <QtGui/QDesktopServices>
@@ -433,15 +434,22 @@ void DFGWidget::onGraphAction(QAction * action)
   pos = m_uiGraph->itemGroup()->mapFromScene(pos);
   pos += mouseOffset;
 
+  Qt::KeyboardModifiers keyMod = QApplication::keyboardModifiers();
+  bool isCTRL  = keyMod.testFlag(Qt::ControlModifier);
+
   if(action->text() == DFG_NEW_GRAPH)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true); 
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "graph";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true); 
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     std::string nodeName = m_uiController->cmdAddInstWithEmptyGraph(
                             text.toUtf8().constData(),
@@ -454,13 +462,17 @@ void DFGWidget::onGraphAction(QAction * action)
   }
   else if(action->text() == DFG_NEW_FUNCTION)
   {
-    DFGGetStringDialog dialog(NULL, "func", m_dfgConfig, true);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "func";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     m_uiController->beginInteraction();
 
@@ -483,13 +495,17 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_NEW_BACKDROP)
   {
-    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig, false);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "backdrop";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, false);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     m_uiController->cmdAddBackDrop(
       text.toUtf8().constData(),
@@ -498,13 +514,17 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_IMPLODE_NODE)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "graph";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     const std::vector<GraphView::Node*> & nodes =
       m_uiController->graph()->selectedNodes();
