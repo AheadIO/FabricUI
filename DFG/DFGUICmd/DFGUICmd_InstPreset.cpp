@@ -14,8 +14,16 @@ void DFGUICmd_InstPreset::appendDesc( std::string &desc )
 
 FTL::CStrRef DFGUICmd_InstPreset::invokeAdd( unsigned &coreUndoCount )
 {
+  FTL::CStrRef presetPath = getPresetPath();
+
+  std::string desiredNodeName = presetPath.rsplit('.').second;
+  desiredNodeName += FTL_STR("_1");
+
   FTL::CStrRef actualNodeName =
-    getExec().addInstFromPreset( getPresetPath().c_str() );
+    getExec().addInstFromPreset(
+      presetPath.c_str(),
+      desiredNodeName.c_str()
+      );
   ++coreUndoCount;
 
   return actualNodeName;

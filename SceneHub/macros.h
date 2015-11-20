@@ -2,6 +2,14 @@
 #define __MACROS_H__
 
 #include <FabricCore.h>
+#include <cctype>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <algorithm>
+
+
 
 #ifdef FABRIC_SPLICE_TRACE
 

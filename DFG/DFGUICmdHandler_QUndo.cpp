@@ -313,6 +313,28 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
   return cmd->getActualNewPortName();
 }
 
+std::string DFGUICmdHandler_QUndo::dfgDoCreatePreset(
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::StrRef nodeName,
+  FTL::StrRef presetDirPath,
+  FTL::StrRef presetName
+  )
+{
+  DFGUICmd_CreatePreset *cmd =
+    new DFGUICmd_CreatePreset(
+      binding,
+      execPath,
+      exec,
+      nodeName,
+      presetDirPath,
+      presetName
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getPathname();
+}
+
 void DFGUICmdHandler_QUndo::dfgDoRemovePort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
@@ -507,21 +529,25 @@ std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
   return cmd->getActualNewPortName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoRenameNode(
+std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+  FTL::StrRef oldNodeName,
+  FTL::StrRef desiredNewNodeName,
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
   )
 {
-  DFGUICmd_RenameNode *cmd =
-    new DFGUICmd_RenameNode(
+  DFGUICmd_EditNode *cmd =
+    new DFGUICmd_EditNode(
       binding,
       execPath,
       exec,
-      oldName,
-      desiredNewName
+      oldNodeName,
+      desiredNewNodeName,
+      nodeMetadata,
+      execMetadata
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewNodeName();

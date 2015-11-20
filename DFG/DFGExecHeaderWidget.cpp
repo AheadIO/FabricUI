@@ -33,34 +33,31 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
 
   m_execPathLabel = new QLabel;
 
-  m_titleLineEdit = new QLineEdit;
-  QObject::connect(
-    m_titleLineEdit, SIGNAL(returnPressed()),
-    this, SLOT(titleReturnPressed())
-    );
-  QObject::connect(
-    m_titleLineEdit, SIGNAL(editingFinished()),
-    this, SLOT(titleEditingFinished())
-    );
+  m_presetNameLabel = new QLabel;
 
+  m_reqExtLabel = new QLabel;
   m_reqExtLineEdit = new QLineEdit;
-  QObject::connect(
-    m_reqExtLineEdit, SIGNAL(returnPressed()),
-    this, SLOT(reqExtReturnPressed())
-    );
   QObject::connect(
     m_reqExtLineEdit, SIGNAL(editingFinished()),
     this, SLOT(reqExtEditingFinished())
     );
 
-  layout->addWidget( m_execPathLabel );
-  layout->addWidget( m_titleLineEdit );
-  layout->addStretch(1);
-  layout->addWidget( new QLabel("Required Extensions:") );
-  layout->addWidget( m_reqExtLineEdit );
-  layout->addStretch(1);
+  QVBoxLayout *lhsLayout = new QVBoxLayout;
+  lhsLayout->addWidget( m_execPathLabel );
+  lhsLayout->addWidget( m_presetNameLabel );
+
+  QHBoxLayout *cenLayout = new QHBoxLayout;
+  cenLayout->addWidget( m_reqExtLabel );
+  cenLayout->addWidget( m_reqExtLineEdit );
+
+  layout->addLayout( lhsLayout );
+  layout->setAlignment( lhsLayout, Qt::AlignLeft | Qt::AlignTop );
+  layout->addStretch( 1 );
+  layout->addLayout( cenLayout );
+  layout->setAlignment( cenLayout, Qt::AlignHCenter | Qt::AlignTop );
+  layout->addStretch( 1 );
   layout->addWidget(m_goUpButton);
-  layout->setAlignment(m_goUpButton, Qt::AlignHCenter | Qt::AlignVCenter);
+  layout->setAlignment( m_goUpButton, Qt::AlignRight | Qt::AlignTop );
 
   QWidget *regWidget = new QWidget;
   regWidget->setLayout( layout );
@@ -92,9 +89,17 @@ and cannot be changed unless split from the preset" ) );
   setLayout(vLayout);
 
   QPalette captionLabelPalette = palette();
-  captionLabelPalette.setColor( QPalette::Foreground, config.headerFontColor );
+  captionLabelPalette.setColor( QPalette::Text, QColor("#C7D2DA") );
+  captionLabelPalette.setColor( QPalette::WindowText, QColor("#C7D2DA") );
   m_execPathLabel->setPalette( captionLabelPalette );
-  m_titleLineEdit->setPalette( captionLabelPalette );
+  m_presetNameLabel->setPalette( captionLabelPalette );
+  m_reqExtLabel->setPalette( captionLabelPalette );
+  m_reqExtLineEdit->setPalette( captionLabelPalette );
+
+  QFont labelFont = m_execPathLabel->font();
+  labelFont.setBold( true );
+  m_execPathLabel->setFont( labelFont );
+  m_presetNameLabel->setFont( labelFont );
 
   QPalette p = m_goUpButton->palette();
   p.setColor( QPalette::ButtonText, config.headerFontColor );
@@ -122,52 +127,62 @@ void DFGExecHeaderWidget::refresh()
   FabricCore::DFGExec &exec = getExec();
   if ( exec )
   {
-    FTL::CStrRef::Split split = execPath.rsplit('.');
-    std::string path = split.first;
-    if ( !path.empty() )
-      path += '.';
-    m_execPathLabel->setText( path.c_str() );
-    m_titleLineEdit->setText( exec.getTitle() );
+    bool isRoot = execPath.empty();
+    bool isPreset = exec.isPreset();
+    bool wouldSplitFromPreset = exec.editWouldSplitFromPreset();
+
+    m_presetSplitWidget->setVisible( wouldSplitFromPreset );
+
+    m_goUpButton->setVisible( !isRoot );
+
+    m_execPathLabel->setVisible( !isRoot );
+    if ( !isRoot )
+    {
+      QString pathLabelText( "Path: " );
+      pathLabelText += QString::fromAscii( execPath.data(), execPath.size() );
+      m_execPathLabel->setText( pathLabelText );
+    }
+
+    m_presetNameLabel->setVisible( isPreset );
+    if ( isPreset )
+    {
+      FTL::CStrRef title = exec.getTitle();
+      QString presetNameText( "Preset Name: ");
+      presetNameText += QString::fromAscii( title.data(), title.size() );
+      m_presetNameLabel->setText( presetNameText );
+    }
+
     FabricCore::String extDepsDesc = exec.getExtDeps();
-    char const *extDepsDescCStr = extDepsDesc.getCStr();
-    m_reqExtLineEdit->setText( extDepsDescCStr? extDepsDescCStr: "" );
+    FTL::CStrRef extDepsDescCStr =
+      extDepsDesc.getCStr()? extDepsDesc.getCStr() : "";
+    QString reqExtLabelText( "Required Extensions:" );
+    m_reqExtLineEdit->setVisible( !wouldSplitFromPreset );
+    if ( wouldSplitFromPreset )
+    {
+      reqExtLabelText += ' ';
+      reqExtLabelText +=
+        QString::fromAscii( extDepsDescCStr.data(), extDepsDescCStr.size() );
+    }
+    else m_reqExtLineEdit->setText( extDepsDescCStr.c_str() );
+    m_reqExtLabel->setText( reqExtLabelText );
+
     update();
   }
 }
 
 void DFGExecHeaderWidget::refreshTitle( FTL::CStrRef title )
 {
-  m_titleLineEdit->setText( title.c_str() );
+  refresh();
 }
 
 void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
-  m_reqExtLineEdit->setText( extDeps.c_str() );
-}
-
-void DFGExecHeaderWidget::titleReturnPressed()
-{
-  m_titleLineEdit->clearFocus();
-}
-
-void DFGExecHeaderWidget::titleEditingFinished()
-{
-  std::string newTitle = m_titleLineEdit->text().toUtf8().constData();
-  FTL::CStrRef curTitle = getExec().getTitle();
-  if ( curTitle == newTitle )
-    return;
-
-  m_dfgController->cmdSetTitle( newTitle );
-}
-
-void DFGExecHeaderWidget::reqExtReturnPressed()
-{
-  m_reqExtLineEdit->clearFocus();
+  refresh();
 }
 
 void DFGExecHeaderWidget::reqExtEditingFinished()
 {
-  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();
+  std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();  
   FabricCore::String currentExtDepDesc = getExec().getExtDeps();
   char const *currentExtDepDescCStr = currentExtDepDesc.getCStr();
   if ( !currentExtDepDescCStr )
@@ -182,8 +197,6 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
     nameAndVerStrings.push_back( split.first.trim() );
     split = split.second.split(',');
   }
-  if ( nameAndVerStrings.empty() )
-    return;
 
   std::vector<FTL::StrRef> nameAndVerStrs;
   nameAndVerStrs.reserve( nameAndVerStrings.size() );
@@ -195,24 +208,7 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
 
 void DFGExecHeaderWidget::onExecChanged()
 {
-  FTL::CStrRef execPath = getExecPath();
-  FabricCore::DFGExec &exec = getExec();
-  if ( exec )
-  {
-    m_presetSplitWidget->setVisible( exec.editWouldSplitFromPreset() );
-
-    m_goUpButton->setVisible( !execPath.empty() );
-
-    FTL::CStrRef::Split split = execPath.rsplit('.');
-    std::string path = split.first;
-    if ( !path.empty() )
-      path += '.';
-    m_execPathLabel->setText( path.c_str() );
-
-    m_titleLineEdit->setText( exec.getTitle() );
-
-    update();
-  }
+  refresh();
 }
 
 void DFGExecHeaderWidget::paintEvent(QPaintEvent * event)

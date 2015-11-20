@@ -22,6 +22,9 @@ protected:
 
   FabricCore::DFGBinding &getBinding()
     { return m_binding; }
+
+  FabricCore::DFGHost getHost()
+    { return m_binding.getHost(); }
   
   void appendDesc_ArgName(
     FTL::CStrRef argName,

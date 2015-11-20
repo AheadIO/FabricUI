@@ -27,7 +27,7 @@ namespace FabricUI
 
       PresetTreeWidget(
         DFGController *dfgController,
-        const DFGConfig & config = DFGConfig(),
+        const DFGConfig & config, 
         bool showsPresets = true,
         bool showSearch = true,
         bool setupContextMenu = false

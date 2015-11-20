@@ -14,7 +14,8 @@ ValueEditorWidget::ValueEditorWidget(
   FabricCore::Client client,
   const EditorConfig & config
   )
-  : m_config(config)
+  : m_config( config )
+  , m_updatingOutputs( false )
 {
   setMinimumHeight(24);
   setBackgroundRole(QPalette::Window);
@@ -84,7 +85,7 @@ ValueItem * ValueEditorWidget::addValue(
     }
     QObject::connect(
       newItem, SIGNAL(valueItemDelta(ValueItem*)),
-      this, SIGNAL(valueItemDelta(ValueItem*))
+      this, SLOT(onValueItemDelta(ValueItem*))
       );
     QObject::connect(
       newItem, SIGNAL(valueItemInteractionEnter(ValueItem*)),
@@ -242,4 +243,10 @@ void ValueEditorWidget::keyPressEvent(QKeyEvent * event)
     return;
   }
   return QWidget::keyPressEvent(event);
+}
+
+void ValueEditorWidget::onValueItemDelta( ValueItem *valueItem )
+{
+  if ( !m_updatingOutputs )
+    emit valueItemDelta( valueItem );
 }
