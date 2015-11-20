@@ -169,11 +169,14 @@ namespace FabricUI
         /// Redoes the command.
         void redo();
 
-        /// Undoes the commands
+        /// Gets the command description
         std::string getDesc() const { assert(wasInvoked()); return m_desc; };
-        /// Undoes the commands
+        /// Sets the command decription (here the command itself).
+        /// \param desc The description
         void setDesc(std::string desc) {m_desc = desc;};
 
+        /// Gets a reference to the sceneHub application. 
+        FabricCore::RTVal& getRefOnSCeneHub() { return m_shObject; }
 
       protected:
         /// Checks if the command has been already applied.
@@ -190,6 +193,9 @@ namespace FabricUI
         State m_state;
         std::string m_desc;
         unsigned m_coreUndoCount;
+
+        /// \internal
+        /// Refenrece to the sceneHub applcaiton.
         FabricCore::RTVal m_shObject;
     };
   };

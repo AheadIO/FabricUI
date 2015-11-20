@@ -1,5 +1,3 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
 #ifndef __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 #define __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 

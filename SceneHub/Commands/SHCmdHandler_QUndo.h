@@ -21,12 +21,11 @@ namespace FabricUI
       private:
         QUndoStack *m_qUndoStack;
     
-
       protected:
         class WrappedCmd;
 
-
       public:
+        /// Default constructor
         SHCmdHandler_QUndo() {};
 
         /// Constructs a new SHCmdHandler_QUndo.
