@@ -84,10 +84,10 @@ namespace FabricUI
         QWidget *m_parent;
         FabricCore::Client *m_client;
 
+        FabricCore::RTVal m_shObject;
         int m_viewportIndex;
 
         FabricCore::RTVal m_viewport;
-        FabricCore::RTVal m_shObject;
         FabricCore::RTVal m_viewportIndexRTVal;
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
@@ -96,11 +96,11 @@ namespace FabricUI
         QTime m_fpsTimer;
         double m_fps;
         double m_fpsStack[16];
-        bool m_alwaysRefresh;
 
         FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
         FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
         FabricUI::SceneHub::SHCmdView *m_shCmdView;
+        bool m_alwaysRefresh;
     };
   };
 };

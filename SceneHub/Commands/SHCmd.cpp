@@ -217,8 +217,8 @@ SHCmd::SHCmd(
   std::vector<FabricCore::RTVal> &params, 
   bool exec) : 
   m_coreUndoCount(0), 
-  m_shObject(shObject), 
-  m_state(State_New) 
+  m_state(State_New),
+  m_shObject(shObject)
 {
   FABRIC_TRY("SHCmd::Constructor",
     setDesc(cmdDes);
