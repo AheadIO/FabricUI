@@ -968,12 +968,12 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 
 void DFGController::checkErrors()
 {
-  unsigned errorCount = m_exec.getErrorCount();
-  for(unsigned i=0;i<errorCount;i++)
+  FabricCore::String errors = m_exec.getErrors(false);
+  if(errors.getLength() > 0)  
   {
     std::string prefixedError = m_execPath;
     prefixedError += " : ";
-    prefixedError += m_exec.getError(i);
+    prefixedError += errors.getCString();
     logError( prefixedError.c_str() );
   }
 
@@ -998,18 +998,13 @@ void DFGController::checkErrors()
       {
         FabricCore::DFGExec instExec = m_exec.getSubExec( nodeName );
 
-        unsigned errorCount = instExec.getErrorCount();
-        if ( errorCount > 0 )
+        errors = m_exec.getErrors(false);
+        if ( errors.getLength() > 0 )
         {
           std::string errorComposed;
           errorComposed += nodeName;
           errorComposed += " : ";
-          for(size_t i=0;i<errorCount;i++)
-          {
-            if(i > 0)
-              errorComposed += "\n";
-            errorComposed += instExec.getError(i);
-          }
+          errorComposed += errors.getCString();
     
           logError( errorComposed.c_str() );
           if ( uiNode )

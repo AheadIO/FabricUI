@@ -310,23 +310,20 @@ void DFGKLEditorWidget::save()
 void DFGKLEditorWidget::updateDiags( bool saving )
 {
   FabricCore::DFGExec &exec = m_controller->getExec();
-  unsigned errorCount;
+  std::string errors;
   if ( !!exec )
-    errorCount = exec.getErrorCount();
-  else
-    errorCount = 0;
+    errors = exec.getErrors(false).getCString();
 
   QStringList stringList;
-  for ( unsigned i = 0; i < errorCount; ++i )
+  if(errors.length() > 0)
   {
-    FTL::CStrRef error = exec.getError( i );
-    stringList.append( error.c_str() );
+    stringList.append( errors.c_str() );
   }
 
   m_diagsModel.setStringList( stringList );
-  m_diagsView->setVisible( errorCount > 0 );
+  m_diagsView->setVisible( errors.length() > 0 );
 
-  if ( saving && errorCount == 0 )
+  if ( saving && errors.length() == 0 )
     m_controller->log("Save successful.");
 }
 
