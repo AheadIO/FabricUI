@@ -415,7 +415,15 @@ void DFGWidget::onGoUpPressed()
   FabricCore::DFGExec parentExec =
     rootExec.getSubExec( parentExecPath.c_str() );
 
-  maybeEditNode( parentExecPath, parentExec );
+  std::string selectMe;
+  if (parentExecPath.empty()) selectMe = execPath;
+  else                        selectMe = split.second;
+  if (maybeEditNode(parentExecPath, parentExec))
+  {
+    getUIGraph()->clearSelection();
+    if ( GraphView::Node *uiNode = getUIGraph()->node( selectMe ) )
+      uiNode->setSelected( true );
+  }
 }
 
 void DFGWidget::onGraphAction(QAction * action)
