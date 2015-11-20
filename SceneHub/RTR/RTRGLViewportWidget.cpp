@@ -37,7 +37,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   QGLContext *qglContext, 
   QWidget *parent, 
   QGLWidget *share) :
-  	QGLWidget(qglContext, parent, share),
+    QGLWidget(qglContext, parent, share),
     m_client(client),
     m_shObject(shObject),
     m_viewportIndex(viewportIndex),

@@ -9,7 +9,7 @@
 #include <FTL/StrRef.h>
 #include <FTL/StrRef.h>
 #include <FabricUI/SceneHub/macros.h>
-#include <FabricUI/SceneHub/SHHotKeys.h>
+#include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
  
 using namespace std;

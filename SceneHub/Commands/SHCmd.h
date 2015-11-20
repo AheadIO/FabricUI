@@ -6,6 +6,7 @@
 #define __FABRICUI_SceneHub_Cmd__
 
 #include <cctype>
+#include <stdexcept>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -32,7 +33,9 @@ namespace FabricUI
     /// Checks if a string is a number.
     /// \param s The string to check
     inline bool IsNumber(const std::string& s) {
-      return std::all_of(s.begin(), s.end(), ::isdigit);
+      std::string::const_iterator it = s.begin();
+      while (it != s.end() && std::isdigit(*it)) ++it;
+      return !s.empty() && it == s.end();
     }
 
     /// Removes the character within the string.

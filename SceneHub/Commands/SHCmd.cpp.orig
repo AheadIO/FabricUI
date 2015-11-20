@@ -218,7 +218,12 @@ SHCmd::SHCmd(
   bool exec) : 
   m_state(State_New),
   m_coreUndoCount(0), 
+<<<<<<< HEAD
+  m_state(State_New),
+  m_shObject(shObject)
+=======
   m_shObject(shObject) 
+>>>>>>> origin/zeuxis_linux
 {
   FABRIC_TRY("SHCmd::Constructor",
     setDesc(cmdDes);
