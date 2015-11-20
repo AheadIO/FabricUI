@@ -172,9 +172,8 @@ namespace FabricUI
         /// \param desc The description
         void setDesc(std::string desc) {m_desc = desc;};
 
-        FabricCore::RTVal & getRefOnSCeneHub() {
-          return m_shObject;
-        }
+        /// Gets a reference to the sceneHub application. 
+        FabricCore::RTVal& getRefOnSCeneHub() { return m_shObject; }
 
       protected:
         /// Checks if the command has been already applied.
@@ -192,7 +191,8 @@ namespace FabricUI
         std::string m_desc;
         unsigned m_coreUndoCount;
 
-      protected:
+        /// \internal
+        /// Refenrece to the sceneHub applcaiton.
         FabricCore::RTVal m_shObject;
     };
   };

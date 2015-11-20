@@ -35,16 +35,14 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   FabricCore::RTVal shObject, 
   int viewportIndex, 
   QGLContext *qglContext, 
-  FabricUI::SceneHub::SHCmdView *shCmdView, 
   QWidget *parent, 
   QGLWidget *share) :
   	QGLWidget(qglContext, parent, share),
     m_client(client),
     m_shObject(shObject),
     m_viewportIndex(viewportIndex),
-    m_shCmdView(shCmdView),
     m_alwaysRefresh(false)
-  {
+{
 
   m_fps = 0.0;
   for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
@@ -387,7 +385,7 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
-  onEvent(event, true);
+  onEvent(event);
   if(m_shCmdView) m_shCmdView->synchronize();
 }
 
@@ -399,7 +397,7 @@ void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
   onEvent(event);
 }
 
-bool RTRGLViewportWidget::onEvent(QEvent *event, bool sceneChange) {
+bool RTRGLViewportWidget::onEvent(QEvent *event) {
   bool result = false;
   FABRIC_TRY_RETURN("RTRGLViewportWidget::onEvent", false,
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
@@ -407,11 +405,7 @@ bool RTRGLViewportWidget::onEvent(QEvent *event, bool sceneChange) {
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted(result);
-    if(result) 
-    {
-      if(sceneChange) emit sceneChanged();
-      else emit manipsAcceptedEvent( redrawAllViewports );
-    }      
+    if(result) emit manipsAcceptedEvent( redrawAllViewports );
     return result;
   );
 }

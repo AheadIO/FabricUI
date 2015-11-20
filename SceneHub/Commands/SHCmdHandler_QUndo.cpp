@@ -7,8 +7,8 @@
 #include <FTL/JSONValue.h>
 #include <FabricCore.h>
 
-using namespace FabricCore;
 using namespace FabricUI;
+using namespace FabricCore;
 using namespace FabricUI::SceneHub;
 
 
@@ -55,12 +55,9 @@ class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
 /// Adds an object to the scene-graph
 /// \param command The command as string
 bool SHCmdHandler_QUndo::addCommand(SHCmd *cmd) {
-
   if(cmd) {
-    std::cerr << "SHCmdHandler_QUndo::addCommand" << std::endl;
-    SHCmd::GetCmdManager(cmd->getRefOnSCeneHub()).callMethod("", "reportStackSize", 0, 0);
+    // Clears the kl undo stack --> synchronize Qt and K stacks
     SHCmd::GetCmdManager(cmd->getRefOnSCeneHub()).callMethod("", "clearRedoStack", 0, 0);
-    
     m_qUndoStack->push( new WrappedCmd(cmd) );
     return true;
   }

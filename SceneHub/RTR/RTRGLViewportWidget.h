@@ -32,7 +32,6 @@ namespace FabricUI
           FabricCore::RTVal, 
           int, 
           QGLContext *, 
-          FabricUI::SceneHub::SHCmdView *, 
           QWidget *parent = NULL, 
           QGLWidget *shared = NULL);
         
@@ -76,7 +75,7 @@ namespace FabricUI
         void mouseMoveEvent(QMouseEvent *event);
         void mouseReleaseEvent(QMouseEvent *event);
         void wheelEvent(QWheelEvent *event);
-        bool onEvent(QEvent *event, bool sceneChange = false);
+        bool onEvent(QEvent *event);
         void keyPressEvent(QKeyEvent *event);
         void dragEnterEvent(QDragEnterEvent *event);
         void dragMoveEvent(QDragMoveEvent *event);

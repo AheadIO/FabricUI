@@ -25,41 +25,22 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
   m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");
   m_edit = new QLineEdit();
-  m_synchronize = new QPushButton("Synch");
-  QObject::connect(
-    m_synchronize, SIGNAL( clicked() ),
-    this, SLOT( synchronize() )
-  );
+  m_logWidget = new FabricUI::SceneHub::SHLogWidget();
 
   QHBoxLayout *cmdLayout = new QHBoxLayout();
   cmdLayout->addWidget(m_edit);
-  cmdLayout->addWidget(m_synchronize);
-
-  m_text = new QPlainTextEdit(this);
-  //m_text->setFont( m_config.fixedFont );
-  m_text->setReadOnly(true);
-  m_text->setContextMenuPolicy( Qt::CustomContextMenu );
-
+  
   QVBoxLayout *layout = new QVBoxLayout();
   layout->setSpacing(0);
   layout->addLayout(cmdLayout);
   layout->addWidget(m_qUndoView);
-  layout->addWidget(m_text);
+  layout->addWidget(m_logWidget);
   layout->setContentsMargins(0, 0, 0, 0);
   setLayout(layout);
 
   synchronize();
 };
 
-/// Logs the application callback within the log windows.
-/// \param stringData The string to log
-void SHCmdView::logCallBack(char const*stringData) {
-  QString message(stringData);
-  bool isError = message.toLower().indexOf("error") > -1;
-  if(isError) m_text->appendHtml("<font color=\"red\">"+message+"</font>");
-  else m_text->appendPlainText(QString(stringData));
-}
- 
 /// Synchronizes the Qt stack from the KL stack.
 void SHCmdView::synchronize() {
   
@@ -84,6 +65,7 @@ void SHCmdView::synchronize() {
     else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
       addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
 
+    // log an error
     else std::cerr << "SHCmdView::synchronize : Command type " << type << " wasn't founded" << std::endl;
   }
 }

@@ -5,17 +5,18 @@
 #ifndef __FABRICUI_SceneHub_CmdView_
 #define __FABRICUI_SceneHub_CmdView_
 
-#include <QtCore/QString >
 #include <QtGui/QWidget>
+#include <QtCore/QString>
 #include <QtGui/QUndoView>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QPushButton>
 #include <QtGui/QPlainTextEdit>
-#include <FTL/OwnedPtr.h>
 #include <FTL/JSONEnc.h>
+#include <FTL/OwnedPtr.h>
 #include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/SceneHub/Commands/SHLogWidget.h>
 #include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
 
 
@@ -34,16 +35,12 @@ namespace FabricUI
         /// \param qUndoStack A pointer to the Qt undo-redo stack
         SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QUndoStack *QUndoStack);
 
-        ~SHCmdView() {};
+        virtual ~SHCmdView() {};
  
       public slots:
         /// Gets the "Return/Enter" key event, validate the command.
         /// \param event The Key event
         virtual void keyPressEvent(QKeyEvent *event);
-
-        /// Logs the application callback within the log windows.
-        /// \param stringData The string to log
-        void logCallBack(char const * stringData);
 
         /// Synchronizes the Qt stack from the KL stack.
         void synchronize();
@@ -56,14 +53,11 @@ namespace FabricUI
         bool addCommand(const std::string &command, bool exec = true);
         
         /// \internal
-        /// Log window
-        QPlainTextEdit * m_text;
-        /// \internal
         /// Writes commands
-        QLineEdit *m_edit;
+        QLineEdit *m_edit;        
         /// \internal
-        /// Synchronizes Qt and KL stacks
-        QPushButton *m_synchronize;
+        /// Log window
+        SHLogWidget * m_logWidget;
         /// \internal
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
