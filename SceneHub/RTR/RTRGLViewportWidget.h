@@ -40,13 +40,13 @@ namespace FabricUI
         void setTime(float time);
         void toggleAlwaysRefresh();
         bool alwaysRefreshes() { return m_alwaysRefresh; }
-        void setRefToCmdView(FabricUI::SceneHub::SHCmdView *cmdView);
         double fps() const { return m_fps; }
 
       signals:
         void sceneChanged();
         void manipsAcceptedEvent( bool );
         void viewportDestroying();
+        void updateCommands();
 
       public slots:
         void onContextMenu(const QPoint &point);
@@ -64,20 +64,20 @@ namespace FabricUI
         void constuctGeometryMenu(std::string category);
         void addExternalFile(QStringList, QPoint, bool);
         void editObjectColor( bool local );
-      
+        bool onEvent(QEvent *event);
+
       protected:
         virtual void paintGL();
         virtual void resizeGL(int w, int h);
 
-        void mousePressEvent(QMouseEvent *event);
-        void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *event);
-        bool onEvent(QEvent *event);
-        void keyPressEvent(QKeyEvent *event);
-        void dragEnterEvent(QDragEnterEvent *event);
-        void dragMoveEvent(QDragMoveEvent *event);
-        void dropEvent(QDropEvent *event);
+        virtual void mousePressEvent(QMouseEvent *event);
+        virtual void mouseMoveEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *event);
+        virtual void wheelEvent(QWheelEvent *event);
+        virtual void keyPressEvent(QKeyEvent *event);
+        virtual void dragEnterEvent(QDragEnterEvent *event);
+        virtual void dragMoveEvent(QDragMoveEvent *event);
+        virtual void dropEvent(QDropEvent *event);
 
         QWidget *m_parent;
         FabricCore::Client *m_client;
@@ -97,7 +97,6 @@ namespace FabricUI
 
         FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
         FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
-        FabricUI::SceneHub::SHCmdView *m_shCmdView;
         bool m_alwaysRefresh;
     };
   };

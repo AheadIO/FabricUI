@@ -115,10 +115,6 @@ void RTRGLViewportWidget::toggleAlwaysRefresh() {
   m_alwaysRefresh = !m_alwaysRefresh;
 }
 
-void RTRGLViewportWidget::setRefToCmdView(FabricUI::SceneHub::SHCmdView *cmdView) {
-  m_shCmdView = cmdView;
-}
-
 
 //*************
 
@@ -386,7 +382,7 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  if(m_shCmdView) m_shCmdView->synchronize();
+  emit updateCommands();
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
@@ -413,7 +409,7 @@ bool RTRGLViewportWidget::onEvent(QEvent *event) {
 //*************
 
 void RTRGLViewportWidget::dragEnterEvent(QDragEnterEvent *event) {
-  if ( event->mimeData()->hasUrls() && ( event->possibleActions() & Qt::CopyAction ) )
+  if(event->mimeData()->hasUrls() && (event->possibleActions() & Qt::CopyAction))
   {
     event->setDropAction( Qt::CopyAction );
     event->accept();
