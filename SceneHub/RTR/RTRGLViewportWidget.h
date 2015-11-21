@@ -1,9 +1,5 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
-
 #ifndef __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 #define __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
-
-// #include <GL/glew.h>
 
 #include <QtCore/QtCore>
 #include <QtGui/QMouseEvent>
@@ -16,8 +12,9 @@
 #include <QtCore/QTime>
 #include <QtGui/QMenuBar>
 #include <FabricCore.h>
-#include <FabricUI/SceneHub/SGLightManagerDialog.h>
-#include <FabricUI/SceneHub/SGGeometryManagerDialog.h>
+#include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
+#include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
+#include <FabricUI/SceneHub/Commands/SHCmdView.h>
 
 namespace FabricUI
 {
@@ -28,7 +25,14 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        RTRGLViewportWidget(FabricCore::Client *, FabricCore::RTVal, int, QGLContext *, QWidget *parent = NULL, QGLWidget *shared = NULL);
+        RTRGLViewportWidget(
+          FabricCore::Client *, 
+          FabricCore::RTVal, 
+          int, 
+          QGLContext *, 
+          QWidget *parent = NULL, 
+          QGLWidget *shared = NULL);
+        
         virtual ~RTRGLViewportWidget();
 
         void initialize();
@@ -42,6 +46,7 @@ namespace FabricUI
         void sceneChanged();
         void manipsAcceptedEvent( bool );
         void viewportDestroying();
+        void updateCommands();
 
       public slots:
         void onContextMenu(const QPoint &point);
@@ -59,28 +64,28 @@ namespace FabricUI
         void constuctGeometryMenu(std::string category);
         void addExternalFile(QStringList, QPoint, bool);
         void editObjectColor( bool local );
-      
+        bool onEvent(QEvent *event);
+
       protected:
         virtual void paintGL();
         virtual void resizeGL(int w, int h);
 
-        void mousePressEvent(QMouseEvent *event);
-        void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *event);
-        bool onMouseEvent(QEvent *event);
-        void keyPressEvent(QKeyEvent *event);
-        void dragEnterEvent(QDragEnterEvent *event);
-        void dragMoveEvent(QDragMoveEvent *event);
-        void dropEvent(QDropEvent *event);
+        virtual void mousePressEvent(QMouseEvent *event);
+        virtual void mouseMoveEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *event);
+        virtual void wheelEvent(QWheelEvent *event);
+        virtual void keyPressEvent(QKeyEvent *event);
+        virtual void dragEnterEvent(QDragEnterEvent *event);
+        virtual void dragMoveEvent(QDragMoveEvent *event);
+        virtual void dropEvent(QDropEvent *event);
 
         QWidget *m_parent;
         FabricCore::Client *m_client;
 
+        FabricCore::RTVal m_shObject;
         int m_viewportIndex;
 
         FabricCore::RTVal m_viewport;
-        FabricCore::RTVal m_testObject;
         FabricCore::RTVal m_viewportIndexRTVal;
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
@@ -89,10 +94,10 @@ namespace FabricUI
         QTime m_fpsTimer;
         double m_fps;
         double m_fpsStack[16];
-        bool m_alwaysRefresh;
 
         FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
         FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
+        bool m_alwaysRefresh;
     };
   };
 };
