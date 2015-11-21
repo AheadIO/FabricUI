@@ -309,39 +309,21 @@ void DFGKLEditorWidget::save()
 
 void DFGKLEditorWidget::updateDiags( bool saving )
 {
-  QStringList stringList;
+  FabricCore::DFGExec &exec = m_controller->getExec();
+  std::string errors;
+  if ( !!exec )
+    errors = exec.getErrors(false).getCString();
 
-  if ( FabricCore::DFGExec exec = m_controller->getExec() )
+  QStringList stringList;
+  if(errors.length() > 0)
   {
-    try
-    {
-      FabricCore::String errorsJSON = exec.getErrors( true );
-      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
-      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
-      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
-        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
-        );
-      unsigned errorCount = errorsJSONArray->size();
-      for(unsigned i=0;i<errorCount;i++)
-      {
-        FTL::JSONString *errorJSONString =
-          errorsJSONArray->get( i )->cast<FTL::JSONString>();
-        stringList.append( errorJSONString->getValue().c_str() );
-      }
-    }
-    catch ( FTL::JSONException e )
-    {
-      std::cout
-        << "Caught exception: "
-        << e.getDesc()
-        << "\n";
-    }
+    stringList.append( errors.c_str() );
   }
 
   m_diagsModel.setStringList( stringList );
-  m_diagsView->setVisible( stringList.size() > 0 );
+  m_diagsView->setVisible( errors.length() > 0 );
 
-  if ( saving && stringList.size() == 0 )
+  if ( saving && errors.length() == 0 )
     m_controller->log("Save successful.");
 }
 
