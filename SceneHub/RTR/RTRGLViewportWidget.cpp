@@ -382,7 +382,7 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  emit updateCommands();
+  //emit updateCommands();
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
