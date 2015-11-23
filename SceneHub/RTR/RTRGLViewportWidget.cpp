@@ -294,15 +294,7 @@ void RTRGLViewportWidget::addTexture() {
 void RTRGLViewportWidget::constuctGeometryMenu(std::string category) {
   if(m_lightDialog->isVisible())
     m_lightDialog->close();
-  /*
-    // Temporaire
-    int w = 0.1*this->width();
-    w = (w < 30) ? 30 : w;
-    int h = 0.1*this->height()
-    h = (h < 30) ? 30 : h;
-    m_geometryDialog->setFixedSize(w, h);
-    m_geometryDialog->show();
-  */
+
   // Directly call the color box
   if(category.compare("parent") == 0)
     editObjectColor();
@@ -382,7 +374,7 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  emit updateCommands();
+  emit synchronizeCommands(false);
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {

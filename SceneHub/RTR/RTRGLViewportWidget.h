@@ -46,7 +46,7 @@ namespace FabricUI
         void sceneChanged();
         void manipsAcceptedEvent( bool );
         void viewportDestroying();
-        void updateCommands();
+        void synchronizeCommands(bool);
 
       public slots:
         void onContextMenu(const QPoint &point);
