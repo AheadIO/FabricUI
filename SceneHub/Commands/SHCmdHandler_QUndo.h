@@ -36,10 +36,7 @@ namespace FabricUI
 
         /// Gets a pointer to the qt command stack.
         QUndoStack* getStack() { return m_qUndoStack; };
-
-        /// Gets a pointer to the qt command stack.
-        void clearStack() { m_qUndoStack->clear(); };
-
+        
         /// Adds and executes a command
         /// \param cmd The command
         bool addCommand(SHCmd *cmd);

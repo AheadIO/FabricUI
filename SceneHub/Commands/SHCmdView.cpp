@@ -37,18 +37,16 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   layout->addWidget(m_logWidget);
   layout->setContentsMargins(0, 0, 0, 0);
   setLayout(layout);
-
-  synchronize();
 };
 
 /// Synchronizes the Qt stack from the KL stack.
-void SHCmdView::synchronize() {
+void SHCmdView::synchronize(bool all) {
   
-  m_shCmdHandler.clearStack();
+  if(all) m_shCmdHandler.getStack()->clear();
     
   // Get the number of commands already done in the KL stack
   FabricCore::RTVal nbCommandsVal = SHCmd::GetCmdManager(m_shObject).callMethod("Size", "getNumCmdInUndoStack", 0, 0);
-  for(uint32_t i=0; i<nbCommandsVal.getUInt32(); ++i)
+  for(uint32_t i=m_shCmdHandler.getStack()->index(); i<nbCommandsVal.getUInt32(); ++i)
   {
     FabricCore::RTVal typeVal = SHCmd::RetrieveCmd(m_client, m_shObject, i).callMethod("String", "type", 0, 0);
     std::string type = std::string(typeVal.getStringCString());
