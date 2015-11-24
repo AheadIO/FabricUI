@@ -7,6 +7,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QHBoxLayout>
 #include <QtCore/QTimer>
+#include <QtCore/QTime>
 
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QSlider>
@@ -45,10 +46,10 @@ namespace FabricUI
 
         /// setup the time range
         void setTimeRange(int start , int end);
-
+        
         /// setup the frame rate (will clamp to combo box options)
         void setFrameRate( float framesPerSecond );
-      
+        
         /// returns the loop mode
         int loopMode() const { return m_loopMode; }
 
@@ -66,6 +67,9 @@ namespace FabricUI
         /// client would connect this slight to any slots that need to know about the time
         void frameChanged(int frame);
 
+        /// this is emitted whenever playback changes
+        void playbackChanged(bool isPlaying);
+      
       public slots:
 
         /// slider value changed
@@ -76,23 +80,23 @@ namespace FabricUI
 
         /// the current Frame value change on the DoubleSpinBox
         void currentFrameChanged();
-
+        
         /// either the start or end time of the slider changed , this will adjust both regarderless which one changed
         void updateFrameRange();
-
+        
         /// start or stop the playback ( act as a switch on the playing state )
         void play();
-
+        
         /// stop the playback
         void pause();
 
         /// set the frame to the start of the current time slider range
         void goToStartFrame();
-
-        /// goes one frame back based on the current frame
+        
+        /// goes one frame back based on the current frame 
         void goToPreviousFrame();
-
-        /// goes one frame forward based on the current frame
+        
+        /// goes one frame forward based on the current frame 
         void goToNextFrame();
 
         /// set the frame to the end of the current time slider range
@@ -111,22 +115,24 @@ namespace FabricUI
 
         /// called when the simulation mode changed
         void simModeChanged(int index);
-
-        /// internal time changing function
+        
+        /// internal time changing function 
         /// if you want to set the time from the outside use updateTime(int)
         void setTime(int frame);
-
+        
       protected:
-
+      
         /// the timer in charge of the playback . this is paused when not active
         QTimer * m_timer;
-
+        QTime m_lastFrameTime;
+        double m_fps;
+        
         /// current frame
         int m_lastSteppedFrame;
 
-        /// direction of play
+        /// direction of play 
         int m_direction;
-
+        
         /// are we looping
         int m_loopMode;
 
@@ -152,7 +158,7 @@ namespace FabricUI
 
     };
   };
-
+  
 }
 
 #endif

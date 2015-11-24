@@ -182,7 +182,7 @@ void RTRGLViewportWidget::addExternalFile(QStringList paths, QPoint mousePos, bo
       std::vector<FabricCore::RTVal> klParams;
       klParams.push_back(m_viewportIndexRTVal);
       klParams.push_back(klPathList);
-      klParams.push_back(QtToKLMousePosition(mousePos, *m_client, m_viewport));
+      klParams.push_back(QtToKLMousePosition(mousePos, *m_client, m_viewport, true));
       klParams.push_back(FabricCore::RTVal::ConstructBoolean(*m_client, forceExpand));
 
       m_shObject.callMethod("", "onAddExternalFile", 4, &klParams[0]);
@@ -255,7 +255,7 @@ void RTRGLViewportWidget::addLight() {
     std::vector<FabricCore::RTVal> klParams(3); 
     klParams[0] = m_viewportIndexRTVal;
     klParams[1] = FabricCore::RTVal::ConstructUInt32(*m_client, lightType);
-    klParams[2] = QtToKLMousePosition(m_screenPos, *m_client, m_viewport);
+    klParams[2] = QtToKLMousePosition(m_screenPos, *m_client, m_viewport, true);
     m_shObject.callMethod("", "onAddLight", 3, &klParams[0]); 
     emit sceneChanged();
   );
@@ -388,7 +388,7 @@ void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
 bool RTRGLViewportWidget::onEvent(QEvent *event) {
   bool result = false;
   FABRIC_TRY_RETURN("RTRGLViewportWidget::onEvent", false,
-    FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
+    FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport, true);
     m_shObject.callMethod("", "onEvent", 1, &klevent);
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
     bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
