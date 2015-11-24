@@ -7,15 +7,6 @@
 #include <map>
 #include <iostream>
 
-FabricCore::RTVal QtToKLMousePosition(QPoint pos, FabricCore::Client const& client, FabricCore::RTVal viewport) {
-  FabricCore::RTVal klViewportDim = viewport.callMethod("Vec2", "getDimensions", 0, 0);
-  FabricCore::RTVal klpos = FabricCore::RTVal::Construct(client, "Vec2", 0, 0);
-  klpos.setMember("x", FabricCore::RTVal::ConstructFloat32(client, pos.x()));
-  // We must inverse the y coordinate to match Qt/RTR viewport system of coordonates
-  klpos.setMember("y", FabricCore::RTVal::ConstructFloat32(client, klViewportDim.maybeGetMember("y").getFloat32() - pos.y()));
-  return klpos;
-}
-
 FabricCore::RTVal QtToKLEvent(QEvent *event, FabricCore::Client const& client, FabricCore::RTVal viewport)
 {
 
@@ -56,7 +47,9 @@ FabricCore::RTVal QtToKLEvent(QEvent *event, FabricCore::Client const& client, F
     // FABRIC_TRY_RETURN("ManipulationTool::onEvent", false,
       klevent = FabricCore::RTVal::Create(client, "MouseEvent", 0, 0);
 
-      FabricCore::RTVal klpos = QtToKLMousePosition(mouseEvent->pos(), client, viewport);
+      FabricCore::RTVal klpos = FabricCore::RTVal::Construct(client, "Vec2", 0, 0);
+      klpos.setMember("x", FabricCore::RTVal::ConstructFloat32(client, mouseEvent->pos().x()));
+      klpos.setMember("y", FabricCore::RTVal::ConstructFloat32(client, mouseEvent->pos().y()));
 
       klevent.setMember("button", FabricCore::RTVal::ConstructUInt32(client, mouseEvent->button()));
       klevent.setMember("buttons", FabricCore::RTVal::ConstructUInt32(client, mouseEvent->buttons()));
@@ -70,7 +63,9 @@ FabricCore::RTVal QtToKLEvent(QEvent *event, FabricCore::Client const& client, F
     // FABRIC_TRY_RETURN("ManipulationTool::onEvent", false,
       klevent = FabricCore::RTVal::Create(client, "MouseWheelEvent", 0, 0);
 
-      FabricCore::RTVal klpos = QtToKLMousePosition(mouseWheelEvent->pos(), client, viewport);
+      FabricCore::RTVal klpos = FabricCore::RTVal::Construct(client, "Vec2", 0, 0);
+      klpos.setMember("x", FabricCore::RTVal::ConstructFloat32(client, mouseWheelEvent->pos().x()));
+      klpos.setMember("y", FabricCore::RTVal::ConstructFloat32(client, mouseWheelEvent->pos().y()));
 
       klevent.setMember("buttons", FabricCore::RTVal::ConstructUInt32(client, mouseWheelEvent->buttons()));
       klevent.setMember("delta", FabricCore::RTVal::ConstructSInt32(client, mouseWheelEvent->delta()));

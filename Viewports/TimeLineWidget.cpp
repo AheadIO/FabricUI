@@ -26,11 +26,8 @@ TimeLineWidget::TimeLineWidget()
   // default playback sim
   m_simMode = 0;
 
-  //QTimer is not precise at all; just make it call often as 
-  //possible (1 ms) and we will compute the actual elapsed time
   m_timer = new QTimer(this);
-  m_timer->setInterval(3);
-  m_fps = 1000;//max
+  m_timer->setInterval(0);
 
   // layout
   setLayout(new QHBoxLayout());
@@ -277,7 +274,7 @@ void TimeLineWidget::currentFrameChanged()
   setTime( static_cast<int>(  m_currentFrameSpinBox->value() ) );
 }
 
-void TimeLineWidget::setTimeRange(int start, int end)
+void TimeLineWidget::setTimeRange(int start , int end)
 {
   m_startSpinBox->blockSignals(true);
   m_startSpinBox->setValue( static_cast<int>( start ) );
@@ -299,21 +296,7 @@ void TimeLineWidget::setTimeRange(int start, int end)
 
   if (currentTime < start )
     setTime(start);
-}
 
-void TimeLineWidget::setFrameRate(float framesPerSecond) {
-  // For now just clamp to existing options
-  int index = 0; // max fps
-  if( framesPerSecond <= 15 )
-    index = 1; // 12 fps
-  else if( framesPerSecond <= 30 )
-    index = 2; // 24 fps
-  else if( framesPerSecond <= 50 )
-    index = 3; // 48 fps
-  else if( framesPerSecond <= 70 )
-    index = 4; // 60 fps
-  frameRateChanged( index );
-  m_frameRateComboBox->setCurrentIndex( index );
 }
 
 void TimeLineWidget::setLoopMode(int mode)
@@ -343,14 +326,11 @@ void TimeLineWidget::play()
   {
     m_timer->stop();
     m_playButton->setText(">");
-    emit playbackChanged(false);
   }
   else
   {
     m_timer->start();
-    m_lastFrameTime.start();
-    m_playButton->setText( "||" );
-    emit playbackChanged(true);
+    m_playButton->setText("||");
   }
 }
 
@@ -360,7 +340,6 @@ void TimeLineWidget::pause()
   {
     m_timer->stop();
     m_playButton->setText(">");
-    emit playbackChanged(false);
   }
 }
 
@@ -394,15 +373,6 @@ void TimeLineWidget::goToEndFrame()
 
 void TimeLineWidget::timerUpdate()
 {
-  // We will be getting about 1 call per milli-second,
-  // however QTimer is really not precise so we cannot rely
-  // on its delay.
-  double ms = m_lastFrameTime.elapsed();
-  if( m_fps > 0 && ms + 0.5 < 1000.0 / m_fps ) // Add 0.5 so we have a better average framerate (else we are always above)
-    return; // Wait longer
-
-  m_lastFrameTime.start();
-
   int newTime = getTime()+m_direction;
   if ( newTime > m_endSpinBox->value() )
   {
@@ -441,10 +411,10 @@ void TimeLineWidget::timerUpdate()
 
 void TimeLineWidget::frameRateChanged(int index)
 {
-  m_fps = m_frameRateComboBox->itemData(index).toDouble();
-  if(m_fps == 0.0) // max fps
-    m_fps = 1000; // max fps
-  else if(m_fps == -1.0) // custom fps
+  double fps = m_frameRateComboBox->itemData(index).toDouble();
+  if(fps == 0.0) // max fps
+    m_timer->setInterval(1); // max fps
+  else if(fps == -1.0) // custom fps
   {
     bool ok;
     double userFps = QInputDialog::getDouble(
@@ -452,11 +422,14 @@ void TimeLineWidget::frameRateChanged(int index)
       24.0, 1.0, 1000.0, 2, &ok );
     if(ok)
     {
-      m_fps = userFps;
+      fps = userFps;
       m_frameRateComboBox->setItemText( index, 
-        "custom " + QString::number(m_fps) );
+        "custom " + QString::number(fps) );
     }
   }
+
+  if(fps > 0.0)
+    m_timer->setInterval((int)(1000.0 / fps));
 }
 
 void TimeLineWidget::loopModeChanged(int index)

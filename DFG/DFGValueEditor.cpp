@@ -113,6 +113,9 @@ void DFGValueEditor::onArgsChanged()
           continue;
         if(portName == "timeLine" || portName == "timeline")
           continue;
+        FTL::StrRef uiHidden = rootExec.getExecPortMetadata(portName.c_str(), "uiHidden");
+        if(uiHidden == "true")
+          continue;
 
         FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
@@ -133,6 +136,9 @@ void DFGValueEditor::onArgsChanged()
           continue;
         FTL::CStrRef portName = rootExec.getExecPortName(i);
         if(portName.size() == 0)
+          continue;
+        FTL::CStrRef uiHidden = rootExec.getExecPortMetadata(portName.c_str(), "uiHidden");
+        if(uiHidden == "true")
           continue;
         FabricCore::RTVal value = m_binding.getArgValue(portName.c_str());
         if(!value.isValid())
@@ -181,6 +187,14 @@ void DFGValueEditor::onArgsChanged()
           FTL::CStrRef dataType = 
             m_exec.getNodePortResolvedType( portPath.c_str() );
           if(dataType.empty() || dataType.find('$') != dataType.end())
+            continue;
+
+          FTL::CStrRef hidden =
+            subExec.getExecPortMetadata(
+              portName.c_str(),
+              "uiHidden"
+              );
+          if ( hidden == FTL_STR("true") )
             continue;
 
           FabricCore::RTVal value =

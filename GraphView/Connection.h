@@ -30,8 +30,7 @@ namespace FabricUI
         Graph * parent,
         ConnectionTarget * src,
         ConnectionTarget * dst,
-        bool forceUseOfPinColor = false,
-        bool createdUponLoad = false
+        bool forceUseOfPinColor = false
         );
 
       ~Connection();
@@ -48,8 +47,6 @@ namespace FabricUI
       virtual QColor color() const
         { return m_color; }
       virtual void setColor(QColor color);
-
-      virtual QRectF boundingRect() const;
 
       QPointF srcPoint() const;
       QPointF dstPoint() const;
@@ -85,7 +82,6 @@ namespace FabricUI
       bool m_aboutToBeDeleted;
       bool m_isExposedConnection;
       bool m_hasSelectedTarget;
-      bool m_hasNeverDrawn;
       float m_clipRadius;
       QPainterPath m_clipPath;
     };

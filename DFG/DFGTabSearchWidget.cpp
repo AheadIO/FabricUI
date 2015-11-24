@@ -353,9 +353,6 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   QPoint localPos = geometry().topLeft();
   QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
 
-  // init node name.
-  std::string nodeName = "";
-
   // deal with special case
   if(path == "var")
   {
@@ -374,7 +371,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 
-    nodeName = controller->cmdAddVar(
+    controller->cmdAddVar(
       name.toUtf8().constData(), 
       dataType.toUtf8().constData(), 
       extension.toUtf8().constData(), 
@@ -383,7 +380,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "get")
   {
-    nodeName = controller->cmdAddGet(
+    controller->cmdAddGet(
       "get",
       "",
       scenePos
@@ -391,7 +388,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "set")
   {
-    nodeName = controller->cmdAddSet(
+    controller->cmdAddSet(
       "set",
       "",
       scenePos
@@ -399,7 +396,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "get.")
   {
-    nodeName = controller->cmdAddGet(
+    controller->cmdAddGet(
       "get",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -407,7 +404,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "set.")
   {
-    nodeName = controller->cmdAddSet(
+    controller->cmdAddSet(
       "set",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -415,17 +412,9 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else
   {
-    nodeName = controller->cmdAddInstFromPreset(
+    controller->cmdAddInstFromPreset(
       path.toUtf8().constData(),
       scenePos
       );
-  }
-
-  // was a new node created?
-  if (!nodeName.empty())
-  {
-    m_parent->getGraphViewWidget()->graph()->clearSelection();
-    if ( GraphView::Node *uiNode = m_parent->getGraphViewWidget()->graph()->node( nodeName ) )
-      uiNode->setSelected( true );
   }
 }
