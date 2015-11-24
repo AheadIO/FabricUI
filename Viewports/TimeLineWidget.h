@@ -46,6 +46,9 @@ namespace FabricUI
         /// setup the time range
         void setTimeRange(int start , int end);
 
+        /// setup the frame rate (will clamp to combo box options)
+        void setFrameRate( float framesPerSecond );
+      
         /// returns the loop mode
         int loopMode() const { return m_loopMode; }
 
