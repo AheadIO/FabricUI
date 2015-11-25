@@ -149,7 +149,7 @@ void DFGCombinedWidget::init(
 
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
         this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
-      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(varsChanged()), m_treeWidget, SLOT(refresh()));
+
       QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
     }
 
