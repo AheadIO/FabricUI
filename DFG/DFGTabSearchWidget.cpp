@@ -369,8 +369,6 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
       return;
 
     QString name = dialog.name();
-    if(name.length() == 0)
-      return;
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 

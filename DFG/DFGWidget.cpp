@@ -556,8 +556,6 @@ dfgEntry {\n\
       return;
 
     std::string name = dialog.name().toUtf8().constData();
-    if ( name.empty() )
-      return;
     std::string dataType = dialog.dataType().toUtf8().constData();
     std::string extension = dialog.extension().toUtf8().constData();
 

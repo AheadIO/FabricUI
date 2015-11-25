@@ -1901,7 +1901,9 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
-  if(!validPresetSplit())
+  if(  !validPresetSplit()
+     || desiredNodeName.empty()
+     || dataType.empty())
     return "";
 
   UpdateSignalBlocker blocker( this );
