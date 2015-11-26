@@ -1444,10 +1444,6 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
       pos = getGraphViewWidget()->mapToGlobal(pos);
       getTabSearchWidget()->showForSearch(pos);
     }
-    else
-    {
-      getUIController()->log("Tab Search not allowed in presets.");
-    }
   }
   else if(hotkey == DFGHotkeys::SELECT_ALL)
   {
