@@ -621,9 +621,10 @@ void DFGNotificationRouter::onNodePortInserted(
   FabricCore::DFGExec &exec = m_dfgController->getExec();
 
   QColor color;
+  FabricCore::DFGExec subExec;
   if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
   {
-    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+    subExec = exec.getSubExec(nodeName.c_str());
     color = m_config.getColorForDataType(dataType, &subExec, portName.c_str());
   }
   else
@@ -641,6 +642,8 @@ void DFGNotificationRouter::onNodePortInserted(
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
   uiNode->addPin(uiPin, false);
+
+  checkAndFixNodePortOrder(subExec, uiNode);  // [FE-5716]
 }
 
 void DFGNotificationRouter::onNodePortRemoved(
@@ -1564,7 +1567,7 @@ void DFGNotificationRouter::checkAndFixPanelPortOrder()
     return;
 
   // check if all exec ports are in uiGraph.
-  for(int i=exec.getExecPortCount()-1;i>=0;i--)
+  for (int i=exec.getExecPortCount()-1;i>=0;i--)
     if (!uiGraph->port(exec.getExecPortName(i)))
       return;
 
@@ -1592,4 +1595,30 @@ void DFGNotificationRouter::checkAndFixPanelPortOrder()
         }
     }
   }
+}
+
+void DFGNotificationRouter::checkAndFixNodePortOrder(FabricCore::DFGExec &nodeExec, GraphView::Node *uiNode)
+{
+  // check inputs.
+  if (!nodeExec.isValid() || !uiNode)
+    return;
+
+  // check if all exec ports are in uiNode.
+  for (int i=nodeExec.getExecPortCount()-1;i>=0;i--)
+    if (!uiNode->pin(nodeExec.getExecPortName(i)))
+      return;
+
+  // create the correct list of names based on the ports in nodeExec.
+  QStringList correctNames;
+  for (unsigned int i=0;i<nodeExec.getExecPortCount();i++)
+    correctNames.append(QString(nodeExec.getExecPortName(i)));
+
+  // check if the uiNode's pin order mismatches and reorder them if necessary.
+  if (uiNode->pinCount() == correctNames.count())
+    for (unsigned int i=0;i<correctNames.count();i++)
+      if (uiNode->pin(i)->name() != correctNames.at(i).toLocal8Bit().constData())
+      {
+        uiNode->reorderPins(correctNames);
+        break;
+      }
 }

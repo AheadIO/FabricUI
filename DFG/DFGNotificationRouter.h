@@ -7,6 +7,7 @@
 #include <FTL/CStrRef.h>
 #include <FTL/JSONValue.h>
 #include <FabricUI/DFG/DFGConfig.h>
+#include <FabricUI/GraphView/Node.h>
 
 namespace FabricUI
 {
@@ -197,6 +198,7 @@ namespace FabricUI
     private:
 
       void checkAndFixPanelPortOrder();
+      void checkAndFixNodePortOrder(FabricCore::DFGExec &nodeExec, GraphView::Node *uiNode);
 
       void callback( FTL::CStrRef jsonStr );
 
