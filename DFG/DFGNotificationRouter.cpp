@@ -710,9 +710,11 @@ void DFGNotificationRouter::onExecPortInserted(
         );
       uiPanel->addPort(uiOutPort);
     }
-    if(uiOutPort && uiInPort)
+    if(uiOutPort || uiInPort)
     {
-      uiGraph->addConnection(uiOutPort, uiInPort, false);
+      if(uiOutPort && uiInPort)
+        uiGraph->addConnection(uiOutPort, uiInPort, false);
+      checkAndFixPanelPortOrder();  // [FE-5716]
     }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
@@ -1550,5 +1552,44 @@ void DFGNotificationRouter::onInstExecEditWouldSplitFromPresetMayHaveChanged(
   {
     uiNode->setTitle( subExec.getTitle() );
     uiNode->removeTitleSuffix();
+  }
+}
+
+void DFGNotificationRouter::checkAndFixPanelPortOrder()
+{
+  // get graph and exec.
+  GraphView::Graph    *uiGraph = m_dfgController->graph();
+  FabricCore::DFGExec &exec    = m_dfgController->getExec();
+  if (!uiGraph || !exec.isValid() || !exec.getExecPortCount())
+    return;
+
+  // check if all exec ports are in uiGraph.
+  for(int i=exec.getExecPortCount()-1;i>=0;i--)
+    if (!uiGraph->port(exec.getExecPortName(i)))
+      return;
+
+  // check/fix the panels.
+  for (int pass=0;pass<2;pass++)
+  {
+    GraphView::SidePanel *panel = uiGraph->sidePanel(pass == 0 ? GraphView::PortType_Input : GraphView::PortType_Output);
+    if (!panel) continue;
+    FabricCore::DFGPortType portType = (pass == 0 ? FabricCore::DFGPortType_In : FabricCore::DFGPortType_Out);
+
+    // create the correct list of names based on the ports in exec.
+    QStringList correctNames;
+    for (unsigned int i=0;i<exec.getExecPortCount();i++)
+      if (exec.getExecPortType(i) != portType)
+        correctNames.append(QString(exec.getExecPortName(i)));
+
+    // check if the panel's port order mismatches and reorder the ports if necessary.
+    if (panel->portCount() == correctNames.count())
+    {
+      for (unsigned int i=0;i<correctNames.count();i++)
+        if (panel->port(i)->name() != correctNames.at(i).toLocal8Bit().constData())
+        {
+          panel->reorderPorts(correctNames);
+          break;
+        }
+    }
   }
 }

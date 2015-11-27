@@ -196,6 +196,8 @@ namespace FabricUI
 
     private:
 
+      void checkAndFixPanelPortOrder();
+
       void callback( FTL::CStrRef jsonStr );
 
       static void Callback(
