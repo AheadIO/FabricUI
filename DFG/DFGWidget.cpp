@@ -1438,9 +1438,12 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   }
   else if(hotkey == DFGHotkeys::TAB_SEARCH)
   {
-    QPoint pos = getGraphViewWidget()->lastEventPos();
-    pos = getGraphViewWidget()->mapToGlobal(pos);
-    getTabSearchWidget()->showForSearch(pos);
+    if (getUIController()->validPresetSplit())
+    {
+      QPoint pos = getGraphViewWidget()->lastEventPos();
+      pos = getGraphViewWidget()->mapToGlobal(pos);
+      getTabSearchWidget()->showForSearch(pos);
+    }
   }
   else if(hotkey == DFGHotkeys::SELECT_ALL)
   {
