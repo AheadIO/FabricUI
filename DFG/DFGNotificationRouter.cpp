@@ -1572,8 +1572,8 @@ void DFGNotificationRouter::checkAndFixPanelPortOrder()
   for (int pass=0;pass<2;pass++)
   {
     GraphView::SidePanel *panel = uiGraph->sidePanel(pass == 0 ? GraphView::PortType_Input : GraphView::PortType_Output);
-    if (!panel) continue;
     FabricCore::DFGPortType portType = (pass == 0 ? FabricCore::DFGPortType_In : FabricCore::DFGPortType_Out);
+    if (!panel) continue;
 
     // create the correct list of names based on the ports in exec.
     QStringList correctNames;
