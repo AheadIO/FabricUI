@@ -5,6 +5,7 @@
 
 #include <FabricCore.h>
 
+#include <QtGui/QApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 
@@ -35,6 +36,9 @@ namespace FabricUI
       
       void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
+
+      bool reqExtLineEditWidgetHasFocus() const
+      { return (m_reqExtLineEdit && QApplication::focusWidget() == m_reqExtLineEdit); }
 
     signals:
 
