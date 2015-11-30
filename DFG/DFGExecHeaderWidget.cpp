@@ -180,6 +180,26 @@ void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
   refresh();
 }
 
+bool DFGExecHeaderWidget::reqExtLineEditWidgetHasFocus() const
+{
+  return (m_reqExtLineEdit && QApplication::focusWidget() == m_reqExtLineEdit);
+}
+
+bool DFGExecHeaderWidget::reqExtLineEditWidgetClearFocus()
+{
+  if (!m_reqExtLineEdit)
+    return false;
+
+  // cancel any text changes.
+  FabricCore::String currentExtDepDesc = getExec().getExtDeps();
+  m_reqExtLineEdit->setText(currentExtDepDesc.getCStr());
+
+  // remove keyboard focus.
+  m_reqExtLineEdit->clearFocus();
+
+  return true;
+}
+
 void DFGExecHeaderWidget::reqExtEditingFinished()
 {
   std::string extDepDesc = m_reqExtLineEdit->text().toUtf8().constData();  

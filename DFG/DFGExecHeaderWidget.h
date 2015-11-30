@@ -5,6 +5,7 @@
 
 #include <FabricCore.h>
 
+#include <QtGui/QApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 
@@ -35,6 +36,15 @@ namespace FabricUI
       
       void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
+
+      // return true if the req. exts QLineEdit
+      // widget has the keyboard focus..
+      bool reqExtLineEditWidgetHasFocus() const;
+
+      // discard the changes made in the req. exts
+      // QLineEdit widget and remove the keyboard focus.
+      // returns true on success.
+      bool reqExtLineEditWidgetClearFocus();
 
     signals:
 
