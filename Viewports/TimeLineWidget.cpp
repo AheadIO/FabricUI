@@ -163,7 +163,7 @@ TimeLineWidget::TimeLineWidget()
 
   // [Julien] Fix FE-4596.
   // The TimeLineWidget height is sometimes too small when displayed
-  // It might happend with 4K or retina display, should be fixe when using Qt5
+  // It might happen with 4K or retina display, should be fixe when using Qt5
   // To fix it, we set the widget minimum size to 80.
   QDesktopWidget desktop;
   QRect mainScreenSize = desktop.availableGeometry(desktop.primaryScreen());
