@@ -1585,9 +1585,9 @@ void DFGNotificationRouter::checkAndFixPanelPortOrder()
         correctNames.append(QString(exec.getExecPortName(i)));
 
     // check if the panel's port order mismatches and reorder the ports if necessary.
-    if (panel->portCount() == correctNames.count())
+    if (size_t(panel->portCount()) == size_t(correctNames.count()))
     {
-      for (unsigned int i=0;i<correctNames.count();i++)
+      for (int i=0;i<correctNames.count();i++)
         if (panel->port(i)->name() != correctNames.at(i).toLocal8Bit().constData())
         {
           panel->reorderPorts(correctNames);
@@ -1614,8 +1614,8 @@ void DFGNotificationRouter::checkAndFixNodePortOrder(FabricCore::DFGExec &nodeEx
     correctNames.append(QString(nodeExec.getExecPortName(i)));
 
   // check if the uiNode's pin order mismatches and reorder them if necessary.
-  if (uiNode->pinCount() == correctNames.count())
-    for (unsigned int i=0;i<correctNames.count();i++)
+  if (size_t(uiNode->pinCount()) == size_t(correctNames.count()))
+    for (int i=0;i<correctNames.count();i++)
       if (uiNode->pin(i)->name() != correctNames.at(i).toLocal8Bit().constData())
       {
         uiNode->reorderPins(correctNames);
