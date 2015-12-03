@@ -131,7 +131,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
       if (droppedNodes.size())
       {
         graph()->clearSelection();
-        for (int i=0;i<droppedNodes.size();i++)
+        for (unsigned i=0;i<droppedNodes.size();i++)
         {
           if (GraphView::Node *uiNode = graph()->node(droppedNodes[i]))
             uiNode->setSelected(true);
