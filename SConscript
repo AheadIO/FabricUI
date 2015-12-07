@@ -92,20 +92,25 @@ env.MergeFlags(qtFlags)
 dirs = [
   'Util',
   'Style',
-  'TreeView',
-  'ValueEditor',
-  'GraphView',
-  'GraphView/Commands',
-  'KLEditor',
-  'DFG',
-  'DFG/DFGUICmd',
-  'DFG/Dialogs',
+  'TimeLine',
+
+  'Canvas/TreeView',
+  'Canvas/ValueEditor',
+  'Canvas/GraphView',
+  'Canvas/GraphView/Commands',
+  'Canvas/KLEditor',
+  'Canvas/DFG',
+  'Canvas/DFG/DFGUICmd',
+  'Canvas/DFG/Dialogs',
+  'Canvas/Viewports',
+
   'SceneHub',
   'SceneHub/Managers',
   'SceneHub/TreeView',
-  'Viewports',
   'SceneHub/RTR',
   'SceneHub/Commands',
+
+  'RTR2Canvas',
   'Licensing',
 ]
 

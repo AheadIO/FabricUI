@@ -6,10 +6,10 @@
 #define __FABRICUI_SceneHub_CmdHandler_QUndo__
 
 #include <QtGui/QUndoStack>
-#include <FabricUI/SceneHub/macros.h>
-#include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
+#include <FTL/JSONEnc.h>
 #include <FTL/MapCharSingle.h>
+#include <FabricUI/SceneHub/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
 
 namespace FabricUI
