@@ -21,7 +21,6 @@ RTR2CanvasGLViewportWidget::RTR2CanvasGLViewportWidget(FabricCore::Client * clie
 {	
   m_client = client;
   m_bgColor = bgColor;
-  //m_manipTool = new ManipulationTool(this);
   m_usingStage = true;
   m_stageVisible = true;
   m_hasCommercialLicense = client->hasCommercialLicense();
@@ -58,7 +57,6 @@ RTR2CanvasGLViewportWidget::RTR2CanvasGLViewportWidget(FabricCore::Client * clie
 
 RTR2CanvasGLViewportWidget::~RTR2CanvasGLViewportWidget()
 {
-  //delete(m_manipTool);
 }
 
 QColor RTR2CanvasGLViewportWidget::backgroundColor() const
@@ -85,22 +83,6 @@ void RTR2CanvasGLViewportWidget::setBackgroundColor(QColor color)
       printf("Error: %s\n", e.getDesc_cstr());
     }
   }
-}
-
-bool RTR2CanvasGLViewportWidget::isManipulationActive() const
-{
-  return false;//m_manipTool->isActive();
-}
-
-void RTR2CanvasGLViewportWidget::setManipulationActive(bool state)
-{
-  //if(state == m_manipTool->isActive())
-  //  return;
-  //if(state)
-  //  m_manipTool->toolOnSetup();
-  //else
-  //  m_manipTool->toolOffCleanup();
-  redraw();
 }
 
 void RTR2CanvasGLViewportWidget::clearInlineDrawing()
@@ -256,6 +238,7 @@ void RTR2CanvasGLViewportWidget::resetRTVals( bool shouldUpdateGL )
       Qt::NoButton,
       Qt::NoModifier
       );
+    
     manipulateCamera(
       &nullEvent,
       false, // requireModifier
@@ -275,8 +258,6 @@ void RTR2CanvasGLViewportWidget::mousePressEvent(QMouseEvent *event)
 {
   if(manipulateCamera(event))
     return;
-  //if(m_manipTool->onEvent(event))
-  //  return;
   QGLWidget::mousePressEvent(event);
 }
 
@@ -284,8 +265,6 @@ void RTR2CanvasGLViewportWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if(manipulateCamera(event))
     return;
-  //if(m_manipTool->onEvent(event))
-  //  return;
   QGLWidget::mouseMoveEvent(event);
 }
 
@@ -293,8 +272,6 @@ void RTR2CanvasGLViewportWidget::mouseReleaseEvent(QMouseEvent *event)
 {
   if(manipulateCamera(event))
     return;
-  //if(m_manipTool->onEvent(event))
-  //  return;
   QGLWidget::mouseReleaseEvent(event);
 }
 
@@ -302,8 +279,6 @@ void RTR2CanvasGLViewportWidget::wheelEvent(QWheelEvent *event)
 {
   if(manipulateCamera(event, false))//m_manipTool->isActive()))
     return;
-  //if(m_manipTool->onEvent(event))
-  //  return;
   QGLWidget::wheelEvent(event);
 }
 
