@@ -15,6 +15,7 @@
 
 using namespace FabricUI::Viewports;
 
+
 RTR2CanvasGLViewportWidget::RTR2CanvasGLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
 : QGLWidget(format, parent)
 , m_settings(settings)

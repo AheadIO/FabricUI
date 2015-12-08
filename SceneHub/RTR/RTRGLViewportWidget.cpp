@@ -43,7 +43,6 @@ RTRGLViewportWidget::RTRGLViewportWidget(
     m_viewportIndex(viewportIndex),
     m_alwaysRefresh(false)
 {
-
   m_fps = 0.0;
   for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
 
