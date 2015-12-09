@@ -57,7 +57,7 @@ namespace FabricUI
         QLineEdit *m_edit;        
         /// \internal
         /// Log window
-        SHLogWidget * m_logWidget;
+        SHLogWidget *m_logWidget;
         /// \internal
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
