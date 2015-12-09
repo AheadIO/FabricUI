@@ -16,7 +16,7 @@
 #include <FTL/StrRef.h>
 #include <FTL/StrRef.h>
 #include <QtGui/QUndoCommand>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
  
 namespace FabricUI
 {

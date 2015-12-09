@@ -25,7 +25,7 @@
 #include <QtGui/QColorDialog>
 #include <FabricUI/SceneHub/RTR/RTRGLViewportWidget.h>
 #include <FabricUI/Util/QtToKLEvent.h>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
 
 using namespace FabricUI::Viewports;
 

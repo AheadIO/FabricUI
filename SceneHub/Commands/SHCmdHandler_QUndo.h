@@ -9,7 +9,7 @@
 #include <FTL/Str.h>
 #include <FTL/JSONEnc.h>
 #include <FTL/MapCharSingle.h>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
 
 namespace FabricUI

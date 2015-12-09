@@ -110,7 +110,6 @@ dirs = [
   'SceneHub/RTR',
   'SceneHub/Commands',
 
-  'RTR2Canvas',
   'Licensing',
 ]
 

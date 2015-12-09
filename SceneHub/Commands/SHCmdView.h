@@ -15,7 +15,7 @@
 #include <QtGui/QPlainTextEdit>
 #include <FTL/JSONEnc.h>
 #include <FTL/OwnedPtr.h>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
 #include <FabricUI/SceneHub/Commands/SHLogWidget.h>
 #include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
 

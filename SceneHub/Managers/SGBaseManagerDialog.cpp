@@ -1,7 +1,7 @@
 // Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/SceneHub/Managers/SGBaseManagerDialog.h>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
 #include <QtGui/QMenu>
 #include <QtGui/QLayout>
 #include <QtGui/QKeyEvent>

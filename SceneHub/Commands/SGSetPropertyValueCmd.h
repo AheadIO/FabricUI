@@ -8,7 +8,7 @@
 #include <FabricCore.h>
 #include <FTL/StrRef.h>
 #include <FTL/StrRef.h>
-#include <FabricUI/SceneHub/macros.h>
+#include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
  
