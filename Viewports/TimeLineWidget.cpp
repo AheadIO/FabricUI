@@ -125,6 +125,7 @@ TimeLineWidget::TimeLineWidget()
   m_frameRateComboBox->addItem("12.0 fps", QVariant(12.0));
   m_frameRateComboBox->addItem("23.98 fps", QVariant(23.98));
   m_frameRateComboBox->addItem("24.0 fps", QVariant(24.0));
+  m_frameRateComboBox->addItem("25.0 fps", QVariant(25.0));  
   m_frameRateComboBox->addItem("29.97 fps", QVariant(29.97));
   m_frameRateComboBox->addItem("30.0 fps", QVariant(30.0));
   m_frameRateComboBox->addItem("48.0 fps", QVariant(48.0));
