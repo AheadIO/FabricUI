@@ -141,12 +141,12 @@ void DFGBindingList::removeBinding(int index)
     clear();
     return;
   }
-  if(index < m_bindings.size() && index >= 0)
+  if(index < int(m_bindings.size()) && index >= 0)
   {
     m_bindings.erase(m_bindings.begin() + index);
     if(!m_blockSignals)
       emit bindingsChanged();
-    if(index < m_bindings.size())
+    if(index < int(m_bindings.size()))
       setActiveBindingIndex(index);
     else
       setActiveBindingIndex(m_bindings.size()-1);
