@@ -131,7 +131,7 @@ namespace FabricUI
       {
         updateChildItemsIfNeeded();
         updateChildItemIfNeeded( row );
-        assert( row < m_childItems.size() );
+        assert( row < int(m_childItems.size()) );
         return m_childItems[row].m_child.get();
       }
 
