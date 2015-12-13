@@ -54,10 +54,8 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   setMouseTracking(true);
   setFocusPolicy(Qt::StrongFocus);
   this->setAcceptDrops(true);
-
   this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(onContextMenu(const QPoint &)));
-
+ 
   FABRIC_TRY("RTRGLViewportWidget::RTRGLViewportWidget create viewport",
     m_viewport = m_shObject.callMethod("Viewport2", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
   );
@@ -373,7 +371,11 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  emit synchronizeCommands(false);
+  if(!event->isAccepted() && event->button() == Qt::RightButton) {
+    const QPoint pos = event->pos();
+    onContextMenu(pos);
+  }
+  else emit synchronizeCommands(false);
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
