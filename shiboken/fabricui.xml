@@ -4,6 +4,7 @@
   <primitive-type name="std::string"/>
 
   <load-typesystem name="typesystem_core.xml" generate="no"/>
+  <load-typesystem name="typesystem_gui_common.xml" generate="no"/>
   <load-typesystem name="typesystem_gui.xml" generate="no"/>
   <load-typesystem name="typesystem_opengl.xml" generate="no"/>
 
@@ -14,9 +15,12 @@
     <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
 
     <namespace-type name="GraphView" generate="yes">
-      <object-type name="Controller" />
-      <object-type name="Graph" />
       <object-type name="Node" />
+      <object-type name="Graph" />
+      <object-type name="Controller">
+        <modify-function signature="Controller()" remove="all" />
+        <modify-function signature="Controller(Graph *)" remove="all" />
+      </object-type>
     </namespace-type>
 
     <namespace-type name="Style" generate="yes">
@@ -31,6 +35,9 @@
 
   <namespace-type name="FabricServices" generate="no">
     <namespace-type name="ASTWrapper" generate="no">
+      <object-type name="KLDeclContainer">
+        <modify-function signature="KLDeclContainer()" remove="all" />
+      </object-type>
       <object-type name="KLASTManager" copyable="false">
         <modify-function signature="KLASTManager(const FabricCore::Client *)">
           <modify-argument index="1">

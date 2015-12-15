@@ -19,6 +19,8 @@ public:
     : m_qUndoStack( qUndoStack )
     {}
 
+  virtual ~DFGUICmdHandler_QUndo() {}
+
   virtual void dfgDoRemoveNodes(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
