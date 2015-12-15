@@ -2,8 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SceneHub_LogWidget__
-#define __FABRICUI_SceneHub_LogWidget__
+#ifndef __FABRICUI_SCENEHUB_LOGWIDGET_H__
+#define __FABRICUI_SCENEHUB_LOGWIDGET_H__
 
 #include <string>
 #include <FabricCore.h>
@@ -60,4 +60,4 @@ namespace FabricUI
   };
 };
 
-#endif // __FABRICUI_SceneHub_LogWidget__
+#endif // __FABRICUI_SCENEHUB_LOGWIDGET_H__

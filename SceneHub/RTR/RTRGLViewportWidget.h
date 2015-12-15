@@ -26,12 +26,12 @@ namespace FabricUI
 
       public:
         RTRGLViewportWidget(
-          FabricCore::Client *, 
+          FabricCore::Client*, 
           FabricCore::RTVal, 
           int, 
-          QGLContext *, 
-          QWidget *parent = NULL, 
-          QGLWidget *shared = NULL);
+          QGLContext*, 
+          QWidget *parent = 0, 
+          QGLWidget *shared = 0);
         
         virtual ~RTRGLViewportWidget();
 

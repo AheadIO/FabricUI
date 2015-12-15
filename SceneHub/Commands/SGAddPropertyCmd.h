@@ -2,8 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SceneHub_SGAddPropertyCmd__
-#define __FABRICUI_SceneHub_SGAddPropertyCmd__
+#ifndef __FABRICUI_SCENEHUB_SGADDPROPERTYCMD_H__
+#define __FABRICUI_SCENEHUB_SGADDPROPERTYCMD_H__
 
 #include <FabricCore.h>
 #include <FTL/StrRef.h>
@@ -81,6 +81,6 @@ namespace FabricUI
   };  
 };
 
-#endif // __FABRICUI_SceneHub_SGAddPropertyCmd__
+#endif // __FABRICUI_SCENEHUB_SGADDPROPERTYCMD_H__
 
 

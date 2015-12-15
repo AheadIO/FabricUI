@@ -2,10 +2,10 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#include <FabricUI/SceneHub/Commands/SHLogWidget.h>
-#include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
+#include <FabricUI/SceneHub/Commands/SHLogWidget.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
