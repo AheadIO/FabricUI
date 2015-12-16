@@ -62,6 +62,12 @@ namespace FabricUI
         /// sets the sim mode
         void setSimulationMode(int mode);
 
+        /// returns the framerate. 1000 = max.
+        float framerate() const { return float(m_fps); }
+
+        /// returns the framerate. 1000 = max.
+        bool isPlaying() const { return m_timer->isActive(); }
+
       signals :
         /// this signal is emited when ever the time on the widget changed
         /// client would connect this slight to any slots that need to know about the time
