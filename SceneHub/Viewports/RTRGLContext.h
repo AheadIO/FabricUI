@@ -1,3 +1,8 @@
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
+
+
 #ifndef _H_RTRGLContext_
 #define _H_RTRGLContext_
 

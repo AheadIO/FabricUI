@@ -1,3 +1,7 @@
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
+
 #ifndef __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 #define __FABRICUI_VIEWPORTS_RTRGLVIEWPORTWIDGET__
 
@@ -12,15 +16,17 @@
 #include <QtCore/QTime>
 #include <QtGui/QMenuBar>
 #include <FabricCore.h>
+#include <FabricUI/Viewports/ViewportWidget.h>
 #include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
 #include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
 #include <FabricUI/SceneHub/Commands/SHCmdView.h>
+
 
 namespace FabricUI
 {
   namespace Viewports
   {
-    class RTRGLViewportWidget : public QGLWidget
+    class RTRGLViewportWidget : public ViewportWidget
     {
       Q_OBJECT
 
@@ -28,10 +34,11 @@ namespace FabricUI
         RTRGLViewportWidget(
           FabricCore::Client*, 
           FabricCore::RTVal, 
-          int, 
+          int , 
           QGLContext*, 
           QWidget *parent = 0, 
-          QGLWidget *shared = 0);
+          QGLWidget *shared = 0,
+          QSettings *settings = 0);
         
         virtual ~RTRGLViewportWidget();
 
@@ -41,6 +48,8 @@ namespace FabricUI
         void toggleAlwaysRefresh();
         bool alwaysRefreshes() { return m_alwaysRefresh; }
         double fps() const { return m_fps; }
+
+        virtual void setBackgroundColor(QColor color) {};
 
       signals:
         void sceneChanged();
@@ -67,6 +76,7 @@ namespace FabricUI
         bool onEvent(QEvent *event);
 
       protected:
+        //virtual void initializeGL() {};
         virtual void paintGL();
         virtual void resizeGL(int w, int h);
 
@@ -80,21 +90,15 @@ namespace FabricUI
         virtual void dropEvent(QDropEvent *event);
 
         QWidget *m_parent;
-        FabricCore::Client *m_client;
-
-        FabricCore::RTVal m_shObject;
         int m_viewportIndex;
 
-        FabricCore::RTVal m_viewport;
+        FabricCore::RTVal m_shObject;
         FabricCore::RTVal m_viewportIndexRTVal;
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
 
         QPoint m_screenPos;
-        QTime m_fpsTimer;
-        double m_fps;
-        double m_fpsStack[16];
-
+ 
         FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
         FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
         bool m_alwaysRefresh;

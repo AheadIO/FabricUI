@@ -1,4 +1,6 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
 #include <FTL/Config.h>
 #include <stdio.h>
@@ -23,7 +25,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFileDialog>
 #include <QtGui/QColorDialog>
-#include <FabricUI/SceneHub/RTR/RTRGLViewportWidget.h>
+#include <FabricUI/SceneHub/Viewports/RTRGLViewportWidget.h>
 #include <FabricUI/Util/QtToKLEvent.h>
 #include <FabricUI/Util/macros.h>
 
@@ -36,29 +38,24 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   int viewportIndex, 
   QGLContext *qglContext, 
   QWidget *parent, 
-  QGLWidget *share) :
-    QGLWidget(qglContext, parent, share),
-    m_client(client),
-    m_shObject(shObject),
-    m_viewportIndex(viewportIndex),
-    m_alwaysRefresh(false)
+  QGLWidget *share,
+  QSettings *settings) 
+  : ViewportWidget(client, QColor(), qglContext, parent, share, settings)
+  , m_shObject(shObject)
+  , m_viewportIndex(viewportIndex)
+  , m_alwaysRefresh(false)
 {
-  m_fps = 0.0;
-  for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
-
   m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
   m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_shObject);
   m_viewportIndexRTVal = FabricCore::RTVal::ConstructUInt32( *m_client, viewportIndex );
 
   // Force to track mouse movment when not clicking
   setMouseTracking(true);
-  setFocusPolicy(Qt::StrongFocus);
   this->setAcceptDrops(true);
   this->setContextMenuPolicy(Qt::CustomContextMenu);
  
   FABRIC_TRY("RTRGLViewportWidget::RTRGLViewportWidget create viewport",
     m_viewport = m_shObject.callMethod("Viewport2", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
-    //m_shObject.callMethod( "", "initInlineDrawing", 0, 0 );
   );
 }
 

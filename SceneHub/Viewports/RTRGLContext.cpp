@@ -1,6 +1,11 @@
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
+
 #ifdef __APPLE__
 
 #import <AppKit/AppKit.h>
+#include "RTRGLContext.h"
 
 using namespace FabricUI::Viewports;
 

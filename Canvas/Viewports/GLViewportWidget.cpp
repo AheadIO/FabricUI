@@ -1,33 +1,19 @@
-#include "GLViewportWidget.h"
-#include <FabricUI/Util/QtToKLEvent.h>
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <iterator>
-#include <cmath>
-#include <ostream>
-#include <fstream>
-#include <streambuf>
-#include <memory>
+#include "GLViewportWidget.h"
+ 
 
 using namespace FabricUI::Viewports;
 
-GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
-: QGLWidget(format, parent)
-, m_settings(settings)
+GLViewportWidget::GLViewportWidget(FabricCore::Client *client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
+: ViewportWidget(client, bgColor, format, parent, settings)
 {	
-  m_client = client;
-  m_bgColor = bgColor;
   m_manipTool = new ManipulationTool(this);
   m_usingStage = true;
   m_stageVisible = true;
-  m_hasCommercialLicense = client->hasCommercialLicense();
-  setFocusPolicy(Qt::StrongFocus);
-  setAutoBufferSwap(false);
-
+  
   if(m_settings)
   {
     if(m_settings->contains("glviewport/usingStage"))
@@ -46,13 +32,6 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
     printf("Error: %s\n", e.getDesc_cstr());
   }
 
-  m_fps = 0.0;
-
-  for(int i=0;i<16;i++)
-    m_fpsStack[i] = 0.0;
-
-  m_fpsTimer.start();
-  m_resizedOnce = false;
   resetRTVals( false /*shouldUpdateGL*/ );
 }
 
@@ -61,11 +40,11 @@ GLViewportWidget::~GLViewportWidget()
   delete(m_manipTool);
 }
 
-QColor GLViewportWidget::backgroundColor() const
-{
-  return m_bgColor;
-}
-
+//QColor GLViewportWidget::backgroundColor() const
+//{
+//  return m_bgColor;
+//}
+//
 void GLViewportWidget::setBackgroundColor(QColor color)
 {
   m_bgColor = color;
@@ -120,7 +99,7 @@ void GLViewportWidget::redraw()
 
 void GLViewportWidget::onKeyPressed(QKeyEvent * event)
 {
-  keyPressEvent(event);  
+  ViewportWidget::keyPressEvent(event);  
 }
 
 void GLViewportWidget::initializeGL()
@@ -277,7 +256,7 @@ void GLViewportWidget::mousePressEvent(QMouseEvent *event)
     return;
   if(m_manipTool->onEvent(event))
     return;
-  QGLWidget::mousePressEvent(event);
+  ViewportWidget::mousePressEvent(event);
 }
 
 void GLViewportWidget::mouseMoveEvent(QMouseEvent *event)
@@ -286,7 +265,7 @@ void GLViewportWidget::mouseMoveEvent(QMouseEvent *event)
     return;
   if(m_manipTool->onEvent(event))
     return;
-  QGLWidget::mouseMoveEvent(event);
+  ViewportWidget::mouseMoveEvent(event);
 }
 
 void GLViewportWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -295,7 +274,7 @@ void GLViewportWidget::mouseReleaseEvent(QMouseEvent *event)
     return;
   if(m_manipTool->onEvent(event))
     return;
-  QGLWidget::mouseReleaseEvent(event);
+  ViewportWidget::mouseReleaseEvent(event);
 }
 
 void GLViewportWidget::wheelEvent(QWheelEvent *event)
@@ -304,7 +283,7 @@ void GLViewportWidget::wheelEvent(QWheelEvent *event)
     return;
   if(m_manipTool->onEvent(event))
     return;
-  QGLWidget::wheelEvent(event);
+  ViewportWidget::wheelEvent(event);
 }
 
 bool GLViewportWidget::manipulateCamera(

@@ -93,6 +93,7 @@ dirs = [
   'Util',
   'Style',
   'TimeLine',
+  'Viewports',
 
   'Canvas/TreeView',
   'Canvas/ValueEditor',
@@ -107,7 +108,7 @@ dirs = [
   'SceneHub',
   'SceneHub/Managers',
   'SceneHub/TreeView',
-  'SceneHub/RTR',
+  'SceneHub/Viewports',
   'SceneHub/Commands',
 
   'Licensing',
