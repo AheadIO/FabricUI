@@ -67,27 +67,9 @@ RTRGLViewportWidget::~RTRGLViewportWidget() {
   emit viewportDestroying();
 }
  
-void RTRGLViewportWidget::initialize() {
-  m_fpsTimer.start();
-}
-
 void RTRGLViewportWidget::paintGL() {
-  // compute the fps
-  double ms = m_fpsTimer.elapsed();
-  m_fps = (ms == 0.0) ? 0.0 : 1000.0 / ms;
+  ViewportWidget::computeFPS();
   
-  double averageFps = 0.0;
-  for(int i=15;i--;) 
-  {
-    m_fpsStack[i+1] = m_fpsStack[i];
-    averageFps += m_fpsStack[i];
-  }
-  m_fpsStack[0] = m_fps;
-  averageFps += m_fps;
-  averageFps /= 16.0;
-  m_fps = averageFps;
-  m_fpsTimer.start();
-
   FABRIC_TRY("RTRGLViewportWidget::paintGL", 
     FabricCore::RTVal args[3];
     args[0] = m_viewportIndexRTVal;
@@ -108,6 +90,10 @@ void RTRGLViewportWidget::resizeGL(int width, int height) {
 
 void RTRGLViewportWidget::toggleAlwaysRefresh() {
   m_alwaysRefresh = !m_alwaysRefresh;
+}
+
+FabricCore::RTVal RTRGLViewportWidget::getCamera() {
+  return m_viewport.callMethod("Camera", "getCamera", 0, 0);
 }
 
 
@@ -357,6 +343,7 @@ void RTRGLViewportWidget::editLightProperties() {
   m_lightDialog->show();
 }
 
+
 //*************
 
 void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
@@ -396,6 +383,7 @@ bool RTRGLViewportWidget::onEvent(QEvent *event) {
     return result;
   );
 }
+
 
 //*************
 

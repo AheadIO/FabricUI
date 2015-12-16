@@ -50,6 +50,24 @@ ViewportWidget::ViewportWidget(
   m_fpsTimer.start();
 }
  
+void ViewportWidget::computeFPS() {
+   
+  // compute the fps
+  double ms = m_fpsTimer.elapsed();
+  m_fps = (ms == 0.0) ? 0.0 : 1000.0 / ms;
+  double averageFps = 0.0;
+  for(int i=0;i<15;i++) {
+    m_fpsStack[i+1] = m_fpsStack[i];
+    averageFps += m_fpsStack[i];
+  }
+  m_fpsStack[0] = m_fps;
+  averageFps += m_fps;
+  averageFps /= 16.0;
+  m_fps = averageFps;
+  m_fpsTimer.start();
+
+}
+
 void ViewportWidget::keyPressEvent(QKeyEvent * event) {
   QGLWidget::keyPressEvent(event);
 }

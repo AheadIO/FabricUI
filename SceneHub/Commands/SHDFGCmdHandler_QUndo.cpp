@@ -53,13 +53,10 @@ class SHDFGCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
         {
           if ( m_didit )
           {
-
-            std::cerr << "redo m_dfgUICmd" << std::endl;
             m_dfgUICmd->redo();
           }
           else
           {
-            std::cerr << "do m_dfgUICmd" << std::endl;
             m_didit = true;
             m_dfgUICmd->doit();
             QUndoCommand::setText( m_dfgUICmd->getDesc().c_str() );
@@ -82,7 +79,6 @@ class SHDFGCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
         else if(m_dfgUICmd && !m_shCmd)
         {
           m_dfgUICmd->undo();
-          std::cerr << "undo m_dfgUICmd" << std::endl;
         }
       }
       catch (FabricCore::Exception e) {

@@ -33,13 +33,13 @@ namespace FabricUI
 
       FabricCore::RTVal getDrawContext() const { return m_drawContext; }
       virtual ManipulationTool * getManipTool() { return m_manipTool; }
-
+      virtual FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
+      virtual FabricCore::RTVal getCamera() { return m_camera; }
       virtual bool isUsingStage();
       virtual bool isStageVisible();
 
 
     public slots:
-      virtual void redraw();
       virtual void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
       void setUsingStage( bool usingStage, bool update = true );
@@ -76,7 +76,8 @@ namespace FabricUI
       bool m_usingStage;
       FabricCore::RTVal m_drawing;
       FabricCore::RTVal m_drawContext;
-
+      FabricCore::RTVal m_camera;
+      FabricCore::RTVal m_cameraManipulator;
       ManipulationTool * m_manipTool;
     };
   };

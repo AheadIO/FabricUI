@@ -16,8 +16,7 @@
 #include <FTL/JSONEnc.h>
 #include <FTL/OwnedPtr.h>
 #include <FabricUI/Util/macros.h>
-#include <FabricUI/SceneHub/Commands/SHLogWidget.h>
-#include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
+#include <FabricUI/SceneHub/Commands/SHDFGCmdHandler_QUndo.h>
 
 
 namespace FabricUI
@@ -46,28 +45,19 @@ namespace FabricUI
         void synchronize(bool);
         
       private:
-        /// \internal
         /// Adds a command.
         /// \param command The command to execute
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
         bool addCommand(const std::string &command, bool exec = true);
         
-        /// \internal
         /// Writes commands
         QLineEdit *m_edit;        
-        /// \internal
-        /// Log window
-        SHLogWidget *m_logWidget;
-        /// \internal
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
-        /// \internal
         /// Reference to the SHCmdHandler.
-        SHCmdHandler_QUndo m_shCmdHandler;
-        /// \internal
+        SHDFGCmdHandler_QUndo m_shCmdHandler;
         /// Reference to the client --> construct RTVal.
         FabricCore::Client m_client;
-        /// \internal
         /// Reference to the SceneHub app.
         FabricCore::RTVal m_shObject;
     };

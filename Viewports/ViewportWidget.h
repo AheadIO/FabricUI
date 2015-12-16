@@ -36,7 +36,7 @@ namespace FabricUI
     class ViewportWidget : public QGLWidget
     { 
       public:
-
+        /// Constructor for RTRGLViewportWidget.
         ViewportWidget(
           FabricCore::Client *client, 
           QColor bgColor, 
@@ -45,6 +45,7 @@ namespace FabricUI
           QGLWidget *share = 0,
           QSettings *settings = 0);
 
+        /// Constructor for GLViewportWidget.
       	ViewportWidget(
           FabricCore::Client *client, 
           QColor bgColor, 
@@ -56,31 +57,34 @@ namespace FabricUI
 
         double fps() const { return m_fps; }
         QColor backgroundColor() const {return m_bgColor; };
+      
         FabricCore::Client *getClient() { return m_client; }
-          
-        FabricCore::RTVal getCamera() const { return m_camera; }
-        FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
         FabricCore::RTVal getViewport() const { return m_viewport; }
-    
+        virtual FabricCore::RTVal getCamera() = 0;
         virtual void setBackgroundColor(QColor color) = 0;
+      
+        // Canvas (InlineDrawing) specific
         virtual void clearInlineDrawing() {};
         virtual bool isManipulationActive() const { return false; };
         virtual void setManipulationActive(bool state) {};
-        virtual ManipulationTool * getManipTool() { return 0; };
+        virtual ManipulationTool *getManipTool() { return 0; };
         virtual bool isUsingStage() { return false; };
         virtual bool isStageVisible() { return false; };
 
+
       public slots:
-        virtual void redraw() {};
+        virtual void redraw() { updateGL(); };
         virtual void onKeyPressed(QKeyEvent * event) {};
+        virtual void onContextMenu(const QPoint &point) {};
         
+
       protected:
         virtual void keyPressEvent(QKeyEvent * event);
         virtual void mousePressEvent(QMouseEvent *event);
         virtual void mouseMoveEvent(QMouseEvent *event);
         virtual void mouseReleaseEvent(QMouseEvent *event);
         virtual void wheelEvent(QWheelEvent *event) ;
-
+        void computeFPS();
        
         double m_fps;
         bool m_hasCommercialLicense;
@@ -90,9 +94,6 @@ namespace FabricUI
         QColor m_bgColor;
         QTime m_fpsTimer;
         QSettings *m_settings;
-
-        FabricCore::RTVal m_camera;
-        FabricCore::RTVal m_cameraManipulator;
         FabricCore::RTVal m_viewport;
     };
   };
