@@ -25,7 +25,7 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
   m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");
   m_edit = new QLineEdit();
-  m_logWidget = new FabricUI::SceneHub::SHLogWidget();
+  //m_logWidget = new FabricUI::SceneHub::SHLogWidget();
 
   QHBoxLayout *cmdLayout = new QHBoxLayout();
   cmdLayout->addWidget(m_edit);
@@ -34,7 +34,7 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   layout->setSpacing(0);
   layout->addLayout(cmdLayout);
   layout->addWidget(m_qUndoView);
-  layout->addWidget(m_logWidget);
+  //layout->addWidget(m_logWidget);
   layout->setContentsMargins(0, 0, 0, 0);
   setLayout(layout);
 };

@@ -58,6 +58,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
  
   FABRIC_TRY("RTRGLViewportWidget::RTRGLViewportWidget create viewport",
     m_viewport = m_shObject.callMethod("Viewport2", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
+    //m_shObject.callMethod( "", "initInlineDrawing", 0, 0 );
   );
 }
 
@@ -375,7 +376,7 @@ void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
     const QPoint pos = event->pos();
     onContextMenu(pos);
   }
-  else emit synchronizeCommands(false);
+  emit synchronizeCommands(false);
 }
 
 void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
