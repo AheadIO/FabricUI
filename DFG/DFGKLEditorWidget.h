@@ -59,8 +59,7 @@ namespace FabricUI
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;
-      QStringListModel m_diagsModel;
-      QListView *m_diagsView;
+      QPlainTextEdit *m_diagsText;
       DFGConfig m_config;
       bool m_unsavedChanges;
       bool m_isSettingPorts;
