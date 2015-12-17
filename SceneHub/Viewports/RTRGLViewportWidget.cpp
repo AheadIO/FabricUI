@@ -41,9 +41,9 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   QGLWidget *share,
   QSettings *settings) 
   : ViewportWidget(client, QColor(), qglContext, parent, share, settings)
-  , m_shObject(shObject)
   , m_viewportIndex(viewportIndex)
   , m_alwaysRefresh(false)
+  , m_shObject(shObject)
 {
   m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
   m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_shObject);
