@@ -6,6 +6,17 @@
 
 using namespace FabricUI::Viewports;
 
+void ViewportWidget::init(FabricCore::Client *client, QColor bgColor, QSettings *settings) { 
+  m_settings = settings;
+  m_client = client;
+  m_bgColor = bgColor;
+ 
+  m_hasCommercialLicense = client->hasCommercialLicense();
+  setFocusPolicy(Qt::StrongFocus);
+ 
+  m_fps = 0.0;
+  for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
+}
 
 ViewportWidget::ViewportWidget(
   FabricCore::Client *client, 
@@ -15,18 +26,8 @@ ViewportWidget::ViewportWidget(
   QGLWidget *share,
   QSettings *settings)
   : QGLWidget(qglContext, parent, share)
-  , m_settings(settings)
 { 
-  m_client = client;
-  m_bgColor = bgColor;
- 
-  m_hasCommercialLicense = client->hasCommercialLicense();
-  setFocusPolicy(Qt::StrongFocus);
-  //setAutoBufferSwap(false);
- 
-  m_fps = 0.0;
-  for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
-  m_fpsTimer.start();
+  init(client, bgColor, settings);
 }
 
 ViewportWidget::ViewportWidget(
@@ -36,18 +37,9 @@ ViewportWidget::ViewportWidget(
   QWidget *parent, 
   QSettings *settings)
   : QGLWidget(format, parent)
-  , m_settings(settings)
 {	
-  m_client = client;
-  m_bgColor = bgColor;
- 
-  m_hasCommercialLicense = client->hasCommercialLicense();
-  setFocusPolicy(Qt::StrongFocus);
+  init(client, bgColor, settings);
   setAutoBufferSwap(false);
- 
-  m_fps = 0.0;
-  for(int i=0;i<16;i++) m_fpsStack[i] = 0.0;
-  m_fpsTimer.start();
 }
  
 void ViewportWidget::computeFPS() {
@@ -86,4 +78,3 @@ void ViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
 void ViewportWidget::wheelEvent(QWheelEvent *event) {
   QGLWidget::wheelEvent(event);
 }
- 

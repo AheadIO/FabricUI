@@ -31,10 +31,14 @@ namespace FabricUI
 {
   namespace Viewports
   {
+    /// Defines in Canvas, not SceneHub
     class ManipulationTool;
 
     class ViewportWidget : public QGLWidget
     { 
+      private:
+        void init(FabricCore::Client *client, QColor bgColor, QSettings *settings = 0);
+
       public:
         /// Constructor for RTRGLViewportWidget.
         ViewportWidget(
@@ -86,6 +90,7 @@ namespace FabricUI
         virtual void wheelEvent(QWheelEvent *event) ;
         void computeFPS();
        
+
         double m_fps;
         bool m_hasCommercialLicense;
         double m_fpsStack[16];
