@@ -65,7 +65,6 @@ void ViewportWidget::computeFPS() {
   averageFps /= 16.0;
   m_fps = averageFps;
   m_fpsTimer.start();
-
 }
 
 void ViewportWidget::keyPressEvent(QKeyEvent * event) {
