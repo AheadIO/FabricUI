@@ -14,12 +14,12 @@ public:
 
   DFGUICmd_EditNode(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef oldNodeName,
-    FTL::StrRef desiredNewNodeName,
-    FTL::StrRef nodeMetadata,
-    FTL::StrRef execMetadata
+    QString oldNodeName,
+    QString desiredNewNodeName,
+    QString nodeMetadata,
+    QString execMetadata
     )
     : DFGUICmd_Exec(
       binding,
@@ -35,23 +35,31 @@ public:
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("EditNode"); }
 
-  FTL::CStrRef getActualNewNodeName() const
+  QString getActualNewNodeName() const
     { return m_actualNewNodeName; }
   
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef oldNodeName,
+    FTL::CStrRef desiredNewNodeName,
+    FTL::CStrRef nodeMetadata,
+    FTL::CStrRef execMetadata,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_oldNodeName;
-  std::string m_desiredNewNodeName;
-  std::string m_nodeMetadata;
-  std::string m_execMetadata;
+  QString m_oldNodeName;
+  QString m_desiredNewNodeName;
+  QString m_nodeMetadata;
+  QString m_execMetadata;
 
-  std::string m_actualNewNodeName;
+  QString m_actualNewNodeName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

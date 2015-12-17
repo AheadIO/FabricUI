@@ -14,14 +14,14 @@ public:
 
   DFGUICmd_Connect(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef srcPath,
-    FTL::StrRef dstPath
+    QString srcPath,
+    QString dstPath
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_srcPath( srcPath )
-    , m_dstPath( dstPath )
+    , m_srcPath( srcPath.trimmed() )
+    , m_dstPath( dstPath.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
@@ -29,14 +29,20 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invokeAdd(
+    FTL::CStrRef srcPath,
+    FTL::CStrRef dstPath,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_srcPath;
-  std::string m_dstPath;
+  QString m_srcPath;
+  QString m_dstPath;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

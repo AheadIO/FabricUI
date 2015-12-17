@@ -4,21 +4,34 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_AddFunc::appendDesc( std::string &desc )
+void DFGUICmd_AddFunc::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Add function ");
+  desc += "Add function ";
   appendDesc_NodeName( getActualNodeName(), desc );
 }
 
 FTL::CStrRef DFGUICmd_AddFunc::invokeAdd( unsigned &coreUndoCount )
 {
+  return invokeAdd(
+    getDesiredNodeName().toUtf8().constData(),
+    m_initialCode.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+FTL::CStrRef DFGUICmd_AddFunc::invokeAdd(
+  FTL::CStrRef desiredNodeName,
+  FTL::CStrRef initialCode,
+  unsigned &coreUndoCount
+  )
+{
   FTL::CStrRef actualNodeName =
-    getExec().addInstWithNewFunc( getDesiredNodeName().c_str() );
+    getExec().addInstWithNewFunc( desiredNodeName.c_str() );
   ++coreUndoCount;
 
   FabricCore::DFGExec subExec =
     getExec().getSubExec( actualNodeName.c_str() );
-  subExec.setCode( m_initialCode.c_str() );
+  subExec.setCode( initialCode.c_str() );
   ++coreUndoCount;
 
   return actualNodeName;

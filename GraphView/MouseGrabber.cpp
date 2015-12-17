@@ -269,20 +269,24 @@ void MouseGrabber::invokeConnect(ConnectionTarget * source, ConnectionTarget * t
   if(source->targetType() == TargetType_ProxyPort && target->targetType() == TargetType_Pin)
   {
     Pin *pinToConnectWith = static_cast<Pin *>( target );
+    FTL::CStrRef pinName = pinToConnectWith->name();
+    FTL::CStrRef dataType = pinToConnectWith->dataType();
     graph()->controller()->gvcDoAddPort(
-      pinToConnectWith->name(),
+      QString::fromUtf8( pinName.data(), pinName.size() ),
       PortType_Output,
-      pinToConnectWith->dataType(),
+      QString::fromUtf8( dataType.data(), dataType.size() ),
       pinToConnectWith
       );
   }
   else if(target->targetType() == TargetType_ProxyPort && source->targetType() == TargetType_Pin)
   {
     Pin *pinToConnectWith = static_cast<Pin *>( source );
+    FTL::CStrRef pinName = pinToConnectWith->name();
+    FTL::CStrRef dataType = pinToConnectWith->dataType();
     graph()->controller()->gvcDoAddPort(
-      pinToConnectWith->name(),
+      QString::fromUtf8( pinName.data(), pinName.size() ),
       PortType_Input,
-      pinToConnectWith->dataType(),
+      QString::fromUtf8( dataType.data(), dataType.size() ),
       pinToConnectWith
       );
   }

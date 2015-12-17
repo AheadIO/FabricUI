@@ -27,11 +27,11 @@ protected:
     { return m_binding.getHost(); }
   
   void appendDesc_ArgName(
-    FTL::CStrRef argName,
-    std::string &desc
+    QString argName,
+    QString &desc
     )
   {
-    desc += FTL_STR("argument ");
+    desc += "argument ";
     AppendDesc_String( argName, desc );
   }
 

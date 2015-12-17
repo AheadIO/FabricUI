@@ -893,7 +893,7 @@ void DFGNotificationRouter::onNodeMetadataChanged(
   if(m_dfgController->graph() == NULL)
     return;
   GraphView::Graph * uiGraph = m_dfgController->graph();
-  GraphView::Node * uiNode = uiGraph->node(nodeName.data());
+  GraphView::Node * uiNode = uiGraph->node( nodeName );
   if(!uiNode)
     return;
 

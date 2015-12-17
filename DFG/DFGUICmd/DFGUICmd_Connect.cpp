@@ -6,19 +6,32 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_Connect::appendDesc( std::string &desc )
+void DFGUICmd_Connect::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Connect ");
+  desc += "Connect ";
   appendDesc_Path( m_srcPath, desc );
-  desc += FTL_STR(" to ");
+  desc += " to ";
   appendDesc_Path( m_dstPath, desc );
 }
 
 void DFGUICmd_Connect::invoke( unsigned &coreUndoCount )
 {
+  invokeAdd(
+    m_srcPath.toUtf8().constData(),
+    m_dstPath.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_Connect::invokeAdd(
+  FTL::CStrRef srcPath,
+  FTL::CStrRef dstPath,
+  unsigned &coreUndoCount
+  )
+{
   getExec().connectTo(
-    m_srcPath.c_str(),
-    m_dstPath.c_str()
+    srcPath.c_str(),
+    dstPath.c_str()
     );
   ++coreUndoCount;
 }

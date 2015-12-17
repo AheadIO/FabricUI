@@ -211,19 +211,17 @@ void DFGExecHeaderWidget::reqExtEditingFinished()
     return;
 
   FTL::StrRef::Split split = FTL::StrRef( extDepDesc ).split(',');
-  std::vector<std::string> nameAndVerStrings;
+  QStringList nameAndVers;
   while ( !split.first.empty() )
   {
-    nameAndVerStrings.push_back( split.first.trim() );
+    FTL::StrRef trimmed = split.first.trim();
+    nameAndVers.append(
+      QString::fromUtf8( trimmed.data(), trimmed.size() )
+      );
     split = split.second.split(',');
   }
 
-  std::vector<FTL::StrRef> nameAndVerStrs;
-  nameAndVerStrs.reserve( nameAndVerStrings.size() );
-  for ( size_t i = 0; i < nameAndVerStrings.size(); ++i )
-    nameAndVerStrs.push_back( nameAndVerStrings[i] );
-
-  m_dfgController->cmdSetExtDeps( nameAndVerStrs );
+  m_dfgController->cmdSetExtDeps( nameAndVers );
 }
 
 void DFGExecHeaderWidget::onExecChanged()

@@ -14,41 +14,48 @@ public:
 
   DFGUICmd_CreatePreset(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef nodeName,
-    FTL::StrRef presetDirPath,
-    FTL::StrRef presetName
+    QString nodeName,
+    QString presetDirPath,
+    QString presetName
     )
     : DFGUICmd_Exec(
       binding,
       execPath,
       exec
       )
-    , m_nodeName( nodeName )
-    , m_presetDirPath( presetDirPath )
-    , m_presetName( presetName )
+    , m_nodeName( nodeName.trimmed() )
+    , m_presetDirPath( presetDirPath.trimmed() )
+    , m_presetName( presetName.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("CreatePreset"); }
 
-  FTL::CStrRef getPathname() const
+  QString getPathname() const
     { return m_pathname; }
   
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  QString invoke(
+    FTL::CStrRef nodeName,
+    FTL::CStrRef presetDirPath,
+    FTL::CStrRef presetName,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_nodeName;
-  std::string m_presetDirPath;
-  std::string m_presetName;
+  QString m_nodeName;
+  QString m_presetDirPath;
+  QString m_presetName;
 
-  std::string m_pathname;
+  QString m_pathname;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

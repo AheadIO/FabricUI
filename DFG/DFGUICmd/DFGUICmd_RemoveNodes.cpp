@@ -6,17 +6,38 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_RemoveNodes::appendDesc( std::string &desc )
+void DFGUICmd_RemoveNodes::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Remove ");
+  desc += "Remove ";
   appendDesc_NodeNames( m_nodeNames, desc );
 }
 
 void DFGUICmd_RemoveNodes::invoke( unsigned &coreUndoCount )
 {
-  for ( size_t i = 0; i < m_nodeNames.size(); ++i )
+  QList<QByteArray> nodeNameBAs;
+  nodeNameBAs.reserve( m_nodeNames.size() );
+  foreach ( QString nodeName, m_nodeNames )
+    nodeNameBAs.push_back( nodeName.toUtf8() );
+
+  std::vector<FTL::CStrRef> nodeNames;
+  nodeNames.reserve( m_nodeNames.size() );
+  foreach ( QByteArray nodeNameBA, nodeNameBAs )
+    nodeNames.push_back( nodeNameBA.constData() );
+
+  return invoke(
+    nodeNames,
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_RemoveNodes::invoke(
+  FTL::ArrayRef<FTL::CStrRef> nodeNames,
+  unsigned &coreUndoCount
+  )
+{
+  for ( size_t i = 0; i < nodeNames.size(); ++i )
   {
-    getExec().removeNode( m_nodeNames[i].c_str() );
+    getExec().removeNode( nodeNames[i].c_str() );
     ++coreUndoCount;
   }
 }

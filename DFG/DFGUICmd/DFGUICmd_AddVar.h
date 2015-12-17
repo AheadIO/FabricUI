@@ -14,11 +14,11 @@ public:
 
   DFGUICmd_AddVar(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef desiredNodeName,
-    FTL::StrRef dataType,
-    FTL::StrRef extDep,
+    QString desiredNodeName,
+    QString dataType,
+    QString extDep,
     QPointF pos
     )
     : DFGUICmd_AddNode(
@@ -28,8 +28,8 @@ public:
       desiredNodeName,
       pos
       )
-    , m_dataType( dataType )
-    , m_extDep( extDep )
+    , m_dataType( dataType.trimmed() )
+    , m_extDep( extDep.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
@@ -37,17 +37,24 @@ public:
 
 protected:
 
-  FTL::CStrRef getDesiredNodeName()
+  QString getDesiredNodeName()
     { return getPrimaryArg(); }
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual FTL::CStrRef invokeAdd( unsigned &coreUndoCount );
 
+  FTL::CStrRef invokeAdd(
+    FTL::CStrRef desiredNodeName,
+    FTL::CStrRef dataType,
+    FTL::CStrRef extDep,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_dataType;
-  std::string m_extDep;
+  QString m_dataType;
+  QString m_extDep;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

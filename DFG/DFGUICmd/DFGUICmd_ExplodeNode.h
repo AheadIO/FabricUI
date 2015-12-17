@@ -16,18 +16,18 @@ public:
 
   DFGUICmd_ExplodeNode(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef nodeName
+    QString nodeName
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_nodeName( nodeName )
+    , m_nodeName( nodeName.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("ExplodeNode"); }
 
-  FTL::ArrayRef<std::string> getExplodedNodeNames()
+  QStringList getExplodedNodeNames()
   {
     assert( wasInvoked() );
     return m_explodedNodeNames;
@@ -35,23 +35,20 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
-  std::vector<std::string> Perform(
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
+  QStringList invoke(
     FTL::CStrRef nodeName,
     unsigned &coreUndoCount
     );
 
 private:
 
-  std::string m_nodeName;
+  QString m_nodeName;
 
-  std::vector<std::string> m_explodedNodeNames;
+  QStringList m_explodedNodeNames;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

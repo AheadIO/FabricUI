@@ -5,65 +5,84 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_CreatePreset.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 
+#include <FabricUI/Util/QString_Conversion.h>
+
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_CreatePreset::appendDesc( std::string &desc )
+void DFGUICmd_CreatePreset::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Create preset '");
+  desc += "Create preset '";
   desc += m_presetName;
-  desc += FTL_STR("' from node ");
+  desc += "' from node ";
   appendDesc_NodeName( m_nodeName, desc );
 }
 
 void DFGUICmd_CreatePreset::invoke( unsigned &coreUndoCount )
 {
+  m_pathname =
+    invoke(
+      m_nodeName.toUtf8().constData(),
+      m_presetDirPath.toUtf8().constData(),
+      m_presetName.toUtf8().constData(),
+      coreUndoCount
+      );
+}
+
+QString DFGUICmd_CreatePreset::invoke(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef presetDirPath,
+  FTL::CStrRef presetName,
+  unsigned &coreUndoCount
+  )
+{
+  FabricCore::DFGHost host = getHost();
   FabricCore::DFGExec &exec = getExec();
 
-  FabricCore::DFGExec subExec = exec.getSubExec( m_nodeName.c_str() );
+  FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
 
   subExec.maybeSplitFromPreset();
   ++coreUndoCount;
 
-  subExec.setTitle( m_presetName.c_str() );
+  subExec.setTitle( presetName.c_str() );
   ++coreUndoCount;
 
   FTL::CStrRef uiNodeColor =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiNodeColor" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiNodeColor" );
   if ( !uiNodeColor.empty() )
   {
     subExec.setMetadata( "uiNodeColor", uiNodeColor.c_str() );
     ++coreUndoCount;
   }
   FTL::CStrRef uiHeaderColor =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiHeaderColor" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiHeaderColor" );
   if ( !uiHeaderColor.empty() )
   {
     subExec.setMetadata( "uiHeaderColor", uiHeaderColor.c_str() );
     ++coreUndoCount;
   }
   FTL::CStrRef uiTextColor =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiTextColor" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiTextColor" );
   if ( !uiTextColor.empty() )
   {
     subExec.setMetadata( "uiTextColor", uiTextColor.c_str() );
     ++coreUndoCount;
   }
   FTL::CStrRef uiTooltip =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiTooltip" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiTooltip" );
   if ( !uiTooltip.empty() )
   {
     subExec.setMetadata( "uiTooltip", uiTooltip.c_str() );
     ++coreUndoCount;
   }
   FTL::CStrRef uiDocUrl =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiDocUrl" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiDocUrl" );
   if ( !uiDocUrl.empty() )
   {
     subExec.setMetadata( "uiDocUrl", uiDocUrl.c_str() );
     ++coreUndoCount;
   }
   FTL::CStrRef uiAlwaysShowDaisyChainPorts =
-    exec.getNodeMetadata( m_nodeName.c_str(), "uiAlwaysShowDaisyChainPorts" );
+    exec.getNodeMetadata( nodeName.c_str(), "uiAlwaysShowDaisyChainPorts" );
   if ( !uiAlwaysShowDaisyChainPorts.empty() )
   {
     subExec.setMetadata(
@@ -79,7 +98,7 @@ void DFGUICmd_CreatePreset::invoke( unsigned &coreUndoCount )
   unsigned execPortCount = subExec.getExecPortCount();
   for ( unsigned i = 0; i < execPortCount; ++i )
   {
-    std::string pinPath = m_nodeName;
+    std::string pinPath = nodeName;
     pinPath += ".";
     pinPath += subExec.getExecPortName(i);
 
@@ -102,30 +121,35 @@ void DFGUICmd_CreatePreset::invoke( unsigned &coreUndoCount )
     }
   }
 
-  FabricCore::DFGHost host = getHost();
-  m_pathname =
-    DFGUICmdHandler::NewPresetPathname( host, m_presetDirPath, m_presetName );
+  QString pathname =
+    DFGUICmdHandler::NewPresetPathname(
+      host,
+      m_presetDirPath,
+      m_presetName
+      );
 
   // Important: set the preset file association BEFORE getting the JSON,
   // as with this association the Core will generate a presetGUID.
-  subExec.setImportPathname( m_pathname.c_str() );
+  subExec.setImportPathname( pathname.toUtf8().constData() );
   ++coreUndoCount;
 
   subExec.attachPresetFile(
-    m_presetDirPath.c_str(),
-    m_presetName.c_str(),
+    presetDirPath.c_str(),
+    presetName.c_str(),
     true // replaceExisting
     );
   ++coreUndoCount;
 
   FabricCore::String presetJSON = subExec.exportJSON();
-  FILE *file = fopen( m_pathname.c_str(), "wb" );
+  FILE *file = fopen( QSTRING_TO_CONST_CHAR_FILE( pathname ), "wb" );
   if ( file )
   {
     fwrite( presetJSON.getCString(), presetJSON.getSize(), 1, file );
     fclose( file );
   }
-  else m_pathname = std::string();
+  else pathname = QString();
+
+  return pathname;
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -164,22 +164,29 @@
   <primitive-type name="FabricCore::RTVal" target-lang-api-name="PyObject">
     <include file-name="FabricPython.h" location="global"/>
     <conversion-rule>
+        <native-to-target><![CDATA[
+          PyObject *%out;
+          ConvertRTValToPyObject( &%in, &%out );
+          return %out;
+        ]]></native-to-target>
+        <target-to-native>
+          <add-conversion type="PyObject" check="true"><![CDATA[
+            ConvertPyObjectToRTVal( %in, &%out );
+          ]]></add-conversion>
+        </target-to-native>
+    </conversion-rule>
+  </primitive-type>
+
+  <primitive-type name="FabricCore::DFGPortType" target-lang-api-name="PyInt">
+    <include file-name="FabricPython.h" location="global"/>
+    <conversion-rule>
         <native-to-target>
-          PyObject* %out = FabricPython_NewPointerObj(
-            new FabricCore::RTVal(%in),
-            SWIGTYPE_p_FabricCore__RTVal,
-            SWIG_POINTER_OWN
-            );
+          PyObject* %out = PyInt_FromLong(%in);
           return %out;
         </native-to-target>
         <target-to-native>
-          <add-conversion type="PyObject" check="true">
-            void *argp1 = 0;
-            int res1 = SWIG_Python_ConvertPtr(%in, &amp;argp1, SWIGTYPE_p_FabricCore__RTVal, 0);
-            if (!SWIG_IsOK(res1) || !argp1) {
-              PyErr_SetString(PyExc_TypeError, "FabricCore::RTVal argument is of wrong type");
-            }
-            else %out = *reinterpret_cast&lt; %OUTTYPE * &gt;(argp1);
+          <add-conversion type="PyObject" check="PyInt_Check(%in)">
+            %out = %OUTTYPE(PyInt_AsLong(%in));
           </add-conversion>
         </target-to-native>
     </conversion-rule>

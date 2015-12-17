@@ -15,9 +15,9 @@ public:
 
   DFGUICmd_Paste(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef json,
+    QString json,
     QPointF cursorPos
     )
     : DFGUICmd_Exec(
@@ -25,14 +25,14 @@ public:
       execPath,
       exec
       )
-    , m_json( json )
+    , m_json( json.trimmed() )
     , m_cursorPos( cursorPos )
   {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("Paste"); }
 
-  FTL::ArrayRef<std::string> getPastedNodeNames()
+  QStringList getPastedNodeNames()
   {
     assert( wasInvoked() );
     return m_pastedNodeNames;
@@ -40,16 +40,21 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef json,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_json;
+  QString m_json;
   QPointF m_cursorPos;
 
-  std::vector<std::string> m_pastedNodeNames;
+  QStringList m_pastedNodeNames;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

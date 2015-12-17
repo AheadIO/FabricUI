@@ -14,9 +14,9 @@ public:
 
   DFGUICmd_ReorderPorts(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    const std::vector<unsigned int> & indices
+    QList<int> indices
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_indices( indices )
@@ -27,13 +27,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::ArrayRef<unsigned> indices,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::vector<unsigned int> m_indices;
+  QList<int> m_indices;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -6,15 +6,26 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_SetCode::appendDesc( std::string &desc )
+void DFGUICmd_SetCode::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Modify code of function ");
+  desc += "Modify code of function ";
   AppendDesc_String( getExecPath(), desc );
 }
 
 void DFGUICmd_SetCode::invoke( unsigned &coreUndoCount )
 {
-  getExec().setCode( m_code.c_str() );
+  invoke(
+    m_code.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_SetCode::invoke(
+  FTL::CStrRef code,
+  unsigned &coreUndoCount
+  )
+{
+  getExec().setCode( code.c_str() );
   ++coreUndoCount;
 }
 

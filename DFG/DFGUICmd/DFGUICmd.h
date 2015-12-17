@@ -32,11 +32,11 @@ public:
 
   virtual void redo();
 
-  std::string getDesc()
+  QString getDesc()
   {
     assert( wasInvoked() );
-    std::string desc;
-    desc += FTL_STR("Canvas: ");
+    QString desc;
+    desc += "Canvas: ";
     appendDesc( desc );
     return desc;
   }
@@ -46,13 +46,31 @@ protected:
   bool wasInvoked() const
     { return m_state != State_New; }
 
-  virtual void appendDesc( std::string &desc ) = 0;
+  virtual void appendDesc( QString &desc )
+  {
+    // [pzion 20151216] This should be abstract, but Shiboken can't deal
+    // with abstract classes
+  }
 
-  virtual void invoke( unsigned &coreUndoCount ) = 0;
+  virtual void invoke( unsigned &coreUndoCount )
+  {
+    // [pzion 20151216] This should be abstract, but Shiboken can't deal
+    // with abstract classes
+  }
 
   static void AppendDesc_String(
-    FTL::CStrRef string,
-    std::string &desc
+    QString string,
+    QString &desc
+    )
+  {
+    desc += '\'';
+    desc += string;
+    desc += '\'';
+  }
+
+  static void AppendDesc_String(
+    char const *string,
+    QString &desc
     )
   {
     desc += '\'';

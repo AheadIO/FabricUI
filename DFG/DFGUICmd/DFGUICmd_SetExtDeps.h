@@ -14,16 +14,13 @@ public:
 
   DFGUICmd_SetExtDeps(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::StrRef> extDeps
+    QStringList extDeps
     )
     : DFGUICmd_Exec( binding, execPath, exec )
+    , m_extDeps( extDeps )
   {
-    m_extDeps.reserve( extDeps.size() );
-    for ( FTL::ArrayRef<FTL::StrRef>::IT it = extDeps.begin();
-      it != extDeps.end(); ++it )
-      m_extDeps.push_back( *it );
   }
 
   static FTL::CStrRef CmdName()
@@ -31,13 +28,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::ArrayRef<char const *> extDepCStrs,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::vector<std::string> m_extDeps;
+  QStringList m_extDeps;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

@@ -14,11 +14,11 @@ public:
 
   DFGUICmd_SetArgValue(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef argName,
+    QString argName,
     FabricCore::RTVal const &value
     )
     : DFGUICmd_Binding( binding )
-    , m_argName( argName )
+    , m_argName( argName.trimmed() )
     , m_value( value )
     {}
 
@@ -27,13 +27,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef argName,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_argName;
+  QString m_argName;
   FabricCore::RTVal m_value;
 };
 

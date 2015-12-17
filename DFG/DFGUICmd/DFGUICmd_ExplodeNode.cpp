@@ -6,37 +6,33 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_ExplodeNode::appendDesc( std::string &desc )
+void DFGUICmd_ExplodeNode::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Explode ");
+  desc += "Explode ";
   appendDesc_NodeName( m_nodeName, desc );
-  desc += FTL_STR(" to ");
+  desc += " to ";
   appendDesc_NodeNames( m_explodedNodeNames, desc );
 }
 
 void DFGUICmd_ExplodeNode::invoke( unsigned &coreUndoCount )
 {
   m_explodedNodeNames =
-    Perform(
-      getBinding(),
-      getExecPath(),
-      getExec(),
-      m_nodeName,
+    invoke(
+      m_nodeName.toUtf8().constData(),
       coreUndoCount
       );
 }
 
-std::vector<std::string> DFGUICmd_ExplodeNode::Perform(
-  FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
+QStringList DFGUICmd_ExplodeNode::invoke(
   FTL::CStrRef nodeName,
   unsigned &coreUndoCount
   )
 {
-  QPointF oldTopLeftPos = GetNodeUIGraphPos( exec, nodeName );
+  FabricCore::DFGExec &exec = getExec();
 
-  FabricCore::DFGStringResult newNodeNamesJSON =
+  QPointF oldTopLeftPos = getNodeUIGraphPos( nodeName );
+
+  FabricCore::String newNodeNamesJSON =
     exec.explodeNode( nodeName.c_str() );
   ++coreUndoCount;
 

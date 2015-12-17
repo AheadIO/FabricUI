@@ -14,16 +14,16 @@ public:
 
   DFGUICmd_RemovePort(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef portName
+    QString portName
     )
     : DFGUICmd_Exec(
       binding,
       execPath,
       exec
       )
-    , m_portName( portName )
+    , m_portName( portName.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
@@ -31,21 +31,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
-  static void Perform(
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
+  void invoke(
     FTL::CStrRef portName,
     unsigned &coreUndoCount
     );
 
 private:
 
-  std::string m_portName;
+  QString m_portName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

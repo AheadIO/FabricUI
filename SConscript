@@ -18,6 +18,7 @@ Import(
   'shibokenBin',
   'shibokenRoot',
   'shibokenFlags',
+  'pythonConfigs',
   'pysideRoot',
   'pysideFlags',
   )
@@ -140,150 +141,158 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
 
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
 
-  pysideEnv = env.Clone()
-  pysideEnv.MergeFlags(shibokenFlags)
-  pysideEnv.MergeFlags(pysideFlags)
+  pysideGens = []
+  installedPySideLibs = []
 
-  pysideDir = pysideEnv.Dir('pyside')
-  shibokenDir = pysideEnv.Dir('shiboken')
+  for pythonVersion, pythonConfig in pythonConfigs.iteritems():
 
-  if buildOS == 'Linux':
-    qtIncludePaths = [
-      '/usr/include/Qt',
-      '/usr/include/QtCore',
-      '/usr/include/QtGui',
-      '/usr/include/QtOpenGL',
+    pysideEnv = env.Clone()
+    pysideEnv.MergeFlags(shibokenFlags)
+    pysideEnv.MergeFlags(pysideFlags)
+
+    pysideDir = pysideEnv.Dir('pyside')
+    shibokenDir = pysideEnv.Dir('shiboken')
+
+    if buildOS == 'Linux':
+      qtIncludePaths = [
+        '/usr/include/Qt',
+        '/usr/include/QtCore',
+        '/usr/include/QtGui',
+        '/usr/include/QtOpenGL',
+        ]
+    if buildOS == 'Darwin':
+      qtIncludePaths = [
+        '/usr/local/include/Qt',
+        '/usr/local/include/QtCore',
+        '/usr/local/include/QtGui',
+        '/usr/local/include/QtOpenGL',
+        ]
+    pysideEnv.Append(CPPPATH = qtIncludePaths)
+
+    if buildOS != 'Windows':
+      pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
+
+    shibokenIncludePaths = [
+      str(pysideRoot.Dir("include").Dir("PySide")),
       ]
-  if buildOS == 'Darwin':
-    qtIncludePaths = [
-      '/usr/local/include/Qt',
-      '/usr/local/include/QtCore',
-      '/usr/local/include/QtGui',
-      '/usr/local/include/QtOpenGL',
-      ]
-  pysideEnv.Append(CPPPATH = qtIncludePaths)
+    if buildOS == 'Darwin':
+      # Location for Qt frameworks
+      shibokenIncludePaths.append("/usr/local/lib")
+    shibokenIncludePaths.append(os.path.join(os.environ['FABRIC_DIR'], "include"))
 
-  if buildOS != 'Windows':
-    pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
-
-  shibokenIncludePaths = [
-    str(pysideRoot.Dir("include").Dir("PySide")),
-    ]
-  if buildOS == 'Darwin':
-    # Location for Qt frameworks
-    shibokenIncludePaths.append("/usr/local/lib")
-  shibokenIncludePaths.append(os.path.join(os.environ['FABRIC_DIR'], "include"))
-
-  pysideGen = pysideEnv.Command(
-    pysideDir.Dir('FabricUI').File('fabricui_python.h'),
-    [
-      shibokenDir.File('global.h'),
-      shibokenDir.File('fabricui.diff'),
-      shibokenDir.File('fabricui.xml'),
-      shibokenDir.File('fabricui_core.xml'),
-      shibokenDir.File('fabricui_dfg.xml'),
-      shibokenDir.File('fabricui_viewports.xml'),
-      ],
-    [
-        [
-            shibokenBin,
-            '${SOURCES[0]}',
-            #'--no-suppress-warnings',
-            '--typesystem-paths='+':'.join([
-              str(shibokenDir.srcnode()),
-              str(pysideRoot.Dir('share').Dir('PySide').Dir('typesystems')),
-              ]),
-            '--include-paths='+':'.join(shibokenIncludePaths),
-            '--output-directory='+pysideDir.abspath,
-            #################################################################
-            # These are copied from PySide's CMakeLists.txt:
-            '--generator-set=shiboken',
-            '--enable-parent-ctor-heuristic',
-            '--enable-pyside-extensions',
-            '--enable-return-value-heuristic',
-            '--use-isnull-as-nb_nonzero',
-            #################################################################
-            '${SOURCES[2]}',
+    pysideGen = pysideEnv.Command(
+      pysideDir.Dir('FabricUI').File('fabricui_python.h'),
+      [
+        shibokenDir.File('global.h'),
+        shibokenDir.File('fabricui.diff'),
+        shibokenDir.File('fabricui.xml'),
+        shibokenDir.File('fabricui_core.xml'),
+        shibokenDir.File('fabricui_dfg.xml'),
+        shibokenDir.File('fabricui_viewports.xml'),
         ],
-        [ 'cd', pysideDir.Dir("FabricUI").abspath, '&&', 'patch', '-p1',
-            '<${SOURCES[1].abspath}' ],
-    ]
-    )
-  pysideEnv.Depends(pysideGen, installedHeaders)
-  pysideEnv.Alias('pysideGen', [pysideGen])
+      [
+          [
+              shibokenBin,
+              '${SOURCES[0]}',
+              #'--no-suppress-warnings',
+              '--typesystem-paths='+':'.join([
+                str(shibokenDir.srcnode()),
+                str(pysideRoot.Dir('share').Dir('PySide').Dir('typesystems')),
+                ]),
+              '--include-paths='+':'.join(shibokenIncludePaths),
+              '--output-directory='+pysideDir.abspath,
+              #################################################################
+              # These are copied from PySide's CMakeLists.txt:
+              '--generator-set=shiboken',
+              '--enable-parent-ctor-heuristic',
+              '--enable-pyside-extensions',
+              '--enable-return-value-heuristic',
+              '--use-isnull-as-nb_nonzero',
+              #################################################################
+              '${SOURCES[2]}',
+          ],
+          [ 'cd', pysideDir.Dir("FabricUI").abspath, '&&', 'patch', '-p1',
+              '<${SOURCES[1].abspath}' ],
+      ]
+      )
+    pysideEnv.Depends(pysideGen, installedHeaders)
+    pysideGens.append(pysideGen)
 
-  pysideEnv.Append(CPPPATH = [
-      pysideEnv.Dir('DFG').srcnode(),
-      pysideEnv.Dir('GraphView').srcnode(),
-      pysideEnv.Dir('Licensing').srcnode(),
-      pysideEnv.Dir('Style').srcnode(),
-      pysideEnv.Dir('ValueEditor').srcnode(),
-      pysideEnv.Dir('Viewports').srcnode(),
-      fabricDir.Dir('include'),
-      fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
-      ])
-  if buildOS == 'Linux':
     pysideEnv.Append(CPPPATH = [
-      '/usr/local/include/python2.7',
-      ] + qtIncludePaths)
+        pysideEnv.Dir('DFG').srcnode(),
+        pysideEnv.Dir('DFG/DFGUICmd').srcnode(),
+        pysideEnv.Dir('GraphView').srcnode(),
+        pysideEnv.Dir('Licensing').srcnode(),
+        pysideEnv.Dir('Style').srcnode(),
+        pysideEnv.Dir('ValueEditor').srcnode(),
+        pysideEnv.Dir('Viewports').srcnode(),
+        fabricDir.Dir('include'),
+        fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
+        ])
+    if buildOS == 'Linux':
+      pysideEnv.Append(CPPPATH = [
+        pythonConfig['includeDir'],
+        ] + qtIncludePaths)
+      pysideEnv.Append(LIBS = [
+        'QtCore',
+        'QtGui',
+        'QtOpenGL',
+        ])
+    if buildOS == 'Darwin':
+      pysideEnv.Append(FRAMEWORKPATH = ['/usr/local/lib'])
+      pysideEnv.Append(FRAMEWORKS = ['QtCore', 'QtGui', 'QtOpenGL'])
+      pysideEnv.Append(CPPPATH = [pythonConfig['includeDir']])
+      pysideEnv.Append(LIBPATH = [pythonConfig['libDir']])
+      pysideEnv.Append(LIBS = [pythonConfig['lib']])
+    
     pysideEnv.Append(LIBS = [
-      'QtCore',
-      'QtGui',
-      'QtOpenGL',
+      'FabricUI',
+      'FabricServices',
+      'FabricSplitSearch',
+      'FabricCore',
       ])
-  if buildOS == 'Darwin':
-    pysideEnv.Append(FRAMEWORKPATH = ['/usr/local/lib'])
-    pysideEnv.Append(FRAMEWORKS = ['QtCore', 'QtGui', 'QtOpenGL'])
-    pysideEnv.Append(CPPPATH = ['/usr/include/python2.7'])
-    pysideEnv.Append(LIBPATH = ['/usr/lib'])
-    pysideEnv.Append(LIBS = ['python2.7'])
-  
-  pysideEnv.Append(LIBS = [
-    'FabricUI',
-    'FabricServices',
-    'FabricSplitSearch',
-    'FabricCore',
-    ])
-  pysideEnv.Append(CPPDEFINES = [
-    'FEC_PROVIDE_STL_BINDINGS',
-    ])
+    pysideEnv.Append(CPPDEFINES = [
+      'FEC_PROVIDE_STL_BINDINGS',
+      ])
 
-  fabricPythonLibName = "FabricPython"
+    fabricPythonLibName = "FabricPython"
 
-  majMinVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN']])
-  majMinRevVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN'], pysideEnv['FABRIC_VERSION_REV']])
+    majMinVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN']])
+    majMinRevVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN'], pysideEnv['FABRIC_VERSION_REV']])
 
-  if buildOS == 'Windows':
-    fabricPythonLibBasename = '.'.join([fabricPythonLibName, 'dll'])
-  if buildOS == 'Linux':
-    fabricPythonLibBasename = '.'.join(['lib' + fabricPythonLibName, 'so', majMinRevVer])
-  if buildOS == 'Darwin':
-    fabricPythonLibBasename = '.'.join(['lib' + fabricPythonLibName, majMinRevVer, 'dylib'])
+    if buildOS == 'Windows':
+      fabricPythonLibBasename = '.'.join([fabricPythonLibName, 'dll'])
+    if buildOS == 'Linux':
+      fabricPythonLibBasename = '.'.join(['lib' + fabricPythonLibName, 'so', majMinRevVer])
+    if buildOS == 'Darwin':
+      fabricPythonLibBasename = '.'.join(['lib' + fabricPythonLibName, majMinRevVer, 'dylib'])
 
-  if buildOS == 'Linux':
-    pysideEnv.Append(LINKFLAGS = Literal(','.join([
-      '-Wl',
-      '-rpath',
-      '$ORIGIN/../../../lib/',
-      '-rpath',
-      '$ORIGIN/../../../Python/2.7/FabricEngine/Core/',
-      ])))
-  if buildOS == 'Darwin':
-    pysideEnv.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/../../..'])
-    pysideEnv.Append(CCFLAGS = ['-Wno-mismatched-tags'])
-  pysideEnv.Append(CPPPATH = pysideDir.abspath)
-  pysideEnv.Append(CPPPATH = stageDir.Dir('Python/2.7/FabricEngine/Core'))
-  pysideEnv.Append(LIBS = stageDir.Dir('Python/2.7/FabricEngine/Core').File(fabricPythonLibBasename))
-  installedPySideLib = pysideEnv.LoadableModule(
-    pysideEnv['STAGE_DIR'].Dir('Python').Dir('2.7').Dir('FabricEngine').File('FabricUI.so'),
-    [
-      pysideEnv.Glob('pyside/*.cpp'),
-      pysideEnv.Glob('pyside/FabricUI/*.cpp'),
-    ],
-    LDMODULEPREFIX='',
-    )
-  pysideEnv.Depends(installedPySideLib, pysideGen)
+    if buildOS == 'Linux':
+      pysideEnv.Append(LINKFLAGS = Literal(','.join([
+        '-Wl',
+        '-rpath',
+        '$ORIGIN/../../../lib/',
+        '-rpath',
+        '$ORIGIN/../../../Python/' + pythonVersion + '/FabricEngine/Core/',
+        ])))
+    if buildOS == 'Darwin':
+      pysideEnv.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/../../..'])
+      pysideEnv.Append(CCFLAGS = ['-Wno-mismatched-tags'])
+    pysideEnv.Append(CPPPATH = pysideDir.abspath)
+    pysideEnv.Append(CPPPATH = stageDir.Dir('Python/' + pythonVersion + '/FabricEngine/Core'))
+    pysideEnv.Append(LIBS = stageDir.Dir('Python/' + pythonVersion + '/FabricEngine/Core').File(fabricPythonLibBasename))
+    installedPySideLib = pysideEnv.LoadableModule(
+      pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine').File('FabricUI.so'),
+      [
+        pysideEnv.Glob('pyside/*.cpp'),
+        pysideEnv.Glob('pyside/FabricUI/*.cpp'),
+      ],
+      LDMODULEPREFIX='',
+      )
+    pysideEnv.Depends(installedPySideLib, pysideGen)
+    installedPySideLibs.append(installedPySideLib)
 
-  pysideEnv.Alias('pysideLib', installedPySideLib)
+  pysideEnv.Alias('pysideGen', pysideGens)
+  pysideEnv.Alias('pysideLib', installedPySideLibs)
 
 Return('uiFiles')

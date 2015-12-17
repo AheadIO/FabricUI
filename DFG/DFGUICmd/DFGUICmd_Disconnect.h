@@ -14,10 +14,10 @@ public:
 
   DFGUICmd_Disconnect(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef srcPath,
-    FTL::StrRef dstPath
+    QString srcPath,
+    QString dstPath
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_srcPath( srcPath )
@@ -29,14 +29,20 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef srcPath,
+    FTL::CStrRef dstPath,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_srcPath;
-  std::string m_dstPath;
+  QString m_srcPath;
+  QString m_dstPath;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

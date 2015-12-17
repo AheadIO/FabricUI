@@ -8,35 +8,30 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_AddPort::appendDesc( std::string &desc )
+void DFGUICmd_AddPort::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Add ");
+  desc += "Add ";
   appendDesc_PortPath( getActualPortName(), desc );
 }
 
 void DFGUICmd_AddPort::invoke( unsigned &coreUndoCount )
 {
-  m_actualPortName =
-    Perform(
-      getBinding(),
-      getExecPath(),
-      getExec(),
-      m_desiredPortName,
-      m_portType,
-      m_typeSpec,
-      m_portToConnectWith,
-      m_extDep,
-      m_metaData,
+  m_actualPortName = QString::fromUtf8(
+    invoke(
+      getExecPath().toUtf8().constData(),
+      m_desiredPortName.toUtf8().constData(),
+      m_typeSpec.toUtf8().constData(),
+      m_portToConnectWith.toUtf8().constData(),
+      m_extDep.toUtf8().constData(),
+      m_metaData.toUtf8().constData(),
       coreUndoCount
-      );
+      ).c_str()
+    );
 }
 
-FTL::CStrRef DFGUICmd_AddPort::Perform(
-  FabricCore::DFGBinding &binding,
+FTL::CStrRef DFGUICmd_AddPort::invoke(
   FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
   FTL::CStrRef desiredPortName,
-  FabricCore::DFGPortType portType,
   FTL::CStrRef typeSpec,
   FTL::CStrRef portToConnect,
   FTL::CStrRef extDep,
@@ -44,6 +39,9 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
   unsigned &coreUndoCount
   )
 {
+  FabricCore::DFGBinding &binding = getBinding();
+  FabricCore::DFGExec &exec = getExec();
+
   if ( !extDep.empty() )
   {
     exec.addExtDep( extDep.c_str() );
@@ -53,7 +51,7 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
   FTL::CStrRef portName =
     exec.addExecPort(
       desiredPortName.c_str(),
-      portType,
+      m_portType,
       typeSpec.c_str()
       );
   ++coreUndoCount;
@@ -89,7 +87,7 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
     && !typeSpec.empty()
     && typeSpec.find('$') == typeSpec.end() )
   {
-    FabricCore::DFGHost host = binding.getHost();
+    FabricCore::DFGHost host = getHost();
     FabricCore::Context context = host.getContext();
     FabricCore::RTVal argValue =
       FabricCore::RTVal::Construct(
@@ -169,13 +167,13 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
       }
     }
 
-    if ( portType != FabricCore::DFGPortType_Out
+    if ( m_portType != FabricCore::DFGPortType_Out
       && portToConnectNodePortType != FabricCore::DFGPortType_Out )
     {
       exec.connectTo( portName.c_str(), portToConnect.c_str() );
       ++coreUndoCount;
     }
-    if ( portType != FabricCore::DFGPortType_In )
+    if ( m_portType != FabricCore::DFGPortType_In )
     {
       exec.connectTo( portToConnect.c_str(), portName.c_str() );
       ++coreUndoCount;

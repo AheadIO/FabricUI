@@ -14,10 +14,10 @@ public:
 
   DFGUICmd_AddFunc(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef title,
-    FTL::StrRef initialCode,
+    QString title,
+    QString initialCode,
     QPointF pos
     )
     : DFGUICmd_AddNode(
@@ -34,16 +34,22 @@ public:
 
 protected:
 
-  FTL::CStrRef getDesiredNodeName()
+  QString getDesiredNodeName()
     { return getPrimaryArg(); }
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual FTL::CStrRef invokeAdd( unsigned &coreUndoCount );
 
+  FTL::CStrRef invokeAdd(
+    FTL::CStrRef desiredNodeName,
+    FTL::CStrRef initialCode,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_initialCode;
+  QString m_initialCode;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

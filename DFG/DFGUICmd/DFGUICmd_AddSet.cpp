@@ -6,18 +6,31 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_AddSet::appendDesc( std::string &desc )
+void DFGUICmd_AddSet::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Add set ");
+  desc += "Add set ";
   appendDesc_NodeName( getActualNodeName(), desc );
 }
 
 FTL::CStrRef DFGUICmd_AddSet::invokeAdd( unsigned &coreUndoCount )
 {
+  return invokeAdd(
+    getDesiredNodeName().toUtf8().constData(),
+    m_varPath.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+FTL::CStrRef DFGUICmd_AddSet::invokeAdd(
+  FTL::CStrRef desiredNodeName,
+  FTL::CStrRef varPath,
+  unsigned &coreUndoCount
+  )
+{
   FTL::CStrRef actualNodeName =
     getExec().addSet(
-      getDesiredNodeName().c_str(),
-      m_varPath.c_str()
+      desiredNodeName.c_str(),
+      varPath.c_str()
       );
   ++coreUndoCount;
   return actualNodeName;

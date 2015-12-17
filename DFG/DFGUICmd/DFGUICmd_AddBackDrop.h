@@ -14,9 +14,9 @@ public:
 
   DFGUICmd_AddBackDrop(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef title,
+    QString title,
     QPointF pos
     )
     : DFGUICmd_AddNode(
@@ -33,12 +33,17 @@ public:
 
 protected:
 
-  FTL::CStrRef getText()
+  QString getText()
     { return getPrimaryArg(); }
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual FTL::CStrRef invokeAdd( unsigned &coreUndoCount );
+
+  FTL::CStrRef invokeAdd(
+    FTL::CStrRef text,
+    unsigned &coreUndoCount
+    );
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

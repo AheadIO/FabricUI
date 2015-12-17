@@ -34,7 +34,7 @@ protected:
       {
         m_didit = true;
         m_dfgUICmd->doit();
-        QUndoCommand::setText( m_dfgUICmd->getDesc().c_str() );
+        QUndoCommand::setText( m_dfgUICmd->getDesc() );
       }
     }
     catch ( FabricCore::Exception e )
@@ -68,11 +68,11 @@ private:
   bool m_didit;
 };
 
-std::string DFGUICmdHandler_QUndo::dfgDoInstPreset(
+QString DFGUICmdHandler_QUndo::dfgDoInstPreset(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef presetPath,
+  QString presetPath,
   QPointF pos
   )
 {
@@ -88,13 +88,13 @@ std::string DFGUICmdHandler_QUndo::dfgDoInstPreset(
   return cmd->getActualNodeName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddVar(
+QString DFGUICmdHandler_QUndo::dfgDoAddVar(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef desireNodedName,
-  FTL::CStrRef dataType,
-  FTL::CStrRef extension,
+  QString desireNodedName,
+  QString dataType,
+  QString extension,
   QPointF pos
   )
 {
@@ -112,12 +112,12 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddVar(
   return cmd->getActualNodeName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddGet(
+QString DFGUICmdHandler_QUndo::dfgDoAddGet(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef desireNodedName,
-  FTL::CStrRef varPath,
+  QString desireNodedName,
+  QString varPath,
   QPointF pos
   )
 {
@@ -134,12 +134,12 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddGet(
   return cmd->getActualNodeName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddSet(
+QString DFGUICmdHandler_QUndo::dfgDoAddSet(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef desireNodedName,
-  FTL::CStrRef varPath,
+  QString desireNodedName,
+  QString varPath,
   QPointF pos
   )
 {
@@ -156,11 +156,11 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddSet(
   return cmd->getActualNodeName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddGraph(
+QString DFGUICmdHandler_QUndo::dfgDoAddGraph(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef title,
+  QString title,
   QPointF pos
   )
 {
@@ -176,12 +176,12 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddGraph(
   return cmd->getActualNodeName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddFunc(
+QString DFGUICmdHandler_QUndo::dfgDoAddFunc(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef title,
-  FTL::CStrRef initialCode,
+  QString title,
+  QString initialCode,
   QPointF pos
   )
 {
@@ -200,9 +200,9 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddFunc(
 
 void DFGUICmdHandler_QUndo::dfgDoRemoveNodes(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::StrRef> nodeNames
+  QStringList nodeNames
   )
 {
   m_qUndoStack->push(
@@ -211,7 +211,7 @@ void DFGUICmdHandler_QUndo::dfgDoRemoveNodes(
         binding,
         execPath,
         exec,
-        FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() )
+        nodeNames
         )
       )
     );
@@ -219,10 +219,10 @@ void DFGUICmdHandler_QUndo::dfgDoRemoveNodes(
 
 void DFGUICmdHandler_QUndo::dfgDoConnect(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef srcPath, 
-  FTL::CStrRef dstPath
+  QString srcPath, 
+  QString dstPath
   )
 {
   m_qUndoStack->push(
@@ -240,10 +240,10 @@ void DFGUICmdHandler_QUndo::dfgDoConnect(
 
 void DFGUICmdHandler_QUndo::dfgDoDisconnect(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef srcPath, 
-  FTL::CStrRef dstPath
+  QString srcPath, 
+  QString dstPath
   )
 {
   m_qUndoStack->push(
@@ -259,16 +259,16 @@ void DFGUICmdHandler_QUndo::dfgDoDisconnect(
     );
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
+QString DFGUICmdHandler_QUndo::dfgDoAddPort(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef desiredPortName,
+  QString desiredPortName,
   FabricCore::DFGPortType dfgPortType,
-  FTL::CStrRef typeSpec,
-  FTL::CStrRef portToConnect,
-  FTL::StrRef extDep,
-  FTL::CStrRef metaData
+  QString typeSpec,
+  QString portToConnect,
+  QString extDep,
+  QString metaData
   )
 {
   DFGUICmd_AddPort *cmd =
@@ -287,15 +287,15 @@ std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
   return cmd->getActualPortName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
+QString DFGUICmdHandler_QUndo::dfgDoEditPort(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::StrRef oldPortName,
-  FTL::StrRef desiredNewPortName,
-  FTL::StrRef typeSpec,
-  FTL::StrRef extDep,
-  FTL::StrRef uiMetadata
+  QString oldPortName,
+  QString desiredNewPortName,
+  QString typeSpec,
+  QString extDep,
+  QString uiMetadata
   )
 {
   DFGUICmd_EditPort *cmd =
@@ -313,13 +313,13 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
   return cmd->getActualNewPortName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoCreatePreset(
+QString DFGUICmdHandler_QUndo::dfgDoCreatePreset(
   FabricCore::DFGBinding const &binding,
-  FTL::StrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::StrRef nodeName,
-  FTL::StrRef presetDirPath,
-  FTL::StrRef presetName
+  QString nodeName,
+  QString presetDirPath,
+  QString presetName
   )
 {
   DFGUICmd_CreatePreset *cmd =
@@ -337,9 +337,9 @@ std::string DFGUICmdHandler_QUndo::dfgDoCreatePreset(
 
 void DFGUICmdHandler_QUndo::dfgDoRemovePort(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef portName
+  QString portName
   )
 {
   DFGUICmd_RemovePort *cmd =
@@ -354,10 +354,10 @@ void DFGUICmdHandler_QUndo::dfgDoRemovePort(
 
 void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::StrRef> nodeNames,
-  FTL::ArrayRef<QPointF> newTopLeftPoss
+  QStringList nodeNames,
+  QList<QPointF> newTopLeftPoss
   )
 {
   DFGUICmd_MoveNodes *cmd =
@@ -365,7 +365,7 @@ void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
       binding,
       execPath,
       exec,
-      FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() ),
+      nodeNames,
       newTopLeftPoss
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
@@ -373,9 +373,9 @@ void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
 
 void DFGUICmdHandler_QUndo::dfgDoResizeBackDrop(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef backDropNodeName,
+  QString backDropNodeName,
   QPointF newTopLeftPos,
   QSizeF newSize
   )
@@ -392,12 +392,12 @@ void DFGUICmdHandler_QUndo::dfgDoResizeBackDrop(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
+QString DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::StrRef> nodeNames,
-  FTL::CStrRef desiredImplodedNodeName
+  QStringList nodeNames,
+  QString desiredImplodedNodeName
   )
 {
   DFGUICmd_ImplodeNodes *cmd =
@@ -405,18 +405,18 @@ std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
       binding,
       execPath,
       exec,
-      FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() ),
+      nodeNames,
       desiredImplodedNodeName
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualImplodedNodeName();
 }
 
-std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoExplodeNode(
+QStringList DFGUICmdHandler_QUndo::dfgDoExplodeNode(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef nodeName
+  QString nodeName
   )
 {
   DFGUICmd_ExplodeNode *cmd =
@@ -428,20 +428,14 @@ std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoExplodeNode(
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 
-  std::vector<std::string> explodedNodeNames;
-  explodedNodeNames.insert(
-    explodedNodeNames.end(),
-    cmd->getExplodedNodeNames().begin(),
-    cmd->getExplodedNodeNames().end()
-    );
-  return explodedNodeNames;
+  return cmd->getExplodedNodeNames();
 }
 
 void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef title,
+  QString title,
   QPointF pos
   )
 {
@@ -456,29 +450,12 @@ void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void DFGUICmdHandler_QUndo::dfgDoSetTitle(
-  FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
-  FabricCore::DFGExec const &exec,
-  FTL::CStrRef newTitle
-  )
-{
-  DFGUICmd_SetTitle *cmd =
-    new DFGUICmd_SetTitle(
-      binding,
-      execPath,
-      exec,
-      newTitle
-      );
-  m_qUndoStack->push( new WrappedCommand( cmd ) );
-}
-
 void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef nodeName,
-  FTL::CStrRef comment
+  QString nodeName,
+  QString comment
   )
 {
   DFGUICmd_SetNodeComment *cmd =
@@ -494,9 +471,9 @@ void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
 
 void DFGUICmdHandler_QUndo::dfgDoSetCode(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef code
+  QString code
   )
 {
   DFGUICmd_SetCode *cmd =
@@ -509,12 +486,12 @@ void DFGUICmdHandler_QUndo::dfgDoSetCode(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
+QString DFGUICmdHandler_QUndo::dfgDoRenamePort(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+  QString oldName,
+  QString desiredNewName
   )
 {
   DFGUICmd_RenamePort *cmd =
@@ -529,14 +506,14 @@ std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
   return cmd->getActualNewPortName();
 }
 
-std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
+QString DFGUICmdHandler_QUndo::dfgDoEditNode(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::StrRef oldNodeName,
-  FTL::StrRef desiredNewNodeName,
-  FTL::StrRef nodeMetadata,
-  FTL::StrRef execMetadata
+  QString oldNodeName,
+  QString desiredNewNodeName,
+  QString nodeMetadata,
+  QString execMetadata
   )
 {
   DFGUICmd_EditNode *cmd =
@@ -553,11 +530,11 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
   return cmd->getActualNewNodeName();
 }
 
-std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(
+QStringList DFGUICmdHandler_QUndo::dfgDoPaste(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef json,
+  QString json,
   QPointF cursorPos
   )
 {
@@ -570,34 +547,12 @@ std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(
       cursorPos
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
-
-  std::vector<std::string> pastedNodeNames;
-  pastedNodeNames.insert(
-    pastedNodeNames.end(),
-    cmd->getPastedNodeNames().begin(),
-    cmd->getPastedNodeNames().end()
-    );
-  return pastedNodeNames;
-}
-
-void DFGUICmdHandler_QUndo::dfgDoSetArgType(
-  FabricCore::DFGBinding const &binding,
-  FTL::CStrRef argName,
-  FTL::CStrRef typeName
-  )
-{
-  DFGUICmd_SetArgType *cmd =
-    new DFGUICmd_SetArgType(
-      binding,
-      argName,
-      typeName
-      );
-  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getPastedNodeNames();
 }
 
 void DFGUICmdHandler_QUndo::dfgDoSetArgValue(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef argName,
+  QString argName,
   FabricCore::RTVal const &value
   )
 {
@@ -612,9 +567,9 @@ void DFGUICmdHandler_QUndo::dfgDoSetArgValue(
 
 void DFGUICmdHandler_QUndo::dfgDoSetPortDefaultValue(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef portOrPinPath,
+  QString portOrPinPath,
   FabricCore::RTVal const &value
   )
 {
@@ -631,10 +586,10 @@ void DFGUICmdHandler_QUndo::dfgDoSetPortDefaultValue(
 
 void DFGUICmdHandler_QUndo::dfgDoSetRefVarPath(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef refName,
-  FTL::CStrRef varPath
+  QString refName,
+  QString varPath
   )
 {
   DFGUICmd_SetRefVarPath *cmd =
@@ -650,9 +605,9 @@ void DFGUICmdHandler_QUndo::dfgDoSetRefVarPath(
 
 void DFGUICmdHandler_QUndo::dfgDoReorderPorts(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  const std::vector<unsigned int> & indices
+  QList<int> indices
   )
 {
   DFGUICmd_ReorderPorts *cmd =
@@ -667,9 +622,9 @@ void DFGUICmdHandler_QUndo::dfgDoReorderPorts(
 
 void DFGUICmdHandler_QUndo::dfgDoSetExtDeps(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec,
-  FTL::ArrayRef<FTL::StrRef> extDeps
+  QStringList extDeps
   )
 {
   DFGUICmd_SetExtDeps *cmd =
@@ -684,7 +639,7 @@ void DFGUICmdHandler_QUndo::dfgDoSetExtDeps(
 
 void DFGUICmdHandler_QUndo::dfgDoSplitFromPreset(
   FabricCore::DFGBinding const &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec const &exec
   )
 {

@@ -6,17 +6,30 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_SetRefVarPath::appendDesc( std::string &desc )
+void DFGUICmd_SetRefVarPath::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Set variable for reference ");
+  desc += "Set variable for reference ";
   appendDesc_NodeName( m_refName, desc );
-  desc += FTL_STR(" to ");
+  desc += " to ";
   AppendDesc_String( m_varPath, desc );
 }
 
 void DFGUICmd_SetRefVarPath::invoke( unsigned &coreUndoCount )
 {
-  getExec().setRefVarPath( m_refName.c_str(), m_varPath.c_str(), true );
+  invoke(
+    m_refName.toUtf8().constData(),
+    m_varPath.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_SetRefVarPath::invoke(
+  FTL::CStrRef refName,
+  FTL::CStrRef varPath,
+  unsigned &coreUndoCount
+  )
+{
+  getExec().setRefVarPath( refName.c_str(), varPath.c_str(), true );
   ++coreUndoCount;
 }
 

@@ -14,10 +14,10 @@ public:
 
   DFGUICmd_SetNodeComment(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef nodeName,
-    FTL::StrRef comment
+    QString nodeName,
+    QString comment
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_nodeName( nodeName )
@@ -29,14 +29,20 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef nodeName,
+    FTL::CStrRef comment,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_nodeName;
-  std::string m_comment;
+  QString m_nodeName;
+  QString m_comment;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

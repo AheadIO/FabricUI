@@ -6,11 +6,11 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_SplitFromPreset::appendDesc( std::string &desc )
+void DFGUICmd_SplitFromPreset::appendDesc( QString &desc )
 {
-  desc += FTL_STR("SplitFromPreset");
-  FTL::StrRef execPath = getExecPath();
-  if ( !execPath.empty() )
+  desc += "SplitFromPreset";
+  QString execPath = getExecPath();
+  if ( !execPath.isEmpty() )
   {
     desc += ' ';
     desc += execPath;

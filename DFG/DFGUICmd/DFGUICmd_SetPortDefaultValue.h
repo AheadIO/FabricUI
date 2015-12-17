@@ -14,9 +14,9 @@ public:
 
   DFGUICmd_SetPortDefaultValue(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef portPath,
+    QString portPath,
     FabricCore::RTVal const &value
     )
     : DFGUICmd_Exec( binding, execPath, exec )
@@ -29,13 +29,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef portPath,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_portPath;
+  QString m_portPath;
   FabricCore::RTVal m_value;
 };
 

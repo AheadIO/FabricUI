@@ -7,13 +7,24 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_ResizeBackDrop::appendDesc( std::string &desc )
+void DFGUICmd_ResizeBackDrop::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Resize backdrop ");
+  desc += "Resize backdrop ";
   appendDesc_NodeName( m_backDropName, desc );
 }
 
 void DFGUICmd_ResizeBackDrop::invoke( unsigned &coreUndoCount )
+{
+  invoke(
+    m_backDropName.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_ResizeBackDrop::invoke(
+  FTL::CStrRef backDropName,
+  unsigned &coreUndoCount
+  )
 {
   {
     std::string json;
@@ -30,7 +41,7 @@ void DFGUICmd_ResizeBackDrop::invoke( unsigned &coreUndoCount )
       }
     }
     getExec().setNodeMetadata(
-      m_backDropName.c_str(), "uiGraphPos", json.c_str(), true, false
+      backDropName.c_str(), "uiGraphPos", json.c_str(), true, false
       );
     ++coreUndoCount;
   }
@@ -50,7 +61,7 @@ void DFGUICmd_ResizeBackDrop::invoke( unsigned &coreUndoCount )
       }
     }
     getExec().setNodeMetadata(
-      m_backDropName.c_str(), "uiGraphSize", json.c_str(), true, false
+      backDropName.c_str(), "uiGraphSize", json.c_str(), true, false
       );
     ++coreUndoCount;
   }

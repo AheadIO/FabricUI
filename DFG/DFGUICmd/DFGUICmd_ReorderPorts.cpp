@@ -6,25 +6,39 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_ReorderPorts::appendDesc( std::string &desc )
+void DFGUICmd_ReorderPorts::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Reordered ports [");
-  char buffer[16];
+  desc += "Reordered ports [";
 
-  for(size_t i=0;i<m_indices.size();i++)
+  for ( int i = 0; i < m_indices.size(); ++i )
   {
-    if(i > 0)
-      desc += FTL_STR(",");
-    sprintf(buffer, "%d", (int)m_indices[i]);
-    desc += buffer;
+    if ( i > 0 )
+      desc += ",";
+    desc += QString::number( m_indices[i] );
   }
 
-  desc += FTL_STR("]");
+  desc += "]";
 }
 
 void DFGUICmd_ReorderPorts::invoke( unsigned &coreUndoCount )
 {
-  getExec().reorderExecPorts(m_indices.size(), &m_indices[0]);
+  std::vector<unsigned> indices;
+  indices.reserve( m_indices.size() );
+  foreach ( int index, m_indices )
+    indices.push_back( unsigned( index ) );
+
+  invoke(
+    indices,
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_ReorderPorts::invoke(
+  FTL::ArrayRef<unsigned> indices,
+  unsigned &coreUndoCount
+  )
+{
+  getExec().reorderExecPorts( indices.size(), &indices[0] );
   ++coreUndoCount;
 }
 

@@ -27,14 +27,12 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_RenamePort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ReorderPorts.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_ResizeBackDrop.h>
-#include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgType.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetArgValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetCode.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetExtDeps.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetNodeComment.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetPortDefaultValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetRefVarPath.h>
-#include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetTitle.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SplitFromPreset.h>
 
 #endif // __UI_DFG_DFGUICmds__

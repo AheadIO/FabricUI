@@ -15,14 +15,14 @@ public:
 
   DFGUICmd_ResizeBackDrop(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef backDropName,
+    QString backDropName,
     QPointF newTopLeftPos,
     QSizeF newSize
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_backDropName( backDropName )
+    , m_backDropName( backDropName.trimmed() )
     , m_newTopLeftPos( newTopLeftPos )
     , m_newSize( newSize )
     {}
@@ -32,13 +32,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef backDropName,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_backDropName;
+  QString m_backDropName;
   QPointF m_newTopLeftPos;
   QSizeF m_newSize;
 };

@@ -15,29 +15,31 @@ public:
 
   DFGUICmd_RemoveNodes(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::StrRef> nodeNames
+    QStringList nodeNames
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-  {
-    m_nodeNames.insert(
-      m_nodeNames.end(), nodeNames.begin(), nodeNames.end()
-      );
-  }
+    , m_nodeNames( nodeNames )
+    {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("RemoveNodes"); }
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::ArrayRef<FTL::CStrRef> nodeNames,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::vector<std::string> m_nodeNames;
+  QStringList m_nodeNames;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
