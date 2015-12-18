@@ -129,7 +129,10 @@ uiLib = env.StaticLibrary('FabricUI', sources)
 uiFiles = installedHeaders
 if uiLibPrefix == 'ui':
   uiFiles += env.Install(stageDir.Dir('lib'), uiLib)
-  icons = env.Install(stageDir.srcnode().Dir('Resources').Dir('Icons'), Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')))
+  icons = env.Install(
+    stageDir.srcnode().Dir('Resources').Dir('Icons'), 
+    Glob(os.path.join(env.Dir('Canvas').Dir('GraphView').Dir('images').srcnode().abspath, '*.png'))
+  )
   env.Depends(uiLib, icons)
 
 locals()[uiLibPrefix + 'Lib'] = uiLib
@@ -175,12 +178,13 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
   pythonCAPISourceDir = fabricDir.Dir('Source').Dir('Python').Dir('Core').Dir('2.7')
   pysideEnv.Append(CPPPATH = [
-      pysideEnv.Dir('DFG').srcnode(),
-      pysideEnv.Dir('GraphView').srcnode(),
-      pysideEnv.Dir('Licensing').srcnode(),
-      pysideEnv.Dir('Style').srcnode(),
-      pysideEnv.Dir('ValueEditor').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('DFG').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('GraphView').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('Licensing').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('Style').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('ValueEditor').srcnode(),
       pysideEnv.Dir('Viewports').srcnode(),
+      pysideEnv.Dir('Canvas').Dir('Viewports').srcnode(),
       fabricDir.Dir('include'),
       fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
       pythonCAPISourceDir,
