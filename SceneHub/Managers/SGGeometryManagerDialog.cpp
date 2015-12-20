@@ -1,4 +1,6 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
 #include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
 #include <FabricUI/Util/macros.h>

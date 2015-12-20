@@ -20,7 +20,7 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
   m_client(client),
   m_shObject(shObject) 
 {
-  m_shCmdHandler = FabricUI::SceneHub::SHDFGCmdHandler_QUndo(qUndoStack);
+  m_shCmdHandler = FabricUI::SceneHub::SHCmdHandler_QUndo(qUndoStack);
 
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
   m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");

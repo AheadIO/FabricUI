@@ -2,16 +2,10 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SCENEHUB_DFG_CMDHANDLER_QUNDO_H__
-#define __FABRICUI_SCENEHUB_DFG_CMDHANDLER_QUNDO_H__
+#ifndef __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
+#define __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
 
 #include <QtGui/QUndoStack>
-#include <FabricCore.h>
-#include <FTL/OwnedPtr.h>
-#include <FTL/JSONValue.h>
-#include <FTL/Str.h>
-#include <FTL/JSONEnc.h>
-#include <FTL/MapCharSingle.h>
 #include <FabricUI/Util/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
 #include <FabricUI/Canvas/DFG/DFGUICmdHandler.h>
@@ -21,20 +15,20 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    class SHDFGCmdHandler_QUndo : public DFG::DFGUICmdHandler_QUndo
+    class SHCmdHandler_QUndo : public DFG::DFGUICmdHandler_QUndo
     {
       protected:
         class WrappedCmd;
 
       public:
         /// Default constructor
-        SHDFGCmdHandler_QUndo() : DFG::DFGUICmdHandler_QUndo() {};
+        SHCmdHandler_QUndo() : DFG::DFGUICmdHandler_QUndo() {};
 
-        /// Constructs a new SHDFGCmdHandler_QUndo.
+        /// Constructs a new SHCmdHandler_QUndo.
         /// \param qUndoStack A pointer to the Qt undo-redo stack
-        SHDFGCmdHandler_QUndo(QUndoStack *qUndoStack) : DFG::DFGUICmdHandler_QUndo(qUndoStack) {};
+        SHCmdHandler_QUndo(QUndoStack *qUndoStack) : DFG::DFGUICmdHandler_QUndo(qUndoStack) {};
   
-        virtual ~SHDFGCmdHandler_QUndo() {};
+        virtual ~SHCmdHandler_QUndo() {};
 
         // ***** Canvas *****
         /// Specialization of DFG::DFGUICmdHandler_QUndo
@@ -299,5 +293,5 @@ namespace FabricUI
   };
 };
 
-#endif // __FABRICUI_SCENEHUB_DFG_CMDHANDLER_QUNDO_H__
+#endif // __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
 

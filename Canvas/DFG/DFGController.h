@@ -10,7 +10,7 @@
 #include <FabricUI/Canvas/GraphView/Pin.h>
 #include <FabricUI/Canvas/GraphView/Port.h>
 #include <FabricUI/Canvas/GraphView/BackDropNode.h>
-#include <FabricUI/Canvas/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>

@@ -1,15 +1,25 @@
-#ifndef __MACROS_H__
-#define __MACROS_H__
+#ifndef __UI_UTIL_MACROS_H__
+#define __UI_UTIL_MACROS_H__
 
-#include <FabricCore.h>
 #include <cctype>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
+#include <FTL/FS.h>
+#include <FTL/Path.h>
+#include <FTL/StrRef.h>
+#include <FTL/CStrRef.h>
+#include <FTL/JSONEnc.h>
+#include <FTL/OwnedPtr.h>
+#include <FTL/MapCharSingle.h>
+#include <FabricCore.h>
 
+#include <Core/Build.h>
+#include <QtCore/QString>
 
 #ifdef FABRIC_SPLICE_TRACE
 
@@ -78,4 +88,4 @@
   }
 
 #endif
-#endif
+#endif //_UI_UTIL_MACROS_H__

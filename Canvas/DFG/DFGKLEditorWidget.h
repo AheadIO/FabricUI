@@ -6,7 +6,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QStringListModel>
-#include <FabricUI/Canvas/KLEditor/KLEditorWidget.h>
+#include <FabricUI/KLEditor/KLEditorWidget.h>
 #include "DFGConfig.h"
 #include "DFGController.h"
 #include "DFGKLEditorPortTableWidget.h"

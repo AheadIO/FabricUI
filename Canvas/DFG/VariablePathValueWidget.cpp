@@ -3,8 +3,8 @@
 #include "VariablePathValueWidget.h"
 #include "VariablePathValueItem.h"
 #include "Dialogs/DFGVariablePathLineEdit.h"
-#include <FabricUI/Canvas/ValueEditor/ValueItem.h>
-#include <FabricUI/Canvas/ValueEditor/ValueWidget.h>
+#include <FabricUI/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor/ValueWidget.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;

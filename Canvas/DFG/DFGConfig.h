@@ -3,12 +3,12 @@
 #ifndef __UI_DFG_DFGConfig__
 #define __UI_DFG_DFGConfig__
 
-#include <QtGui/QColor>
-#include <QtGui/QFont>
-#include <QtGui/QTextCharFormat>
-#include <string>
 #include <map>
-#include <FabricUI/Canvas/KLEditor/EditorConfig.h>
+#include <string>
+#include <QtGui/QFont>
+#include <QtGui/QColor>
+#include <QtGui/QTextCharFormat>
+#include <FabricUI/KLEditor/EditorConfig.h>
 #include <FabricUI/Canvas/GraphView/GraphConfig.h>
 #include <FTL/StrRef.h>
 #include <FabricCore.h>

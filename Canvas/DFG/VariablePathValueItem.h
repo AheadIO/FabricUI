@@ -3,7 +3,7 @@
 #ifndef __UI_DFG_VariablePathValueItem__
 #define __UI_DFG_VariablePathValueItem__
 
-#include <FabricUI/Canvas/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor/ValueItem.h>
 #include <map>
 
 #include <FabricCore.h>

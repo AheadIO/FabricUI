@@ -2,9 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-
-#ifndef _H_RTRGLContext_
-#define _H_RTRGLContext_
+#ifndef _UI_SCENEHUB_RTRGLCONTEXT_H__
+#define _UI_SCENEHUB_RTRGLCONTEXT_H__
 
 #include <QtOpenGL/QGLWidget>
 
@@ -79,4 +78,4 @@ namespace FabricUI
   };
 };
 
-#endif // _H_RTRGLContext_
+#endif // _UI_SCENEHUB_RTRGLCONTEXT_H__

@@ -94,12 +94,12 @@ dirs = [
   'Style',
   'TimeLine',
   'Viewports',
+  'KLEditor',
 
   'Canvas/TreeView',
-  'Canvas/ValueEditor',
+  'ValueEditor',
   'Canvas/GraphView',
   'Canvas/GraphView/Commands',
-  'Canvas/KLEditor',
   'Canvas/DFG',
   'Canvas/DFG/DFGUICmd',
   'Canvas/DFG/Dialogs',
@@ -108,6 +108,7 @@ dirs = [
   'SceneHub',
   'SceneHub/Managers',
   'SceneHub/TreeView',
+  'SceneHub/ValueEditor',
   'SceneHub/Viewports',
   'SceneHub/Commands',
 

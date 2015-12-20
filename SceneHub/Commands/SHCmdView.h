@@ -2,21 +2,19 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SceneHub_CmdView_
-#define __FABRICUI_SceneHub_CmdView_
+#ifndef __UI_SCENEHUB_CMDVIEW_H__
+#define __UI_SCENEHUB_CMDVIEW_H__
 
 #include <QtGui/QWidget>
-#include <QtCore/QString>
 #include <QtGui/QUndoView>
 #include <QtGui/QLineEdit>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
 #include <QtGui/QPlainTextEdit>
-#include <FTL/JSONEnc.h>
-#include <FTL/OwnedPtr.h>
+
 #include <FabricUI/Util/macros.h>
-#include <FabricUI/SceneHub/Commands/SHDFGCmdHandler_QUndo.h>
+#include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
 
 
 namespace FabricUI
@@ -55,7 +53,7 @@ namespace FabricUI
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
         /// Reference to the SHCmdHandler.
-        SHDFGCmdHandler_QUndo m_shCmdHandler;
+        SHCmdHandler_QUndo m_shCmdHandler;
         /// Reference to the client --> construct RTVal.
         FabricCore::Client m_client;
         /// Reference to the SceneHub app.
@@ -64,4 +62,4 @@ namespace FabricUI
   };
 };
 
-#endif // __FABRICUI_SceneHub_CmdView_
+#endif // __UI_SCENEHUB_CMDVIEW_H__

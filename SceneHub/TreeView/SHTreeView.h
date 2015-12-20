@@ -1,9 +1,9 @@
 /*
- *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SceneHub_SHTreeView_h
-#define __FABRICUI_SceneHub_SHTreeView_h
+#ifndef __UI_SCENEHUB_SHTREEVIEW_H__
+#define __UI_SCENEHUB_SHTREEVIEW_H__
 
 #include <QtGui/QMenu>
 #include <QtGui/QDrag>
@@ -73,4 +73,4 @@ namespace FabricUI
   };
 };
 
-#endif // __FABRIC_SceneHubStandalone_SHTree_h
+#endif // __UI_SCENEHUB_SHTREEVIEW_H__

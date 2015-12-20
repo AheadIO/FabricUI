@@ -2,19 +2,10 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __FABRICUI_SceneHub_Cmd__
-#define __FABRICUI_SceneHub_Cmd__
+#ifndef __UI_SCENEHUB_CMD_H__
+#define __UI_SCENEHUB_CMD_H__
 
-#include <cctype>
-#include <stdexcept>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <FabricCore.h>
-#include <FTL/StrRef.h>
-#include <FTL/StrRef.h>
+
 #include <QtGui/QUndoCommand>
 #include <FabricUI/Util/macros.h>
  
@@ -201,4 +192,4 @@ namespace FabricUI
   };
 };
 
-#endif // __FABRICUI_SceneHub_Cmd__
+#endif // __UI_SCENEHUB_CMD_H__

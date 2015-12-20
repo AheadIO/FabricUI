@@ -1,8 +1,8 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
 #include "DFGValueEditor.h"
-#include "VariablePathValueItem.h"
-#include "VariablePathValueWidget.h"
 #include <QtGui/QMessageBox>
 #include <FTL/AutoSet.h>
 
@@ -10,13 +10,8 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGValueEditor::DFGValueEditor(
-  DFGController * controller,
-  const DFGConfig & config
-  )
-  : ValueEditor::ValueEditorWidget(
-    controller->getClient()
-    )
+DFGValueEditor::DFGValueEditor(DFGController * controller, const DFGConfig & config)
+  : ValueEditor::ValueEditorWidget( controller->getClient() )
   , m_config( config )
   , m_controller( controller )
 {
@@ -53,12 +48,7 @@ DFGValueEditor::DFGValueEditor(
   m_factory->registerEditor(&VariablePathValueWidget::creator, &VariablePathValueWidget::canDisplay);
 }
 
-DFGValueEditor::~DFGValueEditor()
-{
-}
-
-void DFGValueEditor::clear()
-{
+void DFGValueEditor::clear() {
   ValueEditor::ValueEditorWidget::clear();
 
   m_binding.invalidate();
@@ -67,10 +57,7 @@ void DFGValueEditor::clear()
   m_nodeName.clear();
 }
 
-void DFGValueEditor::setBinding(
-  FabricCore::DFGBinding const &binding
-  )
-{
+void DFGValueEditor::setBinding(FabricCore::DFGBinding const &binding) {
   m_binding = binding;
   m_execPath.clear();
   m_exec.invalidate();
@@ -83,9 +70,9 @@ void DFGValueEditor::setNode(
   FabricCore::DFGBinding const &binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::StrRef nodeName
-  )
+  FTL::StrRef nodeName)
 {
+  std::cerr << "DFGValueEditor::setNode" << std::endl;
   m_binding = binding;
   m_execPath = execPath;
   m_exec = exec;
@@ -94,8 +81,7 @@ void DFGValueEditor::setNode(
   onArgsChanged();
 }
 
-void DFGValueEditor::onArgsChanged()
-{
+void DFGValueEditor::onArgsChanged() {
   ValueEditor::ValueEditorWidget::clear();
 
   try
@@ -346,12 +332,7 @@ void DFGValueEditor::onArgsChanged()
   }
 }
 
-void DFGValueEditor::onNodeRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldNodeName,
-  FTL::CStrRef newNodeName 
-  )
-{
+void DFGValueEditor::onNodeRenamed(FTL::CStrRef execPath, FTL::CStrRef oldNodeName, FTL::CStrRef newNodeName) {
   if ( execPath == m_execPath && oldNodeName == m_nodeName )
     setNode(
       m_binding,
@@ -361,17 +342,12 @@ void DFGValueEditor::onNodeRenamed(
       );
 }
 
-void DFGValueEditor::onNodeRemoved(
-  FTL::CStrRef execPath,
-  FTL::CStrRef nodeName
-  )
-{
+void DFGValueEditor::onNodeRemoved(FTL::CStrRef execPath, FTL::CStrRef nodeName) {
   if ( execPath == m_execPath && nodeName == m_nodeName )
     clear();
 }
 
-void DFGValueEditor::updateOutputs()
-{
+void DFGValueEditor::updateOutputs() {
   FTL::AutoSet<bool> updatingOutputsAutoSet( m_updatingOutputs, true );
 
   if ( m_nodeName.empty() )

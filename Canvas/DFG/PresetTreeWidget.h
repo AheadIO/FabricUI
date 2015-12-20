@@ -16,7 +16,6 @@ namespace FabricUI
 
   namespace DFG
   {
-    
     class DFGController;
 
     class PresetTreeWidget : public QWidget

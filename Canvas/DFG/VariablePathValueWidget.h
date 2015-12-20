@@ -5,7 +5,7 @@
 
 #include <QtGui/QLineEdit>
 
-#include <FabricUI/Canvas/ValueEditor/ValueWidget.h>
+#include <FabricUI/ValueEditor/ValueWidget.h>
 #include "Dialogs/DFGVariablePathLineEdit.h"
 
 namespace FabricUI

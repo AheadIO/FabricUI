@@ -1,7 +1,9 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
 
-#ifndef __UI_SceneHub_SGGeometryManagerDialog__
-#define __UI_SceneHub_SGGeometryManagerDialog__
+#ifndef __UI_SCENEHUB_SGGEOMETRYMANAGERDIALOG_H__
+#define __UI_SCENEHUB_SGGEOMETRYMANAGERDIALOG_H__
 
 #include <QtCore/QPoint>
 #include <QtCore/QCoreApplication>
@@ -39,4 +41,4 @@ namespace FabricUI
   };
 };
 
-#endif // __UI_SceneHub_SGGeometryManagerDialog__
+#endif // __UI_SCENEHUB_SGGEOMETRYMANAGERDIALOG_H__
