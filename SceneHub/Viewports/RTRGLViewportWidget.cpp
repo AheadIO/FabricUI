@@ -354,6 +354,10 @@ void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
   onEvent(event);
 }
 
+void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
+  onEvent(event);
+}
+
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
   if(!event->isAccepted() && event->button() == Qt::RightButton) {
@@ -363,11 +367,11 @@ void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   emit synchronizeCommands(false);
 }
 
-void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
+void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
   onEvent(event);
 }
 
-void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {
+void RTRGLViewportWidget::keyReleaseEvent(QKeyEvent *event) {
   onEvent(event);
 }
 
