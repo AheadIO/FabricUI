@@ -78,7 +78,7 @@ uiLib = SConscript('SConscript',
 
   exports= {
     'parentEnv': env,
-    'stageDir': env.Dir('#').Dir('stage'),
+    'stageDir': env.Dir(fabricDir),
     'buildOS': buildOS,
     'buildArch': buildArch,
     'buildType': buildType,
@@ -93,6 +93,6 @@ uiLib = SConscript('SConscript',
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')
   env.Depends(pdbFile, uiLib)
-  uiLib += env.InstallAs(env.Dir('#').Dir('stage').Dir('lib').File('FabricUI.pdb'), pdbFile)
+  uiLib += env.InstallAs(env.Dir(fabricDir).Dir('lib').File('FabricUI.pdb'), pdbFile)
 
 env.Default(uiLib)

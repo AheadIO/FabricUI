@@ -362,6 +362,30 @@ namespace FabricUI
           emit varsChanged();
       }
 
+      void emitArgInserted(int index, const char* name, const char* type )
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_argsChangedPending = true;
+        else
+          emit argInserted(index, name, type);
+      }
+
+      void emitArgTypeChanged(int index, const char* name, const char* newType )
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_argsChangedPending = true;
+        else
+          emit argTypeChanged(index, name, newType);
+      }
+
+      void emitArgRemoved(int index, const char* name )
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_argsChangedPending = true;
+        else
+          emit argRemoved(index, name);
+      }
+
       void emitArgsChanged()
       {
         if ( m_updateSignalBlockCount > 0 )
@@ -458,6 +482,9 @@ namespace FabricUI
 
       void varsChanged();
       void argsChanged();
+      void argInserted( int index, const char* name, const char* type );
+      void argTypeChanged( int index, const char* name, const char* type );
+      void argRemoved( int index, const char* name );
       void argValuesChanged();
       void defaultValuesChanged();
       void dirty();
