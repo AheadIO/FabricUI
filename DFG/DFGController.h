@@ -393,13 +393,20 @@ namespace FabricUI
         else
           emit argsChanged();
       }
-
       void emitArgValuesChanged()
       {
-        if ( m_updateSignalBlockCount > 0 )
+        if (m_updateSignalBlockCount > 0)
           m_argValuesChangedPending = true;
         else
           emit argValuesChanged();
+
+      }
+      void emitArgsReordered( const FTL::JSONArray* newOrder )
+      {
+        if (m_updateSignalBlockCount > 0)
+          m_argsChangedPending = true;
+        else
+          emit argsReordered( newOrder );
       }
 
       void emitDefaultValuesChanged()
@@ -485,6 +492,8 @@ namespace FabricUI
       void argInserted( int index, const char* name, const char* type );
       void argTypeChanged( int index, const char* name, const char* type );
       void argRemoved( int index, const char* name );
+      void argsReordered( const FTL::JSONArray* newOrder );
+
       void argValuesChanged();
       void defaultValuesChanged();
       void dirty();

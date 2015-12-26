@@ -1252,7 +1252,7 @@ void DFGController::cmdReorderPorts(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoReorderPorts(
     binding,
@@ -1583,6 +1583,12 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     else if ( descStr == FTL_STR("argChanged") )
     {
       emitArgValuesChanged();
+    }
+    else if (descStr == FTL_STR( "argsReordered" ))
+    {
+      const FTL::JSONArray* newOrder = jsonObject->maybeGetArray( FTL_STR( "newOrder" ) );
+      if (newOrder != NULL)
+        emitArgsReordered( newOrder );
     }
     else if ( descStr == FTL_STR("varInserted")
       || descStr == FTL_STR("varRemoved") )
