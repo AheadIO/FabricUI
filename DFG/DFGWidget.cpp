@@ -90,7 +90,7 @@ DFGWidget::DFGWidget(
   if(binding.isValid())
   {
     FTL::StrRef editable = binding.getMetadata("editable");
-    if(editable == "false" || binding.getExec().isPreset())
+    if(editable == "false")
       m_isEditable = false;
   }
 
