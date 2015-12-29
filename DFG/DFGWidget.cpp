@@ -90,7 +90,7 @@ DFGWidget::DFGWidget(
   if(binding.isValid())
   {
     FTL::StrRef editable = binding.getMetadata("editable");
-    if(editable == "false")
+    if(editable == "false" || binding.getExec().isPreset())
       m_isEditable = false;
   }
 
@@ -355,6 +355,8 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
+  if (!graphWidget->getDFGController()->validPresetSplit())
+    return NULL;
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
@@ -394,8 +396,12 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
-  result->addAction(DFG_CREATE_PORT);
-  result->addSeparator();
+
+  if (graphWidget->getDFGController()->validPresetSplit())
+  {
+    result->addAction(DFG_CREATE_PORT);
+    result->addSeparator();
+  }
   result->addAction(DFG_SCROLL_UP);
   result->addAction(DFG_SCROLL_DOWN);
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
