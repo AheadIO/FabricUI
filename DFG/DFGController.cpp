@@ -1582,7 +1582,9 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     }
     else if ( descStr == FTL_STR("argChanged") )
     {
-      emitArgValuesChanged();
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      int index = jsonObject->getSInt32( FTL_STR("index") );
+      emitArgValuesChanged( index, name.c_str() );
     }
     else if (descStr == FTL_STR( "argsReordered" ))
     {

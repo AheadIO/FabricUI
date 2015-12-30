@@ -393,12 +393,12 @@ namespace FabricUI
         else
           emit argsChanged();
       }
-      void emitArgValuesChanged()
+      void emitArgValuesChanged(int index, const char* name)
       {
         if (m_updateSignalBlockCount > 0)
           m_argValuesChangedPending = true;
         else
-          emit argValuesChanged();
+          emit argValuesChanged(index, name);
 
       }
       void emitArgsReordered( const FTL::JSONArray* newOrder )
@@ -409,12 +409,12 @@ namespace FabricUI
           emit argsReordered( newOrder );
       }
 
-      void emitDefaultValuesChanged()
+      void emitDefaultValuesChanged(int index, const char* name)
       {
         if ( m_updateSignalBlockCount > 0 )
           m_defaultValuesChangedPending = true;
         else
-          emit defaultValuesChanged();
+          emit defaultValuesChanged(index, name);
       }
 
       void emitDirty()
@@ -459,12 +459,12 @@ namespace FabricUI
             if ( m_controller->m_argValuesChangedPending )
             {
               m_controller->m_argValuesChangedPending = false;
-              emit m_controller->argValuesChanged();
+              emit m_controller->argValuesChanged( -1, NULL );
             }
             if ( m_controller->m_defaultValuesChangedPending )
             {
               m_controller->m_defaultValuesChangedPending = false;
-              emit m_controller->defaultValuesChanged();
+              emit m_controller->defaultValuesChanged( -1, NULL );
             }
             if ( m_controller->m_dirtyPending )
             {
@@ -494,8 +494,8 @@ namespace FabricUI
       void argRemoved( int index, const char* name );
       void argsReordered( const FTL::JSONArray* newOrder );
 
-      void argValuesChanged();
-      void defaultValuesChanged();
+      void argValuesChanged( int index, const char* name );
+      void defaultValuesChanged( int index, const char* name );
       void dirty();
       void execSplitChanged();
 

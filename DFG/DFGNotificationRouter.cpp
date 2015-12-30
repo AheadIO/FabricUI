@@ -1328,14 +1328,14 @@ void DFGNotificationRouter::onNodePortDefaultValuesChanged(
   FTL::CStrRef portName
   )
 {
-  m_dfgController->emitDefaultValuesChanged();
+  m_dfgController->emitDefaultValuesChanged( -1, portName.c_str() );
 }
 
 void DFGNotificationRouter::onExecPortDefaultValuesChanged(
   FTL::CStrRef portName
   )
 {
-  m_dfgController->emitDefaultValuesChanged();
+  m_dfgController->emitDefaultValuesChanged( -1, portName.c_str() );
 }
 
 void DFGNotificationRouter::onRemovedFromOwner()
