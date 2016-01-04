@@ -144,6 +144,7 @@ TimeLineWidget::TimeLineWidget()
   m_loopModeComBox->addItem("Play Once");
   m_loopModeComBox->addItem("Loop");
   m_loopModeComBox->addItem("Oscillate");
+  m_loopModeComBox->setCurrentIndex(m_loopMode);
   layout()->addWidget(m_loopModeComBox);
 
   m_simModeComBox = new QComboBox(this);
