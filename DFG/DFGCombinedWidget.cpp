@@ -108,8 +108,23 @@ void DFGCombinedWidget::init(
         m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
         this, SLOT(onValueChanged())
         );
-      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)), this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)));
-      QObject::connect(m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)), this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)));
+      QObject::connect(
+        m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)),
+        this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*))
+        );
+      QObject::connect(
+        m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)),
+        this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*))
+        );
+
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+        m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+        );
+      QObject::connect(
+        m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+        m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
+        );
 
       QObject::connect(
         m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
@@ -134,7 +149,7 @@ void DFGCombinedWidget::init(
 
       QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
         this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
-      QObject::connect(m_dfgWidget->getUIController(), SIGNAL(varsChanged()), m_treeWidget, SLOT(refresh()));
+
       QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
     }
 
@@ -199,7 +214,7 @@ void DFGCombinedWidget::onStructureChanged()
 
 void DFGCombinedWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifiers, QString hotkey)
 {
-  if(hotkey == DFG_TOGGLE_SIDE_PANEL)
+  if(hotkey == DFGHotkeys::TOGGLE_SIDE_PANEL)
   {
     QList<int> s = m_hSplitter->sizes();
     if(s[0] != 0 || s[2] != 0)
@@ -224,22 +239,22 @@ void DFGCombinedWidget::onGraphSet(FabricUI::GraphView::Graph * graph)
   {
     if(m_dfgWidget->isEditable())
     {
-      graph->defineHotkey(Qt::Key_Delete,     Qt::NoModifier,       DFG_DELETE);
-      graph->defineHotkey(Qt::Key_Backspace,  Qt::NoModifier,       DFG_DELETE_2);
-      graph->defineHotkey(Qt::Key_F,          Qt::NoModifier,       DFG_FRAME_SELECTED);
-      graph->defineHotkey(Qt::Key_A,          Qt::NoModifier,       DFG_FRAME_ALL);
-      graph->defineHotkey(Qt::Key_Tab,        Qt::NoModifier,       DFG_TAB_SEARCH);
-      graph->defineHotkey(Qt::Key_A,          Qt::ControlModifier,  DFG_SELECT_ALL);
-      graph->defineHotkey(Qt::Key_C,          Qt::ControlModifier,  DFG_COPY);
-      graph->defineHotkey(Qt::Key_X,          Qt::ControlModifier,  DFG_CUT);
-      graph->defineHotkey(Qt::Key_V,          Qt::ControlModifier,  DFG_PASTE);
-      graph->defineHotkey(Qt::Key_Tab,        Qt::ControlModifier,  DFG_TOGGLE_SIDE_PANEL);
-      graph->defineHotkey(Qt::Key_F2,         Qt::NoModifier,       DFG_EDIT_PROPERTIES);
-      graph->defineHotkey(Qt::Key_R,          Qt::ControlModifier,  DFG_RELAX_NODES);
-      graph->defineHotkey(Qt::Key_0,          Qt::ControlModifier,  DFG_RESET_ZOOM);
-      graph->defineHotkey(Qt::Key_1,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_1);
-      graph->defineHotkey(Qt::Key_2,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_2);
-      graph->defineHotkey(Qt::Key_3,          Qt::NoModifier,       DFG_COLLAPSE_LEVEL_3);
+      graph->defineHotkey(Qt::Key_Delete,     Qt::NoModifier,       DFGHotkeys::DELETE_1);
+      graph->defineHotkey(Qt::Key_Backspace,  Qt::NoModifier,       DFGHotkeys::DELETE_2);
+      graph->defineHotkey(Qt::Key_F,          Qt::NoModifier,       DFGHotkeys::FRAME_SELECTED);
+      graph->defineHotkey(Qt::Key_A,          Qt::NoModifier,       DFGHotkeys::FRAME_ALL);
+      graph->defineHotkey(Qt::Key_Tab,        Qt::NoModifier,       DFGHotkeys::TAB_SEARCH);
+      graph->defineHotkey(Qt::Key_A,          Qt::ControlModifier,  DFGHotkeys::SELECT_ALL);
+      graph->defineHotkey(Qt::Key_C,          Qt::ControlModifier,  DFGHotkeys::COPY);
+      graph->defineHotkey(Qt::Key_X,          Qt::ControlModifier,  DFGHotkeys::CUT);
+      graph->defineHotkey(Qt::Key_V,          Qt::ControlModifier,  DFGHotkeys::PASTE);
+      graph->defineHotkey(Qt::Key_Tab,        Qt::ControlModifier,  DFGHotkeys::TOGGLE_SIDE_PANEL);
+      graph->defineHotkey(Qt::Key_F2,         Qt::NoModifier,       DFGHotkeys::EDIT_PROPERTIES);
+      graph->defineHotkey(Qt::Key_R,          Qt::ControlModifier,  DFGHotkeys::RELAX_NODES);
+      graph->defineHotkey(Qt::Key_0,          Qt::ControlModifier,  DFGHotkeys::RESET_ZOOM);
+      graph->defineHotkey(Qt::Key_1,          Qt::NoModifier,       DFGHotkeys::COLLAPSE_LEVEL_1);
+      graph->defineHotkey(Qt::Key_2,          Qt::NoModifier,       DFGHotkeys::COLLAPSE_LEVEL_2);
+      graph->defineHotkey(Qt::Key_3,          Qt::NoModifier,       DFGHotkeys::COLLAPSE_LEVEL_3);
 
       QObject::connect(graph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)),
         this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)));

@@ -3,7 +3,7 @@
 //
 
 #include <FabricUI/DFG/DFGUIUtil.h>
-#include <Services/CodeCompletion/KLTypeDesc.h>
+#include <FabricServices/CodeCompletion/KLTypeDesc.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 

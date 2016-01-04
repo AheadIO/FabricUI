@@ -1,0 +1,59 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+
+  <primitive-type name="std::string"/>
+
+  <load-typesystem name="typesystem_core.xml" generate="no"/>
+  <load-typesystem name="typesystem_gui.xml" generate="no"/>
+  <load-typesystem name="typesystem_opengl.xml" generate="no"/>
+
+  <load-typesystem name="fabricui_core.xml" generate="yes"/>
+
+  <namespace-type name="FabricUI" generate="no">
+    <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
+    <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
+
+    <namespace-type name="GraphView" generate="yes">
+      <object-type name="Controller" />
+      <object-type name="Graph" />
+      <object-type name="Node" />
+    </namespace-type>
+
+    <namespace-type name="Style" generate="yes">
+      <object-type name="FabricStyle" />
+    </namespace-type>
+
+    <namespace-type name="ValueEditor" generate="yes">
+      <object-type name="ValueEditorWidget" />
+    </namespace-type>
+
+  </namespace-type>
+
+  <namespace-type name="FabricServices" generate="no">
+    <namespace-type name="ASTWrapper" generate="no">
+      <object-type name="KLASTManager" copyable="false">
+        <modify-function signature="KLASTManager(const FabricCore::Client *)">
+          <modify-argument index="1">
+            <replace-type modified-type="PyObject"/>
+          </modify-argument>
+          <inject-code class="target" position="beginning">
+            FabricCore::Client *client_ptr = 0;
+
+            <insert-template name="to_cpp_Client">
+              <replace from="%INPUT" to="%PYARG_1"/>
+              <replace from="%OUTPUT" to="client_ptr"/>
+              <replace from="%DEREF" to=""/>
+            </insert-template>
+
+            if (!PyErr_Occurred()) {
+             %0 = new %TYPE(client_ptr);
+            }
+          </inject-code>
+        </modify-function>
+      </object-type>
+    </namespace-type>
+  </namespace-type>
+
+  <function signature="FabricUI_HandleLicenseData(QWidget*,FabricCore::Client&amp;,FTL::StrRef,bool)" rename="HandleLicenseData"/>
+
+</typesystem>

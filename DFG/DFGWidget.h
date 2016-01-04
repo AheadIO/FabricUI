@@ -42,7 +42,7 @@ namespace FabricUI
         FabricCore::DFGExec &exec,
         FabricServices::ASTWrapper::KLASTManager * manager,
         DFGUICmdHandler *cmdHandler,
-        const DFGConfig & dfgConfig = DFGConfig(),
+        const DFGConfig & dfgConfig,
         bool overTakeBindingNotifications = true
         );
       virtual ~DFGWidget();
@@ -59,12 +59,11 @@ namespace FabricUI
       DFGGraphViewWidget * getGraphViewWidget();
       DFGExecHeaderWidget * getHeaderWidget();
 
-      void setExecExtDeps( FTL::CStrRef extDeps );
-
       bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
       static void setSettings(QSettings * settings);
       
+      void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
 
       void populateMenuBar(QMenuBar * menuBar, bool addFileMenu = true);

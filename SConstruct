@@ -12,10 +12,11 @@ AddOption('--buildType',
                   action='store',
                   help='Type of build to perform (Release or Debug)')
 
-if not os.environ.has_key('QT_DIR'):
-  raise Exception("No QT_DIR environment variable specified.")
 if not os.environ.has_key('FABRIC_DIR'):
   raise Exception("No FABRIC_DIR environment variable specified.")
+
+#if not os.environ.has_key('SHIBOKEN_PYSIDE_DIR'):
+#  raise Exception("No SHIBOKEN_PYSIDE_DIR environment variable specified.")
 
 buildOS = 'Darwin'
 if platform.system().lower().startswith('win'):
@@ -32,11 +33,19 @@ if str(GetOption('buildType')).lower() == 'debug':
 env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
 
-qtDir = os.environ['QT_DIR']
+shibokenPysideDir = env.Dir('')
+if buildOS == 'Linux':
+  shibokenPysideDir = env.Dir(os.environ['SHIBOKEN_PYSIDE_DIR'])
+
+qtDir = None
 
 qtFlags = {}
 qtMOC = None
 if buildOS == 'Windows':
+  if not os.environ.has_key('QT_DIR'):
+    raise Exception("No QT_DIR environment variable specified.")
+
+  qtDir = os.environ['QT_DIR']
   if buildType == 'Debug':
     suffix = 'd4'
   else:
@@ -67,12 +76,12 @@ fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
   'CPPDEFINES': ['FEC_SHARED'],
   'CPPPATH': [
+    '..',
     os.path.join(fabricDir, 'include'),
     os.path.join(fabricDir, 'include', 'FabricServices'),
-    os.path.join(fabricDir, 'include', 'FabricUI'),
   ],
   'LIBPATH': [os.path.join(fabricDir, 'lib')],
-  'LIBS': ['FabricCore-2.0', 'FabricServices']
+  'LIBS': ['FabricCore', 'FabricServices']
 }
 uiLib = SConscript('SConscript',
 
@@ -87,8 +96,10 @@ uiLib = SConscript('SConscript',
     'qtFlags': qtFlags,
     'qtDir': qtDir,
     'uiLibPrefix': 'ui',
+    'shibokenPysideDir': shibokenPysideDir,
   },
-  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'))
+  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'),
+  duplicate=0)
 
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')

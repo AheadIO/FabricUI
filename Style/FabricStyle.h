@@ -18,7 +18,7 @@ namespace FabricUI
     public:
         FabricStyle() {}
 
-        void polish(QPalette &palette);
+        virtual void polish(QPalette &palette);
     };
 
   };

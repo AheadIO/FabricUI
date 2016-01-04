@@ -11,6 +11,7 @@ using namespace FabricUI::ValueEditor;
 
 ColorPickerWidget::ColorPickerWidget(QWidget * parent)
   : QWidget(parent)
+  , m_dialog( NULL )
   , m_valueItem(NULL)
 {
   setMinimumSize(60, 25);
@@ -20,41 +21,51 @@ ColorPickerWidget::ColorPickerWidget(QWidget * parent)
   m_colorG = 0.0;
   m_colorB = 0.0;
   m_colorA = 1.0;
+}
 
-  m_dialogConnected = false;
-  m_dialog = new QColorDialog( this );
-  m_dialog->setOptions(QColorDialog::ShowAlphaChannel);
-  m_dialog->setModal(true);
+ColorPickerWidget::~ColorPickerWidget()
+{
 }
 
 void ColorPickerWidget::mousePressEvent ( QMouseEvent * event )
 {
   if(m_enabled)
   {
-    m_prevColorR = m_colorR;
-    m_prevColorG = m_colorG;
-    m_prevColorB = m_colorB;
-    m_prevColorA = m_colorA;
+    if ( m_dialog )
+      m_dialog->close();
+
+    m_dialog = new QColorDialog;
+    m_dialog->setAttribute( Qt::WA_DeleteOnClose, true );
+    m_dialog->setOptions(
+        QColorDialog::ShowAlphaChannel
+      | QColorDialog::DontUseNativeDialog
+      );
+    m_dialog->setModal(true);
 
     m_dialog->setCurrentColor(
       QColor( int( m_colorR * 255.0f ), int( m_colorG * 255.0f ),
               int( m_colorB * 255.0f ), int( m_colorA * 255.0f ) ) );
 
-    if(!m_dialogConnected)
-    {
-      connect(m_dialog, SIGNAL(accepted()), m_valueItem, SLOT(onDialogAccepted()));
-      connect(m_dialog, SIGNAL(rejected()), m_valueItem, SLOT(onDialogCanceled()));
-      connect(m_dialog, SIGNAL(currentColorChanged(const QColor &)), m_valueItem, SLOT(onColorChosen(const QColor &)));
-      m_dialogConnected = true;
-    }
+    connect(
+      m_dialog, SIGNAL(accepted()),
+      m_valueItem, SLOT(onDialogAccepted())
+      );
+    connect(
+      m_dialog, SIGNAL(rejected()),
+      m_valueItem, SLOT(onDialogCanceled())
+      );
+    connect(
+      m_dialog, SIGNAL(currentColorChanged(const QColor &)),
+      m_valueItem, SLOT(onColorChosen(const QColor &))
+      );
 
     m_valueItem->onBeginInteraction(m_valueItem);
 
     m_dialog->show();
-    return;
+    
+    event->accept();
   }
-
-  QWidget::mousePressEvent(event);
+  else QWidget::mousePressEvent(event);
 }
 
 void ColorPickerWidget::paintEvent ( QPaintEvent * event )

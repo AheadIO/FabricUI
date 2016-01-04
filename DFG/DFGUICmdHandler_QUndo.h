@@ -7,7 +7,7 @@
 
 #include <QtGui/QUndoStack>
 
-FABRIC_UI_DFG_NAMESPACE_BEGIN
+namespace FabricUI { namespace DFG {
 
 class DFGUICmdHandler_QUndo : public DFGUICmdHandler
 {
@@ -107,15 +107,24 @@ public:
     FTL::CStrRef metaData
     );
 
+  virtual std::string dfgDoCreatePreset(
+    FabricCore::DFGBinding const &binding,
+    FTL::StrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef nodeName,
+    FTL::StrRef presetDirPath,
+    FTL::StrRef presetName
+    );
+
   virtual std::string dfgDoEditPort(
-      FabricCore::DFGBinding const &binding,
-      FTL::CStrRef execPath,
-      FabricCore::DFGExec const &exec,
-      FTL::StrRef oldPortName,
-      FTL::StrRef desiredNewPortName,
-      FTL::StrRef typeSpec,
-      FTL::StrRef extDep,
-      FTL::StrRef uiMetadata
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef oldPortName,
+    FTL::StrRef desiredNewPortName,
+    FTL::StrRef typeSpec,
+    FTL::StrRef extDep,
+    FTL::StrRef uiMetadata
     );
 
   virtual void dfgDoRemovePort(
@@ -165,11 +174,10 @@ public:
     QPointF pos
     );
 
-  virtual void dfgDoSetNodeTitle(
+  virtual void dfgDoSetTitle(
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
-    FTL::CStrRef nodeName,
     FTL::CStrRef newTitle
     );
 
@@ -186,6 +194,16 @@ public:
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec,
     FTL::CStrRef code
+    );
+
+  virtual std::string dfgDoEditNode(
+    FabricCore::DFGBinding const &binding,
+    FTL::CStrRef execPath,
+    FabricCore::DFGExec const &exec,
+    FTL::StrRef oldNodeName,
+    FTL::StrRef desiredNewNodeName,
+    FTL::StrRef nodeMetadata,
+    FTL::StrRef execMetadata
     );
 
   virtual std::string dfgDoRenamePort(
@@ -261,6 +279,6 @@ private:
   QUndoStack *m_qUndoStack;
 };
 
-FABRIC_UI_DFG_NAMESPACE_END
+}}
 
 #endif // __UI_DFG_DFGUICmdHandler_QUndo__

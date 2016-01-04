@@ -313,6 +313,28 @@ std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
   return cmd->getActualNewPortName();
 }
 
+std::string DFGUICmdHandler_QUndo::dfgDoCreatePreset(
+  FabricCore::DFGBinding const &binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::StrRef nodeName,
+  FTL::StrRef presetDirPath,
+  FTL::StrRef presetName
+  )
+{
+  DFGUICmd_CreatePreset *cmd =
+    new DFGUICmd_CreatePreset(
+      binding,
+      execPath,
+      exec,
+      nodeName,
+      presetDirPath,
+      presetName
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getPathname();
+}
+
 void DFGUICmdHandler_QUndo::dfgDoRemovePort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
@@ -434,20 +456,18 @@ void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void DFGUICmdHandler_QUndo::dfgDoSetNodeTitle(
+void DFGUICmdHandler_QUndo::dfgDoSetTitle(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
-  FTL::CStrRef nodeName,
   FTL::CStrRef newTitle
   )
 {
-  DFGUICmd_SetNodeTitle *cmd =
-    new DFGUICmd_SetNodeTitle(
+  DFGUICmd_SetTitle *cmd =
+    new DFGUICmd_SetTitle(
       binding,
       execPath,
       exec,
-      nodeName,
       newTitle
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
@@ -507,6 +527,30 @@ std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewPortName();
+}
+
+std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
+  FabricCore::DFGBinding const &binding,
+  FTL::CStrRef execPath,
+  FabricCore::DFGExec const &exec,
+  FTL::StrRef oldNodeName,
+  FTL::StrRef desiredNewNodeName,
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
+  )
+{
+  DFGUICmd_EditNode *cmd =
+    new DFGUICmd_EditNode(
+      binding,
+      execPath,
+      exec,
+      oldNodeName,
+      desiredNewNodeName,
+      nodeMetadata,
+      execMetadata
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+  return cmd->getActualNewNodeName();
 }
 
 std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(

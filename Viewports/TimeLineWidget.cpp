@@ -125,6 +125,7 @@ TimeLineWidget::TimeLineWidget()
   m_frameRateComboBox->addItem("12.0 fps", QVariant(12.0));
   m_frameRateComboBox->addItem("23.98 fps", QVariant(23.98));
   m_frameRateComboBox->addItem("24.0 fps", QVariant(24.0));
+  m_frameRateComboBox->addItem("25.0 fps", QVariant(25.0));  
   m_frameRateComboBox->addItem("29.97 fps", QVariant(29.97));
   m_frameRateComboBox->addItem("30.0 fps", QVariant(30.0));
   m_frameRateComboBox->addItem("48.0 fps", QVariant(48.0));
@@ -309,6 +310,33 @@ void TimeLineWidget::setSimulationMode(int mode)
 {
   m_simModeComBox->setCurrentIndex(mode);
   simModeChanged(mode);
+}
+
+void TimeLineWidget::setTimerFromInterval(int interval)
+{
+  if (interval <= 1)
+  {
+    // use "max fps".
+    m_timer->setInterval(1);
+    m_frameRateComboBox->setCurrentIndex(0);
+  }
+  else
+  {
+    // set the timer interval and try to find a matching framerate for it.
+    m_timer->setInterval(interval);
+    for (int i=0;i<m_frameRateComboBox->count();i++)
+    {
+      double fps = atof(m_frameRateComboBox->itemText(i).toUtf8().constData());
+      if (fps > 0 && (int)(1000.0 / fps) == interval)
+      {
+        m_frameRateComboBox->setCurrentIndex(i);
+        return;
+      }
+    }
+    // no match found, so we set the custom fps instead.
+    m_frameRateComboBox->setItemText(m_frameRateComboBox->count() - 1, "custom " + QString::number(1000 / interval));
+    m_frameRateComboBox->setCurrentIndex(m_frameRateComboBox->count() - 1);
+  }
 }
 
 void TimeLineWidget::updateFrameRange()

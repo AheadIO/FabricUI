@@ -352,12 +352,10 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
       }
 
       // remove unrequired spaces
-      while(prefix.length() > 0 && klCode.at(initialPos) == ' ')
+      while(prefix.length() > 0 && initialPos < klCode.length() && klCode.at(initialPos) == ' ')
       {
         prefix = prefix.substr(1);
         initialPos++;
-        if(initialPos == klCode.length())
-          break;
       }
 
       prefix = "\n" + prefix;

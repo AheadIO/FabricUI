@@ -5,6 +5,7 @@
 
 #include <FabricCore.h>
 
+#include <QtGui/QApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 
@@ -29,18 +30,21 @@ namespace FabricUI
       DFGExecHeaderWidget(
         QWidget * parent,
         DFGController *dfgController,
-        QString caption,
         const GraphView::GraphConfig & config = GraphView::GraphConfig()
         );
       virtual ~DFGExecHeaderWidget();
-
-      QString caption() const;
-      QString captionSuffix() const;
-      QFont font() const;
-      QColor fontColor() const;
-      bool italic() const;
       
+      void refreshTitle( FTL::CStrRef title );
       void refreshExtDeps( FTL::CStrRef extDeps );
+
+      // return true if the req. exts QLineEdit
+      // widget has the keyboard focus..
+      bool reqExtLineEditWidgetHasFocus() const;
+
+      // discard the changes made in the req. exts
+      // QLineEdit widget and remove the keyboard focus.
+      // returns true on success.
+      bool reqExtLineEditWidgetClearFocus();
 
     signals:
 
@@ -49,12 +53,11 @@ namespace FabricUI
     public slots:
 
       void refresh();
-      void setFont(QFont f);
-      void setFontColor(QColor c);
       void onExecChanged();
 
     protected:
 
+      FTL::CStrRef getExecPath();
       FabricCore::DFGExec &getExec();
 
       virtual void paintEvent(QPaintEvent * event);
@@ -62,23 +65,19 @@ namespace FabricUI
     protected slots:
 
       void reqExtEditingFinished();
-      void reqExtReturnPressed();
       void onSplitFromPresetClicked();
 
     private:
 
       DFGController *m_dfgController;
-      QFont m_font;
-      QColor m_fontColor;
-      QString m_caption;
-      QString m_captionSuffix;
+      QLabel *m_execPathLabel;
+      QLabel *m_presetNameLabel;
+      QLabel *m_reqExtLabel;
       QLineEdit *m_reqExtLineEdit;
       QPushButton * m_goUpButton;
       QColor m_backgroundColor;
       QPen m_pen;
-      GraphView::GraphConfig m_config;
       QWidget *m_presetSplitWidget;
-      QLabel *m_captionLabel;
 
     };
 

@@ -58,6 +58,12 @@ namespace FabricUI
         /// sets the sim mode
         void setSimulationMode(int mode);
 
+        /// pointer at QTimer
+        QTimer *getTimer()  { return m_timer; }
+
+        /// set the timer from a QTimer interval.
+        void setTimerFromInterval(int interval);
+
       signals :
         /// this signal is emited when ever the time on the widget changed
         /// client would connect this slight to any slots that need to know about the time

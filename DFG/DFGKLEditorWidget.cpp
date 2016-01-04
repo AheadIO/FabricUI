@@ -87,14 +87,14 @@ DFGKLEditorWidget::DFGKLEditorWidget(
 
   m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
-  m_diagsView = new QListView;
-  m_diagsView->setModel( &m_diagsModel );
+  m_diagsText = new QPlainTextEdit(this);
+  m_diagsText->setReadOnly(true);
 
   splitter->addWidget(m_ports);
   splitter->setStretchFactor(0, 1);
   splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(1, 7);
-  splitter->addWidget(m_diagsView);
+  splitter->addWidget(m_diagsText);
   splitter->setStretchFactor(0, 1);
 
   layout->addWidget(buttonsWidget);
@@ -309,24 +309,40 @@ void DFGKLEditorWidget::save()
 
 void DFGKLEditorWidget::updateDiags( bool saving )
 {
-  FabricCore::DFGExec &exec = m_controller->getExec();
-  unsigned errorCount;
-  if ( !!exec )
-    errorCount = exec.getErrorCount();
-  else
-    errorCount = 0;
+  QString stringList;
 
-  QStringList stringList;
-  for ( unsigned i = 0; i < errorCount; ++i )
+  if ( FabricCore::DFGExec exec = m_controller->getExec() )
   {
-    FTL::CStrRef error = exec.getError( i );
-    stringList.append( error.c_str() );
+    try
+    {
+      FabricCore::String errorsJSON = exec.getErrors( true );
+      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+        );
+      unsigned errorCount = errorsJSONArray->size();
+      for(unsigned i=0;i<errorCount;i++)
+      {
+        FTL::JSONString *errorJSONString =
+          errorsJSONArray->get( i )->cast<FTL::JSONString>();
+        stringList.append( errorJSONString->getValue().c_str());
+        stringList.append("\n");
+      }
+    }
+    catch ( FTL::JSONException e )
+    {
+      std::cout
+        << "Caught exception: "
+        << e.getDesc()
+        << "\n";
+    }
   }
 
-  m_diagsModel.setStringList( stringList );
-  m_diagsView->setVisible( errorCount > 0 );
+  m_diagsText->setPlainText(stringList);
+  m_diagsText->setVisible( stringList.size() > 0 );
 
-  if ( saving && errorCount == 0 )
+  if ( saving && stringList.size() == 0 )
     m_controller->log("Save successful.");
 }
 

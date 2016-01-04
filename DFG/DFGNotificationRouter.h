@@ -7,6 +7,7 @@
 #include <FTL/CStrRef.h>
 #include <FTL/JSONValue.h>
 #include <FabricUI/DFG/DFGConfig.h>
+#include <FabricUI/GraphView/Node.h>
 
 namespace FabricUI
 {
@@ -76,8 +77,12 @@ namespace FabricUI
         FTL::CStrRef value
         );
       void onNodeTitleChanged(
-        FTL::CStrRef nodePath,
+        FTL::CStrRef nodeName,
         FTL::CStrRef title
+        );
+      void onNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
         );
       void onExecPortRenamed(
         FTL::CStrRef oldPortName,
@@ -148,6 +153,9 @@ namespace FabricUI
       void onFuncCodeChanged(
         FTL::CStrRef code
         );
+      void onExecTitleChanged(
+        FTL::CStrRef title
+        );
       void onExecExtDepsChanged(
         FTL::CStrRef extDeps
         );
@@ -182,15 +190,15 @@ namespace FabricUI
         FTL::CStrRef nodeName,
         FTL::CStrRef presetFilePath
         );
-      void onExecPresetFileRefCountDidChange(
-        int newPresetFileRefCount
-        );
-      void onInstExecPresetFileRefCountDidChange(
-        FTL::CStrRef nodeName,
-        int newPresetFileRefCount
+      void onExecEditWouldSplitFromPresetMayHaveChanged();
+      void onInstExecEditWouldSplitFromPresetMayHaveChanged(
+        FTL::CStrRef instName
         );
 
     private:
+
+      void checkAndFixPanelPortOrder();
+      void checkAndFixNodePortOrder(FabricCore::DFGExec &nodeExec, GraphView::Node *uiNode);
 
       void callback( FTL::CStrRef jsonStr );
 

@@ -33,7 +33,7 @@ public:
 
 protected:
 
-  FTL::CStrRef getTitle()
+  FTL::CStrRef getText()
     { return getPrimaryArg(); }
   
   virtual void appendDesc( std::string &desc );

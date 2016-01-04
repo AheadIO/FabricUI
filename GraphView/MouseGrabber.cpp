@@ -312,48 +312,62 @@ QMenu * MouseGrabber::createNodeHeaderMenu(Node * node, ConnectionTarget * other
 {
   QMenu *menu = new QMenu(NULL);
 
+  // go through all the node's pins and add
+  // those to the menu that can be connected.
   unsigned int count = 0;
   for(unsigned int i=0;i<node->pinCount();i++)
   {
-    Pin * pin = node->pin(i);
+    Pin *pin = node->pin(i);
 
-    if(nodeRole == PortType_Output && pin->portType() == nodeRole)
-      continue;
+    if(nodeRole == PortType_Output && pin->portType() == PortType_Output)
+      continue; // skip this pin (an output port cannot be connected with another output port).
 
-    if(other)
+    if (other)
     {
-      if(nodeRole == PortType_Output)
+      if (nodeRole == PortType_Output)
       {
         std::string failureReason;
-        if(!other->canConnectTo(pin, failureReason))
-          continue;
+        if (!other->canConnectTo(pin, failureReason))
+          continue; // skip this pin (it cannot be connected)
       }
-      else if(nodeRole == PortType_Input)
+      else if (nodeRole == PortType_Input)
       {
         std::string failureReason;
-        if(!pin->canConnectTo(other, failureReason))
-          continue;
+        if (!pin->canConnectTo(other, failureReason))
+          continue; // skip this pin (it cannot be connected)
       }
     }
 
+    // construct the label for the menu.
     QString name = pin->name().c_str();
     QString label;
-    if(nodeRole == PortType_Input)
-      label = "> "+name;
+    if (nodeRole == PortType_Input)
+    {
+      if (pin->portType() == PortType_Input)
+        label = name + " =";
+      else
+        label = name + " >";
+    }
     else
-      label = name+" <";
+    {
+      label = "> " + name;
+    }
+
+    // create an action using our label and add it to the menu.
     QAction * action = new QAction(label, NULL);
     action->setData(name);
     menu->addAction(action);
     count++;
   }
 
-  if(count == 0)
+  // do we have an empty menu?
+  if (count == 0)
   {
     delete menu;
     menu = NULL;
   }
 
+  // done.
   return menu;
 }
 

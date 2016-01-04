@@ -230,6 +230,7 @@ void PresetTreeWidget::onCustomContextMenuRequested(QPoint globalPos, FabricUI::
   m_contextPath = item->path();
 
   QMenu menu(NULL);
+  menu.addAction("Refresh");
   if(item->type() == "NameSpace" || item->type() == "Preset")
     menu.addAction("Open Folder");
   if(item->type() == "Preset")
@@ -241,7 +242,17 @@ void PresetTreeWidget::onCustomContextMenuRequested(QPoint globalPos, FabricUI::
 
 void PresetTreeWidget::onContextMenuAction(QAction * action)
 {
-  if(action->text() == "Open Folder" || action->text() == "Open File")
+  if(action->text() == "Refresh")
+  {
+    try
+    {
+      refresh();
+    }
+    catch(FabricCore::Exception e)
+    {
+    }
+  }
+  else if(action->text() == "Open Folder" || action->text() == "Open File")
   {
     try
     {
