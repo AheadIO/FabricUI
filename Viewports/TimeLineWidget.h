@@ -31,6 +31,9 @@ namespace FabricUI
         TimeLineWidget();
         ~TimeLineWidget() {};
 
+        // loop mode constants.
+        #define DEFAULT_LOOP_MODE   1
+
         /// update the internal time and also emit the signals
         void updateTime(int frame, bool onLoadingScene = false);
 

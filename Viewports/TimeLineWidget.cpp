@@ -21,7 +21,7 @@ TimeLineWidget::TimeLineWidget()
   m_direction = 1;
 
   // default looping ( 0 )
-  m_loopMode = 1;
+  m_loopMode = DEFAULT_LOOP_MODE;
 
   // default playback sim
   m_simMode = 0;
@@ -141,8 +141,8 @@ TimeLineWidget::TimeLineWidget()
   m_loopModeComBox->setFrame(false);
   m_loopModeComBox->setLayoutDirection(Qt::LeftToRight);
   m_loopModeComBox->setEditable(false);
-  m_loopModeComBox->addItem("Loop Once");
-  m_loopModeComBox->addItem("Continuous");
+  m_loopModeComBox->addItem("Play Once");
+  m_loopModeComBox->addItem("Loop");
   m_loopModeComBox->addItem("Oscillate");
   layout()->addWidget(m_loopModeComBox);
 
