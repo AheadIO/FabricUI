@@ -1232,7 +1232,7 @@ void DFGController::cmdReorderPorts(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoReorderPorts(
     binding,
@@ -1534,17 +1534,48 @@ void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
     {
       emitDirty();
     }
-    else if ( descStr == FTL_STR("argTypeChanged")
-      || descStr == FTL_STR("argInserted")
-      || descStr == FTL_STR("argRemoved")
-      || descStr == FTL_STR("argsReordered") )
+    else if ( descStr == FTL_STR("argInserted") )
     {
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      FTL::CStrRef type = jsonObject->getStringOrEmpty( FTL_STR( "type" ) );
+      int index = jsonObject->getSInt32( FTL_STR("index") );
+      
+      emitArgInserted( index, name.c_str(), type.c_str() );
       bindUnboundRTVals();
-      emitArgsChanged();
+    }
+    else if ( descStr == FTL_STR("argTypeChanged") )
+    {
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      FTL::CStrRef type = jsonObject->getString( FTL_STR("newType") );
+      int index = jsonObject->getSInt32( FTL_STR("index") );
+      
+      emitArgTypeChanged( index, name.c_str(), type.c_str() );
+      bindUnboundRTVals();
+    }
+    else if ( descStr == FTL_STR("argRemoved") )
+    {
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      int index = jsonObject->getSInt32( FTL_STR("index") );
+      
+      emitArgRemoved( index, name.c_str() );
+      bindUnboundRTVals();
     }
     else if ( descStr == FTL_STR("argChanged") )
     {
-      emitArgValuesChanged();
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      int index = jsonObject->getSInt32( FTL_STR("index") );
+      emitArgValuesChanged( index, name.c_str() );
+    }
+    else if (descStr == FTL_STR( "argsReordered" ))
+    {
+      const FTL::JSONArray* newOrder = jsonObject->maybeGetArray( FTL_STR( "newOrder" ) );
+      if (newOrder != NULL)
+        emitArgsReordered( newOrder );
+    }
+    else if ( descStr == FTL_STR("varInserted")
+      || descStr == FTL_STR("varRemoved") )
+    {
+      emitVarsChanged();
     }
     else if ( descStr == FTL_STR("varInserted")
       || descStr == FTL_STR("varRemoved") )
@@ -1971,7 +2002,7 @@ std::string DFGController::cmdAddPort(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddPort(
     getBinding(),
@@ -2015,7 +2046,7 @@ std::string DFGController::cmdEditPort(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoEditPort(
     getBinding(),
@@ -2036,7 +2067,7 @@ void DFGController::cmdRemovePort(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoRemovePort(
     getBinding(),

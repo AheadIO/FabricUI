@@ -103,6 +103,7 @@ dirs = [
   'SceneHub',
   'Viewports',
   'Licensing',
+  'ModelItems'
 ]
 
 includeDir = stageDir.Dir('include').Dir('FabricServices')
