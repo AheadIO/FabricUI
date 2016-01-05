@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="11.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{19ECE0BC-7BF0-4485-8375-A0637E288F33}</ProjectGuid>
+    <RootNamespace>ValueEditor</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="QtMoc\QtMocRule.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(QT_DIR)include;$(FABRIC_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FEC_STATIC;_DEBUG;VALUEEDITOR_BUILD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>QtCore4.lib;QtGui4.lib;FabricCore-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QT_DIR)lib;$(FABRIC_DIR)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <CustomBuildStep>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir "$(FABRIC_DIR)include/ValueEditor"
+copy *.h "$(FABRIC_DIR)include/ValueEditor"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir "$(FABRIC_DIR)include/ValueEditor"
+copy *.h "$(FABRIC_DIR)include/ValueEditor"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir "$(FABRIC_DIR)include/ValueEditor"
+copy *.h "$(FABRIC_DIR)include/ValueEditor"
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mkdir "$(FABRIC_DIR)include/ValueEditor"
+copy *.h "$(FABRIC_DIR)include/ValueEditor"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BaseComplexViewItem.cpp" />
+    <ClCompile Include="BaseModelItem.cpp" />
+    <ClCompile Include="BaseViewItem.cpp" />
+    <ClCompile Include="ColorViewItem.cpp" />
+    <ClCompile Include="DefaultViewItem.cpp" />
+    <ClCompile Include="DoubleSlider.cpp" />
+    <ClCompile Include="FloatSliderViewItem.cpp" />
+    <ClCompile Include="FloatViewItem.cpp" />
+    <ClCompile Include="BaseViewItemCreator.cpp" />
+    <ClCompile Include="QVariantRTVal.cpp" />
+    <ClCompile Include="RTValViewItem.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Vec3ViewItem.cpp" />
+    <ClCompile Include="VETreeWidget.cpp" />
+    <ClCompile Include="VETreeWidgetItem.cpp" />
+    <ClCompile Include="ViewItemChildRouter.cpp" />
+    <ClCompile Include="ViewItemFactory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMOC Include="BaseViewItem.h" />
+    <ClInclude Include="BaseComplexViewItem.h" />
+    <ClInclude Include="BaseViewItemCreator.h" />
+    <QtMOC Include="ColorViewItem.h" />
+    <ClInclude Include="DefaultViewItem.h" />
+    <ClInclude Include="DllExport.h" />
+    <QtMOC Include="BaseModelItem.h" />
+    <ClInclude Include="RTValViewItem.h" />
+    <QtMOC Include="FloatViewItem.h" />
+    <QtMOC Include="FloatSliderViewItem.h" />
+    <QtMOC Include="DoubleSlider.h" />
+    <ClInclude Include="QVariantRTVal.h" />
+    <ClInclude Include="StdAfx.h" />
+    <QtMOC Include="Vec3ViewItem.h" />
+    <QtMOC Include="VETreeWidget.h" />
+    <ClInclude Include="VETreeWidgetItem.h" />
+    <QtMOC Include="ViewItemChildRouter.h" />
+    <ClInclude Include="ViewItemFactory.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="QtMoc\QtMocRule.targets" />
+  </ImportGroup>
+</Project>
