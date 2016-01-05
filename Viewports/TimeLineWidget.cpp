@@ -20,8 +20,8 @@ TimeLineWidget::TimeLineWidget()
   // default direction is forward
   m_direction = 1;
 
-  // default looping ( 0 )
-  m_loopMode = 1;
+  // default looping
+  m_loopMode = LOOP_MODE_DEFAULT;
 
   // default playback sim
   m_simMode = 0;
@@ -141,9 +141,10 @@ TimeLineWidget::TimeLineWidget()
   m_loopModeComBox->setFrame(false);
   m_loopModeComBox->setLayoutDirection(Qt::LeftToRight);
   m_loopModeComBox->setEditable(false);
-  m_loopModeComBox->addItem("Loop Once");
-  m_loopModeComBox->addItem("Continuous");
+  m_loopModeComBox->addItem("Play Once");
+  m_loopModeComBox->addItem("Loop");
   m_loopModeComBox->addItem("Oscillate");
+  m_loopModeComBox->setCurrentIndex(m_loopMode);
   layout()->addWidget(m_loopModeComBox);
 
   m_simModeComBox = new QComboBox(this);
@@ -357,6 +358,8 @@ void TimeLineWidget::play()
   }
   else
   {
+    if (m_loopMode == LOOP_MODE_PLAY_ONCE && getTime() >=  m_endSpinBox->value())
+      goToStartFrame();
     m_timer->start();
     m_playButton->setText("||");
   }
@@ -401,40 +404,63 @@ void TimeLineWidget::goToEndFrame()
 
 void TimeLineWidget::timerUpdate()
 {
-  int newTime = getTime()+m_direction;
-  if ( newTime > m_endSpinBox->value() )
+  // calculate new time.
+  int newTime = getTime() + m_direction;
+
+  // case 1: new time is inside the time range.
+  if (newTime >= m_startSpinBox->value() && newTime <= m_endSpinBox->value())
   {
-    if ( m_loopMode == 0 )
-      play();
-    else if ( m_loopMode == 1 )
-    {
-      goToStartFrame();
-    }
-    else
-    {
-      m_direction *= -1;
-      newTime = getTime()+m_direction;
-      setTime( newTime );
-    }
-  }
-  else if ( newTime < m_startSpinBox->value() )
-  {
-    if ( m_loopMode )
-      play();
-    else if (m_loopMode == 1)
-      goToEndFrame();
-    else
-    {
-      m_direction = -1;
-      newTime = getTime()+m_direction;
-      setTime( newTime );
-    }
-  }
-  else
-  {
-    setTime( newTime );
+    setTime(newTime);
   }
 
+  // case 2: new time is outside the time range.
+  else
+  {
+    // case 2a: new time is greater than the time range end.
+    if (newTime > m_endSpinBox->value())
+    {
+      switch (m_loopMode)
+      {
+        case LOOP_MODE_PLAY_ONCE:
+        {
+          pause();
+        } break;
+        case LOOP_MODE_LOOP:
+        {
+          goToStartFrame();
+        } break;
+        case LOOP_MODE_OSCILLATE:
+        {
+          m_direction = -1;
+          newTime = m_endSpinBox->value() + m_direction;
+          setTime(newTime);
+        } break;
+        default:
+        {
+          pause();
+        } break;
+      }
+    }
+
+    // case 2b: new time is less than the time range start.
+    else
+    {
+      switch (m_loopMode)
+      {
+        case LOOP_MODE_OSCILLATE:
+        {
+          m_direction = 1;
+          newTime = m_startSpinBox->value() + m_direction;
+          setTime(newTime);
+        } break;
+        default:
+        {
+          m_direction = 1;
+          goToStartFrame();
+        } break;
+      }
+    }
+  }
 }
 
 void TimeLineWidget::frameRateChanged(int index)
