@@ -16,7 +16,7 @@ VariablePathValueItem::VariablePathValueItem(
   FTL::StrRef label,
   bool enabled
   )
-  : ValueEditor::ValueItem(
+  : ValueEditor_Legacy::ValueItem(
     name,
     factory,
     client,

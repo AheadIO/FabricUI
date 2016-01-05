@@ -12,7 +12,7 @@
 #include "DFGBaseDialog.h"
 #include "DFGRegisteredTypeLineEdit.h"
 #include "DFGExtensionLineEdit.h"
-#include <FabricUI/ValueEditor/ColorValueWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ColorValueWidget.h>
 
 namespace FabricUI
 {

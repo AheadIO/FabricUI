@@ -1070,7 +1070,7 @@ void DFGController::execute()
   }
 }
 
-void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1270,11 +1270,11 @@ void DFGController::cmdSplitFromPreset()
     );
 }
 
-void DFGController::onValueItemInteractionEnter( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionEnter( ValueEditor_Legacy::ValueItem *valueItem )
 {
 }
 
-void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1340,7 +1340,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
   }
 }
 
-void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *valueItem )
 {
   UpdateSignalBlocker blocker( this );
 

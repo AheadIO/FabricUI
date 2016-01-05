@@ -5,7 +5,7 @@
 
 #include <QtGui/QLineEdit>
 
-#include <FabricUI/ValueEditor/ValueWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ValueWidget.h>
 #include "Dialogs/DFGVariablePathLineEdit.h"
 
 namespace FabricUI
@@ -13,7 +13,7 @@ namespace FabricUI
 
   namespace DFG
   {
-    class VariablePathValueWidget : public ValueEditor::ValueWidget
+    class VariablePathValueWidget : public ValueEditor_Legacy::ValueWidget
     {
       Q_OBJECT
 

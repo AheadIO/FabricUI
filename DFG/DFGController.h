@@ -10,12 +10,12 @@
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/BackDropNode.h>
-#include <FabricUI/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor_Legacy/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
 
-using namespace FabricUI::ValueEditor;
+using namespace FabricUI::ValueEditor_Legacy;
 
 namespace FabricUI
 {

@@ -3,8 +3,8 @@
 #include "VariablePathValueWidget.h"
 #include "VariablePathValueItem.h"
 #include "Dialogs/DFGVariablePathLineEdit.h"
-#include <FabricUI/ValueEditor/ValueItem.h>
-#include <FabricUI/ValueEditor/ValueWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ValueItem.h>
+#include <FabricUI/ValueEditor_Legacy/ValueWidget.h>
 
 using namespace FabricUI;
 using namespace FabricUI::DFG;
@@ -52,7 +52,7 @@ void VariablePathValueWidget::onValueChangedInLineEdit()
   m_changingValue = true;
 
   QString s = m_lineEdit->text();
-  m_value = FabricCore::RTVal::ConstructString(*((ValueEditor::ValueItem*)item())->client(), s.toUtf8().constData());
+  m_value = FabricCore::RTVal::ConstructString(*((ValueEditor_Legacy::ValueItem*)item())->client(), s.toUtf8().constData());
   ValueWidget::setValue(m_value);
 
   m_changingValue = false;
@@ -62,7 +62,7 @@ TreeView::TreeEditorWidget * VariablePathValueWidget::creator(QWidget * parent, 
 {
   VariablePathValueWidget * widget = new VariablePathValueWidget(item->label().c_str(), parent);
   widget->setItem(item);
-  widget->setValue(((ValueEditor::ValueItem*)item)->value());
+  widget->setValue(((ValueEditor_Legacy::ValueItem*)item)->value());
   return widget;
 }
 
