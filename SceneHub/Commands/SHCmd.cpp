@@ -186,6 +186,8 @@ bool SHCmd::ExtractName(const std::string &command, std::string &name) {
 FabricCore::RTVal SHCmd::GetCmdManager(FabricCore::RTVal &shObject) {
   FABRIC_TRY_RETURN("SHCmd::GetCmdManager", false,
     FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
+    if( sceneGraph.isNullObject() )
+      return FabricCore::RTVal();
     return sceneGraph.callMethod("SGCmdManager", "getOrCreateHierarchyCmdManager", 0, 0);
   );
 }
