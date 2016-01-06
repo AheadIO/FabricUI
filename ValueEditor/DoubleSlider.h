@@ -1,4 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
+#include <QtGui/QSlider.h>
 
 class DoubleSlider : public QSlider {
   Q_OBJECT

@@ -1,9 +1,14 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "VETreeWidget.h"
 #include "VETreeWidgetItem.h"
 #include "BaseViewItem.h"
 #include "BaseModelItem.h"
 #include "ViewItemFactory.h"
+
+#include <assert.h>
 
 VETreeWidget::VETreeWidget( )
 {
@@ -172,7 +177,3 @@ void VETreeWidget::onTreeWidgetItemCollapsed( QTreeWidgetItem *treeWidgetItem )
     delete childTreeWidgetItem;
   }
 }
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_VETreeWidget.cpp"

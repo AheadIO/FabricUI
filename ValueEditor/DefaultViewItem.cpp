@@ -1,8 +1,13 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "BaseModelItem.h"
 #include "DefaultViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "ViewItemFactory.h"
+
+#include <QtCore/QVariant.h>
+#include <QtGui/QLabel.h>
 
 DefaultViewItem::DefaultViewItem(
   QString const &name,
@@ -35,7 +40,7 @@ void DefaultViewItem::onModelValueChanged( QVariant const &value )
 
 //////////////////////////////////////////////////////////////////////////
 // Expose the ViewItem to the UI layer
-static BaseViewItem* CreateItem(
+BaseViewItem* DefaultViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* /*metaData*/
@@ -44,4 +49,4 @@ static BaseViewItem* CreateItem(
   return new DefaultViewItem( name, value );
 }
 
-EXPOSE_VIEW_ITEM(DefaultViewItem, CreateItem, 0);
+const int DefaultViewItem::Priority = 0;

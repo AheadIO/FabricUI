@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include "BaseViewItem.h"
@@ -9,6 +13,13 @@ class FloatSliderViewItem : public BaseViewItem
   Q_OBJECT
 
 public:
+  
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    FTL::JSONObject* /*metaData*/
+    );
+  static const int Priority;
 
   FloatSliderViewItem(
     QString const &name,

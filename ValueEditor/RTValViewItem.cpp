@@ -1,7 +1,14 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "RTValViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "ViewItemFactory.h"
+#include "QVariantRTVal.h"
+
+#include <assert.h>
+#include <FTL/JSONValue.h>
+#include <QtGui/QLabel.h>
 
 RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
   : BaseComplexViewItem( name )
@@ -97,7 +104,7 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
   catch (FabricCore::Exception e)
   {
     const char* error = e.getDesc_cstr();
-    printf( error );
+    printf( "%s", error );
   }
 }
 
@@ -117,7 +124,7 @@ void RTValViewItem::UpdateWidget()
 
 //////////////////////////////////////////////////////////
 //
-static BaseViewItem* CreateItem(
+BaseViewItem* RTValViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* /*metaData*/
@@ -137,4 +144,4 @@ static BaseViewItem* CreateItem(
   return NULL;
 }
 
-EXPOSE_VIEW_ITEM( RTValViewItem, CreateItem, 1 );
+const int RTValViewItem::Priority = 1;

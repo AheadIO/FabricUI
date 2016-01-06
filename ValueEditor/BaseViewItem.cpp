@@ -1,8 +1,13 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "BaseViewItem.h"
 #include "BaseModelItem.h"
 #include "ViewItemFactory.h"
 
+#include <assert.h>
+#include <QtGui/QTreeWidget.h>
 
 static int s_nInstances = 0;
 BaseViewItem::BaseViewItem( QString const &name )
@@ -63,7 +68,3 @@ void BaseViewItem::setWidgetsOnTreeItem(
   treeWidgetItem->setText( 0, m_name );
   treeWidget->setItemWidget( treeWidgetItem, 1, getWidget() );
 }
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_BaseViewItem.cpp"

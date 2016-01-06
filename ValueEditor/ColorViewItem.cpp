@@ -1,7 +1,16 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "ColorViewItem.h"
-#include "BaseViewItemCreator.h"
+#include "QVariantRTVal.h"
 #include "ViewItemFactory.h"
+
+#include <assert.h>
+#include <FTL/JSONValue.h>
+#include <QtCore/QVariant.h>
+#include <QtGui/QColorDialog.h>
+#include <QtGui/QPushButton.h>
 
 ColorViewItem::ColorViewItem(
   const QVariant& value,
@@ -82,6 +91,10 @@ void ColorViewItem::onChildViewValueChanged( int index, QVariant const & value, 
           assert( false );
           break;
       }
+      break;
+
+    default:
+      assert( false );
       break;
   }
   emit viewValueChanged( QVariant( color ), commit );
@@ -165,9 +178,11 @@ void ColorViewItem::onColorSelected( QColor color )
     1
     );
 }
+
 //////////////////////////////////////////////////////////////////////////
 //
-static ColorViewItem* CreateItem(
+
+BaseViewItem *ColorViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* /*metaData*/
@@ -179,8 +194,5 @@ static ColorViewItem* CreateItem(
   }
   return 0;
 }
-EXPOSE_VIEW_ITEM( ColorViewItem, CreateItem, 3 );
 
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_ColorViewItem.cpp"
+const int ColorViewItem::Priority = 3;

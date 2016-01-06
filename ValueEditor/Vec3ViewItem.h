@@ -1,6 +1,15 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include "BaseComplexViewItem.h"
+
+#include <QtGui/QVector3D.h>
+
+class QLayout;
+class QLineEdit;
 
 class Vec3ViewItem : public BaseComplexViewItem
 {
@@ -17,6 +26,13 @@ private:
 	QLineEdit* m_zEdit;
 
 public:
+  
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    FTL::JSONObject* /*metaData*/
+    );
+  static const int Priority;
 
 	Vec3ViewItem(
 		QString const &name,

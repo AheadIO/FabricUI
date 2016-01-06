@@ -124,7 +124,6 @@ copy *.h "$(FABRIC_DIR)include/ValueEditor"
     <ClCompile Include="DoubleSlider.cpp" />
     <ClCompile Include="FloatSliderViewItem.cpp" />
     <ClCompile Include="FloatViewItem.cpp" />
-    <ClCompile Include="BaseViewItemCreator.cpp" />
     <ClCompile Include="QVariantRTVal.cpp" />
     <ClCompile Include="RTValViewItem.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -139,7 +138,6 @@ copy *.h "$(FABRIC_DIR)include/ValueEditor"
   <ItemGroup>
     <QtMOC Include="BaseViewItem.h" />
     <ClInclude Include="BaseComplexViewItem.h" />
-    <ClInclude Include="BaseViewItemCreator.h" />
     <QtMOC Include="ColorViewItem.h" />
     <ClInclude Include="DefaultViewItem.h" />
     <ClInclude Include="DllExport.h" />

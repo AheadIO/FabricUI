@@ -1,4 +1,11 @@
-#include "StdAfx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
+#include "QVariantRTVal.h"
+
+#include <assert.h>
+#include <QtGui/QtGui>
 
 const QVariant::Handler* RTVariant::origh = NULL;
 
@@ -49,15 +56,15 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
 
     const char* rtype = val.getTypeNameCStr();
 
-    switch (t)
+    switch ( int( t ) )
     {
-      case QVariant::Bool:
+      case int( QVariant::Bool ):
         return strcmp( rtype, "Boolean" ) == 0;
-      case QVariant::Int:
+      case int( QVariant::Int ):
         return strcmp( rtype, "SInt32" ) == 0 ||
           strcmp( rtype, "SInt16" ) == 0 ||
           strcmp( rtype, "SInt8" ) == 0;
-      case QVariant::UInt:
+      case int( QVariant::UInt ):
         return strcmp( rtype, "UInt32" ) == 0 ||
           strcmp( rtype, "UInt16" ) == 0 ||
           strcmp( rtype, "byte" ) == 0 ||
@@ -65,36 +72,36 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
           strcmp( rtype, "Count" ) == 0 ||
           strcmp( rtype, "Index" ) == 0 ||
           strcmp( rtype, "UInt8" ) == 0;
-      case QVariant::LongLong:
+      case int( QVariant::LongLong ):
         return strcmp( rtype, "SInt64" ) == 0;
-      case QVariant::ULongLong:
+      case int( QVariant::ULongLong ):
         return strcmp( rtype, "UInt64" ) == 0;
-      case QMetaType::Float:
+      case int( QMetaType::Float ):
         return strcmp( rtype, "Float32" ) == 0 ||
           strcmp( rtype, "Scalar" ) == 0;
-      case QVariant::Double:
+      case int( QVariant::Double ):
         return strcmp( rtype, "Float32" ) == 0 ||
           strcmp( rtype, "Float64" ) == 0 ||
           strcmp( rtype, "Scalar" ) == 0;
-      case QVariant::String:
+      case int( QVariant::String ):
         return true; // Anything can be converted to a string
-      case QVariant::Color:
+      case int( QVariant::Color ):
         return strcmp( rtype, "RGB" ) == 0 ||
           strcmp( rtype, "RGBA" ) == 0 ||
           strcmp( rtype, "Color" ) == 0;
-      case QVariant::Matrix:
+      case int( QVariant::Matrix ):
         return strcmp( rtype, "Mat22" ) == 0;
-      case QVariant::Transform:
+      case int( QVariant::Transform ):
         return strcmp( rtype, "Mat33" ) == 0;
-      case QVariant::Matrix4x4:
+      case int( QVariant::Matrix4x4 ):
         return strcmp( rtype, "Mat44" ) == 0;
-      case QVariant::Vector2D:
+      case int( QVariant::Vector2D ):
         return strcmp( rtype, "Vec2" ) == 0;
-      case QVariant::Vector3D:
+      case int( QVariant::Vector3D ):
         return strcmp( rtype, "Vec3" ) == 0;
-      case QVariant::Vector4D:
+      case int( QVariant::Vector4D ):
         return strcmp( rtype, "Vec4" ) == 0;
-      case QVariant::Quaternion:
+      case int( QVariant::Quaternion ):
         return strcmp( rtype, "Quat" ) == 0;
 
         // For these more complex types, 
@@ -102,43 +109,43 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
         // the RTVal rather than incur the cost
         // of copying to QType
 
-      case QVariant::SizeF:
-      case QVariant::Char:
-      case QVariant::Map:
-      case QVariant::List:
-      case QVariant::StringList:
-      case QVariant::ByteArray:
-      case QVariant::BitArray:
-      case QVariant::Date:
-      case QVariant::Time:
-      case QVariant::DateTime:
-      case QVariant::Url:
-      case QVariant::Locale:
-      case QVariant::Rect:
-      case QVariant::RectF:
-      case QVariant::Size:
-      case QVariant::Line:
-      case QVariant::LineF:
-      case QVariant::Point:
-      case QVariant::PointF:
-      case QVariant::RegExp:
-      case QVariant::Hash:
-      case QVariant::EasingCurve:
-      case QVariant::Font:
-      case QVariant::Pixmap:
-      case QVariant::Brush:
-      case QVariant::Palette:
-      case QVariant::Icon:
-      case QVariant::Image:
-      case QVariant::Polygon:
-      case QVariant::Region:
-      case QVariant::Bitmap:
-      case QVariant::Cursor:
-      case QVariant::SizePolicy:
-      case QVariant::KeySequence:
-      case QVariant::Pen:
-      case QVariant::TextLength:
-      case QVariant::TextFormat:
+      case int( QVariant::SizeF ):
+      case int( QVariant::Char ):
+      case int( QVariant::Map ):
+      case int( QVariant::List ):
+      case int( QVariant::StringList ):
+      case int( QVariant::ByteArray ):
+      case int( QVariant::BitArray ):
+      case int( QVariant::Date ):
+      case int( QVariant::Time ):
+      case int( QVariant::DateTime ):
+      case int( QVariant::Url ):
+      case int( QVariant::Locale ):
+      case int( QVariant::Rect ):
+      case int( QVariant::RectF ):
+      case int( QVariant::Size ):
+      case int( QVariant::Line ):
+      case int( QVariant::LineF ):
+      case int( QVariant::Point ):
+      case int( QVariant::PointF ):
+      case int( QVariant::RegExp ):
+      case int( QVariant::Hash ):
+      case int( QVariant::EasingCurve ):
+      case int( QVariant::Font ):
+      case int( QVariant::Pixmap ):
+      case int( QVariant::Brush ):
+      case int( QVariant::Palette ):
+      case int( QVariant::Icon ):
+      case int( QVariant::Image ):
+      case int( QVariant::Polygon ):
+      case int( QVariant::Region ):
+      case int( QVariant::Bitmap ):
+      case int( QVariant::Cursor ):
+      case int( QVariant::SizePolicy ):
+      case int( QVariant::KeySequence ):
+      case int( QVariant::Pen ):
+      case int( QVariant::TextLength ):
+      case int( QVariant::TextFormat ):
         return false;
       default:
         assert( !"Unknown type" );
@@ -154,16 +161,16 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
   {
     const FabricCore::RTVal& val = value( d );
     const char* rtype = val.getTypeNameCStr();
-    switch (t)
+    switch ( int ( t ) )
     {
-      case QVariant::Bool:
+      case int( QVariant::Bool ):
         if (strcmp( rtype, "Boolean" ))
         {
           bool& b = *((bool*)result);
           b = val.getBoolean();
         }
         break;
-      case QVariant::Int:
+      case int( QVariant::Int ):
       {
         int& v = *((int*)result);
         if (strcmp(rtype, "SInt32") == 0)
@@ -180,7 +187,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
       }
       break;
-      case QVariant::UInt:
+      case int( QVariant::UInt ):
       {
         unsigned int& v = *((unsigned int*)result);
         if (strcmp(rtype, "UInt32") == 0)
@@ -213,14 +220,14 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
       }
       break;
-      case QVariant::LongLong:
-        if ( rtype, "SInt64" )
+      case int( QVariant::LongLong ):
+        if ( strcmp( rtype, "SInt64" ) == 0 )
         {
           long long int& v = *((long long int*)result);
           v = val.getSInt64();
         }
         break;
-      case QVariant::ULongLong:
+      case int( QVariant::ULongLong ):
       {
         unsigned long long int& v = *((unsigned long long int*)result);
         if (strcmp(rtype, "UInt64") == 0)
@@ -229,14 +236,14 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
       }
       break;
-      case QMetaType::Float:
+      case int( QMetaType::Float ):
         if (strcmp( rtype, "Float32" ) == 0 ||
           strcmp( rtype, "Scalar" ) == 0)
         {
           float& v = *((float*)result);
           v = val.getFloat32();
         }
-      case QVariant::Double:
+      case int( QVariant::Double ):
       {
         double& v = *((double*)result);
         if (strcmp( rtype, "Float32" ) == 0)
@@ -253,7 +260,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
       }
       break;
-      case QVariant::String:
+      case int( QVariant::String ):
       {
         QString& str = *((QString*)result);
         if (strcmp( rtype, "String" ) == 0)
@@ -265,7 +272,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       }
-      case QVariant::Color:
+      case int( QVariant::Color ):
       {
         QColor& v = *((QColor*)result);
         if (strcmp( rtype, "RGB" ) == 0)
@@ -290,7 +297,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
       }
       break;
-      //case QVariant::Matrix:
+      //case int( QVariant::Matrix ):
       //  if ( strcmp( rtype, "Mat22" ) == 0 )
       //  {
       //    QMatrix& v = *((QMatrix*)result);
@@ -303,7 +310,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       //    v.m22 = row1.maybeGetMember( "y" ).getFloat32();
       //  }
       //  break;
-      case QVariant::Transform:
+      case int( QVariant::Transform ):
         if ( strcmp( rtype, "Mat33" ) == 0 )
         {
           QTransform& v = *((QTransform*)result);
@@ -325,7 +332,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
             );
         }
         break;
-      case QVariant::Matrix4x4:
+      case int( QVariant::Matrix4x4 ):
         if ( strcmp( rtype, "Mat44" ) == 0 )
         {
           QMatrix4x4& v = *((QMatrix4x4*)result);
@@ -355,7 +362,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v( 3, 3 ) = row3.maybeGetMember( "w" ).getFloat32();
         }
         break;
-      case QVariant::Vector2D:
+      case int( QVariant::Vector2D ):
         if ( strcmp( rtype, "Vec2" ) == 0 )
         {
           QVector2D& v = *((QVector2D*)result);
@@ -363,7 +370,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v.setY(val.maybeGetMember( "y" ).getFloat32());
         }
         break;
-      case QVariant::Vector3D:
+      case int( QVariant::Vector3D ):
         if ( strcmp( rtype, "Vec3" ) == 0 )
         {
           QVector3D& v = *((QVector3D*)result);
@@ -372,7 +379,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v.setZ(val.maybeGetMember( "z" ).getFloat32());
         }
         break;
-      case QVariant::Vector4D:
+      case int( QVariant::Vector4D ):
         if ( strcmp( rtype, "Vec4" ) == 0 )
         {
           QVector4D& v = *((QVector4D*)result);
@@ -382,7 +389,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v.setW( val.maybeGetMember( "w" ).getFloat32());
         }
         break;
-      case QVariant::Quaternion:
+      case int( QVariant::Quaternion ):
         if ( strcmp( rtype, "Quat" ) == 0 )
         {
           QQuaternion& v = *((QQuaternion*)result);
@@ -415,7 +422,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 {
   static const int rtType = qMetaTypeId<FabricCore::RTVal>();
   // Assume - if the value being passed is an RTVal already, it is
-  // the correct type.  In this case, just set it on ioVal and return
+  // the correct type.  In this case,int(  just set it on ioVal and retur )n
   int type = var.userType();
   if (type == rtType)
     ioVal = var.value<FabricCore::RTVal>();

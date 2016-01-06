@@ -1,7 +1,15 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "Vec3ViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "ViewItemFactory.h"
+
+#include <assert.h>
+#include <QtCore/QVariant.h>
+#include <QtGui/QBoxLayout.h>
+#include <QtGui/QLineEdit.h>
+#include <QtGui/QWidget.h>
 
 Vec3ViewItem::Vec3ViewItem(
   QString const &name,
@@ -129,7 +137,7 @@ void Vec3ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static Vec3ViewItem* CreateItem(
+BaseViewItem* Vec3ViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* 
@@ -142,8 +150,4 @@ static Vec3ViewItem* CreateItem(
     return 0;
 }
 
-EXPOSE_VIEW_ITEM( Vec3ViewItem, CreateItem, 3 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_Vec3ViewItem.cpp"
+const int Vec3ViewItem::Priority = 3;

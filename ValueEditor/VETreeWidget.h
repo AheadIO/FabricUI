@@ -1,11 +1,16 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
 #include <QtGui/QTreeWidget>
 
 class BaseViewItem;
 class BaseModelItem;
 class VETreeWidgetItem;
 
-class VALUEEDIT_API VETreeWidget : public QTreeWidget
+class VETreeWidget : public QTreeWidget
 {
   Q_OBJECT
 

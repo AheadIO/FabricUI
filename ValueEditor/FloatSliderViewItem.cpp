@@ -1,7 +1,12 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "FloatSliderViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "DoubleSlider.h"
+
+#include <FTL/JSONValue.h>
+#include <QtCore/QVariant.h>
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
@@ -63,7 +68,7 @@ void FloatSliderViewItem::OnEditFinished()
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static FloatSliderViewItem* CreateItem(
+BaseViewItem* FloatSliderViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* metaData
@@ -73,7 +78,7 @@ static FloatSliderViewItem* CreateItem(
     return NULL;
 
   if (value.type() == QVariant::Double
-       || value.type() == QMetaType::Float)
+       || QMetaType::Type( value.type() ) == QMetaType::Float)
   {
     // We can only create the UI if we have a defined Min & Max
     if (metaData->has( "min" ) && metaData->has( "max" ))
@@ -86,8 +91,4 @@ static FloatSliderViewItem* CreateItem(
   return NULL;
 }
 
-EXPOSE_VIEW_ITEM( FloatSliderViewItem, CreateItem, 5 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_FloatSliderViewItem.cpp"
+const int FloatSliderViewItem::Priority = 5;

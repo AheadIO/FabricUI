@@ -1,6 +1,11 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "FloatViewItem.h"
-#include "BaseViewItemCreator.h"
+#include "QVariantRTVal.h"
+
+#include <QtGui/QSpinBox.h>
 
 FloatViewItem::FloatViewItem(
   QString const &name,
@@ -52,7 +57,7 @@ void FloatViewItem::OnEditFinished()
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static FloatViewItem* CreateItem(
+BaseViewItem* FloatViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   FTL::JSONObject* /*metaData*/
@@ -65,8 +70,4 @@ static FloatViewItem* CreateItem(
   return 0;
 }
 
-EXPOSE_VIEW_ITEM( FloatViewItem, CreateItem, 3 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_FloatViewItem.cpp"
+const int FloatViewItem::Priority = 3;

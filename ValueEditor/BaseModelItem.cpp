@@ -1,4 +1,7 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "BaseModelItem.h"
 
 BaseModelItem::BaseModelItem()
@@ -41,7 +44,3 @@ FTL::JSONObject* BaseModelItem::GetMetadata()
 {
   return NULL;
 }
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_BaseModelItem.cpp"

@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include "BaseViewItem.h"
@@ -12,6 +16,13 @@ private:
   QLabel *m_label;
 
 public:
+
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    FTL::JSONObject* /*metaData*/
+    );
+  static const int Priority;
 
 	DefaultViewItem(
     QString const &name,

@@ -1,4 +1,7 @@
-#pragma once
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include <QtCore/QObject>
@@ -11,7 +14,7 @@ namespace FTL {
 // interface for supplying data from the FabricCore, and
 // connecting notifications.  The view consumes a 
 // tree/list? of BaseModelItems to build it's UI
-class VALUEEDIT_API BaseModelItem : public QObject
+class BaseModelItem : public QObject
 {
 	Q_OBJECT
 

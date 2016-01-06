@@ -7,7 +7,7 @@ using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
 
-ExecModelItem::ExecModelItem( FabricCore::DFGExec& exec ) : m_exec( exec )
+ExecModelItem::ExecModelItem( FabricCore::DFGExec exec ) : m_exec( exec )
 {
 
 }

@@ -1,4 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
+#include <QtCore/QVector.h>
 
 #include "BaseViewItem.h"
 

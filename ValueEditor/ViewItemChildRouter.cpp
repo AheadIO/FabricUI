@@ -1,4 +1,7 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "ViewItemChildRouter.h"
 #include "BaseComplexViewItem.h"
 
@@ -33,7 +36,3 @@ void ViewItemChildRouter::onViewValueChanged( QVariant const &value, bool commit
 {
   m_viewItem->onChildViewValueChanged( m_index, value, commit );
 }
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_ViewItemChildRouter.cpp"

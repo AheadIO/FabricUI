@@ -1,6 +1,5 @@
-#include <ValueEditor/DllExport.h>
-#include <ValueEditor/BaseModelItem.h>
-#include <ValueEditor/QVariantRTVal.h>
+#include <FabricUI/ValueEditor/BaseModelItem.h>
+#include <FabricUI/ValueEditor/QVariantRTVal.h>
 #include <vector>
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@ namespace FabricUI
       ChildVec m_children;
 
     public:
-      ExecModelItem( FabricCore::DFGExec& exec );
+      ExecModelItem( FabricCore::DFGExec exec );
       ~ExecModelItem();
 
       size_t NumChildren();
@@ -91,7 +90,7 @@ namespace FabricUI
 
       virtual QVariant GetValue();
 
-      virtual void onViewValueChanged( QVariant const&, bool ) override;
+      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
 
     };
 
@@ -105,7 +104,7 @@ namespace FabricUI
       ArgModelItem( const FabricCore::DFGBinding& binding, QString portName );
       virtual QVariant GetValue();
 
-      virtual void onViewValueChanged( QVariant const&, bool ) override;
+      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
 
     };
   }

@@ -1,7 +1,6 @@
 // SampleApp.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include "SampleApp.h"
 #include <ViewItemFactory.h>
 #include "SampleModel.h"

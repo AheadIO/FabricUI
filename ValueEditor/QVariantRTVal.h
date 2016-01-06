@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include <FabricCore.h>
@@ -6,12 +10,18 @@
 // Import RTVal into the QVariant types
 Q_DECLARE_METATYPE(FabricCore::RTVal);
 
+inline bool isRTVal( const QVariant& var ) {
+  if (var.type() != QVariant::UserType)
+    return false;
+  return var.userType() == qMetaTypeId<FabricCore::RTVal>();
+}
+
 // This class is not a class meant to be constructed,
 // instead it overwrites a static member of the
 // base class to inject our own versions of some
 // functions.  This allows us to present a seamless
 // bridge between RTVal and the QVariant
-class VALUEEDIT_API RTVariant : public QVariant
+class RTVariant : public QVariant
 {
 public:
   static void injectRTHandler();
@@ -71,12 +81,6 @@ private:
 
   static const Handler* origh;
 };
-
-inline bool isRTVal( const QVariant& var ) {
-  if (var.type() != QVariant::UserType)
-    return false;
-  return var.userType() == qMetaTypeId<FabricCore::RTVal>();
-}
 
 // Initially at least - A set of functions for 
 // converting RTVal <--> QVariant

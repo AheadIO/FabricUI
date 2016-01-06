@@ -57,9 +57,6 @@
     <ClCompile Include="BaseViewItem.cpp">
       <Filter>BaseClasses</Filter>
     </ClCompile>
-    <ClCompile Include="BaseViewItemCreator.cpp">
-      <Filter>BaseClasses</Filter>
-    </ClCompile>
     <ClCompile Include="ViewItemChildRouter.cpp">
       <Filter>BaseClasses</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ViewItemFactory.h">
-      <Filter>BaseClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseViewItemCreator.h">
       <Filter>BaseClasses</Filter>
     </ClInclude>
     <ClInclude Include="QVariantRTVal.h" />

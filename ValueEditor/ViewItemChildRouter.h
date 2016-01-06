@@ -1,9 +1,15 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
+#include <QtCore/QObject.h>
 
 class BaseViewItem;
 class BaseComplexViewItem;
 
-class VALUEEDIT_API ViewItemChildRouter : public QObject
+class ViewItemChildRouter : public QObject
 {
   Q_OBJECT
 

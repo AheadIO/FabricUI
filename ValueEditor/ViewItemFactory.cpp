@@ -1,8 +1,17 @@
-#include "stdafx.h"
-#include "ViewItemFactory.h"
-#include "BaseViewItemCreator.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "BaseModelItem.h"
 #include "BaseViewItem.h"
+#include "ColorViewItem.h"
+#include "DefaultViewItem.h"
+#include "FloatSliderViewItem.h"
+#include "FloatViewItem.h"
+#include "QVariantRTVal.h"
+#include "RTValViewItem.h"
+#include "Vec3ViewItem.h"
+#include "ViewItemFactory.h"
 
 ViewItemFactory::ViewItemFactory()
 {
@@ -11,9 +20,6 @@ ViewItemFactory::ViewItemFactory()
 
 ViewItemFactory::~ViewItemFactory()
 {
-  // destruct all remaining creators.
-  while (!m_creators.empty())
-    (*m_creators.rbegin())->DeleteThis();
 }
 
 ViewItemFactory* ViewItemFactory::GetInstance()
@@ -25,14 +31,23 @@ ViewItemFactory* ViewItemFactory::GetInstance()
 
 BaseViewItem *ViewItemFactory::BuildView( BaseModelItem *modelItem )
 {
-  // We put the QVariant-RTVal bridge injection
-  // code here, as before we build a view it won't
-  // be needed
-  static bool doVarInjection = true;
-  if (doVarInjection)
+  static bool initialized = false;
+  if ( !initialized )
   {
+    // Register the built-in view items
+    RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
+    RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
+    RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
+    RegisterCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
+    RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
+
+    // We put the QVariant-RTVal bridge injection
+    // code here, as before we build a view it won't
+    // be needed
     RTVariant::injectRTHandler();
-    doVarInjection = false;
+
+    initialized = true;
   }
 
   if ( !modelItem )
@@ -54,35 +69,29 @@ BaseViewItem *ViewItemFactory::BuildView( BaseModelItem *modelItem )
   return viewItem;
 }
 
-// sort using a custom function object
-struct CreatorSort
-{
-  bool operator()( BaseViewItemCreator* a, BaseViewItemCreator* b )
-  {
-    return a->Priority() < b->Priority();
-  }
-};
-
-bool ViewItemFactory::RegisterCreator(BaseViewItemCreator* creator)
+bool ViewItemFactory::RegisterCreator(
+  CreateItemFn createItemFn,
+  int priority
+  )
 {
   for ( CreatorIT itr = creatorBegin(); itr != creatorEnd(); itr++ )
   {
-    if (*itr == creator)
+    if ( itr->createItemFn == createItemFn )
       return false;
   }
-  m_creators.push_back(creator);
+  m_creators.push_back( ItemCreator( createItemFn, priority ) );
   // Sort creators in order of priority
-  std::sort( m_creators.begin(), m_creators.end(), CreatorSort() );
+  std::sort( m_creators.begin(), m_creators.end(), ItemCreator::Sort() );
   return true;
 }
 
-void ViewItemFactory::DeRegisterCreator(BaseViewItemCreator* creator)
+void ViewItemFactory::DeRegisterCreator( CreateItemFn createItemFn )
 {
   for ( CreatorIT itr = creatorBegin(); itr != creatorEnd(); itr++ )
   {
-    if (*itr == creator)
+    if ( itr->createItemFn == createItemFn )
     {
-      m_creators.erase(itr);
+      m_creators.erase( itr );
       break;
     }
   }
@@ -99,8 +108,7 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   // before testing the more generalized types
   for ( CreatorRIT itr = creatorRBegin(); itr != creatorREnd(); itr++ )
   {
-    BaseViewItem* viewItem = (*itr)->CreateItem( name, value, metaData );
-    if (viewItem)
+    if ( BaseViewItem* viewItem = itr->createItemFn( name, value, metaData ) )
     {
       viewItem->setBaseModelItem( modelItem );
       viewItem->updateMetadata( metaData );

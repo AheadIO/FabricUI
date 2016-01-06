@@ -1,7 +1,12 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "VETreeWidgetItem.h"
 #include "BaseViewItem.h"
 #include "BaseModelItem.h"
+
+#include <assert.h>
 
 VETreeWidgetItem::VETreeWidgetItem( BaseViewItem *viewItem ) : m_viewItem( viewItem )
 {

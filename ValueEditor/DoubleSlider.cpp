@@ -1,4 +1,7 @@
-#include "stdafx.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "DoubleSlider.h"
 
 DoubleSlider::DoubleSlider( QWidget * parent ) 
@@ -47,7 +50,3 @@ double DoubleSlider::toDouble( int value )
 void DoubleSlider::notifyValueChanged( int value ) {
   emit doubleValueChanged( toDouble( value ) );
 }
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_DoubleSlider.cpp"

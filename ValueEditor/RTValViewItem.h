@@ -1,6 +1,14 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include "BaseComplexViewItem.h"
+
+#include <FabricCore.h>
+
+class QLabel;
 
 typedef std::vector<std::string> NameList;
 
@@ -17,6 +25,13 @@ class RTValViewItem : public BaseComplexViewItem
   NameList m_childNames;
 
 public:
+  
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    FTL::JSONObject* /*metaData*/
+    );
+  static const int Priority;
 
 	RTValViewItem(QString name, const FabricCore::RTVal& value );
 	~RTValViewItem();

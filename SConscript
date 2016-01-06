@@ -93,6 +93,7 @@ dirs = [
   'Util',
   'Style',
   'TreeView',
+  'ValueEditor_Legacy',
   'ValueEditor',
   'GraphView',
   'GraphView/Commands',
@@ -120,7 +121,8 @@ for d in dirs:
 uiLib = env.StaticLibrary('FabricUI', sources)
 uiFiles = installedHeaders
 if uiLibPrefix == 'ui':
-  uiFiles += env.Install(stageDir.Dir('lib'), uiLib)
+  uiLib = env.Install(stageDir.Dir('lib'), uiLib)
+  uiFiles.append(uiLib)
   icons = env.Install(stageDir.srcnode().Dir('Resources').Dir('Icons'), Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')))
   env.Depends(uiLib, icons)
 

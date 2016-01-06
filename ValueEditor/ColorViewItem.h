@@ -1,5 +1,12 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
 #include "BaseComplexViewItem.h"
+
+#include <QtGui/QColor.h>
 
 class QPushButton;
 
@@ -14,6 +21,13 @@ private:
   QColor m_color;
 
 public:
+
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    FTL::JSONObject* /*metaData*/
+    );
+  static const int Priority;
 
   ColorViewItem( const QVariant& value, const QString& name );
   ~ColorViewItem();

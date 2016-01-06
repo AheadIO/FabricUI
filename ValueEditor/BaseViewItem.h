@@ -1,9 +1,16 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
-#include <QtCore/QObject>
+#include <QtCore/QObject.h>
 
 class BaseModelItem;
 class BaseViewItem;
+
+class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace FTL {
   class JSONObject;
@@ -15,7 +22,7 @@ namespace FTL {
 // the core, and should be implemented to handle specific
 // UI duties (ie, showing widgets, etc).  
 
-class VALUEEDIT_API BaseViewItem : public QObject
+class BaseViewItem : public QObject
 {
   // Friend the Factory to allow it to set our modelItem
   friend class ViewItemFactory;

@@ -3,10 +3,7 @@ Debug/
 *.sdf
 x64/
 ipch/
-CMakeCache.txt
-CMakeFiles/
 Makefile
-cmake_install.cmake
 *.cxx
 *.cxx_parameters
 TestProject
