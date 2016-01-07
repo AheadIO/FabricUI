@@ -432,7 +432,7 @@ void TimeLineWidget::timerUpdate()
         case LOOP_MODE_OSCILLATE:
         {
           m_direction = -1;
-          newTime = m_endSpinBox->value() + m_direction;
+          newTime = m_endSpinBox->value() + double(m_direction);
           setTime(newTime);
         } break;
         default:
@@ -450,7 +450,7 @@ void TimeLineWidget::timerUpdate()
         case LOOP_MODE_OSCILLATE:
         {
           m_direction = 1;
-          newTime = m_startSpinBox->value() + m_direction;
+          newTime = m_startSpinBox->value() + double(m_direction);
           setTime(newTime);
         } break;
         default:
