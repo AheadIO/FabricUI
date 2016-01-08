@@ -1,5 +1,6 @@
 
 #include "ModelItems.h"
+#include <ValueEditor/ItemMetadata.h>
 #include "assert.h"
 
 using namespace FabricUI;
@@ -71,7 +72,7 @@ QString ExecModelItem::GetName()
   return QString( "[Root Ports]" );
 }
 
-FTL::JSONObject* ExecModelItem::GetMetadata()
+ItemMetadata* ExecModelItem::GetMetadata()
 {
   return NULL;
 }
@@ -183,12 +184,55 @@ QString PortModelItem::GetName()
   return m_name;
 }
 
-FTL::JSONObject* PortModelItem::GetMetadata()
+class PortItemMetadata : public ItemMetadata
 {
-  //m_binding.getMetadata();
-  return NULL;
-  //m_binding.get_
-  //m_exec.getPortMetadata(m_name);
+private:
+  FabricCore::DFGExec m_exec;
+  std::string m_path;
+
+public:
+
+  PortItemMetadata( FabricCore::DFGExec exec, const char* path )
+    : m_exec( exec )
+    , m_path( path )
+  {}
+
+  virtual const char* getString( const char* key ) const override
+  {
+    return const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
+  }
+
+  virtual int getSInt32( const char* key ) const override
+  {
+    const char* data = getString( key );
+    return atoi( data );
+  }
+
+  virtual double getFloat64( const char* key ) const override
+  {
+    const char* value = getString( key );
+    return atof( value );
+  }
+
+  virtual const FTL::JSONObject* getDict( const char* key ) const override
+  {
+    throw std::logic_error( "The method or operation is not implemented." );
+  }
+
+  virtual const FTL::JSONArray* getArray( const char* key ) const override
+  {
+    throw std::logic_error( "The method or operation is not implemented." );
+  }
+
+  virtual bool has( const char* key ) const override
+  {
+    return strcmp( getString( key ), "" ) != 0;
+  }
+};
+
+ItemMetadata* PortModelItem::GetMetadata()
+{
+  return new PortItemMetadata( m_exec, m_cname.c_str() );
 }
 
 QVariant PortModelItem::GetValue()

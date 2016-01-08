@@ -110,14 +110,35 @@ includeDir = stageDir.Dir('include').Dir('FabricServices')
 
 installedHeaders = []
 sources = []
+strsources = []
+strheaders = []
 for d in dirs:
   headers = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.h')))
-  sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
+  dirsrc = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
+  for h in headers:
+    strheaders.append(str(h))
+  for c in dirsrc:
+    strsources.append(str(c))
+  sources += dirsrc
   sources += env.GlobQObjectSources(os.path.join(env.Dir('.').abspath, d, '*.h'))
   if uiLibPrefix == 'ui':
     installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)
 
 uiLib = env.StaticLibrary('FabricUI', sources)
+
+if buildOS == 'Windows':
+  projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']
+  projNode = Dir('#').File(projName)
+  if not projNode.exists():
+    print("---- Building " + projName + " VS Proj for FabricUI ----")
+    projFile = env.MSVSProject(target = projName,
+                  srcs = strsources,
+                  incs = strheaders,
+                  buildtarget = uiLib,
+                  auto_build_solution=0,
+                  variant = 'Debug|x64')
+    env.Depends(uiLib, projName)
+
 uiFiles = installedHeaders
 if uiLibPrefix == 'ui':
   uiFiles += env.Install(stageDir.Dir('lib'), uiLib)

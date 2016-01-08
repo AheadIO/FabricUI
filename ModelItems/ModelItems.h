@@ -1,8 +1,11 @@
+#pragma once
+
 #include <ValueEditor/DllExport.h>
 #include <ValueEditor/BaseModelItem.h>
 #include <ValueEditor/QVariantRTVal.h>
 #include <vector>
 
+class ItemMetadata;
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
 // 
@@ -34,7 +37,7 @@ namespace FabricUI
 
       virtual QString GetName();;
 
-      virtual FTL::JSONObject* GetMetadata();
+      virtual ItemMetadata* GetMetadata();
 
       virtual QVariant GetValue();;
 
@@ -87,7 +90,7 @@ namespace FabricUI
 
       virtual QString GetName();
 
-      virtual FTL::JSONObject* GetMetadata();
+      virtual ItemMetadata* GetMetadata();
 
       virtual QVariant GetValue();
 
