@@ -33,6 +33,15 @@
     <Filter Include="ViewItems\FloatSliderViewItem">
       <UniqueIdentifier>{d0650ba1-51dc-4e12-88c7-bcc66619c730}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ViewItems\IntSliderViewItem">
+      <UniqueIdentifier>{63ce19ae-7713-485a-bd51-7cd18b5dc72f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\FilepathViewItem">
+      <UniqueIdentifier>{ae7ab274-dec1-4f80-8754-5390564526df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\StringViewItem">
+      <UniqueIdentifier>{2f90ef9a-c7fb-469d-867a-b0c51b9aaecc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp" />
@@ -79,6 +88,18 @@
       <Filter>VETreeWidget</Filter>
     </ClCompile>
     <ClCompile Include="QVariantRTVal.cpp" />
+    <ClCompile Include="ItemMetadata.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="IntSliderViewItem.cpp">
+      <Filter>ViewItems\IntSliderViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="FilepathViewItem.cpp">
+      <Filter>ViewItems\FilepathViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="StringViewItem.cpp">
+      <Filter>ViewItems\StringViewItem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ViewItemFactory.h">
@@ -98,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="DefaultViewItem.h">
       <Filter>ViewItems\DefaultViewItem</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemMetadata.h">
+      <Filter>BaseClasses</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +151,16 @@
     </QtMOC>
     <QtMOC Include="DoubleSlider.h">
       <Filter>ViewItems\FloatSliderViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="IntSliderViewItem.h">
+      <Filter>ViewItems\IntSliderViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="StringViewItem.h">
+      <Filter>ViewItems\StringViewItem</Filter>
+    </QtMOC>
+    </QtMOC>
+    <QtMOC Include="FilepathViewItem.h">
+      <Filter>ViewItems\FilepathViewItem</Filter>
     </QtMOC>
   </ItemGroup>
 </Project>

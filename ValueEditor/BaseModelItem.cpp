@@ -40,7 +40,12 @@ int BaseModelItem::ChildIndex( QString childName )
   return -1;
 }
 
-FTL::JSONObject* BaseModelItem::GetMetadata()
+ItemMetadata* BaseModelItem::GetMetadata()
 {
   return NULL;
+}
+
+int BaseModelItem::GetInOut()
+{
+  return FabricCore::DFGPortType_In;
 }

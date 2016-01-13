@@ -7,6 +7,10 @@
 #include <assert.h>
 #include <QtGui/QtGui>
 
+
+// Disable 'invalid value for switch of enum' warning
+#pragma warning(disable:4063)
+
 const QVariant::Handler* RTVariant::origh = NULL;
 
 // Code replaces the built-in handler for several
@@ -84,7 +88,7 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
           strcmp( rtype, "Float64" ) == 0 ||
           strcmp( rtype, "Scalar" ) == 0;
       case int( QVariant::String ):
-        return true; // Anything can be converted to a string
+        return strcmp( rtype, "String" ) == 0;
       case int( QVariant::Color ):
         return strcmp( rtype, "RGB" ) == 0 ||
           strcmp( rtype, "RGBA" ) == 0 ||
@@ -418,6 +422,9 @@ void RTVariant::rtStreamDebug( QDebug dbg, const QVariant &v )
     origh->debugStream( dbg, v );
 }
 
+// Disable 'loses precision' warning, as a lot of these
+// casts will throw, but are fine in practice
+#pragma warning(disable:4244)
 bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 {
   static const int rtType = qMetaTypeId<FabricCore::RTVal>();
@@ -438,7 +445,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
     // If not, do the translation from the QVariant type
     // to the appropriate RTVal type
     const char* rtype = ioVal.getTypeNameCStr();
-    FabricCore::Context ctxt;// = ioVal.getContext();
+    FabricCore::Context ctxt = ioVal.getContext();
     if (strcmp( rtype, "Boolean" ) == 0)
     {
       ioVal = FabricCore::RTVal::ConstructBoolean( ctxt, var.toBool() );
@@ -616,3 +623,4 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 
   return true;
 }
+#pragma warning(default:4244)

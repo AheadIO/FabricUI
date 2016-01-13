@@ -127,7 +127,7 @@ void RTValViewItem::UpdateWidget()
 BaseViewItem* RTValViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  FTL::JSONObject* /*metaData*/
+  ItemMetadata* /*metaData*/
   )
 {
   if (value.type() != QVariant::UserType)

@@ -3,6 +3,8 @@
 //
 
 #include "FloatSliderViewItem.h"
+#include "BaseViewItemCreator.h"
+#include "ItemMetadata.h"
 #include "DoubleSlider.h"
 
 #include <FTL/JSONValue.h>
@@ -40,7 +42,7 @@ void FloatSliderViewItem::onModelValueChanged( QVariant const &value )
   m_slider->setDoubleValue( value.toDouble() );
 }
 
-void FloatSliderViewItem::updateMetadata( FTL::JSONObject* metaData ) 
+void FloatSliderViewItem::updateMetadata( ItemMetadata* metaData ) 
 {
   if (metaData->has( "min" ) && metaData->has( "max" ))
   {
@@ -71,7 +73,7 @@ void FloatSliderViewItem::OnEditFinished()
 BaseViewItem* FloatSliderViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  FTL::JSONObject* metaData
+  ItemMetadata* metaData
   )
 {
   if (metaData == NULL)

@@ -8,13 +8,10 @@
 
 class BaseModelItem;
 class BaseViewItem;
+class ItemMetadata;
 
 class QTreeWidget;
 class QTreeWidgetItem;
-
-namespace FTL {
-  class JSONObject;
-}
 
 // The base item for the view-side of the equation.
 // A BaseViewItem essentially represents a row in the
@@ -42,8 +39,7 @@ class BaseViewItem : public QObject
 private:
 
   // This value is only setable by ViewitemFactory
-  void setBaseModelItem( BaseModelItem* item )
-    { m_modelItem = item; }
+  void setBaseModelItem( BaseModelItem* item );
 
 protected:
   // It is not legal to directly delete this
@@ -62,13 +58,13 @@ public:
   BaseModelItem* GetModelItem()
     { return m_modelItem; }
 
-  // Implement this function to build the widgets to
-  // display the value represented by your class
-  virtual QWidget *getWidget() = 0;
-
   // Get the name of this ViewItem
   QString const &getName() const
     { return m_name; }
+
+  // Implement this function to build the widgets to
+  // display the value represented by your class
+  virtual QWidget *getWidget() = 0;
 
   // Indicate if this ViewItem will return any 
   // ViewItems in the appendChildViewItems function
@@ -90,13 +86,14 @@ public:
   // Implement this function if ViewItem uses metadata to
   // set its behaviour.  This function may be called at any
   // time if the metadata associated with this item changes.
-  virtual void updateMetadata( FTL::JSONObject* /*metaData*/ ) {};
+  virtual void updateMetadata( ItemMetadata* /*metaData*/ ) {};
 
   // This virtual function is called to release this object.
   // It is required for external parties to use this function
   // instead of directly deleting the object, as that ensures
   // the memory is released in the same Dll as it was allocated in
   virtual void deleteMe() = 0;
+
 public slots:
 
   // Implement this slot to update the UI to the

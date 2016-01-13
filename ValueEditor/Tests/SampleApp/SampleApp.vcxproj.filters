@@ -24,9 +24,6 @@
     <ClInclude Include="SampleModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SampleApp.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -38,5 +35,10 @@
     <ClCompile Include="SampleModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMOC Include="SampleApp.h">
+      <Filter>Header Files</Filter>
+    </QtMOC>
   </ItemGroup>
 </Project>

@@ -10,9 +10,40 @@ DoubleSlider::DoubleSlider( QWidget * parent )
   , m_min(0)
   , m_max(1)
 {
+  // Default to horizontal orientation
+  setOrientation( Qt::Horizontal );
+
   connect( this, SIGNAL( valueChanged( int ) ),
            this, SLOT( notifyValueChanged( int ) ) );
 }
+
+void DoubleSlider::mousePressEvent( QMouseEvent *event )
+{
+  // Taken pretty much verbatim from:
+  // http://stackoverflow.com/questions/11132597/qslider-mouse-direct-jump
+  QStyleOptionSlider opt;
+  initStyleOption( &opt );
+  QRect sr = style()->subControlRect( QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this );
+
+  if (event->button() == Qt::LeftButton &&
+        sr.contains( event->pos() ) == false)
+  {
+    int newVal;
+    if (orientation() == Qt::Vertical)
+      newVal = minimum() + ((maximum() - minimum()) * (height() - event->y())) / height();
+    else
+      newVal = minimum() + ((maximum() - minimum()) * event->x()) / width();
+
+    if (invertedAppearance() == true)
+      setValue( maximum() - newVal );
+    else
+      setValue( newVal );
+
+    event->accept();
+  }
+  QSlider::mousePressEvent( event );
+}
+
 
 void DoubleSlider::setResolution( int resolution, double min, double max )
 {
@@ -32,9 +63,6 @@ void DoubleSlider::setDoubleValue( double value )
     double ratio = (value - m_min) / (m_max - m_min);
     setValue( int(ratio * m_resolution) );
   }
-
-  // Default to horizontal orientation
-  setOrientation( Qt::Horizontal );
 }
 
 double DoubleSlider::doubleValue()

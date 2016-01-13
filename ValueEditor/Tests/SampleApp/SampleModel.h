@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include "ItemMetadata.h"
 
 //////////////////////////////////////////////////////////////////////////
 // This sample model implementation allows us to create a test
@@ -11,6 +12,8 @@ class SampleModelItem : public BaseModelItem {
 	QVariant m_value;
 
 	std::vector<SampleModelItem*> m_children;
+  
+  ViewItemMetadata m_metadata;
 
 public:
 	SampleModelItem(const char* name, const QVariant& value)
@@ -36,9 +39,9 @@ public:
 		return m_name;
 	}
 
-	virtual QString GetMetadata(QString string) /*override*/
+	virtual ItemMetadata* GetMetadata()
 	{
-		return QString();
+		return &m_metadata;
 	}
 
 	virtual QVariant GetValue() /*override*/
@@ -73,6 +76,11 @@ public:
 		m_value = value;
 		emit modelValueChanged( m_value );
 	}
+
+  virtual bool hasDefault() override;
+
+  virtual void resetToDefault() override;
+
 };
 
 

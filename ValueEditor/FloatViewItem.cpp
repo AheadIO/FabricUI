@@ -60,7 +60,7 @@ void FloatViewItem::OnEditFinished()
 BaseViewItem* FloatViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  FTL::JSONObject* /*metaData*/
+  ItemMetadata* /*metaData*/
   )
 {
   if (RTVariant::isType<double>(value) || RTVariant::isType<float>(value))

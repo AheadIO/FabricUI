@@ -40,22 +40,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <OutDir>$(FABRIC_DIR)\lib\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <OutDir>$(FABRIC_DIR)\lib\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <OutDir>$(FABRIC_DIR)\lib\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(FABRIC_DIR)lib\</OutDir>
+    <OutDir>$(FABRIC_DIR)\lib\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
@@ -64,19 +64,21 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(QT_DIR)include;$(FABRIC_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QT_DIR)\include;$(FABRIC_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FEC_STATIC;_DEBUG;VALUEEDITOR_BUILD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EditAndContinue</DebugInformationFormat>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>QtCore4.lib;QtGui4.lib;FabricCore-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QT_DIR)lib;$(FABRIC_DIR)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QT_DIR)\lib;$(FABRIC_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -95,23 +97,23 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir "$(FABRIC_DIR)include/ValueEditor"
-copy *.h "$(FABRIC_DIR)include/ValueEditor"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mkdir "$(FABRIC_DIR)\include\ValueEditor"
+copy *.h "$(FABRIC_DIR)\include\ValueEditor"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir "$(FABRIC_DIR)include/ValueEditor"
-copy *.h "$(FABRIC_DIR)include/ValueEditor"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mkdir "$(FABRIC_DIR)\include\ValueEditor"
+copy *.h "$(FABRIC_DIR)\include\ValueEditor"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir "$(FABRIC_DIR)include/ValueEditor"
-copy *.h "$(FABRIC_DIR)include/ValueEditor"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mkdir "$(FABRIC_DIR)\include\ValueEditor"
+copy *.h "$(FABRIC_DIR)\include\ValueEditor"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mkdir "$(FABRIC_DIR)include/ValueEditor"
-copy *.h "$(FABRIC_DIR)include/ValueEditor"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mkdir "$(FABRIC_DIR)\include\ValueEditor"
+copy *.h "$(FABRIC_DIR)\include\ValueEditor"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -122,13 +124,18 @@ copy *.h "$(FABRIC_DIR)include/ValueEditor"
     <ClCompile Include="ColorViewItem.cpp" />
     <ClCompile Include="DefaultViewItem.cpp" />
     <ClCompile Include="DoubleSlider.cpp" />
+    <ClCompile Include="FilepathViewItem.cpp" />
     <ClCompile Include="FloatSliderViewItem.cpp" />
     <ClCompile Include="FloatViewItem.cpp" />
+    <ClCompile Include="BaseViewItemCreator.cpp" />
+    <ClCompile Include="IntSliderViewItem.cpp" />
+    <ClCompile Include="ItemMetadata.cpp" />
     <ClCompile Include="QVariantRTVal.cpp" />
     <ClCompile Include="RTValViewItem.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StringViewItem.cpp" />
     <ClCompile Include="Vec3ViewItem.cpp" />
     <ClCompile Include="VETreeWidget.cpp" />
     <ClCompile Include="VETreeWidgetItem.cpp" />
@@ -142,6 +149,9 @@ copy *.h "$(FABRIC_DIR)include/ValueEditor"
     <ClInclude Include="DefaultViewItem.h" />
     <ClInclude Include="DllExport.h" />
     <QtMOC Include="BaseModelItem.h" />
+    <QtMOC Include="IntSliderViewItem.h" />
+    <QtMOC Include="FilepathViewItem.h" />
+    <ClInclude Include="ItemMetadata.h" />
     <ClInclude Include="RTValViewItem.h" />
     <QtMOC Include="FloatViewItem.h" />
     <QtMOC Include="FloatSliderViewItem.h" />
@@ -150,6 +160,7 @@ copy *.h "$(FABRIC_DIR)include/ValueEditor"
     <ClInclude Include="StdAfx.h" />
     <QtMOC Include="Vec3ViewItem.h" />
     <QtMOC Include="VETreeWidget.h" />
+    <QtMOC Include="StringViewItem.h" />
     <ClInclude Include="VETreeWidgetItem.h" />
     <QtMOC Include="ViewItemChildRouter.h" />
     <ClInclude Include="ViewItemFactory.h" />

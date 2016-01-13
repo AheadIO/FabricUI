@@ -20,7 +20,6 @@ private:
 	QVector3D m_vec3dValue;
 
 	QWidget *m_widget;
-	QLayout *m_layout;
 	QLineEdit* m_xEdit;
 	QLineEdit* m_yEdit;
 	QLineEdit* m_zEdit;

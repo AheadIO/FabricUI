@@ -10,13 +10,13 @@
 
 VETreeWidgetItem::VETreeWidgetItem( BaseViewItem *viewItem ) : m_viewItem( viewItem )
 {
-  assert( viewItem );
 }
 
 VETreeWidgetItem::~VETreeWidgetItem()
 {
   // We own this pointer, we need to release it.
-  m_viewItem->deleteMe();
+  if (m_viewItem != NULL)
+    m_viewItem->deleteMe();
 }
 
 BaseViewItem * VETreeWidgetItem::getViewItem() const
@@ -29,6 +29,7 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
   // To figure out our order, we need to ask our parent for the
   // appropriate index for this items Name vs the other items Name
 
+  // If we have no item, we always go last
   if (m_viewItem == NULL)
     return false;
   BaseModelItem* modelItem = m_viewItem->GetModelItem();
@@ -39,7 +40,7 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
     static_cast<const VETreeWidgetItem&>(other);
   BaseViewItem* otherView = otherItem.getViewItem();
   if (otherView == NULL)
-    return false;
+    return true;
 
   VETreeWidgetItem* parentWidget = 
     static_cast<VETreeWidgetItem*>(parent());

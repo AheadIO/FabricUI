@@ -17,6 +17,25 @@ BaseViewItem::BaseViewItem( QString const &name )
 }
 
 
+void BaseViewItem::setBaseModelItem( BaseModelItem* item )
+{
+  m_modelItem = item;
+
+  if (m_modelItem != NULL)
+  {
+    QObject::connect(
+      this, SIGNAL( viewValueChanged( QVariant const &, bool ) ),
+      m_modelItem, SLOT( onViewValueChanged( QVariant const &, bool ) )
+      );
+
+    QObject::connect(
+      m_modelItem, SIGNAL( modelValueChanged( QVariant const & ) ),
+      this, SLOT( onModelValueChanged( QVariant const & ) )
+      );
+
+  }
+}
+
 BaseViewItem::~BaseViewItem()
 {
   s_nInstances--;
@@ -51,7 +70,8 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
     for (int i = 0; i < numChildren; ++i)
     {
       BaseModelItem *childModelItem = m_modelItem->GetChild( i );
-      BaseViewItem* childViewItem = viewItemFactory->BuildView( childModelItem );
+      BaseViewItem* childViewItem = 
+        viewItemFactory->CreateViewItem( childModelItem );
       if (childViewItem == NULL)
         continue;
 

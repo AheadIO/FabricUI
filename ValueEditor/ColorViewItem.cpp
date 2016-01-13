@@ -5,6 +5,7 @@
 #include "ColorViewItem.h"
 #include "QVariantRTVal.h"
 #include "ViewItemFactory.h"
+#include "ItemMetadata.h"
 
 #include <assert.h>
 #include <FTL/JSONValue.h>
@@ -105,22 +106,22 @@ void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
 
   // Our children are inherently limited to 0->1
-  const char* jsonLimits = "{ \"min\" : 0.0,\n  \"max\" : 1.0 }";
-  FTL::JSONValue *jsonValue = FTL::JSONValue::Decode( jsonLimits );
-  FTL::JSONObject* jsonObject = jsonValue->cast<FTL::JSONObject>();
+  ViewItemMetadata metadata;
+  metadata.setFloat64( "min", 0.0 );
+  metadata.setFloat64( "max", 1.0 );
 
   BaseViewItem *children[3];
   switch (m_color.spec())
   {
     case QColor::Rgb:
-      children[0] = factory->CreateViewItem( "R", QVariant( m_color.redF() ), jsonObject );
-      children[1] = factory->CreateViewItem( "G", QVariant( m_color.greenF() ), jsonObject );
-      children[2] = factory->CreateViewItem( "B", QVariant( m_color.blueF() ), jsonObject );
+      children[0] = factory->CreateViewItem( "R", QVariant( m_color.redF() ), &metadata );
+      children[1] = factory->CreateViewItem( "G", QVariant( m_color.greenF() ), &metadata );
+      children[2] = factory->CreateViewItem( "B", QVariant( m_color.blueF() ), &metadata );
       break;
     case QColor::Hsv:
-      children[0] = factory->CreateViewItem( "H", QVariant( m_color.hueF() ), jsonObject );
-      children[1] = factory->CreateViewItem( "S", QVariant( m_color.saturationF() ), jsonObject );
-      children[2] = factory->CreateViewItem( "V", QVariant( m_color.valueF() ), jsonObject );
+      children[0] = factory->CreateViewItem( "H", QVariant( m_color.hueF() ), &metadata );
+      children[1] = factory->CreateViewItem( "S", QVariant( m_color.saturationF() ), &metadata );
+      children[2] = factory->CreateViewItem( "V", QVariant( m_color.valueF() ), &metadata );
       break;
     default:
       assert( !"Invalid Color" );
@@ -185,7 +186,7 @@ void ColorViewItem::onColorSelected( QColor color )
 BaseViewItem *ColorViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  FTL::JSONObject* /*metaData*/
+  ItemMetadata* /*metaData*/
   )
 {
   if (RTVariant::isType<QColor>(value))

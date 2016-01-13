@@ -10,9 +10,21 @@
 
 #include <assert.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item );
+QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent );
+QTreeWidgetItem* GetOutNode( QTreeWidgetItem* parent );
+
+const QString s_outNodeName = _T(" - Out - ");
+
+//////////////////////////////////////////////////////////////////////////
+
 VETreeWidget::VETreeWidget( )
 {
   setColumnCount( 2 );
+  setContextMenuPolicy( Qt::CustomContextMenu );
+
   connect(
     this, SIGNAL( itemExpanded( QTreeWidgetItem * ) ),
     this, SLOT( onTreeWidgetItemExpanded( QTreeWidgetItem * ) )
@@ -21,15 +33,21 @@ VETreeWidget::VETreeWidget( )
     this, SIGNAL( itemCollapsed( QTreeWidgetItem * ) ),
     this, SLOT( onTreeWidgetItemCollapsed( QTreeWidgetItem * ) )
     );
+  connect( 
+    this, SIGNAL( customContextMenuRequested( const QPoint& ) ),
+    this, SLOT( prepareMenu( const QPoint& ) )
+    );
 
   setObjectName( "valueEditor" );
+
 }
 
-void VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parentTreeWidgetItem, int index )
+
+VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index /*= -1 */ )
 {
   assert( viewItem );
   if (viewItem == NULL)
-    return;
+    return NULL;
 
   VETreeWidgetItem *treeWidgetItem = new VETreeWidgetItem( viewItem );
   if (viewItem->hasChildren())
@@ -37,20 +55,28 @@ void VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem
   else
     treeWidgetItem->setChildIndicatorPolicy( QTreeWidgetItem::DontShowIndicator );
 
-  if (parentTreeWidgetItem)
+  if (parent)
   {
-    if (index < 0 || index >= parentTreeWidgetItem->childCount())
-      parentTreeWidgetItem->addChild( treeWidgetItem );
+    BaseModelItem* modelItem = viewItem->GetModelItem();
+    if (modelItem != NULL)
+    {
+      if (modelItem->GetInOut() == FabricCore::DFGPortType_Out)
+      {
+        parent = GetOutNode( parent );
+      }
+    }
+    if (index < 0 || index >= parent->childCount())
+      parent->addChild( treeWidgetItem );
     else
-      parentTreeWidgetItem->insertChild( index, treeWidgetItem );
+      parent->insertChild( index, treeWidgetItem );
   }
   else
   {
     addTopLevelItem( treeWidgetItem );
-    treeWidgetItem->setExpanded( true );
   }
 
   viewItem->setWidgetsOnTreeItem( this, treeWidgetItem );
+  return treeWidgetItem;
 }
 
 VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem ) const
@@ -96,16 +122,18 @@ void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, c
   QTreeWidgetItem* parentItem = findTreeWidget( parent );
   if (parent != NULL)
   {
+    parentItem->setChildIndicatorPolicy( QTreeWidgetItem::ShowIndicator );
     if (parentItem->isExpanded())
     {
       // Insert new child in the appropriate place
       BaseModelItem* newItem = parent->GetChild( name );
-      BaseViewItem* newView = 
+      BaseViewItem* newView =
         ViewItemFactory::GetInstance()->CreateViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
+
+      // Ensure ordering is maintained.
+      sortItems( 0, Qt::AscendingOrder );
     }
-    else
-      parentItem->setChildIndicatorPolicy( QTreeWidgetItem::ShowIndicator );
   }
 }
 
@@ -116,7 +144,7 @@ void VETreeWidget::onModelItemRemoved( BaseModelItem* item )
     delete oldWidget;
 }
 
-void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* newType )
+void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*newType*/ )
 {
   VETreeWidgetItem* oldWidget = findTreeWidget( item );
   if (oldWidget != NULL)
@@ -139,7 +167,7 @@ void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* newT
   }
 }
 
-void VETreeWidget::onModelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder )
+void VETreeWidget::onModelItemChildrenReordered( BaseModelItem* /*parent*/, const QList<int>& /*newOrder*/ )
 {
   sortItems( 0, Qt::AscendingOrder );
 }
@@ -147,10 +175,12 @@ void VETreeWidget::onModelItemChildrenReordered( BaseModelItem* parent, const QL
 void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
 {
   ViewItemFactory* pFactory = ViewItemFactory::GetInstance();
-  BaseViewItem* pViewLayer = pFactory->BuildView( pItem );
+  BaseViewItem* pViewLayer = pFactory->CreateViewItem( pItem );
   // Remove all existing
   clear();
-  createTreeWidgetItem( pViewLayer, NULL );
+  VETreeWidgetItem* newItem = createTreeWidgetItem( pViewLayer, NULL );
+  newItem->setExpanded( true );
+
 }
 
 void VETreeWidget::onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem )
@@ -158,22 +188,113 @@ void VETreeWidget::onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem )
   VETreeWidgetItem *treeWidgetItem =
     static_cast<VETreeWidgetItem *>( _treeWidgetItem );
   BaseViewItem *viewItem = treeWidgetItem->getViewItem();
-  QList<BaseViewItem *> childViewItems;
-  viewItem->appendChildViewItems( childViewItems );
-  for ( int i = 0; i < childViewItems.size(); ++i )
+
+  if (viewItem != NULL)
   {
-    BaseViewItem *childViewItem = childViewItems.at( i );
-    createTreeWidgetItem( childViewItem, treeWidgetItem );
+    QList<BaseViewItem *> childViewItems;
+    viewItem->appendChildViewItems( childViewItems );
+    for (int i = 0; i < childViewItems.size(); ++i)
+    {
+      BaseViewItem *childViewItem = childViewItems.at( i );
+      createTreeWidgetItem( childViewItem, treeWidgetItem );
+    }
+    sortItems( 0, Qt::AscendingOrder );
   }
 }
 
-void VETreeWidget::onTreeWidgetItemCollapsed( QTreeWidgetItem *treeWidgetItem )
+void VETreeWidget::onTreeWidgetItemCollapsed( QTreeWidgetItem *_treeWidgetItem )
 {
-  for ( int i = treeWidgetItem->childCount(); i--; )
+  VETreeWidgetItem *treeWidgetItem =
+    static_cast<VETreeWidgetItem *>(_treeWidgetItem);
+  BaseViewItem *viewItem = treeWidgetItem->getViewItem();
+
+  if (viewItem != NULL)
   {
-    VETreeWidgetItem *childTreeWidgetItem =
-      static_cast<VETreeWidgetItem *>( treeWidgetItem->child( i ) );
-    treeWidgetItem->removeChild( childTreeWidgetItem );
-    delete childTreeWidgetItem;
+    for (int i = treeWidgetItem->childCount(); i--; )
+    {
+      VETreeWidgetItem *childTreeWidgetItem =
+        static_cast<VETreeWidgetItem *>(treeWidgetItem->child( i ));
+      treeWidgetItem->removeChild( childTreeWidgetItem );
+      delete childTreeWidgetItem;
+    }
   }
+}
+
+void VETreeWidget::prepareMenu( const QPoint& pt )
+{
+  VETreeWidgetItem* item = static_cast<VETreeWidgetItem*>(itemAt( pt ));
+  BaseModelItem* model = GetFirstModelItem( item );
+
+  QAction *newAct = new QAction( tr( "Reset" ), this );
+  newAct->setStatusTip( tr( "new sth" ) );
+
+  newAct->setEnabled( model->hasDefault() );
+  connect( newAct, SIGNAL( triggered() ), this, SLOT( resetItem() ) );
+
+  QMenu menu( this );
+  menu.addAction( newAct );
+  menu.exec( mapToGlobal( pt ) );
+}
+
+void VETreeWidget::resetItem()
+{
+  QList<QTreeWidgetItem*> items = selectedItems();
+  for (int i = 0; i < items.size(); i++)
+  {
+    VETreeWidgetItem* item = static_cast<VETreeWidgetItem*>(items[i]);
+    BaseModelItem* model = GetFirstModelItem( item );
+    if (model)
+      model->resetToDefault();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item )
+{
+  if (item == NULL)
+    return NULL;
+
+  BaseViewItem* pViewItem = item->getViewItem();
+  if (pViewItem != NULL)
+  {
+    BaseModelItem* pModelItem = pViewItem->GetModelItem();
+    if (pModelItem != NULL)
+      return pModelItem;
+  }
+  VETreeWidgetItem* parent =
+    static_cast<VETreeWidgetItem*>(item->parent());
+
+  return GetFirstModelItem( parent );
+}
+
+QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent )
+{
+  if (parent == NULL)
+    return NULL;
+
+  if (parent->text(0) == s_outNodeName)
+    return parent;
+
+  for (int i = 0; i < parent->childCount(); i++)
+  {
+    QTreeWidgetItem* child = parent->child( i );
+    if (child->text(0) == s_outNodeName)
+      return child;
+  }
+  return NULL;
+}
+
+QTreeWidgetItem* GetOutNode( QTreeWidgetItem* parent )
+{
+  // Out values get moved into their own sub-item
+  QTreeWidgetItem* outNode = FindOutNode( parent );
+  if (outNode == NULL)
+  {
+    outNode = new VETreeWidgetItem( NULL );
+    outNode->setText( 0, s_outNodeName );
+    outNode->setFirstColumnSpanned( true );
+    parent->addChild( outNode );
+  }
+  return outNode;
 }

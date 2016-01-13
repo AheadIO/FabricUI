@@ -7,3 +7,4 @@ Makefile
 *.cxx
 *.cxx_parameters
 TestProject
+*.opendb
