@@ -1,7 +1,11 @@
+#pragma once
+
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
+
 #include <vector>
 
+class ItemMetadata;
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
 // 
@@ -33,7 +37,7 @@ namespace FabricUI
 
       virtual QString GetName();;
 
-      virtual FTL::JSONObject* GetMetadata();
+      virtual ItemMetadata* GetMetadata();
 
       virtual QVariant GetValue();;
 
@@ -47,6 +51,11 @@ namespace FabricUI
         QVariant const& var,
         bool commit
         );
+
+      virtual bool hasDefault() /*override*/;
+
+      virtual void resetToDefault() /*override*/;
+
     };
 
     // Specialize Exec for special case exterior
@@ -86,11 +95,17 @@ namespace FabricUI
 
       virtual QString GetName();
 
-      virtual FTL::JSONObject* GetMetadata();
+      virtual ItemMetadata* GetMetadata();
+
+      virtual int GetInOut();
 
       virtual QVariant GetValue();
 
       virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
+
+      virtual bool hasDefault() /*override*/;
+
+      virtual void resetToDefault() /*override*/;
 
     };
 
@@ -102,10 +117,12 @@ namespace FabricUI
     public:
 
       ArgModelItem( const FabricCore::DFGBinding& binding, QString portName );
+
       virtual QVariant GetValue();
 
       virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
 
+      virtual ItemMetadata* GetMetadata() /*override*/;
     };
   }
 }

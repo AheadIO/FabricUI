@@ -1,5 +1,6 @@
 
 #include "ModelItems.h"
+#include <ValueEditor/ItemMetadata.h>
 #include "assert.h"
 
 using namespace FabricUI;
@@ -71,7 +72,7 @@ QString ExecModelItem::GetName()
   return QString( "[Root Ports]" );
 }
 
-FTL::JSONObject* ExecModelItem::GetMetadata()
+ItemMetadata* ExecModelItem::GetMetadata()
 {
   return NULL;
 }
@@ -119,6 +120,15 @@ void ExecModelItem::onViewValueChanged( QVariant const& var, bool commit )
     m_exec.setTitle( asciiArr.data() );
     //emit modelValueChanged(var);
   }
+}
+
+bool FabricUI::ModelItems::ExecModelItem::hasDefault()
+{
+  return false;
+}
+
+void FabricUI::ModelItems::ExecModelItem::resetToDefault()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -183,12 +193,61 @@ QString PortModelItem::GetName()
   return m_name;
 }
 
-FTL::JSONObject* PortModelItem::GetMetadata()
+class PortItemMetadata : public ItemMetadata
 {
-  //m_binding.getMetadata();
-  return NULL;
-  //m_binding.get_
-  //m_exec.getPortMetadata(m_name);
+protected:
+  FabricCore::DFGExec m_exec;
+  std::string m_path;
+
+public:
+
+  PortItemMetadata( FabricCore::DFGExec exec, const char* path )
+    : m_exec( exec )
+    , m_path( path )
+  {}
+
+  virtual const char* getString( const char* key ) const override
+  {
+    return const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
+  }
+
+  virtual int getSInt32( const char* key ) const override
+  {
+    const char* data = getString( key );
+    return atoi( data );
+  }
+
+  virtual double getFloat64( const char* key ) const override
+  {
+    const char* value = getString( key );
+    return atof( value );
+  }
+
+  virtual const FTL::JSONObject* getDict( const char* key ) const override
+  {
+    throw std::logic_error( "The method or operation is not implemented." );
+  }
+
+  virtual const FTL::JSONArray* getArray( const char* key ) const override
+  {
+    throw std::logic_error( "The method or operation is not implemented." );
+  }
+
+  virtual bool has( const char* key ) const override
+  {
+    const char* val = getString( key );
+    return strcmp( val, "" ) != 0;
+  }
+};
+
+ItemMetadata* PortModelItem::GetMetadata()
+{
+  return new PortItemMetadata( m_exec, m_cname.c_str() );
+}
+
+int PortModelItem::GetInOut()
+{
+  return m_exec.getExecPortType( m_cname.c_str() );
 }
 
 QVariant PortModelItem::GetValue()
@@ -238,6 +297,30 @@ void PortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
   }
 }
 
+bool FabricUI::ModelItems::PortModelItem::hasDefault()
+{
+  // If we have a resolved type, allow getting the default val
+  const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );
+  return (ctype != NULL);
+}
+
+void FabricUI::ModelItems::PortModelItem::resetToDefault()
+{
+#pragma message("Fix instance values for non-arg ports")
+  //// If we have a resolved type, allow getting the default val
+  const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );
+  if (ctype != NULL)
+  {
+    //FabricCore::RTVal val = m_exec.getInstPortResolvedDefaultValue(
+    //  m_cname.c_str(),
+    //  ctype );
+
+    FabricCore::RTVal val = m_exec.getPortDefaultValue( m_cname.c_str(), ctype );
+    if (val.isValid())
+      onViewValueChanged( QVariant::fromValue( val ), 1 );
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 ArgModelItem::ArgModelItem( const FabricCore::DFGBinding & binding, QString portName )
   : PortModelItem(binding.getExec(), portName)
@@ -252,7 +335,7 @@ QVariant ArgModelItem::GetValue()
   {
     return QVariant::fromValue<FabricCore::RTVal>( val );
   }
-  return QString( "|Invalid Port|" );
+  return QVariant(); // QString( "|Invalid Port|" );
 }
 
 void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
@@ -269,4 +352,23 @@ void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
   {
     m_binding.setArgValue( m_cname.c_str(), val, commit );
   }
+}
+
+class ArgItemMetadata : public PortItemMetadata
+{
+public:
+  ArgItemMetadata( FabricCore::DFGExec exec, const char* path )
+    : PortItemMetadata( exec, path )
+  {}
+
+  virtual const char* getString( const char* key ) const override
+  {
+    return const_cast<FabricCore::DFGExec&>(m_exec).getExecPortMetadata( m_path.c_str(), key );
+  }
+
+};
+
+ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
+{
+  return new ArgItemMetadata( m_exec, m_cname.c_str() );
 }
