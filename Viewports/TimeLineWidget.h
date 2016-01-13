@@ -70,6 +70,9 @@ namespace FabricUI
         /// set the timer from a QTimer interval.
         void setTimerFromInterval(int interval);
 
+        /// returns the frame rate (frame per seconds) currently set in m_frameRateComboBox.
+        double getFrameRateFromComboBox();
+
       signals :
         /// this signal is emited when ever the time on the widget changed
         /// client would connect this slight to any slots that need to know about the time

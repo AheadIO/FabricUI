@@ -340,6 +340,12 @@ void TimeLineWidget::setTimerFromInterval(int interval)
   }
 }
 
+double TimeLineWidget::getFrameRateFromComboBox()
+{
+  if (m_frameRateComboBox)  return atof(m_frameRateComboBox->currentText().toUtf8().constData());
+  else                      return 0;
+}
+
 void TimeLineWidget::updateFrameRange()
 {
   m_currentFrameSpinBox->setMinimum( m_startSpinBox->value() );
