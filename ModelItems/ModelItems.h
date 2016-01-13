@@ -110,6 +110,8 @@ namespace FabricUI
 
       virtual void onViewValueChanged( QVariant const&, bool ) override;
 
+      virtual ItemMetadata* GetMetadata() override;
+
     };
   }
 }

@@ -186,7 +186,7 @@ QString PortModelItem::GetName()
 
 class PortItemMetadata : public ItemMetadata
 {
-private:
+protected:
   FabricCore::DFGExec m_exec;
   std::string m_path;
 
@@ -226,7 +226,8 @@ public:
 
   virtual bool has( const char* key ) const override
   {
-    return strcmp( getString( key ), "" ) != 0;
+    const char* val = getString( key );
+    return strcmp( val, "" ) != 0;
   }
 };
 
@@ -296,7 +297,7 @@ QVariant ArgModelItem::GetValue()
   {
     return QVariant::fromValue<FabricCore::RTVal>( val );
   }
-  return QString( "|Invalid Port|" );
+  return QVariant(); // QString( "|Invalid Port|" );
 }
 
 void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
@@ -313,4 +314,23 @@ void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
   {
     m_binding.setArgValue( m_cname.c_str(), val, commit );
   }
+}
+
+class ArgItemMetadata : public PortItemMetadata
+{
+public:
+  ArgItemMetadata( FabricCore::DFGExec exec, const char* path )
+    : PortItemMetadata( exec, path )
+  {}
+
+  virtual const char* getString( const char* key ) const override
+  {
+    return const_cast<FabricCore::DFGExec&>(m_exec).getExecPortMetadata( m_path.c_str(), key );
+  }
+
+};
+
+ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
+{
+  return new ArgItemMetadata( m_exec, m_cname.c_str() );
 }
