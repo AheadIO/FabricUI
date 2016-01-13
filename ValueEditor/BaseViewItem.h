@@ -12,6 +12,8 @@ class ItemMetadata;
 
 class QTreeWidget;
 class QTreeWidgetItem;
+class QVariant;
+class QString;
 
 // The base item for the view-side of the equation.
 // A BaseViewItem essentially represents a row in the

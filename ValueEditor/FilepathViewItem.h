@@ -1,8 +1,11 @@
 #pragma once
 
 #include "BaseViewItem.h"
+#include <FabricCore.h>
 
-class QDoubleSpinBox;
+class QWidget;
+class QLineEdit;
+class ItemMetadata;
 
 class FilepathViewItem : public BaseViewItem
 {
@@ -11,6 +14,13 @@ class FilepathViewItem : public BaseViewItem
     FabricCore::RTVal m_val;
 
 public:
+
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    ItemMetadata* metaData
+    );
+  static const int Priority;
 
 	FilepathViewItem(
     QString const &name,

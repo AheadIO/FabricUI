@@ -7,6 +7,7 @@
 #include "BaseViewItem.h"
 
 class BaseModelItem;
+class ItemMetadata;
 class QLabel;
 
 class DefaultViewItem : public BaseViewItem
@@ -20,7 +21,7 @@ public:
   static BaseViewItem *CreateItem(
     QString const &name,
     QVariant const &value,
-    FTL::JSONObject* /*metaData*/
+    ItemMetadata* metaData
     );
   static const int Priority;
 

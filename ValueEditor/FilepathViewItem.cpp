@@ -1,7 +1,14 @@
-#include "stdafx.h"
+
 #include "FilepathViewItem.h"
-#include "BaseViewItemCreator.h"
-#include "ValueEditor\ItemMetadata.h"
+#include "ItemMetadata.h"
+#include "QVariantRTVal.h"
+
+#include <QtCore/QVariant>
+#include <QtGui/QWidget>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QLineEdit>
+#include <QtGui/QFileDialog>
 
 inline QString ToQString( const QVariant& var );
 FabricCore::RTVal ToFilePath( FabricCore::RTVal& val, const QString& text );
@@ -127,7 +134,8 @@ FabricCore::RTVal ToFilePath( FabricCore::RTVal& val, const QString& text )
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static FilepathViewItem* CreateItem(
+
+BaseViewItem *FilepathViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   ItemMetadata* /*metaData*/
@@ -146,8 +154,4 @@ static FilepathViewItem* CreateItem(
   return NULL;
 }
 
-EXPOSE_VIEW_ITEM( FilepathViewItem, CreateItem, 5 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_FilepathViewItem.cpp"
+const int FilepathViewItem::Priority = 3;

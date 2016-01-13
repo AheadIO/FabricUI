@@ -1,5 +1,5 @@
-#include "StdAfx.h"
 #include "ItemMetadata.h"
+#include <FTL/JSONValue.h>
 
 ViewItemMetadata::ViewItemMetadata( ItemMetadata* parent )
   : m_parent(parent)

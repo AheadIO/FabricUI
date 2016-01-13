@@ -3,6 +3,8 @@
 //
 
 #include "DoubleSlider.h"
+#include <QtGui/QStyleOptionSlider>
+#include <QtGui/QMouseEvent>
 
 DoubleSlider::DoubleSlider( QWidget * parent ) 
   : QSlider( parent )

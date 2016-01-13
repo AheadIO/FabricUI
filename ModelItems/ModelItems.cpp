@@ -1,7 +1,7 @@
 
 #include "ModelItems.h"
-#include <ValueEditor/ItemMetadata.h>
-#include "assert.h"
+#include "../ValueEditor/ItemMetadata.h"
+#include <assert.h>
 
 using namespace FabricUI;
 using namespace ModelItems;

@@ -3,7 +3,6 @@
 //
 
 #include "FloatSliderViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "ItemMetadata.h"
 #include "DoubleSlider.h"
 

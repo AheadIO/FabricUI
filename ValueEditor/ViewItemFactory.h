@@ -11,10 +11,6 @@ class BaseViewItem;
 class BaseModelItem;
 class ItemMetadata;
 
-namespace FTL {
-  class JSONObject;
-}
-
 // This factory is responsible for returning the appropriate BaseViewItem
 // when creating for a given data type
 class ViewItemFactory /*sealed*/
@@ -26,7 +22,7 @@ public:
 	typedef BaseViewItem *(*CreateItemFn)(
 	  QString const &name,
 	  QVariant const &value,
-	  FTL::JSONObject* 
+	  ItemMetadata* metaData
 	  );
 
 private:

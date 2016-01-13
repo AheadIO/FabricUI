@@ -3,6 +3,7 @@
 //
 
 #include "BaseModelItem.h"
+#include <FabricCore.h>
 
 BaseModelItem::BaseModelItem()
 {

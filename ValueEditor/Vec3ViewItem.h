@@ -10,6 +10,7 @@
 
 class QLayout;
 class QLineEdit;
+class ItemMetadata;
 
 class Vec3ViewItem : public BaseComplexViewItem
 {
@@ -29,7 +30,7 @@ public:
   static BaseViewItem *CreateItem(
     QString const &name,
     QVariant const &value,
-    FTL::JSONObject* /*metaData*/
+    ItemMetadata* metaData
     );
   static const int Priority;
 

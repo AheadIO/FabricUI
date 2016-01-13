@@ -9,6 +9,7 @@
 #include <QtGui/QColor.h>
 
 class QPushButton;
+class ItemMetadata;
 
 class ColorViewItem : public BaseComplexViewItem
 {
@@ -25,7 +26,7 @@ public:
   static BaseViewItem *CreateItem(
     QString const &name,
     QVariant const &value,
-    FTL::JSONObject* /*metaData*/
+    ItemMetadata* metaData
     );
   static const int Priority;
 

@@ -2,13 +2,21 @@
 
 #include "BaseViewItem.h"
 
-class QDoubleSpinBox;
+class QWidget;
+class QLineEdit;
 
 class StringViewItem : public BaseViewItem
 {
 	Q_OBJECT
 
 public:
+
+  static BaseViewItem *CreateItem(
+    QString const &name,
+    QVariant const &value,
+    ItemMetadata* metaData
+    );
+  static const int Priority;
 
 	StringViewItem(
     QString const &name,

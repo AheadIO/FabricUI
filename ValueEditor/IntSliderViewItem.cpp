@@ -1,7 +1,7 @@
-#include "stdafx.h"
 #include "IntSliderViewItem.h"
-#include "BaseViewItemCreator.h"
 #include "ItemMetadata.h"
+#include <QtCore/QVariant>
+#include <QtGui/QSlider>
 
 IntSliderViewItem::IntSliderViewItem(
   QString const &name,
@@ -67,7 +67,7 @@ void IntSliderViewItem::OnEditFinished()
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static IntSliderViewItem* CreateItem(
+BaseViewItem* IntSliderViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
   ItemMetadata* metaData
@@ -89,9 +89,3 @@ static IntSliderViewItem* CreateItem(
   }
   return NULL;
 }
-
-EXPOSE_VIEW_ITEM( IntSliderViewItem, CreateItem, 5 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_IntSliderViewItem.cpp"

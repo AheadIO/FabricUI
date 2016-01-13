@@ -7,6 +7,7 @@
 #include "BaseViewItem.h"
 
 class DoubleSlider;
+class ItemMetadata;
 
 class FloatSliderViewItem : public BaseViewItem
 {
@@ -17,7 +18,7 @@ public:
   static BaseViewItem *CreateItem(
     QString const &name,
     QVariant const &value,
-    FTL::JSONObject* /*metaData*/
+    ItemMetadata* metaData
     );
   static const int Priority;
 

@@ -1,6 +1,13 @@
-#include "stdafx.h"
 #include "StringViewItem.h"
-#include "BaseViewItemCreator.h"
+#include "QVariantRTVal.h"
+
+#include <QtGui/QDialog>
+#include <QtGui/QPushButton>
+#include <QtGui/QLineEdit>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QDialogButtonBox>
 
 StringViewItem::StringViewItem(
   QString const &name,
@@ -97,10 +104,11 @@ void StringViewItem::onInspect()
 
 //////////////////////////////////////////////////////////////////////////
 // 
-static StringViewItem* CreateItem(
+
+BaseViewItem* StringViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metaData
   )
 {
   if (RTVariant::isType<QString>(value))
@@ -109,9 +117,3 @@ static StringViewItem* CreateItem(
   }
   return 0;
 }
-
-EXPOSE_VIEW_ITEM( StringViewItem, CreateItem, 3 );
-
-// Include MOC'ed file here, in order
-// to support PCH on windows.
-#include "moc_StringViewItem.cpp"

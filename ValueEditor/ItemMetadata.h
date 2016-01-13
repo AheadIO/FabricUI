@@ -38,7 +38,7 @@ public:
  * for its children to specify that they should be
  * between 0 and 1
 */
-class VALUEEDIT_API ViewItemMetadata : public ItemMetadata
+class ViewItemMetadata : public ItemMetadata
 {
   // We store any set metadata here.
   FTL::JSONObject* m_json;

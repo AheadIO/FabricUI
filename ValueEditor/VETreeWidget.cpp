@@ -8,6 +8,10 @@
 #include "BaseModelItem.h"
 #include "ViewItemFactory.h"
 
+#include <FabricCore.h>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+
 #include <assert.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -16,7 +20,7 @@ BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item );
 QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent );
 QTreeWidgetItem* GetOutNode( QTreeWidgetItem* parent );
 
-const QString s_outNodeName = _T(" - Out - ");
+const QString s_outNodeName = " - Out - ";
 
 //////////////////////////////////////////////////////////////////////////
 
