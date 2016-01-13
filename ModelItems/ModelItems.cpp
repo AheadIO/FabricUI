@@ -122,6 +122,15 @@ void ExecModelItem::onViewValueChanged( QVariant const& var, bool commit )
   }
 }
 
+bool FabricUI::ModelItems::ExecModelItem::hasDefault()
+{
+  return false;
+}
+
+void FabricUI::ModelItems::ExecModelItem::resetToDefault()
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 BindingModelItem::BindingModelItem( FabricCore::DFGBinding binding )
   : ExecModelItem(binding.getExec())
@@ -236,6 +245,11 @@ ItemMetadata* PortModelItem::GetMetadata()
   return new PortItemMetadata( m_exec, m_cname.c_str() );
 }
 
+int PortModelItem::GetInOut()
+{
+  return m_exec.getExecPortType( m_cname.c_str() );
+}
+
 QVariant PortModelItem::GetValue()
 {
   try
@@ -280,6 +294,30 @@ void PortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
     FabricCore::RTVal val = m_exec.getPortDefaultValue( m_cname.c_str(), ctype );
     if (RTVariant::toRTVal( vars, val ))
       m_exec.setPortDefaultValue( m_cname.c_str(), val, commit );
+  }
+}
+
+bool FabricUI::ModelItems::PortModelItem::hasDefault()
+{
+  // If we have a resolved type, allow getting the default val
+  const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );
+  return (ctype != NULL);
+}
+
+void FabricUI::ModelItems::PortModelItem::resetToDefault()
+{
+#pragma message("Fix instance values for non-arg ports")
+  //// If we have a resolved type, allow getting the default val
+  const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );
+  if (ctype != NULL)
+  {
+    //FabricCore::RTVal val = m_exec.getInstPortResolvedDefaultValue(
+    //  m_cname.c_str(),
+    //  ctype );
+
+    FabricCore::RTVal val = m_exec.getPortDefaultValue( m_cname.c_str(), ctype );
+    if (val.isValid())
+      onViewValueChanged( QVariant::fromValue( val ), 1 );
   }
 }
 

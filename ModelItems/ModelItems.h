@@ -51,6 +51,11 @@ namespace FabricUI
         QVariant const& var,
         bool commit
         );
+
+      virtual bool hasDefault() override;
+
+      virtual void resetToDefault() override;
+
     };
 
     // Specialize Exec for special case exterior
@@ -92,9 +97,15 @@ namespace FabricUI
 
       virtual ItemMetadata* GetMetadata();
 
+      virtual int GetInOut();
+
       virtual QVariant GetValue();
 
       virtual void onViewValueChanged( QVariant const&, bool ) override;
+
+      virtual bool hasDefault() override;
+
+      virtual void resetToDefault() override;
 
     };
 
@@ -106,12 +117,12 @@ namespace FabricUI
     public:
 
       ArgModelItem( const FabricCore::DFGBinding& binding, QString portName );
+
       virtual QVariant GetValue();
 
       virtual void onViewValueChanged( QVariant const&, bool ) override;
 
       virtual ItemMetadata* GetMetadata() override;
-
     };
   }
 }
