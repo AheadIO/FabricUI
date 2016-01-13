@@ -147,6 +147,11 @@ if uiLibPrefix == 'ui':
     pysideEnv.MergeFlags(servicesFlags)
     pysideEnv.MergeFlags(pythonConfig['shibokenFlags'])
     pysideEnv.MergeFlags(pythonConfig['pysideFlags'])
+    # These are necessary because of the way that shiboken
+    # generates its includes
+    pysideEnv.Append(CPPPATH = [
+      stageDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
+      ])
 
     pysideDir = pysideEnv.Dir('pyside').Dir('python'+pythonVersion)
     shibokenDir = pysideEnv.Dir('shiboken')
@@ -168,11 +173,16 @@ if uiLibPrefix == 'ui':
     shibokenIncludePaths.append(qtIncludeDir)
     shibokenIncludePaths.append(os.path.join(os.environ['FABRIC_DIR'], "include"))
 
+    if buildOS == 'Windows':
+      diffFile = shibokenDir.File('fabricui.Windows.diff')
+    else:
+      diffFile = shibokenDir.File('fabricui.diff')
+
     pysideGen = pysideEnv.Command(
       pysideDir.Dir('FabricUI').File('fabricui_python.h'),
       [
         shibokenDir.File('global.h'),
-        shibokenDir.File('fabricui.diff'),
+        diffFile,
         shibokenDir.File('fabricui.xml'),
         shibokenDir.File('fabricui_core.xml'),
         shibokenDir.File('fabricui_dfg.xml'),
@@ -277,7 +287,10 @@ if uiLibPrefix == 'ui':
     pysideEnv.Append(LIBS = stageDir.Dir('Python/' + pythonVersion + '/FabricEngine/Core').File(fabricPythonLibBasename))
     if buildOS == 'Windows':
       installedPySideLibName = 'FabricUI.dll'
-      pysideEnv.Append(LIBS = "MSVCRTD")
+      if buildType == 'Debug':
+        pysideEnv.Append(LIBS = "MSVCRTD")
+      else:
+        pysideEnv.Append(LIBS = "MSVCRT")
     else:
       installedPySideLibName = 'FabricUI.so'
     pysideEnv.Append(CPPDEFINES = {'LIBSHIBOKEN_EXPORTS': "1"})
