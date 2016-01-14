@@ -139,7 +139,7 @@ Export(uiLibPrefix + 'Lib', uiLibPrefix + 'IncludeDir', uiLibPrefix + 'Flags')
 
 env.Alias(uiLibPrefix + 'Lib', uiFiles)
 
-if uiLibPrefix == 'ui':
+if uiLibPrefix == 'ui' and buildOS != 'Windows':
 
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
 
