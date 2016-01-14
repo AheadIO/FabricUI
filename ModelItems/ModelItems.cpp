@@ -378,8 +378,8 @@ ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
 
 FabricUI::ModelItems::VarModelItem::VarModelItem( FabricCore::DFGExec& exec, const char* name )
   : ExecModelItem(exec)
-  , m_cname( name )
   , m_name( name )
+  , m_cname( name )
 {
 }
 
