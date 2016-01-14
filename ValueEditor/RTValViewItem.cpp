@@ -7,7 +7,6 @@
 #include "QVariantRTVal.h"
 
 #include <assert.h>
-#include <FTL/JSONValue.h>
 #include <QtGui/QLabel.h>
 
 RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
