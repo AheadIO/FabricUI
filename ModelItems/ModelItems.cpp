@@ -373,3 +373,62 @@ ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
 {
   return new ArgItemMetadata( m_exec, m_cname.c_str() );
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+FabricUI::ModelItems::VarModelItem::VarModelItem( FabricCore::DFGExec& exec, const char* name )
+  : ExecModelItem(exec)
+  , m_cname( name )
+  , m_name( name )
+{
+}
+
+
+FabricUI::ModelItems::VarModelItem::~VarModelItem()
+{
+}
+
+size_t FabricUI::ModelItems::VarModelItem::NumChildren()
+{
+  return 0;
+}
+
+BaseModelItem* FabricUI::ModelItems::VarModelItem::GetChild( int childIndex )
+{
+  return NULL;
+}
+
+QString FabricUI::ModelItems::VarModelItem::GetName()
+{
+  return m_name;
+}
+
+int FabricUI::ModelItems::VarModelItem::GetInOut()
+{
+  // Even though we are not actually a port,
+  // we return IO because we can get & set our val
+  return FabricCore::DFGPortType_IO;
+}
+
+QVariant FabricUI::ModelItems::VarModelItem::GetValue()
+{
+  return QVariant::fromValue( m_exec.getVarValue( m_cname.c_str() ) );
+}
+
+bool FabricUI::ModelItems::VarModelItem::hasDefault()
+{
+  return false;
+}
+
+void FabricUI::ModelItems::VarModelItem::resetToDefault()
+{
+}
+
+void FabricUI::ModelItems::VarModelItem::onViewValueChanged( QVariant const& var, bool )
+{
+  FabricCore::RTVal val = m_exec.getVarValue( m_cname.c_str() );
+  if (RTVariant::toRTVal( var, val ))
+  {
+    m_exec.setVarValue( m_cname.c_str(), val );
+  }
+}

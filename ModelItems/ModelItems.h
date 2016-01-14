@@ -61,6 +61,7 @@ namespace FabricUI
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
     // Specialize Exec for special case exterior
     class BindingModelItem : public ExecModelItem
     {
@@ -75,8 +76,7 @@ namespace FabricUI
     };
 
     //////////////////////////////////////////////////////////////////////////
-
-
+    // Basic ModelItem for accessing ports
     class PortModelItem : public BaseModelItem
     {
     protected:
@@ -112,6 +112,8 @@ namespace FabricUI
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    // Specialization for accessing ports that are also args
     class ArgModelItem : public PortModelItem
     {
     private:
@@ -126,6 +128,36 @@ namespace FabricUI
       virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
 
       virtual ItemMetadata* GetMetadata() /*override*/;
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    // Access graph variables
+    class VarModelItem : public ExecModelItem
+    {
+    private:
+      QString m_name;
+      std::string m_cname;
+
+    public:
+      VarModelItem( FabricCore::DFGExec& exec, const char* name );
+      ~VarModelItem();
+
+      virtual size_t NumChildren() /*override*/;
+
+      virtual BaseModelItem* GetChild( int childIndex ) /*override*/;
+
+      virtual QString GetName() /*override*/;
+
+      virtual int GetInOut() /*override*/;
+
+      virtual QVariant GetValue() /*override*/;
+
+      virtual bool hasDefault() /*override*/;
+
+      virtual void resetToDefault() /*override*/;
+
+      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
+
     };
   }
 }
