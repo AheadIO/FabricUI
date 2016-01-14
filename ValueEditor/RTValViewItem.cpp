@@ -84,37 +84,25 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
   if (!m_val.isValid())
     return;
 
-  try {
-
-    FabricCore::RTVal desc = m_val.getJSON();
-    if (!desc.isValid())
+  try
+  {
+    if ( !m_val.isAggregate() )
       return;
-
-    const char* cdesc = desc.getStringCString();
-    if (strcmp( cdesc, "null" ) == 0)
-      return;
-
-    // parse cdesc, Build children from desc.
-    FTL::JSONValue* value = FTL::JSONValue::Decode( cdesc );
-    FTL::JSONObject* obj = value->cast<FTL::JSONObject>();
 
     // Construct a child for each instance
     ViewItemFactory* factory = ViewItemFactory::GetInstance();
-    for (FTL::JSONObject::const_iterator itr = obj->begin(); itr != obj->end(); itr++)
+    unsigned childCount = m_val.getMemberCount();
+    m_childNames.reserve( childCount );
+    for ( unsigned i = 0; i < childCount; ++i )
     {
-      const char* childName = itr->first.c_str();
-      FabricCore::RTVal childVal = m_val.maybeGetMemberRef( childName );
-      if (childVal.isValid())
+      char const *childName = m_val.getMemberName( i );
+      FabricCore::RTVal childVal = m_val.getMemberRef( i );
+      BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), &m_metadata );
+      if (childItem != NULL)
       {
-        BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), &m_metadata );
-        if (childItem != NULL)
-        {
-          size_t index = m_childNames.size();
-          m_childNames.push_back( childName );
-          connectChild( (int)index, childItem );
-
-          items.push_back( childItem );
-        }
+        m_childNames.push_back( childName );
+        connectChild( (int)i, childItem );
+        items.push_back( childItem );
       }
     }
   }
