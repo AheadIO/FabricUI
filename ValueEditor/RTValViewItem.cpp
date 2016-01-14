@@ -14,6 +14,8 @@ RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
   , m_val(value)
   , m_widget(new QLabel())
 {
+  m_widget->setContentsMargins( 0, 2, 0, 2 );
+
   // We cannot leave arbitrary classes open to
   // editing, as we don't know what effect this
   // will have.  Here we white-list the list of
