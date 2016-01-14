@@ -28,6 +28,7 @@ VETreeWidget::VETreeWidget( )
 {
   setColumnCount( 2 );
   setContextMenuPolicy( Qt::CustomContextMenu );
+  setSelectionMode( NoSelection );
 
   connect(
     this, SIGNAL( itemExpanded( QTreeWidgetItem * ) ),
