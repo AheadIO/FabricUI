@@ -15,6 +15,23 @@ RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
   , m_val(value)
   , m_widget(new QLabel())
 {
+  // We cannot leave arbitrary classes open to
+  // editing, as we don't know what effect this
+  // will have.  Here we white-list the list of
+  // items we know are editable
+  const char* typeName = m_val.getTypeNameCStr();
+  bool isEditable = (strcmp( typeName, "Mat22" ) == 0 ||
+                      strcmp( typeName, "Mat33" ) == 0 ||
+                      strcmp( typeName, "Mat44" ) == 0 ||
+                      strcmp( typeName, "Vec2" ) == 0 ||
+                      strcmp( typeName, "Vec3" ) == 0 ||
+                      strcmp( typeName, "Vec4" ) == 0 ||
+                      strcmp( typeName, "Quat" ) == 0);
+  // Do not change state if editable (we inherit our
+  // parents editable status)
+  if (!isEditable)
+    m_metadata.setSInt32( "disabled", 1 );
+
   UpdateWidget();
 }
 
@@ -89,7 +106,7 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
       FabricCore::RTVal childVal = m_val.maybeGetMemberRef( childName );
       if (childVal.isValid())
       {
-        BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), NULL );
+        BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), &m_metadata );
         if (childItem != NULL)
         {
           size_t index = m_childNames.size();
@@ -110,15 +127,17 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 
 void RTValViewItem::UpdateWidget()
 {
-  FabricCore::RTVal desc = m_val.getDesc();
-  QString str = m_val.getTypeNameCStr();
-  str += ": ";
-  str += desc.getStringCString();
+  QString str;
+  str.sprintf( "<%s>", m_val.getTypeNameCStr() );
+  //FabricCore::RTVal desc = m_val.getDesc();
+  //QString str = m_val.getTypeNameCStr();
+  //str += ": ";
+  //str += desc.getStringCString();
 
-  // We chew up tonnes of perf if we don't limit the length
-  const int maxLen = 50;
-  if (str.length() > maxLen)
-    str.resize( maxLen );
+  //// We chew up tonnes of perf if we don't limit the length
+  //const int maxLen = 50;
+  //if (str.length() > maxLen)
+  //  str.resize( maxLen );
   m_widget->setText( str );
 }
 

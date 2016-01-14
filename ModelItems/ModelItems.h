@@ -6,6 +6,7 @@
 #include <vector>
 
 class ItemMetadata;
+class PortItemMetadata;
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
 // 
@@ -86,6 +87,8 @@ namespace FabricUI
       // We store a duplicated C-style version of the
       // name for accessing the non-unicode Fabric core
       std::string m_cname;
+
+      PortItemMetadata* m_metadata;
 
     public:
       PortModelItem( const FabricCore::DFGExec& exec, QString portName );

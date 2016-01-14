@@ -51,6 +51,9 @@ public:
   ViewItemMetadata( );
   ViewItemMetadata( ItemMetadata* parent );
 
+  void setParent( ItemMetadata* parent )
+    { m_parent = parent; }
+
   // Store a new value in our local json store.
   void setString( const char* key, const char* value );
   void setSInt32( const char* key, int value );

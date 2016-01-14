@@ -162,37 +162,6 @@ void BindingModelItem::argInserted( int index, const char * name, const char * t
 }
 
 //////////////////////////////////////////////////////////////////////////
-PortModelItem::PortModelItem( const FabricCore::DFGExec& exec, QString portName )
-  : m_exec( exec )
-  , m_name( portName )
-{
-  m_cname = m_name.toStdString();
-  assert( exec.haveExecPort( m_cname.c_str() ) );
-
-  // A debug port allows us to view the values
-  // as they are being sent through the graph
-  m_exec.addDebugNodePort( m_cname.data() );
-}
-
-PortModelItem::~PortModelItem()
-{
-  m_exec.removeDebugNodePort( m_cname.data() );
-}
-
-size_t PortModelItem::NumChildren()
-{
-  return 0;
-}
-
-BaseModelItem* PortModelItem::GetChild( int i )
-{
-  return NULL;
-}
-
-QString PortModelItem::GetName()
-{
-  return m_name;
-}
 
 class PortItemMetadata : public ItemMetadata
 {
@@ -241,9 +210,46 @@ public:
   }
 };
 
+//////////////////////////////////////////////////////////////////////////
+PortModelItem::PortModelItem( const FabricCore::DFGExec& exec, QString portName )
+  : m_exec( exec )
+  , m_name( portName )
+{
+  m_cname = m_name.toStdString();
+  assert( exec.haveExecPort( m_cname.c_str() ) );
+
+  // A debug port allows us to view the values
+  // as they are being sent through the graph
+  m_exec.addDebugNodePort( m_cname.data() );
+}
+
+PortModelItem::~PortModelItem()
+{
+  m_exec.removeDebugNodePort( m_cname.data() );
+  if (m_metadata != NULL)
+    delete m_metadata;
+}
+
+size_t PortModelItem::NumChildren()
+{
+  return 0;
+}
+
+BaseModelItem* PortModelItem::GetChild( int i )
+{
+  return NULL;
+}
+
+QString PortModelItem::GetName()
+{
+  return m_name;
+}
+
 ItemMetadata* PortModelItem::GetMetadata()
 {
-  return new PortItemMetadata( m_exec, m_cname.c_str() );
+  if (m_metadata == NULL)
+    m_metadata = new PortItemMetadata( m_exec, m_cname.c_str() );
+  return m_metadata;
 }
 
 int PortModelItem::GetInOut()

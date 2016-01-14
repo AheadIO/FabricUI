@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "ItemMetadata.h"
+
 #include <QtCore/QObject.h>
 
 class BaseModelItem;
@@ -37,6 +39,11 @@ class BaseViewItem : public QObject
 
   // A ViewItem may or may not have a ModelItem
   BaseModelItem *m_modelItem;
+
+protected:
+
+  // We cache our metadata for passing on to our children
+  ViewItemMetadata m_metadata;
 
 private:
 
@@ -88,7 +95,7 @@ public:
   // Implement this function if ViewItem uses metadata to
   // set its behaviour.  This function may be called at any
   // time if the metadata associated with this item changes.
-  virtual void updateMetadata( ItemMetadata* /*metaData*/ ) {};
+  virtual void updateMetadata( ItemMetadata* metaData );
 
   // This virtual function is called to release this object.
   // It is required for external parties to use this function

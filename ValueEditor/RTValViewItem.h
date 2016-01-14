@@ -9,7 +9,6 @@
 #include <FabricCore.h>
 
 class QLabel;
-class ItemMetadata;
 
 typedef std::vector<std::string> NameList;
 

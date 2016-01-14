@@ -6,6 +6,8 @@
 #include "BaseModelItem.h"
 #include "ViewItemFactory.h"
 
+#include <FabricCore.h>
+
 #include <assert.h>
 #include <QtGui/QTreeWidget.h>
 
@@ -33,6 +35,10 @@ void BaseViewItem::setBaseModelItem( BaseModelItem* item )
       this, SLOT( onModelValueChanged( QVariant const & ) )
       );
 
+    if (m_modelItem->GetInOut() == FabricCore::DFGPortType_Out)
+    {
+      m_metadata.setSInt32( "disabled", 1 );
+    }
   }
 }
 
@@ -86,5 +92,19 @@ void BaseViewItem::setWidgetsOnTreeItem(
   )
 {
   treeWidgetItem->setText( 0, m_name );
-  treeWidget->setItemWidget( treeWidgetItem, 1, getWidget() );
+  QWidget* myWidget = getWidget();
+
+  // Disable our widgets if requested
+  if (m_metadata.has( "disabled" ) &&
+       m_metadata.getSInt32( "disabled" ) == 1)
+  {
+    myWidget->setEnabled( false );
+  }
+
+  treeWidget->setItemWidget( treeWidgetItem, 1, myWidget );
+}
+
+void BaseViewItem::updateMetadata( ItemMetadata* metaData )
+{
+  m_metadata.setParent( metaData );
 }
