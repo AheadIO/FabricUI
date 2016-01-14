@@ -49,13 +49,18 @@ QWidget *RTValViewItem::getWidget()
 void RTValViewItem::onModelValueChanged( QVariant const &value )
 {
   RTVariant::toRTVal( value, m_val );
-  for (int i = 0; i < m_childNames.size(); i++)
-  {
-    const char* childName = m_childNames[i].data();
-    FabricCore::RTVal childVal = m_val.maybeGetMemberRef( childName );
-    assert( childVal.isValid() );
 
-    routeModelValueChanged( i, toVariant( childVal ) );
+  if ( hasChildren() )
+  {
+    if ( m_val.isAggregate() )
+    {
+      unsigned childCount = m_val.getMemberCount();
+      for ( unsigned i = 0; i < childCount; ++i )
+      {
+        FabricCore::RTVal childVal = m_val.getMemberRef( i );
+        routeModelValueChanged( i, toVariant( childVal ) );
+      }
+    }
   }
 
   UpdateWidget();
@@ -67,16 +72,12 @@ void RTValViewItem::onChildViewValueChanged(
   bool commit
   )
 {
-
-  assert( index < m_childNames.size() );
-  const char* childName = m_childNames[index].data();
-
   // We cannot simply create a new RTVal based on the QVariant type, as 
   // we have to set the type exactly the same as the original.  Get the
   // original child value to ensure the new value matches the internal type
-  FabricCore::RTVal oldChildVal = m_val.maybeGetMemberRef( childName );
+  FabricCore::RTVal oldChildVal = m_val.getMemberRef( index );
   RTVariant::toRTVal( value, oldChildVal );
-  m_val.setMember( childName, oldChildVal );
+  m_val.setMember( index, oldChildVal );
 
   emit viewValueChanged( toVariant( m_val ), commit );
 }
@@ -94,15 +95,18 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
     // Construct a child for each instance
     ViewItemFactory* factory = ViewItemFactory::GetInstance();
     unsigned childCount = m_val.getMemberCount();
-    m_childNames.reserve( childCount );
     for ( unsigned i = 0; i < childCount; ++i )
     {
       char const *childName = m_val.getMemberName( i );
       FabricCore::RTVal childVal = m_val.getMemberRef( i );
-      BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), &m_metadata );
+      BaseViewItem* childItem =
+        factory->CreateViewItem(
+          childName,
+          toVariant( childVal ),
+          &m_metadata
+          );
       if (childItem != NULL)
       {
-        m_childNames.push_back( childName );
         connectChild( (int)i, childItem );
         items.push_back( childItem );
       }

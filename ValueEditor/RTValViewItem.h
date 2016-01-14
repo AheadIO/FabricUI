@@ -10,8 +10,6 @@
 
 class QLabel;
 
-typedef std::vector<std::string> NameList;
-
 // A default RTVal implementation that can display any RTVal class
 class RTValViewItem : public BaseComplexViewItem
 {
@@ -20,9 +18,6 @@ class RTValViewItem : public BaseComplexViewItem
 
   // A composite widget to represent any/all values in UI
 	QLabel *m_widget;
-
-  // A list of 
-  NameList m_childNames;
 
   bool m_isEditableType;
 
