@@ -6,6 +6,7 @@
 #include "QVariantRTVal.h"
 
 #include <QtGui/QSpinBox.h>
+#include <float.h>
 
 FloatViewItem::FloatViewItem(
   QString const &name,
@@ -14,6 +15,8 @@ FloatViewItem::FloatViewItem(
   : BaseViewItem(name)
 {
   m_spinner = new QDoubleSpinBox;
+  m_spinner->setMinimum( -DBL_MAX );
+  m_spinner->setMaximum( +DBL_MAX );
   m_spinner->setKeyboardTracking( false );
   connect(
     m_spinner, SIGNAL( valueChanged( double ) ), 
