@@ -25,7 +25,8 @@ RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
                       strcmp( typeName, "Vec2" ) == 0 ||
                       strcmp( typeName, "Vec3" ) == 0 ||
                       strcmp( typeName, "Vec4" ) == 0 ||
-                      strcmp( typeName, "Quat" ) == 0);
+                      strcmp( typeName, "Quat" ) == 0 ||
+                      strcmp( typeName, "Xfo" ) == 0);
   // Do not change state if editable (we inherit our
   // parents editable status)
   if (!m_isEditableType)
