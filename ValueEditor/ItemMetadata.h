@@ -14,6 +14,8 @@ class ItemMetadata
 {
 public:
 
+  virtual ~ItemMetadata() {}
+
   // Access arbirtary metadata
   virtual const char* getString( const char* key )  const = 0;
   virtual int getSInt32( const char* key )  const = 0;
