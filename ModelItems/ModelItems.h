@@ -29,6 +29,9 @@ namespace FabricUI
 
       size_t NumChildren();
 
+      ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
+      ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
+
       virtual BaseModelItem* GetChild( QString childName );
       virtual BaseModelItem* GetChild( int index );
 
