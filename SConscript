@@ -259,14 +259,14 @@ if uiLibPrefix == 'ui':
         '-rpath',
         '$ORIGIN/../../../lib/',
         '-rpath',
-        '$ORIGIN/../../../Python/' + pythonVersion + '/FabricEngine/Core/',
+        '$ORIGIN/../../../Python/' + pythonVersion + '/FabricEngine/',
         ])))
     if buildOS == 'Darwin':
       pysideEnv.Append(LINKFLAGS = ['-Wl,-rpath,@loader_path/../../..'])
       pysideEnv.Append(CCFLAGS = ['-Wno-mismatched-tags'])
     pysideEnv.Append(CPPPATH = pysideDir.abspath)
-    pysideEnv.Append(CPPPATH = stageDir.Dir('Python/' + pythonVersion + '/FabricEngine/Core'))
-    pysideEnv.Append(LIBPATH = [stageDir.Dir('Python/' + pythonVersion + '/FabricEngine/Core')])
+    pysideEnv.Append(CPPPATH = stageDir.Dir('Python/' + pythonVersion + '/FabricEngine'))
+    pysideEnv.Append(LIBPATH = [stageDir.Dir('Python/' + pythonVersion + '/FabricEngine')])
     pysideEnv.Append(LIBS = [fabricPythonLibName])
     if buildOS == 'Windows':
       if buildType == 'Debug':
@@ -274,8 +274,9 @@ if uiLibPrefix == 'ui':
       else:
         pysideEnv.Append(LIBS = "MSVCRT")
     installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
+    pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
     installedPySideLib = pysideEnv.LoadableModule(
-      pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine').File(installedPySideLibName),
+      pythonDstDir.File(installedPySideLibName),
       [
         pysideEnv.Glob('pyside/python'+pythonVersion+'/*.cpp'),
         pysideEnv.Glob('pyside/python'+pythonVersion+'/FabricUI/*.cpp'),
@@ -284,7 +285,15 @@ if uiLibPrefix == 'ui':
       LDMODULESUFFIX=pythonConfig['moduleSuffix'],
       )
     pysideEnv.Depends(installedPySideLib, pysideGen)
-    installedPySideLibs.append(installedPySideLib)
+    # if buildOS == 'Windows':
+    #   for pysideDLL in pythonConfig['pysideDLLs']:
+    #     installedPySideLibs.append(
+    #       pysideEnv.Install(
+    #         pythonDstDir,
+    #         pysideDLL
+    #         )
+    #       )
+    # installedPySideLibs.append(installedPySideLib)
 
   pysideEnv.Alias('pysideGen', pysideGens)
   pysideEnv.Alias('pysideLib', installedPySideLibs)
