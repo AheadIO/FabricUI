@@ -14,6 +14,7 @@ FloatViewItem::FloatViewItem(
   : BaseViewItem(name)
 {
   m_spinner = new QDoubleSpinBox;
+  m_spinner->setKeyboardTracking( false );
   connect(
     m_spinner, SIGNAL( valueChanged( double ) ), 
     this, SLOT( OnSpinnerChanged( double ) )
