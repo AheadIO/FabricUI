@@ -56,7 +56,9 @@ QStringList DFGUICmd_Exec::adjustNewNodes(
   }
 
   QStringList newNodeNames_Qt;
+#if QT_VERSION >= 0x040800
   newNodeNames_Qt.reserve( newNodeNames.size() );
+#endif
   for ( size_t i = 0; i < newNodeNames.size(); ++i )
   {
     FTL::CStrRef newNodeName = newNodeNames[i];

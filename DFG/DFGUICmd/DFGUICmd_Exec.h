@@ -5,7 +5,7 @@
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Binding.h>
 
-#include <QtCore/QStringList.h>
+#include <QtCore/QStringList>
 
 #include <FTL/ArrayRef.h>
 

@@ -20,7 +20,9 @@ void DFGUICmd_SetExtDeps::appendDesc( QString &desc )
 void DFGUICmd_SetExtDeps::invoke( unsigned &coreUndoCount )
 {
   QList<QByteArray> extDepBAs;
+#if QT_VERSION >= 0x040800
   extDepBAs.reserve( m_extDeps.size() );
+#endif
   foreach ( QString extDep, m_extDeps )
     extDepBAs.append( extDep.toUtf8() );
 
@@ -28,7 +30,7 @@ void DFGUICmd_SetExtDeps::invoke( unsigned &coreUndoCount )
     static_cast<char const **>(
       alloca( m_extDeps.size() * sizeof( char const * ) )
       );
-  for ( size_t i = 0; i < m_extDeps.size(); ++i )
+  for ( int i = 0; i < m_extDeps.size(); ++i )
     extDepCStrs[i] = extDepBAs[i].constData();
 
   invoke(
