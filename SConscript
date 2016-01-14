@@ -285,6 +285,7 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
       LDMODULESUFFIX=pythonConfig['moduleSuffix'],
       )
     pysideEnv.Depends(installedPySideLib, pysideGen)
+    installedPySideLibs.append(installedPySideLib)
     # if buildOS == 'Windows':
     #   for pysideDLL in pythonConfig['pysideDLLs']:
     #     installedPySideLibs.append(
@@ -293,7 +294,6 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
     #         pysideDLL
     #         )
     #       )
-    # installedPySideLibs.append(installedPySideLib)
 
   pysideEnv.Alias('pysideGen', pysideGens)
   pysideEnv.Alias('pysideLib', installedPySideLibs)
