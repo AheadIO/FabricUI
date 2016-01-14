@@ -52,7 +52,8 @@ void RTValViewItem::onModelValueChanged( QVariant const &value )
 
   if ( hasChildren() )
   {
-    if ( m_val.isAggregate() )
+    if ( m_val.isAggregate()
+      && ( !m_val.isObject() || !m_val.isNullObject() ) )
     {
       unsigned childCount = m_val.getMemberCount();
       for ( unsigned i = 0; i < childCount; ++i )
@@ -72,12 +73,16 @@ void RTValViewItem::onChildViewValueChanged(
   bool commit
   )
 {
-  // We cannot simply create a new RTVal based on the QVariant type, as 
-  // we have to set the type exactly the same as the original.  Get the
-  // original child value to ensure the new value matches the internal type
-  FabricCore::RTVal oldChildVal = m_val.getMemberRef( index );
-  RTVariant::toRTVal( value, oldChildVal );
-  m_val.setMember( index, oldChildVal );
+  if ( m_val.isAggregate()
+    && ( !m_val.isObject() || !m_val.isNullObject() ) )
+  {
+    // We cannot simply create a new RTVal based on the QVariant type, as 
+    // we have to set the type exactly the same as the original.  Get the
+    // original child value to ensure the new value matches the internal type
+    FabricCore::RTVal oldChildVal = m_val.getMemberRef( index );
+    RTVariant::toRTVal( value, oldChildVal );
+    m_val.setMember( index, oldChildVal );
+  }
 
   emit viewValueChanged( toVariant( m_val ), commit );
 }
@@ -89,26 +94,29 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 
   try
   {
-    if ( !m_val.isAggregate() )
-      return;
-
-    // Construct a child for each instance
-    ViewItemFactory* factory = ViewItemFactory::GetInstance();
-    unsigned childCount = m_val.getMemberCount();
-    for ( unsigned i = 0; i < childCount; ++i )
+    if ( m_val.isAggregate() )
     {
-      char const *childName = m_val.getMemberName( i );
-      FabricCore::RTVal childVal = m_val.getMemberRef( i );
-      BaseViewItem* childItem =
-        factory->CreateViewItem(
-          childName,
-          toVariant( childVal ),
-          &m_metadata
-          );
-      if (childItem != NULL)
+      if ( !m_val.isObject() || !m_val.isNullObject() )
       {
-        connectChild( (int)i, childItem );
-        items.push_back( childItem );
+        // Construct a child for each instance
+        ViewItemFactory* factory = ViewItemFactory::GetInstance();
+        unsigned childCount = m_val.getMemberCount();
+        for ( unsigned i = 0; i < childCount; ++i )
+        {
+          char const *childName = m_val.getMemberName( i );
+          FabricCore::RTVal childVal = m_val.getMemberRef( i );
+          BaseViewItem* childItem =
+            factory->CreateViewItem(
+              childName,
+              toVariant( childVal ),
+              &m_metadata
+              );
+          if (childItem != NULL)
+          {
+            connectChild( (int)i, childItem );
+            items.push_back( childItem );
+          }
+        }
       }
     }
   }
@@ -122,15 +130,17 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 void RTValViewItem::UpdateWidget()
 {
   QString str;
+  str = m_val.getTypeNameCStr();
   if ( m_isEditableType )
   {
     FabricCore::RTVal desc = m_val.getDesc();
-    str = m_val.getTypeNameCStr();
     str += ": ";
     str += desc.getStringCString();
   }
-  else
-    str.sprintf( "<%s>", m_val.getTypeNameCStr() );
+  else if ( m_val.isObject() && m_val.isNullObject() )
+  {
+    str += ": null";
+  }
   m_widget->setText( str );
 }
 
@@ -148,7 +158,7 @@ BaseViewItem* RTValViewItem::CreateItem(
     return NULL;
 
   FabricCore::RTVal rtVal = value.value<FabricCore::RTVal>();
-  if (rtVal.isValid() && (rtVal.isObject() || rtVal.isStruct()))
+  if ( rtVal.isValid() )
   {
     RTValViewItem* pViewItem = new RTValViewItem( QString( name ), rtVal );
     return pViewItem;
