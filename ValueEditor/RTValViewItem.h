@@ -24,6 +24,8 @@ class RTValViewItem : public BaseComplexViewItem
   // A list of 
   NameList m_childNames;
 
+  bool m_isEditableType;
+
 public:
   
   static BaseViewItem *CreateItem(
