@@ -148,6 +148,9 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
 
   for pythonVersion, pythonConfig in pythonConfigs.iteritems():
 
+    if not pythonConfig['havePySide']:
+      continue
+
     pysideEnv = env.Clone()
     pysideEnv.MergeFlags(capiSharedLibFlags)
     pysideEnv.MergeFlags(servicesFlags)
@@ -184,7 +187,9 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
 
     if buildOS == 'Windows':
       diffFile = shibokenDir.File('fabricui.Windows.diff')
-    else:
+    if buildOS == 'Linux':
+      diffFile = shibokenDir.File('fabricui.Windows.diff')
+    if buildOS == 'Darwin':
       diffFile = shibokenDir.File('fabricui.diff')
 
     pysideGen = pysideEnv.Command(
