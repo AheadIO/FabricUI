@@ -76,8 +76,8 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   if (metaData == NULL)
     return NULL;
 
-  if (value.type() == QVariant::Int
-       || value.type() == QMetaType::UInt)
+  if ( int(value.type()) == int(QVariant::Int)
+       || int(value.type()) == int(QMetaType::UInt) )
   {
     // We can only create the UI if we have a defined Min & Max
     if (metaData->has( "min" ) && metaData->has( "max" ))

@@ -19,7 +19,7 @@ public:
   // Override the slider positioning to make the slider 
   // go directly to the clicked positioning (instead of
   // going there by incremenets)
-  virtual void mousePressEvent( QMouseEvent * ) override;
+  virtual void mousePressEvent( QMouseEvent * ) /*override*/;
 
   void setResolution( int resolution, double min, double max );
 

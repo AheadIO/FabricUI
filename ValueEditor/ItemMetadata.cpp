@@ -2,15 +2,15 @@
 #include <FTL/JSONValue.h>
 
 ViewItemMetadata::ViewItemMetadata( ItemMetadata* parent )
-  : m_parent(parent)
-  , m_json(new FTL::JSONObject())
+  : m_json(new FTL::JSONObject())
+  , m_parent(parent)
 {
 
 }
 
 ViewItemMetadata::ViewItemMetadata()
-  : m_parent(NULL)
-  , m_json( new FTL::JSONObject() )
+  : m_json( new FTL::JSONObject() )
+  , m_parent(NULL)
 {
 
 }

@@ -8,9 +8,6 @@
 #include <QtGui/QtGui>
 
 
-// Disable 'invalid value for switch of enum' warning
-#pragma warning(disable:4063)
-
 const QVariant::Handler* RTVariant::origh = NULL;
 
 // Code replaces the built-in handler for several
@@ -422,9 +419,6 @@ void RTVariant::rtStreamDebug( QDebug dbg, const QVariant &v )
     origh->debugStream( dbg, v );
 }
 
-// Disable 'loses precision' warning, as a lot of these
-// casts will throw, but are fine in practice
-#pragma warning(disable:4244)
 bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 {
   static const int rtType = qMetaTypeId<FabricCore::RTVal>();
@@ -623,4 +617,3 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 
   return true;
 }
-#pragma warning(default:4244)

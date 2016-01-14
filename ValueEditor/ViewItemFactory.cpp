@@ -6,10 +6,13 @@
 #include "BaseViewItem.h"
 #include "ColorViewItem.h"
 #include "DefaultViewItem.h"
+#include "FilepathViewItem.h"
 #include "FloatSliderViewItem.h"
 #include "FloatViewItem.h"
+#include "IntSliderViewItem.h"
 #include "QVariantRTVal.h"
 #include "RTValViewItem.h"
+#include "StringViewItem.h"
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
 
@@ -63,14 +66,26 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   ItemMetadata* metaData
   )
 {
-  // We put the QVariant-RTVal bridge injection
-  // code here, as before we build a view it won't
-  // be needed
-  static bool doVarInjection = true;
-  if (doVarInjection)
+  static bool initialized = false;
+  if ( !initialized )
   {
+    // Register the builtin view items
+    RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
+    RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
+    RegisterCreator( FilepathViewItem::CreateItem, FloatViewItem::Priority );
+    RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
+    RegisterCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
+    RegisterCreator( IntSliderViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( StringViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
+
+     // We put the QVariantRTVal bridge injection
+    // code here, as before we build a view it won't
+    // be needed
     RTVariant::injectRTHandler();
-    doVarInjection = false;
+
+    initialized = true;
   }
 
   // iterate in reverse.  This ensures we test the most-specialized types

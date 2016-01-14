@@ -28,7 +28,7 @@ public:
     );
 	~FilepathViewItem();
 
-	QWidget *getWidget() override;
+	QWidget *getWidget() /*override*/;
   
 	void onModelValueChanged( QVariant const &value ) /*override*/;
 

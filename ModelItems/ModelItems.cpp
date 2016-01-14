@@ -2,6 +2,7 @@
 #include "ModelItems.h"
 #include "../ValueEditor/ItemMetadata.h"
 #include <assert.h>
+#include <stdexcept>
 
 using namespace FabricUI;
 using namespace ModelItems;
@@ -206,34 +207,34 @@ public:
     , m_path( path )
   {}
 
-  virtual const char* getString( const char* key ) const override
+  virtual const char* getString( const char* key ) const /*override*/
   {
     return const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
   }
 
-  virtual int getSInt32( const char* key ) const override
+  virtual int getSInt32( const char* key ) const /*override*/
   {
     const char* data = getString( key );
     return atoi( data );
   }
 
-  virtual double getFloat64( const char* key ) const override
+  virtual double getFloat64( const char* key ) const /*override*/
   {
     const char* value = getString( key );
     return atof( value );
   }
 
-  virtual const FTL::JSONObject* getDict( const char* key ) const override
+  virtual const FTL::JSONObject* getDict( const char* key ) const /*override*/
   {
     throw std::logic_error( "The method or operation is not implemented." );
   }
 
-  virtual const FTL::JSONArray* getArray( const char* key ) const override
+  virtual const FTL::JSONArray* getArray( const char* key ) const /*override*/
   {
     throw std::logic_error( "The method or operation is not implemented." );
   }
 
-  virtual bool has( const char* key ) const override
+  virtual bool has( const char* key ) const /*override*/
   {
     const char* val = getString( key );
     return strcmp( val, "" ) != 0;
@@ -361,7 +362,7 @@ public:
     : PortItemMetadata( exec, path )
   {}
 
-  virtual const char* getString( const char* key ) const override
+  virtual const char* getString( const char* key ) const /*override*/
   {
     return const_cast<FabricCore::DFGExec&>(m_exec).getExecPortMetadata( m_path.c_str(), key );
   }
