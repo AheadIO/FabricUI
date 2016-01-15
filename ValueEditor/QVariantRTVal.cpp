@@ -27,7 +27,7 @@ void RTVariant::injectRTHandler()
 bool isRTVal( const QVariant::Private *d )
 {
   static const QVariant::Type rtType = QVariant::Type( qMetaTypeId<FabricCore::RTVal>() );
-  return (int)d->type >= rtType;
+  return int( d->type ) >= int( rtType );
 }
 
 bool RTVariant::canConvert( const QVariant & var, Type type )
@@ -97,46 +97,8 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
         // the RTVal rather than incur the cost
         // of copying to QType
 
-      case int( QVariant::SizeF ):
-      case int( QVariant::Char ):
-      case int( QVariant::Map ):
-      case int( QVariant::List ):
-      case int( QVariant::StringList ):
-      case int( QVariant::ByteArray ):
-      case int( QVariant::BitArray ):
-      case int( QVariant::Date ):
-      case int( QVariant::Time ):
-      case int( QVariant::DateTime ):
-      case int( QVariant::Url ):
-      case int( QVariant::Locale ):
-      case int( QVariant::Rect ):
-      case int( QVariant::RectF ):
-      case int( QVariant::Size ):
-      case int( QVariant::Line ):
-      case int( QVariant::LineF ):
-      case int( QVariant::Point ):
-      case int( QVariant::PointF ):
-      case int( QVariant::RegExp ):
-      case int( QVariant::Hash ):
-      case int( QVariant::EasingCurve ):
-      case int( QVariant::Font ):
-      case int( QVariant::Pixmap ):
-      case int( QVariant::Brush ):
-      case int( QVariant::Palette ):
-      case int( QVariant::Icon ):
-      case int( QVariant::Image ):
-      case int( QVariant::Polygon ):
-      case int( QVariant::Region ):
-      case int( QVariant::Bitmap ):
-      case int( QVariant::Cursor ):
-      case int( QVariant::SizePolicy ):
-      case int( QVariant::KeySequence ):
-      case int( QVariant::Pen ):
-      case int( QVariant::TextLength ):
-      case int( QVariant::TextFormat ):
-        return false;
       default:
-        assert( !"Unknown type" );
+        return false;
     }
   }
   return origh->canConvert( d, t );

@@ -116,7 +116,7 @@ bool FabricUI::ModelItems::PortModelItem::hasDefault()
 
 void FabricUI::ModelItems::PortModelItem::resetToDefault()
 {
-#pragma message("Fix instance values for non-arg ports")
+//#pragma message("Fix instance values for non-arg ports")
   //// If we have a resolved type, allow getting the default val
   const char* ctype = m_exec.getNodePortResolvedType( m_path.c_str() );
   if (ctype != NULL)
