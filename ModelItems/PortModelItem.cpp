@@ -74,15 +74,10 @@ QVariant PortModelItem::GetValue()
     const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
     if (ctype != NULL)
     {
-      FabricCore::RTVal val = 
+      FabricCore::RTVal rtVal = 
         m_exec.getInstPortResolvedDefaultValue( m_portPath.c_str(), ctype );
-
-      //FabricCore::DFGBinding binding = m_binding.bind();
-      //  FabricCore::RTVal val = m_exec.getArgValue( m_cname.c_str() );
-      if (val.isValid())
-      {
-        return QVariant::fromValue<FabricCore::RTVal>( val );
-      }
+      assert( rtVal.isValid() );
+      return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
     }
   }
   catch (FabricCore::Exception* e)

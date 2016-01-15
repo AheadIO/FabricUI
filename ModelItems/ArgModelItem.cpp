@@ -39,12 +39,9 @@ QString ArgModelItem::GetName()
 
 QVariant ArgModelItem::GetValue()
 {
-  FabricCore::RTVal val = m_binding.getArgValue( m_argName.c_str() );
-  if (val.isValid())
-  {
-    return QVariant::fromValue<FabricCore::RTVal>( val );
-  }
-  return QVariant(); // QString( "|Invalid Port|" );
+  FabricCore::RTVal rtVal = m_binding.getArgValue( m_argName.c_str() );
+  assert( rtVal.isValid() );
+  return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
 }
 
 void ArgModelItem::SetValue(
