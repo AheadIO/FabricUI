@@ -57,7 +57,11 @@ QVariant PresetModelItem::GetValue()
   return QString( m_exec.getTitle( ) );
 }
 
-void PresetModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
+void PresetModelItem::SetValue(
+  QVariant var,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
   if (commit)
   {

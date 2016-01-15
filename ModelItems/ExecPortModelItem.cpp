@@ -81,17 +81,21 @@ QVariant ExecPortModelItem::GetValue()
   return QString( "|Invalid Port|" );
 }
 
-void ExecPortModelItem::onViewValueChangedImpl( QVariant const& vars, bool commit)
+void ExecPortModelItem::SetValue(
+  QVariant value,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
   // If we have a resolved type, allow getting the default val
   const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );
   if (ctype != NULL)
   {
-    FabricCore::RTVal val = 
+    FabricCore::RTVal rtVal = 
       m_exec.getPortDefaultValue( m_cname.c_str(), ctype );
 
-    if (RTVariant::toRTVal( vars, val ))
-      m_exec.setPortDefaultValue( m_cname.c_str(), val, commit );
+    if (RTVariant::toRTVal( value, rtVal ))
+      m_exec.setPortDefaultValue( m_cname.c_str(), rtVal, commit );
   }
 }
 
@@ -110,6 +114,6 @@ void ExecPortModelItem::resetToDefault()
   {
     FabricCore::RTVal val = m_exec.getPortDefaultValue( m_cname.c_str(), ctype );
     if (val.isValid())
-      onViewValueChanged( QVariant::fromValue( val ), 1 );
+      onViewValueChanged( QVariant::fromValue( val ) );
   }
 }

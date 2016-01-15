@@ -35,12 +35,5 @@ public:
 
 	virtual void onModelValueChanged( QVariant const &value ) /*override*/;
 
-	virtual void onChildViewValueChanged(
-    QVariant const &,
-    QString const &,
-    bool
-    ) /*override*/
-	  {}
-
   void deleteMe() { delete this; }
 };

@@ -17,15 +17,20 @@ FloatSliderViewItem::FloatSliderViewItem(
   : BaseViewItem( name )
 {
   m_slider = new DoubleSlider;
+  onModelValueChanged( value );
+
+  connect(
+    m_slider, SIGNAL( sliderPressed() ),
+    this, SLOT( onSliderPressed() )
+    );
   connect(
     m_slider, SIGNAL( doubleValueChanged( double ) ),
-    this, SLOT( OnSpinnerChanged( double ) )
+    this, SLOT( onDoubleValueChanged( double ) )
     );
   connect(
     m_slider, SIGNAL( sliderReleased() ),
-    this, SLOT( OnEditFinished() )
+    this, SLOT( onSliderReleased() )
     );
-  onModelValueChanged( value );
 }
 
 FloatSliderViewItem::~FloatSliderViewItem()
@@ -52,20 +57,19 @@ void FloatSliderViewItem::updateMetadata( ItemMetadata* metaData )
   }
 }
 
-void FloatSliderViewItem::OnSpinnerChanged( double value )
+void FloatSliderViewItem::onSliderPressed()
 {
-  emit viewValueChanged(
-    QVariant::fromValue<double>( value ),
-    0
-    );
+  emit interactionBegin();
 }
 
-void FloatSliderViewItem::OnEditFinished()
+void FloatSliderViewItem::onDoubleValueChanged( double value )
 {
-  emit viewValueChanged(
-    QVariant::fromValue<double>( m_slider->doubleValue() ),
-    1
-    );
+  emit viewValueChanged( QVariant::fromValue<double>( value ) );
+}
+
+void FloatSliderViewItem::onSliderReleased()
+{
+  emit interactionEnd();
 }
 
 //////////////////////////////////////////////////////////////////////////

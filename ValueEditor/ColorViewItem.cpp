@@ -63,7 +63,7 @@ void ColorViewItem::onModelValueChanged( QVariant const &value )
   }
 }
 
-void ColorViewItem::onChildViewValueChanged( int index, QVariant const & value, bool commit )
+void ColorViewItem::onChildViewValueChanged( int index, QVariant value )
 {
   QColor color = m_color;
   QColor::Spec spec = color.spec();
@@ -98,7 +98,7 @@ void ColorViewItem::onChildViewValueChanged( int index, QVariant const & value, 
       assert( false );
       break;
   }
-  emit viewValueChanged( QVariant( color ), commit );
+  emit viewValueChanged( QVariant( color ) );
 }
 
 void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
@@ -166,18 +166,12 @@ void ColorViewItem::pickColor()
 
 void ColorViewItem::onColorChanged( QColor color )
 {
-  emit viewValueChanged(
-    QVariant::fromValue( color ),
-    0
-    );
+  emit viewValueChanged( QVariant::fromValue( color ) );
 }
 
 void ColorViewItem::onColorSelected( QColor color )
 {
-  emit viewValueChanged(
-    QVariant::fromValue( color ),
-    1
-    );
+  emit viewValueChanged( QVariant::fromValue( color ) );
 }
 
 //////////////////////////////////////////////////////////////////////////

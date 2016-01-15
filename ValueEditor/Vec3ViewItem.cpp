@@ -79,27 +79,26 @@ void Vec3ViewItem::onTextEditXChanged()
 {
   QVector3D vec3d = m_vec3dValue;
   vec3d.setX( m_xEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec3d ), true );
+  emit viewValueChanged( QVariant( vec3d ) );
 }
 
 void Vec3ViewItem::onTextEditYChanged()
 {
   QVector3D vec3d = m_vec3dValue;
   vec3d.setY( m_yEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec3d ), true );
+  emit viewValueChanged( QVariant( vec3d ) );
 }
 
 void Vec3ViewItem::onTextEditZChanged()
 {
   QVector3D vec3d = m_vec3dValue;
   vec3d.setZ( m_zEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec3d ), true );
+  emit viewValueChanged( QVariant( vec3d ) );
 }
 
 void Vec3ViewItem::onChildViewValueChanged(
   int index,
-  QVariant const &value,
-  bool commit
+  QVariant value
   )
 {
   QVector3D vec3d = m_vec3dValue;
@@ -118,7 +117,7 @@ void Vec3ViewItem::onChildViewValueChanged(
       assert( false );
       break;
   }
-  emit viewValueChanged( QVariant( vec3d ), commit );
+  emit viewValueChanged( QVariant( vec3d ) );
 }
 
 void Vec3ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)

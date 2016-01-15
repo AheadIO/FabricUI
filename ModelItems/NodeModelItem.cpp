@@ -76,7 +76,11 @@ QVariant NodeModelItem::GetValue()
   return QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
 }
 
-void NodeModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
+void NodeModelItem::SetValue(
+  QVariant var,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
   if (commit)
   {

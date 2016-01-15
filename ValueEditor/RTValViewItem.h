@@ -41,8 +41,7 @@ public:
 
   virtual void onChildViewValueChanged(
     int index,
-    QVariant const &value,
-    bool commit
+    QVariant value
     ) /*override*/;
 
   void deleteMe() { delete this; }

@@ -61,16 +61,14 @@ void StringViewItem::onModelValueChanged( QVariant const &v )
 void StringViewItem::OnTextEdited( const QString& text )
 {
   emit viewValueChanged(
-    QVariant::fromValue<QString>( text ),
-    0
+    QVariant::fromValue<QString>( text )
     );
 }
 
 void StringViewItem::OnEditFinished()
 {
   emit viewValueChanged(
-    QVariant::fromValue<QString>( m_edit->text() ),
-    1
+    QVariant::fromValue<QString>( m_edit->text() )
     );
 }
 

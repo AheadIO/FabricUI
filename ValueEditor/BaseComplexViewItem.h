@@ -45,12 +45,14 @@ public:
   // via this method and let the system manage adding the parent's items
   virtual void doAppendChildViewItems( QList<BaseViewItem *>& items ) = 0;
 
+  void onChildInteractionBegin( int index )
+    { emit interactionBegin(); }
+
   // Implement this slot if we need to react when a child changes
-  virtual void onChildViewValueChanged(
-    int index,
-    QVariant const &value,
-    bool commit
-    )=0;
+  virtual void onChildViewValueChanged( int index, QVariant value ) = 0;
+
+  void onChildInteractionEnd( int index )
+    { emit interactionEnd(); }
 
   // This function should be called to trigger an update to our children.
   void routeModelValueChanged( int index, const QVariant& value );

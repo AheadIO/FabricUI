@@ -41,6 +41,8 @@ private:
   DoubleSlider* m_slider;
 
 private slots:
-  void OnSpinnerChanged( double value );
-  void OnEditFinished();
+
+  void onSliderPressed();
+  void onDoubleValueChanged( double value );
+  void onSliderReleased();
 };

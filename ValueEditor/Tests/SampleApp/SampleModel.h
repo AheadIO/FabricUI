@@ -50,13 +50,12 @@ public:
 	}
 
 	virtual void onViewValueChanged(
-		QVariant const &value,
-		bool commit
+		QVariant value
 		) /*override*/
 	{
-		if (value != m_value || commit == 1)
+		if (value != m_value)
 		{
-      printf( "onViewValueChanged commit=%i\n", commit );
+      printf( "onViewValueChanged\n" );
       m_value = value;
 
 			// Our value has changed, so notify the world

@@ -68,7 +68,11 @@ ItemMetadata* BindingModelItem::GetMetadata()
   return NULL;
 }
 
-void BindingModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
+void BindingModelItem::SetValue(
+  QVariant var,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
   if (commit)
   {

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 class BaseViewItem;
 class BaseComplexViewItem;
@@ -31,7 +32,9 @@ signals:
 
   void modelValueChanged( QVariant const &value );
 
-  public slots:
+public slots:
 
-  void onViewValueChanged( QVariant const &value, bool commit );
+  void onInteractionBegin();
+  void onViewValueChanged( QVariant value );
+  void onInteractionEnd();
 };

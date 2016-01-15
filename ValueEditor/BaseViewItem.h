@@ -7,6 +7,7 @@
 #include "ItemMetadata.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 class BaseModelItem;
 class BaseViewItem;
@@ -14,7 +15,6 @@ class ItemMetadata;
 
 class QTreeWidget;
 class QTreeWidgetItem;
-class QVariant;
 class QString;
 
 // The base item for the view-side of the equation.
@@ -112,10 +112,11 @@ public slots:
   
 signals:
 
+  void interactionBegin();
+
   // When this items widgets change, it should emit this signal
-  void viewValueChanged(
-    QVariant const &value,
-    bool commit
-    );
+  void viewValueChanged( QVariant value );
+
+  void interactionEnd();
 };
 

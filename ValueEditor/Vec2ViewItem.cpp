@@ -68,20 +68,19 @@ void Vec2ViewItem::onTextEditXChanged()
 {
   QVector2D vec2d = m_vec2dValue;
   vec2d.setX( m_xEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec2d ), true );
+  emit viewValueChanged( QVariant( vec2d ) );
 }
 
 void Vec2ViewItem::onTextEditYChanged()
 {
   QVector2D vec2d = m_vec2dValue;
   vec2d.setY( m_yEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec2d ), true );
+  emit viewValueChanged( QVariant( vec2d ) );
 }
 
 void Vec2ViewItem::onChildViewValueChanged(
   int index,
-  QVariant const &value,
-  bool commit
+  QVariant value
   )
 {
   QVector2D vec2d = m_vec2dValue;
@@ -97,7 +96,7 @@ void Vec2ViewItem::onChildViewValueChanged(
       assert( false );
       break;
   }
-  emit viewValueChanged( QVariant( vec2d ), commit );
+  emit viewValueChanged( QVariant( vec2d ) );
 }
 
 void Vec2ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)

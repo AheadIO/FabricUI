@@ -58,16 +58,14 @@ void IntSliderViewItem::updateMetadata( ItemMetadata* metaData )
 void IntSliderViewItem::OnSpinnerChanged( int value )
 {
   emit viewValueChanged(
-    QVariant::fromValue( value ),
-    0
+    QVariant::fromValue( value )
     );
 }
 
 void IntSliderViewItem::OnEditFinished()
 {
   emit viewValueChanged(
-    QVariant::fromValue( m_slider->value() ),
-    1
+    QVariant::fromValue( m_slider->value() )
     );
 }
 

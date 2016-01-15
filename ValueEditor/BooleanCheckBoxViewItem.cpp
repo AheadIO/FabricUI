@@ -44,10 +44,7 @@ void BooleanCheckBoxViewItem::updateMetadata( ItemMetadata* metaData )
 
 void BooleanCheckBoxViewItem::onStateChanged( int value )
 {
-  emit viewValueChanged(
-    QVariant::fromValue( bool( value ) ),
-    0
-    );
+  emit viewValueChanged( QVariant::fromValue( bool( value ) ) );
 }
 
 //////////////////////////////////////////////////////////////////////////

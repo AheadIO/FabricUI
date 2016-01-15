@@ -69,8 +69,7 @@ void RTValViewItem::onModelValueChanged( QVariant const &value )
 
 void RTValViewItem::onChildViewValueChanged(
   int index,
-  QVariant const &value,
-  bool commit
+  QVariant value
   )
 {
   if ( m_val.isAggregate()
@@ -84,7 +83,7 @@ void RTValViewItem::onChildViewValueChanged(
     m_val.setMember( index, oldChildVal );
   }
 
-  emit viewValueChanged( toVariant( m_val ), commit );
+  emit viewValueChanged( toVariant( m_val ) );
 }
 
 void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )

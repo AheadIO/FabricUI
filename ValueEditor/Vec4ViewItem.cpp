@@ -90,34 +90,33 @@ void Vec4ViewItem::onTextEditXChanged()
 {
   QVector4D vec4d = m_vec4dValue;
   vec4d.setX( m_xEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec4d ), true );
+  emit viewValueChanged( QVariant( vec4d ) );
 }
 
 void Vec4ViewItem::onTextEditYChanged()
 {
   QVector4D vec4d = m_vec4dValue;
   vec4d.setY( m_yEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec4d ), true );
+  emit viewValueChanged( QVariant( vec4d ) );
 }
 
 void Vec4ViewItem::onTextEditZChanged()
 {
   QVector4D vec4d = m_vec4dValue;
   vec4d.setZ( m_zEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec4d ), true );
+  emit viewValueChanged( QVariant( vec4d ) );
 }
 
 void Vec4ViewItem::onTextEditTChanged()
 {
   QVector4D vec4d = m_vec4dValue;
   vec4d.setW( m_tEdit->text().toDouble() );
-  emit viewValueChanged( QVariant( vec4d ), true );
+  emit viewValueChanged( QVariant( vec4d ) );
 }
 
 void Vec4ViewItem::onChildViewValueChanged(
   int index,
-  QVariant const &value,
-  bool commit
+  QVariant value
   )
 {
   QVector4D vec4d = m_vec4dValue;
@@ -139,7 +138,7 @@ void Vec4ViewItem::onChildViewValueChanged(
       assert( false );
       break;
   }
-  emit viewValueChanged( QVariant( vec4d ), commit );
+  emit viewValueChanged( QVariant( vec4d ) );
 }
 
 void Vec4ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)

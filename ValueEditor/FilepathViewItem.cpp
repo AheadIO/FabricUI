@@ -96,8 +96,7 @@ void FilepathViewItem::OnTextEdited( const QString& text )
 {
   m_val = ToFilePath( m_val, text );
   emit viewValueChanged(
-    QVariant::fromValue<FabricCore::RTVal>( m_val ),
-    0
+    QVariant::fromValue<FabricCore::RTVal>( m_val )
     );
 }
 
@@ -105,8 +104,7 @@ void FilepathViewItem::OnEditFinished()
 {
   m_val = ToFilePath( m_val, m_lineEdit->text() );
   emit viewValueChanged(
-    QVariant::fromValue<FabricCore::RTVal>( m_val ),
-    1
+    QVariant::fromValue<FabricCore::RTVal>( m_val )
     );
 }
 

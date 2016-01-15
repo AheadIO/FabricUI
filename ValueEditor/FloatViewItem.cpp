@@ -46,16 +46,14 @@ void FloatViewItem::onModelValueChanged( QVariant const &v )
 void FloatViewItem::OnSpinnerChanged( double value )
 {
   emit viewValueChanged(
-    QVariant::fromValue<double>( value ),
-    0
+    QVariant::fromValue<double>( value )
     );
 }
 
 void FloatViewItem::OnEditFinished()
 {
   emit viewValueChanged(
-    QVariant::fromValue<double>( m_spinner->value() ),
-    1
+    QVariant::fromValue<double>( m_spinner->value() )
     );
 }
 

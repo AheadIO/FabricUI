@@ -6,7 +6,8 @@
 #include <FabricCore.h>
 
 BaseModelItem::BaseModelItem()
-  : m_modelValueChangedBracketCount( 0 )
+  : m_interactionBracketCount( 0 )
+  , m_modelValueChangedBracketCount( 0 )
 {
 }
 
@@ -50,4 +51,36 @@ ItemMetadata* BaseModelItem::GetMetadata()
 int BaseModelItem::GetInOut()
 {
   return FabricCore::DFGPortType_In;
+}
+
+void BaseModelItem::onInteractionBegin()
+{
+  if ( m_interactionBracketCount++ == 0 )
+    m_valueAtInteractionBegin = GetValue();
+}
+
+void BaseModelItem::onViewValueChanged(
+  QVariant value
+  )
+{
+  if ( m_modelValueChangedBracketCount == 0 )
+  {
+    SetValue(
+      value,
+      m_interactionBracketCount == 0,
+      m_valueAtInteractionBegin
+      );
+  }
+}
+
+void BaseModelItem::onInteractionEnd()
+{
+  if ( --m_interactionBracketCount == 0 )
+  {
+    SetValue(
+      GetValue(),
+      true, // commit
+      m_valueAtInteractionBegin
+      );
+  }
 }

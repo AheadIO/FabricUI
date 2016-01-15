@@ -92,30 +92,50 @@ QVariant PortModelItem::GetValue()
   return QString( "|Invalid Port|" );
 }
 
-void PortModelItem::onViewValueChangedImpl( QVariant const& vars, bool commit)
+void PortModelItem::SetValue(
+  QVariant value,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
-  if (m_exec.hasSrcPort( m_portPath.c_str() ))
+  if ( m_exec.hasSrcPort( m_portPath.c_str() ) )
     return;
 
-  // If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
-  if (ctype != NULL)
+  const char* resolvedTypeName =
+    m_exec.getNodePortResolvedType( m_portPath.c_str() );
+  assert( resolvedTypeName );
+  if ( !resolvedTypeName )
+    return;
+
+  FabricCore::DFGHost host = m_binding.getHost();
+  FabricCore::Context context = host.getContext();
+  FabricCore::RTVal rtVal =
+    FabricCore::RTVal::Construct( context, resolvedTypeName, 0, 0 );
+
+  if ( commit )
   {
-    FabricCore::DFGHost host = m_binding.getHost();
-    FabricCore::Context context = host.getContext();
-    FabricCore::RTVal val =
-      FabricCore::RTVal::Construct( context, ctype, 0, 0 );
-    if ( RTVariant::toRTVal( vars, val ) )
-    {
-      m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
-        m_binding,
-        m_execPath,
-        m_exec,
-        m_portPath,
-        val
-        );
-      // m_exec.setPortDefaultValue( m_portPath.c_str(), val, commit );
-    }
+    RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+    m_exec.setPortDefaultValue(
+      m_portPath.c_str(),
+      rtVal
+      );
+
+    RTVariant::toRTVal( value, rtVal );
+    m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
+      m_binding,
+      m_execPath,
+      m_exec,
+      m_portPath,
+      rtVal
+      );
+  }
+  else
+  {
+    RTVariant::toRTVal( value, rtVal );
+    m_exec.setPortDefaultValue(
+      m_portPath.c_str(),
+      rtVal
+      );
   }
 }
 
@@ -139,6 +159,6 @@ void FabricUI::ModelItems::PortModelItem::resetToDefault()
 
     FabricCore::RTVal val = m_exec.getPortDefaultValue( m_portPath.c_str(), ctype );
     if (val.isValid())
-      onViewValueChanged( QVariant::fromValue( val ), 1 );
+      onViewValueChanged( QVariant::fromValue( val ) );
   }
 }

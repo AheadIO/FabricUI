@@ -46,16 +46,14 @@ void UIntViewItem::onModelValueChanged( QVariant const &v )
 void UIntViewItem::OnSpinnerChanged( int value )
 {
   emit viewValueChanged(
-    QVariant::fromValue<unsigned>( unsigned( value ) ),
-    0
+    QVariant::fromValue<unsigned>( unsigned( value ) )
     );
 }
 
 void UIntViewItem::OnEditFinished()
 {
   emit viewValueChanged(
-    QVariant::fromValue<unsigned>( unsigned( m_spinner->value() ) ),
-    1
+    QVariant::fromValue<unsigned>( unsigned( m_spinner->value() ) )
     );
 }
 

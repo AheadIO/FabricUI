@@ -21,9 +21,18 @@ void ViewItemChildRouter::connectToChild( BaseViewItem *childViewItem )
     this, SIGNAL( modelValueChanged( QVariant const & ) ),
     childViewItem, SLOT( onModelValueChanged( QVariant const & ) )
     );
+
   connect(
-    childViewItem, SIGNAL( viewValueChanged( QVariant const &, bool ) ),
-    this, SLOT( onViewValueChanged( QVariant const &, bool ) )
+    childViewItem, SIGNAL( interactionBegin() ),
+    this, SLOT( onInteractionBegin() )
+    );
+  connect(
+    childViewItem, SIGNAL( viewValueChanged( QVariant ) ),
+    this, SLOT( onViewValueChanged( QVariant ) )
+    );
+  connect(
+    childViewItem, SIGNAL( interactionEnd() ),
+    this, SLOT( onInteractionEnd() )
     );
 }
 
@@ -32,7 +41,17 @@ void ViewItemChildRouter::emitModelValueChanged( QVariant const &value )
   emit modelValueChanged( value );
 }
 
-void ViewItemChildRouter::onViewValueChanged( QVariant const &value, bool commit )
+void ViewItemChildRouter::onInteractionBegin()
 {
-  m_viewItem->onChildViewValueChanged( m_index, value, commit );
+  m_viewItem->onChildInteractionBegin( m_index );
+}
+
+void ViewItemChildRouter::onViewValueChanged( QVariant value )
+{
+  m_viewItem->onChildViewValueChanged( m_index, value );
+}
+
+void ViewItemChildRouter::onInteractionEnd()
+{
+  m_viewItem->onChildInteractionEnd( m_index );
 }

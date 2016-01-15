@@ -46,16 +46,14 @@ void SIntViewItem::onModelValueChanged( QVariant const &v )
 void SIntViewItem::OnSpinnerChanged( int value )
 {
   emit viewValueChanged(
-    QVariant::fromValue<int>( value ),
-    0
+    QVariant::fromValue<int>( value )
     );
 }
 
 void SIntViewItem::OnEditFinished()
 {
   emit viewValueChanged(
-    QVariant::fromValue<int>( m_spinner->value() ),
-    1
+    QVariant::fromValue<int>( m_spinner->value() )
     );
 }
 

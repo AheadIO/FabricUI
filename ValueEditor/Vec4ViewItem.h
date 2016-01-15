@@ -47,8 +47,7 @@ public:
   
   virtual void onChildViewValueChanged(
     int index,
-    QVariant const &value,
-    bool commit
+    QVariant value
     ) /*override*/;
 
   virtual void doAppendChildViewItems( QList<BaseViewItem *>& items );

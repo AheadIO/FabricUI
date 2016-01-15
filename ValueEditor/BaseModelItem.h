@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QtCore/QObject>
+#include <QtCore/QVariant>
 
 class ItemMetadata;
 
@@ -20,6 +21,9 @@ class BaseModelItem : public QObject
 	Q_DISABLE_COPY(BaseModelItem);
 
 private:
+
+  unsigned m_interactionBracketCount;
+  QVariant m_valueAtInteractionBegin;
 
   unsigned m_modelValueChangedBracketCount;
 
@@ -49,9 +53,10 @@ protected:
   // the the UI and setting them on the core object.
   // It is guaranteed that the QVariant value here will be equivalent
   // to the QVariant returned from GetValue
-  virtual void onViewValueChangedImpl(
-    QVariant const& /*value*/,
-    bool /*commit*/
+  virtual void SetValue(
+    QVariant value,
+    bool commit,
+    QVariant valueAtInteractionBegin
     )
     {}
 
@@ -119,15 +124,12 @@ public:
 
 public slots:
 
-  void onViewValueChanged(
-    QVariant const &value,
-    bool commit
-    )
-  {
-    if ( m_modelValueChangedBracketCount == 0 )
-      onViewValueChangedImpl( value, commit );
-  }
+  void onInteractionBegin();
 
+  void onViewValueChanged( QVariant value );
+
+  void onInteractionEnd();
+  
 signals:
 
 	// Connect to this signal to be notified

@@ -47,7 +47,11 @@ QVariant ArgModelItem::GetValue()
   return QVariant(); // QString( "|Invalid Port|" );
 }
 
-void ArgModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
+void ArgModelItem::SetValue(
+  QVariant var,
+  bool commit,
+  QVariant valueAtInteractionBegin
+  )
 {
   // We get the value of the argument to ensure we
   // have an entity of the appropriate type.  This is because
@@ -56,19 +60,39 @@ void ArgModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
   // the UI will build a Double slider, and send us a Double
   // In this case, the core will complain if we built a RTVal
   // from this type and tried to set it (because mis-matched type).
-  FabricCore::RTVal curVal = m_binding.getArgValue( m_argName.c_str() );
-  assert( curVal.isValid() );
+  FabricCore::RTVal curRTVal = m_binding.getArgValue( m_argName.c_str() );
+  assert( curRTVal.isValid() );
   FabricCore::DFGHost host = m_binding.getHost();
   FabricCore::Context context = host.getContext();
-  FabricCore::RTVal val =
-    FabricCore::RTVal::Construct( context, curVal.getTypeNameCStr(), 0, 0 );
-  assert( val.isValid() );
-  assert( RTVariant::toRTVal( var, val ) );
-  m_dfgUICmdHandler->dfgDoSetArgValue(
-    m_binding,
-    m_argName,
-    val
-    );
+  FabricCore::RTVal rtVal =
+    FabricCore::RTVal::Construct( context, curRTVal.getTypeNameCStr(), 0, 0 );
+  assert( rtVal.isValid() );
+  RTVariant::toRTVal( var, rtVal );
+  if ( commit )
+  {
+    RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+    m_binding.setArgValue(
+      m_argName.c_str(),
+      rtVal,
+      false // canUndo
+      );
+
+    RTVariant::toRTVal( var, rtVal );
+    m_dfgUICmdHandler->dfgDoSetArgValue(
+      m_binding,
+      m_argName,
+      rtVal
+      );
+  }
+  else
+  {
+    RTVariant::toRTVal( var, rtVal );
+    m_binding.setArgValue(
+      m_argName.c_str(),
+      rtVal,
+      false // canUndo
+      );
+  }
 }
 
 ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()

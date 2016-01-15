@@ -40,10 +40,11 @@ namespace FabricUI
 
     protected:
 
-      virtual void onViewValueChangedImpl(
-        QVariant const& var,
-        bool commit
-        );
+      virtual void SetValue(
+        QVariant var,
+        bool commit,
+        QVariant valueAtInteractionBegin
+        ) /*override*/;
     };
   }
 }

@@ -54,8 +54,11 @@ class DFGUICmdHandler;
 
     protected:
 
-      virtual void onViewValueChangedImpl( QVariant const&, bool ) /*override*/;
-
+      virtual void SetValue(
+        QVariant var,
+        bool commit,
+        QVariant valueAtInteractionBegin
+        ) /*override*/;
     };
   }
 }
