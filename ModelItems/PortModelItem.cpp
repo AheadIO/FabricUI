@@ -114,7 +114,8 @@ void PortModelItem::SetValue(
       RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
       m_exec.setPortDefaultValue(
         m_portPath.c_str(),
-        rtVal
+        rtVal,
+        false // canUndo
         );
     }
 
@@ -132,7 +133,8 @@ void PortModelItem::SetValue(
     RTVariant::toRTVal( value, rtVal );
     m_exec.setPortDefaultValue(
       m_portPath.c_str(),
-      rtVal
+      rtVal,
+      false // canUndo
       );
   }
 }
