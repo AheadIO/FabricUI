@@ -20,58 +20,31 @@ NodeModelItem::~NodeModelItem()
 
 }
 
+
+QString NodeModelItem::GetName()
+{
+  return m_exec.getTitle();
+}
+
 size_t NodeModelItem::NumChildren()
 {
-  return m_exec.getExecPortCount();
-}
-
-BaseModelItem* NodeModelItem::GetChild( QString childName )
-{
-  FabricCore::DFGExec exec = m_exec;
-
-  int numExisting = m_children.size();
-  for (int i = 0; i < numExisting; i++)
-  {
-    if (m_children[i]->GetName() == childName)
-      return m_children[i];
-  }
-  //  we shouldn't ever create a child that doesn't exist!
-  assert( ChildIndex( childName ) >= 0 );
-  PortModelItem* res = new PortModelItem( m_exec, childName );
-  m_children.push_back( res );
-  return res;
-}
-
-BaseModelItem* NodeModelItem::GetChild( int index )
-{
-  QString childName = ChildName( index );
-  return GetChild( childName );
-}
-
-int NodeModelItem::ChildIndex( QString name )
-{
-  int numChildren = m_exec.getExecPortCount();
-  for (int i = 0; i < numChildren; i++)
-  {
-    if (m_exec.getExecPortName( i ) == name)
-    {
-      return i;
-    }
-  }
-  return -1;
+  return m_exec.getNodePortCount( m_path.c_str() );
 }
 
 QString NodeModelItem::ChildName( int i )
 {
-  return m_exec.getExecPortName( i );
+  return m_exec.getNodePortName( m_path.c_str(), i );
 }
 
-QString NodeModelItem::GetName()
+BaseModelItem* NodeModelItem::CreateChild( QString name )
 {
-  const char* title = m_exec.getTitle();
-  if (title && *title != '\0')
-    return title;
-  return QString( "[Root Ports]" );
+  QString childPath;
+  if (!m_path.empty())
+  {
+    childPath.sprintf( "%s.", m_path.c_str() );
+    childPath += name;
+  }
+  return new PortModelItem( m_exec, childPath );
 }
 
 ItemMetadata* NodeModelItem::GetMetadata()
@@ -81,37 +54,7 @@ ItemMetadata* NodeModelItem::GetMetadata()
 
 QVariant NodeModelItem::GetValue()
 {
-  return QString( m_exec.getTitle() );
-}
-
-void NodeModelItem::argInserted( int index, const char* name, const char* type )
-{
-  m_children.insert( m_children.begin() + index, 
-                     new PortModelItem( m_exec, name ) );
-}
-
-void NodeModelItem::argTypeChanged( int index, const char* name, const char* newType )
-{
-  BaseModelItem* pChild = GetChild( name );
-  assert( pChild != NULL );
-  if (pChild != NULL)
-  {
-    assert( pChild->GetName() == name );
-    // TODO:  What?  Reset the QVariant...
-  }
-}
-
-void NodeModelItem::argRemoved( int index, const char* name )
-{
-  for (ChildVec::iterator itr = m_children.begin(); itr != m_children.end(); itr++)
-  {
-    if ((*itr)->GetName() == name)
-    {
-      delete *itr;
-      m_children.erase( itr );
-      break;
-    }
-  }
+  return QString( m_exec.getInstTitle( m_path.c_str() ) );
 }
 
 void NodeModelItem::onViewValueChanged( QVariant const& var, bool commit )
@@ -119,16 +62,7 @@ void NodeModelItem::onViewValueChanged( QVariant const& var, bool commit )
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
-    m_exec.setTitle( asciiArr.data() );
-    //emit modelValueChanged(var);
+    m_exec.setInstTitle( m_path.c_str(), asciiArr.data() );
+    emit modelValueChanged(var);
   }
-}
-
-bool NodeModelItem::hasDefault()
-{
-  return false;
-}
-
-void NodeModelItem::resetToDefault()
-{
 }

@@ -10,7 +10,7 @@ namespace FabricUI
   {
     //////////////////////////////////////////////////////////////////////////
     // Basic ModelItem for accessing ports
-    class PortModelItem : public BaseModelItem
+    class ExecPortModelItem : public BaseModelItem
     {
     protected:
       FabricCore::DFGExec m_exec;
@@ -18,13 +18,13 @@ namespace FabricUI
       QString m_name;
       // We store a duplicated C-style version of the
       // name for accessing the non-unicode Fabric core
-      std::string m_path;
+      std::string m_cname;
 
       ItemMetadata* m_metadata;
 
     public:
-      PortModelItem( const FabricCore::DFGExec& exec, QString portName );
-      ~PortModelItem();
+      ExecPortModelItem( const FabricCore::DFGExec& exec, QString portName );
+      ~ExecPortModelItem();
 
       // Every port has exactly 1 child - its RTValue
       size_t NumChildren();

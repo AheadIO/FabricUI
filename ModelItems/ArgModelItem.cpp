@@ -13,7 +13,7 @@ ArgModelItem::ArgModelItem( const FabricCore::DFGBinding & binding, QString port
 
 QVariant ArgModelItem::GetValue()
 {
-  FabricCore::RTVal val = m_binding.getArgValue( m_cname.c_str() );
+  FabricCore::RTVal val = m_binding.getArgValue( m_path.c_str() );
   if (val.isValid())
   {
     return QVariant::fromValue<FabricCore::RTVal>( val );
@@ -30,17 +30,17 @@ void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
   // the UI will build a Double slider, and send us a Double
   // In this case, the core will complain if we built a RTVal
   // from this type and tried to set it (because mis-matched type).
-  FabricCore::RTVal val = m_binding.getArgValue( m_cname.c_str() );
+  FabricCore::RTVal val = m_binding.getArgValue( m_path.c_str() );
   if (RTVariant::toRTVal( var, val ) )
   {
-    m_binding.setArgValue( m_cname.c_str(), val, commit );
+    m_binding.setArgValue( m_path.c_str(), val, commit );
   }
 }
 
 ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
 {
   if (m_metadata == NULL)
-    m_metadata = new ArgItemMetadata( m_exec, m_cname.c_str() );
+    m_metadata = new ArgItemMetadata( m_exec, m_path.c_str() );
 
   return m_metadata; 
 }

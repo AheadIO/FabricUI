@@ -11,16 +11,15 @@ namespace FabricUI
 
   namespace ModelItems
   {
-    class NodeModelItem : public RootModelItem
+    class PresetModelItem : public RootModelItem
     {
     protected:
 
       FabricCore::DFGExec m_exec;
-      std::string m_path;
   
     public:
-      NodeModelItem( FabricCore::DFGExec exec, const char* path );
-      ~NodeModelItem();
+      PresetModelItem( FabricCore::DFGExec exec );
+      ~PresetModelItem();
 
       size_t NumChildren();
 

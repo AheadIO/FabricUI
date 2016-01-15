@@ -7,29 +7,55 @@ using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
 BindingModelItem::BindingModelItem( FabricCore::DFGBinding binding )
-  : NodeModelItem(binding.getExec(), "")
-  , m_binding(binding)
+  : m_binding(binding)
 {
   assert( m_binding.isValid() );
 }
 
-BaseModelItem* BindingModelItem::GetChild( QString childName )
+BindingModelItem::~BindingModelItem()
 {
-  int numExisting = m_children.size();
-  for (int i = 0; i < numExisting; i++)
-  {
-    if (m_children[i]->GetName() == childName)
-      return m_children[i];
-  }
-  //  we shouldn't ever create a child that doesn't exist!
-  assert( ChildIndex( childName ) >= 0 );
-  BaseModelItem* res = new ArgModelItem( m_binding, childName );
-  m_children.push_back( res );
-  return res;
+
 }
 
-void BindingModelItem::argInserted( int index, const char * name, const char * type )
+size_t BindingModelItem::NumChildren()
 {
-  m_children.insert( m_children.begin() + index,
-                     new ArgModelItem( m_binding, name ) );
+  return m_binding.getExec().getExecPortCount();
+}
+
+QString BindingModelItem::ChildName( int i )
+{
+  return m_binding.getExec().getExecPortName( i );
+}
+
+BaseModelItem* BindingModelItem::CreateChild( QString name ) /**/
+{
+  return new ArgModelItem( m_binding, name );
+}
+
+QString BindingModelItem::GetName()
+{
+  const char* title = m_binding.getExec().getTitle();
+  if (title && *title != '\0')
+    return title;
+  return QString();
+}
+
+QVariant BindingModelItem::GetValue()
+{
+  return GetName();
+}
+
+ItemMetadata* BindingModelItem::GetMetadata()
+{
+  return NULL;
+}
+
+void BindingModelItem::onViewValueChanged( QVariant const& var, bool commit )
+{
+  if (commit)
+  {
+    QByteArray asciiArr = var.toString().toAscii();
+    m_binding.getExec().setTitle( asciiArr.data() );
+    emit modelValueChanged(var);
+  }
 }

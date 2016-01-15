@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeModelItem.h"
+#include "RootModelItem.h"
 
 namespace FabricUI
 {
@@ -9,16 +9,29 @@ namespace FabricUI
   {
     //////////////////////////////////////////////////////////////////////////
     // Specialize Exec for special case exterior
-    class BindingModelItem : public NodeModelItem
+    class BindingModelItem : public RootModelItem
     {
     private:
       FabricCore::DFGBinding m_binding;
 
     public:
       BindingModelItem( FabricCore::DFGBinding binding );
+      ~BindingModelItem();
 
-      BaseModelItem* GetChild( QString childName );
-      virtual void argInserted( int index, const char* name, const char* type );
+      BaseModelItem* CreateChild( QString name ) /*override*/;
+
+      virtual size_t NumChildren() /*override*/;
+
+      virtual QString ChildName( int i ) /*override*/;
+
+      virtual QString GetName() /*override*/;
+
+      virtual QVariant GetValue() /*override*/;
+
+      virtual ItemMetadata* GetMetadata() /*override*/;
+
+      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
+
     };
   }
 }
