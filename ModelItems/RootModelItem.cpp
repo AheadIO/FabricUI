@@ -24,11 +24,14 @@ BaseModelItem* RootModelItem::GetChild( QString childName )
     if (m_children[i]->GetName() == childName)
       return m_children[i];
   }
-  //  we shouldn't ever create a child that doesn't exist!
-  assert( ChildIndex( childName ) >= 0 );
-  BaseModelItem* res = CreateChild( childName );
-  m_children.push_back( res );
-  return res;
+  // Ensure this child exists, we can't assume its valid
+  if (ChildIndex( childName ) >= 0)
+  {
+    BaseModelItem* res = CreateChild( childName );
+    m_children.push_back( res );
+    return res;
+  }
+  return NULL;
 }
 
 BaseModelItem* RootModelItem::GetChild( int index )
@@ -51,20 +54,26 @@ int RootModelItem::ChildIndex( QString name )
 }
 
 
-void RootModelItem::argInserted( int index, const char* name, const char* type )
+bool RootModelItem::argInserted( int index, const char* name, const char* type )
 {
-  m_children.insert( m_children.begin() + index, CreateChild( name ) );
+  // Assert that this child exists.  We will get notifications
+  // for children that we do not have.
+  if (ChildName( index ) == name)
+  {
+    return true;
+  }
+  return false;
 }
 
-void RootModelItem::argTypeChanged( int index, const char* name, const char* newType )
+bool RootModelItem::argTypeChanged( int index, const char* name, const char* newType )
 {
-  BaseModelItem* pChild = GetChild( name );
-  assert( pChild != NULL );
-  if (pChild != NULL)
+  // Assert that this child exists.  We will get notifications
+  // for children that we do not have.
+  if (ChildName( index ) == name)
   {
-    assert( pChild->GetName() == name );
-    // TODO:  What?  Reset the QVariant?
+    return true;
   }
+  return false;
 }
 
 void RootModelItem::argRemoved( int index, const char* name )

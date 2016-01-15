@@ -44,9 +44,9 @@ namespace FabricUI
       virtual void resetToDefault() /*override*/;
 
       //////////////////////////////////////////////////////////////////////////
-      virtual void argInserted( int index, const char* name, const char* type );
+      bool argInserted( int index, const char* name, const char* type );
 
-      void argTypeChanged( int index, const char* name, const char* newType );
+      bool argTypeChanged( int index, const char* name, const char* newType );
 
       void argRemoved( int index, const char* name );
     };
