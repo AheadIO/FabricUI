@@ -6,15 +6,15 @@
 
 #include "BaseViewItem.h"
 
-class QWidget;
-class QLineEdit;
+class QSpinBox;
+class ItemMetadata;
 
-class StringViewItem : public BaseViewItem
+class IntViewItem : public BaseViewItem
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-
+  
   static BaseViewItem *CreateItem(
     QString const &name,
     QVariant const &value,
@@ -22,25 +22,23 @@ public:
     );
   static const int Priority;
 
-	StringViewItem(
+  IntViewItem(
     QString const &name,
     QVariant const &value
     );
-	~StringViewItem();
+  ~IntViewItem();
 
-	virtual QWidget *getWidget() /*override*/;
+  virtual QWidget *getWidget() /*override*/;
   
-	virtual void onModelValueChanged( QVariant const &value ) /*override*/;
+  virtual void onModelValueChanged( QVariant const &value ) /*override*/;
 
   void deleteMe() { delete this; }
 
 private:
 
-	QLineEdit* m_edit;
-  QWidget* m_widget;
+  QSpinBox* m_spinner;
 
-protected slots:
-	void OnTextEdited( const QString& text );
-	void OnEditFinished();
-  void onInspect();
+private slots:
+  void OnSpinnerChanged(int value);
+  void OnEditFinished();
 };

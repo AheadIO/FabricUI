@@ -10,9 +10,9 @@ class ItemMetadata;
 class QString;
 class QVariant;
 class QWidget;
-class QSlider;
+class QCheckBox;
 
-class IntSliderViewItem : public BaseViewItem
+class BooleanCheckBoxViewItem : public BaseViewItem
 {
   Q_OBJECT
 
@@ -25,11 +25,11 @@ public:
     );
   static const int Priority;
 
-  IntSliderViewItem(
+  BooleanCheckBoxViewItem(
     QString const &name,
     QVariant const &value
     );
-  ~IntSliderViewItem();
+  ~BooleanCheckBoxViewItem();
 
   virtual QWidget *getWidget() /*override*/;
 
@@ -41,9 +41,9 @@ public:
 
 private:
 
-  QSlider* m_slider;
+  QCheckBox *m_checkBox;
 
 private slots:
-  void OnSpinnerChanged( int value );
-  void OnEditFinished();
+
+  void onStateChanged( int state );
 };

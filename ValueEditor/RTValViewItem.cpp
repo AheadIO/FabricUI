@@ -7,7 +7,6 @@
 #include "QVariantRTVal.h"
 
 #include <assert.h>
-#include <FTL/JSONValue.h>
 #include <QtGui/QLabel.h>
 
 RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
@@ -15,21 +14,24 @@ RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
   , m_val(value)
   , m_widget(new QLabel())
 {
+  m_widget->setContentsMargins( 0, 2, 0, 2 );
+
   // We cannot leave arbitrary classes open to
   // editing, as we don't know what effect this
   // will have.  Here we white-list the list of
   // items we know are editable
   const char* typeName = m_val.getTypeNameCStr();
-  bool isEditable = (strcmp( typeName, "Mat22" ) == 0 ||
+  m_isEditableType = (strcmp( typeName, "Mat22" ) == 0 ||
                       strcmp( typeName, "Mat33" ) == 0 ||
                       strcmp( typeName, "Mat44" ) == 0 ||
                       strcmp( typeName, "Vec2" ) == 0 ||
                       strcmp( typeName, "Vec3" ) == 0 ||
                       strcmp( typeName, "Vec4" ) == 0 ||
-                      strcmp( typeName, "Quat" ) == 0);
+                      strcmp( typeName, "Quat" ) == 0 ||
+                      strcmp( typeName, "Xfo" ) == 0);
   // Do not change state if editable (we inherit our
   // parents editable status)
-  if (!isEditable)
+  if (!m_isEditableType)
     m_metadata.setSInt32( "disabled", 1 );
 
   UpdateWidget();
@@ -47,13 +49,19 @@ QWidget *RTValViewItem::getWidget()
 void RTValViewItem::onModelValueChanged( QVariant const &value )
 {
   RTVariant::toRTVal( value, m_val );
-  for (int i = 0; i < m_childNames.size(); i++)
-  {
-    const char* childName = m_childNames[i].data();
-    FabricCore::RTVal childVal = m_val.maybeGetMemberRef( childName );
-    assert( childVal.isValid() );
 
-    routeModelValueChanged( i, toVariant( childVal ) );
+  if ( hasChildren() )
+  {
+    if ( m_val.isAggregate()
+      && ( !m_val.isObject() || !m_val.isNullObject() ) )
+    {
+      unsigned childCount = m_val.getMemberCount();
+      for ( unsigned i = 0; i < childCount; ++i )
+      {
+        FabricCore::RTVal childVal = m_val.getMemberRef( i );
+        routeModelValueChanged( i, toVariant( childVal ) );
+      }
+    }
   }
 
   UpdateWidget();
@@ -65,16 +73,16 @@ void RTValViewItem::onChildViewValueChanged(
   bool commit
   )
 {
-
-  assert( index < m_childNames.size() );
-  const char* childName = m_childNames[index].data();
-
-  // We cannot simply create a new RTVal based on the QVariant type, as 
-  // we have to set the type exactly the same as the original.  Get the
-  // original child value to ensure the new value matches the internal type
-  FabricCore::RTVal oldChildVal = m_val.maybeGetMemberRef( childName );
-  RTVariant::toRTVal( value, oldChildVal );
-  m_val.setMember( childName, oldChildVal );
+  if ( m_val.isAggregate()
+    && ( !m_val.isObject() || !m_val.isNullObject() ) )
+  {
+    // We cannot simply create a new RTVal based on the QVariant type, as 
+    // we have to set the type exactly the same as the original.  Get the
+    // original child value to ensure the new value matches the internal type
+    FabricCore::RTVal oldChildVal = m_val.getMemberRef( index );
+    RTVariant::toRTVal( value, oldChildVal );
+    m_val.setMember( index, oldChildVal );
+  }
 
   emit viewValueChanged( toVariant( m_val ), commit );
 }
@@ -84,36 +92,30 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
   if (!m_val.isValid())
     return;
 
-  try {
-
-    FabricCore::RTVal desc = m_val.getJSON();
-    if (!desc.isValid())
-      return;
-
-    const char* cdesc = desc.getStringCString();
-    if (strcmp( cdesc, "null" ) == 0)
-      return;
-
-    // parse cdesc, Build children from desc.
-    FTL::JSONValue* value = FTL::JSONValue::Decode( cdesc );
-    FTL::JSONObject* obj = value->cast<FTL::JSONObject>();
-
-    // Construct a child for each instance
-    ViewItemFactory* factory = ViewItemFactory::GetInstance();
-    for (FTL::JSONObject::const_iterator itr = obj->begin(); itr != obj->end(); itr++)
+  try
+  {
+    if ( m_val.isAggregate() )
     {
-      const char* childName = itr->first.c_str();
-      FabricCore::RTVal childVal = m_val.maybeGetMemberRef( childName );
-      if (childVal.isValid())
+      if ( !m_val.isObject() || !m_val.isNullObject() )
       {
-        BaseViewItem* childItem = factory->CreateViewItem( childName, toVariant( childVal ), &m_metadata );
-        if (childItem != NULL)
+        // Construct a child for each instance
+        ViewItemFactory* factory = ViewItemFactory::GetInstance();
+        unsigned childCount = m_val.getMemberCount();
+        for ( unsigned i = 0; i < childCount; ++i )
         {
-          size_t index = m_childNames.size();
-          m_childNames.push_back( childName );
-          connectChild( (int)index, childItem );
-
-          items.push_back( childItem );
+          char const *childName = m_val.getMemberName( i );
+          FabricCore::RTVal childVal = m_val.getMemberRef( i );
+          BaseViewItem* childItem =
+            factory->CreateViewItem(
+              childName,
+              toVariant( childVal ),
+              &m_metadata
+              );
+          if (childItem != NULL)
+          {
+            connectChild( (int)i, childItem );
+            items.push_back( childItem );
+          }
         }
       }
     }
@@ -128,16 +130,17 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 void RTValViewItem::UpdateWidget()
 {
   QString str;
-  str.sprintf( "<%s>", m_val.getTypeNameCStr() );
-  //FabricCore::RTVal desc = m_val.getDesc();
-  //QString str = m_val.getTypeNameCStr();
-  //str += ": ";
-  //str += desc.getStringCString();
-
-  //// We chew up tonnes of perf if we don't limit the length
-  //const int maxLen = 50;
-  //if (str.length() > maxLen)
-  //  str.resize( maxLen );
+  str = m_val.getTypeNameCStr();
+  if ( m_isEditableType )
+  {
+    FabricCore::RTVal desc = m_val.getDesc();
+    str += ": ";
+    str += desc.getStringCString();
+  }
+  else if ( m_val.isObject() && m_val.isNullObject() )
+  {
+    str += ": null";
+  }
   m_widget->setText( str );
 }
 
@@ -155,7 +158,7 @@ BaseViewItem* RTValViewItem::CreateItem(
     return NULL;
 
   FabricCore::RTVal rtVal = value.value<FabricCore::RTVal>();
-  if (rtVal.isValid() && (rtVal.isObject() || rtVal.isStruct()))
+  if ( rtVal.isValid() )
   {
     RTValViewItem* pViewItem = new RTValViewItem( QString( name ), rtVal );
     return pViewItem;

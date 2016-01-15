@@ -1,5 +1,11 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "IntSliderViewItem.h"
 #include "ItemMetadata.h"
+#include "QVariantRTVal.h"
+
 #include <QtCore/QVariant>
 #include <QtGui/QSlider>
 
@@ -76,8 +82,8 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   if (metaData == NULL)
     return NULL;
 
-  if ( int(value.type()) == int(QVariant::Int)
-       || int(value.type()) == int(QMetaType::UInt) )
+  if ( RTVariant::isType<int>( value )
+    || RTVariant::isType<unsigned>( value ) )
   {
     // We can only create the UI if we have a defined Min & Max
     if (metaData->has( "min" ) && metaData->has( "max" ))
@@ -89,3 +95,5 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   }
   return NULL;
 }
+
+const int IntSliderViewItem::Priority = 5;

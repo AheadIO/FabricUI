@@ -4,12 +4,14 @@
 
 #include "BaseModelItem.h"
 #include "BaseViewItem.h"
+#include "BooleanCheckBoxViewItem.h"
 #include "ColorViewItem.h"
 #include "DefaultViewItem.h"
 #include "FilepathViewItem.h"
 #include "FloatSliderViewItem.h"
 #include "FloatViewItem.h"
 #include "IntSliderViewItem.h"
+#include "IntViewItem.h"
 #include "QVariantRTVal.h"
 #include "RTValViewItem.h"
 #include "StringViewItem.h"
@@ -70,14 +72,16 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   if ( !initialized )
   {
     // Register the builtin view items
+    RegisterCreator( BooleanCheckBoxViewItem::CreateItem, BooleanCheckBoxViewItem::Priority );
     RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
     RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
-    RegisterCreator( FilepathViewItem::CreateItem, FloatViewItem::Priority );
+    RegisterCreator( FilepathViewItem::CreateItem, FilepathViewItem::Priority );
     RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
     RegisterCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
-    RegisterCreator( IntSliderViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( IntSliderViewItem::CreateItem, IntSliderViewItem::Priority );
+    RegisterCreator( IntViewItem::CreateItem, IntViewItem::Priority );
     RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
-    RegisterCreator( StringViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( StringViewItem::CreateItem, StringViewItem::Priority );
     RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
 
      // We put the QVariantRTVal bridge injection

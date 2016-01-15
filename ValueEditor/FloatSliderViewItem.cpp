@@ -2,9 +2,10 @@
 // Copyright 2010-2016 Fabric Software Inc. All rights reserved.
 //
 
+#include "DoubleSlider.h"
 #include "FloatSliderViewItem.h"
 #include "ItemMetadata.h"
-#include "DoubleSlider.h"
+#include "QVariantRTVal.h"
 
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant.h>
@@ -36,9 +37,9 @@ QWidget *FloatSliderViewItem::getWidget()
   return m_slider;
 }
 
-void FloatSliderViewItem::onModelValueChanged( QVariant const &value )
+void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_slider->setDoubleValue( value.toDouble() );
+  m_slider->setDoubleValue( v.value<double>() );
 }
 
 void FloatSliderViewItem::updateMetadata( ItemMetadata* metaData ) 
@@ -78,8 +79,7 @@ BaseViewItem* FloatSliderViewItem::CreateItem(
   if (metaData == NULL)
     return NULL;
 
-  if (value.type() == QVariant::Double
-       || QMetaType::Type( value.type() ) == QMetaType::Float)
+  if (RTVariant::isType<double>(value) || RTVariant::isType<float>(value))
   {
     // We can only create the UI if we have a defined Min & Max
     if (metaData->has( "min" ) && metaData->has( "max" ))
