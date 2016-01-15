@@ -1,6 +1,7 @@
 #include "ArgModelItem.h"
 #include "ArgItemMetadata.h"
 
+#include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
 #include <QtCore/QVariant>
 
@@ -13,8 +14,8 @@ ArgModelItem::ArgModelItem(
   FabricCore::DFGBinding binding,
   FTL::StrRef argName
   )
-  : /*m_dfgUICmdHandler( dfgUICmdHandler )
-  , */m_binding( binding )
+  : m_dfgUICmdHandler( dfgUICmdHandler )
+  , m_binding( binding )
   , m_argName( argName )
   , m_rootExec( binding.getExec() )
   , m_metadata( 0 )
@@ -55,11 +56,19 @@ void ArgModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
   // the UI will build a Double slider, and send us a Double
   // In this case, the core will complain if we built a RTVal
   // from this type and tried to set it (because mis-matched type).
-  FabricCore::RTVal val = m_binding.getArgValue( m_argName.c_str() );
-  if (RTVariant::toRTVal( var, val ) )
-  {
-    m_binding.setArgValue( m_argName.c_str(), val, commit );
-  }
+  FabricCore::RTVal curVal = m_binding.getArgValue( m_argName.c_str() );
+  assert( curVal.isValid() );
+  FabricCore::DFGHost host = m_binding.getHost();
+  FabricCore::Context context = host.getContext();
+  FabricCore::RTVal val =
+    FabricCore::RTVal::Construct( context, curVal.getTypeNameCStr(), 0, 0 );
+  assert( val.isValid() );
+  assert( RTVariant::toRTVal( var, val ) );
+  m_dfgUICmdHandler->dfgDoSetArgValue(
+    m_binding,
+    m_argName,
+    val
+    );
 }
 
 ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()

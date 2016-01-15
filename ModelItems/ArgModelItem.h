@@ -20,7 +20,7 @@ class DFGUICmdHandler;
     {
     private:
 
-      // DFG::DFGUICmdHandler *m_dfgUICmdHandler;
+      DFG::DFGUICmdHandler *m_dfgUICmdHandler;
       FabricCore::DFGBinding m_binding;
       std::string m_argName;
 
