@@ -9,7 +9,7 @@
 class QSpinBox;
 class ItemMetadata;
 
-class IntViewItem : public BaseViewItem
+class UIntViewItem : public BaseViewItem
 {
   Q_OBJECT
 
@@ -22,11 +22,11 @@ public:
     );
   static const int Priority;
 
-  IntViewItem(
+  UIntViewItem(
     QString const &name,
     QVariant const &value
     );
-  ~IntViewItem();
+  ~UIntViewItem();
 
   virtual QWidget *getWidget() /*override*/;
   

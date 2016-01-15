@@ -11,10 +11,11 @@
 #include "FloatSliderViewItem.h"
 #include "FloatViewItem.h"
 #include "IntSliderViewItem.h"
-#include "IntViewItem.h"
 #include "QVariantRTVal.h"
 #include "RTValViewItem.h"
+#include "SIntViewItem.h"
 #include "StringViewItem.h"
+#include "UIntViewItem.h"
 #include "Vec2ViewItem.h"
 #include "Vec3ViewItem.h"
 #include "Vec4ViewItem.h"
@@ -78,12 +79,13 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
     RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
     RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
     RegisterCreator( FilepathViewItem::CreateItem, FilepathViewItem::Priority );
-    RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
     RegisterCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
+    RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
     RegisterCreator( IntSliderViewItem::CreateItem, IntSliderViewItem::Priority );
-    RegisterCreator( IntViewItem::CreateItem, IntViewItem::Priority );
     RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
+    RegisterCreator( SIntViewItem::CreateItem, SIntViewItem::Priority );
     RegisterCreator( StringViewItem::CreateItem, StringViewItem::Priority );
+    RegisterCreator( UIntViewItem::CreateItem, UIntViewItem::Priority );
     RegisterCreator( Vec2ViewItem::CreateItem, Vec2ViewItem::Priority );
     RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
     RegisterCreator( Vec4ViewItem::CreateItem, Vec4ViewItem::Priority );
