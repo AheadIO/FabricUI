@@ -828,6 +828,7 @@ void DFGNotificationRouter::onPortsConnected(
     ((DFGController*)m_dfgController)->checkErrors();
   }
 
+  m_dfgController->emitPortsConnected( srcPath, dstPath );
   m_dfgController->bindUnboundRTVals();
 }
 
@@ -882,6 +883,7 @@ void DFGNotificationRouter::onPortsDisconnected(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
+  m_dfgController->emitPortsDisconnected( srcPath, dstPath );
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(

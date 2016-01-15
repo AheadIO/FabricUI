@@ -481,6 +481,14 @@ namespace FabricUI
         FTL::CStrRef newNodeName
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
+      void emitPortsConnected(
+        FTL::CStrRef srcPort,
+        FTL::CStrRef dstPort
+        );
+      void emitPortsDisconnected(
+        FTL::CStrRef srcPort,
+        FTL::CStrRef dstPort
+        );
 
     signals:
 
@@ -511,6 +519,14 @@ namespace FabricUI
       void nodeRemoved(
         FTL::CStrRef execPath,
         FTL::CStrRef nodeName
+        );
+      void portsConnected(
+        FTL::CStrRef srcPort,
+        FTL::CStrRef dstPort
+        );
+      void portsDisconnected(
+        FTL::CStrRef srcPort,
+        FTL::CStrRef dstPort
         );
 
     public slots:
