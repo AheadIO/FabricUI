@@ -8,7 +8,7 @@
 #include "QVariantRTVal.h"
 
 #include <FTL/JSONValue.h>
-#include <QtCore/QVariant.h>
+#include <QtCore/QVariant>
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,

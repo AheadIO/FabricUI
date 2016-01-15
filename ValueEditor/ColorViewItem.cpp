@@ -9,9 +9,9 @@
 
 #include <assert.h>
 #include <FTL/JSONValue.h>
-#include <QtCore/QVariant.h>
-#include <QtGui/QColorDialog.h>
-#include <QtGui/QPushButton.h>
+#include <QtCore/QVariant>
+#include <QtGui/QColorDialog>
+#include <QtGui/QPushButton>
 
 ColorViewItem::ColorViewItem(
   const QVariant& value,

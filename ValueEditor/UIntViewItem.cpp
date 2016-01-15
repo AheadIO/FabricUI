@@ -5,7 +5,7 @@
 #include "UIntViewItem.h"
 #include "QVariantRTVal.h"
 
-#include <QtGui/QSpinBox.h>
+#include <QtGui/QSpinBox>
 #include <limits.h>
 
 UIntViewItem::UIntViewItem(

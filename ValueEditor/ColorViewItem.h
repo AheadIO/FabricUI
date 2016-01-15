@@ -6,7 +6,7 @@
 
 #include "BaseComplexViewItem.h"
 
-#include <QtGui/QColor.h>
+#include <QtGui/QColor>
 
 class QPushButton;
 class ItemMetadata;

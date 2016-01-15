@@ -5,7 +5,7 @@
 #include "FloatViewItem.h"
 #include "QVariantRTVal.h"
 
-#include <QtGui/QSpinBox.h>
+#include <QtGui/QSpinBox>
 #include <float.h>
 
 FloatViewItem::FloatViewItem(
