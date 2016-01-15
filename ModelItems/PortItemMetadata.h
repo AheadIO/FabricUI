@@ -27,6 +27,13 @@ namespace FabricUI
 
       virtual const char* getString( const char* key ) const /*override*/
       {
+        if (strcmp( "disabled", key ) == 0)
+        {
+          // Override disabled for connected ports
+          if ( m_exec.hasSrcPort( m_path.c_str() ) )
+            return "1";
+        }
+
         return const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
       }
 

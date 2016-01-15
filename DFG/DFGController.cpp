@@ -2295,3 +2295,13 @@ void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
   emit nodeRemoved( m_execPath, nodeName );
 }
+
+void FabricUI::DFG::DFGController::emitPortsConnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
+{
+  emit portsConnected( srcPort, dstPort );
+}
+
+void FabricUI::DFG::DFGController::emitPortsDisconnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
+{
+  emit portsDisconnected( srcPort, dstPort );
+}
