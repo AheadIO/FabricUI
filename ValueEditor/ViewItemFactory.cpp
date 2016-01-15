@@ -4,6 +4,7 @@
 
 #include "BaseModelItem.h"
 #include "BaseViewItem.h"
+#include "BooleanCheckBoxViewItem.h"
 #include "ColorViewItem.h"
 #include "DefaultViewItem.h"
 #include "FilepathViewItem.h"
@@ -70,6 +71,7 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   if ( !initialized )
   {
     // Register the builtin view items
+    RegisterCreator( BooleanCheckBoxViewItem::CreateItem, ColorViewItem::Priority );
     RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
     RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
     RegisterCreator( FilepathViewItem::CreateItem, FloatViewItem::Priority );
