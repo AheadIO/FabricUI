@@ -15,7 +15,9 @@
 #include "QVariantRTVal.h"
 #include "RTValViewItem.h"
 #include "StringViewItem.h"
+#include "Vec2ViewItem.h"
 #include "Vec3ViewItem.h"
+#include "Vec4ViewItem.h"
 #include "ViewItemFactory.h"
 
 ViewItemFactory::ViewItemFactory()
@@ -82,7 +84,9 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
     RegisterCreator( IntViewItem::CreateItem, IntViewItem::Priority );
     RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
     RegisterCreator( StringViewItem::CreateItem, StringViewItem::Priority );
+    RegisterCreator( Vec2ViewItem::CreateItem, Vec2ViewItem::Priority );
     RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
+    RegisterCreator( Vec4ViewItem::CreateItem, Vec4ViewItem::Priority );
 
      // We put the QVariantRTVal bridge injection
     // code here, as before we build a view it won't

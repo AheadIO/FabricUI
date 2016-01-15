@@ -401,7 +401,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v.setX( val.maybeGetMember( "x" ).getFloat32() );
           v.setY( val.maybeGetMember( "y" ).getFloat32() );
           v.setZ( val.maybeGetMember( "z" ).getFloat32());
-          v.setW( val.maybeGetMember( "w" ).getFloat32());
+          v.setW( val.maybeGetMember( "t" ).getFloat32());
         }
         break;
       case int( QVariant::Quaternion ):
@@ -592,7 +592,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       ioVal.maybeGetMemberRef( "x" ).setFloat32( v.x() );
       ioVal.maybeGetMemberRef( "y" ).setFloat32( v.y() );
       ioVal.maybeGetMemberRef( "z" ).setFloat32( v.z() );
-      ioVal.maybeGetMemberRef( "w" ).setFloat32( v.w() );
+      ioVal.maybeGetMemberRef( "t" ).setFloat32( v.w() );
     }
     else if ( ioVal.hasType( "Quat" ) )
     {
