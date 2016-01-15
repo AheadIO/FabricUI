@@ -44,3 +44,8 @@ ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
 
   return m_metadata; 
 }
+
+int FabricUI::ModelItems::ArgModelItem::GetInOut()
+{
+  return m_exec.getExecPortType( m_path.c_str() );
+}

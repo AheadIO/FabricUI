@@ -20,11 +20,14 @@ namespace FabricUI
 
       ArgModelItem( const FabricCore::DFGBinding& binding, QString portName );
 
-      virtual QVariant GetValue();
+      virtual QVariant GetValue()/*override*/;
 
       virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
 
       virtual ItemMetadata* GetMetadata() /*override*/;
+
+      virtual int GetInOut() /*override*/;
+
     };
   }
 }
