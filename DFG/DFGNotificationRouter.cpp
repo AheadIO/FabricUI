@@ -81,14 +81,16 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortInserted"))
     {
       onExecPortInserted(
-        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) ),
         jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("execPortRemoved"))
     {
       onExecPortRemoved(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) )
         );
     }
     else if(descStr == FTL_STR("portsConnected"))
@@ -390,6 +392,7 @@ void DFGNotificationRouter::onGraphSet()
       FTL::JSONObject const *portObject =
         portsArray->get( i )->cast<FTL::JSONObject>();
       onExecPortInserted(
+        i,
         portObject->getString( FTL_STR("name") ),
         portObject
         );
@@ -670,6 +673,7 @@ void DFGNotificationRouter::onNodePortRemoved(
 }
 
 void DFGNotificationRouter::onExecPortInserted(
+  int index,
   FTL::CStrRef portName,
   FTL::JSONObject const *jsonObject
   )
@@ -727,9 +731,12 @@ void DFGNotificationRouter::onExecPortInserted(
       return;
     uiKlEditor->onExecChanged();
   }
+
+  m_dfgController->emitArgInserted( index, portName.c_str(), dataType.c_str() );
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
+  int index,
   FTL::CStrRef portName
   )
 {
@@ -774,6 +781,8 @@ void DFGNotificationRouter::onExecPortRemoved(
       return;
     uiKlEditor->onExecChanged();
   }
+
+  m_dfgController->emitArgRemoved( index, portName.c_str() );
 }
 
 void DFGNotificationRouter::onPortsConnected(
@@ -1133,6 +1142,7 @@ void DFGNotificationRouter::onExecPortRenamed(
       return;
     uiPort->setName(newPortName);
   }
+  m_dfgController->emitExecPortRenamed( oldPortName.c_str(), newPortName.c_str() );
 }
 
 void DFGNotificationRouter::onNodePortRenamed(
@@ -1231,6 +1241,20 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   FTL::CStrRef newResolvedType
   )
 {
+  {
+    // Strangely, this notification doesn't come with port
+    // index (as Args do), but to notify consistently we need
+    // to find it (the index)
+    FabricCore::DFGExec exec = m_dfgController->getExec();
+    for (int index = 0; index < exec.getExecPortCount(); index++)
+    {
+      if (strcmp( exec.getExecPortName( index ), portName.c_str() ) == 0)
+      {
+        m_dfgController->emitArgTypeChanged( index, portName.c_str(), newResolvedType.c_str() );
+      }
+    }
+  }
+
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;

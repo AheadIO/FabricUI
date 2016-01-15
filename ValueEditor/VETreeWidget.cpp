@@ -125,13 +125,22 @@ VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem, VETreeWi
 void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, const char* name )
 {
   QTreeWidgetItem* parentItem = findTreeWidget( parent );
-  if (parent != NULL)
+  if (parentItem != NULL)
   {
+    // Check first it doesn't already exist.  We get
+    // notifications of Insert when opening new graphs
+    QString qname( name );
+    for (int i = 0; i < parentItem->childCount(); i++)
+    {
+      QTreeWidgetItem* item = parentItem->child( i );
+      if (item && item->text(0) == qname )
+        return;
+    }
     parentItem->setChildIndicatorPolicy( QTreeWidgetItem::ShowIndicator );
     if (parentItem->isExpanded())
     {
       // Insert new child in the appropriate place
-      BaseModelItem* newItem = parent->GetChild( name );
+      BaseModelItem* newItem = parent->GetChild( qname );
       BaseViewItem* newView =
         ViewItemFactory::GetInstance()->CreateViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
@@ -229,6 +238,8 @@ void VETreeWidget::prepareMenu( const QPoint& pt )
 {
   VETreeWidgetItem* item = static_cast<VETreeWidgetItem*>(itemAt( pt ));
   BaseModelItem* model = GetFirstModelItem( item );
+  if (model == NULL)
+    return;
 
   QAction *newAct = new QAction( tr( "Reset" ), this );
   newAct->setStatusTip( tr( "new sth" ) );

@@ -476,6 +476,10 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
+      void emitExecPortRenamed( 
+        FTL::CStrRef oldNodeName, 
+        FTL::CStrRef newNodeName );
+
       void emitNodeRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName

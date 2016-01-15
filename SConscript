@@ -136,10 +136,10 @@ if uiLibPrefix == 'ui':
 
   if buildOS == 'Windows':
     projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']
-    projNode = Dir('#').File(projName)
+    projNode = Dir('.').File(projName)
     if not projNode.exists():
       print("---- Building " + projName + " VS Proj for FabricUI ----")
-      projFile = env.MSVSProject(target = projName,
+      projFile = env.MSVSProject(target = projNode,
                     srcs = strsources,
                     incs = strheaders,
                     buildtarget = uiLib,
