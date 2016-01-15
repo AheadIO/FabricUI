@@ -2,6 +2,7 @@
 // Copyright 2010-2016 Fabric Software Inc. All rights reserved.
 //
 
+#include "QVariantRTVal.h"
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
 
@@ -143,8 +144,7 @@ BaseViewItem* Vec3ViewItem::CreateItem(
   ItemMetadata*
   )
 {
-  const int qv3Dtype = ((QVariant)QVector3D()).type();
-  if (value.type() == qv3Dtype)
+  if ( RTVariant::isType<QVector3D>( value ) )
     return new Vec3ViewItem( name, value );
   else
     return 0;
