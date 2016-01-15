@@ -49,61 +49,48 @@ bool RTVariant::rtIsNull( const QVariant::Private *d )
 
 bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
 {
-  if (isRTVal( d ))
+  if ( isRTVal( d ) )
   {
     const FabricCore::RTVal& val = value( d );
-    if (!val.isValid())
+    if ( !val.isValid() )
       return false;
-
-    const char* rtype = val.getTypeNameCStr();
 
     switch ( int( t ) )
     {
       case int( QVariant::Bool ):
-        return strcmp( rtype, "Boolean" ) == 0;
+        return val.isBoolean();
       case int( QVariant::Int ):
-        return strcmp( rtype, "SInt32" ) == 0 ||
-          strcmp( rtype, "SInt16" ) == 0 ||
-          strcmp( rtype, "SInt8" ) == 0;
+        return val.isSInt8() || val.isSInt16() || val.isSInt32();
       case int( QVariant::UInt ):
-        return strcmp( rtype, "UInt32" ) == 0 ||
-          strcmp( rtype, "UInt16" ) == 0 ||
-          strcmp( rtype, "byte" ) == 0 ||
-          strcmp( rtype, "Size" ) == 0 ||
-          strcmp( rtype, "Count" ) == 0 ||
-          strcmp( rtype, "Index" ) == 0 ||
-          strcmp( rtype, "UInt8" ) == 0;
+        return val.isUInt8() || val.isUInt16() || val.isUInt32();
       case int( QVariant::LongLong ):
-        return strcmp( rtype, "SInt64" ) == 0;
+        return val.isSInt64();
       case int( QVariant::ULongLong ):
-        return strcmp( rtype, "UInt64" ) == 0;
+        return val.isUInt64();
       case int( QMetaType::Float ):
-        return strcmp( rtype, "Float32" ) == 0 ||
-          strcmp( rtype, "Scalar" ) == 0;
+        return val.isFloat32();
       case int( QVariant::Double ):
-        return strcmp( rtype, "Float32" ) == 0 ||
-          strcmp( rtype, "Float64" ) == 0 ||
-          strcmp( rtype, "Scalar" ) == 0;
+        return val.isFloat64();
       case int( QVariant::String ):
-        return strcmp( rtype, "String" ) == 0;
+        return val.isString();
       case int( QVariant::Color ):
-        return strcmp( rtype, "RGB" ) == 0 ||
-          strcmp( rtype, "RGBA" ) == 0 ||
-          strcmp( rtype, "Color" ) == 0;
+        return val.hasType( "RGB" ) ||
+          val.hasType( "RGBA" ) ||
+          val.hasType( "Color" );
       case int( QVariant::Matrix ):
-        return strcmp( rtype, "Mat22" ) == 0;
+        return val.hasType( "Mat22" );
       case int( QVariant::Transform ):
-        return strcmp( rtype, "Mat33" ) == 0;
+        return val.hasType( "Mat33" );
       case int( QVariant::Matrix4x4 ):
-        return strcmp( rtype, "Mat44" ) == 0;
+        return val.hasType( "Mat44" );
       case int( QVariant::Vector2D ):
-        return strcmp( rtype, "Vec2" ) == 0;
+        return val.hasType( "Vec2" );
       case int( QVariant::Vector3D ):
-        return strcmp( rtype, "Vec3" ) == 0;
+        return val.hasType( "Vec3" );
       case int( QVariant::Vector4D ):
-        return strcmp( rtype, "Vec4" ) == 0;
+        return val.hasType( "Vec4" );
       case int( QVariant::Quaternion ):
-        return strcmp( rtype, "Quat" ) == 0;
+        return val.hasType( "Quat" );
 
         // For these more complex types, 
         // a user should directly work with
@@ -161,11 +148,11 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
   if (isRTVal( d ))
   {
     const FabricCore::RTVal& val = value( d );
-    const char* rtype = val.getTypeNameCStr();
+    
     switch ( int ( t ) )
     {
       case int( QVariant::Bool ):
-        if (strcmp( rtype, "Boolean" ))
+        if ( val.isBoolean() )
         {
           bool& b = *((bool*)result);
           b = val.getBoolean();
@@ -174,15 +161,15 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::Int ):
       {
         int& v = *((int*)result);
-        if (strcmp(rtype, "SInt32") == 0)
+        if ( val.isSInt32() )
         {
           v = val.getSInt32();
         }
-        else if (strcmp(rtype, "SInt16") == 0)
+        else if ( val.isSInt16() )
         {
           v = val.getSInt16();
         }
-        else if (strcmp(rtype, "SInt8") == 0)
+        else if ( val.isSInt8() )
         {
           v = val.getSInt8();
         }
@@ -191,38 +178,22 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::UInt ):
       {
         unsigned int& v = *((unsigned int*)result);
-        if (strcmp(rtype, "UInt32") == 0)
+        if ( val.isUInt32() )
         {
           v = val.getUInt32();
         }
-        else if (strcmp(rtype, "UInt16") == 0)
+        else if ( val.isUInt16() )
         {
           v = val.getUInt16();
         }
-        else if (strcmp(rtype, "UInt8") == 0)
+        else if ( val.isUInt8() )
         {
           v = val.getUInt8();
-        }
-        else if (strcmp( rtype, "byte" ) == 0)
-        {
-          v = val.getUInt8();
-        }
-        else if (strcmp( rtype, "Size" ) == 0)
-        {
-          v = val.getUInt32();
-        }
-        else if (strcmp( rtype, "Count" ) == 0)
-        {
-          v = val.getUInt32();
-        }
-        else if (strcmp( rtype, "Index" ) == 0)
-        {
-          v = val.getUInt32();
         }
       }
       break;
       case int( QVariant::LongLong ):
-        if ( strcmp( rtype, "SInt64" ) == 0 )
+        if ( val.isSInt64() )
         {
           long long int& v = *((long long int*)result);
           v = val.getSInt64();
@@ -231,15 +202,14 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::ULongLong ):
       {
         unsigned long long int& v = *((unsigned long long int*)result);
-        if (strcmp(rtype, "UInt64") == 0)
+        if ( val.isUInt64() )
         {
           v = val.getUInt64();
         }
       }
       break;
       case int( QMetaType::Float ):
-        if (strcmp( rtype, "Float32" ) == 0 ||
-          strcmp( rtype, "Scalar" ) == 0)
+        if ( val.isFloat32() )
         {
           float& v = *((float*)result);
           v = val.getFloat32();
@@ -247,24 +217,20 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::Double ):
       {
         double& v = *((double*)result);
-        if (strcmp( rtype, "Float32" ) == 0)
+        if ( val.isFloat32() )
         {
           v = val.getFloat32();
         }
-        else if (strcmp( rtype, "Float64" ) == 0)
+        else if ( val.isFloat64() )
         {
           v = val.getFloat64();
-        }
-        else if (strcmp( rtype, "Scalar" ) == 0)
-        {
-          v = val.getFloat32();
         }
       }
       break;
       case int( QVariant::String ):
       {
         QString& str = *((QString*)result);
-        if (strcmp( rtype, "String" ) == 0)
+        if ( val.isString() )
           str = val.getStringCString();
         else
         {
@@ -276,20 +242,20 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::Color ):
       {
         QColor& v = *((QColor*)result);
-        if (strcmp( rtype, "RGB" ) == 0)
+        if ( val.hasType( "RGB" ) )
         {
           v.setRed( val.maybeGetMember( "r" ).getUInt8() );
           v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
           v.setBlue( val.maybeGetMember( "b" ).getUInt8());
         }
-        else if (strcmp( rtype, "RGBA" ) == 0)
+        else if ( val.hasType( "RGBA" ) )
         {
           v.setRed( val.maybeGetMember( "r" ).getUInt8() );
           v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
           v.setBlue( val.maybeGetMember( "b" ).getUInt8() );
           v.setAlpha( val.maybeGetMember( "a" ).getUInt8() );
         }
-        else if (strcmp( rtype, "Color" ) == 0)
+        else if ( val.hasType( "Color" ) )
         {
           v.setRedF( val.maybeGetMember( "r" ).getFloat32() );
           v.setGreenF( val.maybeGetMember( "g" ).getFloat32() );
@@ -312,7 +278,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       //  }
       //  break;
       case int( QVariant::Transform ):
-        if ( strcmp( rtype, "Mat33" ) == 0 )
+        if ( val.hasType( "Mat33" ) )
         {
           QTransform& v = *((QTransform*)result);
           FabricCore::RTVal row0 = val.maybeGetMemberRef( "row0" );
@@ -334,7 +300,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       case int( QVariant::Matrix4x4 ):
-        if ( strcmp( rtype, "Mat44" ) == 0 )
+        if ( val.hasType( "Mat44" ) )
         {
           QMatrix4x4& v = *((QMatrix4x4*)result);
           FabricCore::RTVal row0 = val.maybeGetMemberRef( "row0" );
@@ -364,7 +330,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       case int( QVariant::Vector2D ):
-        if ( strcmp( rtype, "Vec2" ) == 0 )
+        if ( val.hasType( "Vec2" ) )
         {
           QVector2D& v = *((QVector2D*)result);
           v.setX(val.maybeGetMember( "x" ).getFloat32());
@@ -372,7 +338,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       case int( QVariant::Vector3D ):
-        if ( strcmp( rtype, "Vec3" ) == 0 )
+        if ( val.hasType( "Vec3" ) )
         {
           QVector3D& v = *((QVector3D*)result);
           v.setX(val.maybeGetMember( "x" ).getFloat32());
@@ -381,7 +347,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       case int( QVariant::Vector4D ):
-        if ( strcmp( rtype, "Vec4" ) == 0 )
+        if ( val.hasType( "Vec4" ) )
         {
           QVector4D& v = *((QVector4D*)result);
           v.setX( val.maybeGetMember( "x" ).getFloat32() );
@@ -391,7 +357,7 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         }
         break;
       case int( QVariant::Quaternion ):
-        if ( strcmp( rtype, "Quat" ) == 0 )
+        if ( val.hasType( "Quat" ) )
         {
           QQuaternion& v = *((QQuaternion*)result);
           FabricCore::RTVal row = val.maybeGetMemberRef( "v" );
@@ -438,83 +404,65 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
 
     // If not, do the translation from the QVariant type
     // to the appropriate RTVal type
-    const char* rtype = ioVal.getTypeNameCStr();
     FabricCore::Context ctxt = ioVal.getContext();
-    if (strcmp( rtype, "Boolean" ) == 0)
+    if ( ioVal.isBoolean() )
     {
       ioVal = FabricCore::RTVal::ConstructBoolean( ctxt, var.toBool() );
     }
-    else if (strcmp( rtype, "SInt32" ) == 0)
+    else if ( ioVal.isSInt32() )
     {
       ioVal = FabricCore::RTVal::ConstructSInt32( ctxt, var.toInt() );
     }
-    else if (strcmp( rtype, "SInt16" ) == 0)
+    else if ( ioVal.isSInt16() )
     {
       ioVal = FabricCore::RTVal::ConstructSInt16( ctxt, var.toInt() );
     }
-    else if (strcmp( rtype, "SInt8" ) == 0)
+    else if ( ioVal.isSInt8() )
     {
       ioVal = FabricCore::RTVal::ConstructSInt8( ctxt, var.toInt() );
     }
-    else if (strcmp( rtype, "UInt32" ) == 0)
+    else if ( ioVal.isUInt32() )
     {
       ioVal = FabricCore::RTVal::ConstructUInt32( ctxt, var.toUInt() );
     }
-    else if (strcmp( rtype, "UInt16" ) == 0)
+    else if ( ioVal.isUInt16() )
     {
       ioVal = FabricCore::RTVal::ConstructUInt16( ctxt, var.toUInt() );
     }
-    else if (strcmp( rtype, "UInt8" ) == 0)
+    else if ( ioVal.isUInt8() )
     {
       ioVal = FabricCore::RTVal::ConstructUInt8( ctxt, var.toUInt() );
     }
-    else if (strcmp( rtype, "byte" ) == 0)
-    {
-      ioVal = FabricCore::RTVal::ConstructUInt8( ctxt, var.toUInt() );
-    }
-    else if (strcmp( rtype, "Size" ) == 0)
-    {
-      ioVal = FabricCore::RTVal::ConstructUInt32( ctxt, var.toUInt() );
-    }
-    else if (strcmp( rtype, "Count" ) == 0)
-    {
-      ioVal = FabricCore::RTVal::ConstructUInt32( ctxt, var.toUInt() );
-    }
-    else if (strcmp( rtype, "Index" ) == 0)
-    {
-      ioVal = FabricCore::RTVal::ConstructUInt32( ctxt, var.toUInt() );
-    }
-    else if (strcmp( rtype, "SInt64" ) == 0)
+    else if ( ioVal.isSInt64() )
     {
       ioVal = FabricCore::RTVal::ConstructSInt64( ctxt, var.toLongLong() );
     }
-    else if (strcmp( rtype, "UInt64" ) == 0)
+    else if ( ioVal.isUInt64() )
     {
       ioVal = FabricCore::RTVal::ConstructUInt64( ctxt, var.toULongLong() );
     }
-    else if (strcmp( rtype, "Float32" ) == 0 ||
-              strcmp( rtype, "Scalar" ) == 0)
+    else if ( ioVal.isFloat32() )
     {
       ioVal.setFloat32( var.toFloat() );
     }
-    else if (strcmp( rtype, "Float64" ) == 0)
+    else if ( ioVal.isFloat64() )
     {
       ioVal = FabricCore::RTVal::ConstructFloat64( ctxt, var.toDouble() );
     }
-    else if (strcmp( rtype, "String" ) == 0)
+    else if ( ioVal.isString() )
     {
       QString str = var.toString();
       QByteArray asAscii = str.toAscii();
       ioVal = FabricCore::RTVal::ConstructString( ctxt, asAscii.data(), asAscii.size() );
     }
-    else if (strcmp( rtype, "RGB" ) == 0)
+    else if ( ioVal.hasType( "RGB" ) )
     {
       QColor color = var.value<QColor>();
       ioVal.setMember( "r", FabricCore::RTVal::ConstructUInt8( ctxt, color.red() ) );
       ioVal.setMember( "g", FabricCore::RTVal::ConstructUInt8( ctxt, color.green() ) );
       ioVal.setMember( "b", FabricCore::RTVal::ConstructUInt8( ctxt, color.blue() ) );
     }
-    else if (strcmp( rtype, "RGBA" ) == 0)
+    else if ( ioVal.hasType( "RGBA" ) )
     {
       QColor color = var.value<QColor>();
       ioVal.setMember( "r", FabricCore::RTVal::ConstructUInt8( ctxt, color.red() ) );
@@ -522,7 +470,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       ioVal.setMember( "b", FabricCore::RTVal::ConstructUInt8( ctxt, color.blue() ) );
       ioVal.setMember( "a", FabricCore::RTVal::ConstructUInt8( ctxt, color.alpha() ) );
     }
-    else if (strcmp( rtype, "Color" ) == 0)
+    else if ( ioVal.hasType( "Color" ) )
     {
       QColor color = var.value<QColor>();
       ioVal.maybeGetMemberRef( "r" ).setFloat32( color.redF() );
@@ -530,7 +478,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       ioVal.maybeGetMemberRef( "b" ).setFloat32( color.blueF() );
       ioVal.maybeGetMemberRef( "a" ).setFloat32( color.alphaF() );
     }
-    else if (strcmp( rtype, "Mat33" ) == 0)
+    else if ( ioVal.hasType( "Mat33" ) )
     {
       QTransform transform = var.value<QTransform>();
       FabricCore::RTVal row0 = ioVal.maybeGetMemberRef( "row0" );
@@ -549,7 +497,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       row2.maybeGetMemberRef( "y" ).setFloat32( transform.m32() );
       row2.maybeGetMemberRef( "z" ).setFloat32( transform.m33() );  
     }
-    else if (strcmp( rtype, "Mat44" ) == 0)
+    else if ( ioVal.hasType( "Mat44" ) )
     {
       QMatrix4x4 qmat = var.value<QMatrix4x4>();
       FabricCore::RTVal row0 = ioVal.maybeGetMemberRef( "row0" );
@@ -577,20 +525,20 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       row3.maybeGetMemberRef( "z" ).setFloat32( qmat( 3, 2 ) );
       row3.maybeGetMemberRef( "w" ).setFloat32( qmat( 3, 3 ) );
     }
-    else if (strcmp( rtype, "Vec2" ) == 0)
+    else if ( ioVal.hasType( "Vec2" ) )
     {
       QVector2D v = var.value<QVector2D>();
       ioVal.maybeGetMemberRef( "x" ).setFloat32( v.x() );
       ioVal.maybeGetMemberRef( "y" ).setFloat32( v.y() );
     }
-    else if (strcmp( rtype, "Vec3" ) == 0)
+    else if ( ioVal.hasType( "Vec3" ) )
     {
       QVector3D v = var.value<QVector3D>();
       ioVal.maybeGetMemberRef( "x" ).setFloat32( v.x() );
       ioVal.maybeGetMemberRef( "y" ).setFloat32( v.y() );
       ioVal.maybeGetMemberRef( "z" ).setFloat32( v.z() );
     }
-    else if (strcmp( rtype, "Vec4" ) == 0)
+    else if ( ioVal.hasType( "Vec4" ) )
     {
       QVector4D v = var.value<QVector4D>();
       ioVal.maybeGetMemberRef( "x" ).setFloat32( v.x() );
@@ -598,7 +546,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       ioVal.maybeGetMemberRef( "z" ).setFloat32( v.z() );
       ioVal.maybeGetMemberRef( "w" ).setFloat32( v.w() );
     }
-    else if (strcmp( rtype, "Quat" ) == 0)
+    else if ( ioVal.hasType( "Quat" ) )
     {
       QQuaternion v = var.value<QQuaternion>();
       FabricCore::RTVal row = ioVal.maybeGetMemberRef( "v" );
