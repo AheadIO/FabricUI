@@ -1,19 +1,44 @@
 #include "ArgModelItem.h"
 #include "ArgItemMetadata.h"
 
+#include <FabricUI/ValueEditor/QVariantRTVal.h>
+#include <QtCore/QVariant>
+
 using namespace FabricUI;
 using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
-ArgModelItem::ArgModelItem( const FabricCore::DFGBinding & binding, QString portName )
-  : PortModelItem(binding.getExec(), portName)
-  , m_binding(binding)
+ArgModelItem::ArgModelItem(
+  DFG::DFGUICmdHandler *dfgUICmdHandler,
+  FabricCore::DFGBinding binding,
+  FTL::StrRef argName
+  )
+  : /*m_dfgUICmdHandler( dfgUICmdHandler )
+  , */m_binding( binding )
+  , m_argName( argName )
+  , m_rootExec( binding.getExec() )
+  , m_metadata( 0 )
 {
+}
+
+size_t ArgModelItem::NumChildren()
+{
+  return 0;
+}
+
+BaseModelItem* ArgModelItem::GetChild( int i )
+{
+  return NULL;
+}
+
+QString ArgModelItem::GetName()
+{
+  return QString::fromUtf8( m_argName.data(), m_argName.size() );
 }
 
 QVariant ArgModelItem::GetValue()
 {
-  FabricCore::RTVal val = m_binding.getArgValue( m_path.c_str() );
+  FabricCore::RTVal val = m_binding.getArgValue( m_argName.c_str() );
   if (val.isValid())
   {
     return QVariant::fromValue<FabricCore::RTVal>( val );
@@ -30,22 +55,32 @@ void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
   // the UI will build a Double slider, and send us a Double
   // In this case, the core will complain if we built a RTVal
   // from this type and tried to set it (because mis-matched type).
-  FabricCore::RTVal val = m_binding.getArgValue( m_path.c_str() );
+  FabricCore::RTVal val = m_binding.getArgValue( m_argName.c_str() );
   if (RTVariant::toRTVal( var, val ) )
   {
-    m_binding.setArgValue( m_path.c_str(), val, commit );
+    m_binding.setArgValue( m_argName.c_str(), val, commit );
   }
 }
 
 ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
 {
   if (m_metadata == NULL)
-    m_metadata = new ArgItemMetadata( m_exec, m_path.c_str() );
+    m_metadata = new ArgItemMetadata( m_rootExec, m_argName.c_str() );
 
   return m_metadata; 
 }
 
 int FabricUI::ModelItems::ArgModelItem::GetInOut()
 {
-  return m_exec.getExecPortType( m_path.c_str() );
+  return m_rootExec.getExecPortType( m_argName.c_str() );
+}
+
+bool FabricUI::ModelItems::ArgModelItem::hasDefault()
+{
+  return false;
+}
+
+void FabricUI::ModelItems::ArgModelItem::resetToDefault()
+{
+  assert( false );
 }

@@ -5,31 +5,27 @@ using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
 
-VarModelItem::VarModelItem( FabricCore::DFGExec& exec, const char* name )
-  : NodeModelItem( exec, name )
-  , m_name( name )
-  , m_cname( name )
+VarModelItem::VarModelItem(
+  DFG::DFGUICmdHandler *dfgUICmdHandler,
+  FabricCore::DFGBinding binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec exec,
+  FTL::StrRef nodeName,
+  QString name
+  )
+  : NodeModelItem(
+    dfgUICmdHandler,
+    binding,
+    execPath,
+    exec,
+    nodeName,
+    name
+    )
 {
 }
-
 
 VarModelItem::~VarModelItem()
 {
-}
-
-size_t VarModelItem::NumChildren()
-{
-  return 0;
-}
-
-BaseModelItem* VarModelItem::GetChild( int childIndex )
-{
-  return NULL;
-}
-
-QString VarModelItem::GetName()
-{
-  return m_name;
 }
 
 int VarModelItem::GetInOut()
@@ -41,7 +37,7 @@ int VarModelItem::GetInOut()
 
 QVariant VarModelItem::GetValue()
 {
-  return QVariant::fromValue( m_exec.getVarValue( m_cname.c_str() ) );
+  return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
 }
 
 bool VarModelItem::hasDefault()
@@ -55,9 +51,9 @@ void VarModelItem::resetToDefault()
 
 void VarModelItem::onViewValueChanged( QVariant const& var, bool )
 {
-  FabricCore::RTVal val = m_exec.getVarValue( m_cname.c_str() );
+  FabricCore::RTVal val = m_exec.getVarValue( m_nodeName.c_str() );
   if (RTVariant::toRTVal( var, val ))
   {
-    m_exec.setVarValue( m_cname.c_str(), val );
+    m_exec.setVarValue( m_nodeName.c_str(), val );
   }
 }

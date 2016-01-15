@@ -6,35 +6,44 @@ using namespace FabricUI;
 using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
-BindingModelItem::BindingModelItem( FabricCore::DFGBinding binding )
-  : m_binding(binding)
+BindingModelItem::BindingModelItem(
+  DFG::DFGUICmdHandler *dfgUICmdHandler,
+  FabricCore::DFGBinding binding
+  )
+  : m_dfgUICmdHandler( dfgUICmdHandler )
+  , m_binding( binding )
+  , m_rootExec( binding.getExec() )
 {
   assert( m_binding.isValid() );
+  assert( m_rootExec.isValid() );
 }
 
 BindingModelItem::~BindingModelItem()
 {
-
 }
 
 size_t BindingModelItem::NumChildren()
 {
-  return m_binding.getExec().getExecPortCount();
+  return m_rootExec.getExecPortCount();
 }
 
 QString BindingModelItem::ChildName( int i )
 {
-  return m_binding.getExec().getExecPortName( i );
+  return m_rootExec.getExecPortName( i );
 }
 
 BaseModelItem* BindingModelItem::CreateChild( QString name ) /**/
 {
-  return new ArgModelItem( m_binding, name );
+  return new ArgModelItem(
+    m_dfgUICmdHandler,
+    m_binding,
+    name.toUtf8().constData()
+    );
 }
 
 QString BindingModelItem::GetName()
 {
-  const char* title = m_binding.getExec().getTitle();
+  const char* title = m_rootExec.getTitle();
   if (title && *title != '\0')
     return title;
   return QString();
@@ -55,7 +64,7 @@ void BindingModelItem::onViewValueChanged( QVariant const& var, bool commit )
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
-    m_binding.getExec().setTitle( asciiArr.data() );
+    m_rootExec.setTitle( asciiArr.data() );
     emit modelValueChanged(var);
   }
 }

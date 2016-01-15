@@ -2,12 +2,18 @@
 
 #include "RootModelItem.h"
 
+#include <FabricCore.h>
+#include <FTL/StrRef.h>
+
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
 // 
 
 namespace FabricUI
 {
+namespace DFG {
+class DFGUICmdHandler;
+}
 
   namespace ModelItems
   {
@@ -15,11 +21,24 @@ namespace FabricUI
     {
     protected:
 
+      DFG::DFGUICmdHandler *m_dfgUICmdHandler;
+      FabricCore::DFGBinding m_binding;
+      std::string m_execPath;
       FabricCore::DFGExec m_exec;
-      std::string m_path;
+      std::string m_nodeName;
+
+      QString m_name;
   
     public:
-      NodeModelItem( FabricCore::DFGExec exec, const char* path );
+      
+      NodeModelItem(
+        DFG::DFGUICmdHandler *dfgUICmdHandler,
+        FabricCore::DFGBinding binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec exec,
+        FTL::StrRef nodeName,
+        QString name
+        );
       ~NodeModelItem();
 
       size_t NumChildren();

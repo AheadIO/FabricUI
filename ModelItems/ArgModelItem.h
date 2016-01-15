@@ -1,24 +1,46 @@
 #pragma once
 
-#include "PortModelItem.h"
+#include <FabricUI/ValueEditor/BaseModelItem.h>
+#include <FabricCore.h>
+#include <FTL/StrRef.h>
 
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
 namespace FabricUI
 {
+namespace DFG {
+class DFGUICmdHandler;
+}
 
   namespace ModelItems
   {
     //////////////////////////////////////////////////////////////////////////
     // Specialization for accessing ports that are also args
-    class ArgModelItem : public PortModelItem
+    class ArgModelItem : public BaseModelItem
     {
     private:
+
+      // DFG::DFGUICmdHandler *m_dfgUICmdHandler;
       FabricCore::DFGBinding m_binding;
-      
+      std::string m_argName;
+
+      FabricCore::DFGExec m_rootExec;
+      ItemMetadata *m_metadata;
+
     public:
 
-      ArgModelItem( const FabricCore::DFGBinding& binding, QString portName );
+      ArgModelItem(
+        DFG::DFGUICmdHandler *dfgUICmdHandler,
+        FabricCore::DFGBinding binding,
+        FTL::StrRef argName
+        );
+
+      // Every arg has exactly 1 child - its RTValue
+      virtual size_t NumChildren();
+
+      virtual BaseModelItem* GetChild( int i );
+
+      virtual QString GetName();
 
       virtual QVariant GetValue()/*override*/;
 
@@ -27,6 +49,10 @@ namespace FabricUI
       virtual ItemMetadata* GetMetadata() /*override*/;
 
       virtual int GetInOut() /*override*/;
+
+      virtual bool hasDefault() /*override*/;
+
+      virtual void resetToDefault() /*override*/;
 
     };
   }
