@@ -6,7 +6,7 @@
 
 #include "ItemMetadata.h"
 
-#include <QtCore/QObject.h>
+#include <QtCore/QObject>
 
 class BaseModelItem;
 class BaseViewItem;

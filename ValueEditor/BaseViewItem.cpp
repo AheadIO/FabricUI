@@ -9,7 +9,8 @@
 #include <FabricCore.h>
 
 #include <assert.h>
-#include <QtGui/QTreeWidget.h>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QTreeWidgetItem>
 
 static int s_nInstances = 0;
 BaseViewItem::BaseViewItem( QString const &name )
@@ -73,7 +74,7 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
     ViewItemFactory *viewItemFactory = ViewItemFactory::GetInstance();
 
     size_t numChildren = m_modelItem->NumChildren();
-    for (int i = 0; i < numChildren; ++i)
+    for (size_t i = 0; i < numChildren; ++i)
     {
       BaseModelItem *childModelItem = m_modelItem->GetChild( i );
       BaseViewItem* childViewItem = 

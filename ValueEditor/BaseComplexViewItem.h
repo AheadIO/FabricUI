@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <QtCore/QVector.h>
+#include <QtCore/QVector>
 
 #include "BaseViewItem.h"
 
