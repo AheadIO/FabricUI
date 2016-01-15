@@ -35,8 +35,8 @@ void BaseViewItem::setBaseModelItem( BaseModelItem* item )
       m_modelItem, SLOT( onViewValueChanged( QVariant ) )
       );
     QObject::connect(
-      this, SIGNAL( interactionEnd() ),
-      m_modelItem, SLOT( onInteractionEnd() )
+      this, SIGNAL( interactionEnd( bool ) ),
+      m_modelItem, SLOT( onInteractionEnd( bool ) )
       );
 
     QObject::connect(

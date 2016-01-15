@@ -51,8 +51,8 @@ public:
   // Implement this slot if we need to react when a child changes
   virtual void onChildViewValueChanged( int index, QVariant value ) = 0;
 
-  void onChildInteractionEnd( int index )
-    { emit interactionEnd(); }
+  void onChildInteractionEnd( int index, bool accept )
+    { emit interactionEnd( accept ); }
 
   // This function should be called to trigger an update to our children.
   void routeModelValueChanged( int index, const QVariant& value );

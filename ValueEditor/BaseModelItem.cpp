@@ -73,15 +73,26 @@ void BaseModelItem::onViewValueChanged(
   }
 }
 
-void BaseModelItem::onInteractionEnd()
+void BaseModelItem::onInteractionEnd( bool accept )
 {
   if ( --m_interactionBracketCount == 0 )
   {
-    SetValue(
-      GetValue(),
-      true, // commit
-      m_valueAtInteractionBegin
-      );
+    if ( accept )
+    {
+      SetValue(
+        GetValue(),
+        true, // commit
+        m_valueAtInteractionBegin
+        );
+    }
+    else
+    {
+      SetValue(
+        m_valueAtInteractionBegin,
+        false,
+        m_valueAtInteractionBegin
+        );
+    }
 
     m_valueAtInteractionBegin = QVariant();
   }

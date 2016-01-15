@@ -153,15 +153,14 @@ void ColorViewItem::pickColor()
            this, SLOT( onColorSelected( QColor ) ) );
   connect( &qcd, SIGNAL( currentColorChanged( QColor ) ), 
            this, SLOT( onColorChanged( QColor ) ) );
+
+  emit interactionBegin();
+  
   qcd.exec();
 
   // If the user hits cancel, we wish to restore
   // the current state to the previous value
-  QColor outColor = qcd.selectedColor();
-  if (!outColor.isValid())
-  {
-    onColorChanged( currColor );
-  }
+  emit interactionEnd( qcd.selectedColor().isValid() );
 }
 
 void ColorViewItem::onColorChanged( QColor color )

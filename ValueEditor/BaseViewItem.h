@@ -117,6 +117,6 @@ signals:
   // When this items widgets change, it should emit this signal
   void viewValueChanged( QVariant value );
 
-  void interactionEnd();
+  void interactionEnd( bool accept );
 };
 

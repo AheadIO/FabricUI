@@ -31,8 +31,8 @@ void ViewItemChildRouter::connectToChild( BaseViewItem *childViewItem )
     this, SLOT( onViewValueChanged( QVariant ) )
     );
   connect(
-    childViewItem, SIGNAL( interactionEnd() ),
-    this, SLOT( onInteractionEnd() )
+    childViewItem, SIGNAL( interactionEnd( bool ) ),
+    this, SLOT( onInteractionEnd( bool ) )
     );
 }
 
@@ -51,7 +51,7 @@ void ViewItemChildRouter::onViewValueChanged( QVariant value )
   m_viewItem->onChildViewValueChanged( m_index, value );
 }
 
-void ViewItemChildRouter::onInteractionEnd()
+void ViewItemChildRouter::onInteractionEnd( bool accept )
 {
-  m_viewItem->onChildInteractionEnd( m_index );
+  m_viewItem->onChildInteractionEnd( m_index, accept );
 }

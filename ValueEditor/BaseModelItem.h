@@ -128,8 +128,8 @@ public slots:
 
   void onViewValueChanged( QVariant value );
 
-  void onInteractionEnd();
-  
+  void onInteractionEnd( bool );
+
 signals:
 
 	// Connect to this signal to be notified

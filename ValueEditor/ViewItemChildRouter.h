@@ -36,5 +36,5 @@ public slots:
 
   void onInteractionBegin();
   void onViewValueChanged( QVariant value );
-  void onInteractionEnd();
+  void onInteractionEnd( bool accept );
 };

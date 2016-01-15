@@ -69,7 +69,7 @@ void FloatSliderViewItem::onDoubleValueChanged( double value )
 
 void FloatSliderViewItem::onSliderReleased()
 {
-  emit interactionEnd();
+  emit interactionEnd( true );
 }
 
 //////////////////////////////////////////////////////////////////////////
