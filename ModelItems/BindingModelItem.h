@@ -30,8 +30,9 @@ class DFGUICmdHandler;
       ~BindingModelItem();
 
       virtual bool matchesPath( 
-        const std::string& execPath,
-        const std::string& name ) /*override*/;
+        FTL::StrRef execPath,
+        FTL::StrRef nodeName 
+        ) /*override*/;
 
       BaseModelItem* CreateChild( QString name ) /*override*/;
 

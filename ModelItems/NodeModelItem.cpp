@@ -30,9 +30,12 @@ NodeModelItem::~NodeModelItem()
 {
 }
 
-bool FabricUI::ModelItems::NodeModelItem::matchesPath( const std::string& execPath, const std::string& name )
+bool FabricUI::ModelItems::NodeModelItem::matchesPath(
+  FTL::StrRef execPath,
+  FTL::StrRef nodeName 
+  )
 {
-  return m_path.compare(0, name.size(), name.c_str()) == 0;
+  return m_execPath == execPath && m_nodeName == nodeName;
 }
 
 QString NodeModelItem::GetName()

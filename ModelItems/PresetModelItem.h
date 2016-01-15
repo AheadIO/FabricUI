@@ -21,8 +21,10 @@ namespace FabricUI
       PresetModelItem( FabricCore::DFGExec exec );
       ~PresetModelItem();
 
-      virtual bool matchesPath( const std::string& execPath, 
-                                const std::string& name ) /*override*/;
+      virtual bool matchesPath(
+        FTL::StrRef execPath, 
+        FTL::StrRef nodeName
+        ) /*override*/;
 
       size_t NumChildren();
 

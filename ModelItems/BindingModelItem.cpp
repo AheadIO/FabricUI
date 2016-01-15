@@ -23,9 +23,12 @@ BindingModelItem::~BindingModelItem()
 }
 
 
-bool FabricUI::ModelItems::BindingModelItem::matchesPath( const std::string& execPath, const std::string& name ) /**/
+bool FabricUI::ModelItems::BindingModelItem::matchesPath(
+  FTL::StrRef execPath,
+  FTL::StrRef nodeName
+  )
 {
-  return execPath.empty() && name.empty();
+  return execPath.empty() && nodeName.empty();
 }
 
 size_t BindingModelItem::NumChildren()
