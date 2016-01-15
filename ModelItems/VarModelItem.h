@@ -11,19 +11,17 @@ namespace FabricUI
     // Access graph variables
     class VarModelItem : public NodeModelItem
     {
-    private:
-      QString m_name;
-      std::string m_cname;
-
     public:
-      VarModelItem( FabricCore::DFGExec& exec, const char* name );
+
+      VarModelItem(
+        DFG::DFGUICmdHandler *dfgUICmdHandler,
+        FabricCore::DFGBinding binding,
+        FTL::StrRef execPath,
+        FabricCore::DFGExec exec,
+        FTL::StrRef nodeName,
+        QString name
+        );
       ~VarModelItem();
-
-      virtual size_t NumChildren() /*override*/;
-
-      virtual BaseModelItem* GetChild( int childIndex ) /*override*/;
-
-      virtual QString GetName() /*override*/;
 
       virtual int GetInOut() /*override*/;
 

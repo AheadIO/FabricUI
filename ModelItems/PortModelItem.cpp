@@ -1,32 +1,38 @@
 #include "PortModelItem.h"
 #include "PortItemMetadata.h"
 
-#include <QtCore/QStringList>
 #include <assert.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
+#include <QtCore/QStringList>
 
 using namespace FabricUI;
 using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
-PortModelItem::PortModelItem( const FabricCore::DFGExec& exec, QString portPath )
-  : m_exec( exec )
-//  , m_name( portName )
-  , m_metadata( NULL )
+PortModelItem::PortModelItem(
+  DFG::DFGUICmdHandler *dfgUICmdHandler,
+  FabricCore::DFGBinding binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec exec,
+  FTL::StrRef nodeName,
+  FTL::StrRef portName,
+  QString name
+  )
+  : m_dfgUICmdHandler( dfgUICmdHandler )
+  , m_binding( binding )
+  , m_execPath( execPath )
+  , m_exec( exec )
+  , m_name( name )
+  , m_metadata( 0 )
 {
-  m_path = portPath.toStdString();
-  // Strip off the path part and keep the name
-  m_name = portPath.split( '.' ).last();
-  
-  // A debug port allows us to view the values
-  // as they are being sent through the graph
-  m_exec.addDebugNodePort( m_path.data() );
+  m_portPath = nodeName;
+  m_portPath += '.';
+  m_portPath += portName;
 }
 
 PortModelItem::~PortModelItem()
 {
-  m_exec.removeDebugNodePort( m_path.data() );
-  if (m_metadata != NULL)
-    delete m_metadata;
+  delete m_metadata;
 }
 
 size_t PortModelItem::NumChildren()
@@ -47,13 +53,13 @@ QString PortModelItem::GetName()
 ItemMetadata* PortModelItem::GetMetadata()
 {
   if (m_metadata == NULL)
-    m_metadata = new PortItemMetadata( m_exec, m_path.c_str() );
+    m_metadata = new PortItemMetadata( m_exec, m_portPath.c_str() );
   return m_metadata;
 }
 
 int PortModelItem::GetInOut()
 {
-  return m_exec.getNodePortType( m_path.c_str() );
+  return m_exec.getNodePortType( m_portPath.c_str() );
 }
 
 QVariant PortModelItem::GetValue()
@@ -65,11 +71,11 @@ QVariant PortModelItem::GetValue()
     //  return QString( "<connected>" );
 
     // If we have a resolved type, allow getting the default val
-    const char* ctype = m_exec.getNodePortResolvedType( m_path.c_str() );
+    const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
     if (ctype != NULL)
     {
       FabricCore::RTVal val = 
-        m_exec.getInstPortResolvedDefaultValue( m_path.c_str(), ctype );
+        m_exec.getInstPortResolvedDefaultValue( m_portPath.c_str(), ctype );
 
       //FabricCore::DFGBinding binding = m_binding.bind();
       //  FabricCore::RTVal val = m_exec.getArgValue( m_cname.c_str() );
@@ -77,10 +83,6 @@ QVariant PortModelItem::GetValue()
       {
         return QVariant::fromValue<FabricCore::RTVal>( val );
       }
-    }
-    {
-      FabricCore::RTVal val = m_exec.getDebugNodePortValue( m_path.data() );
-      return QVariant::fromValue<FabricCore::RTVal>( val );
     }
   }
   catch (FabricCore::Exception* e)
@@ -92,25 +94,34 @@ QVariant PortModelItem::GetValue()
 
 void PortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
 {
-  if (m_exec.hasSrcPort( m_path.c_str() ))
+  if (m_exec.hasSrcPort( m_portPath.c_str() ))
     return;
 
   // If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_path.c_str() );
+  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   if (ctype != NULL)
   {
     FabricCore::RTVal val = 
-      m_exec.getInstPortResolvedDefaultValue( m_path.c_str(), ctype );
+      m_exec.getInstPortResolvedDefaultValue( m_portPath.c_str(), ctype );
 
-    if (RTVariant::toRTVal( vars, val ))
-      m_exec.setPortDefaultValue( m_path.c_str(), val, commit );
+    if ( RTVariant::toRTVal( vars, val ) )
+    {
+      m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
+        m_binding,
+        m_execPath,
+        m_exec,
+        m_portPath,
+        val
+        );
+      // m_exec.setPortDefaultValue( m_portPath.c_str(), val, commit );
+    }
   }
 }
 
 bool FabricUI::ModelItems::PortModelItem::hasDefault()
 {
   // If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_path.c_str() );
+  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   return (ctype != NULL);
 }
 
@@ -118,14 +129,14 @@ void FabricUI::ModelItems::PortModelItem::resetToDefault()
 {
 //#pragma message("Fix instance values for non-arg ports")
   //// If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_path.c_str() );
+  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   if (ctype != NULL)
   {
     //FabricCore::RTVal val = m_exec.getInstPortResolvedDefaultValue(
     //  m_cname.c_str(),
     //  ctype );
 
-    FabricCore::RTVal val = m_exec.getPortDefaultValue( m_path.c_str(), ctype );
+    FabricCore::RTVal val = m_exec.getPortDefaultValue( m_portPath.c_str(), ctype );
     if (val.isValid())
       onViewValueChanged( QVariant::fromValue( val ), 1 );
   }

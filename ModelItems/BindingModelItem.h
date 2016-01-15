@@ -4,6 +4,9 @@
 
 namespace FabricUI
 {
+namespace DFG {
+class DFGUICmdHandler;
+}
 
   namespace ModelItems
   {
@@ -12,15 +15,24 @@ namespace FabricUI
     class BindingModelItem : public RootModelItem
     {
     private:
+
+      DFG::DFGUICmdHandler *m_dfgUICmdHandler;
       FabricCore::DFGBinding m_binding;
 
+      FabricCore::DFGExec m_rootExec;
+
     public:
-      BindingModelItem( FabricCore::DFGBinding binding );
+
+      BindingModelItem(
+        DFG::DFGUICmdHandler *dfgUICmdHandler,
+        FabricCore::DFGBinding binding
+        );
       ~BindingModelItem();
 
       virtual bool matchesPath( 
-        const std::string& execPath,
-        const std::string& name ) /*override*/;
+        FTL::StrRef execPath,
+        FTL::StrRef nodeName 
+        ) /*override*/;
 
       BaseModelItem* CreateChild( QString name ) /*override*/;
 

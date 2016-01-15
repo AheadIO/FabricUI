@@ -2,7 +2,7 @@
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
-
+#include <FTL/StrRef.h>
 #include <vector>
 
 //////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,9 @@ namespace FabricUI
       virtual BaseModelItem* CreateChild( QString name ) = 0;
 
       virtual bool matchesPath( 
-        const std::string& execPath, 
-        const std::string& name ) = 0;
+        FTL::StrRef execPath, 
+        FTL::StrRef nodeName
+        ) = 0;
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }

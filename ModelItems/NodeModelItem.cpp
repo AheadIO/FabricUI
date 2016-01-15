@@ -8,47 +8,62 @@ using namespace ModelItems;
 
 //////////////////////////////////////////////////////////////////////////
 
-NodeModelItem::NodeModelItem( FabricCore::DFGExec exec, const char* path )
- : m_exec( exec )
- , m_path( path )
+NodeModelItem::NodeModelItem(
+  DFG::DFGUICmdHandler *dfgUICmdHandler,
+  FabricCore::DFGBinding binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec exec,
+  FTL::StrRef nodeName,
+  QString name
+  )
+ : m_dfgUICmdHandler( dfgUICmdHandler )
+ , m_binding( binding )
+ , m_execPath( execPath )
+ , m_exec( exec )
+ , m_nodeName( nodeName )
+ , m_name( name )
 {
-
+  assert( !m_nodeName.empty() );
 }
 
 NodeModelItem::~NodeModelItem()
 {
-
 }
 
-bool FabricUI::ModelItems::NodeModelItem::matchesPath( const std::string& execPath, const std::string& name )
+bool FabricUI::ModelItems::NodeModelItem::matchesPath(
+  FTL::StrRef execPath,
+  FTL::StrRef nodeName 
+  )
 {
-  return m_path.compare(0, name.size(), name.c_str()) == 0;
+  return m_execPath == execPath && m_nodeName == nodeName;
 }
 
 QString NodeModelItem::GetName()
 {
-  return m_exec.getTitle();
+  return m_name;
 }
 
 size_t NodeModelItem::NumChildren()
 {
-  return m_exec.getNodePortCount( m_path.c_str() );
+  return m_exec.getNodePortCount( m_nodeName.c_str() );
 }
 
 QString NodeModelItem::ChildName( int i )
 {
-  return m_exec.getNodePortName( m_path.c_str(), i );
+  return m_exec.getNodePortName( m_nodeName.c_str(), i );
 }
 
 BaseModelItem* NodeModelItem::CreateChild( QString name )
 {
-  QString childPath;
-  if (!m_path.empty())
-  {
-    childPath.sprintf( "%s.", m_path.c_str() );
-    childPath += name;
-  }
-  return new PortModelItem( m_exec, childPath );
+  return new PortModelItem(
+    m_dfgUICmdHandler,
+    m_binding,
+    m_execPath,
+    m_exec,
+    m_nodeName,
+    name.toUtf8().constData(),
+    name
+    );
 }
 
 ItemMetadata* NodeModelItem::GetMetadata()
@@ -58,7 +73,7 @@ ItemMetadata* NodeModelItem::GetMetadata()
 
 QVariant NodeModelItem::GetValue()
 {
-  return QString( m_exec.getInstTitle( m_path.c_str() ) );
+  return QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
 }
 
 void NodeModelItem::onViewValueChanged( QVariant const& var, bool commit )
@@ -66,7 +81,7 @@ void NodeModelItem::onViewValueChanged( QVariant const& var, bool commit )
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
-    m_exec.setInstTitle( m_path.c_str(), asciiArr.data() );
+    m_exec.setInstTitle( m_nodeName.c_str(), asciiArr.data() );
     emit modelValueChanged(var);
   }
 }
