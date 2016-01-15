@@ -33,7 +33,7 @@ QString BaseModelItem::ChildName( int i )
 
 int BaseModelItem::ChildIndex( QString childName )
 {
-  for (int i = 0; i < NumChildren(); i++)
+  for (size_t i = 0; i < NumChildren(); i++)
   {
     if (ChildName( i ) == childName)
       return i;
