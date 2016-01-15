@@ -20,12 +20,16 @@ namespace FabricUI
     protected:
 
       ChildVec m_children;
-
+      
     public:
       RootModelItem( );
       ~RootModelItem();
 
       virtual BaseModelItem* CreateChild( QString name ) = 0;
+
+      virtual bool matchesPath( 
+        const std::string& execPath, 
+        const std::string& name ) = 0;
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }

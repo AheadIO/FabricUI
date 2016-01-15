@@ -19,6 +19,10 @@ PresetModelItem::~PresetModelItem()
 
 }
 
+bool FabricUI::ModelItems::PresetModelItem::matchesPath( const std::string& execPath, const std::string& name ) /**/
+{
+  return false; // name == m_exec.getTitle();
+}
 
 QString PresetModelItem::GetName()
 {

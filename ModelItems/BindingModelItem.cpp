@@ -17,6 +17,12 @@ BindingModelItem::~BindingModelItem()
 
 }
 
+
+bool FabricUI::ModelItems::BindingModelItem::matchesPath( const std::string& execPath, const std::string& name ) /**/
+{
+  return execPath.empty() && name.empty();
+}
+
 size_t BindingModelItem::NumChildren()
 {
   return m_binding.getExec().getExecPortCount();

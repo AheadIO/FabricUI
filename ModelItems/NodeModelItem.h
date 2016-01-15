@@ -22,6 +22,8 @@ namespace FabricUI
       NodeModelItem( FabricCore::DFGExec exec, const char* path );
       ~NodeModelItem();
 
+      virtual bool matchesPath( const std::string& execPath, const std::string& name ) override;
+
       size_t NumChildren();
 
       virtual QString ChildName( int i );
@@ -38,6 +40,8 @@ namespace FabricUI
         QVariant const& var,
         bool commit
         );
+
+
     };
   }
 }
