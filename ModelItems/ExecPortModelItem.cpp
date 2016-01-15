@@ -81,7 +81,7 @@ QVariant ExecPortModelItem::GetValue()
   return QString( "|Invalid Port|" );
 }
 
-void ExecPortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
+void ExecPortModelItem::onViewValueChangedImpl( QVariant const& vars, bool commit)
 {
   // If we have a resolved type, allow getting the default val
   const char* ctype = m_exec.getExecPortResolvedType( m_cname.c_str() );

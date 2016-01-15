@@ -57,12 +57,12 @@ QVariant PresetModelItem::GetValue()
   return QString( m_exec.getTitle( ) );
 }
 
-void PresetModelItem::onViewValueChanged( QVariant const& var, bool commit )
+void PresetModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
 {
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
     m_exec.setTitle( asciiArr.data() );
-    emit modelValueChanged(var);
+    emitModelValueChanged(var);
   }
 }

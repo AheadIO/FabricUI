@@ -68,12 +68,12 @@ ItemMetadata* BindingModelItem::GetMetadata()
   return NULL;
 }
 
-void BindingModelItem::onViewValueChanged( QVariant const& var, bool commit )
+void BindingModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
 {
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
     m_rootExec.setTitle( asciiArr.data() );
-    emit modelValueChanged(var);
+    emitModelValueChanged(var);
   }
 }

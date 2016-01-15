@@ -46,7 +46,7 @@ QVariant ArgModelItem::GetValue()
   return QVariant(); // QString( "|Invalid Port|" );
 }
 
-void ArgModelItem::onViewValueChanged( QVariant const& var, bool commit )
+void ArgModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
 {
   // We get the value of the argument to ensure we
   // have an entity of the appropriate type.  This is because

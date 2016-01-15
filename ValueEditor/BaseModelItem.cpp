@@ -6,6 +6,7 @@
 #include <FabricCore.h>
 
 BaseModelItem::BaseModelItem()
+  : m_modelValueChangedBracketCount( 0 )
 {
 }
 

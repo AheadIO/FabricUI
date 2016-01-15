@@ -92,7 +92,7 @@ QVariant PortModelItem::GetValue()
   return QString( "|Invalid Port|" );
 }
 
-void PortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
+void PortModelItem::onViewValueChangedImpl( QVariant const& vars, bool commit)
 {
   if (m_exec.hasSrcPort( m_portPath.c_str() ))
     return;
@@ -101,9 +101,10 @@ void PortModelItem::onViewValueChanged( QVariant const& vars, bool commit)
   const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   if (ctype != NULL)
   {
-    FabricCore::RTVal val = 
-      m_exec.getInstPortResolvedDefaultValue( m_portPath.c_str(), ctype );
-
+    FabricCore::DFGHost host = m_binding.getHost();
+    FabricCore::Context context = host.getContext();
+    FabricCore::RTVal val =
+      FabricCore::RTVal::Construct( context, ctype, 0, 0 );
     if ( RTVariant::toRTVal( vars, val ) )
     {
       m_dfgUICmdHandler->dfgDoSetPortDefaultValue(

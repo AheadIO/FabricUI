@@ -54,11 +54,13 @@ class DFGUICmdHandler;
 
       virtual QVariant GetValue();
 
-      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
-
       virtual bool hasDefault() /*override*/;
 
       virtual void resetToDefault() /*override*/;
+
+    protected:
+
+      virtual void onViewValueChangedImpl( QVariant const&, bool ) /*override*/;
 
     };
   }

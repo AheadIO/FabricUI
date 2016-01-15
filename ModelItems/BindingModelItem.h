@@ -46,7 +46,9 @@ class DFGUICmdHandler;
 
       virtual ItemMetadata* GetMetadata() /*override*/;
 
-      virtual void onViewValueChanged( QVariant const&, bool ) /*override*/;
+    protected:
+
+      virtual void onViewValueChangedImpl( QVariant const&, bool ) /*override*/;
 
     };
   }

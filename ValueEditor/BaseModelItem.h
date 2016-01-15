@@ -19,6 +19,42 @@ class BaseModelItem : public QObject
 
 	Q_DISABLE_COPY(BaseModelItem);
 
+private:
+
+  unsigned m_modelValueChangedBracketCount;
+
+  class ModelValueChangedBracket
+  {
+  public:
+
+    ModelValueChangedBracket( BaseModelItem *modelItem )
+      : m_modelItem( modelItem )
+    {
+      ++m_modelItem->m_modelValueChangedBracketCount;
+    }
+
+    ~ModelValueChangedBracket()
+    {
+      --m_modelItem->m_modelValueChangedBracketCount;
+    }
+
+  private:
+
+    BaseModelItem *m_modelItem;
+  };
+
+protected:
+
+  // The BaseModelItem is responsible for receiving values back from 
+  // the the UI and setting them on the core object.
+  // It is guaranteed that the QVariant value here will be equivalent
+  // to the QVariant returned from GetValue
+  virtual void onViewValueChangedImpl(
+    QVariant const& /*value*/,
+    bool /*commit*/
+    )
+    {}
+
 public:
 
 	BaseModelItem();
@@ -70,7 +106,10 @@ public:
 
   // Allow others to trigger these signals...
   void emitModelValueChanged( QVariant const &newValue ) 
-    { emit modelValueChanged( newValue );  }
+  {
+    ModelValueChangedBracket _( this );
+    emit modelValueChanged( newValue );
+  }
   void emitChildInserted( int index, const char* name, const char* type ) 
     { emit childInserted( index, name, type ); }
   void emitRemoved()
@@ -80,15 +119,14 @@ public:
 
 public slots:
 
-	// The BaseModelItem is responsible for receiving values back from 
-	// the the UI and setting them on the core object.
-	// It is guaranteed that the QVariant value here will be equivalent
-	// to the QVariant returned from GetValue
-	virtual void onViewValueChanged(
-		QVariant const& /*value*/,
-		bool /*commit*/
-		)
-		{}
+  void onViewValueChanged(
+    QVariant const &value,
+    bool commit
+    )
+  {
+    if ( m_modelValueChangedBracketCount == 0 )
+      onViewValueChangedImpl( value, commit );
+  }
 
 signals:
 

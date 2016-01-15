@@ -58,7 +58,9 @@ class DFGUICmdHandler;
 
       virtual QVariant GetValue();
 
-      virtual void onViewValueChanged(
+    protected:
+
+      virtual void onViewValueChangedImpl(
         QVariant const& var,
         bool commit
         );

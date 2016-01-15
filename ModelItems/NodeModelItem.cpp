@@ -76,12 +76,12 @@ QVariant NodeModelItem::GetValue()
   return QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
 }
 
-void NodeModelItem::onViewValueChanged( QVariant const& var, bool commit )
+void NodeModelItem::onViewValueChangedImpl( QVariant const& var, bool commit )
 {
   if (commit)
   {
     QByteArray asciiArr = var.toString().toAscii();
     m_exec.setInstTitle( m_nodeName.c_str(), asciiArr.data() );
-    emit modelValueChanged(var);
+    emitModelValueChanged(var);
   }
 }

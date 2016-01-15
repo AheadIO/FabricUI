@@ -49,7 +49,7 @@ void VarModelItem::resetToDefault()
 {
 }
 
-void VarModelItem::onViewValueChanged( QVariant const& var, bool )
+void VarModelItem::onViewValueChangedImpl( QVariant const& var, bool )
 {
   FabricCore::RTVal val = m_exec.getVarValue( m_nodeName.c_str() );
   if (RTVariant::toRTVal( var, val ))
