@@ -20,12 +20,16 @@ namespace FabricUI
     protected:
 
       ChildVec m_children;
-
+      
     public:
       RootModelItem( );
       ~RootModelItem();
 
       virtual BaseModelItem* CreateChild( QString name ) = 0;
+
+      virtual bool matchesPath( 
+        const std::string& execPath, 
+        const std::string& name ) = 0;
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
@@ -40,9 +44,9 @@ namespace FabricUI
       virtual void resetToDefault() /*override*/;
 
       //////////////////////////////////////////////////////////////////////////
-      virtual void argInserted( int index, const char* name, const char* type );
+      bool argInserted( int index, const char* name, const char* type );
 
-      void argTypeChanged( int index, const char* name, const char* newType );
+      bool argTypeChanged( int index, const char* name, const char* newType );
 
       void argRemoved( int index, const char* name );
     };

@@ -29,6 +29,10 @@ class DFGUICmdHandler;
         );
       ~BindingModelItem();
 
+      virtual bool matchesPath( 
+        const std::string& execPath,
+        const std::string& name ) /*override*/;
+
       BaseModelItem* CreateChild( QString name ) /*override*/;
 
       virtual size_t NumChildren() /*override*/;

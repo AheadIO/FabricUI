@@ -41,6 +41,8 @@ class DFGUICmdHandler;
         );
       ~NodeModelItem();
 
+      virtual bool matchesPath( const std::string& execPath, const std::string& name ) override;
+
       size_t NumChildren();
 
       virtual QString ChildName( int i );
@@ -57,6 +59,8 @@ class DFGUICmdHandler;
         QVariant const& var,
         bool commit
         );
+
+
     };
   }
 }
