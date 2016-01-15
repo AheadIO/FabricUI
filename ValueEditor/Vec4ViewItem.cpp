@@ -7,10 +7,10 @@
 #include "ViewItemFactory.h"
 
 #include <assert.h>
-#include <QtCore/QVariant.h>
-#include <QtGui/QBoxLayout.h>
-#include <QtGui/QLineEdit.h>
-#include <QtGui/QWidget.h>
+#include <QtCore/QVariant>
+#include <QtGui/QBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QWidget>
 
 Vec4ViewItem::Vec4ViewItem(
   QString const &name,

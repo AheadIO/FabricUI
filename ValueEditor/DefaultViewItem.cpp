@@ -6,8 +6,8 @@
 #include "DefaultViewItem.h"
 #include "ViewItemFactory.h"
 
-#include <QtCore/QVariant.h>
-#include <QtGui/QLabel.h>
+#include <QtCore/QVariant>
+#include <QtGui/QLabel>
 
 DefaultViewItem::DefaultViewItem(
   QString const &name,

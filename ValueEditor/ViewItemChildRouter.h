@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <QtCore/QObject.h>
+#include <QtCore/QObject>
 
 class BaseViewItem;
 class BaseComplexViewItem;

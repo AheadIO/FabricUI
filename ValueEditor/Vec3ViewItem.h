@@ -6,7 +6,7 @@
 
 #include "BaseComplexViewItem.h"
 
-#include <QtGui/QVector3D.h>
+#include <QtGui/QVector3D>
 
 class QLayout;
 class QLineEdit;

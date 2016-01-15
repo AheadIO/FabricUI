@@ -7,7 +7,7 @@
 #include "QVariantRTVal.h"
 
 #include <assert.h>
-#include <QtGui/QLabel.h>
+#include <QtGui/QLabel>
 
 RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
   : BaseComplexViewItem( name )
