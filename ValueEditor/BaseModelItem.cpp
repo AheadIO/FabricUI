@@ -82,5 +82,7 @@ void BaseModelItem::onInteractionEnd()
       true, // commit
       m_valueAtInteractionBegin
       );
+
+    m_valueAtInteractionBegin = QVariant();
   }
 }

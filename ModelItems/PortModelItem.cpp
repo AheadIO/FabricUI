@@ -109,11 +109,14 @@ void PortModelItem::SetValue(
 
   if ( commit )
   {
-    RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
-    m_exec.setPortDefaultValue(
-      m_portPath.c_str(),
-      rtVal
-      );
+    if ( valueAtInteractionBegin.isValid() )
+    {
+      RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+      m_exec.setPortDefaultValue(
+        m_portPath.c_str(),
+        rtVal
+        );
+    }
 
     RTVariant::toRTVal( value, rtVal );
     m_dfgUICmdHandler->dfgDoSetPortDefaultValue(

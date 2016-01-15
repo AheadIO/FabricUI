@@ -40,8 +40,12 @@ QString ArgModelItem::GetName()
 QVariant ArgModelItem::GetValue()
 {
   FabricCore::RTVal rtVal = m_binding.getArgValue( m_argName.c_str() );
-  assert( rtVal.isValid() );
-  return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
+  // When an argument is first create it does not yet have a value
+  // associated with it.
+  if ( rtVal.isValid() )
+    return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
+  else
+    return QVariant();
 }
 
 void ArgModelItem::SetValue(
@@ -67,12 +71,15 @@ void ArgModelItem::SetValue(
   RTVariant::toRTVal( var, rtVal );
   if ( commit )
   {
-    RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
-    m_binding.setArgValue(
-      m_argName.c_str(),
-      rtVal,
-      false // canUndo
-      );
+    if ( valueAtInteractionBegin.isValid() )
+    {
+      RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+      m_binding.setArgValue(
+        m_argName.c_str(),
+        rtVal,
+        false // canUndo
+        );
+    }
 
     RTVariant::toRTVal( var, rtVal );
     m_dfgUICmdHandler->dfgDoSetArgValue(
