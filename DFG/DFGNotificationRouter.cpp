@@ -259,7 +259,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if( descStr == FTL_STR("execPortDefaultValuesChanged") )
     {
       onExecPortDefaultValuesChanged(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getString( FTL_STR("execPortName") )
         );
     }
     else if( descStr == FTL_STR("nodePortDefaultValuesChanged") )
