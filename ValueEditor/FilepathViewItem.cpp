@@ -1,3 +1,6 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
 
 #include "FilepathViewItem.h"
 #include "ItemMetadata.h"

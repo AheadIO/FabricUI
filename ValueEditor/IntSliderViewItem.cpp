@@ -1,5 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #include "IntSliderViewItem.h"
 #include "ItemMetadata.h"
+
 #include <QtCore/QVariant>
 #include <QtGui/QSlider>
 
