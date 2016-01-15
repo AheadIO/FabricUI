@@ -161,34 +161,82 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       case int( QVariant::Int ):
       {
         int& v = *((int*)result);
-        if ( val.isSInt32() )
+        FabricCore::RTVal::SimpleData simpleData;
+        if ( val.maybeGetSimpleData( &simpleData ) )
         {
-          v = val.getSInt32();
-        }
-        else if ( val.isSInt16() )
-        {
-          v = val.getSInt16();
-        }
-        else if ( val.isSInt8() )
-        {
-          v = val.getSInt8();
+          switch ( simpleData.type )
+          {
+            case FEC_RTVAL_SIMPLE_TYPE_BOOLEAN:
+              v = int( simpleData.value.boolean );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT8:
+              v = int( simpleData.value.uint8 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT16:
+              v = int( simpleData.value.uint16 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT32:
+              v = int( simpleData.value.uint32 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT64:
+              v = int( simpleData.value.uint64 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT8:
+              v = int( simpleData.value.sint8 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT16:
+              v = int( simpleData.value.sint16 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT32:
+              v = int( simpleData.value.sint32 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT64:
+              v = int( simpleData.value.sint64 );
+              break;
+            default:
+              break;
+          }
         }
       }
       break;
       case int( QVariant::UInt ):
       {
         unsigned int& v = *((unsigned int*)result);
-        if ( val.isUInt32() )
+        FabricCore::RTVal::SimpleData simpleData;
+        if ( val.maybeGetSimpleData( &simpleData ) )
         {
-          v = val.getUInt32();
-        }
-        else if ( val.isUInt16() )
-        {
-          v = val.getUInt16();
-        }
-        else if ( val.isUInt8() )
-        {
-          v = val.getUInt8();
+          switch ( simpleData.type )
+          {
+            case FEC_RTVAL_SIMPLE_TYPE_BOOLEAN:
+              v = unsigned( simpleData.value.boolean );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT8:
+              v = unsigned( simpleData.value.uint8 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT16:
+              v = unsigned( simpleData.value.uint16 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT32:
+              v = unsigned( simpleData.value.uint32 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_UINT64:
+              v = unsigned( simpleData.value.uint64 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT8:
+              v = unsigned( simpleData.value.sint8 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT16:
+              v = unsigned( simpleData.value.sint16 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT32:
+              v = unsigned( simpleData.value.sint32 );
+              break;
+            case FEC_RTVAL_SIMPLE_TYPE_SINT64:
+              v = unsigned( simpleData.value.sint64 );
+              break;
+            default:
+              break;
+          }
         }
       }
       break;

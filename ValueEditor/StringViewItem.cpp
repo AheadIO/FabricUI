@@ -121,3 +121,5 @@ BaseViewItem* StringViewItem::CreateItem(
   }
   return 0;
 }
+
+const int StringViewItem::Priority = 3;

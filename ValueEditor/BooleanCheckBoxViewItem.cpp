@@ -67,3 +67,5 @@ BaseViewItem *BooleanCheckBoxViewItem::CreateItem(
   }
   return NULL;
 }
+
+const int BooleanCheckBoxViewItem::Priority = 3;

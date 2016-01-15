@@ -95,3 +95,5 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   }
   return NULL;
 }
+
+const int IntSliderViewItem::Priority = 5;
