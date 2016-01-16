@@ -4,6 +4,7 @@
 
 #include "StringViewItem.h"
 #include "QVariantRTVal.h"
+#include "VELineEdit.h"
 
 #include <QtGui/QDialog>
 #include <QtGui/QPushButton>
@@ -25,23 +26,21 @@ StringViewItem::StringViewItem(
   QPushButton* inspectButton = new QPushButton( m_widget );
   QIcon inspectIcon( "icons/mag_glass.png" );
   inspectButton->setIcon( inspectIcon );
-  m_edit = new QLineEdit( m_widget );
+  m_edit = new VELineEdit( m_widget );
+  
+  onModelValueChanged( value );
 
   layout->addWidget( m_edit );
   layout->addWidget( inspectButton );
 
   connect(
-    m_edit, SIGNAL( textEdited( const QString& ) ),
-    this, SLOT( OnTextEdited( const QString& ) )
-    );
-  connect(
-    m_edit, SIGNAL( editingFinished() ),
-    this, SLOT( OnEditFinished() )
+    m_edit, SIGNAL( textModified( QString ) ),
+    this, SLOT( onTextModified( QString ) )
     );
   connect(
     inspectButton, SIGNAL( clicked() ),
-    this, SLOT( onInspect() ) );
-  onModelValueChanged( value );
+    this, SLOT( onInspect() )
+    );
 }
 
 StringViewItem::~StringViewItem()
@@ -58,17 +57,10 @@ void StringViewItem::onModelValueChanged( QVariant const &v )
   m_edit->setText( v.value<QString>() );
 }
 
-void StringViewItem::OnTextEdited( const QString& text )
+void StringViewItem::onTextModified( QString text )
 {
   emit viewValueChanged(
     QVariant::fromValue<QString>( text )
-    );
-}
-
-void StringViewItem::OnEditFinished()
-{
-  emit viewValueChanged(
-    QVariant::fromValue<QString>( m_edit->text() )
     );
 }
 
@@ -92,15 +84,16 @@ void StringViewItem::onInspect()
   connect( buttonBox, SIGNAL( accepted() ), &dlg, SLOT( accept() ) );
   connect( buttonBox, SIGNAL( rejected() ), &dlg, SLOT( reject() ) );
   layout->addWidget( buttonBox );
-
  
   // Post dialog under mouse
   QPoint pos = QCursor::pos();
   dlg.move( pos.x(), pos.y() );
 
-  if (dlg.exec() == QDialog::Accepted)
+  if ( dlg.exec() == QDialog::Accepted )
   {
-    OnTextEdited( txtEdit->toPlainText() );
+    emit viewValueChanged(
+      QVariant::fromValue<QString>( txtEdit->toPlainText() )
+      );
   }
 }
 

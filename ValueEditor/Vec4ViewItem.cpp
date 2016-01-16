@@ -5,6 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec4ViewItem.h"
 #include "ViewItemFactory.h"
+#include "VELineEdit.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -21,27 +22,27 @@ Vec4ViewItem::Vec4ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new QLineEdit( QString::number( m_vec4dValue.x() ), m_widget );
-  m_yEdit = new QLineEdit( QString::number( m_vec4dValue.y() ), m_widget );
-  m_zEdit = new QLineEdit( QString::number( m_vec4dValue.z() ), m_widget );
-  m_tEdit = new QLineEdit( QString::number( m_vec4dValue.w() ), m_widget );
+  m_xEdit = new VELineEdit( QString::number( m_vec4dValue.x() ), m_widget );
+  m_yEdit = new VELineEdit( QString::number( m_vec4dValue.y() ), m_widget );
+  m_zEdit = new VELineEdit( QString::number( m_vec4dValue.z() ), m_widget );
+  m_tEdit = new VELineEdit( QString::number( m_vec4dValue.w() ), m_widget );
 
   // Connect em up.
   connect(
-    m_xEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditXChanged())
+    m_xEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditXModified( QString ))
     );
   connect(
-    m_yEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditYChanged())
+    m_yEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditYModified( QString ))
     );
   connect(
-    m_zEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditZChanged())
+    m_zEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditZModified( QString ))
     );
   connect(
-    m_tEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditTChanged())
+    m_tEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditTModified( QString ))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
@@ -86,31 +87,31 @@ void Vec4ViewItem::onModelValueChanged( QVariant const &value )
   m_vec4dValue = newVec4dValue;
 }
 
-void Vec4ViewItem::onTextEditXChanged()
+void Vec4ViewItem::onTextEditXModified( QString text )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setX( m_xEdit->text().toDouble() );
+  vec4d.setX( text.toDouble() );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditYChanged()
+void Vec4ViewItem::onTextEditYModified( QString text )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setY( m_yEdit->text().toDouble() );
+  vec4d.setY( text.toDouble() );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditZChanged()
+void Vec4ViewItem::onTextEditZModified( QString text )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setZ( m_zEdit->text().toDouble() );
+  vec4d.setZ( text.toDouble() );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditTChanged()
+void Vec4ViewItem::onTextEditTModified( QString text )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setW( m_tEdit->text().toDouble() );
+  vec4d.setW( text.toDouble() );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 

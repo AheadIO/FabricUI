@@ -9,7 +9,7 @@
 #include <QtGui/QVector2D>
 
 class QLayout;
-class QLineEdit;
+class VELineEdit;
 class ItemMetadata;
 
 class Vec2ViewItem : public BaseComplexViewItem
@@ -21,8 +21,8 @@ private:
   QVector2D m_vec2dValue;
 
   QWidget *m_widget;
-  QLineEdit* m_xEdit;
-  QLineEdit* m_yEdit;
+  VELineEdit* m_xEdit;
+  VELineEdit* m_yEdit;
 
 public:
   
@@ -54,6 +54,6 @@ public:
 
 public slots:
 
-  void onTextEditXChanged();
-  void onTextEditYChanged();
+  void onTextEditXModified( QString text );
+  void onTextEditYModified( QString text );
 };

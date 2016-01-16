@@ -5,6 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
+#include "VELineEdit.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -21,22 +22,22 @@ Vec3ViewItem::Vec3ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new QLineEdit( QString::number( m_vec3dValue.x() ), m_widget );
-  m_yEdit = new QLineEdit( QString::number( m_vec3dValue.y() ), m_widget );
-  m_zEdit = new QLineEdit( QString::number( m_vec3dValue.z() ), m_widget );
+  m_xEdit = new VELineEdit( QString::number( m_vec3dValue.x() ), m_widget );
+  m_yEdit = new VELineEdit( QString::number( m_vec3dValue.y() ), m_widget );
+  m_zEdit = new VELineEdit( QString::number( m_vec3dValue.z() ), m_widget );
 
   // Connect em up.
   connect(
-    m_xEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditXChanged())
+    m_xEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditXModified( QString ))
     );
   connect(
-    m_yEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditYChanged())
+    m_yEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditYModified( QString ))
     );
   connect(
-    m_zEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditZChanged())
+    m_zEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditZModified( QString ))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
@@ -75,24 +76,24 @@ void Vec3ViewItem::onModelValueChanged( QVariant const &value )
   m_vec3dValue = newVec3dValue;
 }
 
-void Vec3ViewItem::onTextEditXChanged()
+void Vec3ViewItem::onTextEditXModified( QString text )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setX( m_xEdit->text().toDouble() );
+  vec3d.setX( text.toDouble() );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 
-void Vec3ViewItem::onTextEditYChanged()
+void Vec3ViewItem::onTextEditYModified( QString text )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setY( m_yEdit->text().toDouble() );
+  vec3d.setY( text.toDouble() );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 
-void Vec3ViewItem::onTextEditZChanged()
+void Vec3ViewItem::onTextEditZModified( QString text )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setZ( m_zEdit->text().toDouble() );
+  vec3d.setZ( text.toDouble() );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 

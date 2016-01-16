@@ -5,6 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec2ViewItem.h"
 #include "ViewItemFactory.h"
+#include "VELineEdit.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -21,17 +22,17 @@ Vec2ViewItem::Vec2ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new QLineEdit( QString::number( m_vec2dValue.x() ), m_widget );
-  m_yEdit = new QLineEdit( QString::number( m_vec2dValue.y() ), m_widget );
+  m_xEdit = new VELineEdit( QString::number( m_vec2dValue.x() ), m_widget );
+  m_yEdit = new VELineEdit( QString::number( m_vec2dValue.y() ), m_widget );
 
   // Connect em up.
   connect(
-    m_xEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditXChanged())
+    m_xEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditXModified( QString ))
     );
   connect(
-    m_yEdit, SIGNAL(editingFinished()),
-    this, SLOT(onTextEditYChanged())
+    m_yEdit, SIGNAL(textModified( QString )),
+    this, SLOT(onTextEditYModified( QString ))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
@@ -64,17 +65,17 @@ void Vec2ViewItem::onModelValueChanged( QVariant const &value )
   m_vec2dValue = newVec2dValue;
 }
 
-void Vec2ViewItem::onTextEditXChanged()
+void Vec2ViewItem::onTextEditXModified( QString text )
 {
   QVector2D vec2d = m_vec2dValue;
-  vec2d.setX( m_xEdit->text().toDouble() );
+  vec2d.setX( text.toDouble() );
   emit viewValueChanged( QVariant( vec2d ) );
 }
 
-void Vec2ViewItem::onTextEditYChanged()
+void Vec2ViewItem::onTextEditYModified( QString text )
 {
   QVector2D vec2d = m_vec2dValue;
-  vec2d.setY( m_yEdit->text().toDouble() );
+  vec2d.setY( text.toDouble() );
   emit viewValueChanged( QVariant( vec2d ) );
 }
 

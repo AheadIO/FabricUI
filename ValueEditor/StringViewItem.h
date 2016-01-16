@@ -7,7 +7,7 @@
 #include "BaseViewItem.h"
 
 class QWidget;
-class QLineEdit;
+class VELineEdit;
 
 class StringViewItem : public BaseViewItem
 {
@@ -36,11 +36,11 @@ public:
 
 private:
 
-	QLineEdit* m_edit;
+	VELineEdit* m_edit;
   QWidget* m_widget;
 
 protected slots:
-	void OnTextEdited( const QString& text );
-	void OnEditFinished();
+	
+	void onTextModified( QString text );
   void onInspect();
 };

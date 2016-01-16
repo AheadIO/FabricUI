@@ -9,7 +9,7 @@
 #include <QtGui/QVector3D>
 
 class QLayout;
-class QLineEdit;
+class VELineEdit;
 class ItemMetadata;
 
 class Vec3ViewItem : public BaseComplexViewItem
@@ -21,9 +21,9 @@ private:
 	QVector3D m_vec3dValue;
 
 	QWidget *m_widget;
-	QLineEdit* m_xEdit;
-	QLineEdit* m_yEdit;
-	QLineEdit* m_zEdit;
+	VELineEdit* m_xEdit;
+	VELineEdit* m_yEdit;
+	VELineEdit* m_zEdit;
 
 public:
   
@@ -55,7 +55,7 @@ public:
 
 public slots:
 
-	void onTextEditXChanged();
-	void onTextEditYChanged();
-	void onTextEditZChanged();
+	void onTextEditXModified( QString text );
+	void onTextEditYModified( QString text );
+	void onTextEditZModified( QString text );
 };
