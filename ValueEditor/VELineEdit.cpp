@@ -17,5 +17,5 @@ void VELineEdit::focusOutEvent( QFocusEvent *event )
 {
   if ( event->reason() != Qt::PopupFocusReason )
     checkText();
-  QLineEdit::focusInEvent( event );
+  QLineEdit::focusOutEvent( event );
 }
