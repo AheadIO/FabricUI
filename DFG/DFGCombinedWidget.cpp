@@ -19,7 +19,7 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   m_manager = NULL;
   m_treeWidget = NULL;
   m_dfgWidget = NULL;
-  m_dfgValueEditor = NULL;
+  m_valueEditor = NULL;
   m_hSplitter = NULL;
   m_dfgLogWidget = NULL;
   m_setGraph = NULL;
@@ -78,8 +78,7 @@ void DFGCombinedWidget::init(
         true
         );
 
-    m_dfgValueEditor =
-      new DFG::DFGValueEditor( m_dfgWidget->getUIController(), config );
+    m_valueEditor = new ValueEditor::VEEditorOwner(*this);
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
 
@@ -91,7 +90,7 @@ void DFGCombinedWidget::init(
 
     m_hSplitter->addWidget(m_treeWidget);
     m_hSplitter->addWidget(m_dfgWidget);
-    m_hSplitter->addWidget(m_dfgValueEditor);
+    m_hSplitter->addWidget(m_valueEditor->getWidget());
 
     addWidget(m_hSplitter);
 
@@ -100,14 +99,14 @@ void DFGCombinedWidget::init(
 
     if(m_dfgWidget->isEditable())
     {
-      QObject::connect(
-        m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
-        this, SLOT(onValueChanged())
-        );
-      QObject::connect(
-        m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
-        this, SLOT(onValueChanged())
-        );
+      // QObject::connect(
+      //   m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
+      //   this, SLOT(onValueChanged())
+      //   );
+      // QObject::connect(
+      //   m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+      //   this, SLOT(onValueChanged())
+      //   );
       QObject::connect(
         m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)),
         this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*))
@@ -117,31 +116,31 @@ void DFGCombinedWidget::init(
         this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*))
         );
 
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
-        m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
-        );
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
-        m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
-        );
+      // QObject::connect(
+      //   m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      //   m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      //   );
+      // QObject::connect(
+      //   m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+      //   m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
+      //   );
 
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
-        this, SLOT(onStructureChanged())
-        );
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
-        this, SLOT(onValueChanged())
-        );
+      //QObject::connect(
+      //  m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
+      //  this, SLOT(onStructureChanged())
+      //  );
+      // QObject::connect(
+      //   m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
+      //   this, SLOT(onValueChanged())
+      //   );
       QObject::connect(
         m_dfgWidget->getUIController(), SIGNAL(varsChanged()),
         m_treeWidget, SLOT(refresh())
         );
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
-        this, SLOT(onValueChanged())
-        );
+      // QObject::connect(
+      //   m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
+      //   this, SLOT(onValueChanged())
+      //   );
       QObject::connect(
         m_dfgWidget, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
         this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
@@ -164,6 +163,7 @@ void DFGCombinedWidget::init(
     m_dfgWidget->populateMenuBar(menuBar, false);
 
     onGraphSet(m_dfgWidget->getUIGraph());
+    m_valueEditor->initConnections();
   }
   catch(FabricCore::Exception e)
   {
@@ -189,6 +189,11 @@ DFGCombinedWidget::~DFGCombinedWidget()
 {
 }
 
+QWidget* FabricUI::DFG::DFGCombinedWidget::getDfgValueEditor()
+{
+  return m_valueEditor->getWidget();
+}
+
 void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
 {
   if(event->modifiers().testFlag(Qt::ControlModifier))
@@ -202,15 +207,15 @@ void DFGCombinedWidget::keyPressEvent(QKeyEvent * event)
   event->accept();
 }
 
-void DFGCombinedWidget::onValueChanged()
-{
-  emit valueChanged();
-}
-
-void DFGCombinedWidget::onStructureChanged()
-{
-  onValueChanged();
-}
+//void DFGCombinedWidget::onValueChanged()
+//{
+//  emit valueChanged();
+//}
+//
+//void DFGCombinedWidget::onStructureChanged()
+//{
+//  onValueChanged();
+//}
 
 void DFGCombinedWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier modifiers, QString hotkey)
 {
@@ -271,16 +276,6 @@ void DFGCombinedWidget::onNodeInspectRequested(FabricUI::GraphView::Node * node)
 {
   if ( node->isBackDropNode() )
     return;
-  
-  FabricUI::DFG::DFGController *dfgController =
-    m_dfgWidget->getUIController();
-
-  m_dfgValueEditor->setNode(
-    dfgController->getBinding(),
-    dfgController->getExecPath(),
-    dfgController->getExec(),
-    node->name()
-    );
 
   QList<int> s = m_hSplitter->sizes();
   if(s[2] == 0)
@@ -311,7 +306,7 @@ void DFGCombinedWidget::onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * d
   emit portEditDialogInvoked(dialog, additionalMetaData);
 }
 
-void DFGCombinedWidget::log(const char * message)
+void DFGCombinedWidget::log(const char * message) const
 {
   if(m_dfgWidget)
     m_dfgWidget->getUIController()->log(message);

@@ -9,23 +9,27 @@
 #include <map>
 
 #include <FabricUI/DFG/DFGUI.h>
-#include <FabricUI/DFG/DFGValueEditor.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/DFG/Dialogs/DFGBaseDialog.h>
 #include <Commands/CommandStack.h>
+
+#include <FabricUI/ValueEditor/VEEditorOwner.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
 
 namespace FabricUI
 {
+  namespace ValueEditor {
+    class VEEditorOwner;
+  }
 
   namespace DFG
   {
 
     class DFGUICmdHandler;
     
-    class DFGCombinedWidget : public QSplitter
+    class DFGCombinedWidget : public QSplitter, FabricUI::ValueEditor::ValueEditorBridgeOwner
     {
 
       Q_OBJECT
@@ -52,16 +56,16 @@ namespace FabricUI
       virtual ASTWrapper::KLASTManager * getManager() { return m_manager; }
       virtual PresetTreeWidget * getTreeWidget() { return m_treeWidget; }
       virtual DFGWidget * getDfgWidget() { return m_dfgWidget; }
-      virtual DFGValueEditor * getDfgValueEditor() { return m_dfgValueEditor; }
       virtual DFGLogWidget * getDfgLogWidget() { return m_dfgLogWidget; }
+      virtual QWidget* getDfgValueEditor();
 
       virtual void keyPressEvent(QKeyEvent * event);
 
     public slots:
       virtual void onUndo() = 0;
       virtual void onRedo() = 0;
-      virtual void onValueChanged();
-      virtual void onStructureChanged();
+//      virtual void onValueChanged();
+//      virtual void onStructureChanged();
       virtual void onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onGraphSet(FabricUI::GraphView::Graph * graph);
 
@@ -81,16 +85,16 @@ namespace FabricUI
 
     private:
 
-      void log(const char * message);
+      void log(const char * message) const;
 
       QSplitter * m_hSplitter;
       FabricCore::Client m_client;
       ASTWrapper::KLASTManager * m_manager;
       PresetTreeWidget * m_treeWidget;
       DFGWidget * m_dfgWidget;
-      DFGValueEditor * m_dfgValueEditor;
       DFGLogWidget * m_dfgLogWidget;
       FabricUI::GraphView::Graph * m_setGraph;
+      ValueEditor::VEEditorOwner * m_valueEditor;
     };
 
   };
