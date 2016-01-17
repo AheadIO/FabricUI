@@ -97,3 +97,7 @@ void BaseModelItem::onInteractionEnd( bool accept )
     m_valueAtInteractionBegin = QVariant();
   }
 }
+
+void BaseModelItem::OnItemRenamed( QString newName )
+{
+}

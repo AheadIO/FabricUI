@@ -50,6 +50,26 @@ QString PortModelItem::GetName()
   return m_name;
 }
 
+void FabricUI::ModelItems::PortModelItem::RenameItem( const char* newName )
+{
+  //size_t split = m_portPath.rfind( '.' );
+  //std::string nodeName = m_portPath.substr( 0, split );
+  //std::string portName= m_portPath.substr( split + 1);
+  //FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
+  //const char* newPortName = nodeExec.renameExecPort( portName.c_str(), newName );
+}
+
+
+void FabricUI::ModelItems::PortModelItem::OnItemRenamed( QString newName )
+{
+  size_t split = m_portPath.rfind( '.' );
+  std::string nodeName = m_portPath.substr( 0, split );
+
+  m_portPath = nodeName.c_str();
+  m_portPath += '.';
+  m_portPath += newName.toStdString();
+}
+
 ItemMetadata* PortModelItem::GetMetadata()
 {
   if (m_metadata == NULL)
@@ -153,11 +173,15 @@ void FabricUI::ModelItems::PortModelItem::resetToDefault()
   const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   if (ctype != NULL)
   {
+    size_t split = m_portPath.rfind( '.' );
+    std::string nodeName = m_portPath.substr( 0, split );
+    std::string portName= m_portPath.substr( split + 1);
+    FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
     //FabricCore::RTVal val = m_exec.getInstPortResolvedDefaultValue(
     //  m_cname.c_str(),
     //  ctype );
 
-    FabricCore::RTVal val = m_exec.getPortDefaultValue( m_portPath.c_str(), ctype );
+    FabricCore::RTVal val = nodeExec.getPortDefaultValue( portName.c_str(), ctype );
     if (val.isValid())
       onViewValueChanged( QVariant::fromValue( val ) );
   }

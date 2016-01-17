@@ -43,6 +43,18 @@ QString NodeModelItem::GetName()
   return m_name;
 }
 
+void FabricUI::ModelItems::NodeModelItem::RenameItem( const char* newName )
+{
+  QByteArray oldName = m_name.toAscii();
+  m_exec.renameNode( oldName.data(), newName );
+}
+
+
+void FabricUI::ModelItems::NodeModelItem::OnItemRenamed( QString newName )
+{
+  m_name = newName;
+}
+
 size_t NodeModelItem::NumChildren()
 {
   return m_exec.getNodePortCount( m_nodeName.c_str() );
@@ -73,7 +85,7 @@ ItemMetadata* NodeModelItem::GetMetadata()
 
 QVariant NodeModelItem::GetValue()
 {
-  return QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
+  return QVariant(); // QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
 }
 
 void NodeModelItem::SetValue(

@@ -41,6 +41,18 @@ QString ExecPortModelItem::GetName()
   return m_name;
 }
 
+void FabricUI::ModelItems::ExecPortModelItem::RenameItem( const char* name )
+{
+  m_exec.renameExecPort( m_cname.c_str(), name );
+}
+
+
+void FabricUI::ModelItems::ExecPortModelItem::OnItemRenamed( QString newName )
+{
+  m_name = newName;
+  m_cname = newName.toStdString();
+}
+
 ItemMetadata* ExecPortModelItem::GetMetadata()
 {
   if (m_metadata == NULL)

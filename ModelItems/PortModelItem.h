@@ -24,7 +24,7 @@ class DFGUICmdHandler;
       std::string m_execPath;
       FabricCore::DFGExec m_exec;
       std::string m_portPath;
-
+    
       QString m_name;
 
       ItemMetadata* m_metadata;
@@ -47,6 +47,8 @@ class DFGUICmdHandler;
       virtual BaseModelItem* GetChild( int i );
 
       virtual QString GetName();
+      virtual void RenameItem( const char* newName );
+      virtual void OnItemRenamed( QString newName );
 
       virtual ItemMetadata* GetMetadata();
 
@@ -65,6 +67,8 @@ class DFGUICmdHandler;
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
+
+
     };
   }
 }

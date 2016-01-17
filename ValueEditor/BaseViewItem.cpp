@@ -95,12 +95,33 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
   }
 }
 
+void BaseViewItem::renameItem( QString newName )
+{
+  if (m_modelItem != NULL)
+  {
+    QByteArray asAscii = newName.toAscii();
+    m_modelItem->RenameItem( asAscii.data() );
+  }
+}
+
+
+void BaseViewItem::onRenamed( QTreeWidgetItem* item )
+{
+  if (m_modelItem != NULL) 
+  {
+    m_name = m_modelItem->GetName();
+    item->setText( 0, m_name );
+  }
+}
+
 void BaseViewItem::setWidgetsOnTreeItem(
   QTreeWidget *treeWidget,
   QTreeWidgetItem *treeWidgetItem
   )
 {
   treeWidgetItem->setText( 0, m_name );
+  treeWidgetItem->setFlags( Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable );
+
   QWidget* myWidget = getWidget();
 
   // Disable our widgets if requested

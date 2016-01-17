@@ -17,6 +17,7 @@ VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   : m_owner( owner )
   , m_modelRoot( NULL )
   , m_dfgValueEditor( NULL )
+  , m_setGraph(NULL)
 {
   m_dfgValueEditor = new VETreeWidget();
 }
@@ -77,6 +78,10 @@ void VEEditorOwner::initConnections()
   //  this, SLOT( onDirty() )
   //  );
 
+  QObject::connect(
+    getDFGController(), SIGNAL( execPortRenamed( const char* , const char* ) ),
+    this, SLOT( onExecPortRenamed( const char*, const char* ) )
+    );
 
   QObject::connect(
     getDFGController(), SIGNAL( nodeRemoved( FTL::CStrRef, FTL::CStrRef ) ),
@@ -107,6 +112,10 @@ void VEEditorOwner::initConnections()
   QObject::connect(
     this, SIGNAL( modelItemRemoved( BaseModelItem* ) ),
     m_dfgValueEditor, SLOT( onModelItemRemoved( BaseModelItem* ) )
+    );
+  QObject::connect(
+    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
+    m_dfgValueEditor, SLOT( onModelItemRenamed( BaseModelItem* ) )
     );
   QObject::connect(
     this, SIGNAL( modelItemChildrenReordered( BaseModelItem*, const QList<int>& ) ),
@@ -182,8 +191,7 @@ void VEEditorOwner::onNodeInspectRequested(
   FTL::CStrRef nodeName = node->name();
 
   // TODO: Check for re-inspecting the same node, and don't rebuild
-  delete m_modelRoot;
-  m_modelRoot = NULL;
+  FabricUI::ModelItems::RootModelItem* newItem = NULL;
 
   FabricCore::DFGNodeType type = exec.getNodeType( nodeName.c_str() );
   switch (type)
@@ -191,7 +199,7 @@ void VEEditorOwner::onNodeInspectRequested(
     case FabricCore::DFGNodeType_Inst:
     case FabricCore::DFGNodeType_User:
     {
-      m_modelRoot =
+      newItem =
         new FabricUI::ModelItems::NodeModelItem(
           dfgUICmdHandler,
           binding,
@@ -204,7 +212,7 @@ void VEEditorOwner::onNodeInspectRequested(
     }
     case FabricCore::DFGNodeType_Var:
     {
-      m_modelRoot =
+      newItem =
         new FabricUI::ModelItems::VarModelItem(
           dfgUICmdHandler,
           binding,
@@ -225,7 +233,13 @@ void VEEditorOwner::onNodeInspectRequested(
     default:
       assert( 0 && "Implement Me" );
   }
-  emit replaceModelRoot( m_modelRoot );
+
+  if (newItem != NULL)
+  {
+    delete m_modelRoot;
+    m_modelRoot = newItem;
+    emit replaceModelRoot( m_modelRoot );
+  }
 }
 
 
@@ -233,6 +247,9 @@ void VEEditorOwner::onNodeInspectRequested(
 // Our Slots:
 void VEEditorOwner::onValueChanged( int index, const char* name )
 {
+  if (m_modelRoot == NULL)
+    return;
+
   try
   {
     if (name == NULL)
@@ -336,6 +353,22 @@ void VEEditorOwner::onArgsReordered( const FTL::JSONArray* newOrder )
   onStructureChanged();
 }
 
+
+
+void VEEditorOwner::onExecPortRenamed( const char* oldName, const char* newName )
+{
+  // Find the appropriate execPort
+  if (m_modelRoot != NULL)
+  {
+    BaseModelItem* changingChild = m_modelRoot->argRenamed( oldName, newName );
+    if ( changingChild != NULL )
+    {
+      emit modelItemRenamed( changingChild );
+    }
+  }
+}
+
+
 void VEEditorOwner::onNodeRemoved( FTL::CStrRef execPath, FTL::CStrRef nodeName )
 {
   if (m_modelRoot != NULL)
@@ -353,7 +386,8 @@ void VEEditorOwner::onNodeRenamed( FTL::CStrRef execPath, FTL::CStrRef oldNodeNa
   {
     if (m_modelRoot->matchesPath( execPath, oldNodeName ))
     {
-      emit modelItemTypeChange( m_modelRoot, "" );
+      m_modelRoot->OnItemRenamed( newNodeName.c_str() );
+      emit modelItemRenamed( m_modelRoot );
     }
   }
 }
@@ -466,7 +500,7 @@ void VEEditorOwner::onFrameChanged( int frame )
 
 void VEEditorOwner::onGraphSet( FabricUI::GraphView::Graph * graph )
 {
-  //if(graph != m_setGraph)
+  if(graph != m_setGraph)
   {
     connect( 
       graph, SIGNAL( sidePanelInspectRequested() ),
@@ -477,6 +511,9 @@ void VEEditorOwner::onGraphSet( FabricUI::GraphView::Graph * graph )
       this, SLOT( onNodeInspectRequested( FabricUI::GraphView::Node* ) )
       );
 
+    //if (m_setGraph == NULL)
     onSidePanelInspectRequested();
+
+    m_setGraph = graph;
   }
 }

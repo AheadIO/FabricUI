@@ -28,8 +28,12 @@ public slots:
 
   void onModelItemChildInserted( BaseModelItem* parent, int index, const char* name );
   void onModelItemRemoved( BaseModelItem* item );
+  void onModelItemRenamed( BaseModelItem* item );
   void onModelItemTypeChanged( BaseModelItem* item, const char* newType );
   void onModelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder );
+
+  // This slot is triggered when an item is editied in the view
+  void onItemEdited( QTreeWidgetItem* item, int column );
 
 protected slots:
 

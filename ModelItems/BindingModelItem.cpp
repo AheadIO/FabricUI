@@ -58,9 +58,14 @@ QString BindingModelItem::GetName()
   return QString();
 }
 
+void FabricUI::ModelItems::BindingModelItem::RenameItem( const char* newName )
+{
+  m_rootExec.setTitle( newName );
+}
+
 QVariant BindingModelItem::GetValue()
 {
-  return GetName();
+  return QVariant();// GetName();
 }
 
 ItemMetadata* BindingModelItem::GetMetadata()

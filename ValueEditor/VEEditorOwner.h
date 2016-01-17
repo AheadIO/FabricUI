@@ -59,6 +59,8 @@ namespace FabricUI {
       void onArgRemoved(int index, const char* name);
       void onArgsReordered( const FTL::JSONArray* newOrder );
 
+      void onExecPortRenamed( const char* oldName, const char* newName );
+
       void onNodeRemoved( FTL::CStrRef execPath,
                           FTL::CStrRef nodeName );
 
@@ -87,6 +89,7 @@ namespace FabricUI {
       void modelItemTypeChange( BaseModelItem* changingItem, const char* newType);
       void modelItemRemoved( BaseModelItem* removedItem);
       void modelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder );
+      void modelItemRenamed( BaseModelItem* renamedItem );
 
     private:
 
@@ -94,6 +97,7 @@ namespace FabricUI {
 
       ValueEditorBridgeOwner& m_owner;
       VETreeWidget* m_dfgValueEditor;
+      FabricUI::GraphView::Graph * m_setGraph;
 
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
     };

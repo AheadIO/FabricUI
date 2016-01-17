@@ -32,6 +32,11 @@ QString PresetModelItem::GetName()
   return m_exec.getTitle();
 }
 
+void FabricUI::ModelItems::PresetModelItem::RenameItem( const char* newName )
+{
+  m_exec.setTitle(newName);
+}
+
 size_t PresetModelItem::NumChildren()
 {
   return m_exec.getExecPortCount( );
@@ -54,7 +59,7 @@ ItemMetadata* PresetModelItem::GetMetadata()
 
 QVariant PresetModelItem::GetValue()
 {
-  return QString( m_exec.getTitle( ) );
+  return QVariant(); // QString( m_exec.getTitle() );
 }
 
 void PresetModelItem::SetValue(

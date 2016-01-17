@@ -1093,7 +1093,7 @@ void DFGNotificationRouter::onNodeRenamed(
   GraphView::Node *uiNode = uiGraph->renameNode( oldNodeName, newNodeName );
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
-  if ( exec.getNodeType( oldNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+  if ( exec.getNodeType( newNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
     && !exec.instExecIsPreset( newNodeName.c_str() ) )
   {
     assert( !!uiNode );

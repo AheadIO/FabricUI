@@ -32,6 +32,7 @@ namespace FabricUI
         FTL::StrRef nodeName
         ) = 0;
 
+
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
 
@@ -50,6 +51,8 @@ namespace FabricUI
       bool argTypeChanged( int index, const char* name, const char* newType );
 
       void argRemoved( int index, const char* name );
+
+      BaseModelItem* argRenamed( const char* oldName, const char* newName );
     };
   }
 }

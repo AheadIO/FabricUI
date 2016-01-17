@@ -37,6 +37,16 @@ QString ArgModelItem::GetName()
   return QString::fromUtf8( m_argName.data(), m_argName.size() );
 }
 
+void ArgModelItem::RenameItem( const char* name )
+{
+  m_rootExec.renameExecPort( m_argName.c_str(), name );
+}
+
+void FabricUI::ModelItems::ArgModelItem::OnItemRenamed( QString newName ) /**/
+{
+  m_argName = newName.toStdString();
+}
+
 QVariant ArgModelItem::GetValue()
 {
   FabricCore::RTVal rtVal = m_binding.getArgValue( m_argName.c_str() );

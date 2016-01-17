@@ -41,6 +41,7 @@ class DFGUICmdHandler;
       virtual QString ChildName( int i ) /*override*/;
 
       virtual QString GetName() /*override*/;
+      virtual void RenameItem( const char* name );
 
       virtual QVariant GetValue() /*override*/;
 
@@ -53,7 +54,6 @@ class DFGUICmdHandler;
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
-
     };
   }
 }

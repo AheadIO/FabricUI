@@ -33,6 +33,7 @@ namespace FabricUI
       virtual BaseModelItem* CreateChild( QString name );
 
       virtual QString GetName();
+      virtual void RenameItem( const char* newName );
 
       virtual ItemMetadata* GetMetadata();
 
@@ -45,6 +46,8 @@ namespace FabricUI
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
+
+
     };
   }
 }

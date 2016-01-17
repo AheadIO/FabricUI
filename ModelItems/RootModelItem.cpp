@@ -53,7 +53,6 @@ int RootModelItem::ChildIndex( QString name )
   return -1;
 }
 
-
 bool RootModelItem::argInserted( int index, const char* name, const char* type )
 {
   // Assert that this child exists.  We will get notifications
@@ -87,6 +86,20 @@ void RootModelItem::argRemoved( int index, const char* name )
       break;
     }
   }
+}
+
+
+BaseModelItem* FabricUI::ModelItems::RootModelItem::argRenamed( const char* oldName, const char* newName )
+{
+  for (ChildVec::iterator itr = m_children.begin(); itr != m_children.end(); itr++)
+  {
+    if ((*itr)->GetName() == oldName)
+    {
+      (*itr)->OnItemRenamed( newName );
+      return *itr;
+    }
+  }
+  return NULL;
 }
 
 bool FabricUI::ModelItems::RootModelItem::hasDefault()

@@ -92,6 +92,13 @@ public:
     QTreeWidget* treeWidget,
     QTreeWidgetItem * treeWidgetItem );
 
+  // This function should be called by the UI when the
+  // item name is edited (by the user)
+  void renameItem( QString newName );
+
+  // Update our name from core 
+  void onRenamed( QTreeWidgetItem* item );
+
   // Implement this function if ViewItem uses metadata to
   // set its behaviour.  This function may be called at any
   // time if the metadata associated with this item changes.

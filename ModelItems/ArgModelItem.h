@@ -38,9 +38,11 @@ class DFGUICmdHandler;
       // Every arg has exactly 1 child - its RTValue
       virtual size_t NumChildren();
 
-      virtual BaseModelItem* GetChild( int i );
+      virtual BaseModelItem* GetChild( int i )/*override*/;
 
-      virtual QString GetName();
+      virtual QString GetName()/*override*/;
+      virtual void RenameItem( const char* name )/*override*/;
+      virtual void OnItemRenamed( QString newName )/*override*/;
 
       virtual QVariant GetValue()/*override*/;
 

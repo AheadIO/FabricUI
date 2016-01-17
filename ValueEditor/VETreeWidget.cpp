@@ -13,6 +13,7 @@
 #include <QtGui/QMenu>
 
 #include <assert.h>
+#include "../Util/QTSignalBlocker.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,10 @@ VETreeWidget::VETreeWidget( )
     this, SIGNAL( customContextMenuRequested( const QPoint& ) ),
     this, SLOT( prepareMenu( const QPoint& ) )
     );
+  connect(
+    this, SIGNAL( itemChanged( QTreeWidgetItem*, int ) ),
+    this, SLOT( onItemEdited( QTreeWidgetItem*, int ) )
+    );
 
   setObjectName( "valueEditor" );
 
@@ -53,6 +58,9 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
   assert( viewItem );
   if (viewItem == NULL)
     return NULL;
+  
+  // Disable signals to prevent unnecessary 'OnEdit' signals comming back to us
+  FabricUI::Util::QTSignalBlocker blocker( this );
 
   VETreeWidgetItem *treeWidgetItem = new VETreeWidgetItem( viewItem );
   if (viewItem->hasChildren())
@@ -158,6 +166,20 @@ void VETreeWidget::onModelItemRemoved( BaseModelItem* item )
     delete oldWidget;
 }
 
+void VETreeWidget::onModelItemRenamed( BaseModelItem* item )
+{
+  VETreeWidgetItem* treeItem = findTreeWidget( item );
+  if (treeItem != NULL)
+  {
+    BaseViewItem *viewItem = treeItem->getViewItem();
+    if (viewItem != NULL)
+    {
+      FabricUI::Util::QTSignalBlocker block( this );
+      viewItem->onRenamed( treeItem );
+    }
+  }
+}
+
 void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*newType*/ )
 {
   VETreeWidgetItem* oldWidget = findTreeWidget( item );
@@ -186,6 +208,26 @@ void VETreeWidget::onModelItemChildrenReordered( BaseModelItem* /*parent*/, cons
   sortItems( 0, Qt::AscendingOrder );
 }
 
+void VETreeWidget::onItemEdited( QTreeWidgetItem* _item, int column )
+{
+  // We only deal with name changes here
+  if (column != 0)
+    return;
+
+  VETreeWidgetItem* item = static_cast<VETreeWidgetItem*>(_item);
+  if (item != NULL)
+  {
+    BaseViewItem* viewItem = item->getViewItem();
+    if (viewItem != NULL)
+    {
+      viewItem->renameItem( item->text( 0 ) );
+
+      //FabricUI::Util::QTSignalBlocker(this);
+      //item->setText( 0, viewItem->getName() );
+    }
+  }
+}
+
 void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
 {
   ViewItemFactory* pFactory = ViewItemFactory::GetInstance();
@@ -193,7 +235,8 @@ void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
   // Remove all existing
   clear();
   VETreeWidgetItem* newItem = createTreeWidgetItem( pViewLayer, NULL );
-  newItem->setExpanded( true );
+  if (newItem != NULL)
+    newItem->setExpanded( true );
 
 }
 
@@ -255,6 +298,9 @@ void VETreeWidget::prepareMenu( const QPoint& pt )
 void VETreeWidget::resetItem()
 {
   QList<QTreeWidgetItem*> items = selectedItems();
+  if (items.empty())
+    items.push_back( currentItem() );
+
   for (int i = 0; i < items.size(); i++)
   {
     VETreeWidgetItem* item = static_cast<VETreeWidgetItem*>(items[i]);

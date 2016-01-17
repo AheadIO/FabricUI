@@ -78,6 +78,12 @@ public:
 
 	// The name of this node
 	virtual QString GetName() = 0;
+  // Implement this to rename the underlying data
+  virtual void RenameItem( const char* newName ) = 0;
+  // This function will be called when the name is
+  // updated in the core, and can be used to update
+  // any cached name strings.
+  virtual void OnItemRenamed( QString newName );
 
 	// We need to define a metadata syntax for 
 	// additional type-info.  For example, it should

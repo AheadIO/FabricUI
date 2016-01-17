@@ -53,6 +53,8 @@ class DFGUICmdHandler;
       virtual BaseModelItem* CreateChild( QString name );
 
       virtual QString GetName();
+      virtual void RenameItem( const char* newName );
+      virtual void OnItemRenamed( QString newName );
 
       virtual ItemMetadata* GetMetadata();
 
@@ -65,6 +67,8 @@ class DFGUICmdHandler;
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
+
+
     };
   }
 }
