@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec2ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VELineEdit.h"
+#include "VESpinBox.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -22,22 +22,40 @@ Vec2ViewItem::Vec2ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new VELineEdit( QString::number( m_vec2dValue.x() ), m_widget );
-  m_yEdit = new VELineEdit( QString::number( m_vec2dValue.y() ), m_widget );
+  m_xSpinBox = new VESpinBox( m_vec2dValue.x(), m_widget );
+  m_ySpinBox = new VESpinBox( m_vec2dValue.y(), m_widget );
 
   // Connect em up.
+
   connect(
-    m_xEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditXModified( QString ))
+    m_xSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
     );
   connect(
-    m_yEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditYModified( QString ))
+    m_xSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_xSpinBox, SIGNAL(valueChanged( double )),
+    this, SLOT(onXSpinBoxValueChanged( double ))
+    );
+
+  connect(
+    m_ySpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
+    );
+  connect(
+    m_ySpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_ySpinBox, SIGNAL(valueChanged( double )),
+    this, SLOT(onYSpinBoxValueChanged( double ))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
-  layout->addWidget( m_xEdit );
-  layout->addWidget( m_yEdit );
+  layout->addWidget( m_xSpinBox );
+  layout->addWidget( m_ySpinBox );
 }
 
 Vec2ViewItem::~Vec2ViewItem()
@@ -54,28 +72,28 @@ void Vec2ViewItem::onModelValueChanged( QVariant const &value )
   QVector2D newVec2dValue = value.value<QVector2D>();
   if ( newVec2dValue.x() != m_vec2dValue.x() )
   {
-    m_xEdit->setText( QString::number( newVec2dValue.x() ) );
+    m_xSpinBox->setValue( newVec2dValue.x() );
     routeModelValueChanged( 0, QVariant( newVec2dValue.x() ) );
   }
   if ( newVec2dValue.y() != m_vec2dValue.y() )
   {
-    m_yEdit->setText( QString::number( newVec2dValue.y() ) );
+    m_ySpinBox->setValue( newVec2dValue.y() );
     routeModelValueChanged( 1, QVariant( newVec2dValue.y() ) );
   }
   m_vec2dValue = newVec2dValue;
 }
 
-void Vec2ViewItem::onTextEditXModified( QString text )
+void Vec2ViewItem::onXSpinBoxValueChanged( double value )
 {
   QVector2D vec2d = m_vec2dValue;
-  vec2d.setX( text.toDouble() );
+  vec2d.setX( value );
   emit viewValueChanged( QVariant( vec2d ) );
 }
 
-void Vec2ViewItem::onTextEditYModified( QString text )
+void Vec2ViewItem::onYSpinBoxValueChanged( double value )
 {
   QVector2D vec2d = m_vec2dValue;
-  vec2d.setY( text.toDouble() );
+  vec2d.setY( value );
   emit viewValueChanged( QVariant( vec2d ) );
 }
 

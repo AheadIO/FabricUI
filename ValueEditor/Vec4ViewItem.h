@@ -9,7 +9,7 @@
 #include <QtGui/QVector4D>
 
 class QLayout;
-class VELineEdit;
+class VESpinBox;
 class ItemMetadata;
 
 class Vec4ViewItem : public BaseComplexViewItem
@@ -21,10 +21,10 @@ private:
   QVector4D m_vec4dValue;
 
   QWidget *m_widget;
-  VELineEdit* m_xEdit;
-  VELineEdit* m_yEdit;
-  VELineEdit* m_zEdit;
-  VELineEdit* m_tEdit;
+  VESpinBox* m_xSpinBox;
+  VESpinBox* m_ySpinBox;
+  VESpinBox* m_zSpinBox;
+  VESpinBox* m_tSpinBox;
 
 public:
   
@@ -56,8 +56,8 @@ public:
 
 public slots:
 
-  void onTextEditXModified( QString text );
-  void onTextEditYModified( QString text );
-  void onTextEditZModified( QString text );
-  void onTextEditTModified( QString text );
+  void onXSpinBoxValueChanged( double value );
+  void onYSpinBoxValueChanged( double value );
+  void onZSpinBoxValueChanged( double value );
+  void onTSpinBoxValueChanged( double value );
 };

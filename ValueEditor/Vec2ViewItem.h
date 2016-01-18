@@ -9,7 +9,7 @@
 #include <QtGui/QVector2D>
 
 class QLayout;
-class VELineEdit;
+class VESpinBox;
 class ItemMetadata;
 
 class Vec2ViewItem : public BaseComplexViewItem
@@ -21,8 +21,8 @@ private:
   QVector2D m_vec2dValue;
 
   QWidget *m_widget;
-  VELineEdit* m_xEdit;
-  VELineEdit* m_yEdit;
+  VESpinBox* m_xSpinBox;
+  VESpinBox* m_ySpinBox;
 
 public:
   
@@ -54,6 +54,6 @@ public:
 
 public slots:
 
-  void onTextEditXModified( QString text );
-  void onTextEditYModified( QString text );
+  void onXSpinBoxValueChanged( double value );
+  void onYSpinBoxValueChanged( double value );
 };

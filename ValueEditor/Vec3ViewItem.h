@@ -9,7 +9,7 @@
 #include <QtGui/QVector3D>
 
 class QLayout;
-class VELineEdit;
+class VESpinBox;
 class ItemMetadata;
 
 class Vec3ViewItem : public BaseComplexViewItem
@@ -21,9 +21,9 @@ private:
 	QVector3D m_vec3dValue;
 
 	QWidget *m_widget;
-	VELineEdit* m_xEdit;
-	VELineEdit* m_yEdit;
-	VELineEdit* m_zEdit;
+	VESpinBox* m_xSpinBox;
+	VESpinBox* m_ySpinBox;
+	VESpinBox* m_zSpinBox;
 
 public:
   
@@ -55,7 +55,7 @@ public:
 
 public slots:
 
-	void onTextEditXModified( QString text );
-	void onTextEditYModified( QString text );
-	void onTextEditZModified( QString text );
+	void onXSpinBoxValueChanged( double value );
+	void onYSpinBoxValueChanged( double value );
+	void onZSpinBoxValueChanged( double value );
 };
