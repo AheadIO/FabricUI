@@ -15,9 +15,9 @@ using namespace ValueEditor;
 
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   : m_owner( owner )
-  , m_modelRoot( NULL )
   , m_dfgValueEditor( NULL )
-  , m_setGraph(NULL)
+  , m_setGraph( NULL )
+  , m_modelRoot( NULL )
 {
   m_dfgValueEditor = new VETreeWidget();
 }

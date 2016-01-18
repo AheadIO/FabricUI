@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QtGui\QWidget>
-#include <FTL\CStrRef.h>
+#include <QtGui/QWidget>
+#include <FTL/CStrRef.h>
 
 class BaseModelItem;
 class VETreeWidget;
