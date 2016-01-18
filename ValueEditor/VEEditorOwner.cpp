@@ -376,6 +376,7 @@ void VEEditorOwner::onNodeRemoved( FTL::CStrRef execPath, FTL::CStrRef nodeName 
     if (m_modelRoot->matchesPath( execPath, nodeName ))
     {
       emit modelItemRemoved( m_modelRoot );
+      onSidePanelInspectRequested();
     }
   }
 }
@@ -465,30 +466,30 @@ void VEEditorOwner::onFrameChanged( int frame )
     FabricCore::DFGBinding binding =
       getUIController()->getBinding();
     FabricCore::DFGExec exec = binding.getExec();
-    FabricCore::Client client; // = binding.getClient();
+    FabricCore::Context ctxt = binding.getHost().getContext();
 
     if (exec.isExecPortResolvedType( m_timelinePortIndex, "SInt32" ))
       binding.setArgValue(
         m_timelinePortIndex,
-        FabricCore::RTVal::ConstructSInt32( client, frame ),
+        FabricCore::RTVal::ConstructSInt32( ctxt, frame ),
         false
         );
     else if (exec.isExecPortResolvedType( m_timelinePortIndex, "UInt32" ))
       binding.setArgValue(
         m_timelinePortIndex,
-        FabricCore::RTVal::ConstructUInt32( client, frame ),
+        FabricCore::RTVal::ConstructUInt32( ctxt, frame ),
         false
         );
     else if (exec.isExecPortResolvedType( m_timelinePortIndex, "Float32" ))
       binding.setArgValue(
         m_timelinePortIndex,
-        FabricCore::RTVal::ConstructFloat32( client, frame ),
+        FabricCore::RTVal::ConstructFloat32( ctxt, frame ),
         false
         );
     else if (exec.isExecPortResolvedType( m_timelinePortIndex, "Float64" ))
       binding.setArgValue(
         m_timelinePortIndex,
-        FabricCore::RTVal::ConstructFloat64( client, frame ),
+        FabricCore::RTVal::ConstructFloat64( ctxt, frame ),
         false
         );
   }
