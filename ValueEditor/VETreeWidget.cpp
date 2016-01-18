@@ -284,8 +284,8 @@ void VETreeWidget::prepareMenu( const QPoint& pt )
   if (model == NULL)
     return;
 
-  QAction *newAct = new QAction( tr( "Reset" ), this );
-  newAct->setStatusTip( tr( "new sth" ) );
+  QAction *newAct = new QAction( tr( "Reset to Default" ), this );
+  newAct->setStatusTip( tr( "Reset this ports current value to the default" ) );
 
   newAct->setEnabled( model->hasDefault() );
   connect( newAct, SIGNAL( triggered() ), this, SLOT( resetItem() ) );
