@@ -376,6 +376,7 @@ void VEEditorOwner::onNodeRemoved( FTL::CStrRef execPath, FTL::CStrRef nodeName 
     if (m_modelRoot->matchesPath( execPath, nodeName ))
     {
       emit modelItemRemoved( m_modelRoot );
+      onSidePanelInspectRequested();
     }
   }
 }
