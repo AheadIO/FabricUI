@@ -4,8 +4,8 @@
 
 #include "FloatViewItem.h"
 #include "QVariantRTVal.h"
+#include "VESpinBox.h"
 
-#include <QtGui/QSpinBox>
 #include <float.h>
 
 FloatViewItem::FloatViewItem(
@@ -14,19 +14,19 @@ FloatViewItem::FloatViewItem(
   )
   : BaseViewItem(name)
 {
-  m_spinner = new QDoubleSpinBox;
-  m_spinner->setMinimum( -DBL_MAX );
-  m_spinner->setMaximum( +DBL_MAX );
-  m_spinner->setKeyboardTracking( false );
+  m_spinBox = new VESpinBox( value.value<double>() );
   connect(
-    m_spinner, SIGNAL( valueChanged( double ) ), 
-    this, SLOT( OnSpinnerChanged( double ) )
+    m_spinBox, SIGNAL(interactionBegin()), 
+    this, SIGNAL(interactionBegin())
     );
   connect(
-    m_spinner, SIGNAL( editingFinished() ), 
-    this, SLOT( OnEditFinished() )
+    m_spinBox, SIGNAL(valueChanged(double)), 
+    this, SLOT(onSpinBoxValueChanged(double))
     );
-  onModelValueChanged( value );
+  connect(
+    m_spinBox, SIGNAL(interactionEnd(bool)), 
+    this, SIGNAL(interactionEnd(bool))
+    );
 }
 
 FloatViewItem::~FloatViewItem()
@@ -35,25 +35,18 @@ FloatViewItem::~FloatViewItem()
 
 QWidget *FloatViewItem::getWidget()
 {
-  return m_spinner;
+  return m_spinBox;
 }
 
 void FloatViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_spinner->setValue( v.value<double>() );
+  m_spinBox->setValue( v.value<double>() );
 }
 
-void FloatViewItem::OnSpinnerChanged( double value )
+void FloatViewItem::onSpinBoxValueChanged( double value )
 {
   emit viewValueChanged(
     QVariant::fromValue<double>( value )
-    );
-}
-
-void FloatViewItem::OnEditFinished()
-{
-  emit viewValueChanged(
-    QVariant::fromValue<double>( m_spinner->value() )
     );
 }
 

@@ -6,7 +6,7 @@
 
 #include "BaseViewItem.h"
 
-class QDoubleSpinBox;
+class VESpinBox;
 class ItemMetadata;
 
 class FloatViewItem : public BaseViewItem
@@ -36,9 +36,9 @@ public:
 
 private:
 
-	QDoubleSpinBox* m_spinner;
+	VESpinBox *m_spinBox;
 
 private slots:
-	void OnSpinnerChanged(double value);
-	void OnEditFinished();
+
+	void onSpinBoxValueChanged(double value);
 };

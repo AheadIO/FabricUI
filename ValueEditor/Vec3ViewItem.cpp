@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VELineEdit.h"
+#include "VESpinBox.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -22,28 +22,55 @@ Vec3ViewItem::Vec3ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new VELineEdit( QString::number( m_vec3dValue.x() ), m_widget );
-  m_yEdit = new VELineEdit( QString::number( m_vec3dValue.y() ), m_widget );
-  m_zEdit = new VELineEdit( QString::number( m_vec3dValue.z() ), m_widget );
+  m_xSpinBox = new VESpinBox( m_vec3dValue.x(), m_widget );
+  m_ySpinBox = new VESpinBox( m_vec3dValue.y(), m_widget );
+  m_zSpinBox = new VESpinBox( m_vec3dValue.z(), m_widget );
 
   // Connect em up.
+
   connect(
-    m_xEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditXModified( QString ))
+    m_xSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
     );
   connect(
-    m_yEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditYModified( QString ))
+    m_xSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
     );
   connect(
-    m_zEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditZModified( QString ))
+    m_xSpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onXSpinBoxValueChanged( double ))
+    );
+
+  connect(
+    m_ySpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
+    );
+  connect(
+    m_ySpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_ySpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onYSpinBoxValueChanged( double ))
+    );
+  
+  connect(
+    m_zSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
+    );
+  connect(
+    m_zSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_zSpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onZSpinBoxValueChanged( double ))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
-  layout->addWidget( m_xEdit );
-  layout->addWidget( m_yEdit );
-  layout->addWidget( m_zEdit );
+  layout->addWidget( m_xSpinBox );
+  layout->addWidget( m_ySpinBox );
+  layout->addWidget( m_zSpinBox );
 }
 
 Vec3ViewItem::~Vec3ViewItem()
@@ -60,40 +87,40 @@ void Vec3ViewItem::onModelValueChanged( QVariant const &value )
   QVector3D newVec3dValue = value.value<QVector3D>();
   if ( newVec3dValue.x() != m_vec3dValue.x() )
   {
-    m_xEdit->setText( QString::number( newVec3dValue.x() ) );
+    m_xSpinBox->setValue( newVec3dValue.x() );
     routeModelValueChanged( 0, QVariant( newVec3dValue.x() ) );
   }
   if ( newVec3dValue.y() != m_vec3dValue.y() )
   {
-    m_yEdit->setText( QString::number( newVec3dValue.y() ) );
+    m_ySpinBox->setValue( newVec3dValue.y() );
     routeModelValueChanged( 1, QVariant( newVec3dValue.y() ) );
   }
   if ( newVec3dValue.z() != m_vec3dValue.z() )
   {
-    m_zEdit->setText( QString::number( newVec3dValue.z() ) );
+    m_zSpinBox->setValue( newVec3dValue.z() );
     routeModelValueChanged( 2, QVariant( newVec3dValue.z() ) );
   }
   m_vec3dValue = newVec3dValue;
 }
 
-void Vec3ViewItem::onTextEditXModified( QString text )
+void Vec3ViewItem::onXSpinBoxValueChanged( double value )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setX( text.toDouble() );
+  vec3d.setX( value );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 
-void Vec3ViewItem::onTextEditYModified( QString text )
+void Vec3ViewItem::onYSpinBoxValueChanged( double value )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setY( text.toDouble() );
+  vec3d.setY( value );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 
-void Vec3ViewItem::onTextEditZModified( QString text )
+void Vec3ViewItem::onZSpinBoxValueChanged( double value )
 {
   QVector3D vec3d = m_vec3dValue;
-  vec3d.setZ( text.toDouble() );
+  vec3d.setZ( value );
   emit viewValueChanged( QVariant( vec3d ) );
 }
 

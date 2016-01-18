@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec4ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VELineEdit.h"
+#include "VESpinBox.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -22,34 +22,70 @@ Vec4ViewItem::Vec4ViewItem(
 {
   m_widget = new QWidget;
 
-  m_xEdit = new VELineEdit( QString::number( m_vec4dValue.x() ), m_widget );
-  m_yEdit = new VELineEdit( QString::number( m_vec4dValue.y() ), m_widget );
-  m_zEdit = new VELineEdit( QString::number( m_vec4dValue.z() ), m_widget );
-  m_tEdit = new VELineEdit( QString::number( m_vec4dValue.w() ), m_widget );
+  m_xSpinBox = new VESpinBox( m_vec4dValue.x(), m_widget );
+  m_ySpinBox = new VESpinBox( m_vec4dValue.y(), m_widget );
+  m_zSpinBox = new VESpinBox( m_vec4dValue.z(), m_widget );
+  m_tSpinBox = new VESpinBox( m_vec4dValue.w(), m_widget );
 
   // Connect em up.
+  
   connect(
-    m_xEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditXModified( QString ))
+    m_xSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
     );
   connect(
-    m_yEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditYModified( QString ))
+    m_xSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
     );
   connect(
-    m_zEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditZModified( QString ))
+    m_xSpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onXSpinBoxValueChanged(double))
+    );
+  
+  connect(
+    m_ySpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
     );
   connect(
-    m_tEdit, SIGNAL(textModified( QString )),
-    this, SLOT(onTextEditTModified( QString ))
+    m_ySpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_ySpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onYSpinBoxValueChanged(double))
+    );
+  
+  connect(
+    m_zSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
+    );
+  connect(
+    m_zSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_zSpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onZSpinBoxValueChanged(double))
+    );
+  
+  connect(
+    m_tSpinBox, SIGNAL(interactionBegin()),
+    this, SIGNAL(interactionBegin())
+    );
+  connect(
+    m_tSpinBox, SIGNAL(interactionEnd(bool)),
+    this, SIGNAL(interactionEnd(bool))
+    );
+  connect(
+    m_tSpinBox, SIGNAL(valueChanged(double)),
+    this, SLOT(onTSpinBoxValueChanged(double))
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
-  layout->addWidget( m_xEdit );
-  layout->addWidget( m_yEdit );
-  layout->addWidget( m_zEdit );
-  layout->addWidget( m_tEdit );
+  layout->addWidget( m_xSpinBox );
+  layout->addWidget( m_ySpinBox );
+  layout->addWidget( m_zSpinBox );
+  layout->addWidget( m_tSpinBox );
 }
 
 Vec4ViewItem::~Vec4ViewItem()
@@ -66,52 +102,52 @@ void Vec4ViewItem::onModelValueChanged( QVariant const &value )
   QVector4D newVec4dValue = value.value<QVector4D>();
   if ( newVec4dValue.x() != m_vec4dValue.x() )
   {
-    m_xEdit->setText( QString::number( newVec4dValue.x() ) );
+    m_xSpinBox->setValue( newVec4dValue.x() );
     routeModelValueChanged( 0, QVariant( newVec4dValue.x() ) );
   }
   if ( newVec4dValue.y() != m_vec4dValue.y() )
   {
-    m_yEdit->setText( QString::number( newVec4dValue.y() ) );
+    m_ySpinBox->setValue( newVec4dValue.y() );
     routeModelValueChanged( 1, QVariant( newVec4dValue.y() ) );
   }
   if ( newVec4dValue.z() != m_vec4dValue.z() )
   {
-    m_zEdit->setText( QString::number( newVec4dValue.z() ) );
+    m_zSpinBox->setValue( newVec4dValue.z() );
     routeModelValueChanged( 2, QVariant( newVec4dValue.z() ) );
   }
   if ( newVec4dValue.w() != m_vec4dValue.w() )
   {
-    m_tEdit->setText( QString::number( newVec4dValue.w() ) );
+    m_tSpinBox->setValue( newVec4dValue.w() );
     routeModelValueChanged( 3, QVariant( newVec4dValue.w() ) );
   }
   m_vec4dValue = newVec4dValue;
 }
 
-void Vec4ViewItem::onTextEditXModified( QString text )
+void Vec4ViewItem::onXSpinBoxValueChanged( double value )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setX( text.toDouble() );
+  vec4d.setX( value );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditYModified( QString text )
+void Vec4ViewItem::onYSpinBoxValueChanged( double value )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setY( text.toDouble() );
+  vec4d.setY( value );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditZModified( QString text )
+void Vec4ViewItem::onZSpinBoxValueChanged( double value )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setZ( text.toDouble() );
+  vec4d.setZ( value );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
-void Vec4ViewItem::onTextEditTModified( QString text )
+void Vec4ViewItem::onTSpinBoxValueChanged( double value )
 {
   QVector4D vec4d = m_vec4dValue;
-  vec4d.setW( text.toDouble() );
+  vec4d.setW( value );
   emit viewValueChanged( QVariant( vec4d ) );
 }
 
