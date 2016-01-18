@@ -83,6 +83,11 @@ ItemMetadata* NodeModelItem::GetMetadata()
   return NULL;
 }
 
+void FabricUI::ModelItems::NodeModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+{
+  // TODO: Do We need this?
+}
+
 QVariant NodeModelItem::GetValue()
 {
   return QVariant(); // QString( m_exec.getInstTitle( m_nodeName.c_str() ) );

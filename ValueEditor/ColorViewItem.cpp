@@ -6,27 +6,53 @@
 #include "QVariantRTVal.h"
 #include "ViewItemFactory.h"
 #include "ItemMetadata.h"
+#include "BaseModelItem.h"
 
 #include <assert.h>
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant>
 #include <QtGui/QColorDialog>
 #include <QtGui/QPushButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QComboBox>
+
+#define IDX_RGB 0
+#define IDX_HSV 1
+#define META_FORMAT  "displayFormat"
 
 ColorViewItem::ColorViewItem(
   const QVariant& value,
   const QString& name
   )
   : BaseComplexViewItem( name )
+  , m_widget( NULL )
   , m_button( NULL )
+  , m_spec( QColor::Rgb )
+  , m_specCombo( NULL )
 {
+
+  m_widget = new QWidget;
+  m_widget->setObjectName( "ColorSwatch" );
+
+  QHBoxLayout *layout = new QHBoxLayout( m_widget );
+
   m_button = new QPushButton();
-  m_button->setObjectName( name );
-  m_button->setProperty( "class", QString( "colorSwatch" ) );
   m_button->setAutoFillBackground( true );
 
   // Connect button signal to appropriate slot
-  connect( m_button, SIGNAL( clicked() ), this, SLOT( pickColor() ) );
+  connect( m_button, SIGNAL( clicked() ),
+           this, SLOT( pickColor() ) );
+
+  layout->addWidget( m_button );
+
+  m_specCombo = new QComboBox;
+  m_specCombo->addItem( tr( "RGB" ) );
+  m_specCombo->addItem( tr( "HSV" ) );
+
+  connect( m_specCombo, SIGNAL( currentIndexChanged( const QString& ) ),
+           this, SLOT( formatChanged( const QString& ) ) );
+
+  layout->addWidget( m_specCombo );
 
   onModelValueChanged( value );
 }
@@ -37,15 +63,16 @@ ColorViewItem::~ColorViewItem()
 
 QWidget *ColorViewItem::getWidget()
 {
-  return m_button;
+  return m_widget;
 }
 
 void ColorViewItem::onModelValueChanged( QVariant const &value )
 {
   m_color = value.value<QColor>();
+  m_color = m_color.convertTo( m_spec );
   setButtonColor( m_color );
 
-  switch (m_color.spec())
+  switch (m_spec)
   {
     case QColor::Rgb:
       routeModelValueChanged( 0, QVariant( m_color.redF() ) );
@@ -145,6 +172,25 @@ void ColorViewItem::setButtonColor( const QColor& color )
   }
 }
 
+void ColorViewItem::updateMetadata( ItemMetadata* metaData )
+{
+  BaseComplexViewItem::updateMetadata( metaData );
+  const char* dispType = metaData->getString( META_FORMAT );
+  if (dispType == NULL)
+    return;
+
+  if (strcmp( dispType, "HSV" ) == 0)
+  {
+    m_spec = QColor::Spec::Hsv;
+    m_specCombo->setCurrentIndex( IDX_HSV );
+  }
+  else
+  {
+    m_spec = QColor::Spec::Rgb;
+    m_specCombo->setCurrentIndex( IDX_RGB );
+  }
+}
+
 void ColorViewItem::pickColor()
 {
   QColor currColor = m_button->palette().color( QPalette::Button );
@@ -172,6 +218,30 @@ void ColorViewItem::onColorSelected( QColor color )
 {
   emit viewValueChanged( QVariant::fromValue( color ) );
 }
+
+void ColorViewItem::formatChanged( const QString& format )
+{
+  BaseModelItem* modelItem = GetModelItem();
+  if (format == tr("HSV"))
+  {
+    m_spec = QColor::Spec::Hsv;
+    if (modelItem != NULL)
+      modelItem->SetMetadata( META_FORMAT, "HSV", 0 );
+
+  }
+  else
+  {
+    m_spec = QColor::Spec::Rgb;
+    if (modelItem != NULL)
+      modelItem->SetMetadata( META_FORMAT, "RGB", 0 );
+  }
+
+  // Convert cached color
+  onModelValueChanged( m_color );
+  emit rebuildChildren( this );
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////
 //

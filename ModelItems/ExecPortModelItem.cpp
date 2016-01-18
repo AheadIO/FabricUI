@@ -60,6 +60,11 @@ ItemMetadata* ExecPortModelItem::GetMetadata()
   return m_metadata;
 }
 
+void FabricUI::ModelItems::ExecPortModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+{
+  m_exec.setExecPortMetadata( m_cname.c_str(), key, value, canUndo );
+}
+
 int ExecPortModelItem::GetInOut()
 {
   return m_exec.getExecPortType( m_cname.c_str() );

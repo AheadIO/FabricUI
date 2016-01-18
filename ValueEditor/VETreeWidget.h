@@ -22,7 +22,9 @@ public:
 
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem ) const;
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem, VETreeWidgetItem* pWidget ) const;
-public slots:
+  VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem ) const;
+  VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem, VETreeWidgetItem * pWidget ) const;
+  public slots:
 
   void onSetModelItem( BaseModelItem* pItem );
 
@@ -31,6 +33,8 @@ public slots:
   void onModelItemRenamed( BaseModelItem* item );
   void onModelItemTypeChanged( BaseModelItem* item, const char* newType );
   void onModelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder );
+
+  void onViewItemChildrenRebuild( BaseViewItem* item );
 
   // This slot is triggered when an item is editied in the view
   void onItemEdited( QTreeWidgetItem* item, int column );

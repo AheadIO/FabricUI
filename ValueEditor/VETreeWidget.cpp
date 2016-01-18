@@ -79,18 +79,30 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
       }
     }
     if (index < 0 || index >= parent->childCount())
+    {
       parent->addChild( treeWidgetItem );
+    }
     else
+    {
+      // Tab ordering will be fixed by sorting (later)
       parent->insertChild( index, treeWidgetItem );
+    }
   }
   else
   {
     addTopLevelItem( treeWidgetItem );
   }
 
+  // Add the actual widgets to the item
   viewItem->setWidgetsOnTreeItem( this, treeWidgetItem );
+
+  // Connect a signal allowing the item to rebuild its children
+  connect( viewItem, SIGNAL( rebuildChildren( BaseViewItem* ) ),
+           this, SLOT( onViewItemChildrenRebuild( BaseViewItem* ) ) );
+
   return treeWidgetItem;
 }
+
 
 VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem ) const
 {
@@ -108,6 +120,7 @@ VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem ) const
   }
   return NULL;
 }
+
 
 VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem, VETreeWidgetItem * pWidget ) const
 {
@@ -129,6 +142,45 @@ VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem, VETreeWi
   }
   return NULL;
 }
+
+VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseViewItem * pItem ) const
+{
+  for (int i = 0; i < topLevelItemCount(); i++)
+  {
+    VETreeWidgetItem* widgetItem =
+      static_cast<VETreeWidgetItem*>(topLevelItem( i ));
+
+    if (widgetItem != NULL)
+    {
+      VETreeWidgetItem* pMatch = findTreeWidget( pItem, widgetItem );
+      if (pMatch != NULL)
+        return pMatch;
+    }
+  }
+  return NULL;
+}
+
+VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseViewItem * pItem, VETreeWidgetItem * pWidget ) const
+{
+  if (pWidget == NULL)
+    return NULL;
+
+  BaseViewItem* pView = pWidget->getViewItem();
+  if (pView != NULL && pView == pItem)
+    return pWidget;
+
+  for (int i = 0; i < pWidget->childCount(); i++)
+  {
+    VETreeWidgetItem* pMatch = findTreeWidget(
+      pItem,
+      static_cast<VETreeWidgetItem*>(pWidget->child( i )) );
+
+    if (pMatch != NULL)
+      return pMatch;
+  }
+  return NULL;
+}
+
 
 void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, const char* name )
 {
@@ -200,6 +252,19 @@ void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*ne
       createTreeWidgetItem( newView, parentItem, index );
     }
     delete oldWidget;
+  }
+}
+
+void VETreeWidget::onViewItemChildrenRebuild( BaseViewItem* item )
+{
+  VETreeWidgetItem* widget = findTreeWidget( item );
+  if (widget != NULL)
+  {
+    if (widget->isExpanded())
+    {
+      onTreeWidgetItemCollapsed( widget );
+      onTreeWidgetItemExpanded( widget );
+    }
   }
 }
 
