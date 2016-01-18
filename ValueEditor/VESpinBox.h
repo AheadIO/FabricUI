@@ -19,7 +19,7 @@ public:
 
 signals:
 
-  void pressed( double adjuster );
+  void pressed();
   void released();
 
 protected:
@@ -53,13 +53,17 @@ signals:
 protected:
 
   virtual void mouseMoveEvent( QMouseEvent *event ) /*override*/;
+  virtual void wheelEvent( QWheelEvent *event ) /*override*/;
+  virtual void leaveEvent( QEvent *event ) /*override*/;
 
 protected slots:
   
   void onLineEditTextModified( QString text );
 
-  void onButtonPressed( double adjuster );
+  void onButtonPressed();
   void onButtonReleased();
+
+  void onDelta( double delta );
 
 private:
 
@@ -67,7 +71,6 @@ private:
   VELineEdit *m_lineEdit;
   VESpinBox_Adjuster *m_button;
   int m_trackCount;
-  double m_trackAdjuster;
-  QPoint m_trackStartPos;
-  double m_trackStartValue;
+  QPoint m_trackLastPos;
+  bool m_interactionEndOnLeave;
 };

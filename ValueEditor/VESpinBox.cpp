@@ -35,22 +35,13 @@ void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
 {
   if ( !m_adjusting )
   {
-    Qt::KeyboardModifiers keyboardModifiers =
-      QApplication::keyboardModifiers();
-
-    if ( keyboardModifiers & Qt::MetaModifier )
+    if ( QApplication::keyboardModifiers() & Qt::MetaModifier )
       return QLabel::mousePressEvent( event );
-
-    double adjuster;
-    if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-      adjuster = 0.1;
-    else
-      adjuster = 1.0;
 
     m_adjusting = true;
     adjustDisplay();
 
-    emit pressed( adjuster );
+    emit pressed();
 
     event->accept();
   }
@@ -76,6 +67,7 @@ VESpinBox::VESpinBox(
   : QWidget( parent )
   , m_value( initialValue )
   , m_trackCount( 0 )
+  , m_interactionEndOnLeave( false )
 {
   m_lineEdit = new VELineEdit( this );
   m_lineEdit->setText( QString::number( m_value, 'f', 2 ) ); 
@@ -86,8 +78,8 @@ VESpinBox::VESpinBox(
 
   m_button = new VESpinBox_Adjuster( this );
   connect(
-    m_button, SIGNAL(pressed(double)),
-    this, SLOT(onButtonPressed(double))
+    m_button, SIGNAL(pressed()),
+    this, SLOT(onButtonPressed())
     );
   connect(
     m_button, SIGNAL(released()),
@@ -118,15 +110,13 @@ void VESpinBox::onLineEditTextModified( QString text )
   emit valueChanged( text.toDouble() );
 }
 
-void VESpinBox::onButtonPressed( double adjuster )
+void VESpinBox::onButtonPressed()
 {
   if ( m_trackCount++ == 0 )
   {
     setMouseTracking( true );
 
-    m_trackAdjuster = adjuster;
-    m_trackStartPos = QCursor::pos();
-    m_trackStartValue = m_value;
+    m_trackLastPos = QCursor::pos();
 
     QApplication::setOverrideCursor( QCursor( Qt::SizeVerCursor ) );
 
@@ -139,12 +129,10 @@ void VESpinBox::mouseMoveEvent( QMouseEvent *event )
   if ( m_trackCount > 0 )
   {
     QPoint trackPos = QCursor::pos();
-    int diff = -( trackPos.y() - m_trackStartPos.y() );
     int dpiY = logicalDpiY();
-    static const double minChangePerInch = 0.1;
-    double changePerInch = std::max( fabs( m_trackStartValue ), minChangePerInch );
-    double value = m_trackStartValue + changePerInch * m_trackAdjuster * double(diff) / double(dpiY);
-    setValue( QString::number( value, 'f', 2 ).toDouble() );
+    double diff = -( trackPos.y() - m_trackLastPos.y() ) * 600.0 / dpiY;
+    onDelta( diff );
+    m_trackLastPos = trackPos;
   }
 }
 
@@ -158,4 +146,45 @@ void VESpinBox::onButtonReleased()
     
     setMouseTracking( false );
   }    
+}
+
+void VESpinBox::wheelEvent( QWheelEvent *event )
+{
+  if ( !m_interactionEndOnLeave )
+  {
+    m_interactionEndOnLeave = true;
+
+    QApplication::setOverrideCursor( QCursor( Qt::SizeVerCursor ) );
+
+    emit interactionBegin();
+  }
+
+  onDelta( -event->delta() );
+
+  event->accept();
+}
+
+void VESpinBox::onDelta( double delta )
+{
+  static const double minChangePerStep = 0.01;
+  double changePerStep = std::max( fabs( m_value * 0.1 ), minChangePerStep );
+  double adjuster;
+  if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
+    adjuster = 0.1;
+  else
+    adjuster = 1.0;
+  double value = m_value + changePerStep * delta * adjuster / 120.0;
+  setValue( QString::number( value, 'f', 2 ).toDouble() );
+}
+
+void VESpinBox::leaveEvent( QEvent *event )
+{
+  if ( m_interactionEndOnLeave )
+  {
+    m_interactionEndOnLeave = false;
+
+    QApplication::restoreOverrideCursor();
+
+    emit interactionEnd( true );
+  }
 }
