@@ -28,6 +28,16 @@ VarModelItem::~VarModelItem()
 {
 }
 
+size_t VarModelItem::NumChildren() /**/
+{
+  return 0;
+}
+
+BaseModelItem* VarModelItem::GetChild( int childIndex )
+{
+  return NULL;
+}
+
 int VarModelItem::GetInOut()
 {
   // Even though we are not actually a port,

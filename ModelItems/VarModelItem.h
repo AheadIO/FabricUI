@@ -23,6 +23,9 @@ namespace FabricUI
         );
       ~VarModelItem();
 
+      virtual size_t NumChildren() /*override*/;
+      BaseModelItem* GetChild( int childIndex ) /*override*/;
+
       virtual int GetInOut() /*override*/;
 
       virtual QVariant GetValue() /*override*/;
