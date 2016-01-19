@@ -181,12 +181,12 @@ void ColorViewItem::updateMetadata( ItemMetadata* metaData )
 
   if (strcmp( dispType, "HSV" ) == 0)
   {
-    m_spec = QColor::Spec::Hsv;
+    m_spec = QColor::Hsv;
     m_specCombo->setCurrentIndex( IDX_HSV );
   }
   else
   {
-    m_spec = QColor::Spec::Rgb;
+    m_spec = QColor::Rgb;
     m_specCombo->setCurrentIndex( IDX_RGB );
   }
 }
@@ -224,14 +224,14 @@ void ColorViewItem::formatChanged( const QString& format )
   BaseModelItem* modelItem = GetModelItem();
   if (format == tr("HSV"))
   {
-    m_spec = QColor::Spec::Hsv;
+    m_spec = QColor::Hsv;
     if (modelItem != NULL)
       modelItem->SetMetadata( META_FORMAT, "HSV", 0 );
 
   }
   else
   {
-    m_spec = QColor::Spec::Rgb;
+    m_spec = QColor::Rgb;
     if (modelItem != NULL)
       modelItem->SetMetadata( META_FORMAT, "RGB", 0 );
   }
