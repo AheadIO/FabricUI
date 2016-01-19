@@ -18,7 +18,7 @@
 #include <QtGui/QStyleOption>
 
 VESpinBox_Adjuster::VESpinBox_Adjuster( QWidget *parent )
-  : QLabel( parent )
+  : QWidget( parent )
   , m_adjusting( false )
 {
   adjustDisplay();
@@ -26,31 +26,34 @@ VESpinBox_Adjuster::VESpinBox_Adjuster( QWidget *parent )
 
 void VESpinBox_Adjuster::adjustDisplay()
 {
-  if ( m_adjusting )
-  {
-    setPixmap( m_activePixmap );
-  }
-  else
-  {
-    setPixmap( m_inactivePixmap );
-  }
+  update();
 }
 
-void VESpinBox_Adjuster::resizeEvent( QResizeEvent * event )
+void VESpinBox_Adjuster::resizeEvent( QResizeEvent *event )
 {
-  static const QPixmap unscaledActivePixmap =
-    FabricUI::LoadPixmap( "spin_box_control_active.png" );
-  m_activePixmap =
-    unscaledActivePixmap.scaled( width(), height(), Qt::KeepAspectRatio );
+  QWidget::resizeEvent( event );
+}
 
-  static const QPixmap unscaledInactivePixmap =
-    FabricUI::LoadPixmap( "spin_box_control.png" );
-  m_inactivePixmap =
-    unscaledInactivePixmap.scaled( width(), height(), Qt::KeepAspectRatio );
+void VESpinBox_Adjuster::paintEvent( QPaintEvent *event )
+{
+  QPainter painter( this );
 
-  adjustDisplay();
+  int w = width();
+  int h = height();
 
-  QLabel::resizeEvent( event );
+  static const QBrush regularBrush( QColor( 104, 104, 104 ) );
+  static const QBrush adjustingBrush( QColor( 184, 184, 184 ) );
+
+  QPainterPath path;
+  path.moveTo( 1, (h*7+8)/16 );
+  path.lineTo( (w+1)/2, 1 );
+  path.lineTo( w - 1, (h*7+8)/16 );
+  path.moveTo( 1, (h*9+8)/16 );
+  path.lineTo( (w+1)/2, h - 1 );
+  path.lineTo( w - 1, (h*9+8)/16 );
+  painter.fillPath( path, m_adjusting? adjustingBrush: regularBrush );
+
+  event->accept();
 }
 
 void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
@@ -58,7 +61,7 @@ void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
   if ( !m_adjusting )
   {
     if ( QApplication::keyboardModifiers() & Qt::MetaModifier )
-      return QLabel::mousePressEvent( event );
+      return QWidget::mousePressEvent( event );
 
     m_adjusting = true;
     adjustDisplay();
@@ -108,12 +111,11 @@ VESpinBox::VESpinBox(
     this, SLOT(onButtonReleased())
     );
 
-  QHBoxLayout *layout = new QHBoxLayout;
+  QHBoxLayout *layout = new QHBoxLayout( this );
   layout->setContentsMargins( 0, 0, 0, 0 );
-  layout->setSpacing( 4 );
+  layout->setSpacing( 2 );
   layout->addWidget( m_lineEdit );
   layout->addWidget( m_button );
-  setLayout( layout );
 }
 
 void VESpinBox::setValue( double value )
@@ -151,11 +153,15 @@ void VESpinBox::onButtonPressed()
   }
 }
 
-void VESpinBox::resizeEvent( QResizeEvent * event )
+void VESpinBox::resizeEvent( QResizeEvent *event )
 {
-  m_button->resize( m_lineEdit->height() / 2, m_lineEdit->height() );
-  
   QWidget::resizeEvent( event );
+
+  int w = event->size().width();
+  int h = event->size().height();
+
+  m_lineEdit->setGeometry( 0, 0, w - h/2 - 2, h );
+  m_button->setGeometry( w - h/2, 1, h/2, h - 2 );
 }
 
 void VESpinBox::mouseMoveEvent( QMouseEvent *event )

@@ -9,7 +9,7 @@
 
 class VELineEdit;
 
-class VESpinBox_Adjuster : public QLabel
+class VESpinBox_Adjuster : public QWidget
 {
   Q_OBJECT
 
@@ -27,14 +27,13 @@ protected:
   void adjustDisplay();
 
   virtual void resizeEvent( QResizeEvent * event ) /*override*/;
+  virtual void paintEvent( QPaintEvent * event ) /*override*/;
   virtual void mousePressEvent( QMouseEvent *event ) /*override*/;
   virtual void mouseReleaseEvent( QMouseEvent *event ) /*override*/;
 
 private:
 
   bool m_adjusting;
-  QPixmap m_activePixmap;
-  QPixmap m_inactivePixmap;
 };
 
 class VESpinBox : public QWidget
