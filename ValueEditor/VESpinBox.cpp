@@ -6,6 +6,7 @@
 #include "VELineEdit.h"
 
 #include <algorithm>
+#include <FabricUI/Util/LoadPixmap.h>
 #include <math.h>
 #include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
@@ -26,9 +27,30 @@ VESpinBox_Adjuster::VESpinBox_Adjuster( QWidget *parent )
 void VESpinBox_Adjuster::adjustDisplay()
 {
   if ( m_adjusting )
-    setText("---");
+  {
+    setPixmap( m_activePixmap );
+  }
   else
-    setText("adj");
+  {
+    setPixmap( m_inactivePixmap );
+  }
+}
+
+void VESpinBox_Adjuster::resizeEvent( QResizeEvent * event )
+{
+  static const QPixmap unscaledActivePixmap =
+    FabricUI::LoadPixmap( "spin_box_control_active.png" );
+  m_activePixmap =
+    unscaledActivePixmap.scaled( width(), height(), Qt::KeepAspectRatio );
+
+  static const QPixmap unscaledInactivePixmap =
+    FabricUI::LoadPixmap( "spin_box_control.png" );
+  m_inactivePixmap =
+    unscaledInactivePixmap.scaled( width(), height(), Qt::KeepAspectRatio );
+
+  adjustDisplay();
+
+  QLabel::resizeEvent( event );
 }
 
 void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
@@ -88,6 +110,7 @@ VESpinBox::VESpinBox(
 
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->setSpacing( 4 );
   layout->addWidget( m_lineEdit );
   layout->addWidget( m_button );
   setLayout( layout );
@@ -126,6 +149,13 @@ void VESpinBox::onButtonPressed()
 
     emit interactionBegin();
   }
+}
+
+void VESpinBox::resizeEvent( QResizeEvent * event )
+{
+  m_button->resize( m_lineEdit->height() / 2, m_lineEdit->height() );
+  
+  QWidget::resizeEvent( event );
 }
 
 void VESpinBox::mouseMoveEvent( QMouseEvent *event )

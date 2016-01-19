@@ -131,7 +131,13 @@ uiFiles = installedHeaders
 if uiLibPrefix == 'ui':
   uiLib = env.Install(stageDir.Dir('lib'), uiLib)
   uiFiles.append(uiLib)
-  icons = env.Install(stageDir.srcnode().Dir('Resources').Dir('Icons'), Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')))
+  icons = env.Install(
+    stageDir.srcnode().Dir('Resources').Dir('Icons'),
+    [
+      Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')),
+      Glob(os.path.join(env.Dir('ValueEditor').Dir('images').srcnode().abspath, '*.png')),
+      ]
+    )
   env.Depends(uiLib, icons)
 
 if buildOS == 'Windows':
