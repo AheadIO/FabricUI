@@ -120,7 +120,12 @@ void BaseViewItem::setWidgetsOnTreeItem(
   )
 {
   treeWidgetItem->setText( 0, m_name );
-  treeWidgetItem->setFlags( Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable );
+
+  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  if (m_modelItem != NULL && m_modelItem->canRenameItem())
+    flags |= Qt::ItemIsEditable;
+
+  treeWidgetItem->setFlags( flags );
 
   QWidget* myWidget = getWidget();
 
