@@ -237,6 +237,7 @@ void VESpinBox::adjust()
         fabs( m_startValue * 0.1 )
         )
       );
+
   double velocity;
   if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
   {
@@ -250,6 +251,13 @@ void VESpinBox::adjust()
     QApplication::changeOverrideCursor( cursor );
     velocity = 1.0;
   }
+
+  if ( m_trackCount > 0 )
+  {
+    velocity *=
+      exp( ( QCursor::pos().x() - m_trackStartPos.x() ) / logicalDpiX() );
+  }
+
   double value =
     m_startValue + changePerStep * m_adjustAmount * velocity / 120.0;
   setValue( QString::number( value, 'f', 2 ).toDouble() );
