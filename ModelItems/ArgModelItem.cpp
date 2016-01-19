@@ -58,6 +58,7 @@ QVariant ArgModelItem::GetValue()
     return QVariant();
 }
 
+
 void ArgModelItem::SetValue(
   QVariant var,
   bool commit,

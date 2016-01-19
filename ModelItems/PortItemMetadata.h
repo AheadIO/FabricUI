@@ -34,7 +34,18 @@ namespace FabricUI
             return "1";
         }
 
-        return const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
+        const char* res = const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );
+        
+        if (res == NULL || strcmp( res, "" ) == 0)
+        {
+          // If we don't have a result, we check the same port on the executable
+          size_t split = m_path.rfind( '.' );
+          std::string nodeName = m_path.substr( 0, split );
+          std::string portName = m_path.substr( split + 1 );
+          FabricCore::DFGExec subExec = m_exec.getSubExec( nodeName.c_str() );
+          return subExec.getExecPortMetadata( portName.c_str(), key );
+        }
+        return NULL;
       }
 
       virtual int getSInt32( const char* key ) const /*override*/
@@ -51,12 +62,14 @@ namespace FabricUI
 
       virtual const FTL::JSONObject* getDict( const char* key ) const /*override*/
       {
-        throw std::logic_error( "The method or operation is not implemented." );
+        //throw std::logic_error( "The method or operation is not implemented." );
+        return NULL; // it seems metadata is not stored in JSON format after all
       }
 
       virtual const FTL::JSONArray* getArray( const char* key ) const /*override*/
       {
-        throw std::logic_error( "The method or operation is not implemented." );
+        //throw std::logic_error( "The method or operation is not implemented." );
+        return NULL;
       }
 
       virtual bool has( const char* key ) const /*override*/
