@@ -18,6 +18,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item );
+QTreeWidgetItem* FindChild( QTreeWidgetItem* parent, QString name );
 QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent );
 QTreeWidgetItem* GetOutNode( QTreeWidgetItem* parent );
 
@@ -78,6 +79,17 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
         parent = GetOutNode( parent );
       }
     }
+
+    // If a child with this name already exists, overwrite it
+    {
+      QTreeWidgetItem* existingChild = FindChild( parent, viewItem->getName() );
+      if (existingChild != NULL)
+      {
+        delete existingChild;
+        existingChild = NULL;
+      }
+    }
+
     if (index < 0 || index >= parent->childCount())
     {
       parent->addChild( treeWidgetItem );
@@ -187,20 +199,11 @@ void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, c
   QTreeWidgetItem* parentItem = findTreeWidget( parent );
   if (parentItem != NULL)
   {
-    // Check first it doesn't already exist.  We get
-    // notifications of Insert when opening new graphs
-    QString qname( name );
-    for (int i = 0; i < parentItem->childCount(); i++)
-    {
-      QTreeWidgetItem* item = parentItem->child( i );
-      if (item && item->text(0) == qname )
-        return;
-    }
     parentItem->setChildIndicatorPolicy( QTreeWidgetItem::ShowIndicator );
     if (parentItem->isExpanded())
     {
       // Insert new child in the appropriate place
-      BaseModelItem* newItem = parent->GetChild( qname );
+      BaseModelItem* newItem = parent->GetChild( name );
       BaseViewItem* newView =
         ViewItemFactory::GetInstance()->CreateViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
@@ -251,7 +254,6 @@ void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*ne
         ViewItemFactory::GetInstance()->CreateViewItem( item );
       createTreeWidgetItem( newView, parentItem, index );
     }
-    delete oldWidget;
   }
 }
 
@@ -395,6 +397,17 @@ BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item )
   return GetFirstModelItem( parent );
 }
 
+QTreeWidgetItem* FindChild( QTreeWidgetItem* parent, QString name )
+{
+  for (int i = 0; i < parent->childCount(); i++)
+  {
+    QTreeWidgetItem* item = parent->child( i );
+    if (item && item->text( 0 ) == name)
+      return item;
+  }
+  return NULL;
+}
+
 QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent )
 {
   if (parent == NULL)
@@ -403,13 +416,7 @@ QTreeWidgetItem* FindOutNode( QTreeWidgetItem* parent )
   if (parent->text(0) == s_outNodeName)
     return parent;
 
-  for (int i = 0; i < parent->childCount(); i++)
-  {
-    QTreeWidgetItem* child = parent->child( i );
-    if (child->text(0) == s_outNodeName)
-      return child;
-  }
-  return NULL;
+  return FindChild( parent, s_outNodeName );
 }
 
 QTreeWidgetItem* GetOutNode( QTreeWidgetItem* parent )

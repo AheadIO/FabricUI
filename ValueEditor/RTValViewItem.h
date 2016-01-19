@@ -33,6 +33,9 @@ public:
 	RTValViewItem(QString name, const FabricCore::RTVal& value );
 	~RTValViewItem();
 
+  virtual bool hasChildren() const /*override*/;
+
+
   virtual QWidget *getWidget() /*override*/;
 
   virtual void onModelValueChanged( QVariant const &value ) /*override*/;

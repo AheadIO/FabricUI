@@ -41,6 +41,11 @@ RTValViewItem::~RTValViewItem()
 {
 }
 
+bool RTValViewItem::hasChildren() const
+{
+  return m_isEditableType && BaseComplexViewItem::hasChildren();
+}
+
 QWidget *RTValViewItem::getWidget()
 {
   return m_widget;
