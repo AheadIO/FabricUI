@@ -19,6 +19,7 @@
 #include "Vec2ViewItem.h"
 #include "Vec3ViewItem.h"
 #include "Vec4ViewItem.h"
+#include "ComboBoxViewItem.h"
 #include "ViewItemFactory.h"
 
 ViewItemFactory::ViewItemFactory()
@@ -89,6 +90,7 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
     RegisterCreator( Vec2ViewItem::CreateItem, Vec2ViewItem::Priority );
     RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
     RegisterCreator( Vec4ViewItem::CreateItem, Vec4ViewItem::Priority );
+    RegisterCreator( ComboBoxViewItem::CreateItem, ComboBoxViewItem::Priority );
 
      // We put the QVariantRTVal bridge injection
     // code here, as before we build a view it won't
