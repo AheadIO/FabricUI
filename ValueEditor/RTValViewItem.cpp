@@ -134,15 +134,14 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 void RTValViewItem::UpdateWidget()
 {
   QString str;
-  str = m_val.getTypeNameCStr();
   if ( m_isEditableType )
   {
     FabricCore::RTVal desc = m_val.getDesc();
-    str += ": ";
-    str += desc.getStringCString();
+    str = desc.getStringCString();
   }
   else if ( m_val.isObject() && m_val.isNullObject() )
   {
+    str = m_val.getTypeNameCStr();
     str += ": null";
   }
   m_widget->setText( str );
