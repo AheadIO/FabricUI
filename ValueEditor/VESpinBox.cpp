@@ -118,13 +118,31 @@ VESpinBox::VESpinBox(
   layout->addWidget( m_button );
 }
 
-void VESpinBox::setValue( double value )
+QString VESpinBox::StringForValue( double value, double delta )
+{
+  double absDelta = fabs( delta );
+  int precision;
+  if ( absDelta < 0.001 || absDelta >= 10000.0 )
+    precision = 6;
+  else if ( absDelta < 0.01 || absDelta >= 1000.0 )
+    precision = 5;
+  else if ( absDelta < 0.1 || absDelta >= 100.0 )
+    precision = 4;
+  else if ( absDelta < 1.0 || absDelta >= 10.0 )
+    precision = 3;
+  else
+    precision = 2;
+
+  return QString::number( value, 'g', precision );
+}
+
+void VESpinBox::setValue( double value, double delta )
 {
   if ( m_value != value )
   {
     m_value = value;
 
-    m_lineEdit->setText( QString::number( m_value, 'f', 2 ) ); 
+    m_lineEdit->setText( StringForValue( m_value, delta ) );
 
     emit valueChanged( m_value );
   }
@@ -258,9 +276,11 @@ void VESpinBox::adjust()
       exp( ( QCursor::pos().x() - m_trackStartPos.x() ) / logicalDpiX() );
   }
 
-  double value =
-    m_startValue + changePerStep * m_adjustAmount * velocity / 120.0;
-  setValue( QString::number( value, 'f', 2 ).toDouble() );
+  double delta = changePerStep * m_adjustAmount * velocity / 120.0;
+
+  double value = m_startValue + delta;
+
+  setValue( StringForValue( value, delta ).toDouble(), delta );
 }
 
 void VESpinBox::leaveEvent( QEvent *event )

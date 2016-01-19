@@ -44,7 +44,7 @@ public:
 
   VESpinBox( double initialValue, QWidget *parent = 0 );
 
-  void setValue( double value );
+  void setValue( double value, double delta = 0.0 );
 
 signals:
 
@@ -55,6 +55,7 @@ signals:
 protected:
 
   void adjust();
+  static QString StringForValue( double value, double delta = 0.0 );
 
   virtual void resizeEvent( QResizeEvent * event ) /*override*/;
   virtual void keyPressEvent( QKeyEvent * event ) /*override*/;
