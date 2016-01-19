@@ -75,7 +75,7 @@ namespace FabricUI
     /// Converts a string into a number.
     /// \param s The string to check
     template<typename T> T ToNum(const std::string &number) {
-      T value;
+      T value = 0;
       if(IsNumber(number)) {
         std::stringstream stream(number);
         stream >> value;

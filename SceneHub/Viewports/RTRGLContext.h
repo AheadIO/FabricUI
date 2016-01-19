@@ -12,8 +12,8 @@ namespace FabricUI
 {
   namespace Viewports
   {
-    #ifdef __APPLE__
-    void *TryFormat(
+#ifdef __APPLE__
+    extern "C" void *TryFormatImpl(
       bool doubleBuffer,
       bool stereo,
       bool alpha,
@@ -30,7 +30,7 @@ namespace FabricUI
 
     inline void *TryFormat( QGLFormat const &qglFormat )
     {
-      return TryFormat(
+      return TryFormatImpl(
         qglFormat.doubleBuffer(),
         qglFormat.stereo(),
         qglFormat.alpha(),
@@ -45,7 +45,7 @@ namespace FabricUI
         qglFormat.samples()
         );
     }
-    #endif
+#endif
 
     class RTRGLContext : public QGLContext
     {
