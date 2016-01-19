@@ -11,6 +11,7 @@
 #include <FabricCore.h>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
+#include <QtGui/QHeaderView>
 
 #include <assert.h>
 #include "../Util/QTSignalBlocker.h"
@@ -50,6 +51,7 @@ VETreeWidget::VETreeWidget( )
     );
 
   setObjectName( "valueEditor" );
+  header()->close();
 
 }
 
@@ -111,6 +113,9 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
   // Connect a signal allowing the item to rebuild its children
   connect( viewItem, SIGNAL( rebuildChildren( BaseViewItem* ) ),
            this, SLOT( onViewItemChildrenRebuild( BaseViewItem* ) ) );
+
+  // Ensure our columns are sized to fit our names
+  resizeColumnToContents( 0 );
 
   return treeWidgetItem;
 }
@@ -232,6 +237,8 @@ void VETreeWidget::onModelItemRenamed( BaseModelItem* item )
       FabricUI::Util::QTSignalBlocker block( this );
       viewItem->onRenamed( treeItem );
     }
+    // Ensure our columns are sized to fit our names
+    resizeColumnToContents( 0 );
   }
 }
 
