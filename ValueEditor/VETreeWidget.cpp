@@ -331,6 +331,8 @@ void VETreeWidget::onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem )
     }
     sortItems( 0, Qt::AscendingOrder );
   }
+  else
+    this->resizeColumnToContents( 0 );
 }
 
 void VETreeWidget::onTreeWidgetItemCollapsed( QTreeWidgetItem *_treeWidgetItem )
@@ -349,6 +351,7 @@ void VETreeWidget::onTreeWidgetItemCollapsed( QTreeWidgetItem *_treeWidgetItem )
       delete childTreeWidgetItem;
     }
   }
+  this->resizeColumnToContents( 0 );
 }
 
 void VETreeWidget::prepareMenu( const QPoint& pt )
