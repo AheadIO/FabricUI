@@ -15,9 +15,10 @@
 
 Vec2ViewItem::Vec2ViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseComplexViewItem( name )
+  : BaseComplexViewItem( name, metadata )
   , m_vec2dValue( value.value<QVector2D>() )
 {
   m_widget = new QWidget;
@@ -139,11 +140,11 @@ void Vec2ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
 BaseViewItem* Vec2ViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata*
+  ItemMetadata* metadata
   )
 {
   if ( RTVariant::isType<QVector2D>( value ) )
-    return new Vec2ViewItem( name, value );
+    return new Vec2ViewItem( name, value, metadata );
   else
     return 0;
 }

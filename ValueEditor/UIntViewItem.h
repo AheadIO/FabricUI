@@ -24,7 +24,8 @@ public:
 
   UIntViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
   ~UIntViewItem();
 

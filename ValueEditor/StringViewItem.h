@@ -24,7 +24,8 @@ public:
 
 	StringViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
 	~StringViewItem();
 

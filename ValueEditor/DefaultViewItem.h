@@ -27,7 +27,8 @@ public:
 
 	DefaultViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
 	~DefaultViewItem();
 

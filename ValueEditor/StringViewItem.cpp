@@ -16,9 +16,10 @@
 
 StringViewItem::StringViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem(name)
+  : BaseViewItem( name, metadata )
 {
   m_widget = new QWidget;
   m_widget->setObjectName( "StringItem" );
@@ -108,7 +109,7 @@ BaseViewItem* StringViewItem::CreateItem(
 {
   if (RTVariant::isType<QString>(value))
   {
-    return new StringViewItem( name, value );
+    return new StringViewItem( name, value, metaData );
   }
   return 0;
 }

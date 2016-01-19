@@ -32,6 +32,8 @@ namespace FabricUI
           // Override disabled for connected ports
           if ( m_exec.hasSrcPort( m_path.c_str() ) )
             return "1";
+          if (m_exec.editWouldSplitFromPreset())
+            return "1";
         }
 
         const char* res = const_cast<FabricCore::DFGExec&>(m_exec).getNodePortMetadata( m_path.c_str(), key );

@@ -11,9 +11,10 @@
 
 BooleanCheckBoxViewItem::BooleanCheckBoxViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem( name )
+  : BaseViewItem( name, metadata )
 {
   m_checkBox = new QCheckBox;
   connect(
@@ -48,13 +49,13 @@ void BooleanCheckBoxViewItem::onStateChanged( int value )
 BaseViewItem *BooleanCheckBoxViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* metaData
+  ItemMetadata* metadata
   )
 {
   if (RTVariant::isType<bool>(value))
   {
     BooleanCheckBoxViewItem* item =
-      new BooleanCheckBoxViewItem( name, value );
+      new BooleanCheckBoxViewItem( name, value, metadata );
     return item;
   }
   return NULL;

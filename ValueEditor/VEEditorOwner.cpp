@@ -12,6 +12,7 @@
 
 using namespace FabricUI;
 using namespace ValueEditor;
+using namespace ModelItems;
 
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   : m_owner( owner )
@@ -156,26 +157,50 @@ FabricUI::DFG::DFGController * VEEditorOwner::getDFGController()
 
 void VEEditorOwner::onSidePanelInspectRequested()
 {
+  delete m_modelRoot;
+  m_modelRoot = NULL;
+
   FabricUI::DFG::DFGController *dfgController =
     getUIController();
 
-  FTL::CStrRef path = dfgController->getExecPath();
+  FabricCore::DFGBinding binding = dfgController->getBinding();
+  std::string path = dfgController->getExecPath();
   if (path.empty())
   {
-    FabricCore::DFGBinding binding = dfgController->getBinding();
+    
     m_modelRoot =
       new FabricUI::ModelItems::BindingModelItem(
         dfgController->getCmdHandler(),
         binding
         );
-    emit replaceModelRoot( m_modelRoot );
   }
   else
   {
-    FabricCore::DFGExec exec = dfgController->getExec();
-    m_modelRoot = new FabricUI::ModelItems::PresetModelItem( exec );
-    emit replaceModelRoot( m_modelRoot );
+    // We always show the instantiated values (ie, what
+    // we would see if we were outside this node and clicked on it)
+    FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
+      dfgController->getCmdHandler();
+    FabricCore::DFGBinding &binding = dfgController->getBinding();
+    FabricCore::DFGExec &exec = binding.getExec();
+    std::string nodeName = SplitLast( path );
+
+    if (!path.empty())
+      exec = exec.getSubExec( path.c_str() );
+
+    m_modelRoot =
+      new FabricUI::ModelItems::NodeModelItem(
+        dfgUICmdHandler,
+        binding,
+        path,
+        exec,
+        nodeName,
+        QString::fromUtf8( nodeName.data(), nodeName.size() )
+        );
+
+    //FabricCore::DFGExec exec = binding->getExec()->getSubExec(path.c_str());
+    //m_modelRoot = new FabricUI::ModelItems::NodeModelItem( exec );
   }
+  emit replaceModelRoot( m_modelRoot );
 }
 
 void VEEditorOwner::onNodeInspectRequested(
@@ -424,13 +449,15 @@ void VEEditorOwner::onPortsConnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort
 {
   if (m_modelRoot != NULL)
   {
-    FTL::CStrRef::Split split = dstPort.rsplit( '.' );
+    std::string path = dstPort.c_str();
+    std::string portName = SplitLast( path );
 
-    if (m_modelRoot->matchesPath( split.first, "" ))
+    // Tested vs Node, 
+    if (m_modelRoot->matchesPath( "", path.c_str() ))
     {
-      BaseModelItem* pChild = m_modelRoot->GetChild( split.second.c_str(), false );
-      if (pChild != NULL)
-        emit modelItemTypeChange( pChild, "" );
+      BaseModelItem* destChild = m_modelRoot->GetChild( portName.c_str(), false );
+      if (destChild != NULL)
+        emit modelItemTypeChange( destChild, "" );
     }
   }
 }
@@ -439,11 +466,12 @@ void VEEditorOwner::onPortsDisconnected( FTL::CStrRef srcPort, FTL::CStrRef dstP
 {
   if (m_modelRoot != NULL)
   {
-    FTL::CStrRef::Split split = dstPort.rsplit( '.' );
+    std::string path = dstPort.c_str();
+    std::string portName = SplitLast( path );
 
-    if (m_modelRoot->matchesPath( split.first, "" ))
+    if (m_modelRoot->matchesPath( "", path.c_str() ))
     {
-      BaseModelItem* pChild = m_modelRoot->GetChild( split.second.c_str(), false );
+      BaseModelItem* pChild = m_modelRoot->GetChild( portName.c_str(), false );
       if (pChild != NULL)
         emit modelItemTypeChange( pChild, "" );
     }

@@ -57,7 +57,6 @@ protected:
 
 public:
 
-  BaseViewItem( QString const &name );
   BaseViewItem( QString const &name, ItemMetadata* metadata );
 
   // Returns the number of live ViewItems

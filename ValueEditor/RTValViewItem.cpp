@@ -9,8 +9,10 @@
 #include <assert.h>
 #include <QtGui/QLabel>
 
-RTValViewItem::RTValViewItem( QString name, const FabricCore::RTVal& value )
-  : BaseComplexViewItem( name )
+RTValViewItem::RTValViewItem( QString name, 
+                              const FabricCore::RTVal& value,
+                              ItemMetadata* metadata )
+  : BaseComplexViewItem( name, metadata )
   , m_val(value)
   , m_widget(new QLabel())
 {
@@ -147,7 +149,7 @@ void RTValViewItem::UpdateWidget()
 BaseViewItem* RTValViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metadata
   )
 {
   if (value.type() != QVariant::UserType)
@@ -158,7 +160,7 @@ BaseViewItem* RTValViewItem::CreateItem(
   FabricCore::RTVal rtVal = value.value<FabricCore::RTVal>();
   if ( rtVal.isValid() )
   {
-    RTValViewItem* pViewItem = new RTValViewItem( QString( name ), rtVal );
+    RTValViewItem* pViewItem = new RTValViewItem( QString( name ), rtVal, metadata );
     return pViewItem;
   }
   return NULL;

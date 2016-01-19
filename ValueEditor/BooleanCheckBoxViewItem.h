@@ -27,7 +27,8 @@ public:
 
   BooleanCheckBoxViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
   ~BooleanCheckBoxViewItem();
 

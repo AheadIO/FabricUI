@@ -11,9 +11,10 @@
 
 DefaultViewItem::DefaultViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem( name )
+  : BaseViewItem( name, metadata )
 {
   m_label = new QLabel;
 
@@ -43,10 +44,10 @@ void DefaultViewItem::onModelValueChanged( QVariant const &value )
 BaseViewItem* DefaultViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metadata
   )
 {
-  return new DefaultViewItem( name, value );
+  return new DefaultViewItem( name, value, metadata );
 }
 
 const int DefaultViewItem::Priority = 0;

@@ -14,6 +14,17 @@ namespace FabricUI
 
   namespace ModelItems
   {
+
+    // Split last word after '.' and return it, remove from path
+    // Given "Node.Node.Port", it will return "Port", 
+    // and path will be "Node.Node".
+    extern std::string SplitLast( std::string& path );
+
+    // Split first word before '.' and return it, remove from path
+    // Given "Node.Node.Port", it will return "Node", 
+    // and path will be "Node.Port".
+    extern std::string SplitFirst( std::string& path );
+
     typedef std::vector<BaseModelItem*> ChildVec;
     class RootModelItem : public BaseModelItem
     {

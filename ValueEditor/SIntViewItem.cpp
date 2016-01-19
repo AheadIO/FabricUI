@@ -10,9 +10,10 @@
 
 SIntViewItem::SIntViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem(name)
+  : BaseViewItem( name, metadata )
 {
   m_spinner = new QSpinBox;
   m_spinner->setMinimum( INT_MIN );
@@ -62,13 +63,13 @@ void SIntViewItem::OnEditFinished()
 BaseViewItem* SIntViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metadata
   )
 {
   if ( RTVariant::isType<int>(value)
     || RTVariant::isType<long long>(value) )
   {
-    return new SIntViewItem( name, value );
+    return new SIntViewItem( name, value, metadata );
   }
   return 0;
 }

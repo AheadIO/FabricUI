@@ -113,3 +113,35 @@ bool FabricUI::ModelItems::RootModelItem::hasDefault()
 void FabricUI::ModelItems::RootModelItem::resetToDefault()
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+extern std::string FabricUI::ModelItems::SplitLast( std::string& path )
+{
+  size_t split = path.rfind( '.' );
+  std::string res = path.substr( split + 1 );
+  if (split == std::string::npos)
+  {
+    path.clear();
+  }
+  else
+  {
+    path = path.substr( 0, split );
+  }
+  return res;
+}
+
+extern std::string FabricUI::ModelItems::SplitFirst( std::string& path )
+{
+  size_t split = path.find( '.' );
+  std::string res = path.substr( 0, split + 1 );
+  if (split == std::string::npos)
+  {
+    path.clear();
+  }
+  else
+  {
+    path = path.substr( split, 0 );
+  }
+  return res;
+}

@@ -10,9 +10,10 @@
 
 UIntViewItem::UIntViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem(name)
+  : BaseViewItem( name, metadata )
 {
   m_spinner = new QSpinBox;
   m_spinner->setMinimum( 0 );
@@ -62,13 +63,13 @@ void UIntViewItem::OnEditFinished()
 BaseViewItem* UIntViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metadata
   )
 {
   if ( RTVariant::isType<unsigned>(value)
     || RTVariant::isType<unsigned long long>(value) )
   {
-    return new UIntViewItem( name, value );
+    return new UIntViewItem( name, value, metadata );
   }
   return 0;
 }

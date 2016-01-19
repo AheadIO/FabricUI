@@ -35,7 +35,8 @@ public:
 
   Vec2ViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
   ~Vec2ViewItem();
 

@@ -15,9 +15,10 @@
 
 Vec4ViewItem::Vec4ViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseComplexViewItem( name )
+  : BaseComplexViewItem( name, metadata )
   , m_vec4dValue( value.value<QVector4D>() )
 {
   m_widget = new QWidget;
@@ -201,11 +202,11 @@ void Vec4ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
 BaseViewItem* Vec4ViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata*
+  ItemMetadata* metadata
   )
 {
   if ( RTVariant::isType<QVector4D>( value ) )
-    return new Vec4ViewItem( name, value );
+    return new Vec4ViewItem( name, value, metadata );
   else
     return 0;
 }

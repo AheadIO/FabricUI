@@ -36,7 +36,8 @@ public:
 
 	Vec3ViewItem(
 		QString const &name,
-	  QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
 	  );
 	~Vec3ViewItem();
 

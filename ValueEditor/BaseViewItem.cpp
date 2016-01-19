@@ -13,12 +13,6 @@
 #include <QtGui/QTreeWidgetItem>
 
 static int s_nInstances = 0;
-BaseViewItem::BaseViewItem( QString const &name )
-  : m_name( name )
-{
-  s_nInstances++;
-}
-
 
 BaseViewItem::BaseViewItem( QString const &name, ItemMetadata* metadata )
   : m_name( name )

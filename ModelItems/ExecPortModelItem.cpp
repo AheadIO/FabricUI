@@ -85,7 +85,7 @@ QVariant ExecPortModelItem::GetValue()
   {
     printf( "[ERROR] %s", e->getDesc_cstr() );
   }
-  return QString( "|Invalid Port|" );
+  return QVariant();
 }
 
 void ExecPortModelItem::SetValue(

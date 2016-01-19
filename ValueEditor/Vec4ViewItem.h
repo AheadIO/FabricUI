@@ -37,7 +37,8 @@ public:
 
   Vec4ViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
   ~Vec4ViewItem();
 

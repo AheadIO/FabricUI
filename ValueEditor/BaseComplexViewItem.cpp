@@ -5,11 +5,6 @@
 #include "BaseComplexViewItem.h"
 #include "ViewItemChildRouter.h"
 
-BaseComplexViewItem::BaseComplexViewItem( QString const & name )
-  : BaseViewItem(name)
-{
-}
-
 
 BaseComplexViewItem::BaseComplexViewItem( QString const &name, ItemMetadata* metadata )
   : BaseViewItem(name, metadata)

@@ -30,7 +30,9 @@ public:
     );
   static const int Priority;
 
-	RTValViewItem(QString name, const FabricCore::RTVal& value );
+  RTValViewItem( QString name, 
+                 const FabricCore::RTVal& value,
+                 ItemMetadata* metadata );
 	~RTValViewItem();
 
   virtual bool hasChildren() const /*override*/;

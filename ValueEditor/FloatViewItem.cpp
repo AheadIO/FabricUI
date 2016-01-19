@@ -10,9 +10,10 @@
 
 FloatViewItem::FloatViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem(name)
+  : BaseViewItem( name, metadata )
 {
   m_spinBox = new VESpinBox( value.value<double>() );
   connect(
@@ -55,12 +56,12 @@ void FloatViewItem::onSpinBoxValueChanged( double value )
 BaseViewItem* FloatViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metadata
   )
 {
   if (RTVariant::isType<double>(value) || RTVariant::isType<float>(value))
   {
-    return new FloatViewItem( name, value );
+    return new FloatViewItem( name, value, metadata );
   }
   return 0;
 }

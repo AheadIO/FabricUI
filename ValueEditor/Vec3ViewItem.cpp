@@ -15,9 +15,10 @@
 
 Vec3ViewItem::Vec3ViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseComplexViewItem( name )
+  : BaseComplexViewItem( name, metadata )
   , m_vec3dValue( value.value<QVector3D>() )
 {
   m_widget = new QWidget;
@@ -170,11 +171,11 @@ void Vec3ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
 BaseViewItem* Vec3ViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata*
+  ItemMetadata* metadata
   )
 {
   if ( RTVariant::isType<QVector3D>( value ) )
-    return new Vec3ViewItem( name, value );
+    return new Vec3ViewItem( name, value, metadata );
   else
     return 0;
 }
