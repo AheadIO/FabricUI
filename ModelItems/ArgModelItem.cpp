@@ -117,6 +117,14 @@ ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
   return m_metadata; 
 }
 
+void FabricUI::ModelItems::ArgModelItem::SetMetadata(
+  const char* key, 
+  const char* value,
+  bool canUndo )
+{
+  m_rootExec.setExecPortMetadata( m_argName.c_str(), key, value, canUndo );
+}
+
 int FabricUI::ModelItems::ArgModelItem::GetInOut()
 {
   return m_rootExec.getExecPortType( m_argName.c_str() );

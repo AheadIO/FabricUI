@@ -119,11 +119,17 @@ public slots:
   
 signals:
 
+  // Triggered before a user interaction begins
   void interactionBegin();
 
   // When this items widgets change, it should emit this signal
   void viewValueChanged( QVariant value );
 
   void interactionEnd( bool accept );
+
+  // A view item may emit this signal to request 
+  // its children be rebuilt.  The item being passed
+  // should be the item who requires children rebuilt
+  void rebuildChildren(BaseViewItem* item);
 };
 

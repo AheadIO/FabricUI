@@ -77,6 +77,11 @@ ItemMetadata* PortModelItem::GetMetadata()
   return m_metadata;
 }
 
+void PortModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+{
+  m_exec.setNodePortMetadata( m_portPath.c_str(), key, value, canUndo );
+}
+
 int PortModelItem::GetInOut()
 {
   return m_exec.getNodePortType( m_portPath.c_str() );

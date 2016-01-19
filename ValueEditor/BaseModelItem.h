@@ -92,6 +92,13 @@ public:
 	// or as a percentage, or 
 	virtual ItemMetadata* GetMetadata();
 
+  // A view item may modify metadata to store UI
+  // hints in the scene graph.
+  // As a note - The metadata set here may not exactly
+  // match the metadata queried from GetMetadata
+  // due to way metadata is inherited
+  virtual void SetMetadata( const char* key, const char* val, bool canUndo ) = 0;
+
   // Implement this function to indicate which
   // direction the value is heading in this
   // NOTE: the returned value is equivalent to
@@ -149,7 +156,6 @@ signals:
 
   // This signal is fired whenever this modelitem
   // is being removed
-  // \param index The index of the item to be removed
   void removed( );
 
   // Fire this signal if the type of the data served

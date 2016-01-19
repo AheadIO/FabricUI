@@ -10,6 +10,7 @@
 
 class QPushButton;
 class ItemMetadata;
+class QComboBox;
 
 class ColorViewItem : public BaseComplexViewItem
 {
@@ -17,9 +18,15 @@ private:
 
   Q_OBJECT
 
+  QWidget* m_widget;
   QPushButton* m_button;
-  
+
   QColor m_color;
+  // We store the desired format of
+  // the color (HSV or RGB)
+  QColor::Spec m_spec;
+  QComboBox* m_specCombo;
+  
 
 public:
 
@@ -48,10 +55,14 @@ public:
 
   void deleteMe() { delete this; }
 
+  virtual void updateMetadata( ItemMetadata* metaData ) /*override*/;
+
 public slots:
 
   // Slot triggered when pushing background button
   void pickColor();
   void onColorChanged( QColor color );
   void onColorSelected( QColor color );
+
+  void formatChanged( const QString& format );
 };

@@ -63,6 +63,14 @@ void FabricUI::ModelItems::BindingModelItem::RenameItem( const char* newName )
   m_rootExec.setTitle( newName );
 }
 
+void FabricUI::ModelItems::BindingModelItem::SetMetadata( 
+  const char* key, 
+  const char* value, 
+  bool canUndo ) /**/
+{
+  m_rootExec.setMetadata( key, value, canUndo );
+}
+
 QVariant BindingModelItem::GetValue()
 {
   return QVariant();// GetName();

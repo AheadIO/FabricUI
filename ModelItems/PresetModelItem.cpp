@@ -57,6 +57,11 @@ ItemMetadata* PresetModelItem::GetMetadata()
   return NULL;
 }
 
+void FabricUI::ModelItems::PresetModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+{
+  // TODO: We need this?
+}
+
 QVariant PresetModelItem::GetValue()
 {
   return QVariant(); // QString( m_exec.getTitle() );

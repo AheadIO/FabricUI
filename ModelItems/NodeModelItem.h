@@ -57,6 +57,9 @@ class DFGUICmdHandler;
       virtual void OnItemRenamed( QString newName );
 
       virtual ItemMetadata* GetMetadata();
+      virtual void SetMetadata( const char* key, 
+                                const char* value, 
+                                bool canUndo )/*override*/;
 
       virtual QVariant GetValue();
 

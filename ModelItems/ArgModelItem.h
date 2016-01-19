@@ -48,6 +48,10 @@ class DFGUICmdHandler;
 
       virtual ItemMetadata* GetMetadata() /*override*/;
 
+      virtual void SetMetadata( const char* key, 
+                                const char* value,
+                                bool canUndo)/*override*/;
+
       virtual int GetInOut() /*override*/;
 
       virtual bool hasDefault() /*override*/;
