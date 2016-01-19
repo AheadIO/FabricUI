@@ -52,6 +52,10 @@ signals:
 
 protected:
 
+  void adjust();
+
+  virtual void keyPressEvent( QKeyEvent * event ) /*override*/;
+  virtual void keyReleaseEvent( QKeyEvent * event ) /*override*/;
   virtual void mouseMoveEvent( QMouseEvent *event ) /*override*/;
   virtual void wheelEvent( QWheelEvent *event ) /*override*/;
   virtual void leaveEvent( QEvent *event ) /*override*/;
@@ -63,14 +67,18 @@ protected slots:
   void onButtonPressed();
   void onButtonReleased();
 
-  void onDelta( double delta );
-
 private:
 
   double m_value;
+
   VELineEdit *m_lineEdit;
   VESpinBox_Adjuster *m_button;
+
+  double m_startValue;
+  double m_adjustAmount;
+
   int m_trackCount;
-  QPoint m_trackLastPos;
-  bool m_interactionEndOnLeave;
+
+  QPoint m_trackStartPos;
+  bool m_wheelActive;
 };
