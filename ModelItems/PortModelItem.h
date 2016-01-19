@@ -47,6 +47,7 @@ class DFGUICmdHandler;
       virtual BaseModelItem* GetChild( int i );
 
       virtual QString GetName();
+      virtual bool canRenameItem();
       virtual void RenameItem( const char* newName );
       virtual void OnItemRenamed( QString newName );
 

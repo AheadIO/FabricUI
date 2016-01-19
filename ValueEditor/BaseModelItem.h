@@ -77,7 +77,11 @@ public:
   virtual int ChildIndex( QString name );
 
 	// The name of this node
-	virtual QString GetName() = 0;
+  virtual QString GetName() = 0;
+  // Implement this function to prevent the system
+  // from allowing renames from the UI
+  // by default returns true
+  virtual bool canRenameItem() { return true; };
   // Implement this to rename the underlying data
   virtual void RenameItem( const char* newName ) = 0;
   // This function will be called when the name is

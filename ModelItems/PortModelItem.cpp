@@ -50,13 +50,24 @@ QString PortModelItem::GetName()
   return m_name;
 }
 
+bool PortModelItem::canRenameItem()
+{
+  size_t split = m_portPath.rfind( '.' );
+  std::string nodeName = m_portPath.substr( 0, split );
+  FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
+  return !nodeExec.editWouldSplitFromPreset();
+}
+
 void FabricUI::ModelItems::PortModelItem::RenameItem( const char* newName )
 {
-  //size_t split = m_portPath.rfind( '.' );
-  //std::string nodeName = m_portPath.substr( 0, split );
-  //std::string portName= m_portPath.substr( split + 1);
-  //FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
-  //const char* newPortName = nodeExec.renameExecPort( portName.c_str(), newName );
+  size_t split = m_portPath.rfind( '.' );
+  std::string nodeName = m_portPath.substr( 0, split );
+  std::string portName = m_portPath.substr( split + 1 );
+  FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
+  if (!nodeExec.editWouldSplitFromPreset())
+  {
+    nodeExec.renameExecPort( portName.c_str(), newName );
+  }
 }
 
 
