@@ -171,7 +171,7 @@ void VESpinBox::mouseMoveEvent( QMouseEvent *event )
     QPoint trackPos = QCursor::pos();
 
     m_adjustAmount =
-      ( trackPos.y() - m_trackStartPos.y() ) * 600.0 / logicalDpiY();
+      -( trackPos.y() - m_trackStartPos.y() ) * 600.0 / logicalDpiY();
     adjust();
   }
 }
