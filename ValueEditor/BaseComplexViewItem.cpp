@@ -10,6 +10,13 @@ BaseComplexViewItem::BaseComplexViewItem( QString const & name )
 {
 }
 
+
+BaseComplexViewItem::BaseComplexViewItem( QString const &name, ItemMetadata* metadata )
+  : BaseViewItem(name, metadata)
+{
+
+}
+
 BaseComplexViewItem::~BaseComplexViewItem()
 {
   for (int i = 0; i < m_routers.size(); i++)

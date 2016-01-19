@@ -27,7 +27,11 @@ private:
   QColor::Spec m_spec;
   QComboBox* m_specCombo;
   
-
+  // We need to keep an instance of the
+  // metadata we pass to our children (as they
+  // expect it to be valid for the extent of
+  // their lives
+  ViewItemMetadata m_childMetadata;
 public:
 
   static BaseViewItem *CreateItem(
@@ -37,7 +41,7 @@ public:
     );
   static const int Priority;
 
-  ColorViewItem( const QVariant& value, const QString& name );
+  ColorViewItem( const QVariant& value, const QString& name, ItemMetadata* metadata );
   ~ColorViewItem();
 
   virtual QWidget *getWidget() /*override*/;
@@ -55,7 +59,7 @@ public:
 
   void deleteMe() { delete this; }
 
-  virtual void updateMetadata( ItemMetadata* metaData ) /*override*/;
+  virtual void metadataChanged( );
 
 public slots:
 

@@ -49,7 +49,9 @@ const char* ViewItemMetadata::getString( const char* key ) const
   {
     return v.c_str();
   }
-  return m_parent->getString( key );
+  if (m_parent != NULL)
+    return m_parent->getString( key );
+  return NULL;
 }
 
 int ViewItemMetadata::getSInt32( const char* key ) const

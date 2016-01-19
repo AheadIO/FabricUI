@@ -26,17 +26,12 @@ namespace FabricUI
       ExecPortModelItem( const FabricCore::DFGExec& exec, QString portName );
       ~ExecPortModelItem();
 
-      // Every port has exactly 1 child - its RTValue
-      size_t NumChildren();
-
-      virtual BaseModelItem* GetChild( int i );
-
       virtual QString GetName();
       virtual void RenameItem( const char* name );
       virtual void OnItemRenamed( QString newName );
 
       virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadata( const char* key,
+      virtual void SetMetadataImp( const char* key,
                                 const char* value,
                                 bool canUndo )/*override*/;
 

@@ -38,10 +38,6 @@ void BooleanCheckBoxViewItem::onModelValueChanged( QVariant const &v )
   m_checkBox->setChecked( v.value<bool>() );
 }
 
-void BooleanCheckBoxViewItem::updateMetadata( ItemMetadata* metaData ) 
-{
-}
-
 void BooleanCheckBoxViewItem::onStateChanged( int value )
 {
   emit viewValueChanged( QVariant::fromValue( bool( value ) ) );
@@ -59,7 +55,6 @@ BaseViewItem *BooleanCheckBoxViewItem::CreateItem(
   {
     BooleanCheckBoxViewItem* item =
       new BooleanCheckBoxViewItem( name, value );
-    item->updateMetadata( metaData );
     return item;
   }
   return NULL;

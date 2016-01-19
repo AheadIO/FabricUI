@@ -36,8 +36,8 @@ namespace FabricUI
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
 
-      virtual BaseModelItem* GetChild( QString childName ) /*override*/;
-      virtual BaseModelItem* GetChild( int index ) /*override*/;
+      virtual BaseModelItem* GetChild( QString childName, bool doCreate = true ) /*override*/;
+      virtual BaseModelItem* GetChild( int index, bool doCreate = true ) /*override*/;
 
       virtual int ChildIndex( QString name ) /*override*/;
       

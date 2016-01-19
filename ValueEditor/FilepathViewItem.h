@@ -28,7 +28,8 @@ public:
 
 	FilepathViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
 	~FilepathViewItem();
 
@@ -38,7 +39,7 @@ public:
 
   void deleteMe() /*override*/ { delete this; }
 
-  void updateMetadata( ItemMetadata* metaData ) /*override*/;
+  void metadataChanged( );
 
 
 private:

@@ -9,25 +9,23 @@
 #include <QtGui/QComboBox>
 #include "QVariantRTVal.h"
 
-ComboBoxViewItem::ComboBoxViewItem( QString const &name )
-  : BaseViewItem(name)
+ComboBoxViewItem::ComboBoxViewItem( QString const &name, ItemMetadata* metadata )
+  : BaseViewItem(name, metadata)
   , m_comboBox(NULL)
 {
   m_comboBox = new QComboBox;
   connect( m_comboBox, SIGNAL( currentIndexChanged( const QString& ) ),
            this, SLOT( formatChanged( const QString& ) ) );
+  metadataChanged();
 }
 
 ComboBoxViewItem::~ComboBoxViewItem()
 {
 }
 
-void ComboBoxViewItem::updateMetadata( ItemMetadata* metaData )
+void ComboBoxViewItem::metadataChanged()
 {
-  if (metaData == NULL)
-    return;
-
-  const char* str = metaData->getString( "uiCombo" );
+  const char* str = m_metadata.getString( "uiCombo" );
   if (str == NULL)
     return;
 
@@ -84,7 +82,7 @@ BaseViewItem* ComboBoxViewItem::CreateItem(
        metaData->has("uiCombo") &&
        RTVariant::canConvert( value, QVariant::Int ) )
   {
-    return new ComboBoxViewItem( name );
+    return new ComboBoxViewItem( name, metaData );
   }
   return 0;
 }

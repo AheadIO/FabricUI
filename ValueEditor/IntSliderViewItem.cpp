@@ -11,9 +11,10 @@
 
 IntSliderViewItem::IntSliderViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem( name )
+  : BaseViewItem( name, metadata )
 {
   m_slider = new QSlider;
 
@@ -28,6 +29,7 @@ IntSliderViewItem::IntSliderViewItem(
     m_slider, SIGNAL( sliderReleased() ),
     this, SLOT( OnEditFinished() )
     );
+  metadataChanged();
   onModelValueChanged( value );
 }
 
@@ -45,13 +47,42 @@ void IntSliderViewItem::onModelValueChanged( QVariant const &value )
   m_slider->setValue( value.toInt() );
 }
 
-void IntSliderViewItem::updateMetadata( ItemMetadata* metaData ) 
+void IntSliderViewItem::metadataChanged()
 {
-  if (metaData->has( "min" ) && metaData->has( "max" ))
+  const char* str = m_metadata.getString( "uiRange" );
+  if (str == NULL)
+    return;
+
+  std::string rangeStr = str;
+  if (rangeStr.size() > 0)
   {
-    int min = metaData->getSInt32( "min" );
-    int max = metaData->getSInt32( "max" );
-    m_slider->setRange( min, max );
+    try
+    {
+      if (rangeStr[0] == '(')
+        rangeStr = rangeStr.substr( 1 );
+      if (rangeStr[rangeStr.size() - 1] == ')')
+        rangeStr = rangeStr.substr( 0, rangeStr.size() - 1 );
+
+      QStringList parts = QString( rangeStr.c_str() ).split( ',' );
+      if (parts.size() != 2)
+        return;
+
+      QString minStr = parts[0].trimmed();
+      QString maxStr = parts[1].trimmed();
+      bool ok;
+      int min = minStr.toInt( &ok );
+      if (ok)
+      {
+        int max = maxStr.toInt( &ok );
+        if (ok)
+          m_slider->setRange( min, max );
+      }
+    }
+    catch (...)
+    {
+      // No change on exception
+      printf( "[ERROR] Unknown error setting range on slider" );
+    }
   }
 }
 
@@ -83,11 +114,9 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   if ( RTVariant::isType<int>( value )
     || RTVariant::isType<unsigned>( value ) )
   {
-    // We can only create the UI if we have a defined Min & Max
-    if (metaData->has( "min" ) && metaData->has( "max" ))
+    if (metaData->has( "uiRange" ))
     {
-      IntSliderViewItem* item = new IntSliderViewItem( name, value );
-      item->updateMetadata( metaData );
+      IntSliderViewItem* item = new IntSliderViewItem( name, value, metaData );
       return item;
     }
   }

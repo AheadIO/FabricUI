@@ -24,7 +24,8 @@ public:
 
   FloatSliderViewItem(
     QString const &name,
-    QVariant const &value
+    QVariant const &value,
+    ItemMetadata* metadata
     );
   ~FloatSliderViewItem();
 
@@ -32,7 +33,7 @@ public:
 
   virtual void onModelValueChanged( QVariant const &value ) /*override*/;
 
-  virtual void updateMetadata( ItemMetadata* metaData );
+  virtual void metadataChanged( );
   
   void deleteMe() { delete this; }
 

@@ -22,13 +22,15 @@
 
 ColorViewItem::ColorViewItem(
   const QVariant& value,
-  const QString& name
+  const QString& name,
+  ItemMetadata* metadata
   )
-  : BaseComplexViewItem( name )
+  : BaseComplexViewItem( name, metadata )
   , m_widget( NULL )
   , m_button( NULL )
   , m_spec( QColor::Rgb )
   , m_specCombo( NULL )
+  , m_childMetadata (metadata)
 {
 
   m_widget = new QWidget;
@@ -54,6 +56,10 @@ ColorViewItem::ColorViewItem(
 
   layout->addWidget( m_specCombo );
 
+  // Our children are inherently limited to 0->1
+  m_childMetadata.setString( "uiRange", "(0.0, 1.0)" );
+
+  metadataChanged();
   onModelValueChanged( value );
 }
 
@@ -131,24 +137,18 @@ void ColorViewItem::onChildViewValueChanged( int index, QVariant value )
 void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 {
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
-
-  // Our children are inherently limited to 0->1
-  ViewItemMetadata metadata;
-  metadata.setFloat64( "min", 0.0 );
-  metadata.setFloat64( "max", 1.0 );
-
   BaseViewItem *children[3];
   switch (m_color.spec())
   {
     case QColor::Rgb:
-      children[0] = factory->CreateViewItem( "R", QVariant( m_color.redF() ), &metadata );
-      children[1] = factory->CreateViewItem( "G", QVariant( m_color.greenF() ), &metadata );
-      children[2] = factory->CreateViewItem( "B", QVariant( m_color.blueF() ), &metadata );
+      children[0] = factory->CreateViewItem( "R", QVariant( m_color.redF() ), &m_childMetadata );
+      children[1] = factory->CreateViewItem( "G", QVariant( m_color.greenF() ), &m_childMetadata );
+      children[2] = factory->CreateViewItem( "B", QVariant( m_color.blueF() ), &m_childMetadata );
       break;
     case QColor::Hsv:
-      children[0] = factory->CreateViewItem( "H", QVariant( m_color.hueF() ), &metadata );
-      children[1] = factory->CreateViewItem( "S", QVariant( m_color.saturationF() ), &metadata );
-      children[2] = factory->CreateViewItem( "V", QVariant( m_color.valueF() ), &metadata );
+      children[0] = factory->CreateViewItem( "H", QVariant( m_color.hueF() ), &m_childMetadata );
+      children[1] = factory->CreateViewItem( "S", QVariant( m_color.saturationF() ), &m_childMetadata );
+      children[2] = factory->CreateViewItem( "V", QVariant( m_color.valueF() ), &m_childMetadata );
       break;
     default:
       assert( !"Invalid Color" );
@@ -172,10 +172,9 @@ void ColorViewItem::setButtonColor( const QColor& color )
   }
 }
 
-void ColorViewItem::updateMetadata( ItemMetadata* metaData )
+void ColorViewItem::metadataChanged()
 {
-  BaseComplexViewItem::updateMetadata( metaData );
-  const char* dispType = metaData->getString( META_FORMAT );
+  const char* dispType = m_metadata.getString( META_FORMAT );
   if (dispType == NULL)
     return;
 
@@ -222,12 +221,13 @@ void ColorViewItem::onColorSelected( QColor color )
 void ColorViewItem::formatChanged( const QString& format )
 {
   BaseModelItem* modelItem = GetModelItem();
+  // Note: setting metadata will delete this
+  // class
   if (format == tr("HSV"))
   {
     m_spec = QColor::Hsv;
     if (modelItem != NULL)
       modelItem->SetMetadata( META_FORMAT, "HSV", 0 );
-
   }
   else
   {
@@ -249,12 +249,12 @@ void ColorViewItem::formatChanged( const QString& format )
 BaseViewItem *ColorViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metaData
   )
 {
   if (RTVariant::isType<QColor>(value))
   {
-    return new ColorViewItem( value, name );
+    return new ColorViewItem( value, name, metaData );
   }
   return 0;
 }

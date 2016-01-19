@@ -22,16 +22,6 @@ ArgModelItem::ArgModelItem(
 {
 }
 
-size_t ArgModelItem::NumChildren()
-{
-  return 0;
-}
-
-BaseModelItem* ArgModelItem::GetChild( int i )
-{
-  return NULL;
-}
-
 QString ArgModelItem::GetName()
 {
   return QString::fromUtf8( m_argName.data(), m_argName.size() );
@@ -118,7 +108,7 @@ ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
   return m_metadata; 
 }
 
-void FabricUI::ModelItems::ArgModelItem::SetMetadata(
+void FabricUI::ModelItems::ArgModelItem::SetMetadataImp(
   const char* key, 
   const char* value,
   bool canUndo )

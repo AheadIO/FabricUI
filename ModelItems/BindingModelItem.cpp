@@ -63,7 +63,7 @@ void FabricUI::ModelItems::BindingModelItem::RenameItem( const char* newName )
   m_rootExec.setTitle( newName );
 }
 
-void FabricUI::ModelItems::BindingModelItem::SetMetadata( 
+void FabricUI::ModelItems::BindingModelItem::SetMetadataImp( 
   const char* key, 
   const char* value, 
   bool canUndo ) /**/

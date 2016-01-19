@@ -36,7 +36,7 @@ namespace FabricUI
       virtual void RenameItem( const char* newName );
 
       virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadata( const char* key,
+      virtual void SetMetadataImp( const char* key,
                                 const char* value,
                                 bool canUndo )/*override*/;
 

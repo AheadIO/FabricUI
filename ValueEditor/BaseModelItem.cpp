@@ -8,6 +8,7 @@
 BaseModelItem::BaseModelItem()
   : m_interactionBracketCount( 0 )
   , m_modelValueChangedBracketCount( 0 )
+  , m_settingMetadata( false ) 
 {
 }
 
@@ -17,11 +18,21 @@ BaseModelItem::~BaseModelItem()
 }
 
 
-BaseModelItem* BaseModelItem::GetChild( QString childName )
+size_t BaseModelItem::NumChildren()
+{
+  return 0;
+}
+
+BaseModelItem* BaseModelItem::GetChild( QString childName, bool doCreate )
 {
   int res = ChildIndex( childName );
   if (res >= 0)
-    return GetChild( res );
+    return GetChild( res, doCreate );
+  return NULL;
+}
+
+BaseModelItem* BaseModelItem::GetChild( int index, bool doCreate )
+{
   return NULL;
 }
 
@@ -46,6 +57,19 @@ int BaseModelItem::ChildIndex( QString childName )
 ItemMetadata* BaseModelItem::GetMetadata()
 {
   return NULL;
+}
+
+
+void BaseModelItem::SetMetadata( const char* key, const char* val, bool canUndo )
+{
+  m_settingMetadata = true;
+  SetMetadataImp( key, val, canUndo );
+  m_settingMetadata = false;
+}
+
+bool BaseModelItem::SettingMetadata()
+{
+  return m_settingMetadata;
 }
 
 int BaseModelItem::GetInOut()

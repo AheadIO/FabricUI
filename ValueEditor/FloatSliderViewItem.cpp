@@ -12,9 +12,10 @@
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem( name )
+  : BaseViewItem( name, metadata )
 {
   m_slider = new DoubleSlider;
   onModelValueChanged( value );
@@ -31,6 +32,8 @@ FloatSliderViewItem::FloatSliderViewItem(
     m_slider, SIGNAL( sliderReleased() ),
     this, SLOT( onSliderReleased() )
     );
+  metadataChanged();
+  onModelValueChanged( value );
 }
 
 FloatSliderViewItem::~FloatSliderViewItem()
@@ -47,13 +50,42 @@ void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
   m_slider->setDoubleValue( v.value<double>() );
 }
 
-void FloatSliderViewItem::updateMetadata( ItemMetadata* metaData ) 
+void FloatSliderViewItem::metadataChanged()
 {
-  if (metaData->has( "min" ) && metaData->has( "max" ))
+  const char* str = m_metadata.getString( "uiRange" );
+  if (str == NULL)
+    return;
+
+  std::string rangeStr = str;
+  if (rangeStr.size() > 0)
   {
-    double min = metaData->getFloat64( "min" );
-    double max = metaData->getFloat64( "max" );
-    m_slider->setResolution( 100, min, max );
+    try 
+    {
+      if (rangeStr[0] == '(')
+        rangeStr = rangeStr.substr( 1 );
+      if (rangeStr[rangeStr.size() - 1] == ')')
+        rangeStr = rangeStr.substr( 0, rangeStr.size() - 1 );
+
+      QStringList parts = QString( rangeStr.c_str() ).split( ',' );
+      if (parts.size() != 2)
+        return;
+
+      QString minStr = parts[0].trimmed();
+      QString maxStr = parts[1].trimmed();
+      bool ok;
+      double min = minStr.toFloat(&ok);
+      if (ok)
+      {
+        double max = maxStr.toFloat(&ok);
+        if (ok)
+          m_slider->setResolution( 100, min, max );
+      }
+    }
+    catch (...)
+    {
+      // No change on exception
+      printf( "[ERROR] Unknown error setting range on slider" );
+    }
   }
 }
 
@@ -86,10 +118,9 @@ BaseViewItem* FloatSliderViewItem::CreateItem(
   if (RTVariant::isType<double>(value) || RTVariant::isType<float>(value))
   {
     // We can only create the UI if we have a defined Min & Max
-    if (metaData->has( "min" ) && metaData->has( "max" ))
+    if (metaData->has( "uiRange" ) )
     {
-      FloatSliderViewItem* item = new FloatSliderViewItem( name, value );
-      item->updateMetadata( metaData );
+      FloatSliderViewItem* item = new FloatSliderViewItem( name, value, metaData );
       return item;
     }
   }

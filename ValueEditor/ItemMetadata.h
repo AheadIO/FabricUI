@@ -25,11 +25,6 @@ public:
 
   // Returns 'true' if this key is present in our dictionary
   virtual bool has( const char* key ) const = 0;
-
-  // There are a few well-defined properties that will
-  // apply to most values, so we do expose specific functions for them
-  //virtual bool enabled() = 0;
-  // TODO - other commonly accessed properties?
 };
 
 /*

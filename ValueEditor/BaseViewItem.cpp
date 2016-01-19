@@ -20,6 +20,13 @@ BaseViewItem::BaseViewItem( QString const &name )
 }
 
 
+BaseViewItem::BaseViewItem( QString const &name, ItemMetadata* metadata )
+  : m_name( name )
+  , m_metadata(metadata)
+{
+  s_nInstances++;
+}
+
 void BaseViewItem::setBaseModelItem( BaseModelItem* item )
 {
   m_modelItem = item;
@@ -139,7 +146,6 @@ void BaseViewItem::setWidgetsOnTreeItem(
   treeWidget->setItemWidget( treeWidgetItem, 1, myWidget );
 }
 
-void BaseViewItem::updateMetadata( ItemMetadata* metaData )
+void BaseViewItem::metadataChanged()
 {
-  m_metadata.setParent( metaData );
 }

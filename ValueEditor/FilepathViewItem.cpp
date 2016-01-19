@@ -18,9 +18,10 @@ FabricCore::RTVal ToFilePath( FabricCore::RTVal& val, const QString& text );
 
 FilepathViewItem::FilepathViewItem(
   QString const &name,
-  QVariant const &value
+  QVariant const &value,
+  ItemMetadata* metadata
   )
-  : BaseViewItem(name)
+  : BaseViewItem( name, metadata )
   , m_val(value.value<FabricCore::RTVal>())
 {
   // Our widget shows the value and a "Browse" button
@@ -45,6 +46,7 @@ FilepathViewItem::FilepathViewItem(
   connect( 
     browseButton, SIGNAL( clicked() ), 
     this, SLOT( doBrowse() ) );
+  metadataChanged();
   onModelValueChanged( value );
 }
 
@@ -58,10 +60,10 @@ QWidget *FilepathViewItem::getWidget()
 }
 
 
-void FilepathViewItem::updateMetadata( ItemMetadata* metaData)
+void FilepathViewItem::metadataChanged()
 {
-  if (metaData->has( "filter" ))
-    m_filter = metaData->getString( "filter" );
+  if (m_metadata.has( "filter" ))
+    m_filter = m_metadata.getString( "filter" );
   else
     m_filter = QString();
 }
@@ -139,7 +141,7 @@ FabricCore::RTVal ToFilePath( FabricCore::RTVal& val, const QString& text )
 BaseViewItem *FilepathViewItem::CreateItem(
   QString const &name,
   QVariant const &value,
-  ItemMetadata* /*metaData*/
+  ItemMetadata* metaData
   )
 {
   if (isRTVal(value))
@@ -149,7 +151,7 @@ BaseViewItem *FilepathViewItem::CreateItem(
     {
       const char* rtype = val.getTypeNameCStr();
       if (strcmp( rtype, "FilePath" ) == 0)
-        return new FilepathViewItem( name, value );
+        return new FilepathViewItem( name, value, metaData );
     }
   }
   return NULL;

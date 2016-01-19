@@ -57,7 +57,7 @@ ItemMetadata* PresetModelItem::GetMetadata()
   return NULL;
 }
 
-void FabricUI::ModelItems::PresetModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+void FabricUI::ModelItems::PresetModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   // TODO: We need this?
 }

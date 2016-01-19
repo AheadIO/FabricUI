@@ -107,7 +107,6 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
     if ( BaseViewItem* viewItem = itr->createItemFn( name, value, metaData ) )
     {
       viewItem->setBaseModelItem( modelItem );
-      viewItem->updateMetadata( metaData );
       return viewItem;
     }
   }

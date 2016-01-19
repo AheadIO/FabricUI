@@ -21,10 +21,10 @@ public:
     );
   static const int Priority;
 
-  ComboBoxViewItem(QString const &name);
+  ComboBoxViewItem(QString const &name, ItemMetadata* metadata );
   ~ComboBoxViewItem();
 
-  virtual void updateMetadata( ItemMetadata* metaData ) /*override*/;
+  virtual void metadataChanged( );
 
   virtual QWidget *getWidget() /*override*/;
   

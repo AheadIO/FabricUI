@@ -2310,3 +2310,11 @@ void FabricUI::DFG::DFGController::emitExecPortRenamed( FTL::CStrRef oldNodeName
 {
   emit execPortRenamed( oldNodeName.c_str(), newNodeName.c_str() );
 }
+
+void DFGController::emitExecPortMetadataChanged(
+  const char* portName,
+  const char* key,
+  const char* value )
+{
+  emit execPortMetadataChanged( portName, key, value );
+}

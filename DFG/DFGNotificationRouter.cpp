@@ -1329,7 +1329,10 @@ void DFGNotificationRouter::onExecPortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
+  m_dfgController->emitExecPortMetadataChanged(
+    portName.c_str(),
+    key.c_str(),
+    value.c_str() );
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
@@ -1338,7 +1341,6 @@ void DFGNotificationRouter::onNodePortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onExecPortTypeChanged(

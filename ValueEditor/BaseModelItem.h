@@ -26,6 +26,12 @@ private:
   QVariant m_valueAtInteractionBegin;
 
   unsigned m_modelValueChangedBracketCount;
+  
+  // A state variable tracks whether this class
+  // us currently setting metadata.  Used to
+  // filter messages coming from the core from
+  // messages coming from the ValueEditor
+  bool m_settingMetadata;
 
   class ModelValueChangedBracket
   {
@@ -66,11 +72,11 @@ public:
 	virtual ~BaseModelItem();
 
 	// The model is a tree
-	virtual size_t NumChildren() = 0;
+	virtual size_t NumChildren();
 
-  // Children should generally be accessed by name or index
-  virtual BaseModelItem* GetChild( int childIndex ) = 0;
-  virtual BaseModelItem* GetChild( QString childName );
+  // Children can be accessed by name or index
+  virtual BaseModelItem* GetChild( int childIndex, bool doCreate = true );
+  virtual BaseModelItem* GetChild( QString childName, bool doCreate = true );
 
   // Enable switching between index/name
   virtual QString ChildName( int i );
@@ -101,7 +107,15 @@ public:
   // As a note - The metadata set here may not exactly
   // match the metadata queried from GetMetadata
   // due to way metadata is inherited
-  virtual void SetMetadata( const char* key, const char* val, bool canUndo ) = 0;
+  void SetMetadata( const char* key, const char* val, bool canUndo );
+
+  // Returns true if this class is currently setting
+  // metadata.  This is used to filter out Metadata
+  // changed notifications made by the core from ones
+  // we have initiated ourselves (the assumption is
+  // no changes initiated by the ValueEditor should
+  // be reflected back to it).
+  bool SettingMetadata(); 
 
   // Implement this function to indicate which
   // direction the value is heading in this
@@ -138,6 +152,12 @@ public:
     { emit removed(); }
   void emitDataTypeChanged( const char* newType )
     { emit dataTypeChanged( newType ); }
+
+private:
+
+  // A modelitem should implement this function to
+  // push metadata to the underlying class
+  virtual void SetMetadataImp( const char* key, const char* val, bool canUndo ) = 0;
 
 public slots:
 

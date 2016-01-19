@@ -16,7 +16,7 @@ RootModelItem::~RootModelItem()
 
 }
 
-BaseModelItem* RootModelItem::GetChild( QString childName )
+BaseModelItem* RootModelItem::GetChild( QString childName, bool doCreate )
 {
   int numExisting = m_children.size();
   for (int i = 0; i < numExisting; i++)
@@ -24,20 +24,23 @@ BaseModelItem* RootModelItem::GetChild( QString childName )
     if (m_children[i]->GetName() == childName)
       return m_children[i];
   }
-  // Ensure this child exists, we can't assume its valid
-  if (ChildIndex( childName ) >= 0)
+  if (doCreate)
   {
-    BaseModelItem* res = CreateChild( childName );
-    m_children.push_back( res );
-    return res;
+    // Ensure this child exists, we can't assume its valid
+    if (ChildIndex( childName ) >= 0)
+    {
+      BaseModelItem* res = CreateChild( childName );
+      m_children.push_back( res );
+      return res;
+    }
   }
   return NULL;
 }
 
-BaseModelItem* RootModelItem::GetChild( int index )
+BaseModelItem* RootModelItem::GetChild( int index, bool doCreate )
 {
   QString childName = ChildName(index);
-  return GetChild( childName );
+  return GetChild( childName, doCreate );
 }
 
 int RootModelItem::ChildIndex( QString name )

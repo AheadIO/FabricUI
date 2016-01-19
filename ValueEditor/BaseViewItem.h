@@ -58,6 +58,7 @@ protected:
 public:
 
   BaseViewItem( QString const &name );
+  BaseViewItem( QString const &name, ItemMetadata* metadata );
 
   // Returns the number of live ViewItems
   static int numInstances();
@@ -102,7 +103,7 @@ public:
   // Implement this function if ViewItem uses metadata to
   // set its behaviour.  This function may be called at any
   // time if the metadata associated with this item changes.
-  virtual void updateMetadata( ItemMetadata* metaData );
+  virtual void metadataChanged( );
 
   // This virtual function is called to release this object.
   // It is required for external parties to use this function

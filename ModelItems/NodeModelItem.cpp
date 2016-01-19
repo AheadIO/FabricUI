@@ -83,7 +83,7 @@ ItemMetadata* NodeModelItem::GetMetadata()
   return NULL;
 }
 
-void FabricUI::ModelItems::NodeModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+void FabricUI::ModelItems::NodeModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   // TODO: Do We need this?
 }

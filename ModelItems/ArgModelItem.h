@@ -35,11 +35,6 @@ class DFGUICmdHandler;
         FTL::StrRef argName
         );
 
-      // Every arg has exactly 1 child - its RTValue
-      virtual size_t NumChildren();
-
-      virtual BaseModelItem* GetChild( int i )/*override*/;
-
       virtual QString GetName()/*override*/;
       virtual void RenameItem( const char* name )/*override*/;
       virtual void OnItemRenamed( QString newName )/*override*/;
@@ -48,7 +43,7 @@ class DFGUICmdHandler;
 
       virtual ItemMetadata* GetMetadata() /*override*/;
 
-      virtual void SetMetadata( const char* key, 
+      virtual void SetMetadataImp( const char* key, 
                                 const char* value,
                                 bool canUndo)/*override*/;
 

@@ -35,16 +35,6 @@ PortModelItem::~PortModelItem()
   delete m_metadata;
 }
 
-size_t PortModelItem::NumChildren()
-{
-  return 0;
-}
-
-BaseModelItem* PortModelItem::GetChild( int i )
-{
-  return NULL;
-}
-
 QString PortModelItem::GetName()
 {
   return m_name;
@@ -88,7 +78,7 @@ ItemMetadata* PortModelItem::GetMetadata()
   return m_metadata;
 }
 
-void PortModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+void PortModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   m_exec.setNodePortMetadata( m_portPath.c_str(), key, value, canUndo );
 }

@@ -26,16 +26,6 @@ ExecPortModelItem::~ExecPortModelItem()
     delete m_metadata;
 }
 
-size_t ExecPortModelItem::NumChildren()
-{
-  return 0;
-}
-
-BaseModelItem* ExecPortModelItem::GetChild( int i )
-{
-  return NULL;
-}
-
 QString ExecPortModelItem::GetName()
 {
   return m_name;
@@ -60,7 +50,7 @@ ItemMetadata* ExecPortModelItem::GetMetadata()
   return m_metadata;
 }
 
-void FabricUI::ModelItems::ExecPortModelItem::SetMetadata( const char* key, const char* value, bool canUndo ) /**/
+void FabricUI::ModelItems::ExecPortModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   m_exec.setExecPortMetadata( m_cname.c_str(), key, value, canUndo );
 }

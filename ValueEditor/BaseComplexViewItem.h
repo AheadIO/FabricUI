@@ -26,6 +26,7 @@ protected:
 public:
 
   BaseComplexViewItem( QString const &name );
+  BaseComplexViewItem( QString const &name, ItemMetadata* metadata );
   virtual ~BaseComplexViewItem();
 
   ViewItemChildRouter *createChildRouter( int index );

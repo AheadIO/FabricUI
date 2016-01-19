@@ -480,6 +480,11 @@ namespace FabricUI
         FTL::CStrRef oldNodeName, 
         FTL::CStrRef newNodeName );
 
+      void emitExecPortMetadataChanged( 
+        const char* portName,
+        const char* key,
+        const char* value );
+
       void emitNodeRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName
@@ -514,6 +519,10 @@ namespace FabricUI
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
       void execPortRenamed(char const * path, char const * newName);
+      void execPortMetadataChanged( 
+        const char* portName, 
+        const char* key, 
+        const char* value );
 
       void nodeRenamed(
         FTL::CStrRef execPath,
