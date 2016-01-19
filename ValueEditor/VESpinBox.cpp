@@ -6,6 +6,7 @@
 #include "VELineEdit.h"
 
 #include <algorithm>
+#include <FabricUI/Util/LoadPixmap.h>
 #include <math.h>
 #include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
@@ -17,7 +18,7 @@
 #include <QtGui/QStyleOption>
 
 VESpinBox_Adjuster::VESpinBox_Adjuster( QWidget *parent )
-  : QLabel( parent )
+  : QWidget( parent )
   , m_adjusting( false )
 {
   adjustDisplay();
@@ -25,10 +26,34 @@ VESpinBox_Adjuster::VESpinBox_Adjuster( QWidget *parent )
 
 void VESpinBox_Adjuster::adjustDisplay()
 {
-  if ( m_adjusting )
-    setText("---");
-  else
-    setText("adj");
+  update();
+}
+
+void VESpinBox_Adjuster::resizeEvent( QResizeEvent *event )
+{
+  QWidget::resizeEvent( event );
+}
+
+void VESpinBox_Adjuster::paintEvent( QPaintEvent *event )
+{
+  QPainter painter( this );
+
+  int w = width();
+  int h = height();
+
+  static const QBrush regularBrush( QColor( 104, 104, 104 ) );
+  static const QBrush adjustingBrush( QColor( 184, 184, 184 ) );
+
+  QPainterPath path;
+  path.moveTo( 1, (h*7+8)/16 );
+  path.lineTo( (w+1)/2, 1 );
+  path.lineTo( w - 1, (h*7+8)/16 );
+  path.moveTo( 1, (h*9+8)/16 );
+  path.lineTo( (w+1)/2, h - 1 );
+  path.lineTo( w - 1, (h*9+8)/16 );
+  painter.fillPath( path, m_adjusting? adjustingBrush: regularBrush );
+
+  event->accept();
 }
 
 void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
@@ -36,7 +61,7 @@ void VESpinBox_Adjuster::mousePressEvent( QMouseEvent *event )
   if ( !m_adjusting )
   {
     if ( QApplication::keyboardModifiers() & Qt::MetaModifier )
-      return QLabel::mousePressEvent( event );
+      return QWidget::mousePressEvent( event );
 
     m_adjusting = true;
     adjustDisplay();
@@ -67,7 +92,7 @@ VESpinBox::VESpinBox(
   : QWidget( parent )
   , m_value( initialValue )
   , m_trackCount( 0 )
-  , m_interactionEndOnLeave( false )
+  , m_wheelActive( false )
 {
   m_lineEdit = new VELineEdit( this );
   m_lineEdit->setText( QString::number( m_value, 'f', 2 ) ); 
@@ -86,11 +111,11 @@ VESpinBox::VESpinBox(
     this, SLOT(onButtonReleased())
     );
 
-  QHBoxLayout *layout = new QHBoxLayout;
+  QHBoxLayout *layout = new QHBoxLayout( this );
   layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->setSpacing( 2 );
   layout->addWidget( m_lineEdit );
   layout->addWidget( m_button );
-  setLayout( layout );
 }
 
 void VESpinBox::setValue( double value )
@@ -116,12 +141,27 @@ void VESpinBox::onButtonPressed()
   {
     setMouseTracking( true );
 
-    m_trackLastPos = QCursor::pos();
+    m_startValue = m_value;
+    m_adjustAmount = 0;
 
-    QApplication::setOverrideCursor( QCursor( Qt::SizeVerCursor ) );
+    m_trackStartPos = QCursor::pos();
+
+    static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
+    QApplication::setOverrideCursor( initialOverrideCursor );
 
     emit interactionBegin();
   }
+}
+
+void VESpinBox::resizeEvent( QResizeEvent *event )
+{
+  QWidget::resizeEvent( event );
+
+  int w = event->size().width();
+  int h = event->size().height();
+
+  m_lineEdit->setGeometry( 0, 0, w - h/2 - 2, h );
+  m_button->setGeometry( w - h/2, 1, h/2, h - 2 );
 }
 
 void VESpinBox::mouseMoveEvent( QMouseEvent *event )
@@ -129,10 +169,10 @@ void VESpinBox::mouseMoveEvent( QMouseEvent *event )
   if ( m_trackCount > 0 )
   {
     QPoint trackPos = QCursor::pos();
-    int dpiY = logicalDpiY();
-    double diff = -( trackPos.y() - m_trackLastPos.y() ) * 600.0 / dpiY;
-    onDelta( diff );
-    m_trackLastPos = trackPos;
+
+    m_adjustAmount =
+      -( trackPos.y() - m_trackStartPos.y() ) * 600.0 / logicalDpiY();
+    adjust();
   }
 }
 
@@ -148,40 +188,78 @@ void VESpinBox::onButtonReleased()
   }    
 }
 
+void VESpinBox::keyPressEvent( QKeyEvent * event )
+{
+  if ( m_trackCount > 0 || m_wheelActive )
+    adjust();
+
+  QWidget::keyPressEvent( event );
+}
+
+void VESpinBox::keyReleaseEvent( QKeyEvent * event )
+{
+  if ( m_trackCount > 0 || m_wheelActive )
+    adjust();
+
+  QWidget::keyReleaseEvent( event );
+}
+
 void VESpinBox::wheelEvent( QWheelEvent *event )
 {
-  if ( !m_interactionEndOnLeave )
+  if ( !m_wheelActive )
   {
-    m_interactionEndOnLeave = true;
+    m_startValue = m_value;
+    m_adjustAmount = 0;
 
-    QApplication::setOverrideCursor( QCursor( Qt::SizeVerCursor ) );
+    m_wheelActive = true;
+
+    static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
+    QApplication::setOverrideCursor( initialOverrideCursor );
 
     emit interactionBegin();
   }
 
-  onDelta( -event->delta() );
+  m_adjustAmount -= event->delta();
+  adjust();
 
   event->accept();
 }
 
-void VESpinBox::onDelta( double delta )
+void VESpinBox::adjust()
 {
   static const double minChangePerStep = 0.01;
-  double changePerStep = std::max( fabs( m_value * 0.1 ), minChangePerStep );
-  double adjuster;
+  static const double maxChangePerStep = 1000.0;
+  double changePerStep =
+    std::min(
+      maxChangePerStep,
+      std::max(
+        minChangePerStep,
+        fabs( m_startValue * 0.1 )
+        )
+      );
+  double velocity;
   if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-    adjuster = 0.1;
+  {
+    static const QCursor cursor( Qt::CrossCursor );
+    QApplication::changeOverrideCursor( cursor );
+    velocity = 0.1;
+  }
   else
-    adjuster = 1.0;
-  double value = m_value + changePerStep * delta * adjuster / 120.0;
+  {
+    static const QCursor cursor( Qt::SizeVerCursor );
+    QApplication::changeOverrideCursor( cursor );
+    velocity = 1.0;
+  }
+  double value =
+    m_startValue + changePerStep * m_adjustAmount * velocity / 120.0;
   setValue( QString::number( value, 'f', 2 ).toDouble() );
 }
 
 void VESpinBox::leaveEvent( QEvent *event )
 {
-  if ( m_interactionEndOnLeave )
+  if ( m_wheelActive )
   {
-    m_interactionEndOnLeave = false;
+    m_wheelActive = false;
 
     QApplication::restoreOverrideCursor();
 

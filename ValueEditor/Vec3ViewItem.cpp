@@ -68,6 +68,8 @@ Vec3ViewItem::Vec3ViewItem(
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->setSpacing( 8 );
   layout->addWidget( m_xSpinBox );
   layout->addWidget( m_ySpinBox );
   layout->addWidget( m_zSpinBox );
