@@ -108,18 +108,6 @@ FTL::CStrRef NodeModelItem::getChildName( int i )
   return m_exec.getNodePortName( m_nodeName.c_str(), i );
 }
 
-BaseModelItem *NodeModelItem::createChild( FTL::CStrRef name )
-{
-  return new NodePortModelItem(
-    m_dfgUICmdHandler,
-    m_binding,
-    m_execPath,
-    m_exec,
-    m_nodeName,
-    name
-    );
-}
-
 ItemMetadata* NodeModelItem::GetMetadata()
 {
   return NULL;
@@ -128,20 +116,6 @@ ItemMetadata* NodeModelItem::GetMetadata()
 void NodeModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   // TODO: Do We need this?
-}
-
-QVariant NodeModelItem::GetValue()
-{
-  return QVariant();
-}
-
-void NodeModelItem::SetValue(
-  QVariant var,
-  bool commit,
-  QVariant valueAtInteractionBegin
-  )
-{
-  assert( false );
 }
 
 } // namespace ModelItems

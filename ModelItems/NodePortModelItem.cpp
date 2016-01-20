@@ -49,31 +49,6 @@ FTL::CStrRef NodePortModelItem::getName()
   return m_portName;
 }
 
-bool NodePortModelItem::canRenameItem()
-{
-  FabricCore::DFGExec nodeExec = m_exec.getSubExec( m_nodeName.c_str() );
-  return !nodeExec.editWouldSplitFromPreset();
-}
-
-void NodePortModelItem::RenameItem( const char* newName )
-{
-  std::string subExecPath = m_execPath;
-  if ( !subExecPath.empty() )
-    subExecPath += '.';
-  subExecPath += m_nodeName;
-
-  FabricCore::DFGExec subExec = m_exec.getSubExec( m_nodeName.c_str() );
-  
-  assert( !subExec.editWouldSplitFromPreset() );
-  m_dfgUICmdHandler->dfgDoRenamePort(
-    m_binding,
-    subExecPath,
-    subExec,
-    m_portName,
-    newName
-    );
-}
-
 BaseModelItem *NodePortModelItem::onNodePortRenamed(
   FTL::CStrRef execPath,
   FTL::CStrRef nodeName,
@@ -199,29 +174,6 @@ void NodePortModelItem::SetValue(
       rtVal,
       false // canUndo
       );
-  }
-}
-
-bool NodePortModelItem::hasDefault()
-{
-  // If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
-  return (ctype != NULL);
-}
-
-void NodePortModelItem::resetToDefault()
-{
-//#pragma message("Fix instance values for non-arg ports")
-  //// If we have a resolved type, allow getting the default val
-  const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
-  if (ctype != NULL)
-  {
-    FabricCore::DFGExec nodeExec = m_exec.getSubExec( m_nodeName.c_str() );
-
-    FabricCore::RTVal val =
-      nodeExec.getPortDefaultValue( m_portName.c_str(), ctype );
-    if (val.isValid())
-      onViewValueChanged( QVariant::fromValue( val ) );
   }
 }
 

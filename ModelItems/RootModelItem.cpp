@@ -187,6 +187,7 @@ bool RootModelItem::hasDefault()
 
 void RootModelItem::resetToDefault()
 {
+  assert( false );
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -47,10 +47,7 @@ class DFGUICmdHandler;
         ) /*override*/;
 
       virtual int getNumChildren() /*override*/;
-
       virtual FTL::CStrRef getChildName( int i );
-
-      virtual BaseModelItem* createChild( FTL::CStrRef name );
 
       virtual FTL::CStrRef getName();
       virtual void RenameItem( const char* newName );
@@ -72,18 +69,6 @@ class DFGUICmdHandler;
       virtual void SetMetadataImp( const char* key, 
                                 const char* value, 
                                 bool canUndo )/*override*/;
-
-      virtual QVariant GetValue();
-
-    protected:
-
-      virtual void SetValue(
-        QVariant var,
-        bool commit,
-        QVariant valueAtInteractionBegin
-        ) /*override*/;
-
-
     };
   }
 }

@@ -5,7 +5,7 @@
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/ModelItems/BindingModelItem.h>
-#include <FabricUI/ModelItems/NodeModelItem.h>
+#include <FabricUI/ModelItems/InstModelItem.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
 
@@ -192,7 +192,7 @@ void VEEditorOwner::onSidePanelInspectRequested()
       exec = exec.getSubExec( path.c_str() );
 
     m_modelRoot =
-      new FabricUI::ModelItems::NodeModelItem(
+      new FabricUI::ModelItems::InstModelItem(
         dfgUICmdHandler,
         binding,
         path,
@@ -230,10 +230,9 @@ void VEEditorOwner::onNodeInspectRequested(
   switch (type)
   {
     case FabricCore::DFGNodeType_Inst:
-    case FabricCore::DFGNodeType_User:
     {
       newItem =
-        new FabricUI::ModelItems::NodeModelItem(
+        new FabricUI::ModelItems::InstModelItem(
           dfgUICmdHandler,
           binding,
           execPath,
@@ -254,13 +253,14 @@ void VEEditorOwner::onNodeInspectRequested(
           );
       break;
     }
-     case FabricCore::DFGNodeType_Get:
-     case FabricCore::DFGNodeType_Set:
-     {
-       //const char* path = exec.getRefVarPath( nodeName.c_str() );
-       //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
-       break;
-     }
+    case FabricCore::DFGNodeType_User:
+    case FabricCore::DFGNodeType_Get:
+    case FabricCore::DFGNodeType_Set:
+    {
+      //const char* path = exec.getRefVarPath( nodeName.c_str() );
+      //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
+      break;
+    }
     default:
       assert( 0 && "Implement Me" );
   }

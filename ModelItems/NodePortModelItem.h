@@ -59,8 +59,6 @@ class DFGUICmdHandler;
         { return m_portPath; }
 
       virtual FTL::CStrRef getName();
-      virtual bool canRenameItem();
-      virtual void RenameItem( const char* newName );
 
       virtual BaseModelItem *onNodePortRenamed(
         FTL::CStrRef execPath,
@@ -84,10 +82,6 @@ class DFGUICmdHandler;
       virtual int GetInOut();
 
       virtual QVariant GetValue();
-
-      virtual bool hasDefault() /*override*/;
-
-      virtual void resetToDefault() /*override*/;
 
     protected:
 

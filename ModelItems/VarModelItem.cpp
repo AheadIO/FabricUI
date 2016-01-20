@@ -3,9 +3,10 @@
 //
 
 #include <FabricUI/ModelItems/VarModelItem.h>
+#include <FabricUI/ModelItems/VarPortModelItem.h>
 
-using namespace FabricUI;
-using namespace ModelItems;
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +31,18 @@ VarModelItem::~VarModelItem()
 {
 }
 
+BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
+{
+  return new VarPortModelItem(
+    m_dfgUICmdHandler,
+    m_binding,
+    m_execPath,
+    m_exec,
+    m_nodeName,
+    portName
+    );
+}
+
 int VarModelItem::GetInOut()
 {
   // Even though we are not actually a port,
@@ -40,15 +53,6 @@ int VarModelItem::GetInOut()
 QVariant VarModelItem::GetValue()
 {
   return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
-}
-
-bool VarModelItem::hasDefault()
-{
-  return false;
-}
-
-void VarModelItem::resetToDefault()
-{
 }
 
 void VarModelItem::SetValue(
@@ -63,3 +67,6 @@ void VarModelItem::SetValue(
     m_exec.setVarValue( m_nodeName.c_str(), val );
   }
 }
+
+} // namespace ModelItems
+} // namespace FabricUI
