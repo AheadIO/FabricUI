@@ -15,9 +15,9 @@ using namespace ValueEditor;
 using namespace ModelItems;
 
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
-  : m_owner( owner )
+  : m_timelinePortIndex( -1 )
+  , m_owner( owner )
   , m_dfgValueEditor( NULL )
-  , m_timelinePortIndex( -1 )
   , m_setGraph( NULL )
   , m_modelRoot( NULL )
 {

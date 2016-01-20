@@ -54,8 +54,7 @@ void FabricUI::ModelItems::PortModelItem::RenameItem( const char* newName )
   std::string path = m_portPath;
   std::string portName = SplitLast( path );
   FabricCore::DFGExec nodeExec = m_exec.getSubExec( path.c_str() );
-  bool hasExecPort = nodeExec.haveExecPort( portName.c_str() );
-  if (!nodeExec.editWouldSplitFromPreset())
+  if ( !nodeExec.editWouldSplitFromPreset() )
   {
     nodeExec.renameExecPort( portName.c_str(), newName );
   }
