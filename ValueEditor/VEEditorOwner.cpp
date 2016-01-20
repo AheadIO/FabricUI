@@ -17,8 +17,8 @@ using namespace ModelItems;
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   : m_owner( owner )
   , m_dfgValueEditor( NULL )
-  , m_setGraph( NULL )
   , m_timelinePortIndex( -1 )
+  , m_setGraph( NULL )
   , m_modelRoot( NULL )
 {
   m_dfgValueEditor = new VETreeWidget();
