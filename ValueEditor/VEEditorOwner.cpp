@@ -18,8 +18,8 @@ VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   : m_owner( owner )
   , m_dfgValueEditor( NULL )
   , m_setGraph( NULL )
-  , m_modelRoot( NULL )
   , m_timelinePortIndex( -1 )
+  , m_modelRoot( NULL )
 {
   m_dfgValueEditor = new VETreeWidget();
 }
@@ -182,7 +182,7 @@ void VEEditorOwner::onSidePanelInspectRequested()
     FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
       dfgController->getCmdHandler();
     FabricCore::DFGBinding &binding = dfgController->getBinding();
-    FabricCore::DFGExec &exec = binding.getExec();
+    FabricCore::DFGExec exec = binding.getExec();
     std::string nodeName = SplitLast( path );
 
     if (!path.empty())
@@ -417,7 +417,7 @@ void VEEditorOwner::onExecPortMetadataChanged( const char* portName, const char*
 
     BaseModelItem* changingChild = m_modelRoot->GetChild( portName, false );
     // Only update if the change isn't coming from the child itself
-    if (changingChild != NULL & !changingChild->SettingMetadata())
+    if ( changingChild != NULL && !changingChild->SettingMetadata() )
     {
       // Our changing metadata could mean a changing type
       emit modelItemTypeChange( changingChild, "" );
