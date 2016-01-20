@@ -133,7 +133,7 @@ void NodeModelItem::SetMetadataImp( const char* key, const char* value, bool can
 
 QVariant NodeModelItem::GetValue()
 {
-  return QVariant(); // QString( m_exec.getInstTitle( m_nodeName.c_str() ) );
+  return QVariant();
 }
 
 void NodeModelItem::SetValue(
@@ -142,12 +142,7 @@ void NodeModelItem::SetValue(
   QVariant valueAtInteractionBegin
   )
 {
-  if (commit)
-  {
-    QByteArray asciiArr = var.toString().toAscii();
-    m_exec.setInstTitle( m_nodeName.c_str(), asciiArr.data() );
-    emitModelValueChanged(var);
-  }
+  assert( false );
 }
 
 } // namespace ModelItems
