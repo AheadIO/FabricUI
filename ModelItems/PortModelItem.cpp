@@ -1,5 +1,6 @@
 #include "PortModelItem.h"
 #include "PortItemMetadata.h"
+#include "RootModelItem.h"
 
 #include <assert.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
@@ -42,18 +43,18 @@ QString PortModelItem::GetName()
 
 bool PortModelItem::canRenameItem()
 {
-  size_t split = m_portPath.rfind( '.' );
-  std::string nodeName = m_portPath.substr( 0, split );
-  FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
+  std::string path = m_portPath;
+  SplitLast( path );
+  FabricCore::DFGExec nodeExec = m_exec.getSubExec( path.c_str() );
   return !nodeExec.editWouldSplitFromPreset();
 }
 
 void FabricUI::ModelItems::PortModelItem::RenameItem( const char* newName )
 {
-  size_t split = m_portPath.rfind( '.' );
-  std::string nodeName = m_portPath.substr( 0, split );
-  std::string portName = m_portPath.substr( split + 1 );
-  FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
+  std::string path = m_portPath;
+  std::string portName = SplitLast( path );
+  FabricCore::DFGExec nodeExec = m_exec.getSubExec( path.c_str() );
+  bool hasExecPort = nodeExec.haveExecPort( portName.c_str() );
   if (!nodeExec.editWouldSplitFromPreset())
   {
     nodeExec.renameExecPort( portName.c_str(), newName );
@@ -69,6 +70,7 @@ void FabricUI::ModelItems::PortModelItem::OnItemRenamed( QString newName )
   m_portPath = nodeName.c_str();
   m_portPath += '.';
   m_portPath += newName.toStdString();
+  m_name = newName;
 }
 
 ItemMetadata* PortModelItem::GetMetadata()
@@ -179,13 +181,9 @@ void FabricUI::ModelItems::PortModelItem::resetToDefault()
   const char* ctype = m_exec.getNodePortResolvedType( m_portPath.c_str() );
   if (ctype != NULL)
   {
-    size_t split = m_portPath.rfind( '.' );
-    std::string nodeName = m_portPath.substr( 0, split );
-    std::string portName= m_portPath.substr( split + 1);
-    FabricCore::DFGExec nodeExec = m_exec.getSubExec( nodeName.c_str() );
-    //FabricCore::RTVal val = m_exec.getInstPortResolvedDefaultValue(
-    //  m_cname.c_str(),
-    //  ctype );
+    std::string path = m_portPath;
+    std::string portName = SplitLast( path );
+    FabricCore::DFGExec nodeExec = m_exec.getSubExec( path.c_str() );
 
     FabricCore::RTVal val = nodeExec.getPortDefaultValue( portName.c_str(), ctype );
     if (val.isValid())

@@ -476,7 +476,8 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
-      void emitExecPortRenamed( 
+      void emitPortRenamed( 
+        FTL::CStrRef nodePath, 
         FTL::CStrRef oldNodeName, 
         FTL::CStrRef newNodeName );
 
@@ -518,7 +519,7 @@ namespace FabricUI
       void execSplitChanged();
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void execPortRenamed(char const * path, char const * newName);
+      void portRenamed(char const * path, const char* oldName, char const * newName);
       void execPortMetadataChanged( 
         const char* portName, 
         const char* key, 

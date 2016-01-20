@@ -2306,9 +2306,9 @@ void FabricUI::DFG::DFGController::emitPortsDisconnected( FTL::CStrRef srcPort, 
   emit portsDisconnected( srcPort, dstPort );
 }
 
-void FabricUI::DFG::DFGController::emitExecPortRenamed( FTL::CStrRef oldNodeName, FTL::CStrRef newNodeName )
+void FabricUI::DFG::DFGController::emitPortRenamed( FTL::CStrRef nodePath, FTL::CStrRef oldNodeName, FTL::CStrRef newNodeName )
 {
-  emit execPortRenamed( oldNodeName.c_str(), newNodeName.c_str() );
+  emit portRenamed( nodePath.c_str(), oldNodeName.c_str(), newNodeName.c_str() );
 }
 
 void DFGController::emitExecPortMetadataChanged(

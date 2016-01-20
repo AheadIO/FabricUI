@@ -1142,7 +1142,7 @@ void DFGNotificationRouter::onExecPortRenamed(
       return;
     uiPort->setName(newPortName);
   }
-  m_dfgController->emitExecPortRenamed( oldPortName.c_str(), newPortName.c_str() );
+  m_dfgController->emitPortRenamed( "", oldPortName, newPortName );
 }
 
 void DFGNotificationRouter::onNodePortRenamed(
@@ -1151,7 +1151,7 @@ void DFGNotificationRouter::onNodePortRenamed(
   FTL::CStrRef newPortName
   )
 {
-  // this shouldn't happen for us for now
+  m_dfgController->emitPortRenamed( nodeName, oldPortName, newPortName );
 }
 
 void DFGNotificationRouter::onExecMetadataChanged(

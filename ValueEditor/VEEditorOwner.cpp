@@ -19,6 +19,7 @@ VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
   , m_dfgValueEditor( NULL )
   , m_setGraph( NULL )
   , m_modelRoot( NULL )
+  , m_timelinePortIndex( -1 )
 {
   m_dfgValueEditor = new VETreeWidget();
 }
@@ -84,8 +85,8 @@ void VEEditorOwner::initConnections()
     this, SLOT( onExecPortMetadataChanged( const char*, const char*, const char* ) )
     );
   QObject::connect(
-    getDFGController(), SIGNAL( execPortRenamed( const char*, const char* ) ),
-    this, SLOT( onExecPortRenamed( const char*, const char* ) )
+    getDFGController(), SIGNAL( portRenamed( const char*, const char*, const char* ) ),
+    this, SLOT( onPortRenamed( const char*, const char* , const char* ) )
     );
 
   QObject::connect(
@@ -388,17 +389,21 @@ void VEEditorOwner::onArgsReordered( const FTL::JSONArray* newOrder )
 
 
 
-void VEEditorOwner::onExecPortRenamed( const char* oldName, const char* newName )
+void VEEditorOwner::onPortRenamed( const char* path, const char* oldName, const char* newName )
 {
-  // Find the appropriate execPort
+
   if (m_modelRoot != NULL)
   {
-    BaseModelItem* changingChild = m_modelRoot->argRenamed( oldName, newName );
-    if ( changingChild != NULL )
+    if (m_modelRoot->matchesPath( "" , path ))
     {
-      emit modelItemRenamed( changingChild );
+      BaseModelItem* changingChild = m_modelRoot->argRenamed( oldName, newName );
+      if (changingChild != NULL)
+      {
+        emit modelItemRenamed( changingChild );
+      }
     }
   }
+  onStructureChanged();
 }
 
 void VEEditorOwner::onExecPortMetadataChanged( const char* portName, const char* key, const char* value )
