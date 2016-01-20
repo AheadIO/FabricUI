@@ -56,12 +56,12 @@ BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
 
 FTL::CStrRef BindingModelItem::getName()
 {
-  return m_rootExec.getTitle();
+  return FTL_STR("<Root>");
 }
 
 void BindingModelItem::RenameItem( const char* newName )
 {
-  m_rootExec.setTitle( newName );
+  assert( false );
 }
 
 BaseModelItem *BindingModelItem::onExecPortRenamed(
