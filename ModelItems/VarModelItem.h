@@ -1,6 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
-#include "NodeModelItem.h"
+#include <FabricUI/ModelItems/NodeModelItem.h>
 
 namespace FabricUI
 {

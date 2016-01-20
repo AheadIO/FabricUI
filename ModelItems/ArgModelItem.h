@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
@@ -35,9 +39,19 @@ class DFGUICmdHandler;
         FTL::StrRef argName
         );
 
-      virtual QString GetName()/*override*/;
+      FabricCore::DFGExec getRootExec()
+        { return m_rootExec; }
+      FTL::CStrRef getArgName()
+        { return m_argName; }
+
+      virtual FTL::CStrRef getName()/*override*/;
       virtual void RenameItem( const char* name )/*override*/;
-      virtual void OnItemRenamed( QString newName )/*override*/;
+
+      virtual BaseModelItem *onExecPortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldExecPortName,
+        FTL::CStrRef newExecPortName
+        ) /*override*/;
 
       virtual QVariant GetValue()/*override*/;
 

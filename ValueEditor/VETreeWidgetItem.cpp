@@ -53,8 +53,8 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
     BaseModelItem* parentModel = parentView->GetModelItem();
     if (parentModel)
     {
-      int myIndex = parentModel->ChildIndex( m_viewItem->getName() );
-      int otherIndex = parentModel->ChildIndex( otherView->getName() );
+      int myIndex = parentModel->getChildIndex( m_viewItem->getName().toUtf8().constData() );
+      int otherIndex = parentModel->getChildIndex( otherView->getName().toUtf8().constData() );
       return myIndex < otherIndex;
     }
   }

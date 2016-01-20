@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
@@ -13,9 +17,12 @@ class DFGUICmdHandler;
 
   namespace ModelItems
   {
+
+    class NodePortItemMetadata;
+
     //////////////////////////////////////////////////////////////////////////
     // Basic ModelItem for accessing ports
-    class PortModelItem : public BaseModelItem
+    class NodePortModelItem : public BaseModelItem
     {
     protected:
 
@@ -23,28 +30,50 @@ class DFGUICmdHandler;
       FabricCore::DFGBinding m_binding;
       std::string m_execPath;
       FabricCore::DFGExec m_exec;
-      std::string m_portPath;
+      std::string m_nodeName;
+      std::string m_portName;
     
-      QString m_name;
+      std::string m_portPath;
 
-      ItemMetadata* m_metadata;
+      NodePortItemMetadata *m_metadata;
 
     public:
-      PortModelItem(
+
+      NodePortModelItem(
         DFG::DFGUICmdHandler *dfgUICmdHandler,
         FabricCore::DFGBinding binding,
         FTL::StrRef execPath,
         FabricCore::DFGExec exec,
         FTL::StrRef nodeName,
-        FTL::StrRef portName,
-        QString name
+        FTL::StrRef portName
         );
-      ~PortModelItem();
+      ~NodePortModelItem();
 
-      virtual QString GetName();
+      FabricCore::DFGExec getExec()
+        { return m_exec; }
+      FTL::CStrRef getNodeName()
+        { return m_nodeName; }
+      FTL::CStrRef getPortName()
+        { return m_portName; }
+      FTL::CStrRef getPortPath()
+        { return m_portPath; }
+
+      virtual FTL::CStrRef getName();
       virtual bool canRenameItem();
       virtual void RenameItem( const char* newName );
-      virtual void OnItemRenamed( QString newName );
+
+      virtual BaseModelItem *onNodePortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName,
+        FTL::CStrRef oldNodePortName,
+        FTL::CStrRef newNodePortName
+        ) /*override*/;
+
+      virtual BaseModelItem *onNodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        ) /*override*/;
 
       virtual ItemMetadata* GetMetadata();
       virtual void SetMetadataImp( const char* key,
@@ -61,6 +90,8 @@ class DFGUICmdHandler;
       virtual void resetToDefault() /*override*/;
 
     protected:
+
+      void updatePortPath();
 
       virtual void SetValue(
         QVariant var,

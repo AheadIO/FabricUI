@@ -1,10 +1,13 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
 
-#include "NodeModelItem.h"
-#include "PortModelItem.h"
 #include <assert.h>
+#include <FabricUI/ModelItems/NodeModelItem.h>
+#include <FabricUI/ModelItems/NodePortModelItem.h>
 
-using namespace FabricUI;
-using namespace ModelItems;
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +24,6 @@ NodeModelItem::NodeModelItem(
  , m_execPath( execPath )
  , m_exec( exec )
  , m_nodeName( nodeName )
- , m_name( name )
 {
   assert( !m_nodeName.empty() );
 }
@@ -30,7 +32,7 @@ NodeModelItem::~NodeModelItem()
 {
 }
 
-bool FabricUI::ModelItems::NodeModelItem::matchesPath(
+bool NodeModelItem::matchesPath(
   FTL::StrRef execPath,
   FTL::StrRef nodeName 
   )
@@ -38,42 +40,74 @@ bool FabricUI::ModelItems::NodeModelItem::matchesPath(
   return m_execPath == execPath && m_nodeName == nodeName;
 }
 
-QString NodeModelItem::GetName()
+FTL::CStrRef NodeModelItem::getName()
 {
-  return m_name;
+  return m_nodeName;
 }
 
-void FabricUI::ModelItems::NodeModelItem::RenameItem( const char* newName )
+void NodeModelItem::RenameItem( const char* newName )
 {
-  QByteArray oldName = m_name.toAscii();
-  m_exec.renameNode( oldName.data(), newName );
+  m_exec.renameNode( m_nodeName.c_str(), newName );
 }
 
-
-void FabricUI::ModelItems::NodeModelItem::OnItemRenamed( QString newName )
+BaseModelItem *NodeModelItem::onNodePortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef oldNodePortName,
+  FTL::CStrRef newNodePortName
+  )
 {
-  m_name = newName;
+  if ( m_execPath == execPath
+    && m_nodeName == nodeName )
+  {
+    return RootModelItem::onNodePortRenamed(
+      execPath,
+      nodeName,
+      oldNodePortName,
+      newNodePortName
+      );
+  }
+  else return 0;
 }
 
-size_t NodeModelItem::NumChildren()
+BaseModelItem *NodeModelItem::onNodeRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  if ( m_execPath == execPath
+    && m_nodeName == oldNodeName )
+  {
+    m_nodeName = newNodeName;
+    RootModelItem::onNodeRenamed(
+      execPath,
+      oldNodeName,
+      newNodeName
+      );
+    return this;
+  }
+  else return 0;
+}
+
+int NodeModelItem::getNumChildren()
 {
   return m_exec.getNodePortCount( m_nodeName.c_str() );
 }
 
-QString NodeModelItem::ChildName( int i )
+FTL::CStrRef NodeModelItem::getChildName( int i )
 {
   return m_exec.getNodePortName( m_nodeName.c_str(), i );
 }
 
-BaseModelItem* NodeModelItem::CreateChild( QString name )
+BaseModelItem *NodeModelItem::createChild( FTL::CStrRef name )
 {
-  return new PortModelItem(
+  return new NodePortModelItem(
     m_dfgUICmdHandler,
     m_binding,
     m_execPath,
     m_exec,
     m_nodeName,
-    name.toUtf8().constData(),
     name
     );
 }
@@ -83,7 +117,7 @@ ItemMetadata* NodeModelItem::GetMetadata()
   return NULL;
 }
 
-void FabricUI::ModelItems::NodeModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
+void NodeModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   // TODO: Do We need this?
 }
@@ -106,3 +140,6 @@ void NodeModelItem::SetValue(
     emitModelValueChanged(var);
   }
 }
+
+} // namespace ModelItems
+} // namespace FabricUI

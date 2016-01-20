@@ -18,37 +18,38 @@ BaseModelItem::~BaseModelItem()
 }
 
 
-size_t BaseModelItem::NumChildren()
+int BaseModelItem::getNumChildren()
 {
   return 0;
 }
 
-BaseModelItem* BaseModelItem::GetChild( QString childName, bool doCreate )
+BaseModelItem* BaseModelItem::getChild( FTL::CStrRef childName, bool doCreate )
 {
-  int res = ChildIndex( childName );
+  int res = getChildIndex( childName );
   if (res >= 0)
-    return GetChild( res, doCreate );
+    return getChild( res, doCreate );
   return NULL;
 }
 
-BaseModelItem* BaseModelItem::GetChild( int index, bool doCreate )
+BaseModelItem* BaseModelItem::getChild( int index, bool doCreate )
 {
   return NULL;
 }
 
-QString BaseModelItem::ChildName( int i )
+FTL::CStrRef BaseModelItem::getChildName( int i )
 {
-  BaseModelItem* pChild = GetChild( i );
-  if (pChild != NULL)
-    return pChild->GetName();
-  return QString();
+  BaseModelItem* pChild = getChild( i );
+  if ( pChild != NULL )
+    return pChild->getName();
+  return FTL::CStrRef();
 }
 
-int BaseModelItem::ChildIndex( QString childName )
+int BaseModelItem::getChildIndex( FTL::CStrRef childName )
 {
-  for (size_t i = 0; i < NumChildren(); i++)
+  int numChildren = getNumChildren();
+  for ( int i = 0; i < numChildren; i++ )
   {
-    if (ChildName( i ) == childName)
+    if (getChildName( i ) == childName)
       return i;
   }
   return -1;
@@ -120,8 +121,4 @@ void BaseModelItem::onInteractionEnd( bool accept )
 
     m_valueAtInteractionBegin = QVariant();
   }
-}
-
-void BaseModelItem::OnItemRenamed( QString newName )
-{
 }

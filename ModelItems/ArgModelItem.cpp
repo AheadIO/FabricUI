@@ -1,12 +1,15 @@
-#include "ArgModelItem.h"
-#include "ArgItemMetadata.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
 
 #include <FabricUI/DFG/DFGUICmdHandler.h>
+#include <FabricUI/ModelItems/ArgItemMetadata.h>
+#include <FabricUI/ModelItems/ArgModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
 #include <QtCore/QVariant>
 
-using namespace FabricUI;
-using namespace ModelItems;
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 ArgModelItem::ArgModelItem(
@@ -22,9 +25,9 @@ ArgModelItem::ArgModelItem(
 {
 }
 
-QString ArgModelItem::GetName()
+FTL::CStrRef ArgModelItem::getName()
 {
-  return QString::fromUtf8( m_argName.data(), m_argName.size() );
+  return m_argName;
 }
 
 void ArgModelItem::RenameItem( const char* name )
@@ -32,9 +35,19 @@ void ArgModelItem::RenameItem( const char* name )
   m_rootExec.renameExecPort( m_argName.c_str(), name );
 }
 
-void FabricUI::ModelItems::ArgModelItem::OnItemRenamed( QString newName ) /**/
+BaseModelItem *ArgModelItem::onExecPortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldExecPortName,
+  FTL::CStrRef newExecPortName
+  )
 {
-  m_argName = newName.toStdString();
+  if ( execPath.empty()
+    && m_argName == oldExecPortName )
+  {
+    m_argName = newExecPortName;
+    return this;
+  }
+  else return 0;
 }
 
 QVariant ArgModelItem::GetValue()
@@ -100,15 +113,14 @@ void ArgModelItem::SetValue(
   }
 }
 
-ItemMetadata* FabricUI::ModelItems::ArgModelItem::GetMetadata()
+ItemMetadata* ArgModelItem::GetMetadata()
 {
-  if (m_metadata == NULL)
-    m_metadata = new ArgItemMetadata( m_rootExec, m_argName.c_str() );
-
+  if ( !m_metadata )
+    m_metadata = new ArgItemMetadata( this );
   return m_metadata; 
 }
 
-void FabricUI::ModelItems::ArgModelItem::SetMetadataImp(
+void ArgModelItem::SetMetadataImp(
   const char* key, 
   const char* value,
   bool canUndo )
@@ -116,17 +128,20 @@ void FabricUI::ModelItems::ArgModelItem::SetMetadataImp(
   m_rootExec.setExecPortMetadata( m_argName.c_str(), key, value, canUndo );
 }
 
-int FabricUI::ModelItems::ArgModelItem::GetInOut()
+int ArgModelItem::GetInOut()
 {
   return m_rootExec.getExecPortType( m_argName.c_str() );
 }
 
-bool FabricUI::ModelItems::ArgModelItem::hasDefault()
+bool ArgModelItem::hasDefault()
 {
   return false;
 }
 
-void FabricUI::ModelItems::ArgModelItem::resetToDefault()
+void ArgModelItem::resetToDefault()
 {
   assert( false );
 }
+
+} // namespace ModelItems
+} // namespace FabricUI

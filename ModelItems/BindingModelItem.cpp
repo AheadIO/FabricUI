@@ -1,9 +1,13 @@
-#include "BindingModelItem.h"
-#include "ArgModelItem.h"
-#include <assert.h>
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
 
-using namespace FabricUI;
-using namespace ModelItems;
+#include <assert.h>
+#include <FabricUI/ModelItems/ArgModelItem.h>
+#include <FabricUI/ModelItems/BindingModelItem.h>
+
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 BindingModelItem::BindingModelItem(
@@ -23,7 +27,7 @@ BindingModelItem::~BindingModelItem()
 }
 
 
-bool FabricUI::ModelItems::BindingModelItem::matchesPath(
+bool BindingModelItem::matchesPath(
   FTL::StrRef execPath,
   FTL::StrRef nodeName
   )
@@ -31,39 +35,52 @@ bool FabricUI::ModelItems::BindingModelItem::matchesPath(
   return execPath.empty() && nodeName.empty();
 }
 
-size_t BindingModelItem::NumChildren()
+int BindingModelItem::getNumChildren()
 {
   return m_rootExec.getExecPortCount();
 }
 
-QString BindingModelItem::ChildName( int i )
+FTL::CStrRef BindingModelItem::getChildName( int i )
 {
   return m_rootExec.getExecPortName( i );
 }
 
-BaseModelItem* BindingModelItem::CreateChild( QString name ) /**/
+BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
 {
   return new ArgModelItem(
     m_dfgUICmdHandler,
     m_binding,
-    name.toUtf8().constData()
+    name
     );
 }
 
-QString BindingModelItem::GetName()
+FTL::CStrRef BindingModelItem::getName()
 {
-  const char* title = m_rootExec.getTitle();
-  if (title && *title != '\0')
-    return title;
-  return QString();
+  return m_rootExec.getTitle();
 }
 
-void FabricUI::ModelItems::BindingModelItem::RenameItem( const char* newName )
+void BindingModelItem::RenameItem( const char* newName )
 {
   m_rootExec.setTitle( newName );
 }
 
-void FabricUI::ModelItems::BindingModelItem::SetMetadataImp( 
+BaseModelItem *BindingModelItem::onExecPortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldExecPortName,
+  FTL::CStrRef newExecPortName
+  )
+{
+  if ( execPath.empty() )
+    return RootModelItem::onExecPortRenamed(
+      execPath,
+      oldExecPortName,
+      newExecPortName
+      );
+  else
+    return 0;
+}
+
+void BindingModelItem::SetMetadataImp( 
   const char* key, 
   const char* value, 
   bool canUndo ) /**/
@@ -94,3 +111,6 @@ void BindingModelItem::SetValue(
     emitModelValueChanged(var);
   }
 }
+
+} // namespace ModelItems
+} // namespace FabricUI

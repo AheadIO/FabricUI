@@ -1,8 +1,12 @@
-#include "RootModelItem.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
+#include <FabricUI/ModelItems/RootModelItem.h>
 #include <assert.h>
 
-using namespace FabricUI;
-using namespace ModelItems;
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 RootModelItem::RootModelItem()
@@ -16,20 +20,23 @@ RootModelItem::~RootModelItem()
 
 }
 
-BaseModelItem* RootModelItem::GetChild( QString childName, bool doCreate )
+BaseModelItem *RootModelItem::getChild(
+  FTL::CStrRef childName,
+  bool doCreate
+  )
 {
   int numExisting = m_children.size();
   for (int i = 0; i < numExisting; i++)
   {
-    if (m_children[i]->GetName() == childName)
+    if ( m_children[i]->getName() == childName )
       return m_children[i];
   }
   if (doCreate)
   {
     // Ensure this child exists, we can't assume its valid
-    if (ChildIndex( childName ) >= 0)
+    if ( getChildIndex( childName ) >= 0 )
     {
-      BaseModelItem* res = CreateChild( childName );
+      BaseModelItem* res = createChild( childName );
       m_children.push_back( res );
       return res;
     }
@@ -37,18 +44,18 @@ BaseModelItem* RootModelItem::GetChild( QString childName, bool doCreate )
   return NULL;
 }
 
-BaseModelItem* RootModelItem::GetChild( int index, bool doCreate )
+BaseModelItem *RootModelItem::getChild( int index, bool doCreate )
 {
-  QString childName = ChildName(index);
-  return GetChild( childName, doCreate );
+  FTL::CStrRef childName = getChildName( index );
+  return getChild( childName, doCreate );
 }
 
-int RootModelItem::ChildIndex( QString name )
+int RootModelItem::getChildIndex( FTL::CStrRef name )
 {
-  int numChildren = NumChildren();
+  int numChildren = getNumChildren();
   for (int i = 0; i < numChildren; i++)
   {
-    if (ChildName( i ) == name)
+    if ( getChildName( i ) == name )
     {
       return i;
     }
@@ -60,7 +67,7 @@ bool RootModelItem::argInserted( int index, const char* name, const char* type )
 {
   // Assert that this child exists.  We will get notifications
   // for children that we do not have.
-  if (ChildName( index ) == name)
+  if ( getChildName( index ) == name )
   {
     return true;
   }
@@ -71,7 +78,7 @@ bool RootModelItem::argTypeChanged( int index, const char* name, const char* new
 {
   // Assert that this child exists.  We will get notifications
   // for children that we do not have.
-  if (ChildName( index ) == name)
+  if ( getChildName( index ) == name )
   {
     return true;
   }
@@ -80,43 +87,111 @@ bool RootModelItem::argTypeChanged( int index, const char* name, const char* new
 
 void RootModelItem::argRemoved( int index, const char* name )
 {
-  for (ChildVec::iterator itr = m_children.begin(); itr != m_children.end(); itr++)
+  for ( ChildVec::iterator itr = m_children.begin();
+    itr != m_children.end(); itr++ )
   {
-    if ((*itr)->GetName() == name)
+    BaseModelItem *childModelItem = *itr;
+    if ( childModelItem->getName() == name )
     {
-      delete *itr;
+      delete childModelItem;
       m_children.erase( itr );
       break;
     }
   }
 }
 
-
-BaseModelItem* FabricUI::ModelItems::RootModelItem::argRenamed( const char* oldName, const char* newName )
+BaseModelItem *RootModelItem::onExecPortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldExecPortName,
+  FTL::CStrRef newExecPortName
+  )
 {
-  for (ChildVec::iterator itr = m_children.begin(); itr != m_children.end(); itr++)
+  BaseModelItem *changingChild = 0;
+  for ( ChildVec::iterator itr = m_children.begin();
+    itr != m_children.end(); itr++ )
   {
-    if ((*itr)->GetName() == oldName)
+    BaseModelItem *childModelItem = *itr;
+    BaseModelItem *result =
+      childModelItem->onExecPortRenamed(
+        execPath,
+        oldExecPortName,
+        newExecPortName
+        );
+    if ( result )
     {
-      (*itr)->OnItemRenamed( newName );
-      return *itr;
+      assert( !changingChild );
+      changingChild = result;
     }
   }
-  return NULL;
+  return changingChild;
 }
 
-bool FabricUI::ModelItems::RootModelItem::hasDefault()
+BaseModelItem *RootModelItem::onNodePortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef oldNodePortName,
+  FTL::CStrRef newNodePortName
+  )
+{
+  BaseModelItem *changingChild = 0;
+  for ( ChildVec::iterator itr = m_children.begin();
+    itr != m_children.end(); itr++ )
+  {
+    BaseModelItem *childModelItem = *itr;
+    BaseModelItem *result =
+      childModelItem->onNodePortRenamed(
+        execPath,
+        nodeName,
+        oldNodePortName,
+        newNodePortName
+        );
+    if ( result )
+    {
+      assert( !changingChild );
+      changingChild = result;
+    }
+  }
+  return changingChild;
+}
+
+BaseModelItem *RootModelItem::onNodeRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  BaseModelItem *changingChild = 0;
+  for ( ChildVec::iterator itr = m_children.begin();
+    itr != m_children.end(); itr++ )
+  {
+    BaseModelItem *childModelItem = *itr;
+    BaseModelItem *result =
+      childModelItem->onNodeRenamed(
+        execPath,
+        oldNodeName,
+        newNodeName
+        );
+    if ( result )
+    {
+      assert( !changingChild );
+      changingChild = result;
+    }
+  }
+  return changingChild;
+}
+
+bool RootModelItem::hasDefault()
 {
   return false;
 }
 
-void FabricUI::ModelItems::RootModelItem::resetToDefault()
+void RootModelItem::resetToDefault()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-extern std::string FabricUI::ModelItems::SplitLast( std::string& path )
+std::string SplitLast( std::string& path )
 {
   size_t split = path.rfind( '.' );
   std::string res = path.substr( split + 1 );
@@ -131,7 +206,7 @@ extern std::string FabricUI::ModelItems::SplitLast( std::string& path )
   return res;
 }
 
-extern std::string FabricUI::ModelItems::SplitFirst( std::string& path )
+std::string SplitFirst( std::string& path )
 {
   size_t split = path.find( '.' );
   std::string res = path.substr( 0, split + 1 );
@@ -145,3 +220,6 @@ extern std::string FabricUI::ModelItems::SplitFirst( std::string& path )
   }
   return res;
 }
+
+} // namespace ModelItems
+} // namespace FabricUI

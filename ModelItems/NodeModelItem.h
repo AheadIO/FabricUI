@@ -1,8 +1,11 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
-#include "RootModelItem.h"
-
 #include <FabricCore.h>
+#include <FabricUI/ModelItems/RootModelItem.h>
 #include <FTL/StrRef.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,8 +29,6 @@ class DFGUICmdHandler;
       std::string m_execPath;
       FabricCore::DFGExec m_exec;
       std::string m_nodeName;
-
-      QString m_name;
   
     public:
       
@@ -46,15 +47,27 @@ class DFGUICmdHandler;
         FTL::StrRef nodeName
         ) /*override*/;
 
-      size_t NumChildren();
+      virtual int getNumChildren() /*override*/;
 
-      virtual QString ChildName( int i );
+      virtual FTL::CStrRef getChildName( int i );
 
-      virtual BaseModelItem* CreateChild( QString name );
+      virtual BaseModelItem* createChild( FTL::CStrRef name );
 
-      virtual QString GetName();
+      virtual FTL::CStrRef getName();
       virtual void RenameItem( const char* newName );
-      virtual void OnItemRenamed( QString newName );
+
+      virtual BaseModelItem *onNodePortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName,
+        FTL::CStrRef oldNodePortName,
+        FTL::CStrRef newNodePortName
+        ) /*override*/;
+
+      virtual BaseModelItem *onNodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        ) /*override*/;
 
       virtual ItemMetadata* GetMetadata();
       virtual void SetMetadataImp( const char* key, 

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <FTL/CStrRef.h>
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
@@ -72,28 +73,55 @@ public:
 	virtual ~BaseModelItem();
 
 	// The model is a tree
-	virtual size_t NumChildren();
+	virtual int getNumChildren();
 
   // Children can be accessed by name or index
-  virtual BaseModelItem* GetChild( int childIndex, bool doCreate = true );
-  virtual BaseModelItem* GetChild( QString childName, bool doCreate = true );
+  virtual BaseModelItem* getChild(
+    int childIndex,
+    bool doCreate = true
+    );
+  virtual BaseModelItem* getChild(
+    FTL::CStrRef childName,
+    bool doCreate = true
+    );
 
   // Enable switching between index/name
-  virtual QString ChildName( int i );
-  virtual int ChildIndex( QString name );
+  virtual FTL::CStrRef getChildName( int i );
+  virtual int getChildIndex( FTL::CStrRef name );
 
 	// The name of this node
-  virtual QString GetName() = 0;
+  virtual FTL::CStrRef getName() = 0;
+
   // Implement this function to prevent the system
   // from allowing renames from the UI
   // by default returns true
   virtual bool canRenameItem() { return true; };
   // Implement this to rename the underlying data
   virtual void RenameItem( const char* newName ) = 0;
-  // This function will be called when the name is
-  // updated in the core, and can be used to update
-  // any cached name strings.
-  virtual void OnItemRenamed( QString newName );
+
+  // Notification handlers for Core rename notifications.
+  // This should certainly not be in BaseModelItem but because we
+  // don't listen to notifications sensibly we have to put this here
+  // for now..
+
+  virtual BaseModelItem *onExecPortRenamed(
+    FTL::CStrRef execPath,
+    FTL::CStrRef oldExecPortName,
+    FTL::CStrRef newExecPortName
+    ) { return 0; }
+
+  virtual BaseModelItem *onNodePortRenamed(
+    FTL::CStrRef execPath,
+    FTL::CStrRef nodeName,
+    FTL::CStrRef oldNodePortName,
+    FTL::CStrRef newNodePortName
+    ) { return 0; }
+
+  virtual BaseModelItem *onNodeRenamed(
+    FTL::CStrRef execPath,
+    FTL::CStrRef oldNodeName,
+    FTL::CStrRef newNodeName
+    ) { return 0; }
 
 	// We need to define a metadata syntax for 
 	// additional type-info.  For example, it should

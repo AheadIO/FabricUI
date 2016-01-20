@@ -72,7 +72,7 @@ int BaseViewItem::numInstances()
 bool BaseViewItem::hasChildren() const
 {
   if ( !!m_modelItem )
-    return m_modelItem->NumChildren() > 0;
+    return m_modelItem->getNumChildren() > 0;
   return false;
 }
 
@@ -82,10 +82,10 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
   {
     ViewItemFactory *viewItemFactory = ViewItemFactory::GetInstance();
 
-    size_t numChildren = m_modelItem->NumChildren();
-    for (size_t i = 0; i < numChildren; ++i)
+    int numChildren = m_modelItem->getNumChildren();
+    for ( int i = 0; i < numChildren; ++i )
     {
-      BaseModelItem *childModelItem = m_modelItem->GetChild( i );
+      BaseModelItem *childModelItem = m_modelItem->getChild( i );
       BaseViewItem* childViewItem = 
         viewItemFactory->CreateViewItem( childModelItem );
       if (childViewItem == NULL)
@@ -110,7 +110,8 @@ void BaseViewItem::onRenamed( QTreeWidgetItem* item )
 {
   if (m_modelItem != NULL) 
   {
-    m_name = m_modelItem->GetName();
+    FTL::CStrRef name = m_modelItem->getName();
+    m_name = QString::fromUtf8( name.data(), name.size() );
     item->setText( 0, m_name );
   }
 }

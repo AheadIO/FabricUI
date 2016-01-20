@@ -1,4 +1,8 @@
-#include "VarModelItem.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
+#include <FabricUI/ModelItems/VarModelItem.h>
 
 using namespace FabricUI;
 using namespace ModelItems;

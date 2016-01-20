@@ -1,3 +1,7 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
@@ -33,10 +37,11 @@ namespace FabricUI
       ChildVec m_children;
       
     public:
+
       RootModelItem( );
       ~RootModelItem();
 
-      virtual BaseModelItem* CreateChild( QString name ) = 0;
+      virtual BaseModelItem* createChild( FTL::CStrRef name ) = 0;
 
       virtual bool matchesPath( 
         FTL::StrRef execPath, 
@@ -47,10 +52,16 @@ namespace FabricUI
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
 
-      virtual BaseModelItem* GetChild( QString childName, bool doCreate = true ) /*override*/;
-      virtual BaseModelItem* GetChild( int index, bool doCreate = true ) /*override*/;
+      virtual BaseModelItem *getChild(
+        FTL::CStrRef childName,
+        bool doCreate = true
+        ) /*override*/;
+      virtual BaseModelItem *getChild(
+        int index,
+        bool doCreate = true
+        ) /*override*/;
 
-      virtual int ChildIndex( QString name ) /*override*/;
+      virtual int getChildIndex( FTL::CStrRef name ) /*override*/;
       
       virtual bool hasDefault() /*override*/;
 
@@ -63,7 +74,24 @@ namespace FabricUI
 
       void argRemoved( int index, const char* name );
 
-      BaseModelItem* argRenamed( const char* oldName, const char* newName );
+      virtual BaseModelItem *onExecPortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldExecPortName,
+        FTL::CStrRef newExecPortName
+        ) /*override*/;
+
+      virtual BaseModelItem *onNodePortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName,
+        FTL::CStrRef oldNodePortName,
+        FTL::CStrRef newNodePortName
+        ) /*override*/;
+
+      virtual BaseModelItem *onNodeRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        ) /*override*/;
     };
   }
 }
