@@ -57,9 +57,21 @@ bool NodePortModelItem::canRenameItem()
 
 void NodePortModelItem::RenameItem( const char* newName )
 {
-  FabricCore::DFGExec nodeExec = m_exec.getSubExec( m_nodeName.c_str() );
-  if ( !nodeExec.editWouldSplitFromPreset() )
-    nodeExec.renameExecPort( m_portName.c_str(), newName );
+  std::string subExecPath = m_execPath;
+  if ( !subExecPath.empty() )
+    subExecPath += '.';
+  subExecPath += m_nodeName;
+
+  FabricCore::DFGExec subExec = m_exec.getSubExec( m_nodeName.c_str() );
+  
+  assert( !subExec.editWouldSplitFromPreset() );
+  m_dfgUICmdHandler->dfgDoRenamePort(
+    m_binding,
+    subExecPath,
+    subExec,
+    m_portName,
+    newName
+    );
 }
 
 BaseModelItem *NodePortModelItem::onNodePortRenamed(

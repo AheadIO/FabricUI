@@ -3,6 +3,7 @@
 //
 
 #include <assert.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/ModelItems/NodeModelItem.h>
 #include <FabricUI/ModelItems/NodePortModelItem.h>
 
@@ -47,7 +48,15 @@ FTL::CStrRef NodeModelItem::getName()
 
 void NodeModelItem::RenameItem( const char* newName )
 {
-  m_exec.renameNode( m_nodeName.c_str(), newName );
+  m_dfgUICmdHandler->dfgDoEditNode(
+    m_binding,
+    m_execPath,
+    m_exec,
+    m_nodeName,
+    newName,
+    FTL::StrRef(),
+    FTL::StrRef()
+    );
 }
 
 BaseModelItem *NodeModelItem::onNodePortRenamed(
