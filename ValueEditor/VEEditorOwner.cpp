@@ -197,8 +197,7 @@ void VEEditorOwner::onSidePanelInspectRequested()
         binding,
         path,
         exec,
-        nodeName,
-        QString::fromUtf8( nodeName.data(), nodeName.size() )
+        nodeName
         );
 
     //FabricCore::DFGExec exec = binding->getExec()->getSubExec(path.c_str());
@@ -239,8 +238,7 @@ void VEEditorOwner::onNodeInspectRequested(
           binding,
           execPath,
           exec,
-          nodeName,
-          QString::fromUtf8( nodeName.data(), nodeName.size() )
+          nodeName
           );
       break;
     }
@@ -252,8 +250,7 @@ void VEEditorOwner::onNodeInspectRequested(
           binding,
           execPath,
           exec,
-          nodeName,
-          QString::fromUtf8( nodeName.data(), nodeName.size() )
+          nodeName
           );
       break;
     }

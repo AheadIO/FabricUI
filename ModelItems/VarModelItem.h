@@ -22,8 +22,7 @@ namespace FabricUI
         FabricCore::DFGBinding binding,
         FTL::StrRef execPath,
         FabricCore::DFGExec exec,
-        FTL::StrRef nodeName,
-        QString name
+        FTL::StrRef nodeName
         );
       ~VarModelItem();
 
