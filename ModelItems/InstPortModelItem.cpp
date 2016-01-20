@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <FabricUI/ModelItems/NodePortItemMetadata.h>
+#include <FabricUI/ModelItems/InstPortItemMetadata.h>
 #include <FabricUI/ModelItems/InstPortModelItem.h>
 #include <FabricUI/ModelItems/RootModelItem.h>
 #include <QtCore/QStringList>
@@ -34,6 +34,14 @@ InstPortModelItem::InstPortModelItem(
 
 InstPortModelItem::~InstPortModelItem()
 {
+}
+
+ItemMetadata *InstPortModelItem::GetMetadata()
+{
+  if ( !m_metadata )
+    m_metadata = new InstPortItemMetadata( this );
+
+  return m_metadata;
 }
 
 QVariant InstPortModelItem::GetValue()

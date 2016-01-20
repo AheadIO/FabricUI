@@ -40,16 +40,7 @@ namespace FabricUI
             return "1";
         }
 
-        const char* res = exec.getNodePortMetadata( portPath.c_str(), key );
-        if ( !res || !res[0] )
-        {
-          // If we don't have a result, we check the same port on the executable
-          FTL::CStrRef nodeName = m_nodePortModelItem->getNodeName();
-          FTL::CStrRef portName = m_nodePortModelItem->getPortName();
-          FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
-          res = subExec.getExecPortMetadata( portName.c_str(), key );
-        }
-        return res;
+        return exec.getNodePortMetadata( portPath.c_str(), key );
       }
     };
   }

@@ -18,8 +18,6 @@ class DFGUICmdHandler;
   namespace ModelItems
   {
 
-    class NodePortItemMetadata;
-
     //////////////////////////////////////////////////////////////////////////
     // Basic ModelItem for accessing ports
     class InstPortModelItem : public NodePortModelItem
@@ -36,9 +34,11 @@ class DFGUICmdHandler;
         );
       ~InstPortModelItem();
 
+      virtual ItemMetadata *GetMetadata() /*override*/;
+
       virtual bool canRenameItem();
       virtual void RenameItem( const char* newName );
-      
+
       virtual QVariant GetValue();
 
       virtual bool hasDefault() /*override*/;
