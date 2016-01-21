@@ -59,7 +59,19 @@ namespace FabricUI {
       void onArgRemoved(int index, const char* name);
       void onArgsReordered( const FTL::JSONArray* newOrder );
 
-      void onPortRenamed( const char* path, const char* oldName, const char* newName );
+      void onExecPortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldExecPortName,
+        FTL::CStrRef newExecPortName
+        );
+
+      void onNodePortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName,
+        FTL::CStrRef oldNodePortName,
+        FTL::CStrRef newNodePortName
+        );
+
       void onExecPortMetadataChanged( const char* portName, const char* key, const char* value );
 
       void onNodeRemoved( FTL::CStrRef execPath,

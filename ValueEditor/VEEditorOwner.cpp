@@ -1,25 +1,24 @@
 
 #include "VEEditorOwner.h"
-#include <FabricUI/ValueEditor/VETreeWidget.h>
-#include <FabricUI/GraphView/Node.h>
-#include <FabricUI/DFG/DFGWidget.h>
-#include <FabricUI/DFG/DFGController.h>
 
-#include <FabricUI/ModelItems/NodeModelItem.h>
-#include <FabricUI/ModelItems/VarModelItem.h>
+#include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGWidget.h>
+#include <FabricUI/GraphView/Node.h>
 #include <FabricUI/ModelItems/BindingModelItem.h>
-#include <FabricUI/ModelItems/PresetModelItem.h>
+#include <FabricUI/ModelItems/InstModelItem.h>
+#include <FabricUI/ModelItems/VarModelItem.h>
+#include <FabricUI/ValueEditor/VETreeWidget.h>
 
 using namespace FabricUI;
 using namespace ValueEditor;
 using namespace ModelItems;
 
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
-  : m_owner( owner )
+  : m_timelinePortIndex( -1 )
+  , m_owner( owner )
   , m_dfgValueEditor( NULL )
   , m_setGraph( NULL )
   , m_modelRoot( NULL )
-  , m_timelinePortIndex( -1 )
 {
   m_dfgValueEditor = new VETreeWidget();
 }
@@ -85,8 +84,12 @@ void VEEditorOwner::initConnections()
     this, SLOT( onExecPortMetadataChanged( const char*, const char*, const char* ) )
     );
   QObject::connect(
-    getDFGController(), SIGNAL( portRenamed( const char*, const char*, const char* ) ),
-    this, SLOT( onPortRenamed( const char*, const char* , const char* ) )
+    getDFGController(), SIGNAL( execPortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) ),
+    this, SLOT( onExecPortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) )
+    );
+  QObject::connect(
+    getDFGController(), SIGNAL( nodePortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) ),
+    this, SLOT( onNodePortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) )
     );
 
   QObject::connect(
@@ -182,20 +185,19 @@ void VEEditorOwner::onSidePanelInspectRequested()
     FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
       dfgController->getCmdHandler();
     FabricCore::DFGBinding &binding = dfgController->getBinding();
-    FabricCore::DFGExec &exec = binding.getExec();
+    FabricCore::DFGExec exec = binding.getExec();
     std::string nodeName = SplitLast( path );
 
     if (!path.empty())
       exec = exec.getSubExec( path.c_str() );
 
     m_modelRoot =
-      new FabricUI::ModelItems::NodeModelItem(
+      new FabricUI::ModelItems::InstModelItem(
         dfgUICmdHandler,
         binding,
         path,
         exec,
-        nodeName,
-        QString::fromUtf8( nodeName.data(), nodeName.size() )
+        nodeName
         );
 
     //FabricCore::DFGExec exec = binding->getExec()->getSubExec(path.c_str());
@@ -228,16 +230,14 @@ void VEEditorOwner::onNodeInspectRequested(
   switch (type)
   {
     case FabricCore::DFGNodeType_Inst:
-    case FabricCore::DFGNodeType_User:
     {
       newItem =
-        new FabricUI::ModelItems::NodeModelItem(
+        new FabricUI::ModelItems::InstModelItem(
           dfgUICmdHandler,
           binding,
           execPath,
           exec,
-          nodeName,
-          QString::fromUtf8( nodeName.data(), nodeName.size() )
+          nodeName
           );
       break;
     }
@@ -249,18 +249,18 @@ void VEEditorOwner::onNodeInspectRequested(
           binding,
           execPath,
           exec,
-          nodeName,
-          QString::fromUtf8( nodeName.data(), nodeName.size() )
+          nodeName
           );
       break;
     }
-     case FabricCore::DFGNodeType_Get:
-     case FabricCore::DFGNodeType_Set:
-     {
-       //const char* path = exec.getRefVarPath( nodeName.c_str() );
-       //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
-       break;
-     }
+    case FabricCore::DFGNodeType_User:
+    case FabricCore::DFGNodeType_Get:
+    case FabricCore::DFGNodeType_Set:
+    {
+      //const char* path = exec.getRefVarPath( nodeName.c_str() );
+      //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
+      break;
+    }
     default:
       assert( 0 && "Implement Me" );
   }
@@ -290,7 +290,7 @@ void VEEditorOwner::onValueChanged( int index, const char* name )
     }
     else
     {
-      BaseModelItem* changingChild = m_modelRoot->GetChild( name, false );
+      BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
       if (changingChild != NULL)
       {
         QVariant val = changingChild->GetValue();
@@ -345,7 +345,7 @@ void VEEditorOwner::onArgTypeChanged( int index, const char* name, const char* n
 
   if (m_modelRoot->argTypeChanged( index, name, newType ))
   {
-    BaseModelItem* changingChild = m_modelRoot->GetChild( name, false );
+    BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
     if (changingChild != NULL)
       emit modelItemTypeChange( changingChild, newType );
   }
@@ -358,7 +358,7 @@ void VEEditorOwner::onArgRemoved( int index, const char* name )
   if (m_modelRoot == NULL)
     return;
 
-  BaseModelItem* removedChild = m_modelRoot->GetChild( name, false );
+  BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
   if (removedChild != NULL)
   {
     emit modelItemRemoved( removedChild );
@@ -387,21 +387,44 @@ void VEEditorOwner::onArgsReordered( const FTL::JSONArray* newOrder )
   onStructureChanged();
 }
 
-
-
-void VEEditorOwner::onPortRenamed( const char* path, const char* oldName, const char* newName )
+void VEEditorOwner::onExecPortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldExecPortName,
+  FTL::CStrRef newExecPortName
+  )
 {
 
-  if (m_modelRoot != NULL)
+  if ( m_modelRoot != NULL )
   {
-    if (m_modelRoot->matchesPath( "" , path ))
-    {
-      BaseModelItem* changingChild = m_modelRoot->argRenamed( oldName, newName );
-      if (changingChild != NULL)
-      {
-        emit modelItemRenamed( changingChild );
-      }
-    }
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->onExecPortRenamed(
+        execPath,
+        oldExecPortName,
+        newExecPortName
+        ) )
+      emit modelItemRenamed( changingChild );
+  }
+  onStructureChanged();
+}
+
+void VEEditorOwner::onNodePortRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  FTL::CStrRef oldNodePortName,
+  FTL::CStrRef newNodePortName
+  )
+{
+
+  if ( m_modelRoot != NULL )
+  {
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->onNodePortRenamed(
+        execPath,
+        nodeName,
+        oldNodePortName,
+        newNodePortName
+        ) )
+      emit modelItemRenamed( changingChild );
   }
   onStructureChanged();
 }
@@ -415,9 +438,9 @@ void VEEditorOwner::onExecPortMetadataChanged( const char* portName, const char*
     if (strcmp( key, "uiPersistValue" ) == 0)
       return;
 
-    BaseModelItem* changingChild = m_modelRoot->GetChild( portName, false );
+    BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
     // Only update if the change isn't coming from the child itself
-    if (changingChild != NULL & !changingChild->SettingMetadata())
+    if ( changingChild != NULL && !changingChild->SettingMetadata() )
     {
       // Our changing metadata could mean a changing type
       emit modelItemTypeChange( changingChild, "" );
@@ -438,14 +461,22 @@ void VEEditorOwner::onNodeRemoved( FTL::CStrRef execPath, FTL::CStrRef nodeName 
   }
 }
 
-void VEEditorOwner::onNodeRenamed( FTL::CStrRef execPath, FTL::CStrRef oldNodeName, FTL::CStrRef newNodeName )
+void VEEditorOwner::onNodeRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
 {
   if (m_modelRoot != NULL)
   {
-    if (m_modelRoot->matchesPath( execPath, oldNodeName ))
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->onNodeRenamed(
+        execPath,
+        oldNodeName,
+        newNodeName
+        ) )
     {
-      m_modelRoot->OnItemRenamed( newNodeName.c_str() );
-      emit modelItemRenamed( m_modelRoot );
+      emit modelItemRenamed( changingChild );
     }
   }
 }
@@ -460,7 +491,7 @@ void VEEditorOwner::onPortsConnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort
     // Tested vs Node, 
     if (m_modelRoot->matchesPath( "", path.c_str() ))
     {
-      BaseModelItem* destChild = m_modelRoot->GetChild( portName.c_str(), false );
+      BaseModelItem* destChild = m_modelRoot->getChild( portName, false );
       if (destChild != NULL)
         emit modelItemTypeChange( destChild, "" );
     }
@@ -476,7 +507,7 @@ void VEEditorOwner::onPortsDisconnected( FTL::CStrRef srcPort, FTL::CStrRef dstP
 
     if (m_modelRoot->matchesPath( "", path.c_str() ))
     {
-      BaseModelItem* pChild = m_modelRoot->GetChild( portName.c_str(), false );
+      BaseModelItem* pChild = m_modelRoot->getChild( portName, false );
       if (pChild != NULL)
         emit modelItemTypeChange( pChild, "" );
     }

@@ -1,6 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
-#include "RootModelItem.h"
+#include <FabricUI/ModelItems/RootModelItem.h>
 
 namespace FabricUI
 {
@@ -34,14 +38,22 @@ class DFGUICmdHandler;
         FTL::StrRef nodeName 
         ) /*override*/;
 
-      BaseModelItem* CreateChild( QString name ) /*override*/;
+      BaseModelItem *createChild( FTL::CStrRef name ) /*override*/;
 
-      virtual size_t NumChildren() /*override*/;
+      virtual int getNumChildren() /*override*/;
 
-      virtual QString ChildName( int i ) /*override*/;
+      virtual FTL::CStrRef getChildName( int i ) /*override*/;
 
-      virtual QString GetName() /*override*/;
-      virtual void RenameItem( const char* name );
+      virtual FTL::CStrRef getName() /*override*/;
+      virtual bool canRenameItem() /*override*/
+        { return false; };
+      virtual void RenameItem( const char* name ) /*override*/;
+
+      virtual BaseModelItem *onExecPortRenamed(
+        FTL::CStrRef execPath,
+        FTL::CStrRef oldExecPortName,
+        FTL::CStrRef newExecPortName
+        ) /*override*/;
 
       virtual QVariant GetValue() /*override*/;
 

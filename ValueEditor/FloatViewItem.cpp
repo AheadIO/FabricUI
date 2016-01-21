@@ -6,6 +6,7 @@
 #include "QVariantRTVal.h"
 #include "VESpinBox.h"
 
+#include <FabricUI/Util/UIRange.h>
 #include <float.h>
 
 FloatViewItem::FloatViewItem(
@@ -28,6 +29,8 @@ FloatViewItem::FloatViewItem(
     m_spinBox, SIGNAL(interactionEnd(bool)), 
     this, SIGNAL(interactionEnd(bool))
     );
+
+  metadataChanged();
 }
 
 FloatViewItem::~FloatViewItem()
@@ -49,6 +52,15 @@ void FloatViewItem::onSpinBoxValueChanged( double value )
   emit viewValueChanged(
     QVariant::fromValue<double>( value )
     );
+}
+
+void FloatViewItem::metadataChanged()
+{
+  FTL::StrRef uiRangeString = m_metadata.getString( "uiRange" );
+  
+  double minValue, maxValue;
+  if ( FabricUI::DecodeUIRange( uiRangeString, minValue, maxValue ) )
+    m_spinBox->setRange( minValue, maxValue );
 }
 
 //////////////////////////////////////////////////////////////////////////

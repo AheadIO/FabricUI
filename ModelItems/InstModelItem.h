@@ -4,33 +4,38 @@
 
 #pragma once
 
+#include <FabricCore.h>
 #include <FabricUI/ModelItems/NodeModelItem.h>
+#include <FTL/StrRef.h>
+
+//////////////////////////////////////////////////////////////////////////
+// The Root-level model item for 
+// 
 
 namespace FabricUI
 {
+namespace DFG {
+class DFGUICmdHandler;
+}
 
   namespace ModelItems
   {
-    //////////////////////////////////////////////////////////////////////////
-    // Access graph variables
-    class VarModelItem : public NodeModelItem
+    class InstModelItem : public NodeModelItem
     {
     public:
-
-      VarModelItem(
+      
+      InstModelItem(
         DFG::DFGUICmdHandler *dfgUICmdHandler,
         FabricCore::DFGBinding binding,
         FTL::StrRef execPath,
         FabricCore::DFGExec exec,
         FTL::StrRef nodeName
         );
-      ~VarModelItem();
+      ~InstModelItem();
 
       virtual BaseModelItem* createChild( FTL::CStrRef name );
 
-      virtual int GetInOut() /*override*/;
-
-      virtual QVariant GetValue() /*override*/;
+      virtual QVariant GetValue();
 
     protected:
 

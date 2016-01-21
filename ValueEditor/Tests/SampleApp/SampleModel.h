@@ -8,7 +8,7 @@
 // model to run the UI against without loading FE
 class SampleModelItem : public BaseModelItem {
 	// Sample 
-	QString m_name;
+	std::string m_name;
 	QVariant m_value;
 
 	std::vector<SampleModelItem*> m_children;
@@ -34,7 +34,7 @@ public:
 		return m_children[i];
 	}
 
-	virtual QString GetName() /*override*/
+	virtual FTL::CStrRef getName() /*override*/
 	{
 		return m_name;
 	}

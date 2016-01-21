@@ -1,6 +1,11 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
 
-#include "PortItemMetadata.h"
+#include <FabricUI/ModelItems/ArgModelItem.h>
+#include <FabricUI/ModelItems/ModelItemMetadata.h>
 
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
@@ -11,18 +16,26 @@ namespace FabricUI
 
   namespace ModelItems
   {
-    class ArgItemMetadata : public PortItemMetadata
+
+    class ArgItemMetadata : public ModelItemMetadata
     {
+    private:
+
+      ArgModelItem *m_argModelItem;
+
     public:
-      ArgItemMetadata( FabricCore::DFGExec exec, const char* path )
-        : PortItemMetadata( exec, path )
-      {}
+
+      ArgItemMetadata( ArgModelItem *argModelItem )
+        : m_argModelItem( argModelItem ) {}
 
       virtual const char* getString( const char* key ) const /*override*/
       {
-        return const_cast<FabricCore::DFGExec&>(m_exec).getExecPortMetadata( m_path.c_str(), key );
+        FabricCore::DFGExec rootExec = m_argModelItem->getRootExec();
+        FTL::CStrRef argName = m_argModelItem->getArgName();
+        return rootExec.getExecPortMetadata( argName.c_str(), key );
       }
 
     };
+
   }
 }

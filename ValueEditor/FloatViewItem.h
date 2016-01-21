@@ -28,12 +28,13 @@ public:
     ItemMetadata* metadata
     );
 	~FloatViewItem();
+  void deleteMe() { delete this; }
 
 	virtual QWidget *getWidget() /*override*/;
   
 	virtual void onModelValueChanged( QVariant const &value ) /*override*/;
 
-  void deleteMe() { delete this; }
+  virtual void metadataChanged() /*override*/; 
 
 private:
 

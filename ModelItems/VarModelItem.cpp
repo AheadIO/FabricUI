@@ -1,7 +1,12 @@
-#include "VarModelItem.h"
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
 
-using namespace FabricUI;
-using namespace ModelItems;
+#include <FabricUI/ModelItems/VarModelItem.h>
+#include <FabricUI/ModelItems/VarPortModelItem.h>
+
+namespace FabricUI {
+namespace ModelItems {
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -10,22 +15,32 @@ VarModelItem::VarModelItem(
   FabricCore::DFGBinding binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec exec,
-  FTL::StrRef nodeName,
-  QString name
+  FTL::StrRef nodeName
   )
   : NodeModelItem(
     dfgUICmdHandler,
     binding,
     execPath,
     exec,
-    nodeName,
-    name
+    nodeName
     )
 {
 }
 
 VarModelItem::~VarModelItem()
 {
+}
+
+BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
+{
+  return new VarPortModelItem(
+    m_dfgUICmdHandler,
+    m_binding,
+    m_execPath,
+    m_exec,
+    m_nodeName,
+    portName
+    );
 }
 
 int VarModelItem::GetInOut()
@@ -40,15 +55,6 @@ QVariant VarModelItem::GetValue()
   return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
 }
 
-bool VarModelItem::hasDefault()
-{
-  return false;
-}
-
-void VarModelItem::resetToDefault()
-{
-}
-
 void VarModelItem::SetValue(
   QVariant var,
   bool commit,
@@ -61,3 +67,6 @@ void VarModelItem::SetValue(
     m_exec.setVarValue( m_nodeName.c_str(), val );
   }
 }
+
+} // namespace ModelItems
+} // namespace FabricUI

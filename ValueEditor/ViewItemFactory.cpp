@@ -118,9 +118,10 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   BaseModelItem *modelItem
   )
 {
+  FTL::CStrRef name = modelItem->getName();
   return CreateViewItem(
     modelItem,
-    modelItem->GetName(),
+    QString::fromUtf8( name.data(), name.size() ),
     modelItem->GetValue(),
     modelItem->GetMetadata()
     );

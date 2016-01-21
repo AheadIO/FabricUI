@@ -235,7 +235,11 @@ VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseViewItem * pItem, VETreeWid
 }
 
 
-void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, const char* name )
+void VETreeWidget::onModelItemChildInserted(
+  BaseModelItem* parent,
+  int index,
+  const char* name
+  )
 {
   QTreeWidgetItem* parentItem = findTreeWidget( parent );
   if (parentItem != NULL)
@@ -244,7 +248,7 @@ void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, c
     if (parentItem->isExpanded())
     {
       // Insert new child in the appropriate place
-      BaseModelItem* newItem = parent->GetChild( name );
+      BaseModelItem* newItem = parent->getChild( name );
       BaseViewItem* newView =
         ViewItemFactory::GetInstance()->CreateViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
