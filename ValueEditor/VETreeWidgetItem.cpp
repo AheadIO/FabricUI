@@ -55,6 +55,7 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
     {
       int myIndex = parentModel->ChildIndex( m_viewItem->getName() );
       int otherIndex = parentModel->ChildIndex( otherView->getName() );
+
       return myIndex < otherIndex;
     }
   }

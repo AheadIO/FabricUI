@@ -56,6 +56,42 @@ VETreeWidget::VETreeWidget( )
 }
 
 
+BaseViewItem* updateTabOrder( VETreeWidgetItem* lastItem, BaseViewItem* lastView )
+{
+  // If the last item has any chilren open
+  VETreeWidgetItem* lastTabItem = lastItem;
+  BaseViewItem* lastTabView = lastView;
+
+  for (int i = 0; i < lastItem->childCount(); i++)
+  {
+    VETreeWidgetItem* child = 
+      static_cast<VETreeWidgetItem*>( lastItem->child( i ) );
+    QString childName = child->text( 0 );
+    BaseViewItem* childView = child->getViewItem();
+    if (childView)
+    {
+      QWidget::setTabOrder( lastTabView->getWidget(), 
+                            childView->getWidget() );
+      lastTabView = childView;
+    }
+    lastTabView = updateTabOrder( child, lastTabView );
+  }
+  return lastTabView;
+}
+
+void VETreeWidget::sortTree()
+{
+  // Ensure ordering is maintained.
+  sortItems( 0, Qt::AscendingOrder );
+
+  VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
+  BaseViewItem* baseView = baseItem->getViewItem();
+  if (baseView != NULL)
+  {
+    updateTabOrder( baseItem, baseView );
+  }
+}
+
 VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index /*= -1 */ )
 {
   assert( viewItem );
@@ -213,8 +249,7 @@ void VETreeWidget::onModelItemChildInserted( BaseModelItem* parent, int index, c
         ViewItemFactory::GetInstance()->CreateViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
 
-      // Ensure ordering is maintained.
-      sortItems( 0, Qt::AscendingOrder );
+      sortTree();
     }
   }
 }
@@ -279,7 +314,7 @@ void VETreeWidget::onViewItemChildrenRebuild( BaseViewItem* item )
 
 void VETreeWidget::onModelItemChildrenReordered( BaseModelItem* /*parent*/, const QList<int>& /*newOrder*/ )
 {
-  sortItems( 0, Qt::AscendingOrder );
+  sortTree();
 }
 
 void VETreeWidget::onItemEdited( QTreeWidgetItem* _item, int column )
@@ -324,12 +359,15 @@ void VETreeWidget::onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem )
   {
     QList<BaseViewItem *> childViewItems;
     viewItem->appendChildViewItems( childViewItems );
+    BaseViewItem* lastViewItem = viewItem;
     for (int i = 0; i < childViewItems.size(); ++i)
     {
       BaseViewItem *childViewItem = childViewItems.at( i );
       createTreeWidgetItem( childViewItem, treeWidgetItem );
+      setTabOrder( lastViewItem->getWidget(), childViewItem->getWidget() );
+      lastViewItem = childViewItem;
     }
-    sortItems( 0, Qt::AscendingOrder );
+    sortTree();
   }
   else
     this->resizeColumnToContents( 0 );

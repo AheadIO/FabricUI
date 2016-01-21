@@ -18,6 +18,8 @@ public:
 
   VETreeWidget( );
 
+  void sortTree();
+
   VETreeWidgetItem* createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index = -1 );
 
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem ) const;
