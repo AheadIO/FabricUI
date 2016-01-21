@@ -1152,6 +1152,14 @@ void DFGNotificationRouter::onNodePortRenamed(
   FTL::CStrRef newPortName
   )
 {
+  if ( GraphView::Graph *uiGraph = m_dfgController->graph() )
+  {
+    if ( GraphView::Node *uiNode = uiGraph->node( nodeName ) )
+    {
+      uiNode->renamePin( oldPortName, newPortName );
+    }
+  }
+
   m_dfgController->emitNodePortRenamed(
     m_dfgController->getExecPath(),
     nodeName,

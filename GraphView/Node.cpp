@@ -576,6 +576,14 @@ Pin * Node::pin(FTL::StrRef name)
   return NULL;
 }
 
+Pin *Node::renamePin( FTL::StrRef oldName, FTL::StrRef newName )
+{
+  Pin *p = pin( oldName );
+  if ( p )
+    p->setName( newName );
+  return p;
+}
+
 void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
   if(onMousePress(event->button(), event->modifiers(), event->scenePos(), event->lastScenePos()))
