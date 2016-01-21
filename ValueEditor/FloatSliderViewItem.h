@@ -28,14 +28,13 @@ public:
     ItemMetadata* metadata
     );
   ~FloatSliderViewItem();
+  void deleteMe() { delete this; }
 
   virtual QWidget *getWidget() /*override*/;
 
   virtual void onModelValueChanged( QVariant const &value ) /*override*/;
 
-  virtual void metadataChanged( );
-  
-  void deleteMe() { delete this; }
+  virtual void metadataChanged() /*override*/; 
 
 private:
 

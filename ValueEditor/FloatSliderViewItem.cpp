@@ -7,6 +7,7 @@
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 
+#include <FabricUI/Util/UIRange.h>
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant>
 
@@ -52,41 +53,11 @@ void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
 
 void FloatSliderViewItem::metadataChanged()
 {
-  const char* str = m_metadata.getString( "uiRange" );
-  if (str == NULL)
-    return;
-
-  std::string rangeStr = str;
-  if (rangeStr.size() > 0)
-  {
-    try 
-    {
-      if (rangeStr[0] == '(')
-        rangeStr = rangeStr.substr( 1 );
-      if (rangeStr[rangeStr.size() - 1] == ')')
-        rangeStr = rangeStr.substr( 0, rangeStr.size() - 1 );
-
-      QStringList parts = QString( rangeStr.c_str() ).split( ',' );
-      if (parts.size() != 2)
-        return;
-
-      QString minStr = parts[0].trimmed();
-      QString maxStr = parts[1].trimmed();
-      bool ok;
-      double min = minStr.toFloat(&ok);
-      if (ok)
-      {
-        double max = maxStr.toFloat(&ok);
-        if (ok)
-          m_slider->setResolution( 100, min, max );
-      }
-    }
-    catch (...)
-    {
-      // No change on exception
-      printf( "[ERROR] Unknown error setting range on slider" );
-    }
-  }
+  FTL::StrRef uiRangeString = m_metadata.getString( "uiRange" );
+  
+  double minValue, maxValue;
+  if ( FabricUI::DecodeUIRange( uiRangeString, minValue, maxValue ) )
+    m_slider->setResolution( 100, minValue, maxValue );
 }
 
 void FloatSliderViewItem::onSliderPressed()

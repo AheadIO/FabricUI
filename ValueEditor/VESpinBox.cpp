@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <FabricUI/Util/LoadPixmap.h>
+#include <float.h>
 #include <math.h>
 #include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
@@ -91,6 +92,8 @@ VESpinBox::VESpinBox(
   )
   : QWidget( parent )
   , m_value( initialValue )
+  , m_minValue( -DBL_MAX )
+  , m_maxValue( +DBL_MAX )
   , m_trackCount( 0 )
   , m_wheelActive( false )
 {
@@ -140,12 +143,25 @@ void VESpinBox::setValue( double value, double delta )
 {
   if ( m_value != value )
   {
-    m_value = value;
+    m_value = std::min(
+      m_maxValue,
+      std::max(
+        m_minValue,
+        value
+        )
+      );
 
     m_lineEdit->setText( StringForValue( m_value, delta ) );
 
     emit valueChanged( m_value );
   }
+}
+
+void VESpinBox::setRange( double minValue, double maxValue )
+{
+  m_minValue = minValue;
+  m_maxValue = maxValue;
+  setValue( m_value );
 }
 
 void VESpinBox::onLineEditTextModified( QString text )

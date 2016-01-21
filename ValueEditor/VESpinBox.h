@@ -46,6 +46,8 @@ public:
 
   void setValue( double value, double delta = 0.0 );
 
+  void setRange( double minValue, double maxValue );
+
 signals:
 
   void interactionBegin();
@@ -74,6 +76,7 @@ protected slots:
 private:
 
   double m_value;
+  double m_minValue, m_maxValue;
 
   VELineEdit *m_lineEdit;
   VESpinBox_Adjuster *m_button;
