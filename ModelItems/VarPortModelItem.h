@@ -36,8 +36,9 @@ class DFGUICmdHandler;
         );
       ~VarPortModelItem();
 
-      virtual bool canRenameItem();
-      virtual void RenameItem( const char* newName );
+      virtual FTL::CStrRef getName() /*override*/;
+      virtual bool canRenameItem() /*override*/;
+      virtual void RenameItem( const char* newName ) /*override*/;
       
       virtual QVariant GetValue();
 

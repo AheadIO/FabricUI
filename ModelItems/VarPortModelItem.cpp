@@ -36,6 +36,11 @@ VarPortModelItem::~VarPortModelItem()
 {
 }
 
+FTL::CStrRef VarPortModelItem::getName()
+{
+  return FTL_STR("initialValue");
+}
+
 bool VarPortModelItem::canRenameItem()
 {
   return false;
