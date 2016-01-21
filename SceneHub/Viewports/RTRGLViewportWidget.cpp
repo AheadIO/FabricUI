@@ -59,12 +59,16 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   );
 }
 
-RTRGLViewportWidget::~RTRGLViewportWidget() {
-  FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
-    if( m_shObject.isValid() )
-      m_shObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
+void RTRGLViewportWidget::detachFromRTRViewport() {
+  FABRIC_TRY( "RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
+              if( m_shObject.isValid() && m_viewportIndexRTVal.isValid() )
+                m_shObject.callMethod( "", "removeViewport", 1, &m_viewportIndexRTVal );
   );
-  emit viewportDestroying();
+  m_viewportIndexRTVal = FabricCore::RTVal();
+}
+
+RTRGLViewportWidget::~RTRGLViewportWidget() {
+  detachFromRTRViewport();
 }
  
 void RTRGLViewportWidget::paintGL() {

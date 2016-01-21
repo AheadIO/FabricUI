@@ -26,29 +26,30 @@ namespace FabricUI
 {
   namespace Viewports
   {
-    class RTRGLViewportWidget : public ViewportWidget
-    {
+    class RTRGLViewportWidget : public ViewportWidget {
       Q_OBJECT
 
-      public:
-        RTRGLViewportWidget(
-          FabricCore::Client*, 
-          FabricCore::RTVal, 
-          int , 
-          QGLContext*, 
-          QWidget *parent = 0, 
-          QGLWidget *shared = 0,
-          QSettings *settings = 0);
-        
-        virtual ~RTRGLViewportWidget();
+    public:
+      RTRGLViewportWidget(
+        FabricCore::Client*,
+        FabricCore::RTVal,
+        int,
+        QGLContext*,
+        QWidget *parent = 0,
+        QGLWidget *shared = 0,
+        QSettings *settings = 0 );
 
-        void setTime(float time);
-        void toggleAlwaysRefresh();
-        bool alwaysRefreshes() { return m_alwaysRefresh; }
- 
-        virtual FabricCore::RTVal getCamera();
-        virtual void setBackgroundColor(QColor color) {};
+      virtual ~RTRGLViewportWidget();
 
+      void setTime( float time );
+      void toggleAlwaysRefresh();
+      bool alwaysRefreshes() { return m_alwaysRefresh; }
+
+      virtual FabricCore::RTVal getCamera();
+      virtual void setBackgroundColor( QColor color ) {};
+
+      /// Special case: when changing the 'sampling' settings, the widget needs to be recreated
+      void detachFromRTRViewport();
 
       signals:
         void sceneChanged();
