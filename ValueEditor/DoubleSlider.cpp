@@ -3,17 +3,22 @@
 //
 
 #include "DoubleSlider.h"
+
+#include <math.h>
 #include <QtGui/QStyleOptionSlider>
 #include <QtGui/QMouseEvent>
 
-DoubleSlider::DoubleSlider( QWidget * parent ) 
+DoubleSlider::DoubleSlider( double value, QWidget * parent ) 
   : QSlider( parent )
-  , m_resolution(100)
-  , m_min(0)
-  , m_max(1)
+  , m_min( 0.0 )
+  , m_max( 1.0 )
 {
+  setResolution( 100, m_min, m_max );
+
   // Default to horizontal orientation
   setOrientation( Qt::Horizontal );
+
+  setDoubleValue( value );
 
   connect( this, SIGNAL( valueChanged( int ) ),
            this, SLOT( notifyValueChanged( int ) ) );
@@ -30,14 +35,30 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
   if (event->button() == Qt::LeftButton &&
         sr.contains( event->pos() ) == false)
   {
-    int newVal;
-    if (orientation() == Qt::Vertical)
-      newVal = minimum() + ((maximum() - minimum()) * (height() - event->y())) / height();
-    else
-      newVal = minimum() + ((maximum() - minimum()) * event->x()) / width();
+    int max = maximum();
 
-    if (invertedAppearance() == true)
-      setValue( maximum() - newVal );
+    int newVal = 0;
+    if ( orientation() == Qt::Vertical )
+    {
+      int h = height();
+      if ( h > 1 )
+      {
+        --h;
+        newVal += (max * (h - event->y()) + h/2) / h;
+      }
+    }
+    else
+    {
+      int w = width();
+      if ( w > 1 )
+      {
+        --w;
+        newVal += (max * event->x() + w/2) / w;
+      }
+    }
+
+    if ( invertedAppearance() )
+      setValue( max - newVal );
     else
       setValue( newVal );
 
@@ -49,22 +70,18 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
 
 void DoubleSlider::setResolution( int resolution, double min, double max )
 {
-  m_resolution = resolution;
+  double value = doubleValue();
+  setRange( 0, resolution );
   m_max = max;
   m_min = min;
+  setDoubleValue( value );
 }
 
 void DoubleSlider::setDoubleValue( double value )
 {
-  if (value < m_min)
-    setValue( 0 );
-  else if (value > m_max)
-    setValue( m_resolution );
-  else
-  {
-    double ratio = (value - m_min) / (m_max - m_min);
-    setValue( int(ratio * m_resolution) );
-  }
+  value = std::max( m_min, std::min( m_max, value ) );
+  double ratio = (value - m_min) / (m_max - m_min);
+  setValue( int(round( ratio * maximum() )) );
 }
 
 double DoubleSlider::doubleValue()
@@ -74,7 +91,8 @@ double DoubleSlider::doubleValue()
 
 double DoubleSlider::toDouble( int value )
 {
-  return m_min + ((m_max - m_min) * value / m_resolution);
+  double ratio = double( value ) / double( maximum() );
+  return (1.0 - ratio) * m_min + ratio * m_max;
 }
 
 void DoubleSlider::notifyValueChanged( int value ) {

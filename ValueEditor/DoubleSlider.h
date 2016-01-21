@@ -9,12 +9,12 @@
 class DoubleSlider : public QSlider {
   Q_OBJECT
 
-  int m_resolution;
   double m_min;
   double m_max;
 
 public:
-  DoubleSlider( QWidget *parent = 0 );
+
+  DoubleSlider( double value, QWidget *parent = 0 );
 
   // Override the slider positioning to make the slider 
   // go directly to the clicked positioning (instead of
@@ -27,6 +27,10 @@ public:
   double doubleValue();
   double toDouble( int value );
 
+  double min() const
+    { return m_min; }
+  double max() const
+    { return m_max; }
 
 signals :
   void doubleValueChanged( double value);
