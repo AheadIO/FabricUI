@@ -61,7 +61,17 @@ QVariant VarPortModelItem::GetValue()
       FabricCore::RTVal rtVal = 
         m_exec.getPortDefaultValue( m_portPath.c_str(), ctype );
       if ( rtVal.isValid() )
-        return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
+      {
+        // DFG returns references
+        rtVal = rtVal.copy();
+      }
+      else
+      {
+        FabricCore::DFGHost host = m_exec.getHost();
+        FabricCore::Context context = host.getContext();
+        rtVal = FabricCore::RTVal::Construct( context, ctype, 0, 0 );
+      }
+      return QVariant::fromValue<FabricCore::RTVal>( rtVal.copy() );
     }
   }
   catch (FabricCore::Exception* e)
