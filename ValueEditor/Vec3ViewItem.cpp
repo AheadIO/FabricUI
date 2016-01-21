@@ -8,6 +8,7 @@
 #include "VESpinBox.h"
 
 #include <assert.h>
+#include <FabricUI/Util/UIRange.h>
 #include <QtCore/QVariant>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLineEdit>
@@ -74,6 +75,8 @@ Vec3ViewItem::Vec3ViewItem(
   layout->addWidget( m_xSpinBox );
   layout->addWidget( m_ySpinBox );
   layout->addWidget( m_zSpinBox );
+
+  metadataChanged();
 }
 
 Vec3ViewItem::~Vec3ViewItem()
@@ -163,6 +166,19 @@ void Vec3ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
   {
     connectChild( i, children[i] );
     items.append( children[i] );
+  }
+}
+
+void Vec3ViewItem::metadataChanged()
+{
+  FTL::StrRef uiRangeString = m_metadata.getString( "uiRange" );
+  
+  double minValue, maxValue;
+  if ( FabricUI::DecodeUIRange( uiRangeString, minValue, maxValue ) )
+  {
+    m_xSpinBox->setRange( minValue, maxValue );
+    m_ySpinBox->setRange( minValue, maxValue );
+    m_zSpinBox->setRange( minValue, maxValue );
   }
 }
 
