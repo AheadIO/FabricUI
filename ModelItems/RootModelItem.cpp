@@ -100,84 +100,27 @@ void RootModelItem::argRemoved( int index, const char* name )
   }
 }
 
-BaseModelItem *RootModelItem::onExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
+BaseModelItem *RootModelItem::onPortRenamed(
+  unsigned index,
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
   )
 {
-  BaseModelItem *changingChild = 0;
-  for ( ChildVec::iterator itr = m_children.begin();
-    itr != m_children.end(); itr++ )
+  for ( ChildVec::iterator it = m_children.begin();
+    it != m_children.end(); ++it )
   {
-    BaseModelItem *childModelItem = *itr;
-    BaseModelItem *result =
-      childModelItem->onExecPortRenamed(
-        execPath,
-        oldExecPortName,
-        newExecPortName
-        );
-    if ( result )
+    BaseModelItem *childModelItem = *it;
+    if ( childModelItem->getName() == oldName )
     {
-      assert( !changingChild );
-      changingChild = result;
+      childModelItem->onRenamed(
+        oldName,
+        newName
+        );
+      return childModelItem;
     }
   }
-  return changingChild;
-}
 
-BaseModelItem *RootModelItem::onNodePortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef nodeName,
-  FTL::CStrRef oldNodePortName,
-  FTL::CStrRef newNodePortName
-  )
-{
-  BaseModelItem *changingChild = 0;
-  for ( ChildVec::iterator itr = m_children.begin();
-    itr != m_children.end(); itr++ )
-  {
-    BaseModelItem *childModelItem = *itr;
-    BaseModelItem *result =
-      childModelItem->onNodePortRenamed(
-        execPath,
-        nodeName,
-        oldNodePortName,
-        newNodePortName
-        );
-    if ( result )
-    {
-      assert( !changingChild );
-      changingChild = result;
-    }
-  }
-  return changingChild;
-}
-
-BaseModelItem *RootModelItem::onNodeRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldNodeName,
-  FTL::CStrRef newNodeName
-  )
-{
-  BaseModelItem *changingChild = 0;
-  for ( ChildVec::iterator itr = m_children.begin();
-    itr != m_children.end(); itr++ )
-  {
-    BaseModelItem *childModelItem = *itr;
-    BaseModelItem *result =
-      childModelItem->onNodeRenamed(
-        execPath,
-        oldNodeName,
-        newNodeName
-        );
-    if ( result )
-    {
-      assert( !changingChild );
-      changingChild = result;
-    }
-  }
-  return changingChild;
+  return 0;
 }
 
 bool RootModelItem::hasDefault()

@@ -37,6 +37,12 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
       FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
       );
 
+    // fprintf(
+    //   stderr,
+    //   "DFGBindingNotifier::bindingNotificationCallback: received:\n%s\n",
+    //   jsonStr.c_str()
+    //   );
+
     FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
     if ( descStr == FTL_STR("dirty") )
     {
@@ -57,13 +63,13 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
       
       emit argInserted( index, name, type );
     }
-    else if ( descStr == FTL_STR("argTypeChanged") )
+    else if ( descStr == FTL_STR("argRenamed") )
     {
       unsigned index = unsigned( jsonObject->getSInt32( FTL_STR("index") ) );
-      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-      FTL::CStrRef type = jsonObject->getString( FTL_STR("newType") );
+      FTL::CStrRef oldName = jsonObject->getString( FTL_STR("oldName") );
+      FTL::CStrRef newName = jsonObject->getString( FTL_STR("newName") );
       
-      emit argTypeChanged( index, name, type );
+      emit argRenamed( index, oldName, newName );
     }
     else if ( descStr == FTL_STR("argRemoved") )
     {
@@ -71,6 +77,14 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
       FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
       
       emit argRemoved( index, name );
+    }
+    else if ( descStr == FTL_STR("argTypeChanged") )
+    {
+      unsigned index = unsigned( jsonObject->getSInt32( FTL_STR("index") ) );
+      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
+      FTL::CStrRef type = jsonObject->getString( FTL_STR("newType") );
+      
+      emit argTypeChanged( index, name, type );
     }
     else if ( descStr == FTL_STR("argsReordered") )
     {

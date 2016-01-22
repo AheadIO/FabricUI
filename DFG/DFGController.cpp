@@ -2038,7 +2038,7 @@ std::string DFGController::cmdAddPort(
   if(!validPresetSplit())
     return "";
 
-  //UpdateSignalBlocker blocker( this );
+  UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddPort(
     getBinding(),

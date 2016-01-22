@@ -56,38 +56,60 @@ namespace FabricUI {
       void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
       void onOutputsChanged(); // Call after each evalation
 
-      // Arg-specific updates for when arg only changes.
-      void onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL::CStrRef type );
-      void onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, FTL::CStrRef newType );
-      void onBindingArgRemoved( unsigned index, FTL::CStrRef name );
-      void onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder );
-
-      void onExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
+      void onBindingArgInserted(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef type
         );
 
-      void onNodePortRenamed(
-        FTL::CStrRef execPath,
+      void onBindingArgRenamed(
+        unsigned argIndex,
+        FTL::CStrRef oldArgName,
+        FTL::CStrRef newArgName
+        );
+
+      void onBindingArgRemoved(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingArgTypeChanged(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef newType
+        );
+
+      void onBindingArgsReordered(
+        FTL::ArrayRef<unsigned> newOrder
+        );
+
+      void onExecNodePortRenamed(
         FTL::CStrRef nodeName,
+        unsigned portIndex,
         FTL::CStrRef oldNodePortName,
         FTL::CStrRef newNodePortName
         );
 
-      void onExecPortMetadataChanged( const char* portName, const char* key, const char* value );
+      void onExecPortMetadataChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        );
 
-      void onNodeRemoved( FTL::CStrRef execPath,
-                          FTL::CStrRef nodeName );
+      void onExecNodeRemoved(
+        FTL::CStrRef nodeName
+        );
 
-      void onNodeRenamed( FTL::CStrRef execPath,
-                          FTL::CStrRef oldNodeName,
-                          FTL::CStrRef newNodeName );
-      void onPortsConnected( FTL::CStrRef srcPort,
-                             FTL::CStrRef dstPort );
-      void onPortsDisconnected( FTL::CStrRef srcPort,
-                             FTL::CStrRef dstPort );
-      //
+      void onExecNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        );
+
+      void onExecPortsConnectedOrDisconnected(
+        FTL::CStrRef srcPortPath,
+        FTL::CStrRef dstPortPath
+        );
+
       void onStructureChanged();
 
       void onFrameChanged(int frame);
@@ -115,8 +137,9 @@ namespace FabricUI {
       VETreeWidget* m_dfgValueEditor;
       FabricUI::GraphView::Graph * m_setGraph;
 
-      QSharedPointer<QObject> m_notifier;
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
+      QSharedPointer<QObject> m_notifier;
+      QSharedPointer<QObject> m_subNotifier;
     };
 }
 }

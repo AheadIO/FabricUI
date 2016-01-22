@@ -2,6 +2,7 @@
 #include "VEEditorOwner.h"
 
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGExecNotifier.h>
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/ModelItems/BindingModelItem.h>
@@ -35,11 +36,6 @@ QWidget* VEEditorOwner::getWidget() const
 
 void VEEditorOwner::initConnections()
 {
-  // new DFG::DFGValueEditor(
-  //   getController(),
-  //   config
-  //   );
-
   QObject::connect(
     getUIController(), SIGNAL( argsChanged() ),
     this, SLOT( onStructureChanged() )
@@ -49,44 +45,10 @@ void VEEditorOwner::initConnections()
     getUIController(), SIGNAL( defaultValuesChanged( int, const char* ) ),
     this, SLOT( onValueChanged( int, const char* ) )
     );
+
   QObject::connect(
     getDfgWidget(), SIGNAL( nodeInspectRequested( FabricUI::GraphView::Node* ) ),
     this, SLOT( onNodeInspectRequested( FabricUI::GraphView::Node* ) )
-    );
-  //QObject::connect(
-  //  getDFGController(), SIGNAL( dirty() ),
-  //  this, SLOT( onDirty() )
-  //  );
-
-  QObject::connect(
-    getDFGController(), SIGNAL( execPortMetadataChanged( const char* , const char*, const char* ) ),
-    this, SLOT( onExecPortMetadataChanged( const char*, const char*, const char* ) )
-    );
-  QObject::connect(
-    getDFGController(), SIGNAL( execPortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onExecPortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) )
-    );
-  QObject::connect(
-    getDFGController(), SIGNAL( nodePortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onNodePortRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) )
-    );
-
-  QObject::connect(
-    getDFGController(), SIGNAL( nodeRemoved( FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onNodeRemoved( FTL::CStrRef, FTL::CStrRef ) )
-    );
-  QObject::connect(
-    getDFGController(), SIGNAL( nodeRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onNodeRenamed( FTL::CStrRef, FTL::CStrRef, FTL::CStrRef ) )
-    );
-
-  QObject::connect(
-    getDFGController(), SIGNAL( portsConnected( FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onPortsConnected( FTL::CStrRef, FTL::CStrRef ) )
-    );
-  QObject::connect(
-    getDFGController(), SIGNAL( portsDisconnected( FTL::CStrRef, FTL::CStrRef ) ),
-    this, SLOT( onPortsDisconnected( FTL::CStrRef, FTL::CStrRef ) )
     );
 
   QObject::connect(
@@ -140,7 +102,9 @@ FabricUI::DFG::DFGController * VEEditorOwner::getDFGController()
 
 void VEEditorOwner::onSidePanelInspectRequested()
 {
+  m_subNotifier.clear();
   m_notifier.clear();
+
   delete m_modelRoot;
   m_modelRoot = NULL;
 
@@ -159,25 +123,52 @@ void VEEditorOwner::onSidePanelInspectRequested()
 
     m_notifier = dfgController->getBindingNotifier();
 
-    QObject::connect(
-      m_notifier.data(), SIGNAL( argInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
-      this, SLOT( onBindingArgInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) )
+    connect(
+      m_notifier.data(),
+      SIGNAL( argInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onBindingArgInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) )
       );
-    QObject::connect(
-      m_notifier.data(), SIGNAL( argTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
-      this, SLOT( onBindingArgTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) )
+    connect(
+      m_notifier.data(),
+      SIGNAL( argRenamed( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onBindingArgRenamed( unsigned, FTL::CStrRef, FTL::CStrRef ) )
       );
-    QObject::connect(
-      m_notifier.data(), SIGNAL( argValueChanged( unsigned, FTL::CStrRef ) ),
-      this, SLOT( onBindingArgValueChanged( unsigned, FTL::CStrRef ) )
+    connect(
+      m_notifier.data(),
+      SIGNAL( argRemoved( unsigned, FTL::CStrRef ) ),
+      this,
+      SLOT( onBindingArgRemoved( unsigned, FTL::CStrRef ) )
       );
-    QObject::connect(
-      m_notifier.data(), SIGNAL( argRemoved( unsigned, FTL::CStrRef ) ),
-      this, SLOT( onBindingArgRemoved( unsigned, FTL::CStrRef ) )
+    connect(
+      m_notifier.data(),
+      SIGNAL( argTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onBindingArgTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) )
       );
-    QObject::connect(
-      m_notifier.data(), SIGNAL( argsReordered( FTL::ArrayRef<unsigned> ) ),
-      this, SLOT( onBindingArgsReordered( FTL::ArrayRef<unsigned> ) )
+    connect(
+      m_notifier.data(),
+      SIGNAL( argValueChanged( unsigned, FTL::CStrRef ) ),
+      this,
+      SLOT( onBindingArgValueChanged( unsigned, FTL::CStrRef ) )
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL( argsReordered( FTL::ArrayRef<unsigned> ) ),
+      this,
+      SLOT( onBindingArgsReordered( FTL::ArrayRef<unsigned> ) )
+      );
+
+    FabricCore::DFGExec rootExec = binding.getExec();
+
+    m_subNotifier = DFG::DFGExecNotifier::Create( rootExec );
+
+    connect(
+      m_subNotifier.data(),
+      SIGNAL(portMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
       );
   }
   else
@@ -270,8 +261,55 @@ void VEEditorOwner::onNodeInspectRequested(
   if (newItem != NULL)
   {
     m_notifier.clear();
+    m_subNotifier.clear();
+
     delete m_modelRoot;
     m_modelRoot = newItem;
+
+    m_notifier = DFG::DFGExecNotifier::Create( exec );
+
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodeRenamed(FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodeRemoved(FTL::CStrRef)),
+      this,
+      SLOT(onExecNodeRemoved(FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL( portsConnected( FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onExecPortsConnectedOrDisconnected( FTL::CStrRef, FTL::CStrRef ) )
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL( portsDisconnected( FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onExecPortsConnectedOrDisconnected( FTL::CStrRef, FTL::CStrRef ) )
+      );
+
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
+
+    m_subNotifier = DFG::DFGExecNotifier::Create( subExec );
+
+    connect(
+      m_subNotifier.data(),
+      SIGNAL(portMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      );
+
     emit replaceModelRoot( m_modelRoot );
   }
 }
@@ -378,129 +416,122 @@ void VEEditorOwner::onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder )
   emit modelItemChildrenReordered( m_modelRoot, newIntOrder );
 }
 
-void VEEditorOwner::onExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
+void VEEditorOwner::onBindingArgRenamed(
+  unsigned argIndex,
+  FTL::CStrRef oldArgName,
+  FTL::CStrRef newArgName
   )
 {
+  assert( m_modelRoot );
 
-  if ( m_modelRoot != NULL )
-  {
-    if ( BaseModelItem *changingChild =
-      m_modelRoot->onExecPortRenamed(
-        execPath,
-        oldExecPortName,
-        newExecPortName
-        ) )
-      emit modelItemRenamed( changingChild );
-  }
-  onStructureChanged();
+  if ( BaseModelItem *changingChild =
+    m_modelRoot->onPortRenamed(
+      argIndex,
+      oldArgName,
+      newArgName
+      ) )
+    emit modelItemRenamed( changingChild );
 }
 
-void VEEditorOwner::onNodePortRenamed(
-  FTL::CStrRef execPath,
+void VEEditorOwner::onExecNodePortRenamed(
   FTL::CStrRef nodeName,
-  FTL::CStrRef oldNodePortName,
-  FTL::CStrRef newNodePortName
+  unsigned portIndex,
+  FTL::CStrRef oldPortName,
+  FTL::CStrRef newPortName
   )
 {
+  assert( m_modelRoot );
 
-  if ( m_modelRoot != NULL )
-  {
-    if ( BaseModelItem *changingChild =
-      m_modelRoot->onNodePortRenamed(
-        execPath,
-        nodeName,
-        oldNodePortName,
-        newNodePortName
-        ) )
-      emit modelItemRenamed( changingChild );
-  }
-  onStructureChanged();
+  if ( BaseModelItem *changingChild =
+    m_modelRoot->onPortRenamed(
+      portIndex,
+      oldPortName,
+      newPortName
+      ) )
+    emit modelItemRenamed( changingChild );
 }
 
-void VEEditorOwner::onExecPortMetadataChanged( const char* portName, const char* key, const char* value )
+void VEEditorOwner::onExecPortMetadataChanged(
+  FTL::CStrRef portName,
+  FTL::CStrRef key,
+  FTL::CStrRef value
+  )
 {
   // Find the appropriate execPort
-  if (m_modelRoot != NULL)
-  {
-    // skip undo related metadata changes
-    if (strcmp( key, "uiPersistValue" ) == 0)
-      return;
+  assert( m_modelRoot );
 
-    BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
-    // Only update if the change isn't coming from the child itself
-    if ( changingChild != NULL && !changingChild->SettingMetadata() )
-    {
-      // Our changing metadata could mean a changing type
-      emit modelItemTypeChange( changingChild, "" );
-    }
+  if ( key == FTL_STR("uiPersistValue") )
+    return;
+
+  BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
+  // Only update if the change isn't coming from the child itself
+  if ( changingChild != NULL && !changingChild->SettingMetadata() )
+  {
+    // Our changing metadata could mean a changing type
+    emit modelItemTypeChange( changingChild, "" );
   }
 }
 
 
-void VEEditorOwner::onNodeRemoved( FTL::CStrRef execPath, FTL::CStrRef nodeName )
+void VEEditorOwner::onExecNodeRemoved(
+  FTL::CStrRef nodeName
+  )
 {
-  if (m_modelRoot != NULL)
+  assert( m_modelRoot );
+  assert( m_modelRoot->isNode() );
+  NodeModelItem *nodeModelItem =
+    static_cast<NodeModelItem *>( m_modelRoot );
+  if ( nodeModelItem->getNodeName() == nodeName )
   {
-    if (m_modelRoot->matchesPath( execPath, nodeName ))
-    {
-      emit modelItemRemoved( m_modelRoot );
-      onSidePanelInspectRequested();
-    }
+    emit modelItemRemoved( m_modelRoot );
+    onSidePanelInspectRequested();
   }
 }
 
-void VEEditorOwner::onNodeRenamed(
-  FTL::CStrRef execPath,
+void VEEditorOwner::onExecNodeRenamed(
   FTL::CStrRef oldNodeName,
   FTL::CStrRef newNodeName
   )
 {
-  if (m_modelRoot != NULL)
+  assert( m_modelRoot );
+
+  NodeModelItem *nodeModelItem =
+    static_cast<NodeModelItem *>( m_modelRoot );
+  if ( nodeModelItem->getName() == oldNodeName )
   {
-    if ( BaseModelItem *changingChild =
-      m_modelRoot->onNodeRenamed(
-        execPath,
-        oldNodeName,
-        newNodeName
-        ) )
-    {
-      emit modelItemRenamed( changingChild );
-    }
+    nodeModelItem->onRenamed( oldNodeName, newNodeName );
+    emit modelItemRenamed( nodeModelItem );
   }
 }
 
-void VEEditorOwner::onPortsConnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
+void VEEditorOwner::onExecPortsConnectedOrDisconnected(
+  FTL::CStrRef srcPort,
+  FTL::CStrRef dstPort
+  )
 {
-  if (m_modelRoot != NULL)
-  {
-    std::string path = dstPort.c_str();
-    std::string portName = SplitLast( path );
+  assert( m_modelRoot );
 
-    // Tested vs Node, 
-    if (m_modelRoot->matchesPath( "", path.c_str() ))
+  if ( m_modelRoot->isNode() )
+  {
+    NodeModelItem *nodeModelItem =
+      static_cast<NodeModelItem *>( m_modelRoot );
+
+    std::string nodeName = srcPort.c_str();
+    std::string portName = SplitLast( nodeName );
+    if ( nodeName == nodeModelItem->getNodeName() )
     {
-      BaseModelItem* destChild = m_modelRoot->getChild( portName, false );
-      if (destChild != NULL)
+      if ( BaseModelItem* destChild =
+        m_modelRoot->getChild( portName, false ) )
         emit modelItemTypeChange( destChild, "" );
     }
-  }
-}
 
-void VEEditorOwner::onPortsDisconnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
-{
-  if (m_modelRoot != NULL)
-  {
-    std::string path = dstPort.c_str();
-    std::string portName = SplitLast( path );
-
-    if (m_modelRoot->matchesPath( "", path.c_str() ))
+    nodeName = dstPort.c_str();
+    portName = SplitLast( nodeName );
+    if ( nodeName == nodeModelItem->getNodeName() )
     {
-      BaseModelItem* pChild = m_modelRoot->getChild( portName, false );
-      if (pChild != NULL)
-        emit modelItemTypeChange( pChild, "" );
+      if ( BaseModelItem* destChild =
+        m_modelRoot->getChild( portName, false ) )
+        emit modelItemTypeChange( destChild, "" );
     }
   }
 }

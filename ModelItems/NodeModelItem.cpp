@@ -45,7 +45,12 @@ FTL::CStrRef NodeModelItem::getName()
   return m_nodeName;
 }
 
-void NodeModelItem::RenameItem( const char* newName )
+bool NodeModelItem::canRename()
+{
+  return !m_exec.editWouldSplitFromPreset();
+}
+
+void NodeModelItem::rename( FTL::CStrRef newName )
 {
   m_dfgUICmdHandler->dfgDoEditNode(
     m_binding,
@@ -58,44 +63,22 @@ void NodeModelItem::RenameItem( const char* newName )
     );
 }
 
-BaseModelItem *NodeModelItem::onNodePortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef nodeName,
-  FTL::CStrRef oldNodePortName,
-  FTL::CStrRef newNodePortName
+void NodeModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
   )
 {
-  if ( m_execPath == execPath
-    && m_nodeName == nodeName )
-  {
-    return RootModelItem::onNodePortRenamed(
-      execPath,
-      nodeName,
-      oldNodePortName,
-      newNodePortName
-      );
-  }
-  else return 0;
-}
+  assert( m_nodeName == oldName );
 
-BaseModelItem *NodeModelItem::onNodeRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldNodeName,
-  FTL::CStrRef newNodeName
-  )
-{
-  if ( m_execPath == execPath
-    && m_nodeName == oldNodeName )
+  m_nodeName = newName;
+
+  for ( ChildVec::iterator it = m_children.begin();
+    it != m_children.end(); ++it )
   {
-    m_nodeName = newNodeName;
-    RootModelItem::onNodeRenamed(
-      execPath,
-      oldNodeName,
-      newNodeName
-      );
-    return this;
+    NodePortModelItem *nodePortModelItem =
+      static_cast<NodePortModelItem *>( *it );
+    nodePortModelItem->onNodeRenamed( oldName, newName );
   }
-  else return 0;
 }
 
 int NodeModelItem::getNumChildren()
