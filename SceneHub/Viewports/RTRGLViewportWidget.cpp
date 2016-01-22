@@ -48,6 +48,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
   m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_shObject);
   m_viewportIndexRTVal = FabricCore::RTVal::ConstructUInt32( *m_client, viewportIndex );
+  m_samples = FabricCore::RTVal::ConstructUInt32( *m_client, qglContext->format().samples() );
 
   // Force to track mouse movment when not clicking
   setMouseTracking(true);
@@ -59,23 +60,28 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   );
 }
 
-RTRGLViewportWidget::~RTRGLViewportWidget() {
-  FABRIC_TRY("RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
-    if( m_shObject.isValid() )
-      m_shObject.callMethod("", "removeViewport", 1, &m_viewportIndexRTVal); 
+void RTRGLViewportWidget::detachFromRTRViewport() {
+  FABRIC_TRY( "RTRGLViewportWidget::~RTRGLViewportWidget remove viewport",
+              if( m_shObject.isValid() && m_viewportIndexRTVal.isValid() )
+                m_shObject.callMethod( "", "removeViewport", 1, &m_viewportIndexRTVal );
   );
-  emit viewportDestroying();
+  m_viewportIndexRTVal = FabricCore::RTVal();
+}
+
+RTRGLViewportWidget::~RTRGLViewportWidget() {
+  detachFromRTRViewport();
 }
  
 void RTRGLViewportWidget::paintGL() {
   ViewportWidget::computeFPS();
   
   FABRIC_TRY("RTRGLViewportWidget::paintGL", 
-    FabricCore::RTVal args[3];
+    FabricCore::RTVal args[4];
     args[0] = m_viewportIndexRTVal;
     args[1] = m_width;
     args[2] = m_height;
-    m_shObject.callMethod("", "render", 3, args);
+    args[3] = m_samples;
+    m_shObject.callMethod("", "render", 4, args);
   );
 
   if(m_alwaysRefresh) update();
