@@ -449,37 +449,11 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
-      void emitExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName, 
-        FTL::CStrRef newExecPortName
-        );
-
-      void emitNodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeNode, 
-        FTL::CStrRef oldNodePortName, 
-        FTL::CStrRef newNodePortName
-        );
-
-      void emitExecPortMetadataChanged( 
-        const char* portName,
-        const char* key,
-        const char* value );
-
       void emitNodeRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
-      void emitPortsConnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
-      void emitPortsDisconnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
 
     signals:
 
@@ -501,24 +475,6 @@ namespace FabricUI
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
 
-      void execPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
-        );
-
-      void nodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeName,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        );
-
-      void execPortMetadataChanged( 
-        const char* portName, 
-        const char* key, 
-        const char* value );
-
       void nodeRenamed(
         FTL::CStrRef execPath,
         FTL::CStrRef oldNodeName,
@@ -527,14 +483,6 @@ namespace FabricUI
       void nodeRemoved(
         FTL::CStrRef execPath,
         FTL::CStrRef nodeName
-        );
-      void portsConnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
-      void portsDisconnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
         );
 
     public slots:

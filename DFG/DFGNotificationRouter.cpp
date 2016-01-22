@@ -832,9 +832,6 @@ void DFGNotificationRouter::onPortsConnected(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
-
-  m_dfgController->emitPortsConnected( srcPath, dstPath );
-  m_dfgController->bindUnboundRTVals();
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -888,7 +885,6 @@ void DFGNotificationRouter::onPortsDisconnected(
   {
     ((DFGController*)m_dfgController)->checkErrors();
   }
-  m_dfgController->emitPortsDisconnected( srcPath, dstPath );
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
@@ -1138,8 +1134,6 @@ void DFGNotificationRouter::onExecPortRenamed(
       return;
     uiPort->setName(newPortName);
   }
-
-  m_dfgController->emitExecPortRenamed( "", oldPortName, newPortName );
 }
 
 void DFGNotificationRouter::onNodePortRenamed(
@@ -1155,13 +1149,6 @@ void DFGNotificationRouter::onNodePortRenamed(
       uiNode->renamePin( oldPortName, newPortName );
     }
   }
-
-  m_dfgController->emitNodePortRenamed(
-    m_dfgController->getExecPath(),
-    nodeName,
-    oldPortName,
-    newPortName
-    );
 }
 
 void DFGNotificationRouter::onExecMetadataChanged(
@@ -1325,10 +1312,6 @@ void DFGNotificationRouter::onExecPortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  m_dfgController->emitExecPortMetadataChanged(
-    portName.c_str(),
-    key.c_str(),
-    value.c_str() );
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
