@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
+#include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 
 class BaseModelItem;
@@ -51,13 +53,14 @@ namespace FabricUI {
       void onSidePanelInspectRequested();
       void onNodeInspectRequested(FabricUI::GraphView::Node *node);
 
-      void onValueChanged( int index, const char* name );
+      void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
       void onOutputsChanged(); // Call after each evalation
+
       // Arg-specific updates for when arg only changes.
-      void onArgInserted(int index, const char* name, const char* type);
-      void onArgTypeChanged(int index, const char* name, const char* newType);
-      void onArgRemoved(int index, const char* name);
-      void onArgsReordered( const FTL::JSONArray* newOrder );
+      void onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL::CStrRef type );
+      void onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, FTL::CStrRef newType );
+      void onBindingArgRemoved( unsigned index, FTL::CStrRef name );
+      void onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder );
 
       void onExecPortRenamed(
         FTL::CStrRef execPath,
@@ -112,6 +115,7 @@ namespace FabricUI {
       VETreeWidget* m_dfgValueEditor;
       FabricUI::GraphView::Graph * m_setGraph;
 
+      QSharedPointer<QObject> m_notifier;
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
     };
 }

@@ -39,31 +39,10 @@ void VEEditorOwner::initConnections()
   //   getController(),
   //   config
   //   );
-  QObject::connect(
-    getUIController(), SIGNAL( argInserted( int, const char*, const char* ) ),
-    this, SLOT( onArgInserted( int, const char*, const char* ) )
-    );
-  QObject::connect(
-    getUIController(), SIGNAL( argTypeChanged( int, const char*, const char* ) ),
-    this, SLOT( onArgTypeChanged( int, const char*, const char* ) )
-    );
-
-  QObject::connect(
-    getUIController(), SIGNAL( argRemoved( int, const char* ) ),
-    this, SLOT( onArgRemoved( int, const char* ) )
-    );
 
   QObject::connect(
     getUIController(), SIGNAL( argsChanged() ),
     this, SLOT( onStructureChanged() )
-    );
-  QObject::connect(
-    getUIController(), SIGNAL( argValuesChanged( int, const char* ) ),
-    this, SLOT( onValueChanged( int, const char* ) )
-    );
-  QObject::connect(
-    getUIController(), SIGNAL( argsReordered( const FTL::JSONArray* ) ),
-    this, SLOT( onArgsReordered( const FTL::JSONArray* ) )
     );
 
   QObject::connect(
@@ -161,6 +140,7 @@ FabricUI::DFG::DFGController * VEEditorOwner::getDFGController()
 
 void VEEditorOwner::onSidePanelInspectRequested()
 {
+  m_notifier.clear();
   delete m_modelRoot;
   m_modelRoot = NULL;
 
@@ -171,12 +151,34 @@ void VEEditorOwner::onSidePanelInspectRequested()
   std::string path = dfgController->getExecPath();
   if (path.empty())
   {
-    
     m_modelRoot =
       new FabricUI::ModelItems::BindingModelItem(
         dfgController->getCmdHandler(),
         binding
         );
+
+    m_notifier = dfgController->getBindingNotifier();
+
+    QObject::connect(
+      m_notifier.data(), SIGNAL( argInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
+      this, SLOT( onBindingArgInserted( unsigned, FTL::CStrRef, FTL::CStrRef ) )
+      );
+    QObject::connect(
+      m_notifier.data(), SIGNAL( argTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) ),
+      this, SLOT( onBindingArgTypeChanged( unsigned, FTL::CStrRef, FTL::CStrRef ) )
+      );
+    QObject::connect(
+      m_notifier.data(), SIGNAL( argValueChanged( unsigned, FTL::CStrRef ) ),
+      this, SLOT( onBindingArgValueChanged( unsigned, FTL::CStrRef ) )
+      );
+    QObject::connect(
+      m_notifier.data(), SIGNAL( argRemoved( unsigned, FTL::CStrRef ) ),
+      this, SLOT( onBindingArgRemoved( unsigned, FTL::CStrRef ) )
+      );
+    QObject::connect(
+      m_notifier.data(), SIGNAL( argsReordered( FTL::ArrayRef<unsigned> ) ),
+      this, SLOT( onBindingArgsReordered( FTL::ArrayRef<unsigned> ) )
+      );
   }
   else
   {
@@ -267,6 +269,7 @@ void VEEditorOwner::onNodeInspectRequested(
 
   if (newItem != NULL)
   {
+    m_notifier.clear();
     delete m_modelRoot;
     m_modelRoot = newItem;
     emit replaceModelRoot( m_modelRoot );
@@ -276,10 +279,9 @@ void VEEditorOwner::onNodeInspectRequested(
 
 ////
 // Our Slots:
-void VEEditorOwner::onValueChanged( int index, const char* name )
+void VEEditorOwner::onBindingArgValueChanged( unsigned index, FTL::CStrRef name )
 {
-  if (m_modelRoot == NULL)
-    return;
+  assert( m_modelRoot );
 
   try
   {
@@ -325,66 +327,55 @@ void VEEditorOwner::onOutputsChanged()
   }
 }
 
-void VEEditorOwner::onArgInserted( int index, const char* name, const char* type )
+void VEEditorOwner::onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL::CStrRef type )
 {
-  if (m_modelRoot == NULL)
-    return;
+  assert( m_modelRoot );
 
-  if (m_modelRoot->argInserted( index, name, type ))
+  if ( m_modelRoot->argInserted( index, name.c_str(), type.c_str() ) )
   {
-    emit modelItemInserted( m_modelRoot, index, name );
+    emit modelItemInserted( m_modelRoot, int( index ), name.c_str() );
   }
-
-  onStructureChanged();
 }
 
-void VEEditorOwner::onArgTypeChanged( int index, const char* name, const char* newType )
+void VEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, FTL::CStrRef newType )
 {
-  if (m_modelRoot == NULL)
-    return;
+  assert( m_modelRoot );
 
-  if (m_modelRoot->argTypeChanged( index, name, newType ))
+  if (m_modelRoot->argTypeChanged( index, name.c_str(), newType.c_str() ))
   {
     BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
     if (changingChild != NULL)
-      emit modelItemTypeChange( changingChild, newType );
+      emit modelItemTypeChange( changingChild, newType.c_str() );
   }
-
-  onStructureChanged();
 }
 
-void VEEditorOwner::onArgRemoved( int index, const char* name )
+void VEEditorOwner::onBindingArgRemoved( unsigned index, FTL::CStrRef name )
 {
-  if (m_modelRoot == NULL)
-    return;
+  assert( m_modelRoot );
 
   BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
   if (removedChild != NULL)
   {
     emit modelItemRemoved( removedChild );
-    m_modelRoot->argRemoved( index, name );
+    m_modelRoot->argRemoved( int( index ), name.c_str() );
   }
-  onStructureChanged();
 }
 
-void VEEditorOwner::onArgsReordered( const FTL::JSONArray* newOrder )
+void VEEditorOwner::onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder )
 {
-  if (newOrder == NULL || m_modelRoot == NULL)
-    return;
+  assert( m_modelRoot );
 
   // The array will specify the new order of our base arrays children
   // We will need to keep track of 
   QList<int> newIntOrder;
 #if QT_VERSION >= 0x040800
-  newIntOrder.reserve( newOrder->size() );
+  newIntOrder.reserve( newOrder.size() );
 #endif
-  for (size_t i = 0; i < newOrder->size(); i++)
-    newIntOrder.push_back( newOrder->get( i )->getSInt32Value() );
+  for (size_t i = 0; i < newOrder.size(); i++)
+    newIntOrder.push_back( int( newOrder[i] ) );
 
   //m_modelRoot->reorderChildren( newIntOrder );
   emit modelItemChildrenReordered( m_modelRoot, newIntOrder );
-
-  onStructureChanged();
 }
 
 void VEEditorOwner::onExecPortRenamed(

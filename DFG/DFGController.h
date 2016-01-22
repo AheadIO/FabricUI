@@ -58,6 +58,9 @@ namespace FabricUI
         { return m_host; }
       FabricCore::DFGBinding &getBinding()
         { return m_binding; }
+      QSharedPointer<DFGBindingNotifier> const &
+      getBindingNotifier()
+        { return m_bindingNotifier; }
       FTL::CStrRef getExecPath()
         { return m_execPath; }
       FabricCore::DFGExec &getExec()
