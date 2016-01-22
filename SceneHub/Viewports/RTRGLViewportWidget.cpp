@@ -48,6 +48,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
   m_lightDialog = new FabricUI::SceneHub::SGLightManagerDialog(this, m_client, m_shObject);
   m_viewportIndexRTVal = FabricCore::RTVal::ConstructUInt32( *m_client, viewportIndex );
+  m_samples = FabricCore::RTVal::ConstructUInt32( *m_client, qglContext->format().samples() );
 
   // Force to track mouse movment when not clicking
   setMouseTracking(true);
@@ -75,11 +76,12 @@ void RTRGLViewportWidget::paintGL() {
   ViewportWidget::computeFPS();
   
   FABRIC_TRY("RTRGLViewportWidget::paintGL", 
-    FabricCore::RTVal args[3];
+    FabricCore::RTVal args[4];
     args[0] = m_viewportIndexRTVal;
     args[1] = m_width;
     args[2] = m_height;
-    m_shObject.callMethod("", "render", 3, args);
+    args[3] = m_samples;
+    m_shObject.callMethod("", "render", 4, args);
   );
 
   if(m_alwaysRefresh) update();

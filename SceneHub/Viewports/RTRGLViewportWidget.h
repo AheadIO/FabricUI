@@ -102,6 +102,7 @@ namespace FabricUI
 
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
+        FabricCore::RTVal m_samples;
         FabricCore::RTVal m_shObject;
         FabricCore::RTVal m_viewportIndexRTVal;
 
