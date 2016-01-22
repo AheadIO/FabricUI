@@ -48,6 +48,8 @@ namespace FabricUI
       virtual FabricCore::RTVal getCamera();
       virtual void setBackgroundColor( QColor color ) {};
 
+      int getViewportIndex() { return m_viewportIndex; }
+
       /// Special case: when changing the 'sampling' settings, the widget needs to be recreated
       void detachFromRTRViewport();
 
