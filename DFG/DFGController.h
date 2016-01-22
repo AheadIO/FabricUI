@@ -601,7 +601,7 @@ namespace FabricUI
       DFGUICmdHandler *m_cmdHandler;
       DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
-      bool m_overTakeBindingNotifications;
+      bool const m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
       FabricServices::SplitSearch::Dict m_presetPathDict;
       std::vector<std::string> m_presetNameSpaceDictSTL;

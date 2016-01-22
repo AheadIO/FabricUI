@@ -51,7 +51,6 @@ DFGController::DFGController(
 {
   m_router = NULL;
   m_logFunc = NULL;
-  m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
 
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
@@ -60,6 +59,11 @@ DFGController::DFGController(
 
 DFGController::~DFGController()
 {
+  if ( m_binding.isValid()
+    && m_overTakeBindingNotifications )
+    m_binding.unregisterNotificationCallback(
+      &BindingNotificationCallback, this
+      );
 }
 
 void DFGController::setHostBindingExec(
@@ -82,7 +86,17 @@ void DFGController::setBindingExec(
   FabricCore::DFGExec &exec
   )
 {
+  if ( m_binding.isValid()
+    && m_overTakeBindingNotifications )
+    m_binding.unregisterNotificationCallback(
+      &BindingNotificationCallback, this
+      );
   m_binding = binding;
+  if ( m_binding.isValid()
+    && m_overTakeBindingNotifications )
+    m_binding.registerNotificationCallback(
+      &BindingNotificationCallback, this
+      );
 
   setExec( execPath, exec );
 
@@ -116,8 +130,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
 {
   if ( m_router )
   {
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback( NULL, NULL );
     QObject::disconnect(
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
@@ -132,11 +144,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
       );
-
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback(
-        &BindingNotificationCallback, this
-        );
   }
 }
 
