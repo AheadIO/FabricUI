@@ -731,8 +731,6 @@ void DFGNotificationRouter::onExecPortInserted(
       return;
     uiKlEditor->onExecChanged();
   }
-
-  m_dfgController->emitArgInserted( index, portName.c_str(), dataType.c_str() );
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
@@ -781,8 +779,6 @@ void DFGNotificationRouter::onExecPortRemoved(
       return;
     uiKlEditor->onExecChanged();
   }
-
-  m_dfgController->emitArgRemoved( index, portName.c_str() );
 }
 
 void DFGNotificationRouter::onPortsConnected(
@@ -1255,20 +1251,6 @@ void DFGNotificationRouter::onExecPortResolvedTypeChanged(
   FTL::CStrRef newResolvedType
   )
 {
-  {
-    // Strangely, this notification doesn't come with port
-    // index (as Args do), but to notify consistently we need
-    // to find it (the index)
-    FabricCore::DFGExec exec = m_dfgController->getExec();
-    for (int index = 0; index < exec.getExecPortCount(); index++)
-    {
-      if (strcmp( exec.getExecPortName( index ), portName.c_str() ) == 0)
-      {
-        m_dfgController->emitArgTypeChanged( index, portName.c_str(), newResolvedType.c_str() );
-      }
-    }
-  }
-
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;
@@ -1434,14 +1416,14 @@ void DFGNotificationRouter::onNodePortDefaultValuesChanged(
   FTL::CStrRef portName
   )
 {
-  m_dfgController->emitDefaultValuesChanged( -1, portName.c_str() );
+  m_dfgController->emitDefaultValuesChanged();
 }
 
 void DFGNotificationRouter::onExecPortDefaultValuesChanged(
   FTL::CStrRef portName
   )
 {
-  m_dfgController->emitDefaultValuesChanged( -1, portName.c_str() );
+  m_dfgController->emitDefaultValuesChanged();
 }
 
 void DFGNotificationRouter::onRemovedFromOwner()
