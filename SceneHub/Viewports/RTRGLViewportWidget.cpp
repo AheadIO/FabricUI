@@ -347,7 +347,11 @@ void RTRGLViewportWidget::editLightProperties() {
 //*************
 
 void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
-  onEvent(event);
+  if(!onEvent(event) && event->button() == Qt::RightButton) 
+  {
+    const QPoint pos = event->pos();
+    onContextMenu(pos);
+  }
 }
 
 void RTRGLViewportWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -360,10 +364,6 @@ void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  if(!event->isAccepted() && event->button() == Qt::RightButton) {
-    const QPoint pos = event->pos();
-    onContextMenu(pos);
-  }
   emit synchronizeCommands(false);
 }
 
@@ -378,11 +378,14 @@ void RTRGLViewportWidget::keyReleaseEvent(QKeyEvent *event) {
 bool RTRGLViewportWidget::onEvent(QEvent *event) {
   bool result = false;
   FABRIC_TRY_RETURN("RTRGLViewportWidget::onEvent", false,
+    
     FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport, true);
     m_shObject.callMethod("", "onEvent", 1, &klevent);
+    
     result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
-    bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     event->setAccepted(result);
+    
+    bool redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
     if(result) emit manipsAcceptedEvent( redrawAllViewports );
     return result;
   );
