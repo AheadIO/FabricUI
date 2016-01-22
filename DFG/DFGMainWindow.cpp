@@ -8,7 +8,7 @@
 
 using namespace FabricUI::DFG;
 
-DFGMainWindow::DFGMainWindow(QWidget *parent)
+DFGMainWindow::DFGMainWindow(QWidget * parent)
 : QMainWindow(parent)
 {
 }
