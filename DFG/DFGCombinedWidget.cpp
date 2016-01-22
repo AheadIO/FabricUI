@@ -75,6 +75,9 @@ void DFGCombinedWidget::init(
         config,
         true,
         false,
+        false,
+        false,
+        false,
         true
         );
 
