@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FabricCore.h>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
 #include <FabricUI/DFG/DFGNotifier.h>
@@ -24,6 +25,8 @@ namespace FabricUI {
     class Graph;
   }
   namespace ModelItems {
+    class BindingModelItem;
+    class NodeModelItem;
     class RootModelItem;
   }
 
@@ -146,6 +149,16 @@ namespace FabricUI {
       void modelItemRenamed( BaseModelItem* renamedItem );
 
     private:
+
+      void setModelRoot(
+        FabricUI::DFG::DFGController *dfgController,
+        FabricUI::ModelItems::BindingModelItem *bindingModelItem
+        );
+      void setModelRoot(
+        FabricCore::DFGExec exec,
+        FTL::CStrRef nodeName,
+        FabricUI::ModelItems::NodeModelItem *nodeModelItem
+        );
 
       int m_timelinePortIndex;
 

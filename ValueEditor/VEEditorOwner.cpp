@@ -36,47 +36,47 @@ QWidget* VEEditorOwner::getWidget() const
 
 void VEEditorOwner::initConnections()
 {
-  QObject::connect(
+  connect(
     getUIController(), SIGNAL( argsChanged() ),
     this, SLOT( onStructureChanged() )
     );
 
-  QObject::connect(
+  connect(
     getDfgWidget(), SIGNAL( nodeInspectRequested( FabricUI::GraphView::Node* ) ),
     this, SLOT( onNodeInspectRequested( FabricUI::GraphView::Node* ) )
     );
 
-  QObject::connect(
+  connect(
     this, SIGNAL( modelItemInserted( BaseModelItem*, int, const char* ) ),
     m_dfgValueEditor, SLOT( onModelItemChildInserted( BaseModelItem*, int, const char* ) )
     );
-  QObject::connect(
+  connect(
     this, SIGNAL( modelItemTypeChange( BaseModelItem*, const char* ) ),
     m_dfgValueEditor, SLOT( onModelItemTypeChanged( BaseModelItem*, const char* ) )
     );
-  QObject::connect(
+  connect(
     this, SIGNAL( modelItemRemoved( BaseModelItem* ) ),
     m_dfgValueEditor, SLOT( onModelItemRemoved( BaseModelItem* ) )
     );
-  QObject::connect(
+  connect(
     this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
     m_dfgValueEditor, SLOT( onModelItemRenamed( BaseModelItem* ) )
     );
-  QObject::connect(
+  connect(
     this, SIGNAL( modelItemChildrenReordered( BaseModelItem*, const QList<int>& ) ),
     m_dfgValueEditor, SLOT( onModelItemChildrenReordered( BaseModelItem*, const QList<int>& ) )
     );
 
-  // QObject::connect(
+  // connect(
 //   getDFGController(), SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
 //   m_dfgValueEditor, SLOT(setBinding(FabricCore::DFGBinding const &))
 //   );
-  QObject::connect(
+  connect(
     this, SIGNAL( replaceModelRoot( BaseModelItem* ) ),
     m_dfgValueEditor, SLOT( onSetModelItem( BaseModelItem* ) )
     );
 
-  QObject::connect( getDfgWidget(), SIGNAL( onGraphSet( FabricUI::GraphView::Graph* ) ),
+  connect( getDfgWidget(), SIGNAL( onGraphSet( FabricUI::GraphView::Graph* ) ),
                     this, SLOT( onGraphSet( FabricUI::GraphView::Graph* ) ) );
 
   onGraphSet( getDfgWidget()->getUIGraph() );
@@ -95,27 +95,19 @@ FabricUI::DFG::DFGController * VEEditorOwner::getDFGController()
   return getDfgWidget()->getDFGController();
 }
 
-void VEEditorOwner::onSidePanelInspectRequested()
+void VEEditorOwner::setModelRoot(
+  FabricUI::DFG::DFGController *dfgController,
+  FabricUI::ModelItems::BindingModelItem *bindingModelItem
+  )
 {
   m_subNotifier.clear();
   m_notifier.clear();
 
   delete m_modelRoot;
-  m_modelRoot = NULL;
+  m_modelRoot = bindingModelItem;
 
-  FabricUI::DFG::DFGController *dfgController =
-    getUIController();
-
-  FabricCore::DFGBinding binding = dfgController->getBinding();
-  std::string path = dfgController->getExecPath();
-  if (path.empty())
+  if ( bindingModelItem )
   {
-    m_modelRoot =
-      new FabricUI::ModelItems::BindingModelItem(
-        dfgController->getCmdHandler(),
-        binding
-        );
-
     m_notifier = dfgController->getBindingNotifier();
 
     connect(
@@ -155,6 +147,7 @@ void VEEditorOwner::onSidePanelInspectRequested()
       SLOT( onBindingArgsReordered( FTL::ArrayRef<unsigned> ) )
       );
 
+    FabricCore::DFGBinding binding = dfgController->getBinding();
     FabricCore::DFGExec rootExec = binding.getExec();
 
     m_subNotifier = DFG::DFGExecNotifier::Create( rootExec );
@@ -166,101 +159,24 @@ void VEEditorOwner::onSidePanelInspectRequested()
       SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
       );
   }
-  else
-  {
-    // We always show the instantiated values (ie, what
-    // we would see if we were outside this node and clicked on it)
-    FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
-      dfgController->getCmdHandler();
-    FabricCore::DFGBinding &binding = dfgController->getBinding();
-    FabricCore::DFGExec exec = binding.getExec();
-    std::string nodeName = SplitLast( path );
 
-    if (!path.empty())
-      exec = exec.getSubExec( path.c_str() );
-
-    m_modelRoot =
-      new FabricUI::ModelItems::InstModelItem(
-        dfgUICmdHandler,
-        binding,
-        path,
-        exec,
-        nodeName
-        );
-
-    //FabricCore::DFGExec exec = binding->getExec()->getSubExec(path.c_str());
-    //m_modelRoot = new FabricUI::ModelItems::NodeModelItem( exec );
-  }
   emit replaceModelRoot( m_modelRoot );
 }
 
-void VEEditorOwner::onNodeInspectRequested(
-  FabricUI::GraphView::Node *node
+void VEEditorOwner::setModelRoot(
+  FabricCore::DFGExec exec,
+  FTL::CStrRef nodeName,
+  FabricUI::ModelItems::NodeModelItem *nodeModelItem
   )
 {
-  if (node->isBackDropNode())
-    return;
+  m_notifier.clear();
+  m_subNotifier.clear();
 
-  FabricUI::DFG::DFGController *dfgController =
-    getUIController();
+  delete m_modelRoot;
+  m_modelRoot = nodeModelItem;
 
-  FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
-    dfgController->getCmdHandler();
-  FabricCore::DFGBinding &binding = dfgController->getBinding();
-  FTL::CStrRef execPath = dfgController->getExecPath();
-  FabricCore::DFGExec &exec = dfgController->getExec();
-  FTL::CStrRef nodeName = node->name();
-
-  // TODO: Check for re-inspecting the same node, and don't rebuild
-  FabricUI::ModelItems::RootModelItem* newItem = NULL;
-
-  FabricCore::DFGNodeType type = exec.getNodeType( nodeName.c_str() );
-  switch (type)
+  if ( nodeModelItem )
   {
-    case FabricCore::DFGNodeType_Inst:
-    {
-      newItem =
-        new FabricUI::ModelItems::InstModelItem(
-          dfgUICmdHandler,
-          binding,
-          execPath,
-          exec,
-          nodeName
-          );
-      break;
-    }
-    case FabricCore::DFGNodeType_Var:
-    {
-      newItem =
-        new FabricUI::ModelItems::VarModelItem(
-          dfgUICmdHandler,
-          binding,
-          execPath,
-          exec,
-          nodeName
-          );
-      break;
-    }
-    case FabricCore::DFGNodeType_User:
-    case FabricCore::DFGNodeType_Get:
-    case FabricCore::DFGNodeType_Set:
-    {
-      //const char* path = exec.getRefVarPath( nodeName.c_str() );
-      //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
-      break;
-    }
-    default:
-      assert( 0 && "Implement Me" );
-  }
-
-  if (newItem != NULL)
-  {
-    m_notifier.clear();
-    m_subNotifier.clear();
-
-    delete m_modelRoot;
-    m_modelRoot = newItem;
-
     m_notifier = DFG::DFGExecNotifier::Create( exec );
 
     connect(
@@ -306,25 +222,132 @@ void VEEditorOwner::onNodeInspectRequested(
       SLOT(onExecNodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
       );
 
-    FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
+    if ( exec.getNodeType( nodeName.c_str() ) == FabricCore::DFGNodeType_Inst )
+    {
+      FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
 
-    m_subNotifier = DFG::DFGExecNotifier::Create( subExec );
+      m_subNotifier = DFG::DFGExecNotifier::Create( subExec );
 
-    connect(
-      m_subNotifier.data(),
-      SIGNAL(portMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
-      this,
-      SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
-      );
-    connect(
-      m_subNotifier.data(),
-      SIGNAL(portDefaultValuesChanged(FTL::CStrRef)),
-      this,
-      SLOT(onExecPortDefaultValuesChanged(FTL::CStrRef))
-      );
-
-    emit replaceModelRoot( m_modelRoot );
+      connect(
+        m_subNotifier.data(),
+        SIGNAL(portMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+        this,
+        SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+        );
+      connect(
+        m_subNotifier.data(),
+        SIGNAL(portDefaultValuesChanged(FTL::CStrRef)),
+        this,
+        SLOT(onExecPortDefaultValuesChanged(FTL::CStrRef))
+        );
+    }
   }
+
+  emit replaceModelRoot( m_modelRoot );
+}
+
+void VEEditorOwner::onSidePanelInspectRequested()
+{
+  FabricUI::DFG::DFGController *dfgController = getUIController();
+  FabricCore::DFGBinding binding = dfgController->getBinding();
+  std::string path = dfgController->getExecPath();
+  if ( path.empty() )
+  {
+    setModelRoot(
+      dfgController,
+      new FabricUI::ModelItems::BindingModelItem(
+        dfgController->getCmdHandler(),
+        binding
+        )
+      );
+  }
+  else
+  {
+    // We always show the instantiated values (ie, what
+    // we would see if we were outside this node and clicked on it)
+    FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
+      dfgController->getCmdHandler();
+    FabricCore::DFGBinding &binding = dfgController->getBinding();
+    FabricCore::DFGExec exec = binding.getExec();
+    std::string nodeName = SplitLast( path );
+
+    if (!path.empty())
+      exec = exec.getSubExec( path.c_str() );
+
+    setModelRoot(
+      exec,
+      nodeName,
+      new FabricUI::ModelItems::InstModelItem(
+        dfgUICmdHandler,
+        binding,
+        path,
+        exec,
+        nodeName
+        )
+      );
+  }
+}
+
+void VEEditorOwner::onNodeInspectRequested(
+  FabricUI::GraphView::Node *node
+  )
+{
+  if (node->isBackDropNode())
+    return;
+
+  FabricUI::DFG::DFGController *dfgController =
+    getUIController();
+
+  FabricUI::DFG::DFGUICmdHandler *dfgUICmdHandler =
+    dfgController->getCmdHandler();
+  FabricCore::DFGBinding &binding = dfgController->getBinding();
+  FTL::CStrRef execPath = dfgController->getExecPath();
+  FabricCore::DFGExec &exec = dfgController->getExec();
+  FTL::CStrRef nodeName = node->name();
+
+  // TODO: Check for re-inspecting the same node, and don't rebuild
+  FabricUI::ModelItems::NodeModelItem *nodeModelItem = 0;
+
+  FabricCore::DFGNodeType type = exec.getNodeType( nodeName.c_str() );
+  switch (type)
+  {
+    case FabricCore::DFGNodeType_Inst:
+    {
+      nodeModelItem =
+        new FabricUI::ModelItems::InstModelItem(
+          dfgUICmdHandler,
+          binding,
+          execPath,
+          exec,
+          nodeName
+          );
+      break;
+    }
+    case FabricCore::DFGNodeType_Var:
+    {
+      nodeModelItem =
+        new FabricUI::ModelItems::VarModelItem(
+          dfgUICmdHandler,
+          binding,
+          execPath,
+          exec,
+          nodeName
+          );
+      break;
+    }
+    case FabricCore::DFGNodeType_User:
+    case FabricCore::DFGNodeType_Get:
+    case FabricCore::DFGNodeType_Set:
+    {
+      //const char* path = exec.getRefVarPath( nodeName.c_str() );
+      //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
+      break;
+    }
+    default:
+      assert( 0 && "Implement Me" );
+  }
+
+  setModelRoot( exec, nodeName, nodeModelItem );
 }
 
 void VEEditorOwner::onBindingArgValueChanged(

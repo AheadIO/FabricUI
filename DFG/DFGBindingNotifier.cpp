@@ -86,8 +86,8 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
     {
       FTL::CStrRef varName = jsonObject->getString( FTL_STR("varName") );
       FTL::CStrRef varPath = jsonObject->getString( FTL_STR("varPath") );
-      FTL::CStrRef typeName = jsonObject->getString( FTL_STR("typeName") );
-      FTL::CStrRef extDep = jsonObject->getString( FTL_STR("extDep") );
+      FTL::CStrRef typeName = jsonObject->getStringOrEmpty( FTL_STR("typeName") );
+      FTL::CStrRef extDep = jsonObject->getStringOrEmpty( FTL_STR("extDep") );
 
       emit varInserted(
         varName,
