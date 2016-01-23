@@ -46,11 +46,6 @@ class DFGUICmdHandler;
       FTL::CStrRef getNodeName()
         { return m_nodeName; }
 
-      virtual bool matchesPath(
-        FTL::StrRef execPath,
-        FTL::StrRef nodeName
-        ) /*override*/;
-
       virtual int getNumChildren() /*override*/;
       virtual FTL::CStrRef getChildName( int i );
 

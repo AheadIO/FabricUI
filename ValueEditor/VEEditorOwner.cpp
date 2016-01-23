@@ -42,11 +42,6 @@ void VEEditorOwner::initConnections()
     );
 
   QObject::connect(
-    getUIController(), SIGNAL( defaultValuesChanged( int, const char* ) ),
-    this, SLOT( onValueChanged( int, const char* ) )
-    );
-
-  QObject::connect(
     getDfgWidget(), SIGNAL( nodeInspectRequested( FabricUI::GraphView::Node* ) ),
     this, SLOT( onNodeInspectRequested( FabricUI::GraphView::Node* ) )
     );
@@ -298,6 +293,18 @@ void VEEditorOwner::onNodeInspectRequested(
       this,
       SLOT( onExecPortsConnectedOrDisconnected( FTL::CStrRef, FTL::CStrRef ) )
       );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodePortResolvedTypeChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      );
 
     FabricCore::DFGExec subExec = exec.getSubExec( nodeName.c_str() );
 
@@ -309,15 +316,21 @@ void VEEditorOwner::onNodeInspectRequested(
       this,
       SLOT(onExecPortMetadataChanged(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
       );
+    connect(
+      m_subNotifier.data(),
+      SIGNAL(portDefaultValuesChanged(FTL::CStrRef)),
+      this,
+      SLOT(onExecPortDefaultValuesChanged(FTL::CStrRef))
+      );
 
     emit replaceModelRoot( m_modelRoot );
   }
 }
 
-
-////
-// Our Slots:
-void VEEditorOwner::onBindingArgValueChanged( unsigned index, FTL::CStrRef name )
+void VEEditorOwner::onBindingArgValueChanged(
+  unsigned index,
+  FTL::CStrRef name
+  )
 {
   assert( m_modelRoot );
 
@@ -336,6 +349,82 @@ void VEEditorOwner::onBindingArgValueChanged( unsigned index, FTL::CStrRef name 
         QVariant val = changingChild->GetValue();
         changingChild->emitModelValueChanged( val );
       }
+    }
+  }
+  catch (FabricCore::Exception e)
+  {
+    m_owner.log( e.getDesc_cstr() );
+  }
+}
+
+void VEEditorOwner::onExecPortDefaultValuesChanged(
+  FTL::CStrRef portName
+  )
+{
+  assert( m_modelRoot );
+
+  try
+  {
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->getChild( portName, false ) )
+    {
+      QVariant val = changingChild->GetValue();
+      changingChild->emitModelValueChanged( val );
+    }
+  }
+  catch (FabricCore::Exception e)
+  {
+    m_owner.log( e.getDesc_cstr() );
+  }
+}
+
+void VEEditorOwner::onExecNodePortDefaultValuesChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName
+  )
+{
+  assert( m_modelRoot );
+  assert( m_modelRoot->isNode() );
+  NodeModelItem *nodeModelItem =
+    static_cast<NodeModelItem *>( m_modelRoot );
+  if ( nodeModelItem->getNodeName() != nodeName )
+    return;
+
+  try
+  {
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->getChild( portName, false ) )
+    {
+      QVariant val = changingChild->GetValue();
+      changingChild->emitModelValueChanged( val );
+    }
+  }
+  catch (FabricCore::Exception e)
+  {
+    m_owner.log( e.getDesc_cstr() );
+  }
+}
+
+void VEEditorOwner::onExecNodePortResolvedTypeChanged(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef portName,
+  FTL::CStrRef newResolveTypeName
+  )
+{
+  assert( m_modelRoot );
+  assert( m_modelRoot->isNode() );
+  NodeModelItem *nodeModelItem =
+    static_cast<NodeModelItem *>( m_modelRoot );
+  if ( nodeModelItem->getNodeName() != nodeName )
+    return;
+
+  try
+  {
+    if ( BaseModelItem *changingChild =
+      m_modelRoot->getChild( portName, false ) )
+    {
+      QVariant val = changingChild->GetValue();
+      changingChild->emitDataTypeChanged( newResolveTypeName.c_str() );
     }
   }
   catch (FabricCore::Exception e)

@@ -27,14 +27,6 @@ BindingModelItem::~BindingModelItem()
 }
 
 
-bool BindingModelItem::matchesPath(
-  FTL::StrRef execPath,
-  FTL::StrRef nodeName
-  )
-{
-  return execPath.empty() && nodeName.empty();
-}
-
 int BindingModelItem::getNumChildren()
 {
   return m_rootExec.getExecPortCount();

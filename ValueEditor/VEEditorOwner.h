@@ -111,6 +111,21 @@ namespace FabricUI {
         FTL::CStrRef dstPortPath
         );
 
+      void onExecPortDefaultValuesChanged(
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortDefaultValuesChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortResolvedTypeChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::CStrRef newResolvedTypeName
+        );
+
       void onStructureChanged();
 
       void onFrameChanged(int frame);

@@ -46,11 +46,6 @@ namespace FabricUI
 
       virtual BaseModelItem* createChild( FTL::CStrRef name ) = 0;
 
-      virtual bool matchesPath( 
-        FTL::StrRef execPath, 
-        FTL::StrRef nodeName
-        ) = 0;
-
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
 

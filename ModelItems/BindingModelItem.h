@@ -35,11 +35,6 @@ class DFGUICmdHandler;
 
       virtual bool isBinding() const /*override*/ { return true; }
 
-      virtual bool matchesPath( 
-        FTL::StrRef execPath,
-        FTL::StrRef nodeName 
-        ) /*override*/;
-
       BaseModelItem *createChild( FTL::CStrRef name ) /*override*/;
 
       virtual int getNumChildren() /*override*/;

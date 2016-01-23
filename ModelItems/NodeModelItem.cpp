@@ -32,14 +32,6 @@ NodeModelItem::~NodeModelItem()
 {
 }
 
-bool NodeModelItem::matchesPath(
-  FTL::StrRef execPath,
-  FTL::StrRef nodeName 
-  )
-{
-  return m_execPath == execPath && m_nodeName == nodeName;
-}
-
 FTL::CStrRef NodeModelItem::getName()
 {
   return m_nodeName;
