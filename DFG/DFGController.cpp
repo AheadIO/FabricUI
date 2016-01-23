@@ -1473,53 +1473,6 @@ void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *
   }
 }
 
-bool DFGController::bindUnboundRTVals()
-{
-  return bindUnboundRTVals(m_client, m_binding);
-}
-
-bool DFGController::bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding)
-{
-  bool argsHaveChanged = false;
-  try
-  {
-    FabricCore::DFGExec rootExec = binding.getExec();
-    unsigned argCount = rootExec.getExecPortCount();
-    for ( unsigned i = 0; i < argCount; ++i )
-    {
-      FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
-      if ( dataTypeToCheck.empty() )
-        continue;
-
-      // if there is already a bound value, make sure it has the right type
-      FabricCore::RTVal value;
-      try
-      {
-        value = binding.getArgValue( i );
-      }
-      catch ( FabricCore::Exception e )
-      {
-        continue;
-      }
-      if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
-        continue;
-
-      binding.setArgValue(
-        i,
-        DFGCreateDefaultValue( client.getContext(), dataTypeToCheck ),
-        false
-        );
-
-      argsHaveChanged = true;
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    // logError( e.getDesc_cstr() );
-  }
-  return argsHaveChanged;
-}
-
 bool DFGController::canConnectTo(
   char const *pathA,
   char const *pathB,
@@ -1578,7 +1531,6 @@ void DFGController::onBindingArgInserted(
   FTL::CStrRef typeName
   )
 {
-  bindUnboundRTVals();
   emitArgsChanged();
 }
 
@@ -1588,7 +1540,6 @@ void DFGController::onBindingArgTypeChanged(
   FTL::CStrRef newTypeName
   )
 {
-  bindUnboundRTVals();
   emitArgsChanged();
 }
 
@@ -1597,7 +1548,6 @@ void DFGController::onBindingArgRemoved(
   FTL::CStrRef name
   )
 {
-  bindUnboundRTVals();
   emitArgsChanged();
 }
 
@@ -1605,7 +1555,6 @@ void DFGController::onBindingArgReordered(
   FTL::ArrayRef<unsigned> newOrder
   )
 {
-  bindUnboundRTVals();
   emitArgsChanged();
 }
 

@@ -340,9 +340,6 @@ namespace FabricUI
 
       void execute();
 
-      bool bindUnboundRTVals();
-      static bool bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding);
-
       virtual bool canConnectTo(
         char const *pathA,
         char const *pathB,
