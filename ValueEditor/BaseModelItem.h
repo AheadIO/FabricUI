@@ -164,12 +164,6 @@ public:
     ModelValueChangedBracket _( this );
     emit modelValueChanged( newValue );
   }
-  void emitChildInserted( int index, const char* name, const char* type ) 
-    { emit childInserted( index, name, type ); }
-  void emitRemoved()
-    { emit removed(); }
-  void emitDataTypeChanged( const char* newType )
-    { emit dataTypeChanged( newType ); }
 
 private:
 
@@ -190,18 +184,5 @@ signals:
 	// Connect to this signal to be notified
 	// when the core value changes.
 	void modelValueChanged( QVariant const &newValue );
-
-  // This signal is fired whenever a new child is
-  // added to this modelItem
-  // \param index The index of the newly added item
-  void childInserted( int index, const char* name, const char* type );
-
-  // This signal is fired whenever this modelitem
-  // is being removed
-  void removed( );
-
-  // Fire this signal if the type of the data served
-  // by this class changes (the QVariant type).
-  void dataTypeChanged( const char* newType );
 };
 

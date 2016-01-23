@@ -423,8 +423,7 @@ void VEEditorOwner::onExecNodePortResolvedTypeChanged(
     if ( BaseModelItem *changingChild =
       m_modelRoot->getChild( portName, false ) )
     {
-      QVariant val = changingChild->GetValue();
-      changingChild->emitDataTypeChanged( newResolveTypeName.c_str() );
+      emit modelItemTypeChange( changingChild, newResolveTypeName.c_str() );
     }
   }
   catch (FabricCore::Exception e)
