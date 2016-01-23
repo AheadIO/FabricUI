@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec4ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VESpinBox.h"
+#include "VEDoubleSpinBox.h"
 
 #include <assert.h>
 #include <QtCore/QVariant>
@@ -22,12 +22,13 @@ Vec4ViewItem::Vec4ViewItem(
   , m_vec4dValue( value.value<QVector4D>() )
 {
   m_widget = new QWidget;
+  m_widget->setObjectName( "Vec4Item" );
 
-  m_xSpinBox = new VESpinBox( m_vec4dValue.x(), m_widget );
-  m_ySpinBox = new VESpinBox( m_vec4dValue.y(), m_widget );
-  m_zSpinBox = new VESpinBox( m_vec4dValue.z(), m_widget );
-  m_tSpinBox = new VESpinBox( m_vec4dValue.w(), m_widget );
-
+  m_xSpinBox = new VEDoubleSpinBox( );
+  m_ySpinBox = new VEDoubleSpinBox( );
+  m_zSpinBox = new VEDoubleSpinBox( );
+  m_tSpinBox = new VEDoubleSpinBox( );
+  onModelValueChanged( value );
   // Connect em up.
   
   connect(

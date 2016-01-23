@@ -9,7 +9,7 @@
 #include <QtGui/QVector3D>
 
 class QLayout;
-class VESpinBox;
+class VEDoubleSpinBox;
 class ItemMetadata;
 
 class Vec3ViewItem : public BaseComplexViewItem
@@ -21,9 +21,9 @@ private:
 	QVector3D m_vec3dValue;
 
 	QWidget *m_widget;
-	VESpinBox* m_xSpinBox;
-	VESpinBox* m_ySpinBox;
-	VESpinBox* m_zSpinBox;
+	VEDoubleSpinBox* m_xSpinBox;
+	VEDoubleSpinBox* m_ySpinBox;
+	VEDoubleSpinBox* m_zSpinBox;
 
 public:
   

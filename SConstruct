@@ -74,7 +74,7 @@ if buildOS == 'Windows':
 
 fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
-  'CPPDEFINES': ['FEC_SHARED'],
+  'CPPDEFINES': ['FEC_SHARED', "ENABLE_STYLERELOAD"],
   'CPPPATH': [
     '..',
     os.path.join(fabricDir, 'include'),

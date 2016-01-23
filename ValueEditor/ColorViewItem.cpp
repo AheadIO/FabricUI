@@ -34,7 +34,7 @@ ColorViewItem::ColorViewItem(
 {
 
   m_widget = new QWidget;
-  m_widget->setObjectName( "ColorSwatch" );
+  m_widget->setObjectName( "ColorItem" );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
 

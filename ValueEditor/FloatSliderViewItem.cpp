@@ -19,6 +19,8 @@ FloatSliderViewItem::FloatSliderViewItem(
   : BaseViewItem( name, metadata )
 {
   m_slider = new DoubleSlider;
+  m_slider->setObjectName( "FloatSliderItem" );
+
   onModelValueChanged( value );
 
   connect(

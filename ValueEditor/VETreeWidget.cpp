@@ -50,7 +50,7 @@ VETreeWidget::VETreeWidget( )
     this, SLOT( onItemEdited( QTreeWidgetItem*, int ) )
     );
 
-  setObjectName( "valueEditor" );
+  setObjectName( "ValueEditor" );
   header()->close();
 
 }

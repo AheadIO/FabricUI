@@ -7,6 +7,7 @@
 
 #include <QtGui/QSpinBox>
 #include <limits.h>
+#include "VEIntSpinBox.h"
 
 SIntViewItem::SIntViewItem(
   QString const &name,
@@ -15,7 +16,8 @@ SIntViewItem::SIntViewItem(
   )
   : BaseViewItem( name, metadata )
 {
-  m_spinner = new QSpinBox;
+  m_spinner = new VEIntSpinBox();
+  m_spinner->setObjectName( "SIntItem" );
   m_spinner->setMinimum( INT_MIN );
   m_spinner->setMaximum( INT_MAX );
   m_spinner->setKeyboardTracking( false );
