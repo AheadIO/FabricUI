@@ -10,16 +10,6 @@
 namespace FabricUI {
 namespace DFG {
 
-DFGExecNotifier::DFGExecNotifier( FabricCore::DFGExec exec )
-  : m_view( exec.createView( &ViewCallback, this ) )
-  , m_depth( 0 )
-{
-}
-
-DFGExecNotifier::~DFGExecNotifier()
-{
-}
-
 void DFGExecNotifier::handle( FTL::CStrRef jsonStr )
 {
   try
@@ -204,45 +194,6 @@ void DFGExecNotifier::handle( FTL::CStrRef jsonStr )
       e.getDescCStr()
       );
   }
-}
-
-void DFGExecNotifier::viewCallback( FTL::CStrRef jsonStr )
-{
-  if ( m_depth > 0 )
-  {
-    // Process later as we are already processing notifications
-    m_queued.push_back( jsonStr );
-    return;
-  }
-
-  DepthBracket _( this );
-
-  handle( jsonStr );
-
-  while ( !m_queued.empty() )
-  {
-    std::vector<std::string> queued;
-    m_queued.swap( queued );
-    for ( std::vector<std::string>::const_iterator it = queued.begin();
-      it != queued.end(); ++it )
-    {
-      FTL::CStrRef queuedJSONStr = *it;
-      handle( queuedJSONStr );
-    }
-  }
-}
-
-void DFGExecNotifier::ViewCallback(
-  void * userData,
-  char const *jsonCString,
-  uint32_t jsonLength
-  )
-{
-  static_cast<DFGExecNotifier *>(
-    userData
-    )->viewCallback(
-      FTL::CStrRef( jsonCString, jsonLength )
-      );
 }
 
 } // namespace DFG

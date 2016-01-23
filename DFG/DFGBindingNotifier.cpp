@@ -10,24 +10,6 @@
 namespace FabricUI {
 namespace DFG {
 
-DFGBindingNotifier::DFGBindingNotifier( FabricCore::DFGBinding binding )
-  : m_binding( binding )
-  , m_depth( 0 )
-{
-  m_binding.registerNotificationCallback(
-    &BindingNotificationCallback,
-    this
-    );
-}
-
-DFGBindingNotifier::~DFGBindingNotifier()
-{
-  m_binding.unregisterNotificationCallback(
-    &BindingNotificationCallback,
-    this
-    );
-}
-
 void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
 {
   try
@@ -147,45 +129,6 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
       e.getDescCStr()
       );
   }
-}
-
-void DFGBindingNotifier::bindingNotificationCallback( FTL::CStrRef jsonStr )
-{
-  if ( m_depth > 0 )
-  {
-    // Process later as we are already processing notifications
-    m_queued.push_back( jsonStr );
-    return;
-  }
-
-  DepthBracket _( this );
-
-  handle( jsonStr );
-
-  while ( !m_queued.empty() )
-  {
-    std::vector<std::string> queued;
-    m_queued.swap( queued );
-    for ( std::vector<std::string>::const_iterator it = queued.begin();
-      it != queued.end(); ++it )
-    {
-      FTL::CStrRef queuedJSONStr = *it;
-      handle( queuedJSONStr );
-    }
-  }
-}
-
-void DFGBindingNotifier::BindingNotificationCallback(
-  void * userData,
-  char const *jsonCString,
-  uint32_t jsonLength
-  )
-{
-  static_cast<DFGBindingNotifier *>(
-    userData
-    )->bindingNotificationCallback(
-      FTL::CStrRef( jsonCString, jsonLength )
-      );
 }
 
 } // namespace DFG

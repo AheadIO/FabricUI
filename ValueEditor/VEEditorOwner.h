@@ -2,6 +2,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
+#include <FabricUI/DFG/DFGNotifier.h>
 #include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 
@@ -138,8 +139,8 @@ namespace FabricUI {
       FabricUI::GraphView::Graph * m_setGraph;
 
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
-      QSharedPointer<QObject> m_notifier;
-      QSharedPointer<QObject> m_subNotifier;
+      QSharedPointer<DFG::DFGNotifier> m_notifier;
+      QSharedPointer<DFG::DFGNotifier> m_subNotifier;
     };
 }
 }
