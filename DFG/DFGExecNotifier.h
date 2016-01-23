@@ -8,6 +8,15 @@
 #include <FabricUI/DFG/DFGNotifier.h>
 #include <FTL/StrRef.h>
 #include <QtCore/QSharedPointer.h>
+#if defined(FTL_PLATFORM_WINDOWS)
+# include <unordered_map>
+#else
+# include <tr1/unordered_map>
+#endif
+
+namespace FTL {
+class JSONObject;
+}
 
 namespace FabricUI {
 namespace DFG {
@@ -36,6 +45,10 @@ signals:
   void metadataChanged(
     FTL::CStrRef key,
     FTL::CStrRef value
+    );
+
+  void titleChanged(
+    FTL::CStrRef title
     );
 
   void editWouldSplitFromPresetMayHaveChanged();
@@ -74,6 +87,10 @@ signals:
     FTL::CStrRef newResolvedTypeName
     );
 
+  void portDefaultValuesChanged(
+    FTL::CStrRef portName
+    );
+
   // The executable's nodes
 
   void nodeInserted(
@@ -93,6 +110,11 @@ signals:
     FTL::CStrRef nodeName,
     FTL::CStrRef key,
     FTL::CStrRef value
+    );
+
+  void instExecTitleChanged(
+    FTL::CStrRef instName,
+    FTL::CStrRef execTitle
     );
 
   void instExecEditWouldSplitFromPresetMayHaveChanged(
@@ -157,7 +179,49 @@ private:
 
   virtual void handle( FTL::CStrRef jsonStr ) /*override*/;
 
+  typedef void (DFGExecNotifier::*Handler)(
+    FTL::JSONObject const *jsonObject
+    );
+
+  void handler_nodeInserted( FTL::JSONObject const *jsonObject );
+  void handler_nodeRenamed( FTL::JSONObject const *jsonObject );
+  void handler_nodeRemoved( FTL::JSONObject const *jsonObject );
+  void handler_nodePortInserted( FTL::JSONObject const *jsonObject );
+  void handler_nodePortRenamed( FTL::JSONObject const *jsonObject );
+  void handler_nodePortRemoved( FTL::JSONObject const *jsonObject );
+  void handler_execPortInserted( FTL::JSONObject const *jsonObject );
+  void handler_execPortRenamed( FTL::JSONObject const *jsonObject );
+  void handler_execPortRemoved( FTL::JSONObject const *jsonObject );
+  void handler_execPortTypeSpecChanged( FTL::JSONObject const *jsonObject );
+  void handler_nodePortResolvedTypeChanged( FTL::JSONObject const *jsonObject );
+  void handler_nodePortDefaultValuesChanged( FTL::JSONObject const *jsonObject );
+  void handler_execPortResolvedTypeChanged( FTL::JSONObject const *jsonObject );
+  void handler_execEditWouldSplitFromPresetMayHaveChanged( FTL::JSONObject const *jsonObject );
+  void handler_instExecEditWouldSplitFromPresetMayHaveChanged( FTL::JSONObject const *jsonObject );
+  void handler_execMetadataChanged( FTL::JSONObject const *jsonObject );
+  void handler_execTitleChanged( FTL::JSONObject const *jsonObject );
+  void handler_execPortDefaultValuesChanged( FTL::JSONObject const *jsonObject );
+  void handler_instExecTitleChanged( FTL::JSONObject const *jsonObject );
+  void handler_nodeMetadataChanged( FTL::JSONObject const *jsonObject );
+  void handler_execPortMetadataChanged( FTL::JSONObject const *jsonObject );
+  void handler_nodePortMetadataChanged( FTL::JSONObject const *jsonObject );
+  void handler_portsConnected( FTL::JSONObject const *jsonObject );
+  void handler_portsDisconnected( FTL::JSONObject const *jsonObject );
+
   FabricCore::DFGView m_view;
+
+#if defined(FTL_PLATFORM_WINDOWS)
+  typedef std::unordered_map<
+#else
+  typedef std::tr1::unordered_map<
+#endif
+    FTL::StrRef,
+    Handler,
+    FTL::StrRef::Hash,
+    FTL::StrRef::Equals
+    > HandlerMap;
+
+  static HandlerMap const &GetHandlerMap();
 };
 
 } // namespace DFG
