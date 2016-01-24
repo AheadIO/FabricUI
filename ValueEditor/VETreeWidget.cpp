@@ -55,28 +55,37 @@ VETreeWidget::VETreeWidget( )
 
 }
 
-
-BaseViewItem* updateTabOrder( VETreeWidgetItem* lastItem, BaseViewItem* lastView )
+void gatherTabWidgets( QObject* item, QWidgetList& tabWidgets )
 {
-  // If the last item has any chilren open
-  VETreeWidgetItem* lastTabItem = lastItem;
-  BaseViewItem* lastTabView = lastView;
-
-  for (int i = 0; i < lastItem->childCount(); i++)
+  if (item->isWidgetType())
   {
-    VETreeWidgetItem* child = 
-      static_cast<VETreeWidgetItem*>( lastItem->child( i ) );
-    QString childName = child->text( 0 );
-    BaseViewItem* childView = child->getViewItem();
-    if (childView)
-    {
-      QWidget::setTabOrder( lastTabView->getWidget(), 
-                            childView->getWidget() );
-      lastTabView = childView;
-    }
-    lastTabView = updateTabOrder( child, lastTabView );
+    QWidget* itemWidget = static_cast<QWidget*>(item);
+    if (itemWidget->focusPolicy() & Qt::TabFocus)
+      tabWidgets.push_back( itemWidget );
   }
-  return lastTabView;
+  const QObjectList& children = item->children();
+  for (QObjectList::const_iterator itr = children.begin(); itr != children.end(); itr++)
+  {
+    gatherTabWidgets( const_cast<QObject*>(*itr), tabWidgets );
+  }
+}
+
+void gatherTabWidgets( VETreeWidgetItem* item, QWidgetList& tabWidgets )
+{
+  BaseViewItem* itemView = item->getViewItem();
+  QString itemName = item->text( 0 );
+  if (itemView != NULL)
+  {
+    QWidget* itemWidget = itemView->getWidget();
+    gatherTabWidgets( itemWidget, tabWidgets );
+  }
+
+  for (int i = 0; i < item->childCount(); i++)
+  {
+    VETreeWidgetItem* child =
+      static_cast<VETreeWidgetItem*>(item->child( i ));
+    gatherTabWidgets( child, tabWidgets );
+  }
 }
 
 void VETreeWidget::sortTree()
@@ -85,12 +94,21 @@ void VETreeWidget::sortTree()
   sortItems( 0, Qt::AscendingOrder );
 
   VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
-  BaseViewItem* baseView = baseItem->getViewItem();
-  if (baseView != NULL)
+  QWidgetList tabWidgets;
+  gatherTabWidgets( baseItem, tabWidgets );
+
+  if (!tabWidgets.empty())
   {
-    updateTabOrder( baseItem, baseView );
+    QWidget* lastWidget = tabWidgets.first();
+    for (QWidgetList::iterator itr = tabWidgets.begin() + 1; itr != tabWidgets.end(); itr++)
+    {
+      setTabOrder( lastWidget, *itr );
+      lastWidget = *itr;
+    }
+
   }
 }
+
 
 VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index /*= -1 */ )
 {

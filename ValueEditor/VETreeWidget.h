@@ -26,6 +26,8 @@ public:
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem, VETreeWidgetItem* pWidget ) const;
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem ) const;
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem, VETreeWidgetItem * pWidget ) const;
+  QTreeWidgetItem* findTreeWidget( QWidget* withWidget, QTreeWidgetItem* currItem );
+
   public slots:
 
   void onSetModelItem( BaseModelItem* pItem );
