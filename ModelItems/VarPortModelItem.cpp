@@ -46,12 +46,12 @@ bool VarPortModelItem::canRenameItem()
   return false;
 }
 
-void VarPortModelItem::RenameItem( const char* newName )
+void VarPortModelItem::renameItem( const char* newName )
 {
   assert( false );
 }
 
-QVariant VarPortModelItem::GetValue()
+QVariant VarPortModelItem::getValue()
 {
   try
   {

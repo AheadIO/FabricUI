@@ -34,12 +34,12 @@ class DFGUICmdHandler;
         );
       ~InstPortModelItem();
 
-      virtual ItemMetadata *GetMetadata() /*override*/;
+      virtual ItemMetadata *getMetadata() /*override*/;
 
       virtual bool canRenameItem();
-      virtual void RenameItem( const char* newName );
+      virtual void renameItem( const char* newName );
 
-      virtual QVariant GetValue();
+      virtual QVariant getValue();
 
       virtual bool hasDefault() /*override*/;
       virtual void resetToDefault() /*override*/;

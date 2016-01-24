@@ -36,7 +36,7 @@ InstPortModelItem::~InstPortModelItem()
 {
 }
 
-ItemMetadata *InstPortModelItem::GetMetadata()
+ItemMetadata *InstPortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new InstPortItemMetadata( this );
@@ -44,7 +44,7 @@ ItemMetadata *InstPortModelItem::GetMetadata()
   return m_metadata;
 }
 
-QVariant InstPortModelItem::GetValue()
+QVariant InstPortModelItem::getValue()
 {
   try
   {
@@ -75,7 +75,7 @@ bool InstPortModelItem::canRenameItem()
   return !nodeExec.editWouldSplitFromPreset();
 }
 
-void InstPortModelItem::RenameItem( const char* newName )
+void InstPortModelItem::renameItem( const char* newName )
 {
   std::string subExecPath = m_execPath;
   if ( !subExecPath.empty() )

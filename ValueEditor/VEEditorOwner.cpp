@@ -293,7 +293,7 @@ void VEEditorOwner::onValueChanged( int index, const char* name )
       BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
       if (changingChild != NULL)
       {
-        QVariant val = changingChild->GetValue();
+        QVariant val = changingChild->getValue();
         changingChild->emitModelValueChanged( val );
       }
     }
@@ -317,9 +317,9 @@ void VEEditorOwner::onOutputsChanged()
     m_modelRoot->GetChildItrEnd();
   for (; itr != end; itr++)
   {
-    if ((*itr)->GetInOut() != FabricCore::DFGPortType_In)
+    if ((*itr)->getInOut() != FabricCore::DFGPortType_In)
     {
-      QVariant val = (*itr)->GetValue();
+      QVariant val = (*itr)->getValue();
       (*itr)->emitModelValueChanged( val );
     }
   }
@@ -440,7 +440,7 @@ void VEEditorOwner::onExecPortMetadataChanged( const char* portName, const char*
 
     BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
     // Only update if the change isn't coming from the child itself
-    if ( changingChild != NULL && !changingChild->SettingMetadata() )
+    if ( changingChild != NULL && !changingChild->isSettingMetadata() )
     {
       // Our changing metadata could mean a changing type
       emit modelItemTypeChange( changingChild, "" );

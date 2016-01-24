@@ -189,10 +189,10 @@ void Vec4ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
 
   BaseViewItem *children[4];
-  children[0] = factory->CreateViewItem( "X", QVariant( m_vec4dValue.x() ), &m_metadata );
-  children[1] = factory->CreateViewItem( "Y", QVariant( m_vec4dValue.y() ), &m_metadata );
-  children[2] = factory->CreateViewItem( "Z", QVariant( m_vec4dValue.z() ), &m_metadata );
-  children[3] = factory->CreateViewItem( "T", QVariant( m_vec4dValue.w() ), &m_metadata );
+  children[0] = factory->createViewItem( "X", QVariant( m_vec4dValue.x() ), &m_metadata );
+  children[1] = factory->createViewItem( "Y", QVariant( m_vec4dValue.y() ), &m_metadata );
+  children[2] = factory->createViewItem( "Z", QVariant( m_vec4dValue.z() ), &m_metadata );
+  children[3] = factory->createViewItem( "T", QVariant( m_vec4dValue.w() ), &m_metadata );
   for ( int i = 0; i < 4; ++i )
   {
     connectChild( i, children[i] );

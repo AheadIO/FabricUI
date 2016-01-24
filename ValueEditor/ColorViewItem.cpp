@@ -141,14 +141,14 @@ void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
   switch (m_color.spec())
   {
     case QColor::Rgb:
-      children[0] = factory->CreateViewItem( "R", QVariant( m_color.redF() ), &m_childMetadata );
-      children[1] = factory->CreateViewItem( "G", QVariant( m_color.greenF() ), &m_childMetadata );
-      children[2] = factory->CreateViewItem( "B", QVariant( m_color.blueF() ), &m_childMetadata );
+      children[0] = factory->createViewItem( "R", QVariant( m_color.redF() ), &m_childMetadata );
+      children[1] = factory->createViewItem( "G", QVariant( m_color.greenF() ), &m_childMetadata );
+      children[2] = factory->createViewItem( "B", QVariant( m_color.blueF() ), &m_childMetadata );
       break;
     case QColor::Hsv:
-      children[0] = factory->CreateViewItem( "H", QVariant( m_color.hueF() ), &m_childMetadata );
-      children[1] = factory->CreateViewItem( "S", QVariant( m_color.saturationF() ), &m_childMetadata );
-      children[2] = factory->CreateViewItem( "V", QVariant( m_color.valueF() ), &m_childMetadata );
+      children[0] = factory->createViewItem( "H", QVariant( m_color.hueF() ), &m_childMetadata );
+      children[1] = factory->createViewItem( "S", QVariant( m_color.saturationF() ), &m_childMetadata );
+      children[2] = factory->createViewItem( "V", QVariant( m_color.valueF() ), &m_childMetadata );
       break;
     default:
       assert( !"Invalid Color" );
@@ -220,20 +220,20 @@ void ColorViewItem::onColorSelected( QColor color )
 
 void ColorViewItem::formatChanged( const QString& format )
 {
-  BaseModelItem* modelItem = GetModelItem();
+  BaseModelItem* modelItem = getModelItem();
   // Note: setting metadata will delete this
   // class
   if (format == tr("HSV"))
   {
     m_spec = QColor::Hsv;
     if (modelItem != NULL)
-      modelItem->SetMetadata( META_FORMAT, "HSV", 0 );
+      modelItem->setMetadata( META_FORMAT, "HSV", 0 );
   }
   else
   {
     m_spec = QColor::Rgb;
     if (modelItem != NULL)
-      modelItem->SetMetadata( META_FORMAT, "RGB", 0 );
+      modelItem->setMetadata( META_FORMAT, "RGB", 0 );
   }
 
   // Convert cached color

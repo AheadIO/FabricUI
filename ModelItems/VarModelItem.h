@@ -28,13 +28,13 @@ namespace FabricUI
 
       virtual BaseModelItem* createChild( FTL::CStrRef name );
 
-      virtual int GetInOut() /*override*/;
+      virtual int getInOut() /*override*/;
 
-      virtual QVariant GetValue() /*override*/;
+      virtual QVariant getValue() /*override*/;
 
     protected:
 
-      virtual void SetValue(
+      virtual void setValue(
         QVariant var,
         bool commit,
         QVariant valueAtInteractionBegin

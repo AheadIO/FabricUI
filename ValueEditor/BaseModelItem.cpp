@@ -55,25 +55,25 @@ int BaseModelItem::getChildIndex( FTL::CStrRef childName )
   return -1;
 }
 
-ItemMetadata* BaseModelItem::GetMetadata()
+ItemMetadata* BaseModelItem::getMetadata()
 {
   return NULL;
 }
 
 
-void BaseModelItem::SetMetadata( const char* key, const char* val, bool canUndo )
+void BaseModelItem::setMetadata( const char* key, const char* val, bool canUndo )
 {
   m_settingMetadata = true;
-  SetMetadataImp( key, val, canUndo );
+  setMetadataImp( key, val, canUndo );
   m_settingMetadata = false;
 }
 
-bool BaseModelItem::SettingMetadata()
+bool BaseModelItem::isSettingMetadata()
 {
   return m_settingMetadata;
 }
 
-int BaseModelItem::GetInOut()
+int BaseModelItem::getInOut()
 {
   return FabricCore::DFGPortType_In;
 }
@@ -81,7 +81,7 @@ int BaseModelItem::GetInOut()
 void BaseModelItem::onInteractionBegin()
 {
   if ( m_interactionBracketCount++ == 0 )
-    m_valueAtInteractionBegin = GetValue();
+    m_valueAtInteractionBegin = getValue();
 }
 
 void BaseModelItem::onViewValueChanged(
@@ -90,7 +90,7 @@ void BaseModelItem::onViewValueChanged(
 {
   if ( m_modelValueChangedBracketCount == 0 )
   {
-    SetValue(
+    setValue(
       value,
       m_interactionBracketCount == 0,
       m_valueAtInteractionBegin
@@ -104,15 +104,15 @@ void BaseModelItem::onInteractionEnd( bool accept )
   {
     if ( accept )
     {
-      SetValue(
-        GetValue(),
+      setValue(
+        getValue(),
         true, // commit
         m_valueAtInteractionBegin
         );
     }
     else
     {
-      SetValue(
+      setValue(
         m_valueAtInteractionBegin,
         false,
         m_valueAtInteractionBegin

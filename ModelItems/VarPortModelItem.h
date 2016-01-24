@@ -38,9 +38,9 @@ class DFGUICmdHandler;
 
       virtual FTL::CStrRef getName() /*override*/;
       virtual bool canRenameItem() /*override*/;
-      virtual void RenameItem( const char* newName ) /*override*/;
+      virtual void renameItem( const char* newName ) /*override*/;
       
-      virtual QVariant GetValue();
+      virtual QVariant getValue();
 
       virtual bool hasDefault() /*override*/;
       virtual void resetToDefault() /*override*/;

@@ -45,7 +45,7 @@ class DFGUICmdHandler;
         { return m_argName; }
 
       virtual FTL::CStrRef getName()/*override*/;
-      virtual void RenameItem( const char* name )/*override*/;
+      virtual void renameItem( const char* name )/*override*/;
 
       virtual BaseModelItem *onExecPortRenamed(
         FTL::CStrRef execPath,
@@ -53,15 +53,15 @@ class DFGUICmdHandler;
         FTL::CStrRef newExecPortName
         ) /*override*/;
 
-      virtual QVariant GetValue()/*override*/;
+      virtual QVariant getValue()/*override*/;
 
-      virtual ItemMetadata* GetMetadata() /*override*/;
+      virtual ItemMetadata* getMetadata() /*override*/;
 
-      virtual void SetMetadataImp( const char* key, 
+      virtual void setMetadataImp( const char* key, 
                                 const char* value,
                                 bool canUndo)/*override*/;
 
-      virtual int GetInOut() /*override*/;
+      virtual int getInOut() /*override*/;
 
       virtual bool hasDefault() /*override*/;
 
@@ -69,7 +69,7 @@ class DFGUICmdHandler;
 
     protected:
 
-      virtual void SetValue(
+      virtual void setValue(
         QVariant var,
         bool commit,
         QVariant valueAtInteractionBegin

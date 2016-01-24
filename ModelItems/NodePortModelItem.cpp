@@ -82,7 +82,7 @@ BaseModelItem *NodePortModelItem::onNodeRenamed(
   return 0;
 }
 
-ItemMetadata* NodePortModelItem::GetMetadata()
+ItemMetadata* NodePortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new NodePortItemMetadata( this );
@@ -90,17 +90,17 @@ ItemMetadata* NodePortModelItem::GetMetadata()
   return m_metadata;
 }
 
-void NodePortModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
+void NodePortModelItem::setMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   m_exec.setNodePortMetadata( m_portPath.c_str(), key, value, canUndo );
 }
 
-int NodePortModelItem::GetInOut()
+int NodePortModelItem::getInOut()
 {
   return m_exec.getNodePortType( m_portPath.c_str() );
 }
 
-QVariant NodePortModelItem::GetValue()
+QVariant NodePortModelItem::getValue()
 {
   try
   {
@@ -125,7 +125,7 @@ QVariant NodePortModelItem::GetValue()
   return QVariant();
 }
 
-void NodePortModelItem::SetValue(
+void NodePortModelItem::setValue(
   QVariant value,
   bool commit,
   QVariant valueAtInteractionBegin

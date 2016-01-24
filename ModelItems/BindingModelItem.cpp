@@ -59,7 +59,7 @@ FTL::CStrRef BindingModelItem::getName()
   return FTL_STR("<Root>");
 }
 
-void BindingModelItem::RenameItem( const char* newName )
+void BindingModelItem::renameItem( const char* newName )
 {
   assert( false );
 }
@@ -80,7 +80,7 @@ BaseModelItem *BindingModelItem::onExecPortRenamed(
     return 0;
 }
 
-void BindingModelItem::SetMetadataImp( 
+void BindingModelItem::setMetadataImp( 
   const char* key, 
   const char* value, 
   bool canUndo ) /**/
@@ -88,17 +88,17 @@ void BindingModelItem::SetMetadataImp(
   m_rootExec.setMetadata( key, value, canUndo );
 }
 
-QVariant BindingModelItem::GetValue()
+QVariant BindingModelItem::getValue()
 {
   return QVariant();// GetName();
 }
 
-ItemMetadata* BindingModelItem::GetMetadata()
+ItemMetadata* BindingModelItem::getMetadata()
 {
   return NULL;
 }
 
-void BindingModelItem::SetValue(
+void BindingModelItem::setValue(
   QVariant var,
   bool commit,
   QVariant valueAtInteractionBegin

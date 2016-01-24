@@ -64,7 +64,7 @@ public:
 
   // Returns a matching ModelItem for this ViewItem
   // May be null.
-  BaseModelItem* GetModelItem()
+  BaseModelItem* getModelItem()
     { return m_modelItem; }
 
   // Get the name of this ViewItem

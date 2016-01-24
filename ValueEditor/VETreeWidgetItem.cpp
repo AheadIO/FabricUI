@@ -32,7 +32,7 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
   // If we have no item, we always go last
   if (m_viewItem == NULL)
     return false;
-  BaseModelItem* modelItem = m_viewItem->GetModelItem();
+  BaseModelItem* modelItem = m_viewItem->getModelItem();
   if (modelItem == NULL)
     return false;
 
@@ -50,7 +50,7 @@ bool VETreeWidgetItem::operator<( const QTreeWidgetItem &other ) const
     if (parentView == NULL)
       return false;
 
-    BaseModelItem* parentModel = parentView->GetModelItem();
+    BaseModelItem* parentModel = parentView->getModelItem();
     if (parentModel)
     {
       int myIndex = parentModel->getChildIndex( m_viewItem->getName().toUtf8().constData() );

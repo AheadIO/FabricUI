@@ -73,10 +73,10 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
 
   if (parent)
   {
-    BaseModelItem* modelItem = viewItem->GetModelItem();
+    BaseModelItem* modelItem = viewItem->getModelItem();
     if (modelItem != NULL)
     {
-      if (modelItem->GetInOut() == FabricCore::DFGPortType_Out)
+      if (modelItem->getInOut() == FabricCore::DFGPortType_Out)
       {
         parent = GetOutNode( parent );
       }
@@ -145,7 +145,7 @@ VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem, VETreeWi
     return NULL;
 
   BaseViewItem* pView = pWidget->getViewItem();
-  if (pView != NULL && pView->GetModelItem() == pItem)
+  if (pView != NULL && pView->getModelItem() == pItem)
     return pWidget;
   
   for (int i = 0; i < pWidget->childCount(); i++)
@@ -214,7 +214,7 @@ void VETreeWidget::onModelItemChildInserted(
       // Insert new child in the appropriate place
       BaseModelItem* newItem = parent->getChild( name );
       BaseViewItem* newView =
-        ViewItemFactory::GetInstance()->CreateViewItem( newItem );
+        ViewItemFactory::GetInstance()->createViewItem( newItem );
       createTreeWidgetItem( newView, parentItem, index );
 
       // Ensure ordering is maintained.
@@ -262,7 +262,7 @@ void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*ne
     {
       int index = parentItem->indexOfChild( oldWidget );
       BaseViewItem* newView =
-        ViewItemFactory::GetInstance()->CreateViewItem( item );
+        ViewItemFactory::GetInstance()->createViewItem( item );
       createTreeWidgetItem( newView, parentItem, index );
     }
   }
@@ -309,7 +309,7 @@ void VETreeWidget::onItemEdited( QTreeWidgetItem* _item, int column )
 void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
 {
   ViewItemFactory* pFactory = ViewItemFactory::GetInstance();
-  BaseViewItem* pViewLayer = pFactory->CreateViewItem( pItem );
+  BaseViewItem* pViewLayer = pFactory->createViewItem( pItem );
   // Remove all existing
   clear();
   VETreeWidgetItem* newItem = createTreeWidgetItem( pViewLayer, NULL );
@@ -401,7 +401,7 @@ BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item )
   BaseViewItem* pViewItem = item->getViewItem();
   if (pViewItem != NULL)
   {
-    BaseModelItem* pModelItem = pViewItem->GetModelItem();
+    BaseModelItem* pModelItem = pViewItem->getModelItem();
     if (pModelItem != NULL)
       return pModelItem;
   }

@@ -73,21 +73,21 @@ class DFGUICmdHandler;
         FTL::CStrRef newNodeName
         ) /*override*/;
 
-      virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadataImp( const char* key,
+      virtual ItemMetadata* getMetadata();
+      virtual void setMetadataImp( const char* key,
                                 const char* value,
                                 bool canUndo )/*override*/;
 
 
-      virtual int GetInOut();
+      virtual int getInOut();
 
-      virtual QVariant GetValue();
+      virtual QVariant getValue();
 
     protected:
 
       void updatePortPath();
 
-      virtual void SetValue(
+      virtual void setValue(
         QVariant var,
         bool commit,
         QVariant valueAtInteractionBegin

@@ -60,7 +60,7 @@ protected:
   // the the UI and setting them on the core object.
   // It is guaranteed that the QVariant value here will be equivalent
   // to the QVariant returned from GetValue
-  virtual void SetValue(
+  virtual void setValue(
     QVariant value,
     bool commit,
     QVariant valueAtInteractionBegin
@@ -97,7 +97,7 @@ public:
   // by default returns true
   virtual bool canRenameItem() { return true; };
   // Implement this to rename the underlying data
-  virtual void RenameItem( const char* newName ) = 0;
+  virtual void renameItem( const char* newName ) = 0;
 
   // Notification handlers for Core rename notifications.
   // This should certainly not be in BaseModelItem but because we
@@ -128,14 +128,14 @@ public:
 	// be possible using metadata to request a value
 	// be displayed in a certain way, eg as an angle
 	// or as a percentage, or 
-	virtual ItemMetadata* GetMetadata();
+	virtual ItemMetadata* getMetadata();
 
   // A view item may modify metadata to store UI
   // hints in the scene graph.
   // As a note - The metadata set here may not exactly
   // match the metadata queried from GetMetadata
   // due to way metadata is inherited
-  void SetMetadata( const char* key, const char* val, bool canUndo );
+  void setMetadata( const char* key, const char* val, bool canUndo );
 
   // Returns true if this class is currently setting
   // metadata.  This is used to filter out Metadata
@@ -143,21 +143,21 @@ public:
   // we have initiated ourselves (the assumption is
   // no changes initiated by the ValueEditor should
   // be reflected back to it).
-  bool SettingMetadata(); 
+  bool isSettingMetadata(); 
 
   // Implement this function to indicate which
   // direction the value is heading in this
   // NOTE: the returned value is equivalent to
   // FabricCore::DFGPortType
   // Default: FabricCore::DFGPortType_In
-  virtual int GetInOut();
+  virtual int getInOut();
 
   // Returns true if this value is read-only,
   // or false if it can be set.
   //virtual bool IsReadOnline();
 
 	// Return a copy of this classes value
-	virtual QVariant GetValue() = 0;
+	virtual QVariant getValue() = 0;
 
   // Returns true if a ModelItem has a default
   // value - in other words, if resetToDefault
@@ -185,7 +185,7 @@ private:
 
   // A modelitem should implement this function to
   // push metadata to the underlying class
-  virtual void SetMetadataImp( const char* key, const char* val, bool canUndo ) = 0;
+  virtual void setMetadataImp( const char* key, const char* val, bool canUndo ) = 0;
 
 public slots:
 

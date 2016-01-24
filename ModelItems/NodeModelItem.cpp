@@ -45,7 +45,7 @@ FTL::CStrRef NodeModelItem::getName()
   return m_nodeName;
 }
 
-void NodeModelItem::RenameItem( const char* newName )
+void NodeModelItem::renameItem( const char* newName )
 {
   m_dfgUICmdHandler->dfgDoEditNode(
     m_binding,
@@ -108,12 +108,12 @@ FTL::CStrRef NodeModelItem::getChildName( int i )
   return m_exec.getNodePortName( m_nodeName.c_str(), i );
 }
 
-ItemMetadata* NodeModelItem::GetMetadata()
+ItemMetadata* NodeModelItem::getMetadata()
 {
   return NULL;
 }
 
-void NodeModelItem::SetMetadataImp( const char* key, const char* value, bool canUndo ) /**/
+void NodeModelItem::setMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   // TODO: Do We need this?
 }

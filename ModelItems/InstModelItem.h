@@ -35,11 +35,11 @@ class DFGUICmdHandler;
 
       virtual BaseModelItem* createChild( FTL::CStrRef name );
 
-      virtual QVariant GetValue();
+      virtual QVariant getValue();
 
     protected:
 
-      virtual void SetValue(
+      virtual void setValue(
         QVariant var,
         bool commit,
         QVariant valueAtInteractionBegin

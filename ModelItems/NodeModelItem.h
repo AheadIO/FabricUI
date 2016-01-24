@@ -50,7 +50,7 @@ class DFGUICmdHandler;
       virtual FTL::CStrRef getChildName( int i );
 
       virtual FTL::CStrRef getName();
-      virtual void RenameItem( const char* newName );
+      virtual void renameItem( const char* newName );
 
       virtual BaseModelItem *onNodePortRenamed(
         FTL::CStrRef execPath,
@@ -65,8 +65,8 @@ class DFGUICmdHandler;
         FTL::CStrRef newNodeName
         ) /*override*/;
 
-      virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadataImp( const char* key, 
+      virtual ItemMetadata* getMetadata();
+      virtual void setMetadataImp( const char* key, 
                                 const char* value, 
                                 bool canUndo )/*override*/;
     };

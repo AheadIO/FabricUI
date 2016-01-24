@@ -30,7 +30,7 @@ FTL::CStrRef ArgModelItem::getName()
   return m_argName;
 }
 
-void ArgModelItem::RenameItem( const char* name )
+void ArgModelItem::renameItem( const char* name )
 {
   m_rootExec.renameExecPort( m_argName.c_str(), name );
 }
@@ -50,7 +50,7 @@ BaseModelItem *ArgModelItem::onExecPortRenamed(
   else return 0;
 }
 
-QVariant ArgModelItem::GetValue()
+QVariant ArgModelItem::getValue()
 {
   FabricCore::RTVal rtVal = m_binding.getArgValue( m_argName.c_str() );
   // When an argument is first create it does not yet have a value
@@ -62,7 +62,7 @@ QVariant ArgModelItem::GetValue()
 }
 
 
-void ArgModelItem::SetValue(
+void ArgModelItem::setValue(
   QVariant var,
   bool commit,
   QVariant valueAtInteractionBegin
@@ -113,14 +113,14 @@ void ArgModelItem::SetValue(
   }
 }
 
-ItemMetadata* ArgModelItem::GetMetadata()
+ItemMetadata* ArgModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new ArgItemMetadata( this );
   return m_metadata; 
 }
 
-void ArgModelItem::SetMetadataImp(
+void ArgModelItem::setMetadataImp(
   const char* key, 
   const char* value,
   bool canUndo )
@@ -128,7 +128,7 @@ void ArgModelItem::SetMetadataImp(
   m_rootExec.setExecPortMetadata( m_argName.c_str(), key, value, canUndo );
 }
 
-int ArgModelItem::GetInOut()
+int ArgModelItem::getInOut()
 {
   return m_rootExec.getExecPortType( m_argName.c_str() );
 }

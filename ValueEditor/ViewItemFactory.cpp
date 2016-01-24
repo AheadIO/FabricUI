@@ -37,7 +37,7 @@ ViewItemFactory* ViewItemFactory::GetInstance()
   return &instance;
 }
 
-bool ViewItemFactory::RegisterCreator(
+bool ViewItemFactory::registerCreator(
   CreateItemFn createItemFn,
   int priority
   )
@@ -53,7 +53,7 @@ bool ViewItemFactory::RegisterCreator(
   return true;
 }
 
-void ViewItemFactory::DeRegisterCreator( CreateItemFn createItemFn )
+void ViewItemFactory::deRegisterCreator( CreateItemFn createItemFn )
 {
   for ( CreatorIT itr = creatorBegin(); itr != creatorEnd(); itr++ )
   {
@@ -65,7 +65,7 @@ void ViewItemFactory::DeRegisterCreator( CreateItemFn createItemFn )
   }
 }
 
-BaseViewItem *ViewItemFactory::CreateViewItem(
+BaseViewItem *ViewItemFactory::createViewItem(
   BaseModelItem *modelItem,
   QString const &name,
   QVariant const &value,
@@ -76,21 +76,21 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   if ( !initialized )
   {
     // Register the builtin view items
-    RegisterCreator( BooleanCheckBoxViewItem::CreateItem, BooleanCheckBoxViewItem::Priority );
-    RegisterCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
-    RegisterCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
-    RegisterCreator( FilepathViewItem::CreateItem, FilepathViewItem::Priority );
-    RegisterCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
-    RegisterCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
-    RegisterCreator( IntSliderViewItem::CreateItem, IntSliderViewItem::Priority );
-    RegisterCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
-    RegisterCreator( SIntViewItem::CreateItem, SIntViewItem::Priority );
-    RegisterCreator( StringViewItem::CreateItem, StringViewItem::Priority );
-    RegisterCreator( UIntViewItem::CreateItem, UIntViewItem::Priority );
-    RegisterCreator( Vec2ViewItem::CreateItem, Vec2ViewItem::Priority );
-    RegisterCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
-    RegisterCreator( Vec4ViewItem::CreateItem, Vec4ViewItem::Priority );
-    RegisterCreator( ComboBoxViewItem::CreateItem, ComboBoxViewItem::Priority );
+    registerCreator( BooleanCheckBoxViewItem::CreateItem, BooleanCheckBoxViewItem::Priority );
+    registerCreator( ColorViewItem::CreateItem, ColorViewItem::Priority );
+    registerCreator( DefaultViewItem::CreateItem, DefaultViewItem::Priority );
+    registerCreator( FilepathViewItem::CreateItem, FilepathViewItem::Priority );
+    registerCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
+    registerCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
+    registerCreator( IntSliderViewItem::CreateItem, IntSliderViewItem::Priority );
+    registerCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
+    registerCreator( SIntViewItem::CreateItem, SIntViewItem::Priority );
+    registerCreator( StringViewItem::CreateItem, StringViewItem::Priority );
+    registerCreator( UIntViewItem::CreateItem, UIntViewItem::Priority );
+    registerCreator( Vec2ViewItem::CreateItem, Vec2ViewItem::Priority );
+    registerCreator( Vec3ViewItem::CreateItem, Vec3ViewItem::Priority );
+    registerCreator( Vec4ViewItem::CreateItem, Vec4ViewItem::Priority );
+    registerCreator( ComboBoxViewItem::CreateItem, ComboBoxViewItem::Priority );
 
      // We put the QVariantRTVal bridge injection
     // code here, as before we build a view it won't
@@ -114,26 +114,26 @@ BaseViewItem *ViewItemFactory::CreateViewItem(
   return 0;
 }
 
-BaseViewItem *ViewItemFactory::CreateViewItem(
+BaseViewItem *ViewItemFactory::createViewItem(
   BaseModelItem *modelItem
   )
 {
   FTL::CStrRef name = modelItem->getName();
-  return CreateViewItem(
+  return createViewItem(
     modelItem,
     QString::fromUtf8( name.data(), name.size() ),
-    modelItem->GetValue(),
-    modelItem->GetMetadata()
+    modelItem->getValue(),
+    modelItem->getMetadata()
     );
 }
 
-BaseViewItem *ViewItemFactory::CreateViewItem(
+BaseViewItem *ViewItemFactory::createViewItem(
   QString const &name,
   QVariant const &value,
   ItemMetadata* metaData
   )
 {
-  return CreateViewItem(
+  return createViewItem(
     0,
     name,
     value,

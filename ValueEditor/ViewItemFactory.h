@@ -69,7 +69,7 @@ protected:
 	// \tag[optional] One more piece of metadata, just in case you want to 
 	//		only display a value for a tagged value.
 	// TODO: Perhaps just pass in a MetaData option here to represent all metadata?
-	BaseViewItem* CreateViewItem(
+	BaseViewItem* createViewItem(
 	  BaseModelItem *modelItem,
 		QString const &name,
 		QVariant const &value,
@@ -82,14 +82,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	// Register arbitrary widget creators 
-	bool RegisterCreator( CreateItemFn createItemFn, int priority );
+	bool registerCreator( CreateItemFn createItemFn, int priority );
 	// DeRegister widget creators.
-	void DeRegisterCreator( CreateItemFn createItemFn );
+	void deRegisterCreator( CreateItemFn createItemFn );
 	
 	// Recursively Create the most appropriate value editor 
   // given the modelItem
 	// \data The modelitem to represent in the UI
-	BaseViewItem* CreateViewItem(
+	BaseViewItem* createViewItem(
 	  BaseModelItem *modelItem
 	  );
 	
@@ -100,7 +100,7 @@ public:
 	//		float can represent any of an angle/ratio/distance etc.
 	// \metadata[optional] One more piece of metadata, just in case you want to 
 	//		only display a value for a tagged value.
-	BaseViewItem* CreateViewItem(
+	BaseViewItem* createViewItem(
 		QString const &name,
 		QVariant const &value,
     ItemMetadata* metaData = NULL
