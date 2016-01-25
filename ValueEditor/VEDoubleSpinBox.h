@@ -18,7 +18,7 @@ public:
 
   QString textFromValue( double val ) const;
 
-  virtual void updateStep();
+  virtual void updateStep( double deltaXInInches, double sensitivity );
 
 signals:
 

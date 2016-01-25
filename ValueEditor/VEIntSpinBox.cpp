@@ -16,7 +16,7 @@ VEIntSpinBox::~VEIntSpinBox()
 {
 }
 
-void VEIntSpinBox::updateStep()
+void VEIntSpinBox::updateStep( double deltaXInInches, double sensitivity )
 {
   // Always step by a round-number 
   int exp = log10( abs( m_startValue ) ) - 2;

@@ -24,20 +24,14 @@ QString VEDoubleSpinBox::textFromValue( double val ) const
   return QString::number( val );
 }
 
-void VEDoubleSpinBox::updateStep()
+void VEDoubleSpinBox::updateStep( double deltaXInInches, double sensitivity )
 {
   // Always step by a round-number 
-  int exp = log10f( fabs( m_startValue ) ) - 2;
-  double changePerStep = pow( 10.0, exp );
-  static const double minChangePerStep = 0.01;
-  static const double maxChangePerStep = 1000;
-  changePerStep =
-    std::min(
-      maxChangePerStep,
-      std::max(
-        minChangePerStep,
-        changePerStep
-        )
-      );
+  int base10Exp = int( trunc( 0.5 * deltaXInInches ) );
+  double changePerStep = sensitivity * pow( 10.0, base10Exp );
+  static const double minChangePerStep = 0.00001;
+  changePerStep = std::max( minChangePerStep, changePerStep );
+  static const double maxChangePerStep = 100000;
+  changePerStep = std::min( maxChangePerStep, changePerStep );
   setSingleStep( changePerStep );
 }

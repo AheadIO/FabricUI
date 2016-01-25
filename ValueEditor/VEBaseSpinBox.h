@@ -25,6 +25,7 @@ public:
   {
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
+    QT_SPINBOX::setSingleStep( 0 );
   }
 
   ~VEBaseSpinBox() {}
@@ -33,8 +34,6 @@ public:
   {
     m_trackStartPos = event->pos();
     m_startValue = QT_SPINBOX::value();
-
-    updateStep();
 
     static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
     QApplication::setOverrideCursor( initialOverrideCursor );
@@ -48,11 +47,16 @@ public:
   {
     if ( !m_dragging )
     {
+      // [pzion 20160125] Steps are bigger than dragging
+      updateStep( 0.0, 1.0 );
+
       QT_SPINBOX::mousePressEvent( event );
       QT_SPINBOX::mouseReleaseEvent( event );
     }
 
     QApplication::restoreOverrideCursor();
+
+    QT_SPINBOX::setSingleStep( 0 );
 
     emit interactionEnd( true );
   }
@@ -64,19 +68,21 @@ public:
       return;
 
     QPoint trackPos = event->pos();
-    int nSteps = m_trackStartPos.y() - trackPos.y();
-    // 
-    float sensitivity = 10.0f / QT_SPINBOX::logicalDpiY();
+
+    int deltaX = trackPos.x() - m_trackStartPos.x();
+    double deltaXInInches =
+      double( deltaX ) / double( QT_SPINBOX::logicalDpiX() );
+
+    double sensitivity;
     // Slow down movement if Ctrl is pressed
     if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-      sensitivity /= 10;
-    // Sensitivity is modified by X-pos
-    float xOffset = m_trackStartPos.x() - event->x();
-    float xScale = exp( xOffset / QT_SPINBOX::logicalDpiX() );
-    sensitivity *= xScale;
-      
+      sensitivity = 0.01;
+    else
+      sensitivity = 0.1;
 
-    nSteps *= sensitivity;
+    updateStep( deltaXInInches, sensitivity );
+
+    int nSteps = m_trackStartPos.y() - trackPos.y();
 
     // While dragging, we want to do an absolute value offset,
     // so reset to start value and then increment by abs step
@@ -94,6 +100,8 @@ public:
     if ( !m_wheelActive )
     {
       m_wheelActive = true;
+      // [pzion 20160125] Steps are bigger than dragging
+      updateStep( 0.0, 1.0 );
       emit interactionBegin();
     }
     QT_SPINBOX::wheelEvent( event );
@@ -104,6 +112,7 @@ public:
     if ( m_wheelActive )
     {
       m_wheelActive = false;
+      QT_SPINBOX::setSingleStep( 0 );
       emit interactionEnd( true );
     }
     QT_SPINBOX::leaveEvent( event );
@@ -112,7 +121,7 @@ public:
   virtual void interactionBegin() = 0;
   virtual void interactionEnd( bool ) = 0;
 
-  virtual void updateStep() = 0;
+  virtual void updateStep( double deltaXInInches, double sensitivity ) = 0;
 
 protected:
 

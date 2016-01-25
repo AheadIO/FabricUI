@@ -13,10 +13,12 @@ class VEIntSpinBox : public VEBaseSpinBox<QSpinBox, int>
   Q_OBJECT
 
 public:
-  VEIntSpinBox( );
+
+  VEIntSpinBox();
   ~VEIntSpinBox();
 
-  void updateStep();
+  void updateStep( double deltaXInInches, double sensitivity );
+
 signals:
 
   void interactionBegin();
