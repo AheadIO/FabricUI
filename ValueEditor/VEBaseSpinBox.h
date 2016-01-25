@@ -71,7 +71,7 @@ public:
     if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
       sensitivity /= 10;
     // Sensitivity is modified by X-pos
-    float xOffset = abs( event->x() - m_trackStartPos.x() );
+    float xOffset = m_trackStartPos.x() - event->x();
     float xScale = exp( xOffset / QT_SPINBOX::logicalDpiX() );
     sensitivity *= xScale;
       
