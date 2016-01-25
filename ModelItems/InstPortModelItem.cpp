@@ -75,7 +75,7 @@ bool InstPortModelItem::canRenameItem()
   return !nodeExec.editWouldSplitFromPreset();
 }
 
-void InstPortModelItem::renameItem( const char* newName )
+void InstPortModelItem::rename( const char* newName )
 {
   std::string subExecPath = m_execPath;
   if ( !subExecPath.empty() )

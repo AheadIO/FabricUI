@@ -46,7 +46,7 @@ bool VarPortModelItem::canRenameItem()
   return false;
 }
 
-void VarPortModelItem::renameItem( const char* newName )
+void VarPortModelItem::rename( const char* newName )
 {
   assert( false );
 }

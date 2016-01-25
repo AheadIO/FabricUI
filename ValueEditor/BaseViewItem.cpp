@@ -101,7 +101,7 @@ void BaseViewItem::renameItem( QString newName )
   if (m_modelItem != NULL)
   {
     QByteArray asAscii = newName.toAscii();
-    m_modelItem->renameItem( asAscii.data() );
+    m_modelItem->rename( asAscii.data() );
   }
 }
 

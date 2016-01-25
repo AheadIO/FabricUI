@@ -45,7 +45,7 @@ FTL::CStrRef NodeModelItem::getName()
   return m_nodeName;
 }
 
-void NodeModelItem::renameItem( const char* newName )
+void NodeModelItem::rename( const char* newName )
 {
   m_dfgUICmdHandler->dfgDoEditNode(
     m_binding,

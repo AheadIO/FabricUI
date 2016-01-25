@@ -45,7 +45,7 @@ class DFGUICmdHandler;
         { return m_argName; }
 
       virtual FTL::CStrRef getName()/*override*/;
-      virtual void renameItem( const char* name )/*override*/;
+      virtual void rename( const char* name )/*override*/;
 
       virtual BaseModelItem *onExecPortRenamed(
         FTL::CStrRef execPath,

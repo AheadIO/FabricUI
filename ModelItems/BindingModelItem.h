@@ -47,7 +47,7 @@ class DFGUICmdHandler;
       virtual FTL::CStrRef getName() /*override*/;
       virtual bool canRenameItem() /*override*/
         { return false; };
-      virtual void renameItem( const char* name ) /*override*/;
+      virtual void rename( const char* name ) /*override*/;
 
       virtual BaseModelItem *onExecPortRenamed(
         FTL::CStrRef execPath,

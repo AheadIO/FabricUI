@@ -97,7 +97,7 @@ public:
   // by default returns true
   virtual bool canRenameItem() { return true; };
   // Implement this to rename the underlying data
-  virtual void renameItem( const char* newName ) = 0;
+  virtual void rename( const char* newName ) = 0;
 
   // Notification handlers for Core rename notifications.
   // This should certainly not be in BaseModelItem but because we

@@ -59,7 +59,7 @@ FTL::CStrRef BindingModelItem::getName()
   return FTL_STR("<Root>");
 }
 
-void BindingModelItem::renameItem( const char* newName )
+void BindingModelItem::rename( const char* newName )
 {
   assert( false );
 }

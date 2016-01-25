@@ -30,7 +30,7 @@ FTL::CStrRef ArgModelItem::getName()
   return m_argName;
 }
 
-void ArgModelItem::renameItem( const char* name )
+void ArgModelItem::rename( const char* name )
 {
   m_rootExec.renameExecPort( m_argName.c_str(), name );
 }

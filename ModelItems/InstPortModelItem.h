@@ -37,7 +37,7 @@ class DFGUICmdHandler;
       virtual ItemMetadata *getMetadata() /*override*/;
 
       virtual bool canRenameItem();
-      virtual void renameItem( const char* newName );
+      virtual void rename( const char* newName );
 
       virtual QVariant getValue();
 
