@@ -334,7 +334,6 @@ class MainWindow(DFG.DFGMainWindow):
 
             dfgController.checkErrors()
             self.evalContext.currentFilePath = filePath
-            dfgController.bindUnboundRTVals()
             dfgController.execute()
 
             tl_start = dfgExec.getMetadata("timeline_start")

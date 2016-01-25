@@ -8,6 +8,8 @@
 
 class DoubleSlider;
 class ItemMetadata;
+class QWidget;
+class VELineEdit;
 
 class FloatSliderViewItem : public BaseViewItem
 {
@@ -27,8 +29,9 @@ public:
     QVariant const &value,
     ItemMetadata* metadata
     );
+  virtual void deleteMe() /*override*/
+    { delete this; }
   ~FloatSliderViewItem();
-  void deleteMe() { delete this; }
 
   virtual QWidget *getWidget() /*override*/;
 
@@ -38,9 +41,13 @@ public:
 
 private:
 
-  DoubleSlider* m_slider;
+  QWidget *m_widget;
+  VELineEdit *m_lineEdit;
+  DoubleSlider *m_slider;
 
 private slots:
+
+  void onLineEditTextModified( QString text );
 
   void onSliderPressed();
   void onDoubleValueChanged( double value );

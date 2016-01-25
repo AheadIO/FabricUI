@@ -326,3 +326,15 @@ void Pin::setDaisyChainCircleVisible(bool flag)
     m_outCircle->setShouldBeVisible(flag);
   }
 }
+
+void Pin::setName( FTL::StrRef newName )
+{
+  if ( newName != m_name )
+  {
+    bool labelIsName = m_labelCaption == m_name;
+    m_name = newName;
+    if ( labelIsName )
+      m_labelCaption = newName;
+    m_label->setText( QSTRING_FROM_STL_UTF8(m_labelCaption + m_labelSuffix) );
+  }
+}

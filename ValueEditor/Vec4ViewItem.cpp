@@ -8,6 +8,7 @@
 #include "VEDoubleSpinBox.h"
 
 #include <assert.h>
+#include <FabricUI/Util/UIRange.h>
 #include <QtCore/QVariant>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLineEdit>
@@ -90,6 +91,8 @@ Vec4ViewItem::Vec4ViewItem(
   layout->addWidget( m_ySpinBox );
   layout->addWidget( m_zSpinBox );
   layout->addWidget( m_tSpinBox );
+
+  metadataChanged();
 }
 
 Vec4ViewItem::~Vec4ViewItem()
@@ -187,14 +190,28 @@ void Vec4ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
 
   BaseViewItem *children[4];
-  children[0] = factory->CreateViewItem( "X", QVariant( m_vec4dValue.x() ), &m_metadata );
-  children[1] = factory->CreateViewItem( "Y", QVariant( m_vec4dValue.y() ), &m_metadata );
-  children[2] = factory->CreateViewItem( "Z", QVariant( m_vec4dValue.z() ), &m_metadata );
-  children[3] = factory->CreateViewItem( "T", QVariant( m_vec4dValue.w() ), &m_metadata );
+  children[0] = factory->createViewItem( "X", QVariant( m_vec4dValue.x() ), &m_metadata );
+  children[1] = factory->createViewItem( "Y", QVariant( m_vec4dValue.y() ), &m_metadata );
+  children[2] = factory->createViewItem( "Z", QVariant( m_vec4dValue.z() ), &m_metadata );
+  children[3] = factory->createViewItem( "T", QVariant( m_vec4dValue.w() ), &m_metadata );
   for ( int i = 0; i < 4; ++i )
   {
     connectChild( i, children[i] );
     items.append( children[i] );
+  }
+}
+
+void Vec4ViewItem::metadataChanged()
+{
+  FTL::StrRef uiRangeString = m_metadata.getString( "uiRange" );
+  
+  double minValue, maxValue;
+  if ( FabricUI::DecodeUIRange( uiRangeString, minValue, maxValue ) )
+  {
+    m_xSpinBox->setRange( minValue, maxValue );
+    m_ySpinBox->setRange( minValue, maxValue );
+    m_zSpinBox->setRange( minValue, maxValue );
+    m_tSpinBox->setRange( minValue, maxValue );
   }
 }
 

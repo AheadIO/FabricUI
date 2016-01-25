@@ -38,8 +38,9 @@ public:
     QVariant const &value,
     ItemMetadata* metadata
     );
+  virtual void deleteMe() /*override*/
+    { delete this; }
   ~Vec2ViewItem();
-  virtual void deleteMe() /*override*/ { delete this; }
 
   virtual QWidget *getWidget() /*override*/;
 

@@ -36,17 +36,30 @@ VarPortModelItem::~VarPortModelItem()
 {
 }
 
-bool VarPortModelItem::canRenameItem()
+FTL::CStrRef VarPortModelItem::getName()
+{
+  return FTL_STR("initialValue");
+}
+
+bool VarPortModelItem::canRename()
 {
   return false;
 }
 
-void VarPortModelItem::RenameItem( const char* newName )
+void VarPortModelItem::rename( FTL::CStrRef newName )
 {
   assert( false );
 }
 
-QVariant VarPortModelItem::GetValue()
+void VarPortModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
+  )
+{
+  assert( false );
+}
+
+QVariant VarPortModelItem::getValue()
 {
   try
   {

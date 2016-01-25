@@ -132,8 +132,8 @@ void Vec2ViewItem::doAppendChildViewItems(QList<BaseViewItem *>& items)
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
 
   BaseViewItem *children[2];
-  children[0] = factory->CreateViewItem( "X", QVariant( m_vec2dValue.x() ), &m_metadata );
-  children[1] = factory->CreateViewItem( "Y", QVariant( m_vec2dValue.y() ), &m_metadata );
+  children[0] = factory->createViewItem( "X", QVariant( m_vec2dValue.x() ), &m_metadata );
+  children[1] = factory->createViewItem( "Y", QVariant( m_vec2dValue.y() ), &m_metadata );
   for ( int i = 0; i < 2; ++i )
   {
     connectChild( i, children[i] );

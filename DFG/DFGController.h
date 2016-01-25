@@ -5,6 +5,7 @@
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
 
+#include <FabricUI/DFG/DFGBindingNotifier.h>
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Pin.h>
@@ -57,6 +58,9 @@ namespace FabricUI
         { return m_host; }
       FabricCore::DFGBinding &getBinding()
         { return m_binding; }
+      QSharedPointer<DFGBindingNotifier> const &
+      getBindingNotifier()
+        { return m_bindingNotifier; }
       FTL::CStrRef getExecPath()
         { return m_execPath; }
       FabricCore::DFGExec &getExec()
@@ -336,9 +340,6 @@ namespace FabricUI
 
       void execute();
 
-      bool bindUnboundRTVals();
-      static bool bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding);
-
       virtual bool canConnectTo(
         char const *pathA,
         char const *pathB,
@@ -359,30 +360,6 @@ namespace FabricUI
           emit varsChanged();
       }
 
-      void emitArgInserted(int index, const char* name, const char* type )
-      {
-        if ( m_updateSignalBlockCount > 0 )
-          m_argsChangedPending = true;
-        else
-          emit argInserted(index, name, type);
-      }
-
-      void emitArgTypeChanged(int index, const char* name, const char* newType )
-      {
-        if ( m_updateSignalBlockCount > 0 )
-          m_argsChangedPending = true;
-        else
-          emit argTypeChanged(index, name, newType);
-      }
-
-      void emitArgRemoved(int index, const char* name )
-      {
-        if ( m_updateSignalBlockCount > 0 )
-          m_argsChangedPending = true;
-        else
-          emit argRemoved(index, name);
-      }
-
       void emitArgsChanged()
       {
         if ( m_updateSignalBlockCount > 0 )
@@ -390,28 +367,21 @@ namespace FabricUI
         else
           emit argsChanged();
       }
-      void emitArgValuesChanged(int index, const char* name)
+
+      void emitArgValuesChanged()
       {
         if (m_updateSignalBlockCount > 0)
           m_argValuesChangedPending = true;
         else
-          emit argValuesChanged(index, name);
-
-      }
-      void emitArgsReordered( const FTL::JSONArray* newOrder )
-      {
-        if (m_updateSignalBlockCount > 0)
-          m_argsChangedPending = true;
-        else
-          emit argsReordered( newOrder );
+          emit argValuesChanged();
       }
 
-      void emitDefaultValuesChanged(int index, const char* name)
+      void emitDefaultValuesChanged()
       {
         if ( m_updateSignalBlockCount > 0 )
           m_defaultValuesChangedPending = true;
         else
-          emit defaultValuesChanged(index, name);
+          emit defaultValuesChanged();
       }
 
       void emitDirty()
@@ -456,12 +426,12 @@ namespace FabricUI
             if ( m_controller->m_argValuesChangedPending )
             {
               m_controller->m_argValuesChangedPending = false;
-              emit m_controller->argValuesChanged( -1, NULL );
+              emit m_controller->argValuesChanged();
             }
             if ( m_controller->m_defaultValuesChangedPending )
             {
               m_controller->m_defaultValuesChangedPending = false;
-              emit m_controller->defaultValuesChanged( -1, NULL );
+              emit m_controller->defaultValuesChanged();
             }
             if ( m_controller->m_dirtyPending )
             {
@@ -476,37 +446,11 @@ namespace FabricUI
         DFGController *m_controller;
       };
 
-      void emitExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName, 
-        FTL::CStrRef newExecPortName
-        );
-
-      void emitNodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeNode, 
-        FTL::CStrRef oldNodePortName, 
-        FTL::CStrRef newNodePortName
-        );
-
-      void emitExecPortMetadataChanged( 
-        const char* portName,
-        const char* key,
-        const char* value );
-
       void emitNodeRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
-      void emitPortsConnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
-      void emitPortsDisconnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
 
     signals:
 
@@ -521,30 +465,12 @@ namespace FabricUI
       void argRemoved( int index, const char* name );
       void argsReordered( const FTL::JSONArray* newOrder );
 
-      void argValuesChanged( int index, const char* name );
-      void defaultValuesChanged( int index, const char* name );
+      void argValuesChanged();
+      void defaultValuesChanged();
       void dirty();
       void execSplitChanged();
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
-
-      void execPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
-        );
-
-      void nodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeName,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        );
-
-      void execPortMetadataChanged( 
-        const char* portName, 
-        const char* key, 
-        const char* value );
 
       void nodeRenamed(
         FTL::CStrRef execPath,
@@ -554,14 +480,6 @@ namespace FabricUI
       void nodeRemoved(
         FTL::CStrRef execPath,
         FTL::CStrRef nodeName
-        );
-      void portsConnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
-        );
-      void portsDisconnected(
-        FTL::CStrRef srcPort,
-        FTL::CStrRef dstPort
         );
 
     public slots:
@@ -577,31 +495,20 @@ namespace FabricUI
 
     private:
 
-      void bindingNotificationCallback( FTL::CStrRef jsonStr );
-      static void BindingNotificationCallback(
-        void * userData,
-        char const *jsonCString,
-        uint32_t jsonLength
-        )
-      {
-        static_cast<DFGController *>( userData )->bindingNotificationCallback(
-          FTL::CStrRef( jsonCString, jsonLength )
-          );
-      }
-
       void updatePresetPathDB();
 
       DFGWidget *m_dfgWidget;
       FabricCore::Client m_client;
       FabricCore::DFGHost m_host;
       FabricCore::DFGBinding m_binding;
+      QSharedPointer<DFGBindingNotifier> m_bindingNotifier;
       std::string m_execPath;
       FabricCore::DFGExec m_exec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGUICmdHandler *m_cmdHandler;
       DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
-      bool m_overTakeBindingNotifications;
+      bool const m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
       FabricServices::SplitSearch::Dict m_presetPathDict;
       std::vector<std::string> m_presetNameSpaceDictSTL;
@@ -614,6 +521,48 @@ namespace FabricUI
       bool m_argValuesChangedPending;
       bool m_defaultValuesChangedPending;
       bool m_dirtyPending;
+
+    private slots:
+
+      void onBindingDirty();
+
+      void onBindingArgInserted(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef typeName
+        );
+
+      void onBindingArgTypeChanged(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef newTypeName
+        );
+
+      void onBindingArgRemoved(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingArgsReordered(
+        FTL::ArrayRef<unsigned> newOrder
+        );
+
+      void onBindingArgValueChanged(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingVarInserted(
+        FTL::CStrRef varName,
+        FTL::CStrRef varPath,
+        FTL::CStrRef typeName,
+        FTL::CStrRef extDep
+        );
+
+      void onBindingVarRemoved(
+        FTL::CStrRef varName,
+        FTL::CStrRef varPath
+        );
     };
 
   };

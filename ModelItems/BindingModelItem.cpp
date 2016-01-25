@@ -27,14 +27,6 @@ BindingModelItem::~BindingModelItem()
 }
 
 
-bool BindingModelItem::matchesPath(
-  FTL::StrRef execPath,
-  FTL::StrRef nodeName
-  )
-{
-  return execPath.empty() && nodeName.empty();
-}
-
 int BindingModelItem::getNumChildren()
 {
   return m_rootExec.getExecPortCount();
@@ -59,28 +51,25 @@ FTL::CStrRef BindingModelItem::getName()
   return FTL_STR("<Root>");
 }
 
-void BindingModelItem::RenameItem( const char* newName )
+bool BindingModelItem::canRename()
+{
+  return false;
+}
+
+void BindingModelItem::rename( FTL::CStrRef newName )
 {
   assert( false );
 }
 
-BaseModelItem *BindingModelItem::onExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
+void BindingModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
   )
 {
-  if ( execPath.empty() )
-    return RootModelItem::onExecPortRenamed(
-      execPath,
-      oldExecPortName,
-      newExecPortName
-      );
-  else
-    return 0;
+  assert( false );
 }
 
-void BindingModelItem::SetMetadataImp( 
+void BindingModelItem::setMetadataImp( 
   const char* key, 
   const char* value, 
   bool canUndo ) /**/
@@ -88,17 +77,17 @@ void BindingModelItem::SetMetadataImp(
   m_rootExec.setMetadata( key, value, canUndo );
 }
 
-QVariant BindingModelItem::GetValue()
+QVariant BindingModelItem::getValue()
 {
-  return QVariant();// GetName();
+  return QVariant();
 }
 
-ItemMetadata* BindingModelItem::GetMetadata()
+ItemMetadata* BindingModelItem::getMetadata()
 {
   return NULL;
 }
 
-void BindingModelItem::SetValue(
+void BindingModelItem::setValue(
   QVariant var,
   bool commit,
   QVariant valueAtInteractionBegin

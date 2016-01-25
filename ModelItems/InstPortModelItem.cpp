@@ -36,7 +36,7 @@ InstPortModelItem::~InstPortModelItem()
 {
 }
 
-ItemMetadata *InstPortModelItem::GetMetadata()
+ItemMetadata *InstPortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new InstPortItemMetadata( this );
@@ -44,7 +44,7 @@ ItemMetadata *InstPortModelItem::GetMetadata()
   return m_metadata;
 }
 
-QVariant InstPortModelItem::GetValue()
+QVariant InstPortModelItem::getValue()
 {
   try
   {
@@ -69,13 +69,18 @@ QVariant InstPortModelItem::GetValue()
   return QVariant();
 }
 
-bool InstPortModelItem::canRenameItem()
+FTL::CStrRef InstPortModelItem::getName()
+{
+  return m_portName;
+}
+
+bool InstPortModelItem::canRename()
 {
   FabricCore::DFGExec nodeExec = m_exec.getSubExec( m_nodeName.c_str() );
   return !nodeExec.editWouldSplitFromPreset();
 }
 
-void InstPortModelItem::RenameItem( const char* newName )
+void InstPortModelItem::rename( FTL::CStrRef newName )
 {
   std::string subExecPath = m_execPath;
   if ( !subExecPath.empty() )
@@ -92,6 +97,16 @@ void InstPortModelItem::RenameItem( const char* newName )
     m_portName,
     newName
     );
+}
+
+void InstPortModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
+  )
+{
+  assert( m_portName == oldName );
+  m_portName = newName;
+  updatePortPath();
 }
 
 bool InstPortModelItem::hasDefault()

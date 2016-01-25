@@ -58,36 +58,34 @@ class DFGUICmdHandler;
       FTL::CStrRef getPortPath()
         { return m_portPath; }
 
-      virtual FTL::CStrRef getName();
-
-      virtual BaseModelItem *onNodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeName,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        ) /*override*/;
-
-      virtual BaseModelItem *onNodeRenamed(
-        FTL::CStrRef execPath,
+      void onNodeRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName
-        ) /*override*/;
+        );
 
-      virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadataImp( const char* key,
+      /////////////////////////////////////////////////////////////////////////
+      // Metadata
+      /////////////////////////////////////////////////////////////////////////
+
+      virtual ItemMetadata* getMetadata();
+      virtual void setMetadataImp( const char* key,
                                 const char* value,
                                 bool canUndo )/*override*/;
 
 
-      virtual int GetInOut();
+      virtual int getInOut();
 
-      virtual QVariant GetValue();
+      /////////////////////////////////////////////////////////////////////////
+      // Value
+      /////////////////////////////////////////////////////////////////////////
+
+      virtual QVariant getValue();
 
     protected:
 
       void updatePortPath();
 
-      virtual void SetValue(
+      virtual void setValue(
         QVariant var,
         bool commit,
         QVariant valueAtInteractionBegin

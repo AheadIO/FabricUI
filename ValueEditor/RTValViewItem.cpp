@@ -113,7 +113,7 @@ void RTValViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
           char const *childName = m_val.getMemberName( i );
           FabricCore::RTVal childVal = m_val.getMemberRef( i );
           BaseViewItem* childItem =
-            factory->CreateViewItem(
+            factory->createViewItem(
               childName,
               toVariant( childVal ),
               &m_metadata

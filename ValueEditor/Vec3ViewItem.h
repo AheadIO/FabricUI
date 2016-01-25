@@ -39,6 +39,8 @@ public:
     QVariant const &value,
     ItemMetadata* metadata
 	  );
+  virtual void deleteMe() /*override*/
+    { delete this; }
 	~Vec3ViewItem();
 
 	virtual QWidget *getWidget() /*override*/;
@@ -52,7 +54,7 @@ public:
 
   virtual void doAppendChildViewItems( QList<BaseViewItem *>& items );
 
-  void deleteMe() { delete this; }
+  virtual void metadataChanged() /*override*/; 
 
 public slots:
 

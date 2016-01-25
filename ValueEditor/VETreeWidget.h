@@ -19,13 +19,18 @@ public:
   VETreeWidget( );
 
   void sortTree();
+  bool focusNextPrevChild( bool next );
 
   VETreeWidgetItem* createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index = -1 );
+
+  VETreeWidgetItem* findTreeWidget( QWidget* widget ) const;
+  VETreeWidgetItem* findTreeWidget( QWidget* widget, VETreeWidgetItem * item ) const;
 
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem ) const;
   VETreeWidgetItem* findTreeWidget( BaseModelItem* pItem, VETreeWidgetItem* pWidget ) const;
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem ) const;
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem, VETreeWidgetItem * pWidget ) const;
+
   public slots:
 
   void onSetModelItem( BaseModelItem* pItem );

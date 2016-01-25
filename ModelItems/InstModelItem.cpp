@@ -45,12 +45,12 @@ BaseModelItem *InstModelItem::createChild( FTL::CStrRef portName )
     );
 }
 
-QVariant InstModelItem::GetValue()
+QVariant InstModelItem::getValue()
 {
   return QVariant();
 }
 
-void InstModelItem::SetValue(
+void InstModelItem::setValue(
   QVariant var,
   bool commit,
   QVariant valueAtInteractionBegin

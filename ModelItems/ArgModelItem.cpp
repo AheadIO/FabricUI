@@ -30,27 +30,32 @@ FTL::CStrRef ArgModelItem::getName()
   return m_argName;
 }
 
-void ArgModelItem::RenameItem( const char* name )
+bool ArgModelItem::canRename()
 {
-  m_rootExec.renameExecPort( m_argName.c_str(), name );
+  return true;
 }
 
-BaseModelItem *ArgModelItem::onExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
+void ArgModelItem::rename( FTL::CStrRef newName )
+{
+  m_dfgUICmdHandler->dfgDoRenamePort(
+    m_binding,
+    FTL::CStrRef(),
+    m_rootExec,
+    m_argName,
+    newName
+    );
+}
+
+void ArgModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
   )
 {
-  if ( execPath.empty()
-    && m_argName == oldExecPortName )
-  {
-    m_argName = newExecPortName;
-    return this;
-  }
-  else return 0;
+  assert( m_argName == oldName );
+  m_argName = newName;
 }
 
-QVariant ArgModelItem::GetValue()
+QVariant ArgModelItem::getValue()
 {
   FabricCore::RTVal rtVal = m_binding.getArgValue( m_argName.c_str() );
   // When an argument is first create it does not yet have a value
@@ -62,7 +67,7 @@ QVariant ArgModelItem::GetValue()
 }
 
 
-void ArgModelItem::SetValue(
+void ArgModelItem::setValue(
   QVariant var,
   bool commit,
   QVariant valueAtInteractionBegin
@@ -78,6 +83,7 @@ void ArgModelItem::SetValue(
   FabricCore::RTVal curRTVal = m_binding.getArgValue( m_argName.c_str() );
   assert( curRTVal.isValid() );
   FabricCore::DFGHost host = m_binding.getHost();
+  FabricCore::DFGNotifBracket _( host );
   FabricCore::Context context = host.getContext();
   FabricCore::RTVal rtVal =
     FabricCore::RTVal::Construct( context, curRTVal.getTypeNameCStr(), 0, 0 );
@@ -113,14 +119,14 @@ void ArgModelItem::SetValue(
   }
 }
 
-ItemMetadata* ArgModelItem::GetMetadata()
+ItemMetadata* ArgModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new ArgItemMetadata( this );
   return m_metadata; 
 }
 
-void ArgModelItem::SetMetadataImp(
+void ArgModelItem::setMetadataImp(
   const char* key, 
   const char* value,
   bool canUndo )
@@ -128,7 +134,7 @@ void ArgModelItem::SetMetadataImp(
   m_rootExec.setExecPortMetadata( m_argName.c_str(), key, value, canUndo );
 }
 
-int ArgModelItem::GetInOut()
+int ArgModelItem::getInOut()
 {
   return m_rootExec.getExecPortType( m_argName.c_str() );
 }

@@ -41,32 +41,33 @@ class DFGUICmdHandler;
         );
       ~NodeModelItem();
 
-      virtual bool matchesPath(
-        FTL::StrRef execPath,
-        FTL::StrRef nodeName
-        ) /*override*/;
+      virtual bool isNode() const /*override*/ { return true; }
+
+      FTL::CStrRef getNodeName()
+        { return m_nodeName; }
 
       virtual int getNumChildren() /*override*/;
       virtual FTL::CStrRef getChildName( int i );
 
-      virtual FTL::CStrRef getName();
-      virtual void RenameItem( const char* newName );
+      /////////////////////////////////////////////////////////////////////////
+      // Name
+      /////////////////////////////////////////////////////////////////////////
 
-      virtual BaseModelItem *onNodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeName,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        ) /*override*/;
+      virtual FTL::CStrRef getName() /*override*/;
 
-      virtual BaseModelItem *onNodeRenamed(
-        FTL::CStrRef execPath,
+      virtual bool canRename() /*override*/;
+
+      virtual void rename( FTL::CStrRef newName ) /*override*/;
+
+      virtual void onRenamed(
         FTL::CStrRef oldNodeName,
         FTL::CStrRef newNodeName
         ) /*override*/;
 
-      virtual ItemMetadata* GetMetadata();
-      virtual void SetMetadataImp( const char* key, 
+      // Metadata
+
+      virtual ItemMetadata* getMetadata();
+      virtual void setMetadataImp( const char* key, 
                                 const char* value, 
                                 bool canUndo )/*override*/;
     };

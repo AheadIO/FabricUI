@@ -45,7 +45,7 @@ void BaseViewItem::setBaseModelItem( BaseModelItem* item )
       this, SLOT( onModelValueChanged( QVariant const & ) )
       );
 
-    if (m_modelItem->GetInOut() == FabricCore::DFGPortType_Out)
+    if (m_modelItem->getInOut() == FabricCore::DFGPortType_Out)
     {
       m_metadata.setSInt32( "disabled", 1 );
     }
@@ -87,7 +87,7 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
     {
       BaseModelItem *childModelItem = m_modelItem->getChild( i );
       BaseViewItem* childViewItem = 
-        viewItemFactory->CreateViewItem( childModelItem );
+        viewItemFactory->createViewItem( childModelItem );
       if (childViewItem == NULL)
         continue;
 
@@ -98,11 +98,8 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
 
 void BaseViewItem::renameItem( QString newName )
 {
-  if (m_modelItem != NULL)
-  {
-    QByteArray asAscii = newName.toAscii();
-    m_modelItem->RenameItem( asAscii.data() );
-  }
+  if ( m_modelItem )
+    m_modelItem->rename( newName.toUtf8().constData() );
 }
 
 
@@ -124,7 +121,7 @@ void BaseViewItem::setWidgetsOnTreeItem(
   treeWidgetItem->setText( 0, m_name );
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-  if (m_modelItem != NULL && m_modelItem->canRenameItem())
+  if (m_modelItem != NULL && m_modelItem->canRename())
     flags |= Qt::ItemIsEditable;
 
   treeWidgetItem->setFlags( flags );

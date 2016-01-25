@@ -43,6 +43,7 @@ namespace FabricUI
 
       FTL::CStrRef name() const
         { return m_name; }
+      void setName( FTL::StrRef newName );
 
       virtual std::string path() const;
 

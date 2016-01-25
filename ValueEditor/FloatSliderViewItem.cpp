@@ -6,22 +6,34 @@
 #include "FloatSliderViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
+#include "VELineEdit.h"
 
 #include <FabricUI/Util/UIRange.h>
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant>
+#include <QtGui/QHBoxLayout>
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
-  QVariant const &value,
+  QVariant const &variant,
   ItemMetadata* metadata
   )
   : BaseViewItem( name, metadata )
 {
-  m_slider = new DoubleSlider;
-  m_slider->setObjectName( "FloatSliderItem" );
+  double value = variant.value<double>();
 
-  onModelValueChanged( value );
+  m_lineEdit = new VELineEdit( QString::number( value ) );
+  m_slider = new DoubleSlider( value );
+
+  m_widget = new QWidget;
+  QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  layout->addWidget( m_lineEdit );
+  layout->addWidget( m_slider );
+
+  connect(
+    m_lineEdit, SIGNAL( textModified( QString ) ),
+    this, SLOT( onLineEditTextModified( QString ) )
+    );
 
   connect(
     m_slider, SIGNAL( sliderPressed() ),
@@ -35,8 +47,8 @@ FloatSliderViewItem::FloatSliderViewItem(
     m_slider, SIGNAL( sliderReleased() ),
     this, SLOT( onSliderReleased() )
     );
+
   metadataChanged();
-  onModelValueChanged( value );
 }
 
 FloatSliderViewItem::~FloatSliderViewItem()
@@ -45,7 +57,7 @@ FloatSliderViewItem::~FloatSliderViewItem()
 
 QWidget *FloatSliderViewItem::getWidget()
 {
-  return m_slider;
+  return m_widget;
 }
 
 void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
@@ -62,6 +74,11 @@ void FloatSliderViewItem::metadataChanged()
     m_slider->setResolution( 100, minValue, maxValue );
 }
 
+void FloatSliderViewItem::onLineEditTextModified( QString text )
+{
+  m_slider->setDoubleValue( text.toDouble() );
+}
+
 void FloatSliderViewItem::onSliderPressed()
 {
   emit interactionBegin();
@@ -69,6 +86,7 @@ void FloatSliderViewItem::onSliderPressed()
 
 void FloatSliderViewItem::onDoubleValueChanged( double value )
 {
+  m_lineEdit->setText( QString::number( value ) );
   emit viewValueChanged( QVariant::fromValue<double>( value ) );
 }
 
