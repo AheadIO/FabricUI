@@ -59,7 +59,6 @@ VETreeWidget::VETreeWidget( )
 BaseViewItem* updateTabOrder( VETreeWidgetItem* lastItem, BaseViewItem* lastView )
 {
   // If the last item has any chilren open
-  VETreeWidgetItem* lastTabItem = lastItem;
   BaseViewItem* lastTabView = lastView;
 
   for (int i = 0; i < lastItem->childCount(); i++)
