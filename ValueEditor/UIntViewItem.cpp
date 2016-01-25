@@ -4,8 +4,8 @@
 
 #include "UIntViewItem.h"
 #include "QVariantRTVal.h"
+#include "VEIntSpinBox.h"
 
-#include <QtGui/QSpinBox>
 #include <limits.h>
 
 UIntViewItem::UIntViewItem(
@@ -15,7 +15,8 @@ UIntViewItem::UIntViewItem(
   )
   : BaseViewItem( name, metadata )
 {
-  m_spinner = new QSpinBox;
+  m_spinner = new VEIntSpinBox;
+  m_spinner->setObjectName( "UIntItem" );
   m_spinner->setMinimum( 0 );
   m_spinner->setMaximum( INT_MAX );
   m_spinner->setKeyboardTracking( false );

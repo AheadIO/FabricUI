@@ -34,6 +34,8 @@ FilepathViewItem::FilepathViewItem(
   layout->addWidget( m_lineEdit );
   layout->addWidget( browseButton );
 
+  onModelValueChanged( value );
+
   // Connect button signal to appropriate slot
   connect(
     m_lineEdit, SIGNAL( textEdited( const QString& ) ),
@@ -47,7 +49,6 @@ FilepathViewItem::FilepathViewItem(
     browseButton, SIGNAL( clicked() ), 
     this, SLOT( doBrowse() ) );
   metadataChanged();
-  onModelValueChanged( value );
 }
 
 FilepathViewItem::~FilepathViewItem()

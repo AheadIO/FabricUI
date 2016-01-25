@@ -16,7 +16,8 @@ RTValViewItem::RTValViewItem( QString name,
   , m_val(value)
   , m_widget(new QLabel())
 {
-  m_widget->setContentsMargins( 0, 2, 0, 2 );
+  m_widget->setObjectName( "RTValItem" );
+
 
   // We cannot leave arbitrary classes open to
   // editing, as we don't know what effect this

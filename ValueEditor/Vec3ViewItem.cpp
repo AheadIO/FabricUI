@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VESpinBox.h"
+#include "VEDoubleSpinBox.h"
 
 #include <assert.h>
 #include <FabricUI/Util/UIRange.h>
@@ -23,10 +23,12 @@ Vec3ViewItem::Vec3ViewItem(
   , m_vec3dValue( value.value<QVector3D>() )
 {
   m_widget = new QWidget;
+  m_widget->setObjectName( "Vec3Item" );
 
-  m_xSpinBox = new VESpinBox( m_vec3dValue.x(), m_widget );
-  m_ySpinBox = new VESpinBox( m_vec3dValue.y(), m_widget );
-  m_zSpinBox = new VESpinBox( m_vec3dValue.z(), m_widget );
+  m_xSpinBox = new VEDoubleSpinBox( );
+  m_ySpinBox = new VEDoubleSpinBox( );
+  m_zSpinBox = new VEDoubleSpinBox( );
+  onModelValueChanged( value );
 
   // Connect em up.
 

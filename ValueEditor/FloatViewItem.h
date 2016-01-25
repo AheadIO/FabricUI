@@ -6,7 +6,7 @@
 
 #include "BaseViewItem.h"
 
-class VESpinBox;
+class VEDoubleSpinBox;
 class ItemMetadata;
 
 class FloatViewItem : public BaseViewItem
@@ -38,7 +38,7 @@ public:
 
 private:
 
-	VESpinBox *m_spinBox;
+	VEDoubleSpinBox *m_spinBox;
 
 private slots:
 

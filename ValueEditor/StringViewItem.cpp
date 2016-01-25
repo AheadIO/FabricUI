@@ -25,8 +25,6 @@ StringViewItem::StringViewItem(
   m_widget->setObjectName( "StringItem" );
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
   QPushButton* inspectButton = new QPushButton( m_widget );
-  QIcon inspectIcon( "icons/mag_glass.png" );
-  inspectButton->setIcon( inspectIcon );
   m_edit = new VELineEdit( m_widget );
   
   onModelValueChanged( value );

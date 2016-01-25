@@ -5,7 +5,7 @@
 #include "QVariantRTVal.h"
 #include "Vec2ViewItem.h"
 #include "ViewItemFactory.h"
-#include "VESpinBox.h"
+#include "VEDoubleSpinBox.h"
 
 #include <assert.h>
 #include <FabricUI/Util/UIRange.h>
@@ -23,9 +23,12 @@ Vec2ViewItem::Vec2ViewItem(
   , m_vec2dValue( value.value<QVector2D>() )
 {
   m_widget = new QWidget;
+  m_widget->setObjectName( "Vec2Item" );
 
-  m_xSpinBox = new VESpinBox( m_vec2dValue.x(), m_widget );
-  m_ySpinBox = new VESpinBox( m_vec2dValue.y(), m_widget );
+  m_xSpinBox = new VEDoubleSpinBox( );
+  m_ySpinBox = new VEDoubleSpinBox( );
+
+  onModelValueChanged( value );
 
   // Connect em up.
 
