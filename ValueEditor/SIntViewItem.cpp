@@ -18,18 +18,21 @@ SIntViewItem::SIntViewItem(
 {
   m_spinner = new VEIntSpinBox();
   m_spinner->setObjectName( "SIntItem" );
-  m_spinner->setMinimum( INT_MIN );
-  m_spinner->setMaximum( INT_MAX );
-  m_spinner->setKeyboardTracking( false );
+  onModelValueChanged( value );
+
   connect(
-    m_spinner, SIGNAL( valueChanged( int ) ), 
+    m_spinner, SIGNAL( interactionBegin() ),
+    this, SIGNAL( interactionBegin() )
+    );
+  connect(
+    m_spinner, SIGNAL( valueChanged( int ) ),
     this, SLOT( OnSpinnerChanged( int ) )
     );
   connect(
-    m_spinner, SIGNAL( editingFinished() ), 
-    this, SLOT( OnEditFinished() )
+    m_spinner, SIGNAL( interactionEnd( bool ) ),
+    this, SIGNAL( interactionEnd( bool ) )
     );
-  onModelValueChanged( value );
+
 }
 
 SIntViewItem::~SIntViewItem()

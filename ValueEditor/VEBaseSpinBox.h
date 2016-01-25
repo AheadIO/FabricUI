@@ -15,6 +15,10 @@ public:
 
   virtual void mouseMoveEvent( QMouseEvent * ) /*override*/;
 
+  virtual void wheelEvent( QWheelEvent *event )/*override*/;
+
+  virtual void leaveEvent( QEvent *event ) /*override*/;
+
   virtual void interactionBegin()=0;
   virtual void interactionEnd( bool )=0;
 
@@ -24,6 +28,7 @@ protected:
   QPoint m_trackStartPos;
   value_type m_startValue;
   bool m_dragging;
+  bool m_wheelActive;
 
 };
 

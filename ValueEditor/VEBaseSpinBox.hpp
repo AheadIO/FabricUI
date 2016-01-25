@@ -10,21 +10,12 @@
 //////////////////////////////////////////////////////////////////////////
 template<typename QT_SPINBOX, typename value_type>
 VEBaseSpinBox<QT_SPINBOX, value_type>::VEBaseSpinBox()
-  : m_startValue(0)
-  , m_dragging(false)
+  : m_startValue( 0 )
+  , m_dragging( false )
+  , m_wheelActive( false )
 {
-  VELineEdit* newLineEdit = new VELineEdit( this );
-  newLineEdit->setAlignment( Qt::AlignRight | Qt::AlignCenter );
-  setLineEdit( newLineEdit );
-
-  // By default, the spinbox updates every time text changes.
-  // Disconnect the signal setup to update on every text change, 
-  // to only send an update on editing finished.
-  disconnect( newLineEdit, SIGNAL( textChanged( QString ) ),
-           this, SLOT( _q_editorTextChanged( QString ) ) );
-
-  connect( newLineEdit, SIGNAL( textModified( QString ) ), 
-           this, SLOT( _q_editorTextChanged( QString ) ) );
+  lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
+  setKeyboardTracking( false );
 }
 
 template<typename QT_SPINBOX, typename value_type>
@@ -98,4 +89,26 @@ void VEBaseSpinBox<QT_SPINBOX, value_type>::mouseMoveEvent( QMouseEvent *event )
   stepBy( nSteps );
   m_dragging = true;
   event->accept();
+}
+
+template<typename QT_SPINBOX, typename value_type>
+void VEBaseSpinBox<QT_SPINBOX, value_type>::wheelEvent( QWheelEvent *event )
+{
+  if (!m_wheelActive)
+  {
+    m_wheelActive = true;
+    emit interactionBegin();
+  }
+  QT_SPINBOX::wheelEvent( event );
+}
+
+template<typename QT_SPINBOX, typename value_type>
+void VEBaseSpinBox<QT_SPINBOX, value_type>::leaveEvent( QEvent *event )
+{
+  if (m_wheelActive)
+  {
+    m_wheelActive = false;
+    emit interactionEnd( true );
+  }
+  QT_SPINBOX::leaveEvent( event );
 }
