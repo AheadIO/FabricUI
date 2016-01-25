@@ -26,3 +26,4 @@ protected:
   bool m_dragging;
 
 };
+

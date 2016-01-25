@@ -1,4 +1,5 @@
 #include "VEBaseSpinBox.h"
+#include "VELineEdit.h"
 #include "Util/QTSignalBlocker.h"
 
 #include <QTGui/QLineEdit>
@@ -12,7 +13,18 @@ VEBaseSpinBox<QT_SPINBOX, value_type>::VEBaseSpinBox()
   : m_startValue(0)
   , m_dragging(false)
 {
-  lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
+  VELineEdit* newLineEdit = new VELineEdit( this );
+  newLineEdit->setAlignment( Qt::AlignRight | Qt::AlignCenter );
+  setLineEdit( newLineEdit );
+
+  // By default, the spinbox updates every time text changes.
+  // Disconnect the signal setup to update on every text change, 
+  // to only send an update on editing finished.
+  disconnect( newLineEdit, SIGNAL( textChanged( QString ) ),
+           this, SLOT( _q_editorTextChanged( QString ) ) );
+
+  connect( newLineEdit, SIGNAL( textModified( QString ) ), 
+           this, SLOT( _q_editorTextChanged( QString ) ) );
 }
 
 template<typename QT_SPINBOX, typename value_type>
@@ -39,6 +51,8 @@ void VEBaseSpinBox<QT_SPINBOX, value_type>::mouseReleaseEvent( QMouseEvent * eve
 {
   if (!m_dragging)
   {
+    emit interactionBegin();
+
     QT_SPINBOX::mousePressEvent( event );
     QT_SPINBOX::mouseReleaseEvent( event );
   }

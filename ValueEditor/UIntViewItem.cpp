@@ -20,14 +20,28 @@ UIntViewItem::UIntViewItem(
   m_spinner->setMinimum( 0 );
   m_spinner->setMaximum( INT_MAX );
   m_spinner->setKeyboardTracking( false );
+
   connect(
-    m_spinner, SIGNAL( valueChanged( int ) ), 
+    m_spinner, SIGNAL( interactionBegin() ),
+    this, SIGNAL( interactionBegin() )
+    );
+  connect(
+    m_spinner, SIGNAL( valueChanged( int ) ),
     this, SLOT( OnSpinnerChanged( int ) )
     );
   connect(
-    m_spinner, SIGNAL( editingFinished() ), 
-    this, SLOT( OnEditFinished() )
+    m_spinner, SIGNAL( interactionEnd( bool ) ),
+    this, SIGNAL( interactionEnd( bool ) )
     );
+
+  //connect(
+  //  m_spinner, SIGNAL( valueChanged( int ) ), 
+  //  this, SLOT( OnSpinnerChanged( int ) )
+  //  );
+  //connect(
+  //  m_spinner, SIGNAL( editingFinished() ), 
+  //  this, SLOT( OnEditFinished() )
+  //  );
   onModelValueChanged( value );
 }
 
