@@ -54,6 +54,10 @@ namespace FabricUI {
 
     protected slots:
 
+      void onControllerBindingChanged(
+        FabricCore::DFGBinding const &binding
+        );
+
       void onSidePanelInspectRequested();
       void onNodeInspectRequested(FabricUI::GraphView::Node *node);
 

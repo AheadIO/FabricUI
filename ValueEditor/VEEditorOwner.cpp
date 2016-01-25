@@ -37,6 +37,13 @@ QWidget* VEEditorOwner::getWidget() const
 void VEEditorOwner::initConnections()
 {
   connect(
+    getUIController(),
+    SIGNAL(bindingChanged(FabricCore::DFGBinding const &)),
+    this,
+    SLOT(onControllerBindingChanged(FabricCore::DFGBinding const &))
+    );
+
+  connect(
     getUIController(), SIGNAL( argsChanged() ),
     this, SLOT( onStructureChanged() )
     );
@@ -244,6 +251,14 @@ void VEEditorOwner::setModelRoot(
   }
 
   emit replaceModelRoot( m_modelRoot );
+}
+
+void VEEditorOwner::onControllerBindingChanged(
+  FabricCore::DFGBinding const &newBinding
+  )
+{
+  onStructureChanged();
+  onSidePanelInspectRequested();
 }
 
 void VEEditorOwner::onSidePanelInspectRequested()
