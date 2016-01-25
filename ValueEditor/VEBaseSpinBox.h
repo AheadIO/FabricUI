@@ -36,6 +36,9 @@ public:
 
     updateStep();
 
+    static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
+    QApplication::setOverrideCursor( initialOverrideCursor );
+
     emit interactionBegin();
 
     m_dragging = false;
@@ -59,12 +62,6 @@ public:
     Qt::MouseButtons button = event->buttons();
     if ( button != Qt::LeftButton )
       return;
-
-    if ( !m_dragging )
-    {
-      static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
-      QApplication::setOverrideCursor( initialOverrideCursor );
-    }
 
     QPoint trackPos = event->pos();
     int nSteps = m_trackStartPos.y() - trackPos.y();
