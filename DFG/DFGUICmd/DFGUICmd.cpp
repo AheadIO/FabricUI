@@ -20,7 +20,7 @@ void DFGUICmd::undo()
 {
   assert( m_state == State_Done || m_state == State_Redone );
   m_state = State_Undone;
-
+  
   for ( unsigned i = 0; i < m_coreUndoCount; ++i )
     m_host.maybeUndo();
 }

@@ -30,24 +30,29 @@ FTL::CStrRef ArgModelItem::getName()
   return m_argName;
 }
 
-void ArgModelItem::rename( const char* name )
+bool ArgModelItem::canRename()
 {
-  m_rootExec.renameExecPort( m_argName.c_str(), name );
+  return true;
 }
 
-BaseModelItem *ArgModelItem::onExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
+void ArgModelItem::rename( FTL::CStrRef newName )
+{
+  m_dfgUICmdHandler->dfgDoRenamePort(
+    m_binding,
+    FTL::CStrRef(),
+    m_rootExec,
+    m_argName,
+    newName
+    );
+}
+
+void ArgModelItem::onRenamed(
+  FTL::CStrRef oldName,
+  FTL::CStrRef newName
   )
 {
-  if ( execPath.empty()
-    && m_argName == oldExecPortName )
-  {
-    m_argName = newExecPortName;
-    return this;
-  }
-  else return 0;
+  assert( m_argName == oldName );
+  m_argName = newName;
 }
 
 QVariant ArgModelItem::getValue()
@@ -78,6 +83,7 @@ void ArgModelItem::setValue(
   FabricCore::RTVal curRTVal = m_binding.getArgValue( m_argName.c_str() );
   assert( curRTVal.isValid() );
   FabricCore::DFGHost host = m_binding.getHost();
+  FabricCore::DFGNotifBracket _( host );
   FabricCore::Context context = host.getContext();
   FabricCore::RTVal rtVal =
     FabricCore::RTVal::Construct( context, curRTVal.getTypeNameCStr(), 0, 0 );

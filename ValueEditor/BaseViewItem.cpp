@@ -98,11 +98,8 @@ void BaseViewItem::appendChildViewItems( QList<BaseViewItem *>& items )
 
 void BaseViewItem::renameItem( QString newName )
 {
-  if (m_modelItem != NULL)
-  {
-    QByteArray asAscii = newName.toAscii();
-    m_modelItem->rename( asAscii.data() );
-  }
+  if ( m_modelItem )
+    m_modelItem->rename( newName.toUtf8().constData() );
 }
 
 
@@ -124,7 +121,7 @@ void BaseViewItem::setWidgetsOnTreeItem(
   treeWidgetItem->setText( 0, m_name );
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-  if (m_modelItem != NULL && m_modelItem->canRenameItem())
+  if (m_modelItem != NULL && m_modelItem->canRename())
     flags |= Qt::ItemIsEditable;
 
   treeWidgetItem->setFlags( flags );

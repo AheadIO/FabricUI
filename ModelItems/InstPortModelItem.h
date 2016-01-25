@@ -34,10 +34,26 @@ class DFGUICmdHandler;
         );
       ~InstPortModelItem();
 
-      virtual ItemMetadata *getMetadata() /*override*/;
+      /////////////////////////////////////////////////////////////////////////
+      // Name
+      /////////////////////////////////////////////////////////////////////////
 
-      virtual bool canRenameItem();
-      virtual void rename( const char* newName );
+      virtual FTL::CStrRef getName() /*override*/;
+
+      virtual bool canRename() /*override*/;
+
+      virtual void rename( FTL::CStrRef newName ) /*override*/;
+
+      virtual void onRenamed(
+        FTL::CStrRef oldName,
+        FTL::CStrRef newName
+        ) /*override*/;
+
+      /////////////////////////////////////////////////////////////////////////
+      // Others
+      /////////////////////////////////////////////////////////////////////////
+
+      virtual ItemMetadata *getMetadata() /*override*/;
 
       virtual QVariant getValue();
 

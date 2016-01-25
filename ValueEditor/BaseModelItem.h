@@ -89,39 +89,29 @@ public:
   virtual FTL::CStrRef getChildName( int i );
   virtual int getChildIndex( FTL::CStrRef name );
 
+  /////////////////////////////////////////////////////////////////////////
+  // Name
+  /////////////////////////////////////////////////////////////////////////
+
 	// The name of this node
   virtual FTL::CStrRef getName() = 0;
 
   // Implement this function to prevent the system
   // from allowing renames from the UI
-  // by default returns true
-  virtual bool canRenameItem() { return true; };
+  virtual bool canRename() = 0;
+
   // Implement this to rename the underlying data
-  virtual void rename( const char* newName ) = 0;
+  virtual void rename( FTL::CStrRef newName ) = 0;
 
-  // Notification handlers for Core rename notifications.
-  // This should certainly not be in BaseModelItem but because we
-  // don't listen to notifications sensibly we have to put this here
-  // for now..
+  // Handle the actual name change in the model
+  virtual void onRenamed(
+    FTL::CStrRef oldName,
+    FTL::CStrRef newName
+    ) = 0;
 
-  virtual BaseModelItem *onExecPortRenamed(
-    FTL::CStrRef execPath,
-    FTL::CStrRef oldExecPortName,
-    FTL::CStrRef newExecPortName
-    ) { return 0; }
-
-  virtual BaseModelItem *onNodePortRenamed(
-    FTL::CStrRef execPath,
-    FTL::CStrRef nodeName,
-    FTL::CStrRef oldNodePortName,
-    FTL::CStrRef newNodePortName
-    ) { return 0; }
-
-  virtual BaseModelItem *onNodeRenamed(
-    FTL::CStrRef execPath,
-    FTL::CStrRef oldNodeName,
-    FTL::CStrRef newNodeName
-    ) { return 0; }
+  /////////////////////////////////////////////////////////////////////////
+  // Metadata
+  /////////////////////////////////////////////////////////////////////////
 
 	// We need to define a metadata syntax for 
 	// additional type-info.  For example, it should
@@ -174,12 +164,6 @@ public:
     ModelValueChangedBracket _( this );
     emit modelValueChanged( newValue );
   }
-  void emitChildInserted( int index, const char* name, const char* type ) 
-    { emit childInserted( index, name, type ); }
-  void emitRemoved()
-    { emit removed(); }
-  void emitDataTypeChanged( const char* newType )
-    { emit dataTypeChanged( newType ); }
 
 private:
 
@@ -200,18 +184,5 @@ signals:
 	// Connect to this signal to be notified
 	// when the core value changes.
 	void modelValueChanged( QVariant const &newValue );
-
-  // This signal is fired whenever a new child is
-  // added to this modelItem
-  // \param index The index of the newly added item
-  void childInserted( int index, const char* name, const char* type );
-
-  // This signal is fired whenever this modelitem
-  // is being removed
-  void removed( );
-
-  // Fire this signal if the type of the data served
-  // by this class changes (the QVariant type).
-  void dataTypeChanged( const char* newType );
 };
 
