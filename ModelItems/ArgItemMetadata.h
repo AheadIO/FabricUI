@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "DFGModelItemMetadata.h"
+
 #include <FabricUI/ModelItems/ArgModelItem.h>
-#include <FabricUI/ModelItems/ModelItemMetadata.h>
 
 //////////////////////////////////////////////////////////////////////////
 // The Root-level model item for 
@@ -17,7 +18,7 @@ namespace FabricUI
   namespace ModelItems
   {
 
-    class ArgItemMetadata : public ModelItemMetadata
+    class ArgItemMetadata : public DFGModelItemMetadata
     {
     private:
 
@@ -30,6 +31,15 @@ namespace FabricUI
 
       virtual const char* getString( const char* key ) const /*override*/
       {
+        if ( key == FTL_STR("vePortType") )
+        {
+          FabricCore::DFGExec rootExec = m_argModelItem->getRootExec();
+          FTL::CStrRef argName = m_argModelItem->getArgName();
+          return DFGPortTypeToVEPortType(
+            rootExec.getExecPortType( argName.c_str() )
+            ).c_str();
+        }
+
         FabricCore::DFGExec rootExec = m_argModelItem->getRootExec();
         FTL::CStrRef argName = m_argModelItem->getArgName();
         return rootExec.getExecPortMetadata( argName.c_str(), key );

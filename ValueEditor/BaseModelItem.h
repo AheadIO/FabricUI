@@ -135,13 +135,6 @@ public:
   // be reflected back to it).
   bool isSettingMetadata(); 
 
-  // Implement this function to indicate which
-  // direction the value is heading in this
-  // NOTE: the returned value is equivalent to
-  // FabricCore::DFGPortType
-  // Default: FabricCore::DFGPortType_In
-  virtual int getInOut();
-
   // Returns true if this value is read-only,
   // or false if it can be set.
   //virtual bool IsReadOnline();

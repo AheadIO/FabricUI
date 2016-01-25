@@ -5,6 +5,7 @@
 #pragma once
 
 #include <FabricUI/ModelItems/NodeModelItem.h>
+#include <FabricUI/ModelItems/VarItemMetadata.h>
 
 namespace FabricUI
 {
@@ -28,9 +29,9 @@ namespace FabricUI
 
       virtual BaseModelItem* createChild( FTL::CStrRef name );
 
-      virtual int getInOut() /*override*/;
-
       virtual QVariant getValue() /*override*/;
+
+      virtual ItemMetadata *getMetadata() /*override*/;
 
     protected:
 
@@ -39,6 +40,10 @@ namespace FabricUI
         bool commit,
         QVariant valueAtInteractionBegin
         ) /*override*/;
+
+    private:
+
+      VarItemMetadata m_metadata;
     };
   }
 }

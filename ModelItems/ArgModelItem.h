@@ -75,8 +75,6 @@ class DFGUICmdHandler;
                                 const char* value,
                                 bool canUndo)/*override*/;
 
-      virtual int getInOut() /*override*/;
-
       virtual bool hasDefault() /*override*/;
 
       virtual void resetToDefault() /*override*/;

@@ -57,11 +57,6 @@ void NodePortModelItem::setMetadataImp( const char* key, const char* value, bool
   m_exec.setNodePortMetadata( m_portPath.c_str(), key, value, canUndo );
 }
 
-int NodePortModelItem::getInOut()
-{
-  return m_exec.getNodePortType( m_portPath.c_str() );
-}
-
 QVariant NodePortModelItem::getValue()
 {
   try

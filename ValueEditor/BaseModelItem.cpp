@@ -73,11 +73,6 @@ bool BaseModelItem::isSettingMetadata()
   return m_settingMetadata;
 }
 
-int BaseModelItem::getInOut()
-{
-  return FabricCore::DFGPortType_In;
-}
-
 void BaseModelItem::onInteractionBegin()
 {
   if ( m_interactionBracketCount++ == 0 )

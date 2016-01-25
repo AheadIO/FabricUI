@@ -1,4 +1,10 @@
+//
+// Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+//
+
 #pragma once
+
+#include <FTL/CStrRef.h>
 
 namespace FTL {
   class JSONObject;
@@ -13,6 +19,8 @@ namespace FTL {
 class ItemMetadata
 {
 public:
+
+  static FTL::CStrRef const VEPortTypeKey;
 
   virtual ~ItemMetadata() {}
 

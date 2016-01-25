@@ -9,6 +9,7 @@
 #include <FabricUI/ModelItems/InstModelItem.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
+#include <FabricUI/ValueEditor/ItemMetadata.h>
 
 using namespace FabricUI;
 using namespace ValueEditor;
@@ -483,10 +484,16 @@ void VEEditorOwner::onOutputsChanged()
     m_modelRoot->GetChildItrEnd();
   for (; itr != end; itr++)
   {
-    if ((*itr)->getInOut() != FabricCore::DFGPortType_In)
+    BaseModelItem *childModelItem = *itr;
+    if ( ItemMetadata *childItemMetadata = childModelItem->getMetadata() )
     {
-      QVariant val = (*itr)->getValue();
-      (*itr)->emitModelValueChanged( val );
+      FTL::CStrRef vePortType =
+        childItemMetadata->getString( ItemMetadata::VEPortTypeKey.c_str() );
+      if ( vePortType != FTL_STR("In") )
+      {
+        QVariant val = childModelItem->getValue();
+        childModelItem->emitModelValueChanged( val );
+      }
     }
   }
 }

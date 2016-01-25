@@ -134,11 +134,6 @@ void ArgModelItem::setMetadataImp(
   m_rootExec.setExecPortMetadata( m_argName.c_str(), key, value, canUndo );
 }
 
-int ArgModelItem::getInOut()
-{
-  return m_rootExec.getExecPortType( m_argName.c_str() );
-}
-
 bool ArgModelItem::hasDefault()
 {
   return false;

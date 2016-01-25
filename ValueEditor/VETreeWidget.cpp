@@ -223,9 +223,14 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
     BaseModelItem* modelItem = viewItem->getModelItem();
     if (modelItem != NULL)
     {
-      if (modelItem->getInOut() == FabricCore::DFGPortType_Out)
+      if ( ItemMetadata *itemMetadata = modelItem->getMetadata() )
       {
-        parent = GetOutNode( parent );
+        FTL::CStrRef vePortType =
+          itemMetadata->getString( ItemMetadata::VEPortTypeKey.c_str() );
+        if ( vePortType == FTL_STR("Out") )
+        {
+          parent = GetOutNode( parent );
+        }
       }
     }
 

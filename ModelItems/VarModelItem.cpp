@@ -2,6 +2,7 @@
 // Copyright 2010-2016 Fabric Software Inc. All rights reserved.
 //
 
+#include <FabricUI/ModelItems/VarItemMetadata.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
 #include <FabricUI/ModelItems/VarPortModelItem.h>
 
@@ -24,6 +25,7 @@ VarModelItem::VarModelItem(
     exec,
     nodeName
     )
+  , m_metadata( this )
 {
 }
 
@@ -43,13 +45,6 @@ BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
     );
 }
 
-int VarModelItem::getInOut()
-{
-  // Even though we are not actually a port,
-  // we return IO because we can get & set our val
-  return FabricCore::DFGPortType_IO;
-}
-
 QVariant VarModelItem::getValue()
 {
   return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
@@ -66,6 +61,11 @@ void VarModelItem::setValue(
   {
     m_exec.setVarValue( m_nodeName.c_str(), val );
   }
+}
+
+ItemMetadata *VarModelItem::getMetadata()
+{
+  return &m_metadata;
 }
 
 } // namespace ModelItems

@@ -1,6 +1,8 @@
 #include "ItemMetadata.h"
 #include <FTL/JSONValue.h>
 
+FTL::CStrRef const ItemMetadata::VEPortTypeKey = FTL_STR("vePortType");
+
 ViewItemMetadata::ViewItemMetadata( ItemMetadata* parent )
   : m_json(new FTL::JSONObject())
   , m_parent(parent)
