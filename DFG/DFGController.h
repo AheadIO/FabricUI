@@ -543,7 +543,7 @@ namespace FabricUI
         FTL::CStrRef name
         );
 
-      void onBindingArgReordered(
+      void onBindingArgsReordered(
         FTL::ArrayRef<unsigned> newOrder
         );
 

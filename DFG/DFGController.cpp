@@ -116,9 +116,9 @@ void DFGController::setBindingExec(
       );
     connect(
       m_bindingNotifier.data(),
-      SIGNAL(argReordered(FTL::ArrayRef<unsigned>)),
+      SIGNAL(argsReordered(FTL::ArrayRef<unsigned>)),
       this,
-      SLOT(onBindingArgReordered(FTL::ArrayRef<unsigned>))
+      SLOT(onBindingArgsReordered(FTL::ArrayRef<unsigned>))
       );
     connect(
       m_bindingNotifier.data(),
@@ -1551,7 +1551,7 @@ void DFGController::onBindingArgRemoved(
   emitArgsChanged();
 }
 
-void DFGController::onBindingArgReordered(
+void DFGController::onBindingArgsReordered(
   FTL::ArrayRef<unsigned> newOrder
   )
 {
