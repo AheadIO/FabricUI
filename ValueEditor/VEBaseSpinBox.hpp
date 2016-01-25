@@ -51,8 +51,6 @@ void VEBaseSpinBox<QT_SPINBOX, value_type>::mouseReleaseEvent( QMouseEvent * eve
 {
   if (!m_dragging)
   {
-    emit interactionBegin();
-
     QT_SPINBOX::mousePressEvent( event );
     QT_SPINBOX::mouseReleaseEvent( event );
   }
