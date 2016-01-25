@@ -6,6 +6,7 @@
 
 #include <FTL/StrRef.h>
 #include <QtCore/QObject.h>
+#include <stdint.h>
 
 namespace FabricUI {
 namespace DFG {
