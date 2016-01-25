@@ -16,6 +16,15 @@ VEIntSpinBox::~VEIntSpinBox()
 {
 }
 
+double VEIntSpinBox::implicitBaseChangePerStep()
+{
+  if ( minimum() == INT_MIN
+    || maximum() == INT_MAX )
+    return 1.0;
+
+  return round( ( maximum() - minimum() ) / 100.0 );
+}
+
 void VEIntSpinBox::updateStep( double deltaXInInches, double sensitivity )
 {
   // Always step by a round-number 

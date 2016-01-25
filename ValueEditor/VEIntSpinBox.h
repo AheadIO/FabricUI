@@ -17,7 +17,12 @@ public:
   VEIntSpinBox();
   ~VEIntSpinBox();
 
-  void updateStep( double deltaXInInches, double sensitivity );
+  virtual double implicitBaseChangePerStep() /*override*/;
+
+  virtual void updateStep(
+    double deltaXInInches,
+    double sensitivity
+    ) /*override*/;
 
 signals:
 

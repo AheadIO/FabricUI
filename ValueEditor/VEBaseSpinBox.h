@@ -48,7 +48,7 @@ public:
     if ( !m_dragging )
     {
       // [pzion 20160125] Steps are bigger than dragging
-      updateStep( 0.0, 1.0 );
+      updateStep( 0.0, implicitBaseChangePerStep() );
 
       QT_SPINBOX::mousePressEvent( event );
       QT_SPINBOX::mouseReleaseEvent( event );
@@ -73,12 +73,12 @@ public:
     double deltaXInInches =
       double( deltaX ) / double( QT_SPINBOX::logicalDpiX() );
 
-    double sensitivity;
+    double sensitivity = implicitBaseChangePerStep();
     // Slow down movement if Ctrl is pressed
     if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-      sensitivity = 0.01;
+      sensitivity *= 0.01;
     else
-      sensitivity = 0.1;
+      sensitivity *= 0.1;
 
     updateStep( deltaXInInches, sensitivity );
 
@@ -101,7 +101,7 @@ public:
     {
       m_wheelActive = true;
       // [pzion 20160125] Steps are bigger than dragging
-      updateStep( 0.0, 1.0 );
+      updateStep( 0.0, implicitBaseChangePerStep() );
       emit interactionBegin();
     }
     QT_SPINBOX::wheelEvent( event );
@@ -122,6 +122,8 @@ public:
   virtual void interactionEnd( bool ) = 0;
 
   virtual void updateStep( double deltaXInInches, double sensitivity ) = 0;
+
+  virtual double implicitBaseChangePerStep() = 0;
 
 protected:
 
