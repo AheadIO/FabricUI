@@ -25,10 +25,10 @@ Vec2ViewItem::Vec2ViewItem(
   m_widget = new QWidget;
   m_widget->setObjectName( "Vec2Item" );
 
-  m_xSpinBox = new VEDoubleSpinBox( );
-  m_ySpinBox = new VEDoubleSpinBox( );
-
-  onModelValueChanged( value );
+  m_xSpinBox = new VEDoubleSpinBox;
+  m_xSpinBox->setValue( m_vec2dValue.x() );
+  m_ySpinBox = new VEDoubleSpinBox;
+  m_ySpinBox->setValue( m_vec2dValue.y() );
 
   // Connect em up.
 

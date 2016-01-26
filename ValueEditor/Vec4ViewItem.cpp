@@ -25,12 +25,14 @@ Vec4ViewItem::Vec4ViewItem(
   m_widget = new QWidget;
   m_widget->setObjectName( "Vec4Item" );
 
-  m_xSpinBox = new VEDoubleSpinBox( );
-  m_ySpinBox = new VEDoubleSpinBox( );
-  m_zSpinBox = new VEDoubleSpinBox( );
-  m_tSpinBox = new VEDoubleSpinBox( );
-  onModelValueChanged( value );
-  // Connect em up.
+  m_xSpinBox = new VEDoubleSpinBox;
+  m_xSpinBox->setValue( m_vec4dValue.x() );
+  m_ySpinBox = new VEDoubleSpinBox;
+  m_ySpinBox->setValue( m_vec4dValue.y() );
+  m_zSpinBox = new VEDoubleSpinBox;
+  m_zSpinBox->setValue( m_vec4dValue.z() );
+  m_tSpinBox = new VEDoubleSpinBox;
+  m_tSpinBox->setValue( m_vec4dValue.w() );
   
   connect(
     m_xSpinBox, SIGNAL(interactionBegin()),
