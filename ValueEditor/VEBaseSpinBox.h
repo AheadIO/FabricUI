@@ -21,7 +21,8 @@ public:
   VEBaseSpinBox()
     : m_startValue( 0 )
     , m_dragging( false )
-    , m_wheelActive( false )
+    , m_wheeling( false )
+    , m_keying( false )
   {
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
@@ -95,26 +96,48 @@ public:
     event->accept();
   }
 
+  virtual void keyPressEvent( QKeyEvent *event ) /*override*/
+  {
+    if ( !m_keying
+      && ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ) )
+    {
+      m_keying = true;
+      beginStepping();
+    }
+
+    QT_SPINBOX::keyPressEvent( event );
+  }
+
+  virtual void focusOutEvent( QFocusEvent *event ) /*override*/
+  {
+    if ( m_keying )
+    {
+      m_keying = false;
+      endStepping();
+    }
+
+    QT_SPINBOX::focusOutEvent( event );
+  }
+
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
-    if ( !m_wheelActive )
+    if ( !m_wheeling )
     {
-      m_wheelActive = true;
-      // [pzion 20160125] Steps are bigger than dragging
-      updateStep( 0.0, implicitBaseChangePerStep() );
-      emit interactionBegin();
+      m_wheeling = true;
+      beginStepping();
     }
+
     QT_SPINBOX::wheelEvent( event );
   }
 
   virtual void leaveEvent( QEvent *event )
   {
-    if ( m_wheelActive )
+    if ( m_wheeling )
     {
-      m_wheelActive = false;
-      QT_SPINBOX::setSingleStep( 0 );
-      emit interactionEnd( true );
+      m_wheeling = false;
+      endStepping();
     }
+
     QT_SPINBOX::leaveEvent( event );
   }
 
@@ -127,8 +150,22 @@ public:
 
 protected:
 
+  void beginStepping()
+  {
+    // [pzion 20160125] Steps are bigger than dragging
+    updateStep( 0.0, implicitBaseChangePerStep() );
+    emit interactionBegin();
+  }
+
+  void endStepping()
+  {
+    QT_SPINBOX::setSingleStep( 0 ); // to make it easier to see bugs
+    emit interactionEnd( true );
+  }
+
   QPoint m_trackStartPos;
   value_type m_startValue;
   bool m_dragging;
-  bool m_wheelActive;
+  bool m_wheeling;
+  bool m_keying;
 };
