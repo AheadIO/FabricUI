@@ -5,7 +5,7 @@
 #pragma once
 
 #include <FTL/StrRef.h>
-#include <QtCore/QObject.h>
+#include <QtCore/QObject>
 #include <stdint.h>
 
 namespace FabricUI {

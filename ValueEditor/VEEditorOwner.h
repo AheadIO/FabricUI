@@ -36,6 +36,7 @@ namespace FabricUI {
     class ValueEditorBridgeOwner
     {
     public:
+      virtual ~ValueEditorBridgeOwner() {}
       virtual void log(const char* txt) const =0;
       virtual FabricUI::DFG::DFGWidget * getDfgWidget()=0;
     };
