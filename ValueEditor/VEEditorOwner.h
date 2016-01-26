@@ -36,9 +36,10 @@ namespace FabricUI {
     class ValueEditorBridgeOwner
     {
     public:
+      // This must be concrete so we can subclass in PySide
       virtual ~ValueEditorBridgeOwner() {}
-      virtual void log(const char* txt) const =0;
-      virtual FabricUI::DFG::DFGWidget * getDfgWidget()=0;
+      virtual void log(const char* txt) const {}
+      virtual FabricUI::DFG::DFGWidget * getDfgWidget() { return 0; }
     };
 
     class VEEditorOwner : public QObject 
@@ -46,7 +47,8 @@ namespace FabricUI {
       Q_OBJECT
 
     public:
-      VEEditorOwner(ValueEditorBridgeOwner& owner);
+
+      VEEditorOwner( ValueEditorBridgeOwner *owner );
       ~VEEditorOwner();
 
       QWidget* getWidget() const;
@@ -167,7 +169,7 @@ namespace FabricUI {
 
       int m_timelinePortIndex;
 
-      ValueEditorBridgeOwner& m_owner;
+      ValueEditorBridgeOwner *m_owner;
       VETreeWidget* m_dfgValueEditor;
       FabricUI::GraphView::Graph * m_setGraph;
 

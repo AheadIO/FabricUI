@@ -81,7 +81,7 @@ void DFGCombinedWidget::init(
         true
         );
 
-    m_valueEditor = new ValueEditor::VEEditorOwner(*this);
+    m_valueEditor = new ValueEditor::VEEditorOwner( this );
 
     m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
 

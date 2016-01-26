@@ -15,7 +15,7 @@ using namespace FabricUI;
 using namespace ValueEditor;
 using namespace ModelItems;
 
-VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner& owner )
+VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner *owner )
   : m_timelinePortIndex( -1 )
   , m_owner( owner )
   , m_dfgValueEditor( NULL )
@@ -92,7 +92,7 @@ void VEEditorOwner::initConnections()
 
 FabricUI::DFG::DFGWidget * VEEditorOwner::getDfgWidget()
 {
-  return m_owner.getDfgWidget();
+  return m_owner->getDfgWidget();
 }
 FabricUI::DFG::DFGController * VEEditorOwner::getUIController()
 {
@@ -392,7 +392,7 @@ void VEEditorOwner::onBindingArgValueChanged(
   }
   catch (FabricCore::Exception e)
   {
-    m_owner.log( e.getDesc_cstr() );
+    m_owner->log( e.getDesc_cstr() );
   }
 }
 
@@ -413,7 +413,7 @@ void VEEditorOwner::onExecPortDefaultValuesChanged(
   }
   catch (FabricCore::Exception e)
   {
-    m_owner.log( e.getDesc_cstr() );
+    m_owner->log( e.getDesc_cstr() );
   }
 }
 
@@ -440,7 +440,7 @@ void VEEditorOwner::onExecNodePortDefaultValuesChanged(
   }
   catch (FabricCore::Exception e)
   {
-    m_owner.log( e.getDesc_cstr() );
+    m_owner->log( e.getDesc_cstr() );
   }
 }
 
@@ -467,7 +467,7 @@ void VEEditorOwner::onExecNodePortResolvedTypeChanged(
   }
   catch (FabricCore::Exception e)
   {
-    m_owner.log( e.getDesc_cstr() );
+    m_owner->log( e.getDesc_cstr() );
   }
 }
 
@@ -697,7 +697,7 @@ void VEEditorOwner::onStructureChanged()
     }
     catch (FabricCore::Exception e)
     {
-      m_owner.log( e.getDesc_cstr() );
+      m_owner->log( e.getDesc_cstr() );
     }
   }
 }
@@ -741,7 +741,7 @@ void VEEditorOwner::onFrameChanged( int frame )
   }
   catch (FabricCore::Exception e)
   {
-    m_owner.log( e.getDesc_cstr() );
+    m_owner->log( e.getDesc_cstr() );
   }
 }
 

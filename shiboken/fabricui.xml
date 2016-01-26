@@ -28,7 +28,9 @@
     </namespace-type>
 
     <namespace-type name="ValueEditor" generate="yes">
+      <object-type name="ValueEditorBridgeOwner" />
       <object-type name="VEEditorOwner" />
+      <object-type name="VETreeWidget" />
     </namespace-type>
 
   </namespace-type>

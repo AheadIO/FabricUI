@@ -66,6 +66,9 @@ if buildOS == 'Linux':
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   qtMOC = '/usr/bin/moc-qt4'
   env.Append(CXXFLAGS = ['-fPIC'])
+  if buildType == 'Debug':
+    env.Append(CXXFLAGS = ['-g'])
+    env.Append(LDFLAGS = ['-g'])
 
 if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'

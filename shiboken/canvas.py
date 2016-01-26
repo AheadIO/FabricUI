@@ -171,18 +171,32 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.newPresetSaved.connect(treeWidget.refresh)
 
-        # self.valueEditor = FabricUI.ValueEditor.VEEditorOwner(self)
-        # valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
-        # valueEditorDockWidget.setObjectName("Values")
-        # valueEditorDockWidget.setFeatures(dockFeatures)
-        # valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
-        # self.addDockWidget(
-        #     QtCore.Qt.RightDockWidgetArea,
-        #     valueEditorDockWidget
-        #     )
+        class VEBridgeOwner(FabricUI.ValueEditor.ValueEditorBridgeOwner):
+            def __init__(self, mainWindow):
+                FabricUI.ValueEditor.ValueEditorBridgeOwner.__init__(self)
+                self.mainWindow = mainWindow
 
-        # self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
-        # self.contentChanged.connect(self.valueEditor.onOutputsChanged)
+            def log(self, txt):
+                if self.mainWindow.dfgWidget:
+                    self.mainWindow.dfgWidget.getDFGController().logError(txt)
+
+            def getDfgWidget(self):
+                return self.mainWindow.dfgWidget
+        self.veBridgeOwner = VEBridgeOwner(self)
+
+        self.valueEditor = FabricUI.ValueEditor.VEEditorOwner(self.veBridgeOwner)
+        valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
+        valueEditorDockWidget.setObjectName("Values")
+        valueEditorDockWidget.setFeatures(dockFeatures)
+        print self.valueEditor
+        valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
+        self.addDockWidget(
+            QtCore.Qt.RightDockWidgetArea,
+            valueEditorDockWidget
+            )
+
+        self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
+        self.contentChanged.connect(self.valueEditor.onOutputsChanged)
 
         self.logWidget = DFG.DFGLogWidget(self.config)
         logDockWidget = QtGui.QDockWidget("Log Messages", self)
@@ -237,9 +251,9 @@ class MainWindow(DFG.DFGMainWindow):
         toggleAction = treeDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_5)
         windowMenu.addAction(toggleAction)
-        # toggleAction = valueEditorDockWidget.toggleViewAction()
-        # toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
-        # windowMenu.addAction(toggleAction)
+        toggleAction = valueEditorDockWidget.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
+        windowMenu.addAction(toggleAction)
         toggleAction = timeLineDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_9)
         windowMenu.addAction(toggleAction)
@@ -254,7 +268,7 @@ class MainWindow(DFG.DFGMainWindow):
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
         
-        # self.valueEditor.initConnections()
+        self.valueEditor.initConnections()
 
         self.installEventFilter(MainWindowEventFilter(self))
 
