@@ -2,7 +2,7 @@
 # Copyright 2010-2015 Fabric Software Inc. All rights reserved.
 #
 
-import os
+import os, subprocess
 Import('buildOS', 'buildArch', 'buildType', 'parentEnv', 'fabricFlags', 'qtFlags', 'qtMOC', 'uiLibPrefix', 'qtDir', 'stageDir', 'shibokenPysideDir')
 
 shibokenPysideIncludeDirs = [
@@ -41,6 +41,20 @@ if buildOS == 'Darwin':
   env.Append(CXXFLAGS = ['-stdlib=libstdc++'])
   env.Append(CXXFLAGS = ['-fvisibility=hidden'])
   env.Append(LINKFLAGS = ['-stdlib=libstdc++'])
+  frameworkPath = os.path.join(
+    os.path.split(
+      subprocess.Popen(
+        'xcodebuild -version -sdk macosx10.8 Path',
+        shell=True,
+        stdout=subprocess.PIPE
+        ).stdout.read()
+      )[0],
+    'MacOSX10.7.sdk',
+    )
+  env.Append(CCFLAGS = ["-isysroot", frameworkPath])
+  env.Append(FRAMEWORKS = ['OpenGL', 'Cocoa', 'Foundation'])
+  # # [pzion 20150427] Work around horrible Apple SDK bug
+  # env.Append(CPPDEFINES = {'objc_returns_inner_pointer': ''})
 
 if buildOS == 'Linux':
   env.Append(CPPPATH=['/usr/include/qt4'])
@@ -122,6 +136,8 @@ sources = []
 for d in dirs:
   headers = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.h')))
   sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
+  if buildOS == 'Darwin':
+    sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.mm')))
   sources += env.GlobQObjectSources(os.path.join(env.Dir('.').abspath, d, '*.h'))
   if uiLibPrefix == 'ui':
     installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)

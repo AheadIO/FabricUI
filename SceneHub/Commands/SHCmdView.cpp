@@ -41,6 +41,9 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
 void SHCmdView::synchronize(bool all) {
   
   if(all) m_shCmdHandler.getStack()->clear();
+  FabricCore::RTVal cmdManager = SHCmd::GetCmdManager(m_shObject);
+  if( !cmdManager.isValid() )
+    return;
     
   // Get the number of commands already done in the KL stack
   FabricCore::RTVal nbCommandsVal = SHCmd::GetCmdManager(m_shObject).callMethod("Size", "getNumCmdInUndoStack", 0, 0);
