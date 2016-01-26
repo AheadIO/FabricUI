@@ -75,11 +75,15 @@ void DoubleSlider::setResolution( int resolution, double min, double max )
   setDoubleValue( value );
 }
 
-void DoubleSlider::setDoubleValue( double value )
+void DoubleSlider::setDoubleValue( double newDoubleValue )
 {
-  value = std::max( m_min, std::min( m_max, value ) );
-  double ratio = (value - m_min) / (m_max - m_min);
-  setValue( int(round( ratio * maximum() )) );
+  newDoubleValue = std::max( m_min, std::min( m_max, newDoubleValue ) );
+  double ratio = (newDoubleValue - m_min) / (m_max - m_min);
+  int newIntValue = int( round( ratio * maximum() ) );
+  if ( value() != newIntValue )
+    setValue( newIntValue );
+  else
+    emit valueChanged( newIntValue );
 }
 
 double DoubleSlider::doubleValue()
