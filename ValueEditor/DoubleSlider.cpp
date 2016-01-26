@@ -8,7 +8,7 @@
 #include <QtGui/QStyleOptionSlider>
 #include <QtGui/QMouseEvent>
 
-DoubleSlider::DoubleSlider( double value, QWidget * parent ) 
+DoubleSlider::DoubleSlider( QWidget * parent ) 
   : QSlider( parent )
   , m_min( 0.0 )
   , m_max( 1.0 )
@@ -17,8 +17,6 @@ DoubleSlider::DoubleSlider( double value, QWidget * parent )
 
   // Default to horizontal orientation
   setOrientation( Qt::Horizontal );
-
-  setDoubleValue( value );
 
   connect( this, SIGNAL( valueChanged( int ) ),
            this, SLOT( notifyValueChanged( int ) ) );

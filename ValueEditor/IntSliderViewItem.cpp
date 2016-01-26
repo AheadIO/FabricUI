@@ -49,8 +49,6 @@ IntSliderViewItem::IntSliderViewItem(
     m_slider, SIGNAL( sliderReleased() ),
     this, SLOT( onSliderReleased() )
     );
-
-  metadataChanged();
 }
 
 IntSliderViewItem::~IntSliderViewItem()

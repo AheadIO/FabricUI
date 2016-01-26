@@ -9,6 +9,7 @@
 #include "VELineEdit.h"
 
 #include <FabricUI/Util/UIRange.h>
+#include <float.h>
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant>
 #include <QtGui/QHBoxLayout>
@@ -20,10 +21,15 @@ FloatSliderViewItem::FloatSliderViewItem(
   )
   : BaseViewItem( name, metadata )
 {
+  m_lineEdit = new VELineEdit;
+  m_slider = new DoubleSlider;
+
+  metadataChanged();
+
   double value = variant.value<double>();
 
-  m_lineEdit = new VELineEdit( QString::number( value ) );
-  m_slider = new DoubleSlider( value );
+  m_lineEdit->setText( QString::number( value ) );
+  m_slider->setDoubleValue( value );
 
   m_widget = new QWidget;
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
@@ -47,8 +53,6 @@ FloatSliderViewItem::FloatSliderViewItem(
     m_slider, SIGNAL( sliderReleased() ),
     this, SLOT( onSliderReleased() )
     );
-
-  metadataChanged();
 }
 
 FloatSliderViewItem::~FloatSliderViewItem()

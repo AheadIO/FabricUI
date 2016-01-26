@@ -14,7 +14,7 @@ class DoubleSlider : public QSlider {
 
 public:
 
-  DoubleSlider( double value, QWidget *parent = 0 );
+  DoubleSlider( QWidget *parent = 0 );
 
   // Override the slider positioning to make the slider 
   // go directly to the clicked positioning (instead of
