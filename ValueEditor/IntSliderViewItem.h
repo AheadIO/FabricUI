@@ -11,6 +11,7 @@ class QString;
 class QVariant;
 class QWidget;
 class QSlider;
+class VELineEdit;
 
 class IntSliderViewItem : public BaseViewItem
 {
@@ -30,7 +31,8 @@ public:
     QVariant const &value,
     ItemMetadata* metadata
     );
-
+  virtual void deleteMe() /*override*/
+    { delete this; }
   ~IntSliderViewItem();
 
   virtual QWidget *getWidget() /*override*/;
@@ -39,13 +41,17 @@ public:
 
   virtual void metadataChanged( );
   
-  void deleteMe() { delete this; }
-
 private:
 
-  QSlider* m_slider;
+  QWidget *m_widget;
+  VELineEdit *m_lineEdit;
+  QSlider *m_slider;
 
 private slots:
-  void OnSpinnerChanged( int value );
-  void OnEditFinished();
+
+  void onLineEditTextModified( QString text );
+
+  void onSliderPressed();
+  void onValueChanged( int value );
+  void onSliderReleased();
 };

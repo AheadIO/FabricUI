@@ -5,33 +5,52 @@
 #include "IntSliderViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
+#include "VELineEdit.h"
 
+#include <limits.h>
 #include <QtCore/QVariant>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QSlider>
 
 IntSliderViewItem::IntSliderViewItem(
   QString const &name,
-  QVariant const &value,
+  QVariant const &variant,
   ItemMetadata* metadata
   )
   : BaseViewItem( name, metadata )
 {
+  int value = variant.value<int>();
+
+  m_lineEdit = new VELineEdit( QString::number( value ) );
   m_slider = new QSlider;
-  m_slider->setObjectName( "IntSliderItem" );
-  
-  // Default to horizontal orientation
   m_slider->setOrientation( Qt::Horizontal );
+  m_slider->setRange( INT_MIN, INT_MAX );
+  m_slider->setValue( value );
+
+  m_widget = new QWidget;
+  QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  layout->addWidget( m_lineEdit );
+  layout->addWidget( m_slider );
 
   connect(
+    m_lineEdit, SIGNAL( textModified( QString ) ),
+    this, SLOT( onLineEditTextModified( QString ) )
+    );
+
+  connect(
+    m_slider, SIGNAL( sliderPressed() ),
+    this, SLOT( onSliderPressed() )
+    );
+  connect(
     m_slider, SIGNAL( valueChanged( int ) ),
-    this, SLOT( OnSpinnerChanged( int ) )
+    this, SLOT( onValueChanged( int ) )
     );
   connect(
     m_slider, SIGNAL( sliderReleased() ),
-    this, SLOT( OnEditFinished() )
+    this, SLOT( onSliderReleased() )
     );
+
   metadataChanged();
-  onModelValueChanged( value );
 }
 
 IntSliderViewItem::~IntSliderViewItem()
@@ -40,12 +59,33 @@ IntSliderViewItem::~IntSliderViewItem()
 
 QWidget *IntSliderViewItem::getWidget()
 {
-  return m_slider;
+  return m_widget;
 }
 
-void IntSliderViewItem::onModelValueChanged( QVariant const &value )
+void IntSliderViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_slider->setValue( value.toInt() );
+  m_slider->setValue( v.value<int>() );
+}
+
+void IntSliderViewItem::onLineEditTextModified( QString text )
+{
+  m_slider->setValue( text.toInt() );
+}
+
+void IntSliderViewItem::onSliderPressed()
+{
+  emit interactionBegin();
+}
+
+void IntSliderViewItem::onValueChanged( int value )
+{
+  m_lineEdit->setText( QString::number( value ) );
+  emit viewValueChanged( QVariant::fromValue<int>( value ) );
+}
+
+void IntSliderViewItem::onSliderReleased()
+{
+  emit interactionEnd( true );
 }
 
 void IntSliderViewItem::metadataChanged()
@@ -85,20 +125,6 @@ void IntSliderViewItem::metadataChanged()
       printf( "[ERROR] Unknown error setting range on slider" );
     }
   }
-}
-
-void IntSliderViewItem::OnSpinnerChanged( int value )
-{
-  emit viewValueChanged(
-    QVariant::fromValue( value )
-    );
-}
-
-void IntSliderViewItem::OnEditFinished()
-{
-  emit viewValueChanged(
-    QVariant::fromValue( m_slider->value() )
-    );
 }
 
 //////////////////////////////////////////////////////////////////////////
