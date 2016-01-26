@@ -2,6 +2,7 @@
 #include <FTL/JSONValue.h>
 
 FTL::CStrRef const ItemMetadata::VEPortTypeKey = FTL_STR("vePortType");
+FTL::CStrRef const ItemMetadata::VENotInspectableKey = FTL_STR("veNotInspectable");
 
 ViewItemMetadata::ViewItemMetadata( ItemMetadata* parent )
   : m_json(new FTL::JSONObject())

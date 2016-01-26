@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <FabricUI/ModelItems/NodePortItemMetadata.h>
+#include <FabricUI/ModelItems/VarPortItemMetadata.h>
 #include <FabricUI/ModelItems/VarPortModelItem.h>
 #include <FabricUI/ModelItems/RootModelItem.h>
 #include <QtCore/QStringList>
@@ -102,6 +102,13 @@ bool VarPortModelItem::hasDefault()
 void VarPortModelItem::resetToDefault()
 {
   assert( false );
+}
+
+ItemMetadata* VarPortModelItem::getMetadata()
+{
+  if ( !m_metadata )
+    m_metadata = new VarPortItemMetadata( this );
+  return m_metadata;
 }
 
 } // namespace ModelItems

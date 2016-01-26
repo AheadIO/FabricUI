@@ -59,6 +59,8 @@ class DFGUICmdHandler;
 
       virtual bool hasDefault() /*override*/;
       virtual void resetToDefault() /*override*/;
+
+      virtual ItemMetadata* getMetadata();
     };
   }
 }

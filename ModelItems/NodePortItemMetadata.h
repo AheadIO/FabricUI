@@ -49,6 +49,16 @@ namespace FabricUI
             ).c_str();
         }
 
+        if ( key == VENotInspectableKey )
+        {
+          FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
+          FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
+          bool isNotInspectable =
+            exec.getNodePortType( portPath.c_str() ) != FabricCore::DFGPortType_In
+              || exec.hasSrcPort( portPath.c_str() );
+          return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
+        }
+
         return exec.getNodePortMetadata( portPath.c_str(), key );
       }
     };
