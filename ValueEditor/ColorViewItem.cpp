@@ -84,11 +84,13 @@ void ColorViewItem::onModelValueChanged( QVariant const &value )
       routeModelValueChanged( 0, QVariant( m_color.redF() ) );
       routeModelValueChanged( 1, QVariant( m_color.greenF() ) );
       routeModelValueChanged( 2, QVariant( m_color.blueF() ) );
+      routeModelValueChanged( 3, QVariant( m_color.alphaF() ) );
       break;
     case QColor::Hsv:
       routeModelValueChanged( 0, QVariant( m_color.hueF() ) );
       routeModelValueChanged( 1, QVariant( m_color.saturationF() ) );
       routeModelValueChanged( 2, QVariant( m_color.valueF() ) );
+      routeModelValueChanged( 3, QVariant( m_color.alphaF() ) );
       break;
     default:
       assert( !"Error: Bad Color Spec in ColorViewItem" );
@@ -121,6 +123,9 @@ void ColorViewItem::onChildViewValueChanged( int index, QVariant value )
         case 2:
           color.setBlueF( value.toDouble() );
           break;
+        case 3:
+          color.setAlphaF( value.toDouble() );
+          break;
         default:
           assert( false );
           break;
@@ -137,25 +142,27 @@ void ColorViewItem::onChildViewValueChanged( int index, QVariant value )
 void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 {
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
-  BaseViewItem *children[3];
+  BaseViewItem *children[4];
   switch (m_color.spec())
   {
     case QColor::Rgb:
       children[0] = factory->createViewItem( "R", QVariant( m_color.redF() ), &m_childMetadata );
       children[1] = factory->createViewItem( "G", QVariant( m_color.greenF() ), &m_childMetadata );
       children[2] = factory->createViewItem( "B", QVariant( m_color.blueF() ), &m_childMetadata );
+      children[3] = factory->createViewItem( "A", QVariant( m_color.alphaF() ), &m_childMetadata );
       break;
     case QColor::Hsv:
       children[0] = factory->createViewItem( "H", QVariant( m_color.hueF() ), &m_childMetadata );
       children[1] = factory->createViewItem( "S", QVariant( m_color.saturationF() ), &m_childMetadata );
       children[2] = factory->createViewItem( "V", QVariant( m_color.valueF() ), &m_childMetadata );
+      children[3] = factory->createViewItem( "A", QVariant( m_color.alphaF() ), &m_childMetadata );
       break;
     default:
       assert( !"Invalid Color" );
       return;
   }
 
-  for (int i = 0; i < 3; ++i)
+  for (int i = 0; i < 4; ++i)
   {
     connectChild( i, children[i] );
     items.append( children[i] );
@@ -194,6 +201,8 @@ void ColorViewItem::pickColor()
 {
   QColor currColor = m_button->palette().color( QPalette::Button );
   QColorDialog qcd( currColor, NULL );
+  qcd.setOption( QColorDialog::ShowAlphaChannel, true );
+  
   connect( &qcd, SIGNAL( colorSelected( QColor ) ), 
            this, SLOT( onColorSelected( QColor ) ) );
   connect( &qcd, SIGNAL( currentColorChanged( QColor ) ), 

@@ -76,6 +76,7 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
       case int( QVariant::Color ):
         return val.hasType( "RGB" ) ||
           val.hasType( "RGBA" ) ||
+          val.hasType( "ARGB" ) ||
           val.hasType( "Color" );
       case int( QVariant::Matrix ):
         return val.hasType( "Mat22" );
@@ -258,7 +259,8 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
           v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
           v.setBlue( val.maybeGetMember( "b" ).getUInt8());
         }
-        else if ( val.hasType( "RGBA" ) )
+        else if ( val.hasType( "RGBA" )
+          || val.hasType( "ARGB" ) )
         {
           v.setRed( val.maybeGetMember( "r" ).getUInt8() );
           v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
@@ -472,7 +474,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       ioVal.setMember( "g", FabricCore::RTVal::ConstructUInt8( ctxt, color.green() ) );
       ioVal.setMember( "b", FabricCore::RTVal::ConstructUInt8( ctxt, color.blue() ) );
     }
-    else if ( ioVal.hasType( "RGBA" ) )
+    else if ( ioVal.hasType( "RGBA" ) || ioVal.hasType( "ARGB" ) )
     {
       QColor color = var.value<QColor>();
       ioVal.setMember( "r", FabricCore::RTVal::ConstructUInt8( ctxt, color.red() ) );
