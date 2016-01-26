@@ -69,9 +69,9 @@ void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
     // Construct a child for each instance between min & max
     ViewItemFactory* factory = ViewItemFactory::GetInstance();
     char childName[64];
-    for (unsigned i = m_min; i < m_max; ++i)
+    for (int i = m_min; i < m_max; ++i)
     {
-      snprintf( childName, 64, "[%i]", i );
+      snprintf( childName, 64, "[%d]", i );
 
       FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
       BaseViewItem* childItem =
@@ -130,7 +130,7 @@ void ArrayViewItem::onModelValueChanged( QVariant const &value )
   }
   else
   {
-    for (unsigned i = m_min; i < m_max; ++i)
+    for (int i = m_min; i < m_max; ++i)
     {
       FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
       routeModelValueChanged( i - m_min, toVariant( childVal ) );

@@ -10,7 +10,7 @@
 #include <math.h>
 #include <QtGui/QApplication>
 #include <QtGui/qevent.h>
-#include <QTGui/QLineEdit>
+#include <QtGui/QLineEdit>
 #include <QtGui/QSpinBox>
 
 template<typename QT_SPINBOX, typename value_type>
