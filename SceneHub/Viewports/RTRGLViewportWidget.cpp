@@ -55,7 +55,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   this->setContextMenuPolicy(Qt::CustomContextMenu);
  
   FABRIC_TRY("RTRGLViewportWidget::RTRGLViewportWidget create viewport",
-    m_viewport = m_shObject.callMethod("Viewport", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
+    m_viewport = m_shObject.callMethod("Viewport_Virtual", "getOrAddViewport", 1, &m_viewportIndexRTVal); 
   );
 }
 
