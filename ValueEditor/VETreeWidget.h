@@ -16,7 +16,9 @@ class VETreeWidget : public QTreeWidget
 
 public:
 
-  VETreeWidget( );
+  VETreeWidget();
+
+  void reloadStyles();
 
   void sortTree();
   bool focusNextPrevChild( bool next );
