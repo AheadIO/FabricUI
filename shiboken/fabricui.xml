@@ -23,8 +23,12 @@
       <object-type name="FabricStyle" />
     </namespace-type>
 
-    <namespace-type name="ValueEditor" generate="yes">
+    <namespace-type name="ValueEditor_Legacy" generate="yes">
       <object-type name="ValueEditorWidget" />
+    </namespace-type>
+
+    <namespace-type name="ValueEditor" generate="yes">
+      <object-type name="VEEditorOwner" />
     </namespace-type>
 
   </namespace-type>

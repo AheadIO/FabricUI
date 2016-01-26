@@ -158,8 +158,11 @@ class MainWindow(DFG.DFGMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock,
                            QtCore.Qt.Vertical)
 
-        treeWidget = DFG.PresetTreeWidget(self.dfgWidget.getDFGController(),
-                                          self.config, True, False, True)
+        treeWidget = DFG.PresetTreeWidget(
+            self.dfgWidget.getDFGController(),
+            self.config,
+            True, False, False, False, False, True
+            )
         treeDock = QtGui.QDockWidget("Explorer", self)
         treeDock.setObjectName("Explorer")
         treeDock.setFeatures(dockFeatures)
@@ -168,14 +171,18 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.newPresetSaved.connect(treeWidget.refresh)
 
-        self.dfgValueEditor = DFG.DFGValueEditor(
-            self.dfgWidget.getDFGController(), self.config)
-        dfgValueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
-        dfgValueEditorDockWidget.setObjectName("Values")
-        dfgValueEditorDockWidget.setFeatures(dockFeatures)
-        dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
-                           dfgValueEditorDockWidget)
+        self.valueEditor = FabricUI.ValueEditor.VEEditorOwner(self)
+        valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
+        valueEditorDockWidget.setObjectName("Values")
+        valueEditorDockWidget.setFeatures(dockFeatures)
+        valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
+        self.addDockWidget(
+            QtCore.Qt.RightDockWidgetArea,
+            valueEditorDockWidget
+            )
+
+        self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
+        self.contentChanged.connect(self.valueEditor.onOutputsChanged)
 
         self.logWidget = DFG.DFGLogWidget(self.config)
         logDockWidget = QtGui.QDockWidget("Log Messages", self)
@@ -251,7 +258,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
-        self.onSidePanelInspectRequested()
+        
+        self.valueEditor.initConnections()
 
         self.installEventFilter(MainWindowEventFilter(self))
 

@@ -208,6 +208,7 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
       pysideEnv.Dir('Licensing').srcnode(),
       pysideEnv.Dir('Style').srcnode(),
       pysideEnv.Dir('ValueEditor').srcnode(),
+      pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
       pysideEnv.Dir('Viewports').srcnode(),
       fabricDir.Dir('include'),
       fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),
