@@ -147,18 +147,18 @@ if uiLibPrefix == 'ui':
     )
   env.Depends(uiLib, qss)
 
-if buildOS == 'Windows':
-  projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']
-  projNode = Dir('#').File(projName)
-  if not projNode.exists():
-    print("---- Building " + projName + " VS Proj for FabricUI ----")
-    projFile = env.MSVSProject(target = projName,
-                  srcs = strsources,
-                  incs = strheaders,
-                  buildtarget = uiLib,
-                  auto_build_solution=0,
-                  variant = 'Debug|x64')
-    env.Depends(uiLib, projName)
+# if buildOS == 'Windows':
+#   projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']
+#   projNode = Dir('#').File(projName)
+#   if not projNode.exists():
+#     print("---- Building " + projName + " VS Proj for FabricUI ----")
+#     projFile = env.MSVSProject(target = projName,
+#                   srcs = strsources,
+#                   incs = strheaders,
+#                   buildtarget = uiLib,
+#                   auto_build_solution=0,
+#                   variant = 'Debug|x64')
+#     env.Depends(uiLib, projName)
       
 locals()[uiLibPrefix + 'Lib'] = uiLib
 locals()[uiLibPrefix + 'IncludeDir'] = env.Dir('#').Dir('Native').srcnode()
