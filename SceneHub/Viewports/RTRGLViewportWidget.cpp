@@ -70,6 +70,7 @@ void RTRGLViewportWidget::detachFromRTRViewport() {
 
 RTRGLViewportWidget::~RTRGLViewportWidget() {
   detachFromRTRViewport();
+  emit viewportDestroying();
 }
  
 void RTRGLViewportWidget::paintGL() {
