@@ -59,11 +59,6 @@ DFGController::DFGController(
 
 DFGController::~DFGController()
 {
-  if ( m_binding.isValid()
-    && m_overTakeBindingNotifications )
-    m_binding.unregisterNotificationCallback(
-      &BindingNotificationCallback, this
-      );
 }
 
 void DFGController::setHostBindingExec(
@@ -86,17 +81,64 @@ void DFGController::setBindingExec(
   FabricCore::DFGExec &exec
   )
 {
-  if ( m_binding.isValid()
-    && m_overTakeBindingNotifications )
-    m_binding.unregisterNotificationCallback(
-      &BindingNotificationCallback, this
-      );
+  if ( m_binding.isValid() )
+    m_bindingNotifier.clear();
+
   m_binding = binding;
-  if ( m_binding.isValid()
-    && m_overTakeBindingNotifications )
-    m_binding.registerNotificationCallback(
-      &BindingNotificationCallback, this
+
+  if ( m_binding.isValid() )
+  {
+    m_bindingNotifier = DFGBindingNotifier::Create( m_binding );
+
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(dirty()),
+      this,
+      SLOT(onBindingDirty())
       );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argInserted(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgInserted(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argRemoved(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgRemoved(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argsReordered(FTL::ArrayRef<unsigned>)),
+      this,
+      SLOT(onBindingArgsReordered(FTL::ArrayRef<unsigned>))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argValueChanged(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgValueChanged(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varRemoved(FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarRemoved(FTL::CStrRef, FTL::CStrRef))
+      );
+  }
 
   setExec( execPath, exec );
 
@@ -1431,53 +1473,6 @@ void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *
   }
 }
 
-bool DFGController::bindUnboundRTVals()
-{
-  return bindUnboundRTVals(m_client, m_binding);
-}
-
-bool DFGController::bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding)
-{
-  bool argsHaveChanged = false;
-  try
-  {
-    FabricCore::DFGExec rootExec = binding.getExec();
-    unsigned argCount = rootExec.getExecPortCount();
-    for ( unsigned i = 0; i < argCount; ++i )
-    {
-      FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
-      if ( dataTypeToCheck.empty() )
-        continue;
-
-      // if there is already a bound value, make sure it has the right type
-      FabricCore::RTVal value;
-      try
-      {
-        value = binding.getArgValue( i );
-      }
-      catch ( FabricCore::Exception e )
-      {
-        continue;
-      }
-      if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
-        continue;
-
-      binding.setArgValue(
-        i,
-        DFGCreateDefaultValue( client.getContext(), dataTypeToCheck ),
-        false
-        );
-
-      argsHaveChanged = true;
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    // logError( e.getDesc_cstr() );
-  }
-  return argsHaveChanged;
-}
-
 bool DFGController::canConnectTo(
   char const *pathA,
   char const *pathB,
@@ -1525,85 +1520,68 @@ void DFGController::onVariablesChanged()
   updatePresetPathDB();
 }
 
-void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
+void DFGController::onBindingDirty()
 {
-  // printf("bindingNotif = %s\n", jsonStr.c_str());
+  emitDirty();
+}
 
-  try
-  {
-    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
-    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
-      );
+void DFGController::onBindingArgInserted(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef typeName
+  )
+{
+  emitArgsChanged();
+}
 
-    FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
-    if ( descStr == FTL_STR("dirty") )
-    {
-      emitDirty();
-    }
-    else if ( descStr == FTL_STR("argInserted") )
-    {
-      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-      FTL::CStrRef type = jsonObject->getStringOrEmpty( FTL_STR( "type" ) );
-      int index = jsonObject->getSInt32( FTL_STR("index") );
-      
-      emitArgInserted( index, name.c_str(), type.c_str() );
-      bindUnboundRTVals();
-    }
-    else if ( descStr == FTL_STR("argTypeChanged") )
-    {
-      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-      FTL::CStrRef type = jsonObject->getString( FTL_STR("newType") );
-      int index = jsonObject->getSInt32( FTL_STR("index") );
-      
-      emitArgTypeChanged( index, name.c_str(), type.c_str() );
-      bindUnboundRTVals();
-    }
-    else if ( descStr == FTL_STR("argRemoved") )
-    {
-      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-      int index = jsonObject->getSInt32( FTL_STR("index") );
-      
-      emitArgRemoved( index, name.c_str() );
-      bindUnboundRTVals();
-    }
-    else if ( descStr == FTL_STR("argChanged") )
-    {
-      FTL::CStrRef name = jsonObject->getString( FTL_STR("name") );
-      int index = jsonObject->getSInt32( FTL_STR("index") );
-      emitArgValuesChanged( index, name.c_str() );
-    }
-    else if (descStr == FTL_STR( "argsReordered" ))
-    {
-      const FTL::JSONArray* newOrder = jsonObject->maybeGetArray( FTL_STR( "newOrder" ) );
-      if (newOrder != NULL)
-        emitArgsReordered( newOrder );
-    }
-    else if ( descStr == FTL_STR("varInserted")
-      || descStr == FTL_STR("varRemoved") )
-    {
-      emitVarsChanged();
-    }
-    else if ( descStr == FTL_STR("varInserted")
-      || descStr == FTL_STR("varRemoved") )
-    {
-      emitVarsChanged();
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught Core exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-  catch ( FTL::JSONException e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught FTL::JSONException: %s\n",
-      e.getDescCStr()
-      );
-  }
+void DFGController::onBindingArgTypeChanged(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef newTypeName
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgRemoved(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgsReordered(
+  FTL::ArrayRef<unsigned> newOrder
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgValueChanged(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgValuesChanged();
+}
+
+void DFGController::onBindingVarInserted(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath,
+  FTL::CStrRef typeName,
+  FTL::CStrRef extDep
+  )
+{
+  emitVarsChanged();
+}
+
+void DFGController::onBindingVarRemoved(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath
+  )
+{
+  emitVarsChanged();
 }
 
 QStringList DFGController::getPresetPathsFromSearch(char const * search, bool includePresets, bool includeNameSpaces)
@@ -2009,7 +1987,7 @@ std::string DFGController::cmdAddPort(
   if(!validPresetSplit())
     return "";
 
-  //UpdateSignalBlocker blocker( this );
+  UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddPort(
     getBinding(),
@@ -2301,50 +2279,4 @@ void DFGController::emitNodeRenamed(
 void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
   emit nodeRemoved( m_execPath, nodeName );
-}
-
-void FabricUI::DFG::DFGController::emitPortsConnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
-{
-  emit portsConnected( srcPort, dstPort );
-}
-
-void FabricUI::DFG::DFGController::emitPortsDisconnected( FTL::CStrRef srcPort, FTL::CStrRef dstPort )
-{
-  emit portsDisconnected( srcPort, dstPort );
-}
-
-void FabricUI::DFG::DFGController::emitExecPortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldExecPortName,
-  FTL::CStrRef newExecPortName
-  )
-{
-  emit execPortRenamed(
-    execPath,
-    oldExecPortName,
-    newExecPortName
-    );
-}
-
-void FabricUI::DFG::DFGController::emitNodePortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef nodeName,
-  FTL::CStrRef oldNodePortName,
-  FTL::CStrRef newNodePortName
-  )
-{
-  emit nodePortRenamed(
-    execPath,
-    nodeName,
-    oldNodePortName,
-    newNodePortName
-    );
-}
-
-void DFGController::emitExecPortMetadataChanged(
-  const char* portName,
-  const char* key,
-  const char* value )
-{
-  emit execPortMetadataChanged( portName, key, value );
 }

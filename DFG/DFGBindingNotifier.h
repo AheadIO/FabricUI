@@ -7,13 +7,13 @@
 #include <FabricCore.h>
 #include <FTL/ArrayRef.h>
 #include <FTL/StrRef.h>
-#include <QtCore/QObject.h>
+#include <FabricUI/DFG/DFGNotifier.h>
 #include <QtCore/QSharedPointer.h>
 
 namespace FabricUI {
 namespace DFG {
 
-class DFGBindingNotifier : public QObject
+class DFGBindingNotifier : public DFGNotifier
 {
   Q_OBJECT
 
@@ -27,7 +27,10 @@ public:
       );
   }
 
-  ~DFGBindingNotifier();
+  ~DFGBindingNotifier()
+  {
+    m_binding.unregisterNotificationCallback( &Callback, this );
+  }
 
 signals:
   
@@ -79,43 +82,15 @@ signals:
 
 private:
 
-  DFGBindingNotifier( FabricCore::DFGBinding binding );
-
-  void bindingNotificationCallback( FTL::CStrRef jsonStr );
-
-  void handle( FTL::CStrRef jsonStr );
-
-  static void BindingNotificationCallback(
-    void * userData,
-    char const *jsonCString,
-    uint32_t jsonLength
-    );
-
-  class DepthBracket
+  DFGBindingNotifier( FabricCore::DFGBinding binding )
+    : m_binding( binding )
   {
-  public:
+    m_binding.registerNotificationCallback( &Callback, this );
+  }
 
-    DepthBracket( DFGBindingNotifier *notifier )
-      : m_notifier( notifier )
-    {
-      if ( m_notifier->m_depth++ == 0 )
-        assert( m_notifier->m_queued.empty() );
-    }
-
-    ~DepthBracket()
-    {
-      if ( --m_notifier->m_depth == 0 )
-        assert( m_notifier->m_queued.empty() );
-    }
-
-  private:
-
-    DFGBindingNotifier *m_notifier;
-  };
+  virtual void handle( FTL::CStrRef jsonStr ) /*override*/;
 
   FabricCore::DFGBinding m_binding;
-  unsigned m_depth;
-  std::vector<std::string> m_queued;
 };
 
 } // namespace DFG

@@ -9,6 +9,8 @@
 #include "ViewItemFactory.h"
 
 #include <FabricCore.h>
+#include <FTL/Path.h>
+#include <QtCore/QFile>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
 #include <QtGui/QHeaderView>
@@ -53,30 +55,88 @@ VETreeWidget::VETreeWidget( )
   setObjectName( "ValueEditor" );
   header()->close();
 
+  reloadStyles();
 }
 
-
-BaseViewItem* updateTabOrder( VETreeWidgetItem* lastItem, BaseViewItem* lastView )
+void VETreeWidget::reloadStyles()
 {
-  // If the last item has any chilren open
-  VETreeWidgetItem* lastTabItem = lastItem;
-  BaseViewItem* lastTabView = lastView;
-
-  for (int i = 0; i < lastItem->childCount(); i++)
+  char const *fabricDir = getenv( "FABRIC_DIR" );
+  if ( !fabricDir || !fabricDir[0] )
   {
-    VETreeWidgetItem* child = 
-      static_cast<VETreeWidgetItem*>( lastItem->child( i ) );
-    QString childName = child->text( 0 );
-    BaseViewItem* childView = child->getViewItem();
-    if (childView)
-    {
-      QWidget::setTabOrder( lastTabView->getWidget(), 
-                            childView->getWidget() );
-      lastTabView = childView;
-    }
-    lastTabView = updateTabOrder( child, lastTabView );
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: missing FABRIC_DIR environment variable\n"
+      );
+    return;
   }
-  return lastTabView;
+
+  std::string qssPath = fabricDir;
+  FTL::PathAppendEntry( qssPath, "Resources" );
+  FTL::PathAppendEntry( qssPath, "QSS" );
+  FTL::PathAppendEntry( qssPath, "ValueEditor.qss" );
+
+#if defined(FTL_PLATFORM_WINDOWS)
+  QFile qssFile( QString::fromLatin1( qssPath.data(), qssPath.size() ) );
+#else
+  QFile qssFile( QString::fromUtf8( qssPath.data(), qssPath.size() ) );
+#endif
+  if ( !qssFile.open( QFile::ReadOnly ) )
+  {
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: unable to open '%s'\n",
+      qssPath.c_str()
+      );
+    return;
+  }
+
+  QString styleSheet = QLatin1String( qssFile.readAll() );
+  if ( styleSheet.isEmpty() )
+  {
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: style sheet '%s' is empty\n",
+      qssPath.c_str()
+      );
+    return;
+  }
+
+  setStyleSheet( styleSheet );
+}
+
+// Perform a depth-first gather of the child widgets of this item
+void gatherTabWidgets( QObject* item, QWidgetList& tabWidgets )
+{
+  if (item->isWidgetType())
+  {
+    QWidget* itemWidget = static_cast<QWidget*>(item);
+    if (itemWidget->focusPolicy() & Qt::TabFocus)
+      tabWidgets.push_back( itemWidget );
+  }
+  const QObjectList& children = item->children();
+  for (QObjectList::const_iterator itr = children.begin(); itr != children.end(); itr++)
+  {
+    gatherTabWidgets( const_cast<QObject*>(*itr), tabWidgets );
+  }
+}
+
+// Perform a depth-first gather of the child items widgets;
+void gatherTabWidgets( VETreeWidgetItem* item, QWidgetList& tabWidgets )
+{
+  BaseViewItem* itemView = item->getViewItem();
+  QString itemName = item->text( 0 );
+  if (itemView != NULL)
+  {
+    QWidget* itemWidget = itemView->getWidget();
+    gatherTabWidgets( itemWidget, tabWidgets );
+  }
+
+  for (int i = 0; i < item->childCount(); i++)
+  {
+    VETreeWidgetItem* child =
+      static_cast<VETreeWidgetItem*>(item->child( i ));
+    gatherTabWidgets( child, tabWidgets );
+  }
 }
 
 void VETreeWidget::sortTree()
@@ -84,12 +144,112 @@ void VETreeWidget::sortTree()
   // Ensure ordering is maintained.
   sortItems( 0, Qt::AscendingOrder );
 
+  // Once the items have been re-ordered, re-create the tab ordering
   VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
-  BaseViewItem* baseView = baseItem->getViewItem();
-  if (baseView != NULL)
+  QWidgetList tabWidgets;
+  gatherTabWidgets( baseItem, tabWidgets );
+
+  if (!tabWidgets.empty())
   {
-    updateTabOrder( baseItem, baseView );
+    QWidget* lastWidget = tabWidgets.first();
+    // Connect this treeview to the first widget.  This ensures
+    // if the treeview is tabbed-to, it will tab to the correct sub-widget
+    setTabOrder( this, lastWidget );
+    for (QWidgetList::iterator itr = tabWidgets.begin() + 1; itr != tabWidgets.end(); itr++)
+    {
+      setTabOrder( lastWidget, *itr );
+      lastWidget = *itr;
+    }
   }
+}
+
+// Get the next widget in the focus chain that accepts tab focus
+QWidget* getNextTabWidget( QWidget* qw )
+{
+  assert( qw != NULL );
+  do {
+    qw = qw->nextInFocusChain();
+  } while (qw != NULL && !(qw->focusPolicy() | Qt::TabFocus));
+    
+  return qw;
+}
+
+// Get the previous widget in the focus chain that accepts tab focus
+QWidget* getPrevTabWidget( QWidget* qw )
+{
+  assert( qw != NULL );
+  do {
+    qw = qw->previousInFocusChain();
+  } while (qw != NULL && !(qw->focusPolicy() | Qt::TabFocus));
+
+  return qw;
+}
+
+// Returns true if the passed widget is an acceptable child
+// widget for accepting Tab's.  This function should only return
+// true for widgets that are set for VETreeWidgetItems
+bool isValidTabChild( VETreeWidget* tree, QWidget* qw )
+{
+  if (qw == NULL)
+    return false;
+
+  // The structure of the QTreeWidget can be a little bit confusing
+  // The widgets on the tree are not immediate descendants - instead
+  // they are all children of an intermediate scroll_area class.
+  // We do not want to tab to the scroll area, so we filter by:
+  // qw != tree : obviously we do not want to tab to the tree itself
+  // isAncestorOf : Only children of the tree are accepted
+  // parentWidget != tree : Do not accept immediate descendants.  (This assumes
+  // the internal structure of QTreeView has an intermediate class)
+  return qw != tree && tree->isAncestorOf( qw ) && qw->parentWidget() != tree;
+}
+
+// We override the default focus handler to provide looping
+// Qt cannot specify tab loops (due to the way setTabOrder is implemented).
+// In this function we detect if the tab would move focus away from 
+// this tree-views widgets, and reset the focus back to either the
+// start or end of the tree's focus chain.
+bool VETreeWidget::focusNextPrevChild( bool next )
+{
+  QWidget* currentFocus = focusWidget();
+  if (currentFocus != NULL)
+  {
+    if (next)
+    {
+      // Check if the widget focus is moving to is one of our children
+      QWidget* nextFocus = getNextTabWidget( currentFocus );
+      if (!isValidTabChild( this, nextFocus ))
+      {
+        // Prevent focus from moving out of the Tree by looping back to start
+        QWidget* myNextFocus = nextInFocusChain();
+        myNextFocus->setFocus( Qt::TabFocusReason );
+        return true;
+      }
+    }
+    else
+    {
+      // Check if the widget focus is moving to is one of our children
+      QWidget* prevFocus = getPrevTabWidget( currentFocus );
+      if (!isValidTabChild( this, prevFocus ))
+      {
+        // Focus to the last child in the chain...
+        // Unfortunately there is no simple & predictable way to do this.
+        // To do this we iterate through the whole chain until
+        // we reach the end of this tree's widgets, then back up one
+        QWidget* myLastFocus = currentFocus;
+        QWidget* myLastNextFocus = getNextTabWidget( currentFocus );
+        while (isValidTabChild( this, myLastNextFocus ))
+        {
+          myLastFocus = myLastNextFocus;
+          myLastNextFocus = getNextTabWidget( myLastFocus );
+        }
+        myLastFocus->setFocus( Qt::TabFocusReason );
+        return true;
+      }
+    }
+  }
+  // If we are not moving focus out of the tree, then simply use default handler.
+  return QTreeWidget::focusNextPrevChild( next );
 }
 
 VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QTreeWidgetItem* parent, int index /*= -1 */ )
@@ -112,9 +272,14 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
     BaseModelItem* modelItem = viewItem->getModelItem();
     if (modelItem != NULL)
     {
-      if (modelItem->getInOut() == FabricCore::DFGPortType_Out)
+      if ( ItemMetadata *itemMetadata = modelItem->getMetadata() )
       {
-        parent = GetOutNode( parent );
+        FTL::CStrRef vePortType =
+          itemMetadata->getString( ItemMetadata::VEPortTypeKey.c_str() );
+        if ( vePortType == FTL_STR("Out") )
+        {
+          parent = GetOutNode( parent );
+        }
       }
     }
 
@@ -156,6 +321,45 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
   return treeWidgetItem;
 }
 
+VETreeWidgetItem* VETreeWidget::findTreeWidget( QWidget* widget ) const
+{
+  for (int i = 0; i < topLevelItemCount(); i++)
+  {
+    VETreeWidgetItem* widgetItem =
+      static_cast<VETreeWidgetItem*>(topLevelItem( i ));
+
+    if (widgetItem != NULL)
+    {
+      VETreeWidgetItem* match = findTreeWidget( widget, widgetItem );
+      if (match != NULL)
+        return match;
+    }
+  }
+  return NULL;
+}
+
+VETreeWidgetItem * VETreeWidget::findTreeWidget( QWidget* widget, VETreeWidgetItem * item ) const
+{
+  if (item == NULL)
+    return NULL;
+
+  for (int i = 0; i < columnCount(); i++)
+  {
+    if (itemWidget( item, i ) == widget)
+      return item;
+  }
+
+  for (int i = 0; i < item->childCount(); i++)
+  {
+    VETreeWidgetItem* pMatch = findTreeWidget(
+      widget,
+      static_cast<VETreeWidgetItem*>(item->child( i )) );
+
+    if (pMatch != NULL)
+      return pMatch;
+  }
+  return NULL;
+}
 
 VETreeWidgetItem * VETreeWidget::findTreeWidget( BaseModelItem * pItem ) const
 {
@@ -299,6 +503,8 @@ void VETreeWidget::onModelItemTypeChanged( BaseModelItem* item, const char* /*ne
       BaseViewItem* newView =
         ViewItemFactory::GetInstance()->createViewItem( item );
       createTreeWidgetItem( newView, parentItem, index );
+
+      sortTree();
     }
   }
 }

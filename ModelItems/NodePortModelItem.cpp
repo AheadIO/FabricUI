@@ -44,44 +44,6 @@ void NodePortModelItem::updatePortPath()
   m_portPath += m_portName;
 }
 
-FTL::CStrRef NodePortModelItem::getName()
-{
-  return m_portName;
-}
-
-BaseModelItem *NodePortModelItem::onNodePortRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef nodeName,
-  FTL::CStrRef oldNodePortName,
-  FTL::CStrRef newNodePortName
-  )
-{
-  if ( m_execPath == execPath
-    && m_nodeName == nodeName
-    && m_portName == oldNodePortName )
-  {
-    m_portName = newNodePortName;
-    updatePortPath();
-    return this;
-  }
-  else return 0;
-}
-
-BaseModelItem *NodePortModelItem::onNodeRenamed(
-  FTL::CStrRef execPath,
-  FTL::CStrRef oldNodeName,
-  FTL::CStrRef newNodeName
-  )
-{
-  if ( m_execPath == execPath
-    && m_nodeName == oldNodeName )
-  {
-    m_nodeName = newNodeName;
-    updatePortPath();
-  }
-  return 0;
-}
-
 ItemMetadata* NodePortModelItem::getMetadata()
 {
   if ( !m_metadata )
@@ -93,11 +55,6 @@ ItemMetadata* NodePortModelItem::getMetadata()
 void NodePortModelItem::setMetadataImp( const char* key, const char* value, bool canUndo ) /**/
 {
   m_exec.setNodePortMetadata( m_portPath.c_str(), key, value, canUndo );
-}
-
-int NodePortModelItem::getInOut()
-{
-  return m_exec.getNodePortType( m_portPath.c_str() );
 }
 
 QVariant NodePortModelItem::getValue()
@@ -141,6 +98,7 @@ void NodePortModelItem::setValue(
     return;
 
   FabricCore::DFGHost host = m_binding.getHost();
+  FabricCore::DFGNotifBracket _( host );
   FabricCore::Context context = host.getContext();
   FabricCore::RTVal rtVal =
     FabricCore::RTVal::Construct( context, resolvedTypeName, 0, 0 );
@@ -175,6 +133,18 @@ void NodePortModelItem::setValue(
       false // canUndo
       );
   }
+}
+
+void NodePortModelItem::onNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  assert( m_nodeName == oldNodeName );
+
+  m_nodeName = newNodeName;
+
+  updatePortPath();
 }
 
 } // namespace ModelItems

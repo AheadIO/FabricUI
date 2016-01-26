@@ -33,10 +33,7 @@ class DFGUICmdHandler;
         );
       ~BindingModelItem();
 
-      virtual bool matchesPath( 
-        FTL::StrRef execPath,
-        FTL::StrRef nodeName 
-        ) /*override*/;
+      virtual bool isBinding() const /*override*/ { return true; }
 
       BaseModelItem *createChild( FTL::CStrRef name ) /*override*/;
 
@@ -44,18 +41,31 @@ class DFGUICmdHandler;
 
       virtual FTL::CStrRef getChildName( int i ) /*override*/;
 
-      virtual FTL::CStrRef getName() /*override*/;
-      virtual bool canRenameItem() /*override*/
-        { return false; };
-      virtual void renameItem( const char* name ) /*override*/;
+      /////////////////////////////////////////////////////////////////////////
+      // Name
+      /////////////////////////////////////////////////////////////////////////
 
-      virtual BaseModelItem *onExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
+      virtual FTL::CStrRef getName() /*override*/;
+
+
+      virtual bool canRename() /*override*/;
+
+      virtual void rename( FTL::CStrRef newName ) /*override*/;
+
+      virtual void onRenamed(
+        FTL::CStrRef oldName,
+        FTL::CStrRef newName
         ) /*override*/;
 
+      /////////////////////////////////////////////////////////////////////////
+      // Value
+      /////////////////////////////////////////////////////////////////////////
       virtual QVariant getValue() /*override*/;
+
+
+      /////////////////////////////////////////////////////////////////////////
+      // Metadata
+      /////////////////////////////////////////////////////////////////////////
 
       virtual ItemMetadata* getMetadata() /*override*/;
 

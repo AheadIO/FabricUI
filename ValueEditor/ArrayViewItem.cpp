@@ -18,8 +18,8 @@ ArrayViewItem::ArrayViewItem( QString name,
   , m_min( 0 )
   , m_max( 0 )
   , m_widget( NULL )
-  , m_maxIndexEdit( NULL )
   , m_minIndexEdit( NULL )
+  , m_maxIndexEdit( NULL )
   , m_arraySizeEdit( NULL )
 {
   m_widget = new QWidget();
@@ -71,7 +71,7 @@ void ArrayViewItem::doAppendChildViewItems( QList<BaseViewItem *>& items )
     char childName[64];
     for (unsigned i = m_min; i < m_max; ++i)
     {
-      sprintf_s( childName, "[%i]", i );
+      snprintf( childName, 64, "[%i]", i );
 
       FabricCore::RTVal childVal = m_val.getArrayElementRef( i );
       BaseViewItem* childItem =

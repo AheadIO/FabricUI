@@ -41,13 +41,10 @@ namespace FabricUI
       RootModelItem( );
       ~RootModelItem();
 
+      virtual bool isNode() const { return false; }
+      virtual bool isBinding() const { return false; }
+
       virtual BaseModelItem* createChild( FTL::CStrRef name ) = 0;
-
-      virtual bool matchesPath( 
-        FTL::StrRef execPath, 
-        FTL::StrRef nodeName
-        ) = 0;
-
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
@@ -74,24 +71,11 @@ namespace FabricUI
 
       void argRemoved( int index, const char* name );
 
-      virtual BaseModelItem *onExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
-        ) /*override*/;
-
-      virtual BaseModelItem *onNodePortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef nodeName,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        ) /*override*/;
-
-      virtual BaseModelItem *onNodeRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldNodeName,
-        FTL::CStrRef newNodeName
-        ) /*override*/;
+      BaseModelItem *onPortRenamed(
+        unsigned index,
+        FTL::CStrRef oldName,
+        FTL::CStrRef newName
+        );
     };
   }
 }

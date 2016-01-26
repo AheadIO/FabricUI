@@ -11,6 +11,7 @@
 #include "FloatSliderViewItem.h"
 #include "FloatViewItem.h"
 #include "IntSliderViewItem.h"
+#include "NotInspectableViewItem.h"
 #include "QVariantRTVal.h"
 #include "RTValViewItem.h"
 #include "SIntViewItem.h"
@@ -84,6 +85,7 @@ BaseViewItem *ViewItemFactory::createViewItem(
     registerCreator( FloatSliderViewItem::CreateItem, FloatSliderViewItem::Priority );
     registerCreator( FloatViewItem::CreateItem, FloatViewItem::Priority );
     registerCreator( IntSliderViewItem::CreateItem, IntSliderViewItem::Priority );
+    registerCreator( NotInspectableViewItem::CreateItem, NotInspectableViewItem::Priority );
     registerCreator( RTValViewItem::CreateItem, RTValViewItem::Priority );
     registerCreator( SIntViewItem::CreateItem, SIntViewItem::Priority );
     registerCreator( StringViewItem::CreateItem, StringViewItem::Priority );

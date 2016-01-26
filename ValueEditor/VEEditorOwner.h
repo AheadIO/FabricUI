@@ -1,6 +1,10 @@
 #pragma once
 
+#include <FabricCore.h>
+#include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
+#include <FabricUI/DFG/DFGNotifier.h>
+#include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 
 class BaseModelItem;
@@ -21,6 +25,8 @@ namespace FabricUI {
     class Graph;
   }
   namespace ModelItems {
+    class BindingModelItem;
+    class NodeModelItem;
     class RootModelItem;
   }
 
@@ -48,43 +54,85 @@ namespace FabricUI {
 
     protected slots:
 
+      void onControllerBindingChanged(
+        FabricCore::DFGBinding const &binding
+        );
+
       void onSidePanelInspectRequested();
       void onNodeInspectRequested(FabricUI::GraphView::Node *node);
 
-      void onValueChanged( int index, const char* name );
+      void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
       void onOutputsChanged(); // Call after each evalation
-      // Arg-specific updates for when arg only changes.
-      void onArgInserted(int index, const char* name, const char* type);
-      void onArgTypeChanged(int index, const char* name, const char* newType);
-      void onArgRemoved(int index, const char* name);
-      void onArgsReordered( const FTL::JSONArray* newOrder );
 
-      void onExecPortRenamed(
-        FTL::CStrRef execPath,
-        FTL::CStrRef oldExecPortName,
-        FTL::CStrRef newExecPortName
+      void onBindingArgInserted(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef type
         );
 
-      void onNodePortRenamed(
-        FTL::CStrRef execPath,
+      void onBindingArgRenamed(
+        unsigned argIndex,
+        FTL::CStrRef oldArgName,
+        FTL::CStrRef newArgName
+        );
+
+      void onBindingArgRemoved(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingArgTypeChanged(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef newType
+        );
+
+      void onBindingArgsReordered(
+        FTL::ArrayRef<unsigned> newOrder
+        );
+
+      void onExecNodePortRenamed(
         FTL::CStrRef nodeName,
+        unsigned portIndex,
         FTL::CStrRef oldNodePortName,
         FTL::CStrRef newNodePortName
         );
 
-      void onExecPortMetadataChanged( const char* portName, const char* key, const char* value );
+      void onExecPortMetadataChanged(
+        FTL::CStrRef portName,
+        FTL::CStrRef key,
+        FTL::CStrRef value
+        );
 
-      void onNodeRemoved( FTL::CStrRef execPath,
-                          FTL::CStrRef nodeName );
+      void onExecNodeRemoved(
+        FTL::CStrRef nodeName
+        );
 
-      void onNodeRenamed( FTL::CStrRef execPath,
-                          FTL::CStrRef oldNodeName,
-                          FTL::CStrRef newNodeName );
-      void onPortsConnected( FTL::CStrRef srcPort,
-                             FTL::CStrRef dstPort );
-      void onPortsDisconnected( FTL::CStrRef srcPort,
-                             FTL::CStrRef dstPort );
-      //
+      void onExecNodeRenamed(
+        FTL::CStrRef oldNodeName,
+        FTL::CStrRef newNodeName
+        );
+
+      void onExecPortsConnectedOrDisconnected(
+        FTL::CStrRef srcPortPath,
+        FTL::CStrRef dstPortPath
+        );
+
+      void onExecPortDefaultValuesChanged(
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortDefaultValuesChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortResolvedTypeChanged(
+        FTL::CStrRef nodeName,
+        FTL::CStrRef portName,
+        FTL::CStrRef newResolvedTypeName
+        );
+
       void onStructureChanged();
 
       void onFrameChanged(int frame);
@@ -106,6 +154,16 @@ namespace FabricUI {
 
     private:
 
+      void setModelRoot(
+        FabricUI::DFG::DFGController *dfgController,
+        FabricUI::ModelItems::BindingModelItem *bindingModelItem
+        );
+      void setModelRoot(
+        FabricCore::DFGExec exec,
+        FTL::CStrRef nodeName,
+        FabricUI::ModelItems::NodeModelItem *nodeModelItem
+        );
+
       int m_timelinePortIndex;
 
       ValueEditorBridgeOwner& m_owner;
@@ -113,6 +171,8 @@ namespace FabricUI {
       FabricUI::GraphView::Graph * m_setGraph;
 
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
+      QSharedPointer<DFG::DFGNotifier> m_notifier;
+      QSharedPointer<DFG::DFGNotifier> m_subNotifier;
     };
 }
 }
