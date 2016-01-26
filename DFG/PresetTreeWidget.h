@@ -28,9 +28,12 @@ namespace FabricUI
       PresetTreeWidget(
         DFGController *dfgController,
         const DFGConfig & config, 
-        bool showsPresets = true,
-        bool showSearch = true,
-        bool setupContextMenu = false
+        bool showsPresets,
+        bool showSearch,
+        bool hideFabricDir,
+        bool hideVariablesDir,
+        bool hideWriteProtectedDirs,
+        bool setupContextMenu
         );
       virtual ~PresetTreeWidget();
 
