@@ -13,7 +13,7 @@ int const VEDoubleSpinBox::MAX_QT_EXP = 10;
 VEDoubleSpinBox::VEDoubleSpinBox()
 {
   setRange( -MAX_QT_VAL, MAX_QT_VAL );
-  setDecimals( MAX_QT_EXP );
+  resetStep();
 }
 
 VEDoubleSpinBox::~VEDoubleSpinBox()
@@ -25,23 +25,46 @@ QString VEDoubleSpinBox::textFromValue( double val ) const
   return QString::number( val );
 }
 
-double VEDoubleSpinBox::implicitBaseChangePerStep()
+double VEDoubleSpinBox::implicitLogBaseChangePerStep()
 {
   if ( minimum() == -MAX_QT_VAL
     || maximum() == +MAX_QT_VAL )
-    return 1.0;
+    return 0.0;
 
-  return (maximum() - minimum()) / 20.0;
+  return std::max(
+    -6.0,
+    log10( ( maximum() - minimum() ) / 20.0 )
+    );
 }
 
-void VEDoubleSpinBox::updateStep( double deltaXInInches, double baseChangePerStep )
+double VEDoubleSpinBox::updateStep(
+  double deltaXInInches,
+  double logBaseChangePerStep
+  )
 {
+  double base10Exp = 0.5 * deltaXInInches + logBaseChangePerStep;
+  double velocity = pow( 10, base10Exp );
+
   // Always step by a round-number 
-  int base10Exp = int( round( 0.5 * deltaXInInches ) );
-  double changePerStep = baseChangePerStep * pow( 10.0, base10Exp );
+  int roundedBase10Exp = int( round( base10Exp ) );
+  double changePerStep = pow( 10.0, roundedBase10Exp );
+
   static const double minChangePerStep = 0.00001;
   changePerStep = std::max( minChangePerStep, changePerStep );
   static const double maxChangePerStep = 100000;
   changePerStep = std::min( maxChangePerStep, changePerStep );
+
   setSingleStep( changePerStep );
+  setDecimals( std::max( 0, -int( trunc( base10Exp ) ) ) );
+
+  return std::max(
+    0.01,
+    0.5 * velocity / changePerStep
+    );
+}
+
+void VEDoubleSpinBox::resetStep()
+{
+  setSingleStep( 0.0 );
+  setDecimals( MAX_QT_EXP );
 }

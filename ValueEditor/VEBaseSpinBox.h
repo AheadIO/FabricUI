@@ -26,7 +26,6 @@ public:
   {
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
-    QT_SPINBOX::setSingleStep( 0 );
   }
 
   ~VEBaseSpinBox() {}
@@ -39,7 +38,7 @@ public:
     static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
     QApplication::setOverrideCursor( initialOverrideCursor );
 
-    emit interactionBegin();
+    emitInteractionBegin();
 
     m_dragging = false;
   }
@@ -49,7 +48,7 @@ public:
     if ( !m_dragging )
     {
       // [pzion 20160125] Steps are bigger than dragging
-      updateStep( 0.0, implicitBaseChangePerStep() );
+      updateStep( 0.0, implicitLogBaseChangePerStep() );
 
       QT_SPINBOX::mousePressEvent( event );
       QT_SPINBOX::mouseReleaseEvent( event );
@@ -57,9 +56,9 @@ public:
 
     QApplication::restoreOverrideCursor();
 
-    QT_SPINBOX::setSingleStep( 0 );
+    resetStep();
 
-    emit interactionEnd( true );
+    emitInteractionEnd( true );
   }
 
   virtual void mouseMoveEvent( QMouseEvent *event ) /*override*/
@@ -74,16 +73,17 @@ public:
     double deltaXInInches =
       double( deltaX ) / double( QT_SPINBOX::logicalDpiX() );
 
-    double sensitivity = implicitBaseChangePerStep();
+    double logBaseChangePerStep = implicitLogBaseChangePerStep();
     // Slow down movement if Ctrl is pressed
     if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-      sensitivity *= 0.01;
+      logBaseChangePerStep -= 2;
     else
-      sensitivity *= 0.1;
+      logBaseChangePerStep -= 1;
 
-    updateStep( deltaXInInches, sensitivity );
+    double stepMult = updateStep( deltaXInInches, logBaseChangePerStep );
 
-    int nSteps = m_trackStartPos.y() - trackPos.y();
+    int nSteps =
+      int( round( stepMult * ( m_trackStartPos.y() - trackPos.y() ) ) );
 
     // While dragging, we want to do an absolute value offset,
     // so reset to start value and then increment by abs step
@@ -141,27 +141,32 @@ public:
     QT_SPINBOX::leaveEvent( event );
   }
 
-  virtual void interactionBegin() = 0;
-  virtual void interactionEnd( bool ) = 0;
+  virtual double implicitLogBaseChangePerStep() = 0;
 
-  virtual void updateStep( double deltaXInInches, double sensitivity ) = 0;
+  virtual double updateStep(
+    double deltaXInInches,
+    double logBaseChangePerStep
+    ) = 0;
 
-  virtual double implicitBaseChangePerStep() = 0;
+  virtual void resetStep() = 0;
 
 protected:
 
   void beginStepping()
   {
     // [pzion 20160125] Steps are bigger than dragging
-    updateStep( 0.0, implicitBaseChangePerStep() );
-    emit interactionBegin();
+    updateStep( 0.0, implicitLogBaseChangePerStep() );
+    emitInteractionBegin();
   }
 
   void endStepping()
   {
-    QT_SPINBOX::setSingleStep( 0 ); // to make it easier to see bugs
-    emit interactionEnd( true );
+    resetStep();
+    emitInteractionEnd( true );
   }
+
+  virtual void emitInteractionBegin() = 0;
+  virtual void emitInteractionEnd( bool commit ) = 0;
 
   QPoint m_trackStartPos;
   value_type m_startValue;

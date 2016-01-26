@@ -17,15 +17,25 @@ public:
   VEIntSpinBox();
   ~VEIntSpinBox();
 
-  virtual double implicitBaseChangePerStep() /*override*/;
+  virtual double implicitLogBaseChangePerStep() /*override*/;
 
-  virtual void updateStep(
+  virtual double updateStep(
     double deltaXInInches,
-    double sensitivity
+    double logBaseChangePerStep
     ) /*override*/;
+
+  virtual void resetStep() /*override*/;
 
 signals:
 
   void interactionBegin();
-  void interactionEnd( bool );
+  void interactionEnd( bool commit );
+
+protected:
+
+  virtual void emitInteractionBegin() /*override*/
+    { emit interactionBegin(); }
+
+  virtual void emitInteractionEnd( bool commit ) /*override*/
+    { emit interactionEnd( commit ); }
 };
