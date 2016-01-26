@@ -105,37 +105,50 @@ void VETreeWidget::reloadStyles()
 }
 
 // Perform a depth-first gather of the child widgets of this item
-void gatherTabWidgets( QObject* item, QWidgetList& tabWidgets )
+void gatherTabWidgets(
+  QObject *item,
+  QWidget *matchingWindow,
+  QWidgetList &tabWidgets
+  )
 {
   if (item->isWidgetType())
   {
-    QWidget* itemWidget = static_cast<QWidget*>(item);
-    if (itemWidget->focusPolicy() & Qt::TabFocus)
+    QWidget* itemWidget = static_cast<QWidget*>( item );
+    if ( itemWidget->window() == matchingWindow
+      && ( itemWidget->focusPolicy() & Qt::TabFocus ) )
       tabWidgets.push_back( itemWidget );
   }
   const QObjectList& children = item->children();
   for (QObjectList::const_iterator itr = children.begin(); itr != children.end(); itr++)
   {
-    gatherTabWidgets( const_cast<QObject*>(*itr), tabWidgets );
+    gatherTabWidgets(
+      const_cast<QObject*>(*itr),
+      matchingWindow,
+      tabWidgets
+      );
   }
 }
 
 // Perform a depth-first gather of the child items widgets;
-void gatherTabWidgets( VETreeWidgetItem* item, QWidgetList& tabWidgets )
+void gatherTabWidgets(
+  VETreeWidgetItem* item,
+  QWidget *matchingWindow,
+  QWidgetList &tabWidgets
+  )
 {
   BaseViewItem* itemView = item->getViewItem();
   QString itemName = item->text( 0 );
   if (itemView != NULL)
   {
     QWidget* itemWidget = itemView->getWidget();
-    gatherTabWidgets( itemWidget, tabWidgets );
+    gatherTabWidgets( itemWidget, matchingWindow, tabWidgets );
   }
 
   for (int i = 0; i < item->childCount(); i++)
   {
     VETreeWidgetItem* child =
       static_cast<VETreeWidgetItem*>(item->child( i ));
-    gatherTabWidgets( child, tabWidgets );
+    gatherTabWidgets( child, matchingWindow, tabWidgets );
   }
 }
 
@@ -145,9 +158,13 @@ void VETreeWidget::sortTree()
   sortItems( 0, Qt::AscendingOrder );
 
   // Once the items have been re-ordered, re-create the tab ordering
-  VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
+  QWidget *myWindow = window();
   QWidgetList tabWidgets;
-  gatherTabWidgets( baseItem, tabWidgets );
+  for ( int i = 0; i < topLevelItemCount(); ++i )
+  {
+    VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
+    gatherTabWidgets( baseItem, myWindow, tabWidgets );
+  }
 
   if (!tabWidgets.empty())
   {
