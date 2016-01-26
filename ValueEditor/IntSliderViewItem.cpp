@@ -19,12 +19,15 @@ IntSliderViewItem::IntSliderViewItem(
   )
   : BaseViewItem( name, metadata )
 {
-  int value = variant.value<int>();
-
-  m_lineEdit = new VELineEdit( QString::number( value ) );
+  m_lineEdit = new VELineEdit;
   m_slider = new QSlider;
   m_slider->setOrientation( Qt::Horizontal );
-  m_slider->setRange( INT_MIN, INT_MAX );
+
+  metadataChanged();
+
+  int value = variant.value<int>();
+
+  m_lineEdit->setText( QString::number( value ) );
   m_slider->setValue( value );
 
   m_widget = new QWidget;
@@ -67,7 +70,17 @@ void IntSliderViewItem::onModelValueChanged( QVariant const &v )
 
 void IntSliderViewItem::onLineEditTextModified( QString text )
 {
-  m_slider->setValue( text.toInt() );
+  int value = std::max(
+    m_slider->minimum(),
+    std::min(
+      m_slider->maximum(),
+      text.toInt()
+      )
+    );
+  if ( value != m_slider->value() )
+    m_slider->setValue( value );
+  else
+    m_lineEdit->setText( QString::number( value ) );
 }
 
 void IntSliderViewItem::onSliderPressed()
