@@ -9,6 +9,8 @@
 #include "ViewItemFactory.h"
 
 #include <FabricCore.h>
+#include <FTL/Path.h>
+#include <QtCore/QFile>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
 #include <QtGui/QHeaderView>
@@ -50,9 +52,56 @@ VETreeWidget::VETreeWidget( )
     this, SLOT( onItemEdited( QTreeWidgetItem*, int ) )
     );
 
-  setObjectName( "valueEditor" );
+  setObjectName( "ValueEditor" );
   header()->close();
 
+  reloadStyles();
+}
+
+void VETreeWidget::reloadStyles()
+{
+  char const *fabricDir = getenv( "FABRIC_DIR" );
+  if ( !fabricDir || !fabricDir[0] )
+  {
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: missing FABRIC_DIR environment variable\n"
+      );
+    return;
+  }
+
+  std::string qssPath = fabricDir;
+  FTL::PathAppendEntry( qssPath, "Resources" );
+  FTL::PathAppendEntry( qssPath, "QSS" );
+  FTL::PathAppendEntry( qssPath, "ValueEditor.qss" );
+
+#if defined(FTL_PLATFORM_WINDOWS)
+  QFile qssFile( QString::fromLatin1( qssPath.data(), qssPath.size() ) );
+#else
+  QFile qssFile( QString::fromUtf8( qssPath.data(), qssPath.size() ) );
+#endif
+  if ( !qssFile.open( QFile::ReadOnly ) )
+  {
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: unable to open '%s'\n",
+      qssPath.c_str()
+      );
+    return;
+  }
+
+  QString styleSheet = QLatin1String( qssFile.readAll() );
+  if ( styleSheet.isEmpty() )
+  {
+    fprintf(
+      stderr,
+      "VETreeWidget::reloadStyles: style sheet '%s' is empty\n",
+      qssPath.c_str()
+      );
+    return;
+  }
+
+  setStyleSheet( styleSheet );
 }
 
 // Perform a depth-first gather of the child widgets of this item

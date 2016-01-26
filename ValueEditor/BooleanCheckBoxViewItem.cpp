@@ -17,6 +17,7 @@ BooleanCheckBoxViewItem::BooleanCheckBoxViewItem(
   : BaseViewItem( name, metadata )
 {
   m_checkBox = new QCheckBox;
+  m_checkBox->setObjectName( "BooleanItem" );
   connect(
     m_checkBox, SIGNAL( stateChanged( int ) ),
     this, SLOT( onStateChanged( int ) )

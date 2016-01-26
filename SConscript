@@ -139,6 +139,13 @@ if uiLibPrefix == 'ui':
       ]
     )
   env.Depends(uiLib, icons)
+  qss = env.Install(
+    stageDir.srcnode().Dir('Resources').Dir('QSS'),
+    [
+      Glob(os.path.join(env.Dir('ValueEditor').srcnode().abspath, '*.qss')),
+      ]
+    )
+  env.Depends(uiLib, qss)
 
 if buildOS == 'Windows':
   projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']

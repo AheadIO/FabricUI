@@ -14,6 +14,7 @@ ComboBoxViewItem::ComboBoxViewItem( QString const &name, ItemMetadata* metadata 
   , m_comboBox(NULL)
 {
   m_comboBox = new QComboBox;
+  m_comboBox->setObjectName( "ComboBoxItem" );
   connect( m_comboBox, SIGNAL( currentIndexChanged( const QString& ) ),
            this, SLOT( formatChanged( const QString& ) ) );
   metadataChanged();

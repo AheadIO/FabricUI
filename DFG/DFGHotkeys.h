@@ -34,6 +34,13 @@ namespace FabricUI
       static const char *COLLAPSE_LEVEL_1;
       static const char *COLLAPSE_LEVEL_2;
       static const char *COLLAPSE_LEVEL_3;
+
+#ifdef ENABLE_STYLERELOAD
+      // This additional action allows users
+      // to quickly reload and iterate on styles
+      // in Canvas
+      static const char *RELOAD_STYLES;
+#endif
     };
   }
 }

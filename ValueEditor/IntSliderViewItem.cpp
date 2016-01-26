@@ -17,7 +17,8 @@ IntSliderViewItem::IntSliderViewItem(
   : BaseViewItem( name, metadata )
 {
   m_slider = new QSlider;
-
+  m_slider->setObjectName( "IntSliderItem" );
+  
   // Default to horizontal orientation
   m_slider->setOrientation( Qt::Horizontal );
 

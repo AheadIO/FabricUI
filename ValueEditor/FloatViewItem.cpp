@@ -4,7 +4,7 @@
 
 #include "FloatViewItem.h"
 #include "QVariantRTVal.h"
-#include "VESpinBox.h"
+#include "VEDoubleSpinBox.h"
 
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>
@@ -16,7 +16,10 @@ FloatViewItem::FloatViewItem(
   )
   : BaseViewItem( name, metadata )
 {
-  m_spinBox = new VESpinBox( value.value<double>() );
+  m_spinBox = new VEDoubleSpinBox;
+  m_spinBox->setObjectName( "FloatItem" );
+  onModelValueChanged( value );
+
   connect(
     m_spinBox, SIGNAL(interactionBegin()), 
     this, SIGNAL(interactionBegin())
