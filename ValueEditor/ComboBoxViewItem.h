@@ -21,7 +21,7 @@ public:
     );
   static const int Priority;
 
-  ComboBoxViewItem(QString const &name, ItemMetadata* metadata );
+  ComboBoxViewItem(QString const &name, QVariant const &v, ItemMetadata* metadata, bool isString );
   ~ComboBoxViewItem();
 
   virtual void metadataChanged( );
@@ -35,6 +35,7 @@ public:
 private:
 
   QComboBox* m_comboBox;
+  bool m_isString;
 
 private slots:
   void entrySelected(int index);

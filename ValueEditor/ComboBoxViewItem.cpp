@@ -9,15 +9,19 @@
 #include <QtGui/QComboBox>
 #include "QVariantRTVal.h"
 
-ComboBoxViewItem::ComboBoxViewItem( QString const &name, ItemMetadata* metadata )
+ComboBoxViewItem::ComboBoxViewItem( QString const &name, QVariant const &v, ItemMetadata* metadata, bool isString )
   : BaseViewItem(name, metadata)
   , m_comboBox(NULL)
+  , m_isString(isString)
 {
   m_comboBox = new QComboBox;
   m_comboBox->setObjectName( "ComboBoxItem" );
-  connect( m_comboBox, SIGNAL( currentIndexChanged( const QString& ) ),
-           this, SLOT( formatChanged( const QString& ) ) );
+
   metadataChanged();
+  onModelValueChanged(v);
+
+  connect( m_comboBox, SIGNAL( currentIndexChanged( int ) ),
+           this, SLOT( entrySelected( int ) ) );
 }
 
 ComboBoxViewItem::~ComboBoxViewItem()
@@ -61,14 +65,31 @@ QWidget *ComboBoxViewItem::getWidget()
 
 void ComboBoxViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_comboBox->setCurrentIndex( v.value<int>() );
+  if( m_isString )
+  {
+    int index = m_comboBox->findText( v.value<QString>() );
+    m_comboBox->setCurrentIndex( index );
+  }
+  else
+  {
+    m_comboBox->setCurrentIndex( v.value<int>() );
+  }
 }
 
 void ComboBoxViewItem::entrySelected(int index)
 {
-  emit viewValueChanged(
-    QVariant::fromValue<int>( index )
-    );
+  if( m_isString )
+  {
+    emit viewValueChanged(
+      QVariant::fromValue<QString>( m_comboBox->itemText( index ) )
+      );
+  }
+  else
+  {
+    emit viewValueChanged(
+      QVariant::fromValue<int>( index )
+      );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,10 +101,15 @@ BaseViewItem* ComboBoxViewItem::CreateItem(
   )
 {
   if ( metaData != NULL &&
-       metaData->has("uiCombo") &&
-       RTVariant::canConvert( value, QVariant::Int ) )
+       metaData->has("uiCombo") )
   {
-    return new ComboBoxViewItem( name, metaData );
+    bool isString = RTVariant::canConvert( value, QVariant::String );
+    if ( RTVariant::canConvert( value, QVariant::Int ) ||
+         RTVariant::canConvert( value, QVariant::UInt ) || 
+         isString )
+    {
+      return new ComboBoxViewItem( name, value, metaData, isString );
+    }
   }
   return 0;
 }
