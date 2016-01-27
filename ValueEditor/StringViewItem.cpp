@@ -5,8 +5,8 @@
 #include "StringViewItem.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
+#include "VEDialog.h"
 
-#include <QtGui/QDialog>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 #include <QtGui/QHBoxLayout>
@@ -67,7 +67,7 @@ void StringViewItem::onInspect()
 {
   // Show a multi-line dialog to display 
   // the full string contents
-  QDialog dlg( m_widget, Qt::Window | Qt::Dialog /*| Qt::FramelessWindowHint*/ );
+  VEDialog dlg( m_widget, Qt::Window | Qt::Dialog /*| Qt::FramelessWindowHint*/ );
   dlg.setModal( true );
   // Add text editor
   QVBoxLayout *layout = new QVBoxLayout( &dlg );
