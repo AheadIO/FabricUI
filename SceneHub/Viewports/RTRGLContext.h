@@ -55,6 +55,7 @@ namespace FabricUI
 
       RTRGLContext( QGLFormat const &qglFormat )
         : QGLContext( qglFormat )
+        , m_qglFormat( qglFormat )
       {
       }
 
