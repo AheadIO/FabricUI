@@ -59,6 +59,8 @@ public:
     resetStep();
 
     emitInteractionEnd( true );
+
+    clearFocusAndSelection(); // [FE-6014]
   }
 
   virtual void mouseMoveEvent( QMouseEvent *event ) /*override*/
@@ -128,6 +130,8 @@ public:
     }
 
     QT_SPINBOX::wheelEvent( event );
+
+    clearFocusAndSelection(); // [FE-6014]
   }
 
   virtual void leaveEvent( QEvent *event )
@@ -149,6 +153,12 @@ public:
     ) = 0;
 
   virtual void resetStep() = 0;
+
+  void clearFocusAndSelection()
+  {
+    lineEdit()->deselect(); // deselect any selection in the line edit.
+    clearFocus();           // remove the focus from the widget.
+  }
 
 protected:
 
