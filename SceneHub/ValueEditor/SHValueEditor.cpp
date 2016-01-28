@@ -26,16 +26,12 @@ void SHValueEditor::clear() {
 }
 
 void SHValueEditor::onSHArgsChanged(SHTreeItem *shTreeItem) {
-  clear();
-
-  FabricCore::RTVal nameVal = 
-  	FabricCore::RTVal::ConstructString(m_controller->getClient(), 
-  		shTreeItem->desc().toStdString().c_str());
-  
-  FabricCore::RTVal sgObjectVal = shTreeItem->getSGObject();
-
-  ValueItem * nameItem = addValue("Name", nameVal);
-  ValueItem * sgObjectItem = addValue("SGObject", nameVal);
+  //clear();
+  //FabricCore::RTVal nameVal = 
+  //	FabricCore::RTVal::ConstructString(m_controller->getClient(), 
+  //		shTreeItem->desc().toStdString().c_str());
+  //
+  //FabricCore::RTVal sgObjectVal = shTreeItem->getSGObject();
+  //ValueItem * nameItem = addValue("Name", nameVal);
+  //ValueItem * sgObjectItem = addValue("SGObject", nameVal);
 }
-
-
