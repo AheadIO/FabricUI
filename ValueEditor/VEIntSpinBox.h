@@ -24,8 +24,6 @@ public:
     double logBaseChangePerStep
     ) /*override*/;
 
-  virtual void resetStep() /*override*/;
-
 signals:
 
   void interactionBegin();

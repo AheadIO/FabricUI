@@ -26,7 +26,7 @@ public:
     double logBaseChangePerStep
     ) /*override*/;
 
-  virtual void resetStep() /*override*/;
+  virtual void resetPrecision() /*override*/;
 
 signals:
 

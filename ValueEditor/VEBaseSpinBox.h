@@ -33,7 +33,7 @@ public:
 
   ~VEBaseSpinBox() {}
 
-  virtual void mousePressEvent( QMouseEvent * event ) /*override*/
+  virtual void mousePressEvent( QMouseEvent *event ) /*override*/
   {
     m_trackStartPos = event->pos();
     m_startValue = QT_SPINBOX::value();
@@ -41,17 +41,21 @@ public:
     static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
     QApplication::setOverrideCursor( initialOverrideCursor );
 
-    emitInteractionBegin();
-
-    m_dragging = false;
+    event->accept();
   }
 
-  virtual void mouseReleaseEvent( QMouseEvent * event ) /*override*/
+  virtual void mouseReleaseEvent( QMouseEvent *event ) /*override*/
   {
-    if ( !m_dragging )
+    if ( m_dragging )
     {
-      // [pzion 20160125] Steps are bigger than dragging
-      updateStep( 0.0, implicitLogBaseChangePerStep() );
+      m_dragging = false;
+      resetPrecision();
+      emitInteractionEnd( true );
+      clearFocusAndSelection(); // [FE-6014]
+    }
+    else
+    {
+      beginStepping();
 
       QT_SPINBOX::mousePressEvent( event );
       QT_SPINBOX::mouseReleaseEvent( event );
@@ -59,45 +63,51 @@ public:
 
     QApplication::restoreOverrideCursor();
 
-    resetStep();
-
-    emitInteractionEnd( true );
-
-    clearFocusAndSelection(); // [FE-6014]
+    event->accept();
   }
 
   virtual void mouseMoveEvent( QMouseEvent *event ) /*override*/
   {
-    Qt::MouseButtons button = event->buttons();
-    if ( button != Qt::LeftButton )
-      return;
-
-    QPoint trackPos = event->pos();
-
-    int deltaX = trackPos.x() - m_trackStartPos.x();
-    double deltaXInInches =
-      double( deltaX ) / double( QT_SPINBOX::logicalDpiX() );
-
-    double logBaseChangePerStep = implicitLogBaseChangePerStep();
-    // Slow down movement if Ctrl is pressed
-    if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
-      logBaseChangePerStep -= 2;
-    else
-      logBaseChangePerStep -= 1;
-
-    double stepMult = updateStep( deltaXInInches, logBaseChangePerStep );
-
-    int nSteps =
-      int( round( stepMult * ( m_trackStartPos.y() - trackPos.y() ) ) );
-
-    // While dragging, we want to do an absolute value offset,
-    // so reset to start value and then increment by abs step
+    if ( event->buttons() == Qt::LeftButton )
     {
-      FabricUI::Util::QTSignalBlocker block( this );
-      QT_SPINBOX::setValue( m_startValue );
+      if ( !m_dragging )
+      {
+        m_dragging = true;
+
+        if ( m_stepping )
+        {
+          m_stepping = false;
+          m_steppingTimer.stop();
+        }
+        else emitInteractionBegin();
+      }
+
+      QPoint trackPos = event->pos();
+
+      int deltaX = trackPos.x() - m_trackStartPos.x();
+      double deltaXInInches =
+        double( deltaX ) / double( QT_SPINBOX::logicalDpiX() );
+
+      double logBaseChangePerStep = implicitLogBaseChangePerStep();
+      // Slow down movement if Ctrl is pressed
+      if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
+        logBaseChangePerStep -= 2;
+      else
+        logBaseChangePerStep -= 1;
+
+      double stepMult = updateStep( deltaXInInches, logBaseChangePerStep );
+
+      int nSteps =
+        int( round( stepMult * ( m_trackStartPos.y() - trackPos.y() ) ) );
+
+      // While dragging, we want to do an absolute value offset,
+      // so reset to start value and then increment by abs step
+      {
+        FabricUI::Util::QTSignalBlocker block( this );
+        QT_SPINBOX::setValue( m_startValue );
+      }
+      QT_SPINBOX::stepBy( nSteps );
     }
-    QT_SPINBOX::stepBy( nSteps );
-    m_dragging = true;
     event->accept();
   }
 
@@ -111,25 +121,13 @@ public:
     QT_SPINBOX::keyPressEvent( event );
   }
 
-  virtual void focusOutEvent( QFocusEvent *event ) /*override*/
-  {
-    endStepping();
-
-    QT_SPINBOX::focusOutEvent( event );
-  }
-
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
     beginStepping();
 
     QT_SPINBOX::wheelEvent( event );
-  }
 
-  virtual void leaveEvent( QEvent *event )
-  {
-    endStepping();
-
-    QT_SPINBOX::leaveEvent( event );
+    clearFocusAndSelection();  // [FE-6014]
   }
 
   virtual double implicitLogBaseChangePerStep() = 0;
@@ -139,15 +137,15 @@ public:
     double logBaseChangePerStep
     ) = 0;
 
-  virtual void resetStep() = 0;
+  virtual void resetPrecision() {}
+
+protected:
 
   void clearFocusAndSelection()
   {
     QT_SPINBOX::lineEdit()->deselect(); // deselect any selection in the line edit.
     QT_SPINBOX::clearFocus();           // remove the focus from the widget.
   }
-
-protected:
 
   void beginStepping()
   {
@@ -161,9 +159,10 @@ protected:
         connectSteppingTimer( &m_steppingTimer );
       }
 
+      emitInteractionBegin();
+
       // [pzion 20160125] Steps are bigger than dragging
       updateStep( 0.0, implicitLogBaseChangePerStep() );
-      emitInteractionBegin();
     }
 
     assert( m_steppingTimerConnected );
@@ -177,7 +176,7 @@ protected:
     {
       m_stepping = false;
       m_steppingTimer.stop();
-      resetStep();
+      resetPrecision();
       emitInteractionEnd( true );
     }
   }
