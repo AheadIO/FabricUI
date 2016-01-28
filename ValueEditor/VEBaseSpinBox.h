@@ -6,8 +6,10 @@
 
 #include "VELineEdit.h"
 
+#include <assert.h>
 #include <FabricUI/Util/QTSignalBlocker.h>
 #include <math.h>
+#include <QtCore/QTimer>
 #include <QtGui/QApplication>
 #include <QtGui/qevent.h>
 #include <QtGui/QLineEdit>
@@ -21,11 +23,12 @@ public:
   VEBaseSpinBox()
     : m_startValue( 0 )
     , m_dragging( false )
-    , m_wheeling( false )
-    , m_keying( false )
+    , m_stepping( false )
+    , m_steppingTimerConnected( false )
   {
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
+    m_steppingTimer.setSingleShot( true );
   }
 
   ~VEBaseSpinBox() {}
@@ -100,47 +103,31 @@ public:
 
   virtual void keyPressEvent( QKeyEvent *event ) /*override*/
   {
-    if ( !m_keying
-      && ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ) )
-    {
-      m_keying = true;
+    if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
       beginStepping();
-    }
+    else
+      endStepping();
 
     QT_SPINBOX::keyPressEvent( event );
   }
 
   virtual void focusOutEvent( QFocusEvent *event ) /*override*/
   {
-    if ( m_keying )
-    {
-      m_keying = false;
-      endStepping();
-    }
+    endStepping();
 
     QT_SPINBOX::focusOutEvent( event );
   }
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
-    if ( !m_wheeling )
-    {
-      m_wheeling = true;
-      beginStepping();
-    }
+    beginStepping();
 
     QT_SPINBOX::wheelEvent( event );
-
-    clearFocusAndSelection(); // [FE-6014]
   }
 
   virtual void leaveEvent( QEvent *event )
   {
-    if ( m_wheeling )
-    {
-      m_wheeling = false;
-      endStepping();
-    }
+    endStepping();
 
     QT_SPINBOX::leaveEvent( event );
   }
@@ -156,31 +143,54 @@ public:
 
   void clearFocusAndSelection()
   {
-    lineEdit()->deselect(); // deselect any selection in the line edit.
-    clearFocus();           // remove the focus from the widget.
+    QT_SPINBOX::lineEdit()->deselect(); // deselect any selection in the line edit.
+    QT_SPINBOX::clearFocus();           // remove the focus from the widget.
   }
 
 protected:
 
   void beginStepping()
   {
-    // [pzion 20160125] Steps are bigger than dragging
-    updateStep( 0.0, implicitLogBaseChangePerStep() );
-    emitInteractionBegin();
+    if ( !m_stepping )
+    {
+      m_stepping = true;
+
+      if ( !m_steppingTimerConnected )
+      {
+        m_steppingTimerConnected = true;
+        connectSteppingTimer( &m_steppingTimer );
+      }
+
+      // [pzion 20160125] Steps are bigger than dragging
+      updateStep( 0.0, implicitLogBaseChangePerStep() );
+      emitInteractionBegin();
+    }
+
+    assert( m_steppingTimerConnected );
+    // This is finely tuned but also personal preference:
+    m_steppingTimer.start( 600 );
   }
 
   void endStepping()
   {
-    resetStep();
-    emitInteractionEnd( true );
+    if ( m_stepping )
+    {
+      m_stepping = false;
+      m_steppingTimer.stop();
+      resetStep();
+      emitInteractionEnd( true );
+    }
   }
 
+  virtual void connectSteppingTimer( QTimer *steppingTimer ) = 0;
   virtual void emitInteractionBegin() = 0;
   virtual void emitInteractionEnd( bool commit ) = 0;
 
   QPoint m_trackStartPos;
   value_type m_startValue;
   bool m_dragging;
-  bool m_wheeling;
-  bool m_keying;
+  bool m_stepping;
+  bool m_steppingTimerConnected;
+  QTimer m_steppingTimer;
 };
+

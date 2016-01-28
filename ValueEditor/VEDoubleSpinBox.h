@@ -33,13 +33,30 @@ signals:
   void interactionBegin();
   void interactionEnd( bool );
 
-protected:
+//////////////////////////////////////////////////////////////////////////////
+// All this stuff should be in the base class or a macro, but both mess up Qt
+//////////////////////////////////////////////////////////////////////////////
 
+protected:
+  
+  virtual void connectSteppingTimer( QTimer *steppingTimer ) /*override*/
+  {
+    connect(
+      steppingTimer, SIGNAL(timeout()),
+      this, SLOT(onSteppingTimeout())
+      );
+  }
   virtual void emitInteractionBegin() /*override*/
     { emit interactionBegin(); }
-
   virtual void emitInteractionEnd( bool commit ) /*override*/
     { emit interactionEnd( commit ); }
+
+protected slots:
+  
+  void onSteppingTimeout()
+    { endStepping(); }
+
+//////////////////////////////////////////////////////////////////////////////
 
 private:
 
