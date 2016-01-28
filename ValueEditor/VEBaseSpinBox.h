@@ -126,8 +126,13 @@ public:
     beginStepping();
 
     QT_SPINBOX::wheelEvent( event );
+  }
 
-    clearFocusAndSelection();  // [FE-6014]
+  virtual void leaveEvent( QEvent *event ) /*override*/
+  {
+    endStepping();
+
+    QT_SPINBOX::leaveEvent( event );
   }
 
   virtual double implicitLogBaseChangePerStep() = 0;
