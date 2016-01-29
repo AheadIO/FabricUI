@@ -172,7 +172,8 @@ protected:
 
     assert( m_steppingTimerConnected );
     // This is finely tuned but also personal preference:
-    m_steppingTimer.start( 600 );
+    // (pz's fav value: 600, em's fav value: 300)
+    m_steppingTimer.start( 300 );
   }
 
   void endStepping()
