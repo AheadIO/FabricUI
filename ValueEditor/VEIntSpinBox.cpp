@@ -52,8 +52,3 @@ double VEIntSpinBox::updateStep(
     0.5 * velocity / changePerStep
     );
 }
-
-void VEIntSpinBox::resetStep()
-{
-  setSingleStep( 0 );
-}

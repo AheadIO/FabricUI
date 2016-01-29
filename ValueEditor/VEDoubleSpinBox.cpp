@@ -13,7 +13,7 @@ int const VEDoubleSpinBox::MAX_QT_EXP = 10;
 VEDoubleSpinBox::VEDoubleSpinBox()
 {
   setRange( -MAX_QT_VAL, MAX_QT_VAL );
-  resetStep();
+  resetPrecision();
 }
 
 VEDoubleSpinBox::~VEDoubleSpinBox()
@@ -63,8 +63,7 @@ double VEDoubleSpinBox::updateStep(
     );
 }
 
-void VEDoubleSpinBox::resetStep()
+void VEDoubleSpinBox::resetPrecision()
 {
-  setSingleStep( 0.0 );
   setDecimals( MAX_QT_EXP );
 }
