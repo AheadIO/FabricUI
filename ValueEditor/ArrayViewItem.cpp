@@ -1,3 +1,7 @@
+//
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
+//
+
 #include "ArrayViewItem.h"
 #include "ViewItemFactory.h"
 #include "QVariantRTVal.h"
