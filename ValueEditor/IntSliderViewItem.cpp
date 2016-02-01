@@ -36,11 +36,11 @@ IntSliderViewItem::IntSliderViewItem(
 
   QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-  sp.setHorizontalStretch(1);
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_LINEEDIT);
   m_lineEdit->setSizePolicy(sp);
   layout->addWidget( m_lineEdit );
 
-  sp.setHorizontalStretch(3);
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_SLIDER);
   m_slider->setSizePolicy(sp);
   layout->addWidget( m_slider );
 

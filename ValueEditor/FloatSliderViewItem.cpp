@@ -37,11 +37,11 @@ FloatSliderViewItem::FloatSliderViewItem(
 
   QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-  sp.setHorizontalStretch(VEConstants::H_STRETCH_SLIDER_LINEEDIT);
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_LINEEDIT);
   m_lineEdit->setSizePolicy(sp);
   layout->addWidget( m_lineEdit );
 
-  sp.setHorizontalStretch(VEConstants::H_STRETCH_SLIDER_SLIDER);
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_SLIDER);
   m_slider->setSizePolicy(sp);
   layout->addWidget( m_slider );
 
