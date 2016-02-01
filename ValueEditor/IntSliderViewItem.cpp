@@ -3,6 +3,7 @@
 //
 
 #include "IntSliderViewItem.h"
+#include "ViewConstants.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
@@ -32,7 +33,15 @@ IntSliderViewItem::IntSliderViewItem(
 
   m_widget = new QWidget;
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
+
+  QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_LINEEDIT);
+  m_lineEdit->setSizePolicy(sp);
   layout->addWidget( m_lineEdit );
+
+  sp.setHorizontalStretch(VE_H_STRETCH_SLIDER_SLIDER);
+  m_slider->setSizePolicy(sp);
   layout->addWidget( m_slider );
 
   connect(
