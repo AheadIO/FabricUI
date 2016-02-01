@@ -56,6 +56,8 @@ protected:
 
   virtual void focusOutEvent( QFocusEvent *event );
 
+  virtual void keyPressEvent( QKeyEvent *event );
+
 protected slots:
 
   void onReturnPressed()

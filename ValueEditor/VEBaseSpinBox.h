@@ -51,7 +51,10 @@ public:
       m_dragging = false;
       resetPrecision();
       emitInteractionEnd( true );
-      clearFocusAndSelection(); // [FE-6014]
+
+      // [FE-6014]
+      QT_SPINBOX::lineEdit()->deselect();
+      QT_SPINBOX::clearFocus();
     }
     else
     {
@@ -114,9 +117,22 @@ public:
   virtual void keyPressEvent( QKeyEvent *event ) /*override*/
   {
     if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
+    {
       beginStepping();
-    else
+    }
+    else if ( event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter )
+    {
+      // [FE-6025]
       endStepping();
+      QT_SPINBOX::lineEdit()->deselect();
+      QT_SPINBOX::clearFocus();
+      event->accept();
+      return;
+    }
+    else
+    {
+      endStepping();
+    }
 
     QT_SPINBOX::keyPressEvent( event );
   }
@@ -145,12 +161,6 @@ public:
   virtual void resetPrecision() {}
 
 protected:
-
-  void clearFocusAndSelection()
-  {
-    QT_SPINBOX::lineEdit()->deselect(); // deselect any selection in the line edit.
-    QT_SPINBOX::clearFocus();           // remove the focus from the widget.
-  }
 
   void beginStepping()
   {

@@ -19,3 +19,16 @@ void VELineEdit::focusOutEvent( QFocusEvent *event )
     checkText();
   QLineEdit::focusOutEvent( event );
 }
+
+void VELineEdit::keyPressEvent( QKeyEvent *event )
+{
+  if ( event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter )
+  {
+    // [FE-6025]
+    clearFocus();
+    event->accept();
+    return;
+  }
+
+  QLineEdit::keyPressEvent( event );
+}
