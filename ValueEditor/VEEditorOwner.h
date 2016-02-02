@@ -140,6 +140,11 @@ namespace FabricUI {
         FTL::CStrRef newResolvedTypeName
         );
 
+      void onExecRefVarPathChanged(
+        FTL::CStrRef refName,
+        FTL::CStrRef newVarPath
+        );
+
       void onStructureChanged();
 
       void onFrameChanged(int frame);

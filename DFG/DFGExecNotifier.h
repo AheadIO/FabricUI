@@ -126,6 +126,11 @@ signals:
     FTL::CStrRef instName
     );
 
+  void refVarPathChanged(
+    FTL::CStrRef refName,
+    FTL::CStrRef newVarPath
+    );
+
   // The executable's nodes' ports
 
   void nodePortInserted(
@@ -219,6 +224,7 @@ private:
   void handler_nodeRenamed( FTL::JSONObject const *jsonObject );
   void handler_portsConnected( FTL::JSONObject const *jsonObject );
   void handler_portsDisconnected( FTL::JSONObject const *jsonObject );
+  void handler_refVarPathChanged( FTL::JSONObject const *jsonObject );
 
   FabricCore::DFGView m_view;
 
