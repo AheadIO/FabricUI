@@ -69,7 +69,7 @@ namespace FabricUI {
       void onNodeInspectRequested(FabricUI::GraphView::Node *node);
 
       void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
-      void onOutputsChanged(); // Call after each evalation
+      void onOutputsChanged(); // Call after each evaluation
 
       void onBindingArgInserted(
         unsigned index,

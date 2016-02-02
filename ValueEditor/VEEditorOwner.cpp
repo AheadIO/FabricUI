@@ -689,7 +689,7 @@ void VEEditorOwner::onStructureChanged()
         FTL::CStrRef portName = graph.getExecPortName( i );
         if (portName != FTL_STR( "timeline" ))
           continue;
-        if (!graph.isExecPortResolvedType( i, "SInt32" )
+        if (    !graph.isExecPortResolvedType( i, "SInt32" )
              && !graph.isExecPortResolvedType( i, "UInt32" )
              && !graph.isExecPortResolvedType( i, "Float32" )
              && !graph.isExecPortResolvedType( i, "Float64" ))
