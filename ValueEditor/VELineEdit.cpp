@@ -30,5 +30,14 @@ void VELineEdit::keyPressEvent( QKeyEvent *event )
     return;
   }
 
+  if ( event->key() == Qt::Key_Escape )
+  {
+    // [FE-6007]
+    setText(m_last);
+    clearFocus();
+    event->accept();
+    return;
+  }
+
   QLineEdit::keyPressEvent( event );
 }
