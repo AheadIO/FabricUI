@@ -51,7 +51,7 @@ void BaseViewItem::setBaseModelItem( BaseModelItem* item )
         itemMetadata->getString( ItemMetadata::VEPortTypeKey.c_str() );
       if ( vePortType == FTL_STR("Out") )
       {
-        m_metadata.setSInt32( "disabled", 1 );
+        m_metadata.setSInt32( "uiReadOnly", 1 );
       }
     }
   }
@@ -134,8 +134,8 @@ void BaseViewItem::setWidgetsOnTreeItem(
   QWidget* myWidget = getWidget();
 
   // Disable our widgets if requested
-  if (m_metadata.has( "disabled" ) &&
-       m_metadata.getSInt32( "disabled" ) == 1)
+  if (m_metadata.has( "uiReadOnly" ) &&
+       m_metadata.getSInt32( "uiReadOnly" ) == 1)
   {
     myWidget->setEnabled( false );
   }

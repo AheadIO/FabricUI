@@ -31,7 +31,7 @@ namespace FabricUI
         FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
         FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
 
-        if (strcmp( "disabled", key ) == 0)
+        if (strcmp( "uiReadOnly", key ) == 0)
         {
           // Override disabled for connected ports
           if ( exec.hasSrcPort( portPath.c_str() ) )

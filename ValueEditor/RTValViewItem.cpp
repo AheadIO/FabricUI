@@ -35,7 +35,7 @@ RTValViewItem::RTValViewItem( QString name,
   // Do not change state if editable (we inherit our
   // parents editable status)
   if (!m_isEditableType)
-    m_metadata.setSInt32( "disabled", 1 );
+    m_metadata.setSInt32( "uiReadOnly", 1 );
 
   UpdateWidget();
 }
