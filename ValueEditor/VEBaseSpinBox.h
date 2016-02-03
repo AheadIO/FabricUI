@@ -21,7 +21,8 @@ class VEBaseSpinBox : public QT_SPINBOX
 public:
 
   VEBaseSpinBox()
-    : m_startValue( 0 )
+    : m_last      ( 0 )
+    , m_startValue( 0 )
     , m_dragging( false )
     , m_stepping( false )
     , m_steppingTimerConnected( false )
@@ -29,6 +30,7 @@ public:
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
     m_steppingTimer.setSingleShot( true );
+    m_last = QT_SPINBOX::value();
   }
 
   ~VEBaseSpinBox() {}
@@ -36,6 +38,7 @@ public:
   virtual void mousePressEvent( QMouseEvent *event ) /*override*/
   {
     m_trackStartPos = event->pos();
+    m_last = QT_SPINBOX::value();
     m_startValue = QT_SPINBOX::value();
 
     static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
@@ -129,6 +132,16 @@ public:
       event->accept();
       return;
     }
+    else if ( event->key() == Qt::Key_Escape )
+    {
+      // [FE-6007]
+      QT_SPINBOX::setValue(m_last);
+      endStepping();
+      QT_SPINBOX::lineEdit()->deselect();
+      QT_SPINBOX::clearFocus();
+      event->accept();
+      return;
+    }
     else
     {
       endStepping();
@@ -194,6 +207,7 @@ protected:
       m_steppingTimer.stop();
       resetPrecision();
       emitInteractionEnd( true );
+      m_last = QT_SPINBOX::value();
     }
   }
 
@@ -202,6 +216,7 @@ protected:
   virtual void emitInteractionEnd( bool commit ) = 0;
 
   QPoint m_trackStartPos;
+  value_type m_last;
   value_type m_startValue;
   bool m_dragging;
   bool m_stepping;
