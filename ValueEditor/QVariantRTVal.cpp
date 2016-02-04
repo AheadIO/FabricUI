@@ -240,14 +240,21 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       break;
       case int( QVariant::String ):
       {
-        QString& str = *((QString*)result);
+        char const *data;
+        uint32_t size;
         if ( val.isString() )
-          str = val.getStringCString();
+        {
+          data = val.getStringCString();
+          size = val.getStringLength();
+        }
         else
         {
           FabricCore::RTVal desc = val.getDesc();
-          str = desc.getStringCString();
+          data = desc.getStringCString();
+          size = desc.getStringLength();
         }
+        QString& str = *((QString*)result);
+        str = QString::fromUtf8( data, size );
         break;
       }
       case int( QVariant::Color ):
@@ -464,8 +471,8 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
     else if ( ioVal.isString() )
     {
       QString str = var.toString();
-      QByteArray asAscii = str.toAscii();
-      ioVal.setString( asAscii.data(), asAscii.size() );
+      QByteArray utf8 = str.toUtf8();
+      ioVal.setString( utf8.data(), utf8.size() );
     }
     else if ( ioVal.hasType( "RGB" ) )
     {
