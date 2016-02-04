@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
+#include <FabricUI/ModelItems/GetPortItemMetadata.h>
 #include <FabricUI/ModelItems/GetPortModelItem.h>
 
 namespace FabricUI {
@@ -34,6 +35,13 @@ GetPortModelItem::~GetPortModelItem()
 FTL::CStrRef GetPortModelItem::getName()
 {
   return FTL_STR("value");
+}
+
+ItemMetadata* GetPortModelItem::getMetadata()
+{
+  if ( !m_metadata )
+    m_metadata = new GetPortItemMetadata( this );
+  return m_metadata;
 }
 
 } // namespace ModelItems

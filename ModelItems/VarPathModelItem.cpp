@@ -4,7 +4,6 @@
 
 #include <assert.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <FabricUI/ModelItems/RefPortItemMetadata.h>
 #include <FabricUI/ModelItems/VarPathModelItem.h>
 #include <FabricUI/ModelItems/VarPathItemMetadata.h>
 #include <QtCore/QStringList>

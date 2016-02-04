@@ -6,17 +6,17 @@
 
 #include "NodePortItemMetadata.h"
 
-#include <FabricUI/ModelItems/RefPortModelItem.h>
+#include <FabricUI/ModelItems/SetPortModelItem.h>
 
 namespace FabricUI {
 namespace ModelItems {
 
-class RefPortItemMetadata : public NodePortItemMetadata
+class SetPortItemMetadata : public NodePortItemMetadata
 {
 public:
 
-  RefPortItemMetadata( RefPortModelItem *refPortModelItem )
-    : NodePortItemMetadata( refPortModelItem ) {}
+  SetPortItemMetadata( SetPortModelItem *setPortModelItem )
+    : NodePortItemMetadata( setPortModelItem ) {}
 
   virtual const char* getString( const char* key ) const /*override*/
   {

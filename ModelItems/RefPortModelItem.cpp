@@ -4,7 +4,6 @@
 
 #include <assert.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
-#include <FabricUI/ModelItems/RefPortItemMetadata.h>
 #include <FabricUI/ModelItems/RefPortModelItem.h>
 #include <FabricUI/ModelItems/RootModelItem.h>
 #include <QtCore/QStringList>
@@ -97,13 +96,6 @@ bool RefPortModelItem::hasDefault()
 void RefPortModelItem::resetToDefault()
 {
   assert( false );
-}
-
-ItemMetadata* RefPortModelItem::getMetadata()
-{
-  if ( !m_metadata )
-    m_metadata = new RefPortItemMetadata( this );
-  return m_metadata;
 }
 
 } // namespace ModelItems

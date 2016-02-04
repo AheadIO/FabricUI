@@ -39,6 +39,8 @@ public:
   /////////////////////////////////////////////////////////////////////////
 
   virtual FTL::CStrRef getName() /*override*/;
+
+  virtual ItemMetadata* getMetadata();
 };
 
 } // namespace ModelItems
