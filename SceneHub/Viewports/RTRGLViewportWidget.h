@@ -57,7 +57,7 @@ namespace FabricUI
         void sceneChanged();
         void viewportDestroying();
         void manipsAcceptedEvent(bool);
-        void synchronizeCommands(bool);
+        void synchronizeCommands();
 
 
       public slots:

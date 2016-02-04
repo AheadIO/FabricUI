@@ -371,7 +371,7 @@ void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  emit synchronizeCommands(false);
+  emit synchronizeCommands();
 }
 
 void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {

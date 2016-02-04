@@ -2,8 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __UI_SCENEHUB_SGADDPROPERTYCMD_H__
-#define __UI_SCENEHUB_SGADDPROPERTYCMD_H__
+#ifndef __UI_SCENEHUB_SGAddPropertyCmd_H__
+#define __UI_SCENEHUB_SGAddPropertyCmd_H__
  
 #include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
@@ -78,6 +78,6 @@ namespace FabricUI
   };  
 };
 
-#endif // __UI_SCENEHUB_SGADDPROPERTYCMD_H__
+#endif // __UI_SCENEHUB_SGAddPropertyCmd_H__
 
 

@@ -2,8 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __UI_SCENEHUB_SGADDOBJECTCMD_H__
-#define __UI_SCENEHUB_SGADDOBJECTCMD_H__
+#ifndef __UI_SCENEHUB_SGAddObjectCmd_H__
+#define __UI_SCENEHUB_SGAddObjectCmd_H__
 
  
 #include <FabricUI/Util/macros.h>
@@ -86,6 +86,6 @@ namespace FabricUI
   };  
 };
 
-#endif // __UI_SCENEHUB_SGADDOBJECTCMD_H__
+#endif // __UI_SCENEHUB_SGAddObjectCmd_H__
 
 

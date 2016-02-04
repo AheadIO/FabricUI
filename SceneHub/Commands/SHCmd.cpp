@@ -149,7 +149,12 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
         params.push_back(params_);
         for(uint32_t i=index; i<tempArray.size(); ++i) params.push_back(tempArray[i]);
       }
-      else params = Split(paramArray, ',');
+      else 
+      {
+        params = Split(paramArray, ',');
+        if(params.size() == 0 && paramArray.compare("") != 0)
+          params.push_back(paramArray);
+      }
 
       return true;
     }
