@@ -695,6 +695,10 @@ void VEEditorOwner::onStructureChanged()
              && !graph.isExecPortResolvedType( i, "Float64" ))
           continue;
         m_timelinePortIndex = int( i );
+        BaseModelItem *baseModel = m_modelRoot->getChild( "timeline", false );
+        if (baseModel)
+          printf("got it\n");
+          //baseModel->getMetadata()->setSInt32( "uiReadOnly", 1 );
         break;
       }
     }

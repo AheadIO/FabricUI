@@ -29,7 +29,7 @@ private:
   unsigned m_modelValueChangedBracketCount;
   
   // A state variable tracks whether this class
-  // us currently setting metadata.  Used to
+  // is currently setting metadata.  Used to
   // filter messages coming from the core from
   // messages coming from the ValueEditor
   bool m_settingMetadata;
