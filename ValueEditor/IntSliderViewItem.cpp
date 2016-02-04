@@ -156,7 +156,13 @@ void IntSliderViewItem::metadataChanged()
 
   FabricUI::DecodeUIRange(hardRangeCStr, m_hardMinimum, m_hardMaximum);
   if(FabricUI::DecodeUIRange(softRangeCStr, m_softMinimum, m_softMaximum))
+  {
+    if(m_softMinimum < m_hardMinimum)
+      m_softMinimum = m_hardMinimum;
+    if(m_softMaximum > m_hardMaximum)
+      m_softMaximum = m_hardMaximum;
     m_slider->setRange( m_softMinimum, m_softMaximum );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
