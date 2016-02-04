@@ -15,6 +15,7 @@
 #include <FTL/AutoSet.h>
 #include <QtCore/QVariant>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QDoubleValidator>
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
@@ -37,6 +38,7 @@ FloatSliderViewItem::FloatSliderViewItem(
   if(value > m_slider->max())
     m_slider->setResolution(FLOAT_SLIDER_DECIMALS, m_slider->min(), value);
 
+  m_lineEdit->setValidator(new QDoubleValidator(m_lineEdit));
   m_lineEdit->setText( QString::number( value ) );
   m_slider->setDoubleValue( value );
 
