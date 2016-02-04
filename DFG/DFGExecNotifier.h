@@ -54,6 +54,10 @@ signals:
 
   void editWouldSplitFromPresetMayHaveChanged();
 
+  void funcCodeChanged(
+    FTL::CStrRef code
+    );
+
   // The executable's ports
 
   void portInserted(
@@ -225,6 +229,7 @@ private:
   void handler_portsConnected( FTL::JSONObject const *jsonObject );
   void handler_portsDisconnected( FTL::JSONObject const *jsonObject );
   void handler_refVarPathChanged( FTL::JSONObject const *jsonObject );
+  void handler_funcCodeChanged( FTL::JSONObject const *jsonObject );
 
   FabricCore::DFGView m_view;
 
