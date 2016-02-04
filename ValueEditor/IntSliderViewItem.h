@@ -46,6 +46,11 @@ private:
   QWidget *m_widget;
   VELineEdit *m_lineEdit;
   QSlider *m_slider;
+  double m_softMinimum;
+  double m_softMaximum;
+  double m_hardMinimum;
+  double m_hardMaximum;
+  bool m_isSettingValue;
 
 private slots:
 

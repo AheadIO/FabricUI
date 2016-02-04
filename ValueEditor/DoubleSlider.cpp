@@ -8,18 +8,21 @@
 #include <QtGui/QStyleOptionSlider>
 #include <QtGui/QMouseEvent>
 
+#include <FTL/AutoSet.h>
+
 DoubleSlider::DoubleSlider( QWidget * parent ) 
   : QSlider( parent )
   , m_min( 0.0 )
   , m_max( 1.0 )
+  , m_isSettingValue( false )
 {
-  setResolution( 100, m_min, m_max );
+  setResolution( 2, m_min, m_max );
 
   // Default to horizontal orientation
   setOrientation( Qt::Horizontal );
 
   connect( this, SIGNAL( valueChanged( int ) ),
-           this, SLOT( notifyValueChanged( int ) ) );
+           this, SLOT( onValueChanged( int ) ) );
 }
 
 void DoubleSlider::mousePressEvent( QMouseEvent *event )
@@ -66,29 +69,34 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
 }
 
 
-void DoubleSlider::setResolution( int resolution, double min, double max )
+void DoubleSlider::setResolution( int decimals, double min, double max )
 {
-  double value = doubleValue();
-  setRange( 0, resolution );
+  double divisor = pow(10.0, (double)decimals);
+  double resolution = (max - min) * divisor;
+  setRange( 0, (int)floor(resolution+0.5) );
   m_max = max;
   m_min = min;
-  setDoubleValue( value );
+  setDoubleValue( m_value, false );
 }
 
-void DoubleSlider::setDoubleValue( double newDoubleValue )
+void DoubleSlider::setDoubleValue( double newDoubleValue, bool emitSignal )
 {
+  FTL::AutoSet<bool> settingValue(m_isSettingValue, true);
+
+  m_value = newDoubleValue;
   newDoubleValue = std::max( m_min, std::min( m_max, newDoubleValue ) );
   double ratio = (newDoubleValue - m_min) / (m_max - m_min);
   int newIntValue = int( round( ratio * maximum() ) );
-  if ( value() != newIntValue )
+  if ( value() != newIntValue ) {
     setValue( newIntValue );
-  else
-    emit valueChanged( newIntValue );
+  }
+  if(emitSignal)
+    emit doubleValueChanged( m_value );
 }
 
 double DoubleSlider::doubleValue()
 {
-  return toDouble( value() );
+  return m_value;
 }
 
 double DoubleSlider::toDouble( int value )
@@ -97,6 +105,9 @@ double DoubleSlider::toDouble( int value )
   return (1.0 - ratio) * m_min + ratio * m_max;
 }
 
-void DoubleSlider::notifyValueChanged( int value ) {
-  emit doubleValueChanged( toDouble( value ) );
+void DoubleSlider::onValueChanged( int value ) {
+  if(m_isSettingValue)
+    return;
+  m_value = toDouble( value );
+  emit doubleValueChanged( m_value );
 }

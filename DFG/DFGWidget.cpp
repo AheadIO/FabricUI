@@ -1082,9 +1082,31 @@ void DFGWidget::onExecPortAction(QAction * action)
         {
           float minimum = parts[0].toFloat();
           float maximum = parts[1].toFloat();
-          dialog.setHasRange(true);
-          dialog.setRangeMin(minimum);
-          dialog.setRangeMax(maximum);
+          dialog.setHasSoftRange(true);
+          dialog.setSoftRangeMin(minimum);
+          dialog.setSoftRangeMax(maximum);
+        }
+      }
+
+      FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
+      if(uiHardRange.size() > 0)
+      {
+        QString filteredUiRange;
+        for(unsigned int i=0;i<uiHardRange.size();i++)
+        {
+          char c = uiHardRange[i];
+          if(isalnum(c) || c == '.' || c == ',' || c == '-')
+            filteredUiRange += c;
+        }
+
+        QStringList parts = filteredUiRange.split(',');
+        if(parts.length() == 2)
+        {
+          float minimum = parts[0].toFloat();
+          float maximum = parts[1].toFloat();
+          dialog.setHasHardRange(true);
+          dialog.setHardRangeMin(minimum);
+          dialog.setHardRangeMax(maximum);
         }
       }
 
@@ -1126,12 +1148,19 @@ void DFGWidget::onExecPortAction(QAction * action)
         DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
-        if(dialog.hasRange())
+        if(dialog.hasSoftRange())
         {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
         } else
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
+        if(dialog.hasHardRange())
+        {
+          QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );//"" will remove the metadata
 
         if(dialog.hasCombo())
         {
@@ -1369,11 +1398,20 @@ void DFGWidget::onSidePanelAction(QAction * action)
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
 
-      if(dialog.hasRange())
+      if(dialog.hasSoftRange())
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
         DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
-      }
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );
+
+      if(dialog.hasHardRange())
+      {
+        QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );
+
       if(dialog.hasCombo())
       {
         QStringList combo = dialog.comboValues();

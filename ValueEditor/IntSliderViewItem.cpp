@@ -13,12 +13,16 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QSlider>
 
+#include <FabricUI/Util/UIRange.h>
+#include <FTL/AutoSet.h>
+
 IntSliderViewItem::IntSliderViewItem(
   QString const &name,
   QVariant const &variant,
   ItemMetadata* metadata
   )
   : BaseViewItem( name, metadata )
+  , m_isSettingValue( false )
 {
   m_lineEdit = new VELineEdit;
   m_slider = new QSlider;
@@ -27,6 +31,12 @@ IntSliderViewItem::IntSliderViewItem(
   metadataChanged();
 
   int value = variant.value<int>();
+
+  // correct the softrange
+  if(value < m_slider->minimum())
+    m_slider->setMinimum(value);
+  if(value > m_slider->maximum())
+    m_slider->setMaximum(value);
 
   m_lineEdit->setText( QString::number( value ) );
   m_slider->setValue( value );
@@ -74,18 +84,35 @@ QWidget *IntSliderViewItem::getWidget()
 
 void IntSliderViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_slider->setValue( v.value<int>() );
+  FTL::AutoSet<bool> settingValue(m_isSettingValue, true);
+  int value = v.value<int>();
+
+  // correct the softrange
+  if(value < m_slider->minimum())
+    m_slider->setMinimum(value);
+  if(value > m_slider->maximum())
+    m_slider->setMaximum(value);
+
+  m_slider->setValue( value );
+  m_lineEdit->setText( QString::number( value ) );
 }
 
 void IntSliderViewItem::onLineEditTextModified( QString text )
 {
   int value = std::max(
-    m_slider->minimum(),
+    (int)m_hardMinimum,
     std::min(
-      m_slider->maximum(),
+      (int)m_hardMaximum,
       text.toInt()
       )
     );
+
+  // correct the softrange
+  if(value < m_slider->minimum())
+    m_slider->setMinimum(value);
+  if(value > m_slider->maximum())
+    m_slider->setMaximum(value);
+
   if ( value != m_slider->value() )
     m_slider->setValue( value );
   else
@@ -99,6 +126,8 @@ void IntSliderViewItem::onSliderPressed()
 
 void IntSliderViewItem::onValueChanged( int value )
 {
+  if(m_isSettingValue)
+    return;
   m_lineEdit->setText( QString::number( value ) );
   emit viewValueChanged( QVariant::fromValue<int>( value ) );
 }
@@ -110,41 +139,24 @@ void IntSliderViewItem::onSliderReleased()
 
 void IntSliderViewItem::metadataChanged()
 {
-  const char* str = m_metadata.getString( "uiRange" );
-  if (str == NULL)
-    return;
+  m_softMinimum = (double)0.0;
+  m_softMaximum = (double)100.0;
+  m_hardMinimum = (double)INT_MIN;
+  m_hardMaximum = (double)INT_MAX;
 
-  std::string rangeStr = str;
-  if (rangeStr.size() > 0)
-  {
-    try
-    {
-      if (rangeStr[0] == '(')
-        rangeStr = rangeStr.substr( 1 );
-      if (rangeStr[rangeStr.size() - 1] == ')')
-        rangeStr = rangeStr.substr( 0, rangeStr.size() - 1 );
+  m_slider->setRange( (int)m_softMinimum, (int)m_softMaximum );
 
-      QStringList parts = QString( rangeStr.c_str() ).split( ',' );
-      if (parts.size() != 2)
-        return;
+  // metadata should be like this:
+  // uiRange: "(0 - 200)"
+  // uiHardRange: "(0 - 500)"
+  const char* softRangeCStr = m_metadata.getString( "uiRange" );
+  const char* hardRangeCStr = m_metadata.getString( "uiHardRange" );
+  if(FTL::StrRef(softRangeCStr).empty())
+    softRangeCStr = hardRangeCStr;
 
-      QString minStr = parts[0].trimmed();
-      QString maxStr = parts[1].trimmed();
-      bool ok;
-      int min = minStr.toInt( &ok );
-      if (ok)
-      {
-        int max = maxStr.toInt( &ok );
-        if (ok)
-          m_slider->setRange( min, max );
-      }
-    }
-    catch (...)
-    {
-      // No change on exception
-      printf( "[ERROR] Unknown error setting range on slider" );
-    }
-  }
+  FabricUI::DecodeUIRange(hardRangeCStr, m_hardMinimum, m_hardMaximum);
+  if(FabricUI::DecodeUIRange(softRangeCStr, m_softMinimum, m_softMaximum))
+    m_slider->setRange( m_softMinimum, m_softMaximum );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,7 +173,7 @@ BaseViewItem* IntSliderViewItem::CreateItem(
   if ( RTVariant::isType<int>( value )
     || RTVariant::isType<unsigned>( value ) )
   {
-    if (metaData->has( "uiRange" ))
+    if (metaData->has( "uiRange" ) || metaData->has( "uiHardRange" ))
     {
       IntSliderViewItem* item = new IntSliderViewItem( name, value, metaData );
       return item;

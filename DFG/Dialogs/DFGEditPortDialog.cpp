@@ -44,17 +44,24 @@ DFGEditPortDialog::DFGEditPortDialog(
   m_visibilityCombo->addItem("opaque");
   m_visibilityCombo->addItem("hidden");
   m_persistValue = new QCheckBox(this);
-  m_hasRange = new QCheckBox(this);
-  m_rangeMin = new QLineEdit("0.0", this);
-  m_rangeMax = new QLineEdit("1.0", this);
+  m_hasSoftRange = new QCheckBox(this);
+  m_softRangeMin = new QLineEdit("0.0", this);
+  m_softRangeMax = new QLineEdit("1.0", this);
+  m_hasHardRange = new QCheckBox(this);
+  m_hardRangeMin = new QLineEdit("0.0", this);
+  m_hardRangeMax = new QLineEdit("1.0", this);
   m_hasCombo = new QCheckBox(this);
   m_combo = new QLineEdit("OptionA, OptionB", this);
 
-  m_rangeMin->setEnabled(false);
-  m_rangeMax->setEnabled(false);
+  m_softRangeMin->setEnabled(false);
+  m_softRangeMax->setEnabled(false);
+  m_hardRangeMin->setEnabled(false);
+  m_hardRangeMax->setEnabled(false);
   m_combo->setEnabled(false);
-  m_rangeMin->setValidator(new QDoubleValidator(m_rangeMin));
-  m_rangeMax->setValidator(new QDoubleValidator(m_rangeMax));
+  m_softRangeMin->setValidator(new QDoubleValidator(m_softRangeMin));
+  m_softRangeMax->setValidator(new QDoubleValidator(m_softRangeMax));
+  m_hardRangeMin->setValidator(new QDoubleValidator(m_hardRangeMin));
+  m_hardRangeMax->setValidator(new QDoubleValidator(m_hardRangeMax));
 
   if(m_portTypeCombo)
     addInput(m_portTypeCombo, "type", "required");
@@ -65,9 +72,12 @@ DFGEditPortDialog::DFGEditPortDialog(
   }
   addInput(m_visibilityCombo, "visibility", "metadata");
   addInput(m_persistValue, "persist value", "metadata");
-  addInput(m_hasRange, "use range", "metadata");
-  addInput(m_rangeMin, "range min", "metadata");
-  addInput(m_rangeMax, "range max", "metadata");
+  addInput(m_hasSoftRange, "soft range", "metadata");
+  addInput(m_softRangeMin, "soft min", "metadata");
+  addInput(m_softRangeMax, "soft max", "metadata");
+  addInput(m_hasHardRange, "hard range", "metadata");
+  addInput(m_hardRangeMin, "hard min", "metadata");
+  addInput(m_hardRangeMax, "hard max", "metadata");
   addInput(m_hasCombo, "use combo", "metadata");
   addInput(m_combo, "combo", "metadata");
 
@@ -75,7 +85,8 @@ DFGEditPortDialog::DFGEditPortDialog(
   if(setAlphaNum) alphaNumicStringOnly();
 
 
-  QObject::connect(m_hasRange, SIGNAL(stateChanged(int)), this, SLOT(onRangeToggled(int)));
+  QObject::connect(m_hasSoftRange, SIGNAL(stateChanged(int)), this, SLOT(onSoftRangeToggled(int)));
+  QObject::connect(m_hasHardRange, SIGNAL(stateChanged(int)), this, SLOT(onHardRangeToggled(int)));
   QObject::connect(m_hasCombo, SIGNAL(stateChanged(int)), this, SLOT(onComboToggled(int)));
 }
 
@@ -168,34 +179,64 @@ void DFGEditPortDialog::setPersistValue(bool value)
   m_persistValue->setCheckState(value ? Qt::Checked : Qt::Unchecked);
 }
 
-bool DFGEditPortDialog::hasRange() const
+bool DFGEditPortDialog::hasSoftRange() const
 {
-  return m_hasRange->checkState() == Qt::Checked;
+  return m_hasSoftRange->checkState() == Qt::Checked;
 }
 
-void DFGEditPortDialog::setHasRange(bool value)
+void DFGEditPortDialog::setHasSoftRange(bool value)
 {
-  m_hasRange->setCheckState(value ? Qt::Checked : Qt::Unchecked);
+  m_hasSoftRange->setCheckState(value ? Qt::Checked : Qt::Unchecked);
 }
 
-float DFGEditPortDialog::rangeMin() const
+float DFGEditPortDialog::softRangeMin() const
 {
-  return m_rangeMin->text().toFloat();
+  return m_softRangeMin->text().toFloat();
 }
 
-void DFGEditPortDialog::setRangeMin(float value)
+void DFGEditPortDialog::setSoftRangeMin(float value)
 {
-  m_rangeMin->setText(QString::number(value));
+  m_softRangeMin->setText(QString::number(value));
 }
 
-float DFGEditPortDialog::rangeMax() const
+float DFGEditPortDialog::softRangeMax() const
 {
-  return m_rangeMax->text().toFloat();
+  return m_softRangeMax->text().toFloat();
 }
 
-void DFGEditPortDialog::setRangeMax(float value)
+void DFGEditPortDialog::setSoftRangeMax(float value)
 {
-  m_rangeMax->setText(QString::number(value));
+  m_softRangeMax->setText(QString::number(value));
+}
+
+bool DFGEditPortDialog::hasHardRange() const
+{
+  return m_hasHardRange->checkState() == Qt::Checked;
+}
+
+void DFGEditPortDialog::setHasHardRange(bool value)
+{
+  m_hasHardRange->setCheckState(value ? Qt::Checked : Qt::Unchecked);
+}
+
+float DFGEditPortDialog::hardRangeMin() const
+{
+  return m_hardRangeMin->text().toFloat();
+}
+
+void DFGEditPortDialog::setHardRangeMin(float value)
+{
+  m_hardRangeMin->setText(QString::number(value));
+}
+
+float DFGEditPortDialog::hardRangeMax() const
+{
+  return m_hardRangeMax->text().toFloat();
+}
+
+void DFGEditPortDialog::setHardRangeMax(float value)
+{
+  m_hardRangeMax->setText(QString::number(value));
 }
 
 bool DFGEditPortDialog::hasCombo() const
@@ -256,10 +297,16 @@ void DFGEditPortDialog::setRegexFilter(QString regexFilter) {
   }
 }
 
-void DFGEditPortDialog::onRangeToggled(int state)
+void DFGEditPortDialog::onSoftRangeToggled(int state)
 {
-  m_rangeMin->setEnabled(state == Qt::Checked);
-  m_rangeMax->setEnabled(state == Qt::Checked);
+  m_softRangeMin->setEnabled(state == Qt::Checked);
+  m_softRangeMax->setEnabled(state == Qt::Checked);
+}
+
+void DFGEditPortDialog::onHardRangeToggled(int state)
+{
+  m_hardRangeMin->setEnabled(state == Qt::Checked);
+  m_hardRangeMax->setEnabled(state == Qt::Checked);
 }
 
 void DFGEditPortDialog::onComboToggled(int state)
