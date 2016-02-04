@@ -15,6 +15,7 @@
 #include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/UIRange.h>
 #include <FTL/FS.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -1067,47 +1068,23 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setPersistValue( uiPersistValue == "true" );
 
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
-      if(uiRange.size() > 0)
+      double softMinimum = 0.0;
+      double softMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiRange, softMinimum, softMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiRange.size();i++)
-        {
-          char c = uiRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
-
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasSoftRange(true);
-          dialog.setSoftRangeMin(minimum);
-          dialog.setSoftRangeMax(maximum);
-        }
+        dialog.setHasSoftRange(true);
+        dialog.setSoftRangeMin(softMinimum);
+        dialog.setSoftRangeMax(softMaximum);
       }
 
       FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
-      if(uiHardRange.size() > 0)
+      double hardMinimum = 0.0;
+      double hardMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiHardRange, hardMinimum, hardMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiHardRange.size();i++)
-        {
-          char c = uiHardRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
-
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasHardRange(true);
-          dialog.setHardRangeMin(minimum);
-          dialog.setHardRangeMax(maximum);
-        }
+        dialog.setHasHardRange(true);
+        dialog.setHardRangeMin(hardMinimum);
+        dialog.setHardRangeMax(hardMaximum);
       }
 
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
