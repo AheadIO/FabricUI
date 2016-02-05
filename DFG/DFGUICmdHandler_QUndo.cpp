@@ -1,99 +1,74 @@
 /*
- *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
  */
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmds.h>
-#include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
+#include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
 
-using namespace FabricCore;
-using namespace FabricUI;
-using namespace FabricUI::DFG;
-using namespace FabricUI::SceneHub;
+#include <FTL/OwnedPtr.h>
 
+FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-/// \internal
-/// Wrap a SHCmd into a Qt command
-class SHCmdHandler_QUndo::WrappedCmd : public QUndoCommand {
+class DFGUICmdHandler_QUndo::WrappedCommand : public QUndoCommand
+{
+public:
 
-  public:
-    WrappedCmd( SHCmd *shCmd ) : QUndoCommand(), 
-      m_shCmd( shCmd ),
-      m_didit( false ) 
-      {
-        m_dfgUICmd = 0;
-      };
+  WrappedCommand( DFGUICmd *dfgUICmd )
+    : QUndoCommand()
+    , m_dfgUICmd( dfgUICmd )
+    , m_didit( false )
+  {
+  }
 
-    WrappedCmd( FabricUI::DFG::DFGUICmd *dfgUICmd ) : QUndoCommand(), 
-      m_dfgUICmd( dfgUICmd ),
-      m_didit( false )
-      {
-        m_shCmd = 0;
-      };
+protected:
 
-
-  protected:
-    virtual void redo() 
+  virtual void redo()
+  {
+    try
     {
-      try 
+      if ( m_didit )
       {
-        if(!m_dfgUICmd && m_shCmd)
-        {
-          if(m_didit) 
-          {
-            m_shCmd->redo();
-          }
-          else 
-          {
-            m_didit = true;
-            m_shCmd->doit();
-          }
-          QUndoCommand::setText( m_shCmd->getDesc().c_str() );
-        }
-        else if(m_dfgUICmd && !m_shCmd) 
-        {
-          if ( m_didit )
-          {
-            m_dfgUICmd->redo();
-          }
-          else
-          {
-            m_didit = true;
-            m_dfgUICmd->doit();
-            QUndoCommand::setText( m_dfgUICmd->getDesc().c_str() );
-          }
-        }
+        m_dfgUICmd->redo();
       }
-      catch (FabricCore::Exception e) {
-        printf("Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );
+      else
+      {
+        m_didit = true;
+        m_dfgUICmd->doit();
+        QUndoCommand::setText( m_dfgUICmd->getDesc().c_str() );
       }
     }
-
-    virtual void undo() {
-      try 
-      {
-        assert( m_didit );
-        if(!m_dfgUICmd && m_shCmd)
-        {
-          m_shCmd->undo();
-        }
-        else if(m_dfgUICmd && !m_shCmd)
-        {
-          m_dfgUICmd->undo();
-        }
-      }
-      catch (FabricCore::Exception e) {
-        printf( "Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );
-      }
+    catch ( FabricCore::Exception e )
+    {
+      printf(
+        "Caught FabricCore::Exception: %s\n",
+        e.getDesc_cstr()
+        );
     }
+  }
 
-  private:
-    FTL::OwnedPtr<SHCmd> m_shCmd;
-    FTL::OwnedPtr<FabricUI::DFG::DFGUICmd> m_dfgUICmd;
-    bool m_didit;
+  virtual void undo()
+  {
+    try
+    {
+      assert( m_didit );
+      m_dfgUICmd->undo();
+    }
+    catch ( FabricCore::Exception e )
+    {
+      printf(
+        "Caught FabricCore::Exception: %s\n",
+        e.getDesc_cstr()
+        );
+    }
+  }
+
+private:
+
+  FTL::OwnedPtr<DFGUICmd> m_dfgUICmd;
+  bool m_didit;
 };
 
-// ***** DFG Commands *****
-std::string SHCmdHandler_QUndo::dfgDoInstPreset(
+std::string DFGUICmdHandler_QUndo::dfgDoInstPreset(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -109,11 +84,11 @@ std::string SHCmdHandler_QUndo::dfgDoInstPreset(
       presetPath,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddVar(
+std::string DFGUICmdHandler_QUndo::dfgDoAddVar(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -133,11 +108,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddVar(
       extension,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddGet(
+std::string DFGUICmdHandler_QUndo::dfgDoAddGet(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -155,11 +130,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddGet(
       varPath,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddSet(
+std::string DFGUICmdHandler_QUndo::dfgDoAddSet(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -177,11 +152,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddSet(
       varPath,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddGraph(
+std::string DFGUICmdHandler_QUndo::dfgDoAddGraph(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -197,11 +172,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddGraph(
       title,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddFunc(
+std::string DFGUICmdHandler_QUndo::dfgDoAddFunc(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -219,11 +194,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddFunc(
       initialCode,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNodeName();
 }
 
-void SHCmdHandler_QUndo::dfgDoRemoveNodes(
+void DFGUICmdHandler_QUndo::dfgDoRemoveNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -231,7 +206,7 @@ void SHCmdHandler_QUndo::dfgDoRemoveNodes(
   )
 {
   m_qUndoStack->push(
-    new WrappedCmd(
+    new WrappedCommand(
       new DFGUICmd_RemoveNodes(
         binding,
         execPath,
@@ -242,7 +217,7 @@ void SHCmdHandler_QUndo::dfgDoRemoveNodes(
     );
 }
 
-void SHCmdHandler_QUndo::dfgDoConnect(
+void DFGUICmdHandler_QUndo::dfgDoConnect(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -251,7 +226,7 @@ void SHCmdHandler_QUndo::dfgDoConnect(
   )
 {
   m_qUndoStack->push(
-    new WrappedCmd(
+    new WrappedCommand(
       new DFGUICmd_Connect(
         binding,
         execPath,
@@ -263,7 +238,7 @@ void SHCmdHandler_QUndo::dfgDoConnect(
     );
 }
 
-void SHCmdHandler_QUndo::dfgDoDisconnect(
+void DFGUICmdHandler_QUndo::dfgDoDisconnect(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -272,7 +247,7 @@ void SHCmdHandler_QUndo::dfgDoDisconnect(
   )
 {
   m_qUndoStack->push(
-    new WrappedCmd(
+    new WrappedCommand(
       new DFGUICmd_Disconnect(
         binding,
         execPath,
@@ -284,7 +259,7 @@ void SHCmdHandler_QUndo::dfgDoDisconnect(
     );
 }
 
-std::string SHCmdHandler_QUndo::dfgDoAddPort(
+std::string DFGUICmdHandler_QUndo::dfgDoAddPort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -308,11 +283,11 @@ std::string SHCmdHandler_QUndo::dfgDoAddPort(
       extDep,
       metaData
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualPortName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoEditPort(
+std::string DFGUICmdHandler_QUndo::dfgDoEditPort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -334,11 +309,11 @@ std::string SHCmdHandler_QUndo::dfgDoEditPort(
       extDep,
       uiMetadata
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewPortName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoCreatePreset(
+std::string DFGUICmdHandler_QUndo::dfgDoCreatePreset(
   FabricCore::DFGBinding const &binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -356,11 +331,11 @@ std::string SHCmdHandler_QUndo::dfgDoCreatePreset(
       presetDirPath,
       presetName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getPathname();
 }
 
-void SHCmdHandler_QUndo::dfgDoRemovePort(
+void DFGUICmdHandler_QUndo::dfgDoRemovePort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -374,10 +349,10 @@ void SHCmdHandler_QUndo::dfgDoRemovePort(
       exec,
       portName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoMoveNodes(
+void DFGUICmdHandler_QUndo::dfgDoMoveNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -393,10 +368,10 @@ void SHCmdHandler_QUndo::dfgDoMoveNodes(
       FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() ),
       newTopLeftPoss
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoResizeBackDrop(
+void DFGUICmdHandler_QUndo::dfgDoResizeBackDrop(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -414,10 +389,10 @@ void SHCmdHandler_QUndo::dfgDoResizeBackDrop(
       newTopLeftPos,
       newSize
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-std::string SHCmdHandler_QUndo::dfgDoImplodeNodes(
+std::string DFGUICmdHandler_QUndo::dfgDoImplodeNodes(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -433,11 +408,11 @@ std::string SHCmdHandler_QUndo::dfgDoImplodeNodes(
       FTL::ArrayRef<FTL::StrRef>( nodeNames.begin(), nodeNames.end() ),
       desiredImplodedNodeName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualImplodedNodeName();
 }
 
-std::vector<std::string> SHCmdHandler_QUndo::dfgDoExplodeNode(
+std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoExplodeNode(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -451,7 +426,7 @@ std::vector<std::string> SHCmdHandler_QUndo::dfgDoExplodeNode(
       exec,
       nodeName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 
   std::vector<std::string> explodedNodeNames;
   explodedNodeNames.insert(
@@ -462,7 +437,7 @@ std::vector<std::string> SHCmdHandler_QUndo::dfgDoExplodeNode(
   return explodedNodeNames;
 }
 
-void SHCmdHandler_QUndo::dfgDoAddBackDrop(
+void DFGUICmdHandler_QUndo::dfgDoAddBackDrop(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -478,10 +453,10 @@ void SHCmdHandler_QUndo::dfgDoAddBackDrop(
       title,
       pos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetTitle(
+void DFGUICmdHandler_QUndo::dfgDoSetTitle(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -495,10 +470,10 @@ void SHCmdHandler_QUndo::dfgDoSetTitle(
       exec,
       newTitle
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetNodeComment(
+void DFGUICmdHandler_QUndo::dfgDoSetNodeComment(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -514,10 +489,10 @@ void SHCmdHandler_QUndo::dfgDoSetNodeComment(
       nodeName,
       comment
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetCode(
+void DFGUICmdHandler_QUndo::dfgDoSetCode(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -531,10 +506,10 @@ void SHCmdHandler_QUndo::dfgDoSetCode(
       exec,
       code
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-std::string SHCmdHandler_QUndo::dfgDoRenamePort(
+std::string DFGUICmdHandler_QUndo::dfgDoRenamePort(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -550,11 +525,11 @@ std::string SHCmdHandler_QUndo::dfgDoRenamePort(
       oldName,
       desiredNewName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewPortName();
 }
 
-std::string SHCmdHandler_QUndo::dfgDoEditNode(
+std::string DFGUICmdHandler_QUndo::dfgDoEditNode(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -574,11 +549,11 @@ std::string SHCmdHandler_QUndo::dfgDoEditNode(
       nodeMetadata,
       execMetadata
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
   return cmd->getActualNewNodeName();
 }
 
-std::vector<std::string> SHCmdHandler_QUndo::dfgDoPaste(
+std::vector<std::string> DFGUICmdHandler_QUndo::dfgDoPaste(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -594,7 +569,7 @@ std::vector<std::string> SHCmdHandler_QUndo::dfgDoPaste(
       json,
       cursorPos
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 
   std::vector<std::string> pastedNodeNames;
   pastedNodeNames.insert(
@@ -605,7 +580,7 @@ std::vector<std::string> SHCmdHandler_QUndo::dfgDoPaste(
   return pastedNodeNames;
 }
 
-void SHCmdHandler_QUndo::dfgDoSetArgType(
+void DFGUICmdHandler_QUndo::dfgDoSetArgType(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef argName,
   FTL::CStrRef typeName
@@ -617,10 +592,10 @@ void SHCmdHandler_QUndo::dfgDoSetArgType(
       argName,
       typeName
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetArgValue(
+void DFGUICmdHandler_QUndo::dfgDoSetArgValue(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef argName,
   FabricCore::RTVal const &value
@@ -632,10 +607,10 @@ void SHCmdHandler_QUndo::dfgDoSetArgValue(
       argName,
       value
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetPortDefaultValue(
+void DFGUICmdHandler_QUndo::dfgDoSetPortDefaultValue(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -651,10 +626,10 @@ void SHCmdHandler_QUndo::dfgDoSetPortDefaultValue(
       portOrPinPath,
       value
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetRefVarPath(
+void DFGUICmdHandler_QUndo::dfgDoSetRefVarPath(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -670,10 +645,10 @@ void SHCmdHandler_QUndo::dfgDoSetRefVarPath(
       refName,
       varPath
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoReorderPorts(
+void DFGUICmdHandler_QUndo::dfgDoReorderPorts(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -687,10 +662,10 @@ void SHCmdHandler_QUndo::dfgDoReorderPorts(
       exec,
       indices
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSetExtDeps(
+void DFGUICmdHandler_QUndo::dfgDoSetExtDeps(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec,
@@ -704,10 +679,10 @@ void SHCmdHandler_QUndo::dfgDoSetExtDeps(
       exec,
       extDeps
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-void SHCmdHandler_QUndo::dfgDoSplitFromPreset(
+void DFGUICmdHandler_QUndo::dfgDoSplitFromPreset(
   FabricCore::DFGBinding const &binding,
   FTL::CStrRef execPath,
   FabricCore::DFGExec const &exec
@@ -719,21 +694,7 @@ void SHCmdHandler_QUndo::dfgDoSplitFromPreset(
       execPath,
       exec
       );
-  m_qUndoStack->push( new WrappedCmd( cmd ) );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
-
-// ***** SceneHub Commands *****
-/// Adds an object to the scene-graph
-/// \param command The command as string
-bool SHCmdHandler_QUndo::addCommand(SHCmd *cmd) {
-  if(cmd) {
-    // Clears the kl undo stack --> synchronize Qt and K stacks
-    SHCmd::GetCmdManager(cmd->getRefOnSCeneHub()).callMethod("", "clearRedoStack", 0, 0);
-    m_qUndoStack->push( new WrappedCmd(cmd) );
-    return true;
-  }
-  else return false;
-}
-
-
+FABRIC_UI_DFG_NAMESPACE_END

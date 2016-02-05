@@ -3,7 +3,7 @@
 #ifndef __UI_ValueEditor_ValueWidgetFactory__
 #define __UI_ValueEditor_ValueWidgetFactory__
 
-#include <FabricUI/Canvas/TreeView/TreeEditorFactory.h>
+#include <FabricUI/TreeView/TreeEditorFactory.h>
 
 namespace FabricUI
 {
