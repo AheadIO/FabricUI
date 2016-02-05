@@ -102,9 +102,9 @@ void IntSliderViewItem::onModelValueChanged( QVariant const &v )
 void IntSliderViewItem::onLineEditTextModified( QString text )
 {
   int value = std::max(
-    (int)m_hardMinimum,
+    m_hardMinimum,
     std::min(
-      (int)m_hardMaximum,
+      m_hardMaximum,
       text.toInt()
       )
     );
@@ -141,30 +141,36 @@ void IntSliderViewItem::onSliderReleased()
 
 void IntSliderViewItem::metadataChanged()
 {
-  m_softMinimum = (double)0.0;
-  m_softMaximum = (double)100.0;
-  m_hardMinimum = (double)INT_MIN;
-  m_hardMaximum = (double)INT_MAX;
-
-  m_slider->setRange( (int)m_softMinimum, (int)m_softMaximum );
+  m_slider->setRange( m_softMinimum, m_softMaximum );
 
   // metadata should be like this:
-  // uiRange: "(0 - 200)"
-  // uiHardRange: "(0 - 500)"
-  const char* softRangeCStr = m_metadata.getString( "uiRange" );
-  const char* hardRangeCStr = m_metadata.getString( "uiHardRange" );
-  if(FTL::StrRef(softRangeCStr).empty())
-    softRangeCStr = hardRangeCStr;
+  // uiRange: "(0, 200)"
+  // uiHardRange: "(0, 500)"
 
-  FabricUI::DecodeUIRange(hardRangeCStr, m_hardMinimum, m_hardMaximum);
-  if(FabricUI::DecodeUIRange(softRangeCStr, m_softMinimum, m_softMaximum))
+  m_hardMinimum = INT_MIN;
+  m_hardMaximum = INT_MAX;
+  FTL::CStrRef hardRangeCStr = m_metadata.getString( "uiHardRange" );
+  bool decodedHard =
+    FabricUI::DecodeUIRange( hardRangeCStr, m_hardMinimum, m_hardMaximum );
+
+  m_softMinimum = 0.0;
+  m_softMaximum = 100.0;
+  FTL::CStrRef softRangeCStr = m_metadata.getString( "uiRange" );
+  bool decodedSoft =
+    FabricUI::DecodeUIRange( softRangeCStr, m_softMinimum, m_softMaximum );
+
+  if ( decodedHard && !decodedSoft )
   {
-    if(m_softMinimum < m_hardMinimum)
-      m_softMinimum = m_hardMinimum;
-    if(m_softMaximum > m_hardMaximum)
-      m_softMaximum = m_hardMaximum;
-    m_slider->setRange( m_softMinimum, m_softMaximum );
+    m_softMinimum = m_hardMinimum;
+    m_softMaximum = m_hardMaximum;
   }
+  else
+  {
+    m_softMinimum = std::max( m_softMinimum, m_hardMinimum );
+    m_softMaximum = std::min( m_softMaximum, m_hardMaximum );
+  }
+
+  m_slider->setRange( m_softMinimum, m_softMaximum );
 }
 
 //////////////////////////////////////////////////////////////////////////
