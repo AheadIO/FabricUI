@@ -44,6 +44,8 @@ namespace FabricUI
       void setTime( float time );
       void toggleAlwaysRefresh();
       bool alwaysRefreshes() { return m_alwaysRefresh; }
+      void setOrthographic( bool orthographic );
+      bool isOrthographic() { return m_orthographic; }
 
       virtual FabricCore::RTVal getCamera();
       virtual void setBackgroundColor( QColor color ) {};
@@ -100,6 +102,7 @@ namespace FabricUI
         QPoint m_screenPos;
         int m_viewportIndex;
         bool m_alwaysRefresh;
+        bool m_orthographic;
 
         FabricCore::RTVal m_width;
         FabricCore::RTVal m_height;
