@@ -122,7 +122,6 @@ dirs = [
   'SceneHub',
   'SceneHub/Managers',
   'SceneHub/TreeView',
-  'SceneHub/ValueEditor',
   'SceneHub/Viewports',
   'SceneHub/Commands',
 

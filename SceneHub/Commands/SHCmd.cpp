@@ -12,7 +12,7 @@
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
-
+ 
 
 /// Encodes a rtVal into a Json, saves the rtVal
 /// \param client The core client
@@ -193,7 +193,7 @@ FabricCore::RTVal SHCmd::GetCmdManager(FabricCore::RTVal &shObject) {
     FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
     if( sceneGraph.isNullObject() )
       return FabricCore::RTVal();
-    return sceneGraph.callMethod("SGCmdManager", "getOrCreateHierarchyCmdManager", 0, 0);
+    return sceneGraph.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
   );
 }
 
