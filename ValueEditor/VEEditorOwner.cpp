@@ -9,10 +9,12 @@
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/ModelItems/BindingModelItem.h>
+#include <FabricUI/ModelItems/GetModelItem.h>
 #include <FabricUI/ModelItems/InstModelItem.h>
+#include <FabricUI/ModelItems/SetModelItem.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
-#include <FabricUI/ValueEditor/VETreeWidget.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
+#include <FabricUI/ValueEditor/VETreeWidget.h>
 
 using namespace FabricUI;
 using namespace ValueEditor;
@@ -222,6 +224,12 @@ void VEEditorOwner::setModelRoot(
       );
     connect(
       m_notifier.data(),
+      SIGNAL( refVarPathChanged( FTL::CStrRef, FTL::CStrRef ) ),
+      this,
+      SLOT( onExecRefVarPathChanged( FTL::CStrRef, FTL::CStrRef ) )
+      );
+    connect(
+      m_notifier.data(),
       SIGNAL(nodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef)),
       this,
       SLOT(onExecNodePortDefaultValuesChanged(FTL::CStrRef, FTL::CStrRef))
@@ -331,7 +339,6 @@ void VEEditorOwner::onNodeInspectRequested(
   switch (type)
   {
     case FabricCore::DFGNodeType_Inst:
-    {
       nodeModelItem =
         new FabricUI::ModelItems::InstModelItem(
           dfgUICmdHandler,
@@ -341,9 +348,8 @@ void VEEditorOwner::onNodeInspectRequested(
           nodeName
           );
       break;
-    }
+    
     case FabricCore::DFGNodeType_Var:
-    {
       nodeModelItem =
         new FabricUI::ModelItems::VarModelItem(
           dfgUICmdHandler,
@@ -353,17 +359,35 @@ void VEEditorOwner::onNodeInspectRequested(
           nodeName
           );
       break;
-    }
-    case FabricCore::DFGNodeType_User:
+    
     case FabricCore::DFGNodeType_Get:
-    case FabricCore::DFGNodeType_Set:
-    {
-      //const char* path = exec.getRefVarPath( nodeName.c_str() );
-      //m_modelRoot = new FabricUI::ModelItems::VarModelItem( exec, path );
+      nodeModelItem =
+        new FabricUI::ModelItems::GetModelItem(
+          dfgUICmdHandler,
+          binding,
+          execPath,
+          exec,
+          nodeName
+          );
       break;
-    }
+    
+    case FabricCore::DFGNodeType_Set:
+      nodeModelItem =
+        new FabricUI::ModelItems::SetModelItem(
+          dfgUICmdHandler,
+          binding,
+          execPath,
+          exec,
+          nodeName
+          );
+      break;
+    
+    case FabricCore::DFGNodeType_User:
+      break;
+    
     default:
       assert( 0 && "Implement Me" );
+      break;
   }
 
   setModelRoot( exec, nodeName, nodeModelItem );
@@ -668,6 +692,34 @@ void VEEditorOwner::onExecPortsConnectedOrDisconnected(
       if ( BaseModelItem* destChild =
         m_modelRoot->getChild( portName, false ) )
         emit modelItemTypeChange( destChild, "" );
+    }
+  }
+}
+
+void VEEditorOwner::onExecRefVarPathChanged(
+  FTL::CStrRef refName,
+  FTL::CStrRef newVarPath
+  )
+{
+  assert( m_modelRoot );
+
+  if ( m_modelRoot->isNode() )
+  {
+    NodeModelItem *nodeModelItem =
+      static_cast<NodeModelItem *>( m_modelRoot );
+    if ( nodeModelItem->isRef() )
+    {
+      RefModelItem *refModelItem =
+        static_cast<RefModelItem *>( nodeModelItem );
+      if ( refModelItem->getNodeName() == refName )
+      {
+        if ( BaseModelItem *changingChild =
+          refModelItem->getChild( FTL_STR("varPath"), false ) )
+        {
+          QVariant val = changingChild->getValue();
+          changingChild->emitModelValueChanged( val );
+        }
+      }
     }
   }
 }
