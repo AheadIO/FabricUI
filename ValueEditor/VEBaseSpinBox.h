@@ -21,7 +21,8 @@ class VEBaseSpinBox : public QT_SPINBOX
 public:
 
   VEBaseSpinBox()
-    : m_startValue( 0 )
+    : m_last      ( 0 )
+    , m_startValue( 0 )
     , m_dragging( false )
     , m_stepping( false )
     , m_steppingTimerConnected( false )
@@ -37,6 +38,7 @@ public:
   {
     m_trackStartPos = event->pos();
     m_startValue = QT_SPINBOX::value();
+    m_last       = QT_SPINBOX::value();
 
     static const QCursor initialOverrideCursor( Qt::SizeVerCursor );
     QApplication::setOverrideCursor( initialOverrideCursor );
@@ -114,6 +116,13 @@ public:
     event->accept();
   }
 
+  virtual void focusInEvent( QFocusEvent *event )
+  {
+    if ( event->reason() != Qt::PopupFocusReason )
+      m_last = QT_SPINBOX::value();
+    QT_SPINBOX::focusInEvent( event );
+  }
+
   virtual void keyPressEvent( QKeyEvent *event ) /*override*/
   {
     if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
@@ -123,6 +132,16 @@ public:
     else if ( event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter )
     {
       // [FE-6025]
+      endStepping();
+      QT_SPINBOX::lineEdit()->deselect();
+      QT_SPINBOX::clearFocus();
+      event->accept();
+      return;
+    }
+    else if ( event->key() == Qt::Key_Escape )
+    {
+      // [FE-6007]
+      QT_SPINBOX::setValue(m_last);
       endStepping();
       QT_SPINBOX::lineEdit()->deselect();
       QT_SPINBOX::clearFocus();
@@ -202,6 +221,7 @@ protected:
   virtual void emitInteractionEnd( bool commit ) = 0;
 
   QPoint m_trackStartPos;
+  value_type m_last;
   value_type m_startValue;
   bool m_dragging;
   bool m_stepping;
