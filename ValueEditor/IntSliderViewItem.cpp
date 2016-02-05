@@ -153,8 +153,8 @@ void IntSliderViewItem::metadataChanged()
   bool decodedHard =
     FabricUI::DecodeUIRange( hardRangeCStr, m_hardMinimum, m_hardMaximum );
 
-  m_softMinimum = 0.0;
-  m_softMaximum = 100.0;
+  m_softMinimum = 0;
+  m_softMaximum = 100;
   FTL::CStrRef softRangeCStr = m_metadata.getString( "uiRange" );
   bool decodedSoft =
     FabricUI::DecodeUIRange( softRangeCStr, m_softMinimum, m_softMaximum );
