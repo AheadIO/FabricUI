@@ -26,7 +26,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QColorDialog>
 #include <FabricUI/SceneHub/Viewports/RTRGLViewportWidget.h>
-#include <FabricUI/Util/QtToKLEvent.h>
+#include <FabricUI/Viewports/QtToKLEvent.h>
 #include <FabricUI/Util/macros.h>
 
 using namespace FabricUI::Viewports;

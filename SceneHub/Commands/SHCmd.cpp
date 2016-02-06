@@ -190,10 +190,7 @@ bool SHCmd::ExtractName(const std::string &command, std::string &name) {
 /// \param shObject A reference to SceneHub application
 FabricCore::RTVal SHCmd::GetCmdManager(FabricCore::RTVal &shObject) {
   FABRIC_TRY_RETURN("SHCmd::GetCmdManager", false,
-    FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
-    if( sceneGraph.isNullObject() )
-      return FabricCore::RTVal();
-    return sceneGraph.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
+    return shObject.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
   );
 }
 

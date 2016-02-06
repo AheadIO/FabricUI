@@ -106,7 +106,6 @@ env.MergeFlags(qtFlags)
 dirs = [
   'Util',
   'Style',
-  'TimeLine',
   'Viewports',
   'KLEditor',
 
@@ -117,8 +116,7 @@ dirs = [
   'DFG',
   'DFG/DFGUICmd',
   'DFG/Dialogs',
-  #'Viewports',
-
+ 
   'SceneHub',
   'SceneHub/Managers',
   'SceneHub/TreeView',

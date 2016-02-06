@@ -5,7 +5,7 @@
 #include <QtGui/QWheelEvent>
 
 #include "ManipulationTool.h"
-#include <FabricUI/Util/QtToKLEvent.h>
+#include <FabricUI/Viewports/QtToKLEvent.h>
 
 #include <map>
 #include <iostream>

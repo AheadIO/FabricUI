@@ -5,7 +5,7 @@
 #ifndef __FABRICUI_VIEWPORT_H__
 #define __FABRICUI_VIEWPORT_H__
 
-#include <FabricUI/Util/QtToKLEvent.h>
+#include <FabricUI/Viewports/QtToKLEvent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
