@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  
 #include <assert.h>
 #include <FabricCore.h>
@@ -15,6 +15,7 @@
 #include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/UIRange.h>
 #include <FTL/FS.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -354,6 +355,8 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
+  if (!graphWidget->getDFGController()->validPresetSplit())
+    return NULL;
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
@@ -393,8 +396,12 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
-  result->addAction(DFG_CREATE_PORT);
-  result->addSeparator();
+
+  if (graphWidget->getDFGController()->validPresetSplit())
+  {
+    result->addAction(DFG_CREATE_PORT);
+    result->addSeparator();
+  }
   result->addAction(DFG_SCROLL_UP);
   result->addAction(DFG_SCROLL_DOWN);
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
@@ -524,8 +531,6 @@ dfgEntry {\n\
       return;
 
     std::string name = dialog.name().toUtf8().constData();
-    if ( name.empty() )
-      return;
     std::string dataType = dialog.dataType().toUtf8().constData();
     std::string extension = dialog.extension().toUtf8().constData();
 
@@ -1031,25 +1036,23 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setPersistValue( uiPersistValue == "true" );
 
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
-      if(uiRange.size() > 0)
+      double softMinimum = 0.0;
+      double softMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiRange, softMinimum, softMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiRange.size();i++)
-        {
-          char c = uiRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
+        dialog.setHasSoftRange(true);
+        dialog.setSoftRangeMin(softMinimum);
+        dialog.setSoftRangeMax(softMaximum);
+      }
 
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasRange(true);
-          dialog.setRangeMin(minimum);
-          dialog.setRangeMax(maximum);
-        }
+      FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
+      double hardMinimum = 0.0;
+      double hardMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiHardRange, hardMinimum, hardMaximum))
+      {
+        dialog.setHasHardRange(true);
+        dialog.setHardRangeMin(hardMinimum);
+        dialog.setHardRangeMax(hardMaximum);
       }
 
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
@@ -1090,12 +1093,19 @@ void DFGWidget::onExecPortAction(QAction * action)
         DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
-        if(dialog.hasRange())
+        if(dialog.hasSoftRange())
         {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
         } else
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
+        if(dialog.hasHardRange())
+        {
+          QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );//"" will remove the metadata
 
         if(dialog.hasCombo())
         {
@@ -1333,11 +1343,20 @@ void DFGWidget::onSidePanelAction(QAction * action)
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
 
-      if(dialog.hasRange())
+      if(dialog.hasSoftRange())
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
         DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
-      }
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );
+
+      if(dialog.hasHardRange())
+      {
+        QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );
+
       if(dialog.hasCombo())
       {
         QStringList combo = dialog.comboValues();
@@ -1408,9 +1427,12 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   }
   else if(hotkey == DFGHotkeys::TAB_SEARCH)
   {
-    QPoint pos = getGraphViewWidget()->lastEventPos();
-    pos = getGraphViewWidget()->mapToGlobal(pos);
-    getTabSearchWidget()->showForSearch(pos);
+    if (getUIController()->validPresetSplit())
+    {
+      QPoint pos = getGraphViewWidget()->lastEventPos();
+      pos = getGraphViewWidget()->mapToGlobal(pos);
+      getTabSearchWidget()->showForSearch(pos);
+    }
   }
   else if(hotkey == DFGHotkeys::SELECT_ALL)
   {

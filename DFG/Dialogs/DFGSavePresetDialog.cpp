@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QLayout>
 #include <QtGui/QMessageBox>
@@ -21,7 +21,7 @@ DFGSavePresetDialog::DFGSavePresetDialog(
   , m_dfgController( dfgController )
 {
   setWindowTitle("Create Preset");
-  m_presetTree = new PresetTreeWidget(dfgController, dfgConfig, true, false);
+  m_presetTree = new PresetTreeWidget(dfgController, dfgConfig, true, false, true, true, true, false);
 
   addInput(m_presetTree, "location");
   m_nameEdit = new QLineEdit(name, this);

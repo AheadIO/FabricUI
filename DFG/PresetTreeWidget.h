@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_PresetTreeWidget__
 #define __UI_DFG_PresetTreeWidget__
@@ -27,9 +27,12 @@ namespace FabricUI
       PresetTreeWidget(
         DFGController *dfgController,
         const DFGConfig & config, 
-        bool showsPresets = true,
-        bool showSearch = true,
-        bool setupContextMenu = false
+        bool showsPresets,
+        bool showSearch,
+        bool hideFabricDir,
+        bool hideVariablesDir,
+        bool hideWriteProtectedDirs,
+        bool setupContextMenu
         );
       virtual ~PresetTreeWidget();
 

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_Node__
 #define __UI_GraphView_Node__
@@ -122,6 +122,7 @@ namespace FabricUI
       void setTopLeftGraphPos(QPointF pos, bool quiet = false);
       virtual Pin * addPin(Pin * pin, bool quiet = false);
       virtual bool removePin(Pin * pin, bool quiet = false);
+      Pin *renamePin( FTL::StrRef oldName, FTL::StrRef newName );
       virtual void reorderPins(QStringList names);
 
       virtual std::vector<Node*> upStreamNodes(bool sortForPins = false, std::vector<Node*> rootNodes = std::vector<Node*>());

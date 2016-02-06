@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_Pin__
 #define __UI_GraphView_Pin__
@@ -43,6 +43,7 @@ namespace FabricUI
 
       FTL::CStrRef name() const
         { return m_name; }
+      void setName( FTL::StrRef newName );
 
       virtual std::string path() const;
 

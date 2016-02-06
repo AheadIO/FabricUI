@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include "VariablePathValueItem.h"
 
@@ -16,7 +16,7 @@ VariablePathValueItem::VariablePathValueItem(
   FTL::StrRef label,
   bool enabled
   )
-  : ValueEditor::ValueItem(
+  : ValueEditor_Legacy::ValueItem(
     name,
     factory,
     client,

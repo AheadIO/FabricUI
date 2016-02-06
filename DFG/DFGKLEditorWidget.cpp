@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -87,14 +87,14 @@ DFGKLEditorWidget::DFGKLEditorWidget(
 
   m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
-  m_diagsView = new QListView;
-  m_diagsView->setModel( &m_diagsModel );
+  m_diagsText = new QPlainTextEdit(this);
+  m_diagsText->setReadOnly(true);
 
   splitter->addWidget(m_ports);
   splitter->setStretchFactor(0, 1);
   splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(1, 7);
-  splitter->addWidget(m_diagsView);
+  splitter->addWidget(m_diagsText);
   splitter->setStretchFactor(0, 1);
 
   layout->addWidget(buttonsWidget);
@@ -309,7 +309,7 @@ void DFGKLEditorWidget::save()
 
 void DFGKLEditorWidget::updateDiags( bool saving )
 {
-  QStringList stringList;
+  QString stringList;
 
   if ( FabricCore::DFGExec exec = m_controller->getExec() )
   {
@@ -326,7 +326,8 @@ void DFGKLEditorWidget::updateDiags( bool saving )
       {
         FTL::JSONString *errorJSONString =
           errorsJSONArray->get( i )->cast<FTL::JSONString>();
-        stringList.append( errorJSONString->getValue().c_str() );
+        stringList.append( errorJSONString->getValue().c_str());
+        stringList.append("\n");
       }
     }
     catch ( FTL::JSONException e )
@@ -338,8 +339,8 @@ void DFGKLEditorWidget::updateDiags( bool saving )
     }
   }
 
-  m_diagsModel.setStringList( stringList );
-  m_diagsView->setVisible( stringList.size() > 0 );
+  m_diagsText->setPlainText(stringList);
+  m_diagsText->setVisible( stringList.size() > 0 );
 
   if ( saving && stringList.size() == 0 )
     m_controller->log("Save successful.");

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <iostream>
 #include <QtCore/QDebug>
@@ -51,7 +51,6 @@ DFGController::DFGController(
 {
   m_router = NULL;
   m_logFunc = NULL;
-  m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
 
   QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
@@ -82,7 +81,64 @@ void DFGController::setBindingExec(
   FabricCore::DFGExec &exec
   )
 {
+  if ( m_binding.isValid() )
+    m_bindingNotifier.clear();
+
   m_binding = binding;
+
+  if ( m_binding.isValid() )
+  {
+    m_bindingNotifier = DFGBindingNotifier::Create( m_binding );
+
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(dirty()),
+      this,
+      SLOT(onBindingDirty())
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argInserted(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgInserted(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argRemoved(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgRemoved(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argsReordered(FTL::ArrayRef<unsigned>)),
+      this,
+      SLOT(onBindingArgsReordered(FTL::ArrayRef<unsigned>))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argValueChanged(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgValueChanged(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varRemoved(FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarRemoved(FTL::CStrRef, FTL::CStrRef))
+      );
+  }
 
   setExec( execPath, exec );
 
@@ -116,8 +172,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
 {
   if ( m_router )
   {
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback( NULL, NULL );
     QObject::disconnect(
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
@@ -132,11 +186,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
       );
-
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback(
-        &BindingNotificationCallback, this
-        );
   }
 }
 
@@ -1070,7 +1119,7 @@ void DFGController::execute()
   }
 }
 
-void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1232,7 +1281,7 @@ void DFGController::cmdReorderPorts(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoReorderPorts(
     binding,
@@ -1270,11 +1319,11 @@ void DFGController::cmdSplitFromPreset()
     );
 }
 
-void DFGController::onValueItemInteractionEnter( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionEnter( ValueEditor_Legacy::ValueItem *valueItem )
 {
 }
 
-void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1340,7 +1389,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
   }
 }
 
-void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *valueItem )
 {
   UpdateSignalBlocker blocker( this );
 
@@ -1424,53 +1473,6 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
   }
 }
 
-bool DFGController::bindUnboundRTVals()
-{
-  return bindUnboundRTVals(m_client, m_binding);
-}
-
-bool DFGController::bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding)
-{
-  bool argsHaveChanged = false;
-  try
-  {
-    FabricCore::DFGExec rootExec = binding.getExec();
-    unsigned argCount = rootExec.getExecPortCount();
-    for ( unsigned i = 0; i < argCount; ++i )
-    {
-      FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
-      if ( dataTypeToCheck.empty() )
-        continue;
-
-      // if there is already a bound value, make sure it has the right type
-      FabricCore::RTVal value;
-      try
-      {
-        value = binding.getArgValue( i );
-      }
-      catch ( FabricCore::Exception e )
-      {
-        continue;
-      }
-      if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
-        continue;
-
-      binding.setArgValue(
-        i,
-        DFGCreateDefaultValue( client.getContext(), dataTypeToCheck ),
-        false
-        );
-
-      argsHaveChanged = true;
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    // logError( e.getDesc_cstr() );
-  }
-  return argsHaveChanged;
-}
-
 bool DFGController::canConnectTo(
   char const *pathA,
   char const *pathB,
@@ -1518,54 +1520,68 @@ void DFGController::onVariablesChanged()
   updatePresetPathDB();
 }
 
-void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
+void DFGController::onBindingDirty()
 {
-  // printf("bindingNotif = %s\n", jsonStr.c_str());
+  emitDirty();
+}
 
-  try
-  {
-    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
-    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
-      );
+void DFGController::onBindingArgInserted(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef typeName
+  )
+{
+  emitArgsChanged();
+}
 
-    FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
-    if ( descStr == FTL_STR("dirty") )
-    {
-      emitDirty();
-    }
-    else if ( descStr == FTL_STR("argTypeChanged")
-      || descStr == FTL_STR("argInserted")
-      || descStr == FTL_STR("argRemoved")
-      || descStr == FTL_STR("argsReordered") )
-    {
-      bindUnboundRTVals();
-      emitArgsChanged();
-    }
-    else if ( descStr == FTL_STR("argChanged") )
-    {
-      emitArgValuesChanged();
-    }
-    else if ( descStr == FTL_STR("varInserted")
-      || descStr == FTL_STR("varRemoved") )
-    {
-      emitVarsChanged();
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught Core exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-  catch ( FTL::JSONException e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught FTL::JSONException: %s\n",
-      e.getDescCStr()
-      );
-  }
+void DFGController::onBindingArgTypeChanged(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef newTypeName
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgRemoved(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgsReordered(
+  FTL::ArrayRef<unsigned> newOrder
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgValueChanged(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgValuesChanged();
+}
+
+void DFGController::onBindingVarInserted(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath,
+  FTL::CStrRef typeName,
+  FTL::CStrRef extDep
+  )
+{
+  emitVarsChanged();
+}
+
+void DFGController::onBindingVarRemoved(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath
+  )
+{
+  emitVarsChanged();
 }
 
 QStringList DFGController::getPresetPathsFromSearch(char const * search, bool includePresets, bool includeNameSpaces)
@@ -1901,7 +1917,9 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
-  if(!validPresetSplit())
+  if(  !validPresetSplit()
+     || desiredNodeName.empty()
+     || dataType.empty())
     return "";
 
   UpdateSignalBlocker blocker( this );
@@ -2013,7 +2031,7 @@ std::string DFGController::cmdEditPort(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoEditPort(
     getBinding(),
@@ -2034,7 +2052,7 @@ void DFGController::cmdRemovePort(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoRemovePort(
     getBinding(),

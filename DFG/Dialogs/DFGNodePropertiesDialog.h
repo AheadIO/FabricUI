@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGNodePropertiesDialog__
 #define __UI_DFG_DFGNodePropertiesDialog__
@@ -12,7 +12,7 @@
 #include "DFGBaseDialog.h"
 #include "DFGRegisteredTypeLineEdit.h"
 #include "DFGExtensionLineEdit.h"
-#include <FabricUI/ValueEditor/ColorValueWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ColorValueWidget.h>
 
 namespace FabricUI
 {

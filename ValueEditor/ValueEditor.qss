@@ -1,0 +1,51 @@
+/*
+ *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
+ */
+
+QLineEdit, QTextEdit, QDoubleSpinBox, QSpinBox, QComboBox {
+    border: 0px;
+    border-radius: 4px;
+    padding: 3px;
+
+    color: #e1ffff;
+    background-color: #333;
+}
+
+QLineEdit:focus, QDoubleSpinBox:focus, QSpinBox:focus, QTextEdit:focus {
+    background-color: #2F2F2F;    
+}
+
+QTreeView#ValueEditor::item {
+    padding: 1px;
+    height: 20px;
+}
+
+QWidget#BooleanItem {
+    padding-left: 11px;
+}
+
+QWidget#ColorItem > QPushButton {
+    width: 20px;
+    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    border-style: outset;
+    border-radius: 3px;
+}
+
+QWidget#FilePathItem > QPushButton {
+    max-width: 20px;
+}
+
+QWidget#FilePathItem > QLineEdit {
+    margin: 0px;
+}
+
+QWidget#StringItem > QPushButton {
+    max-width: 20px;
+    max-height: 20px;
+    border-image: url(Resources/Icons/mag_glass.png);
+    border-style: outset;
+    border-radius: 3px;
+    background-color: #2A2A2A;
+}

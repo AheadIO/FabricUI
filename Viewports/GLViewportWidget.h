@@ -35,15 +35,14 @@ namespace FabricUI
       virtual ManipulationTool * getManipTool() { return m_manipTool; }
       virtual FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
       virtual FabricCore::RTVal getCamera() { return m_camera; }
-      virtual bool isUsingStage();
-      virtual bool isStageVisible();
+     
 
+      bool isGridVisible();
 
     public slots:
       virtual void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
-      void setUsingStage( bool usingStage, bool update = true );
-      void setStageVisible( bool stageVisible, bool update = true );
+      void setGridVisible( bool gridVisible, bool update = true );
       void resetCamera();
 
 
@@ -72,8 +71,7 @@ namespace FabricUI
       int m_width;
       int m_height;
       bool m_resizedOnce;
-      bool m_stageVisible;
-      bool m_usingStage;
+      bool m_gridVisible;
       FabricCore::RTVal m_drawing;
       FabricCore::RTVal m_drawContext;
       FabricCore::RTVal m_camera;

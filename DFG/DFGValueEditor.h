@@ -5,12 +5,11 @@
 #ifndef __UI_DFG_DFGValueEditor__
 #define __UI_DFG_DFGValueEditor__
 
-#include <iostream>
+#include <FabricUI/ValueEditor_Legacy/ValueEditorWidget.h>
 #include "DFGConfig.h"
 #include "DFGController.h"
 #include "VariablePathValueItem.h"
 #include "VariablePathValueWidget.h"
-#include <FabricUI/ValueEditor/ValueEditorWidget.h>
 
 namespace FabricUI
 {
@@ -18,7 +17,7 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGValueEditor : public FabricUI::ValueEditor::ValueEditorWidget
+    class DFGValueEditor : public FabricUI::ValueEditor_Legacy::ValueEditorWidget
     {
       Q_OBJECT
  

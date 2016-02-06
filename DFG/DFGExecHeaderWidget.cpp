@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
@@ -178,6 +178,26 @@ void DFGExecHeaderWidget::refreshTitle( FTL::CStrRef title )
 void DFGExecHeaderWidget::refreshExtDeps( FTL::CStrRef extDeps )
 {
   refresh();
+}
+
+bool DFGExecHeaderWidget::reqExtLineEditWidgetHasFocus() const
+{
+  return (m_reqExtLineEdit && QApplication::focusWidget() == m_reqExtLineEdit);
+}
+
+bool DFGExecHeaderWidget::reqExtLineEditWidgetClearFocus()
+{
+  if (!m_reqExtLineEdit)
+    return false;
+
+  // cancel any text changes.
+  FabricCore::String currentExtDepDesc = getExec().getExtDeps();
+  m_reqExtLineEdit->setText(currentExtDepDesc.getCStr());
+
+  // remove keyboard focus.
+  m_reqExtLineEdit->clearFocus();
+
+  return true;
 }
 
 void DFGExecHeaderWidget::reqExtEditingFinished()

@@ -1,4 +1,4 @@
-/*
+/* 
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
@@ -10,8 +10,13 @@ using namespace FabricServices;
 using namespace FabricUI;
 using namespace FabricUI::DFG;
 
-DFGValueEditor::DFGValueEditor(DFGController * controller, const DFGConfig & config)
-  : ValueEditor::ValueEditorWidget( controller->getClient() )
+DFGValueEditor::DFGValueEditor(
+  DFGController * controller,
+  const DFGConfig & config
+  )
+  : ValueEditor_Legacy::ValueEditorWidget(
+    controller->getClient()
+    )
   , m_config( config )
   , m_controller( controller )
 {
@@ -49,7 +54,7 @@ DFGValueEditor::DFGValueEditor(DFGController * controller, const DFGConfig & con
 }
 
 void DFGValueEditor::clear() {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   m_binding.invalidate();
   m_execPath.clear();
@@ -80,7 +85,7 @@ void DFGValueEditor::setNode(
 }
 
 void DFGValueEditor::onArgsChanged() {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   try
   {

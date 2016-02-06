@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include "DFGGraphViewWidget.h"
 #include "DFGController.h"
@@ -45,6 +45,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
   try
   {
     FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
+    std::vector <std::string> droppedNodes;
     if(jsonVar.isArray())
     {
       for(uint32_t i=0;i<jsonVar.getArraySize();i++)
@@ -55,18 +56,21 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
           const FabricCore::Variant * typeVar = dictVar->getDictValue("type");
           if(typeVar->isString())
           {
+            std::string node = "";
+
             if(std::string(typeVar->getStringData()) == "DFGPreset")
             {
               const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
               if(pathVar->isString())
               {
-                controller->cmdAddInstFromPreset(
-                  pathVar->getStringData(),
-                  pos
-                  );
+                node = controller->cmdAddInstFromPreset(
+                        pathVar->getStringData(),
+                        pos
+                        );
                 pos += QPointF(30, 30);
               }
             }
+
             else if(std::string(typeVar->getStringData()) == "DFGVariable")
             {
               DFGController* controller = (DFGController*)graph()->controller();
@@ -103,22 +107,34 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
                 event->mouseButtons().testFlag(Qt::RightButton))
               {
-                controller->cmdAddSet(
-                  "",
-                  path.c_str(),
-                  pos
-                  );
+                node = controller->cmdAddSet(
+                        "",
+                        path.c_str(),
+                        pos
+                        );
               }
               else
               {
-                controller->cmdAddGet(
-                  "",
-                  path.c_str(),
-                  pos
-                  );
+                node = controller->cmdAddGet(
+                        "",
+                        path.c_str(),
+                        pos
+                        );
               }
             }
+
+            if (!node.empty())
+              droppedNodes.push_back(node);
           }
+        }
+      }
+      if (droppedNodes.size())
+      {
+        graph()->clearSelection();
+        for (unsigned i=0;i<droppedNodes.size();i++)
+        {
+          if (GraphView::Node *uiNode = graph()->node(droppedNodes[i]))
+            uiNode->setSelected(true);
         }
       }
     }

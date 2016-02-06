@@ -1,5 +1,5 @@
 #
-# Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+# Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 #
 
 import os, subprocess
@@ -110,6 +110,7 @@ dirs = [
   'KLEditor',
 
   'TreeView',
+  'ValueEditor_Legacy',
   'ValueEditor',
   'GraphView',
   'GraphView/Commands',
@@ -124,31 +125,62 @@ dirs = [
   'SceneHub/Commands',
 
   'Licensing',
+  'ModelItems'
 ]
 
 includeDir = stageDir.Dir('include').Dir('FabricServices')
 
 installedHeaders = []
 sources = []
+strsources = []
+strheaders = []
 for d in dirs:
   headers = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.h')))
-  sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
-  if buildOS == 'Darwin':
-    sources += Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.mm')))
+  dirsrc = Flatten(env.Glob(os.path.join(env.Dir('.').abspath, d, '*.cpp')))
+  for h in headers:
+    strheaders.append(str(h))
+  for c in dirsrc:
+    strsources.append(str(c))
+  sources += dirsrc
   sources += env.GlobQObjectSources(os.path.join(env.Dir('.').abspath, d, '*.h'))
   if uiLibPrefix == 'ui':
     installedHeaders += env.Install(stageDir.Dir('include').Dir('FabricUI').Dir(d), headers)
 
 uiLib = env.StaticLibrary('FabricUI', sources)
+
 uiFiles = installedHeaders
 if uiLibPrefix == 'ui':
-  uiFiles += env.Install(stageDir.Dir('lib'), uiLib)
+  uiLib = env.Install(stageDir.Dir('lib'), uiLib)
+  uiFiles.append(uiLib)
   icons = env.Install(
-    stageDir.srcnode().Dir('Resources').Dir('Icons'), 
-    Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png'))
-  )
+    stageDir.srcnode().Dir('Resources').Dir('Icons'),
+    [
+      Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')),
+      # Glob(os.path.join(env.Dir('ValueEditor').Dir('images').srcnode().abspath, '*.png')),
+      ]
+    )
   env.Depends(uiLib, icons)
+  qss = env.Install(
+    stageDir.srcnode().Dir('Resources').Dir('QSS'),
+    [
+      Glob(os.path.join(env.Dir('ValueEditor').srcnode().abspath, '*.qss')),
+      ]
+    )
+  env.Depends(uiLib, qss)
 
+# if buildOS == 'Windows':
+#   projName = 'FabricUI.vcxproj'# + env['MSVSPROJECTSUFFIX']
+#   projNode = Dir('#').File(projName)
+#   if not projNode.exists():
+#     print("---- Building " + projName + " VS Proj for FabricUI ----")
+#     projFile = env.MSVSProject(target = projName,
+#                   srcs = strsources,
+#                   incs = strheaders,
+#                   buildtarget = uiLib,
+#                   auto_build_solution=0,
+#                   variant = 'Debug|x64')
+#     env.Depends(uiLib, projName)
+      
 locals()[uiLibPrefix + 'Lib'] = uiLib
 locals()[uiLibPrefix + 'IncludeDir'] = env.Dir('#').Dir('Native').srcnode()
 locals()[uiLibPrefix + 'Flags'] = {
@@ -197,7 +229,7 @@ if uiLibPrefix == 'ui' and buildOS == 'Linux':
       pysideEnv.Dir('Licensing').srcnode(),
       pysideEnv.Dir('Style').srcnode(),
       pysideEnv.Dir('ValueEditor').srcnode(),
-      pysideEnv.Dir('Viewports').srcnode(),
+      pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
       pysideEnv.Dir('Viewports').srcnode(),
       fabricDir.Dir('include'),
       fabricDir.Dir('include').Dir('FabricServices').Dir('ASTWrapper'),

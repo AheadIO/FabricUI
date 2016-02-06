@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/DFG/DFGTabSearchWidget.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -366,8 +366,6 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
       return;
 
     QString name = dialog.name();
-    if(name.length() == 0)
-      return;
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 

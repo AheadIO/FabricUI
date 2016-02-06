@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd.h>
@@ -20,7 +20,7 @@ void DFGUICmd::undo()
 {
   assert( m_state == State_Done || m_state == State_Redone );
   m_state = State_Undone;
-
+  
   for ( unsigned i = 0; i < m_coreUndoCount; ++i )
     m_host.maybeUndo();
 }

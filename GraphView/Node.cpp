@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Node.h>
@@ -574,6 +574,14 @@ Pin * Node::pin(FTL::StrRef name)
       return m_pins[i];
   }
   return NULL;
+}
+
+Pin *Node::renamePin( FTL::StrRef oldName, FTL::StrRef newName )
+{
+  Pin *p = pin( oldName );
+  if ( p )
+    p->setName( newName );
+  return p;
 }
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent * event)
