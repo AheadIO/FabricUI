@@ -528,8 +528,7 @@ void VEEditorOwner::onOutputsChanged()
 void VEEditorOwner::onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL::CStrRef type )
 {
   assert( m_modelRoot );
-
-  if ( m_modelRoot->argInserted( index, name.c_str(), type.c_str() ) )
+  if ( m_modelRoot->isBinding() )
   {
     emit modelItemInserted( m_modelRoot, int( index ), name.c_str() );
   }
@@ -538,11 +537,10 @@ void VEEditorOwner::onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL
 void VEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, FTL::CStrRef newType )
 {
   assert( m_modelRoot );
-
-  if (m_modelRoot->argTypeChanged( index, name.c_str(), newType.c_str() ))
+  if ( m_modelRoot->isBinding() )
   {
-    BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
-    if (changingChild != NULL)
+    BaseModelItem *changingChild = m_modelRoot->getChild( name, false );
+    if ( changingChild != NULL )
       emit modelItemTypeChange( changingChild, newType.c_str() );
   }
 }
@@ -550,12 +548,16 @@ void VEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, 
 void VEEditorOwner::onBindingArgRemoved( unsigned index, FTL::CStrRef name )
 {
   assert( m_modelRoot );
-
-  BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
-  if (removedChild != NULL)
+  if ( m_modelRoot->isBinding() )
   {
-    emit modelItemRemoved( removedChild );
-    m_modelRoot->argRemoved( int( index ), name.c_str() );
+    BindingModelItem *bindingModelItem =
+      static_cast<BindingModelItem *>( m_modelRoot );
+    BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
+    if ( removedChild != NULL )
+    {
+      emit modelItemRemoved( removedChild );
+      bindingModelItem->argRemoved( index, name );
+    }
   }
 }
 
