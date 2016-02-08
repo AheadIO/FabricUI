@@ -110,6 +110,10 @@ public:
   // the memory is released in the same Dll as it was allocated in
   virtual void deleteMe() = 0;
 
+  // return pointer at cached metadata.
+  ViewItemMetadata *getMetadata()
+  { return &m_metadata; }
+
 public slots:
 
   // Implement this slot to update the UI to the

@@ -14,7 +14,9 @@
 #include <FabricUI/ModelItems/SetModelItem.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
+#include <FabricUI/ValueEditor/BaseViewItem.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
+#include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 using namespace FabricUI;
 using namespace ValueEditor;
@@ -749,10 +751,26 @@ void VEEditorOwner::onStructureChanged()
              && !graph.isExecPortResolvedType( i, "Float64" ))
           continue;
         m_timelinePortIndex = int( i );
+
         BaseModelItem *baseModel = m_modelRoot->getChild( "timeline", false );
         if (baseModel)
-          printf("got it\n");
-          //baseModel->getMetadata()->setSInt32( "uiReadOnly", 1 );
+        {
+          VETreeWidgetItem *twItem =  m_dfgValueEditor->findTreeWidget(baseModel);
+          if (twItem)
+          {
+            BaseViewItem *bvItem = twItem->getViewItem();
+            if (bvItem)
+            {
+              bvItem->getMetadata()->setSInt32("uiReadOnly", 1);
+              QWidget *widget = bvItem->getWidget();
+              if (widget)
+              {
+                widget->setEnabled( false );
+              }
+            }
+          }
+        }
+
         break;
       }
     }
