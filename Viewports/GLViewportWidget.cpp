@@ -183,7 +183,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
     }
 
     m_camera = m_viewport.maybeGetMember("camera");
-    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraManipulator", 0, 0);
+    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraTool", 0, 0);
 
     m_viewport.setMember("windowId", FabricCore::RTVal::ConstructUInt64(*m_client, (uint64_t)this->winId()));
 
@@ -371,7 +371,7 @@ void GLViewportWidget::resetCamera()
     args[1] = FabricCore::RTVal::Construct(*m_client, "Vec3", 3, target);
 
     m_camera.callMethod("", "setFromPositionAndTarget", 2, args);
-    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraManipulatorTool", 0, 0);
+    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraTool", 0, 0);
   }
   catch(FabricCore::Exception e)
   {
