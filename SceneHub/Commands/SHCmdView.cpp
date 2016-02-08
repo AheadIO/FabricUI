@@ -7,6 +7,7 @@
 #include <FabricUI/SceneHub/Commands/SGAddObjectCmd.h>
 #include <FabricUI/SceneHub/Commands/SGAddPropertyCmd.h>
 #include <FabricUI/SceneHub/Commands/SGSetPropertyValueCmd.h>
+#include <FabricUI/SceneHub/Commands/SGSetPaintToolAttributeCmd.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -38,9 +39,8 @@ SHCmdView::SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QU
 };
 
 /// Synchronizes the Qt stack from the KL stack.
-void SHCmdView::synchronize(bool all) {
+void SHCmdView::synchronize() {
   
-  if(all) m_shCmdHandler.getStack()->clear();
   FabricCore::RTVal cmdManager = SHCmd::GetCmdManager(m_shObject);
   if( !cmdManager.isValid() )
     return;
@@ -51,7 +51,7 @@ void SHCmdView::synchronize(bool all) {
   {
     FabricCore::RTVal typeVal = SHCmd::RetrieveCmd(m_client, m_shObject, i).callMethod("String", "type", 0, 0);
     std::string type = std::string(typeVal.getStringCString());
- 
+      
     // SGAddObjectCmd
     if(ToLower(type).compare(ToLower(SGAddObjectCmd_Type_Str)) == 0)
       addCommand(SGAddObjectCmd::Get(m_client, m_shObject, i), false);
@@ -63,6 +63,11 @@ void SHCmdView::synchronize(bool all) {
     // SGSetPropertyValueCmd
     else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
       addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
+
+
+    // SGSetPaintToolAttributeCmd
+    else if(ToLower(type).compare(ToLower(SGSetPaintToolAttributeCmd_Type_Str)) == 0)
+      addCommand(SGSetPaintToolAttributeCmd::Get(m_client, m_shObject, i), false);
 
     // log an error
     else std::cerr << "SHCmdView::synchronize : Command type " << type << " wasn't founded" << std::endl;
@@ -97,6 +102,10 @@ bool SHCmdView::addCommand(const std::string &command, bool exec) {
     else if(ToLower(name).compare(ToLower(SGSetPropertyValueCmd_Str)) == 0) 
       return m_shCmdHandler.addCommand(SGSetPropertyValueCmd::Create(m_client, m_shObject, command, exec));
 
+    // SGSetPaintToolAttributeCmd
+    else if(ToLower(name).compare(ToLower(SGSetPaintToolAttributeCmd_Str)) == 0)
+      return m_shCmdHandler.addCommand(SGSetPaintToolAttributeCmd::Create(m_client, m_shObject, command, exec));
+ 
     // log an error
     else std::cerr << "SHCmdView::addCommand : Command name " << name << " wasn't founded" << std::endl;
   }

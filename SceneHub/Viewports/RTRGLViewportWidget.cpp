@@ -26,7 +26,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QColorDialog>
 #include <FabricUI/SceneHub/Viewports/RTRGLViewportWidget.h>
-#include <FabricUI/Util/QtToKLEvent.h>
+#include <FabricUI/Viewports/QtToKLEvent.h>
 #include <FabricUI/Util/macros.h>
 
 using namespace FabricUI::Viewports;
@@ -382,7 +382,7 @@ void RTRGLViewportWidget::wheelEvent(QWheelEvent *event) {
 
 void RTRGLViewportWidget::mouseReleaseEvent(QMouseEvent *event) {
   onEvent(event);
-  emit synchronizeCommands(false);
+  emit synchronizeCommands();
 }
 
 void RTRGLViewportWidget::keyPressEvent(QKeyEvent *event) {

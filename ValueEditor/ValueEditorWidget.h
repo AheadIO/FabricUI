@@ -7,9 +7,9 @@
 #include <QtGui/QWidget>
 #include <QtGui/QKeyEvent>
 
-#include <FabricUI/Canvas/TreeView/TreeViewWidget.h>
-#include <FabricUI/Canvas/TreeView/TreeModel.h>
-#include <FabricUI/Canvas/TreeView/TreeEditorFactory.h>
+#include <FabricUI/TreeView/TreeViewWidget.h>
+#include <FabricUI/TreeView/TreeModel.h>
+#include <FabricUI/TreeView/TreeEditorFactory.h>
 
 #include <FabricCore.h>
 

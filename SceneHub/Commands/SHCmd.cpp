@@ -12,7 +12,7 @@
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
-
+ 
 
 /// Encodes a rtVal into a Json, saves the rtVal
 /// \param client The core client
@@ -149,7 +149,12 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
         params.push_back(params_);
         for(uint32_t i=index; i<tempArray.size(); ++i) params.push_back(tempArray[i]);
       }
-      else params = Split(paramArray, ',');
+      else 
+      {
+        params = Split(paramArray, ',');
+        if(params.size() == 0 && paramArray.compare("") != 0)
+          params.push_back(paramArray);
+      }
 
       return true;
     }
@@ -185,10 +190,7 @@ bool SHCmd::ExtractName(const std::string &command, std::string &name) {
 /// \param shObject A reference to SceneHub application
 FabricCore::RTVal SHCmd::GetCmdManager(FabricCore::RTVal &shObject) {
   FABRIC_TRY_RETURN("SHCmd::GetCmdManager", false,
-    FabricCore::RTVal sceneGraph = shObject.callMethod("SceneGraph", "getScene", 0, 0);
-    if( sceneGraph.isNullObject() )
-      return FabricCore::RTVal();
-    return sceneGraph.callMethod("SGCmdManager", "getOrCreateHierarchyCmdManager", 0, 0);
+    return shObject.callMethod("CmdManager", "getOrCreateCmdManager", 0, 0);
   );
 }
 

@@ -3,7 +3,7 @@
 #ifndef __UI_ValueEditor_ValueItem__
 #define __UI_ValueEditor_ValueItem__
 
-#include <FabricUI/Canvas/TreeView/WidgetTreeItem.h>
+#include <FabricUI/TreeView/WidgetTreeItem.h>
 #include <map>
 
 #include <FabricCore.h>

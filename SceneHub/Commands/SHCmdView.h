@@ -40,7 +40,7 @@ namespace FabricUI
         virtual void keyPressEvent(QKeyEvent *event);
 
         /// Synchronizes the Qt stack from the KL stack.
-        void synchronize(bool);
+        void synchronize();
         
       private:
         /// Adds a command.

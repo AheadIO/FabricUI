@@ -8,8 +8,8 @@
 #include <QtGui/QUndoStack>
 #include <FabricUI/Util/macros.h>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
-#include <FabricUI/Canvas/DFG/DFGUICmdHandler.h>
-#include <FabricUI/Canvas/DFG/DFGUICmdHandler_QUndo.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
+#include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
 
 namespace FabricUI
 {

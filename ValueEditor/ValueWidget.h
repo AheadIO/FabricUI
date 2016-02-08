@@ -6,8 +6,8 @@
 #include <QtGui/QLabel> 
 #include <QtGui/QHBoxLayout> 
 
-#include <FabricUI/Canvas/TreeView/TreeEditorWidget.h>
-#include <FabricUI/Canvas/TreeView/WidgetTreeItem.h>
+#include <FabricUI/TreeView/TreeEditorWidget.h>
+#include <FabricUI/TreeView/WidgetTreeItem.h>
 
 #include "ValueItem.h"
 

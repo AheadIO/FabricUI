@@ -2,7 +2,7 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#include <FabricUI/Canvas/DFG/DFGUICmd/DFGUICmds.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmds.h>
 #include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
 
 using namespace FabricCore;
