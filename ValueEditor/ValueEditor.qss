@@ -11,6 +11,17 @@ QLineEdit, QTextEdit, QDoubleSpinBox, QSpinBox, QComboBox {
     background-color: #333;
 }
 
+QDoubleSpinBox, QSpinBox {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#MinIndexEdit, #MaxIndexEdit, #ArraySizeEdit {
+    margin-left:0px;
+    margin-bottom: 0px;
+}
+
 QLineEdit:focus, QDoubleSpinBox:focus, QSpinBox:focus, QTextEdit:focus {
     background-color: #2F2F2F;    
 }

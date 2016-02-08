@@ -54,6 +54,9 @@ ArrayViewItem::ArrayViewItem( QString name,
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  m_minIndexEdit->setObjectName( "MinIndexEdit" );
+  m_maxIndexEdit->setObjectName( "MaxIndexEdit" );
+  m_arraySizeEdit->setObjectName( "ArraySizeEdit" );
   layout->addWidget( m_minIndexEdit );
   layout->addWidget( new QLabel( "to" ) );
   layout->addWidget( m_maxIndexEdit );
