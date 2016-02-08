@@ -6,6 +6,7 @@
 #include "Vec4ViewItem.h"
 #include "ViewItemFactory.h"
 #include "VEDoubleSpinBox.h"
+#include "ViewConstants.h"
 
 #include <assert.h>
 #include <FabricUI/Util/UIRange.h>

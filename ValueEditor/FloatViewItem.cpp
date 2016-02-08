@@ -5,6 +5,7 @@
 #include "FloatViewItem.h"
 #include "QVariantRTVal.h"
 #include "VEDoubleSpinBox.h"
+#include "ViewConstants.h"
 
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>

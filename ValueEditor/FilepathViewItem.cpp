@@ -5,6 +5,7 @@
 #include "FilepathViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
+#include "ViewConstants.h"
 
 #include <QtCore/QVariant>
 #include <QtGui/QWidget>

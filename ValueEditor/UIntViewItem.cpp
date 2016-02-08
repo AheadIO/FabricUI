@@ -5,6 +5,7 @@
 #include "UIntViewItem.h"
 #include "QVariantRTVal.h"
 #include "VEIntSpinBox.h"
+#include "ViewConstants.h"
 
 #include <limits.h>
 

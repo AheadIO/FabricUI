@@ -7,6 +7,7 @@
 #include "ViewItemFactory.h"
 #include "ItemMetadata.h"
 #include "BaseModelItem.h"
+#include "ViewConstants.h"
 
 #include <assert.h>
 #include <FTL/JSONValue.h>

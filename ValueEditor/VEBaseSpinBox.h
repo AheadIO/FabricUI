@@ -27,6 +27,7 @@ public:
     , m_stepping( false )
     , m_steppingTimerConnected( false )
   {
+    QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
     m_steppingTimer.setSingleShot( true );
@@ -118,9 +119,16 @@ public:
 
   virtual void focusInEvent( QFocusEvent *event )
   {
+    QT_SPINBOX::setFocusPolicy(Qt::WheelFocus);
     if ( event->reason() != Qt::PopupFocusReason )
       m_last = QT_SPINBOX::value();
     QT_SPINBOX::focusInEvent( event );
+  }
+
+  virtual void focusOutEvent( QFocusEvent *event )
+  {
+    QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
+    QT_SPINBOX::focusOutEvent( event );
   }
 
   virtual void keyPressEvent( QKeyEvent *event ) /*override*/
@@ -158,6 +166,12 @@ public:
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
+    if (!hasFocus())
+    {
+      event->ignore();
+      return;
+    }
+
     beginStepping();
 
     QT_SPINBOX::wheelEvent( event );

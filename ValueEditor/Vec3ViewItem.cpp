@@ -6,6 +6,7 @@
 #include "Vec3ViewItem.h"
 #include "ViewItemFactory.h"
 #include "VEDoubleSpinBox.h"
+#include "ViewConstants.h"
 
 #include <assert.h>
 #include <FabricUI/Util/UIRange.h>
@@ -24,7 +25,6 @@ Vec3ViewItem::Vec3ViewItem(
 {
   m_widget = new QWidget;
   m_widget->setObjectName( "Vec3Item" );
-
   m_xSpinBox = new VEDoubleSpinBox;
   m_xSpinBox->setValue( m_vec3dValue.x() );
   m_ySpinBox = new VEDoubleSpinBox;

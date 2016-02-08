@@ -3,11 +3,11 @@
 //
 
 #include "DoubleSlider.h"
-#include "ViewConstants.h"
 #include "FloatSliderViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
+#include "ViewConstants.h"
 
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>

@@ -5,4 +5,3 @@
 // horizontal stretch for sliders and their lineEdit.
 #define VE_H_STRETCH_SLIDER_LINEEDIT   1
 #define VE_H_STRETCH_SLIDER_SLIDER     4
-
