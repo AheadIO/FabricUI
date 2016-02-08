@@ -24,6 +24,7 @@ namespace FabricUI
 {
   namespace DFG
   {
+    class DFGErrorsWidget;
     class DFGExecHeaderWidget;
     class DFGUICmdHandler;
 
@@ -58,6 +59,8 @@ namespace FabricUI
       DFGTabSearchWidget * getTabSearchWidget();
       DFGGraphViewWidget * getGraphViewWidget();
       DFGExecHeaderWidget * getHeaderWidget();
+      DFGErrorsWidget *getErrorsWidget() const
+        { return m_errorsWidget; }
 
       bool isEditable() const { return m_isEditable; }
       static QSettings * getSettings();
@@ -123,6 +126,7 @@ namespace FabricUI
 
       DFGGraphViewWidget * m_uiGraphViewWidget;
       DFGExecHeaderWidget * m_uiHeader;
+      DFGErrorsWidget *m_errorsWidget;
       GraphView::Graph * m_uiGraph;
       FTL::OwnedPtr<DFGController> m_uiController;
       DFGNotificationRouter * m_router;

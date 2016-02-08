@@ -3,8 +3,8 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>

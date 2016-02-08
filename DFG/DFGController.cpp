@@ -1117,6 +1117,9 @@ void DFGController::execute()
   {
     logError(e.getDesc_cstr());
   }
+
+  FabricCore::DFGExec rootExec = getBinding().getExec();
+  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged( rootExec );
 }
 
 void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )

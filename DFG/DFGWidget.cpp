@@ -2,6 +2,7 @@
  
 #include <assert.h>
 #include <FabricCore.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -26,6 +27,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QSplitter>
 #include <Persistence/RTValToJSONEncoder.hpp>
 
 using namespace FabricServices;
@@ -47,6 +49,7 @@ DFGWidget::DFGWidget(
   bool overTakeBindingNotifications
   )
   : QWidget( parent )
+  , m_errorsWidget( 0 )
   , m_uiGraph( 0 )
   , m_router( 0 )
   , m_manager( manager )
@@ -107,7 +110,28 @@ DFGWidget::DFGWidget(
   layout->addWidget(m_uiHeader);
   layout->addWidget(m_uiGraphViewWidget);
   layout->addWidget(m_klEditor);
+
+  QWidget *widget = new QWidget;
+  widget->setContentsMargins(0, 0, 0, 0);
+  widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  widget->setLayout( layout );
+
+  m_errorsWidget = new DFGErrorsWidget;
+
+  QSplitter *splitter = new QSplitter(this);
+  splitter->setOrientation(Qt::Vertical);
+  splitter->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  splitter->setContentsMargins(0, 0, 0, 0);
+  splitter->setChildrenCollapsible(false);
+  splitter->addWidget( widget );
+  splitter->setStretchFactor( 0, 4 );
+  splitter->addWidget( m_errorsWidget );
+  splitter->setStretchFactor( 1, 1 );
+
+  layout = new QVBoxLayout();
+  layout->setSpacing(0);
   layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget( splitter );
   setLayout(layout);
   setContentsMargins(0, 0, 0, 0);
 
