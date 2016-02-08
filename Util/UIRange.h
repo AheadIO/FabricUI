@@ -5,6 +5,7 @@
 #pragma once
 
 #include <FTL/StrRef.h>
+#include <math.h>
 
 namespace FabricUI {
 
@@ -39,6 +40,22 @@ inline bool DecodeUIRange(
   maxValue = split.second.toFloat64();
 
   return minValue <= maxValue;
+}
+
+inline bool DecodeUIRange(
+  FTL::StrRef str,
+  int &minValue,
+  int &maxValue
+  )
+{
+  double doubleMinValue, doubleMaxValue;
+  bool result = DecodeUIRange( str, doubleMinValue, doubleMaxValue );
+  if ( result )
+  {
+    minValue = int( floor( doubleMinValue ) );
+    maxValue = int( ceil( doubleMaxValue ) );
+  }
+  return result;
 }
 
 }

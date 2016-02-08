@@ -57,7 +57,7 @@ ColorViewItem::ColorViewItem(
   layout->addWidget( m_specCombo );
 
   // Our children are inherently limited to 0->1
-  m_childMetadata.setString( "uiRange", "(0.0, 1.0)" );
+  m_childMetadata.setString( "uiHardRange", "(0.0, 1.0)" );
 
   metadataChanged();
   onModelValueChanged( value );

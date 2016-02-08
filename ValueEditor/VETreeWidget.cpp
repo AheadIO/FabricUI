@@ -566,14 +566,24 @@ void VETreeWidget::onItemEdited( QTreeWidgetItem* _item, int column )
 
 void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
 {
-  ViewItemFactory* pFactory = ViewItemFactory::GetInstance();
-  BaseViewItem* pViewLayer = pFactory->createViewItem( pItem );
+  BaseViewItem* pViewLayer;
+  if ( pItem )
+  {
+    ViewItemFactory* pFactory = ViewItemFactory::GetInstance();
+    pViewLayer = pFactory->createViewItem( pItem );
+  }
+  else
+    pViewLayer = 0;
+
   // Remove all existing
   clear();
-  VETreeWidgetItem* newItem = createTreeWidgetItem( pViewLayer, NULL );
-  if (newItem != NULL)
-    newItem->setExpanded( true );
 
+  if ( pViewLayer )
+  {
+    if ( VETreeWidgetItem *newItem =
+      createTreeWidgetItem( pViewLayer, 0 /*parent*/ ) )
+      newItem->setExpanded( true );
+  }
 }
 
 void VETreeWidget::onTreeWidgetItemExpanded( QTreeWidgetItem *_treeWidgetItem )

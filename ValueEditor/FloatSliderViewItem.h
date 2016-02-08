@@ -11,6 +11,8 @@ class ItemMetadata;
 class QWidget;
 class VELineEdit;
 
+#define FLOAT_SLIDER_DECIMALS 2
+
 class FloatSliderViewItem : public BaseViewItem
 {
   Q_OBJECT
@@ -44,6 +46,11 @@ private:
   QWidget *m_widget;
   VELineEdit *m_lineEdit;
   DoubleSlider *m_slider;
+  double m_softMinimum;
+  double m_softMaximum;
+  double m_hardMinimum;
+  double m_hardMaximum;
+  bool m_isSettingValue;
 
 private slots:
 

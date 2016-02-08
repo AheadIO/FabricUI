@@ -21,9 +21,9 @@ public:
   // going there by incremenets)
   virtual void mousePressEvent( QMouseEvent * ) /*override*/;
 
-  void setResolution( int resolution, double min, double max );
+  void setResolution( int decimals, double min, double max );
 
-  void setDoubleValue( double value );
+  void setDoubleValue( double value, bool emitSignal = true );
   double doubleValue();
   double toDouble( int value );
 
@@ -36,7 +36,10 @@ signals :
   void doubleValueChanged( double value);
 
 public slots:
-  void notifyValueChanged( int value );
+  void onValueChanged( int value );
 
+private:
 
+  double m_value;
+  bool m_isSettingValue;
 };

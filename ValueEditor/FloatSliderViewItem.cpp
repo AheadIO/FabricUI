@@ -12,8 +12,10 @@
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>
 #include <FTL/JSONValue.h>
+#include <FTL/AutoSet.h>
 #include <QtCore/QVariant>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QDoubleValidator>
 
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
@@ -21,6 +23,7 @@ FloatSliderViewItem::FloatSliderViewItem(
   ItemMetadata* metadata
   )
   : BaseViewItem( name, metadata )
+  , m_isSettingValue(false)
 {
   m_lineEdit = new VELineEdit;
   m_slider = new DoubleSlider;
@@ -29,6 +32,13 @@ FloatSliderViewItem::FloatSliderViewItem(
 
   double value = variant.value<double>();
 
+  // correct the softrange
+  if(value < m_slider->min())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, value, m_slider->max());
+  if(value > m_slider->max())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, m_slider->min(), value);
+
+  m_lineEdit->setValidator(new QDoubleValidator(m_lineEdit));
   m_lineEdit->setText( QString::number( value ) );
   m_slider->setDoubleValue( value );
 
@@ -75,21 +85,69 @@ QWidget *FloatSliderViewItem::getWidget()
 
 void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_slider->setDoubleValue( v.value<double>() );
+  FTL::AutoSet<bool> settingValue(m_isSettingValue, true);
+
+  double value = v.value<double>();
+
+  // correct the softrange
+  if(value < m_slider->min())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, value, m_slider->max());
+  if(value > m_slider->max())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, m_slider->min(), value);
+
+  m_slider->setDoubleValue( value, false );  
+  m_lineEdit->setText( QString::number( value ) );
 }
 
 void FloatSliderViewItem::metadataChanged()
 {
-  FTL::StrRef uiRangeString = m_metadata.getString( "uiRange" );
-  
-  double minValue, maxValue;
-  if ( FabricUI::DecodeUIRange( uiRangeString, minValue, maxValue ) )
-    m_slider->setResolution( 100, minValue, maxValue );
+  m_softMinimum = (double)0.0;
+  m_softMaximum = (double)1.0;
+  m_hardMinimum = DBL_MIN;
+  m_hardMaximum = DBL_MAX;
+
+  m_slider->setResolution( FLOAT_SLIDER_DECIMALS, m_softMinimum, m_softMaximum );
+
+  // metadata should be like this:
+  // uiRange: "(0 - 200)"
+  // uiHardRange: "(0 - 500)"
+  const char* softRangeCStr = m_metadata.getString( "uiRange" );
+  const char* hardRangeCStr = m_metadata.getString( "uiHardRange" );
+  if(FTL::StrRef(softRangeCStr).empty())
+    softRangeCStr = hardRangeCStr;
+
+  FabricUI::DecodeUIRange(hardRangeCStr, m_hardMinimum, m_hardMaximum);
+  if(FabricUI::DecodeUIRange(softRangeCStr, m_softMinimum, m_softMaximum))
+  {
+    if(m_softMinimum < m_hardMinimum)
+      m_softMinimum = m_hardMinimum;
+    if(m_softMaximum > m_hardMaximum)
+      m_softMaximum = m_hardMaximum;
+
+    m_slider->setResolution( FLOAT_SLIDER_DECIMALS, m_softMinimum, m_softMaximum );
+  }
 }
 
 void FloatSliderViewItem::onLineEditTextModified( QString text )
 {
-  m_slider->setDoubleValue( text.toDouble() );
+  double value = std::max(
+    m_hardMinimum,
+    std::min(
+      m_hardMaximum,
+      text.toDouble()
+      )
+    );
+
+  // correct the softrange
+  if(value < m_slider->min())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, value, m_slider->max());
+  if(value > m_slider->max())
+    m_slider->setResolution(FLOAT_SLIDER_DECIMALS, m_slider->min(), value);
+
+  if ( value != m_slider->doubleValue() )
+    m_slider->setDoubleValue( value, true /* emitSignal */ );
+  else
+    m_lineEdit->setText( QString::number( value ) );
 }
 
 void FloatSliderViewItem::onSliderPressed()
@@ -99,6 +157,8 @@ void FloatSliderViewItem::onSliderPressed()
 
 void FloatSliderViewItem::onDoubleValueChanged( double value )
 {
+  if(m_isSettingValue)
+    return;
   m_lineEdit->setText( QString::number( value ) );
   emit viewValueChanged( QVariant::fromValue<double>( value ) );
 }
@@ -122,7 +182,7 @@ BaseViewItem* FloatSliderViewItem::CreateItem(
   if (RTVariant::isType<double>(value) || RTVariant::isType<float>(value))
   {
     // We can only create the UI if we have a defined Min & Max
-    if (metaData->has( "uiRange" ) )
+    if (metaData->has( "uiRange" ) || metaData->has( "uiHardRange" ))
     {
       FloatSliderViewItem* item = new FloatSliderViewItem( name, value, metaData );
       return item;

@@ -240,14 +240,21 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
       break;
       case int( QVariant::String ):
       {
-        QString& str = *((QString*)result);
+        char const *data;
+        uint32_t size;
         if ( val.isString() )
-          str = val.getStringCString();
+        {
+          data = val.getStringCString();
+          size = val.getStringLength();
+        }
         else
         {
           FabricCore::RTVal desc = val.getDesc();
-          str = desc.getStringCString();
+          data = desc.getStringCString();
+          size = desc.getStringLength();
         }
+        QString& str = *((QString*)result);
+        str = QString::fromUtf8( data, size );
         break;
       }
       case int( QVariant::Color ):
@@ -419,39 +426,39 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
     FabricCore::Context ctxt = ioVal.getContext();
     if ( ioVal.isBoolean() )
     {
-      ioVal = FabricCore::RTVal::ConstructBoolean( ctxt, var.toBool() );
+      ioVal.setBoolean( var.toBool() );
     }
     else if ( ioVal.isSInt32() )
     {
-      ioVal = FabricCore::RTVal::ConstructSInt32( ctxt, var.toInt() );
+      ioVal.setSInt32( var.toInt() );
     }
     else if ( ioVal.isSInt16() )
     {
-      ioVal = FabricCore::RTVal::ConstructSInt16( ctxt, var.toInt() );
+      ioVal.setSInt16( var.toInt() );
     }
     else if ( ioVal.isSInt8() )
     {
-      ioVal = FabricCore::RTVal::ConstructSInt8( ctxt, var.toInt() );
+      ioVal.setSInt8( var.toInt() );
     }
     else if ( ioVal.isUInt32() )
     {
-      ioVal = FabricCore::RTVal::ConstructUInt32( ctxt, var.toUInt() );
+      ioVal.setUInt32( var.toUInt() );
     }
     else if ( ioVal.isUInt16() )
     {
-      ioVal = FabricCore::RTVal::ConstructUInt16( ctxt, var.toUInt() );
+      ioVal.setUInt16( var.toUInt() );
     }
     else if ( ioVal.isUInt8() )
     {
-      ioVal = FabricCore::RTVal::ConstructUInt8( ctxt, var.toUInt() );
+      ioVal.setUInt8( var.toUInt() );
     }
     else if ( ioVal.isSInt64() )
     {
-      ioVal = FabricCore::RTVal::ConstructSInt64( ctxt, var.toLongLong() );
+      ioVal.setSInt64( var.toLongLong() );
     }
     else if ( ioVal.isUInt64() )
     {
-      ioVal = FabricCore::RTVal::ConstructUInt64( ctxt, var.toULongLong() );
+      ioVal.setUInt64( var.toULongLong() );
     }
     else if ( ioVal.isFloat32() )
     {
@@ -459,13 +466,13 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
     }
     else if ( ioVal.isFloat64() )
     {
-      ioVal = FabricCore::RTVal::ConstructFloat64( ctxt, var.toDouble() );
+      ioVal.setFloat64( var.toDouble() );
     }
     else if ( ioVal.isString() )
     {
       QString str = var.toString();
-      QByteArray asAscii = str.toAscii();
-      ioVal = FabricCore::RTVal::ConstructString( ctxt, asAscii.data(), asAscii.size() );
+      QByteArray utf8 = str.toUtf8();
+      ioVal.setString( utf8.data(), utf8.size() );
     }
     else if ( ioVal.hasType( "RGB" ) )
     {

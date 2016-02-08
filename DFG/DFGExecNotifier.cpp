@@ -41,6 +41,8 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("nodePortMetadataChanged")] = &DFGExecNotifier::handler_nodePortMetadataChanged;
     handlerMap[FTL_STR("portsConnected")] = &DFGExecNotifier::handler_portsConnected;
     handlerMap[FTL_STR("portsDisconnected")] = &DFGExecNotifier::handler_portsDisconnected;
+    handlerMap[FTL_STR("refVarPathChanged")] = &DFGExecNotifier::handler_refVarPathChanged;
+    handlerMap[FTL_STR("funcCodeChanged")] = &DFGExecNotifier::handler_funcCodeChanged;
   }
   return handlerMap;
 }
@@ -311,6 +313,21 @@ void DFGExecNotifier::handler_portsDisconnected( FTL::JSONObject const *jsonObje
   FTL::CStrRef dstPortPath = jsonObject->getString( FTL_STR("dstPath") );
 
   emit portsDisconnected( srcPortPath, dstPortPath );
+}
+
+void DFGExecNotifier::handler_refVarPathChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef refName = jsonObject->getString( FTL_STR("refName") );
+  FTL::CStrRef newVarPath = jsonObject->getString( FTL_STR("newVarPath") );
+
+  emit refVarPathChanged( refName, newVarPath );
+}
+
+void DFGExecNotifier::handler_funcCodeChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef code = jsonObject->getString( FTL_STR("code") );
+
+  emit funcCodeChanged( code );
 }
 
 } // namespace DFG

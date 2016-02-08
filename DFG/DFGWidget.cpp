@@ -15,6 +15,7 @@
 #include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/UIRange.h>
 #include <FTL/FS.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -1067,25 +1068,23 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setPersistValue( uiPersistValue == "true" );
 
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
-      if(uiRange.size() > 0)
+      double softMinimum = 0.0;
+      double softMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiRange, softMinimum, softMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiRange.size();i++)
-        {
-          char c = uiRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
+        dialog.setHasSoftRange(true);
+        dialog.setSoftRangeMin(softMinimum);
+        dialog.setSoftRangeMax(softMaximum);
+      }
 
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasRange(true);
-          dialog.setRangeMin(minimum);
-          dialog.setRangeMax(maximum);
-        }
+      FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
+      double hardMinimum = 0.0;
+      double hardMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiHardRange, hardMinimum, hardMaximum))
+      {
+        dialog.setHasHardRange(true);
+        dialog.setHardRangeMin(hardMinimum);
+        dialog.setHardRangeMax(hardMaximum);
       }
 
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
@@ -1126,12 +1125,19 @@ void DFGWidget::onExecPortAction(QAction * action)
         DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
-        if(dialog.hasRange())
+        if(dialog.hasSoftRange())
         {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
         } else
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
+        if(dialog.hasHardRange())
+        {
+          QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );//"" will remove the metadata
 
         if(dialog.hasCombo())
         {
@@ -1369,11 +1375,20 @@ void DFGWidget::onSidePanelAction(QAction * action)
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
 
-      if(dialog.hasRange())
+      if(dialog.hasSoftRange())
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
         DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
-      }
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );
+
+      if(dialog.hasHardRange())
+      {
+        QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );
+
       if(dialog.hasCombo())
       {
         QStringList combo = dialog.comboValues();

@@ -43,11 +43,13 @@ class DFGUICmdHandler;
 
       virtual bool isNode() const /*override*/ { return true; }
 
+      virtual bool isRef() const /*override*/ { return false; }
+
       FTL::CStrRef getNodeName()
         { return m_nodeName; }
 
       virtual int getNumChildren() /*override*/;
-      virtual FTL::CStrRef getChildName( int i );
+      virtual FTL::CStrRef getChildName( int i ) /*override*/;
 
       /////////////////////////////////////////////////////////////////////////
       // Name

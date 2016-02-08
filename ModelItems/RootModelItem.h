@@ -64,13 +64,6 @@ namespace FabricUI
 
       virtual void resetToDefault() /*override*/;
 
-      //////////////////////////////////////////////////////////////////////////
-      bool argInserted( int index, const char* name, const char* type );
-
-      bool argTypeChanged( int index, const char* name, const char* newType );
-
-      void argRemoved( int index, const char* name );
-
       BaseModelItem *onPortRenamed(
         unsigned index,
         FTL::CStrRef oldName,
