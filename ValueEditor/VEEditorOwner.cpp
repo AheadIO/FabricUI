@@ -55,6 +55,10 @@ void VEEditorOwner::initConnections()
     getUIController(), SIGNAL( argsChanged() ),
     this, SLOT( onStructureChanged() )
     );
+  connect(  // [FE-6010]
+    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
+    this, SLOT( onStructureChanged() )
+    );
 
   connect(
     getDfgWidget(), SIGNAL( nodeInspectRequested( FabricUI::GraphView::Node* ) ),
