@@ -120,6 +120,14 @@ DFGWidget::DFGWidget(
   widget->setLayout( layout );
 
   m_errorsWidget = new DFGErrorsWidget;
+  connect(
+    m_errorsWidget, SIGNAL(execSelected(FTL::CStrRef, int, int)),
+    this, SLOT(onExecSelected(FTL::CStrRef, int, int))
+    );
+  connect(
+    m_errorsWidget, SIGNAL(nodeSelected(FTL::CStrRef, FTL::CStrRef, int, int)),
+    this, SLOT(onNodeSelected(FTL::CStrRef, FTL::CStrRef, int, int))
+    );
 
   QSplitter *splitter = new QSplitter(this);
   splitter->setOrientation(Qt::Vertical);
@@ -2061,4 +2069,29 @@ void DFGWidget::reloadStyles()
   QString styleSheet = LoadFabricStyleSheet( "DFGWidget.qss" );
   if ( !styleSheet.isEmpty() )
     setStyleSheet( styleSheet );
+}
+
+void DFGWidget::onExecSelected(
+  FTL::CStrRef execPath,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
+}
+
+void DFGWidget::onNodeSelected(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
 }

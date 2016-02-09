@@ -6,6 +6,7 @@
 
 #include <FabricCore.h>
 #include <FTL/OwnedPtr.h>
+#include <FTL/StrRef.h>
 #include <QtGui/QWidget>
 
 class QTableWidget;
@@ -28,11 +29,30 @@ public:
     );
   ~DFGErrorsWidget();
 
+signals:
+  
+  void execSelected(
+    FTL::CStrRef execPath,
+    int line,
+    int column
+    );
+  
+  void nodeSelected(
+    FTL::CStrRef execPath,
+    FTL::CStrRef nodeName,
+    int line,
+    int column
+    );
+
 public slots:
   
   void onErrorsMayHaveChanged(
     FabricCore::DFGBinding binding
     );
+
+private slots:
+
+  void onCellClicked( int row, int col );
 
 private:
 

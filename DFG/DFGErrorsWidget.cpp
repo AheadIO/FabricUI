@@ -19,6 +19,7 @@ DFGErrorsWidget::DFGErrorsWidget(
   : QWidget( parent )
   , m_errorsWidget( new QTableWidget )
 {
+  m_errorsWidget->setColumnCount( 2 );
   QHeaderView *horizontalHeader = m_errorsWidget->horizontalHeader();
   horizontalHeader->setMovable( false );
   horizontalHeader->setClickable( false );
@@ -28,9 +29,16 @@ DFGErrorsWidget::DFGErrorsWidget(
     QStringList() << "Location" << "Description"
     );
   m_errorsWidget->verticalHeader()->hide();
-  m_errorsWidget->setColumnCount( 2 );
-  m_errorsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  m_errorsWidget->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
   m_errorsWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
+  m_errorsWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
+
+  connect(
+    m_errorsWidget, SIGNAL(cellClicked(int, int)),
+    this, SLOT(onCellClicked(int, int))
+    );
 
   QLabel *titleLabel = new QLabel( "Diagnostics" );
   titleLabel->setObjectName( "Title" );
@@ -55,6 +63,8 @@ void DFGErrorsWidget::onErrorsMayHaveChanged(
   FabricCore::DFGBinding binding
   )
 {
+  m_errorsWidget->clearSelection();
+
   bool hasErrors = binding.hasRecursiveConnectedErrors();
   if ( hasErrors )
   {
@@ -104,7 +114,24 @@ void DFGErrorsWidget::onErrorsMayHaveChanged(
         );
     }
   }
+  else m_errorsWidget->setRowCount( 0 );
+  
   setVisible( hasErrors );
+}
+
+void DFGErrorsWidget::onCellClicked( int row, int col )
+{
+  FTL::JSONObject const *error = m_errors->getObject( row );
+
+  FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+  FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
+  int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
+  int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
+
+  if ( !nodeName.empty() )
+    emit nodeSelected( execPath, nodeName, line, column );
+  else
+    emit execSelected( execPath, line, column );
 }
 
 } // namespace DFG

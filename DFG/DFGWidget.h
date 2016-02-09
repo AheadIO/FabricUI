@@ -107,6 +107,21 @@ namespace FabricUI
       void onTogglePortsCentered();
       void onEditPropertiesForCurrentSelection();
 
+    private slots:
+
+      void onExecSelected(
+        FTL::CStrRef execPath,
+        int line,
+        int column
+        );
+
+      void onNodeSelected(
+        FTL::CStrRef execPath,
+        FTL::CStrRef nodeName,
+        int line,
+        int column
+        );
+
     private:
 
       static QMenu* graphContextMenuCallback(FabricUI::GraphView::Graph* graph, void* userData);
