@@ -71,6 +71,7 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
 
 void DoubleSlider::wheelEvent( QWheelEvent *event )
 {
+  // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
   if (!hasFocus())
   {
     event->ignore();

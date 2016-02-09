@@ -119,7 +119,9 @@ public:
 
   virtual void focusInEvent( QFocusEvent *event ) /*override*/
   {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
     QT_SPINBOX::setFocusPolicy(Qt::WheelFocus);
+
     if ( event->reason() != Qt::PopupFocusReason )
       m_last = QT_SPINBOX::value();
     QT_SPINBOX::focusInEvent( event );
@@ -127,7 +129,9 @@ public:
 
   virtual void focusOutEvent( QFocusEvent *event ) /*override*/
   {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
     QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
+
     QT_SPINBOX::focusOutEvent( event );
   }
 
@@ -166,6 +170,7 @@ public:
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
     if (!hasFocus())
     {
       event->ignore();
