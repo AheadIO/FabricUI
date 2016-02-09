@@ -70,6 +70,17 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
   QSlider::mousePressEvent( event );
 }
 
+void DoubleSlider::wheelEvent( QWheelEvent *event )
+{
+  if (!hasFocus())
+  {
+    event->ignore();
+    return;
+  }
+
+  wheelEvent( event );
+}
+
 void DoubleSlider::setResolution( int decimals, double min, double max )
 {
   double divisor = pow(10.0, (double)decimals);

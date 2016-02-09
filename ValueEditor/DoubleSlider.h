@@ -22,28 +22,7 @@ public:
   // going there by incremenets)
   virtual void mousePressEvent( QMouseEvent * ) /*override*/;
 
-  //virtual void focusInEvent( QFocusEvent *event ) /*override*/
-  //{
-  //  setFocusPolicy(Qt::WheelFocus);
-  //  focusInEvent( event );
-  //}
-
-  //virtual void focusOutEvent( QFocusEvent *event ) /*override*/
-  //{
-  //  setFocusPolicy(Qt::StrongFocus);
-  //  focusOutEvent( event );
-  //}
-
-  virtual void wheelEvent( QWheelEvent *event ) /*override*/
-  {
-    if (!hasFocus())
-    {
-      event->ignore();
-      return;
-    }
-
-    wheelEvent( event );
-  }
+  virtual void wheelEvent( QWheelEvent *event ) /*override*/;
 
   void setResolution( int decimals, double min, double max );
 
