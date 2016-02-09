@@ -117,7 +117,7 @@ public:
     event->accept();
   }
 
-  virtual void focusInEvent( QFocusEvent *event )
+  virtual void focusInEvent( QFocusEvent *event ) /*override*/
   {
     QT_SPINBOX::setFocusPolicy(Qt::WheelFocus);
     if ( event->reason() != Qt::PopupFocusReason )
@@ -125,7 +125,7 @@ public:
     QT_SPINBOX::focusInEvent( event );
   }
 
-  virtual void focusOutEvent( QFocusEvent *event )
+  virtual void focusOutEvent( QFocusEvent *event ) /*override*/
   {
     QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
     QT_SPINBOX::focusOutEvent( event );

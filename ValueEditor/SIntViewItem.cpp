@@ -4,7 +4,6 @@
 
 #include "SIntViewItem.h"
 #include "QVariantRTVal.h"
-#include "ViewConstants.h"
 
 #include <QtGui/QSpinBox>
 #include <limits.h>

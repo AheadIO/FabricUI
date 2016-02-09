@@ -16,6 +16,8 @@ DoubleSlider::DoubleSlider( QWidget * parent )
   , m_max( 1.0 )
   , m_isSettingValue( false )
 {
+  setFocusPolicy(Qt::StrongFocus);
+
   setResolution( 2, m_min, m_max );
 
   // Default to horizontal orientation
@@ -67,7 +69,6 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
   }
   QSlider::mousePressEvent( event );
 }
-
 
 void DoubleSlider::setResolution( int decimals, double min, double max )
 {

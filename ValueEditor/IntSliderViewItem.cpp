@@ -3,10 +3,10 @@
 //
 
 #include "IntSliderViewItem.h"
+#include "ViewConstants.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
-#include "ViewConstants.h"
 
 #include <limits.h>
 #include <QtCore/QVariant>

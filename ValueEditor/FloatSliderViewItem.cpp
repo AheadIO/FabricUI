@@ -4,10 +4,10 @@
 
 #include "DoubleSlider.h"
 #include "FloatSliderViewItem.h"
+#include "ViewConstants.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
-#include "ViewConstants.h"
 
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>
@@ -27,6 +27,7 @@ FloatSliderViewItem::FloatSliderViewItem(
 {
   m_lineEdit = new VELineEdit;
   m_slider = new DoubleSlider;
+  m_slider->setFocusPolicy(Qt::StrongFocus);
 
   metadataChanged();
 

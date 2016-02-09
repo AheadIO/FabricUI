@@ -6,7 +6,6 @@
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
 #include "VEDialog.h"
-#include "ViewConstants.h"
 
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
