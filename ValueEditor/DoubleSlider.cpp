@@ -10,14 +10,12 @@
 
 #include <FTL/AutoSet.h>
 
-DoubleSlider::DoubleSlider( QWidget * parent ) 
+DoubleSlider::DoubleSlider( QWidget * parent )
   : QSlider( parent )
   , m_min( 0.0 )
   , m_max( 1.0 )
   , m_isSettingValue( false )
 {
-  setFocusPolicy(Qt::StrongFocus);
-
   setResolution( 2, m_min, m_max );
 
   // Default to horizontal orientation

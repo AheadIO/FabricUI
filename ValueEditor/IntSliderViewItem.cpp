@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
+#include "IntSlider.h"
 #include "IntSliderViewItem.h"
 #include "ViewConstants.h"
 #include "ItemMetadata.h"
@@ -26,8 +27,8 @@ IntSliderViewItem::IntSliderViewItem(
   , m_isSettingValue( false )
 {
   m_lineEdit = new VELineEdit;
-  m_slider = new QSlider;
-  m_slider->setOrientation( Qt::Horizontal );
+  m_slider = new IntSlider;
+  m_slider->setFocusPolicy(Qt::StrongFocus);
 
   metadataChanged();
 
