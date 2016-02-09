@@ -4,10 +4,15 @@
 
 #pragma once
 
-#include <QtGui/QWidget>
 #include <FabricCore.h>
+#include <FTL/OwnedPtr.h>
+#include <QtGui/QWidget>
 
 class QTableWidget;
+
+namespace FTL {
+class JSONArray;
+} // namespace FTL
 
 namespace FabricUI {
 namespace DFG {
@@ -31,6 +36,7 @@ public slots:
 
 private:
 
+  FTL::OwnedPtr<FTL::JSONArray> m_errors;
   QTableWidget *m_errorsWidget;
 };
 

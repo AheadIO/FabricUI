@@ -4,7 +4,8 @@
 
 #include "DFGErrorsWidget.h"
 
-#include <FTL/JSONDec.h>
+#include <FTL/JSONValue.h>
+#include <QtGui/QLabel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QTableWidget>
 #include <QtGui/QVBoxLayout>
@@ -18,14 +19,14 @@ DFGErrorsWidget::DFGErrorsWidget(
   : QWidget( parent )
   , m_errorsWidget( new QTableWidget )
 {
-  QStringList headers;
-  headers.append( "Location" );
-  headers.append( "Description" );
-  m_errorsWidget->setHorizontalHeaderLabels( headers );
   QHeaderView *horizontalHeader = m_errorsWidget->horizontalHeader();
   horizontalHeader->setMovable( false );
   horizontalHeader->setClickable( false );
   horizontalHeader->setResizeMode( QHeaderView::ResizeToContents );
+  horizontalHeader->setStretchLastSection( true );
+  m_errorsWidget->setHorizontalHeaderLabels(
+    QStringList() << "Location" << "Description"
+    );
   m_errorsWidget->verticalHeader()->hide();
   m_errorsWidget->setColumnCount( 2 );
   m_errorsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -34,6 +35,7 @@ DFGErrorsWidget::DFGErrorsWidget(
   QVBoxLayout *layout = new QVBoxLayout;
   layout->setSpacing( 0 );
   layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->addWidget( new QLabel( "Diagnostics" ) );
   layout->addWidget( m_errorsWidget );
   setLayout( layout );
   setVisible( false );
@@ -55,20 +57,45 @@ void DFGErrorsWidget::onErrorsMayHaveChanged(
       rootExec.getErrors( true /* recursive */ );
     FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
     FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
-    FTL::JSONArrayDec errorsJSONArrayDec( errorsJSONStrWithLoc );
-    FTL::JSONEnt errorJSONEnt;
-    m_errorsWidget->setRowCount( 0 );
-    while ( errorsJSONArrayDec.getNext( errorJSONEnt ) )
+    m_errors = 
+      FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
+
+    int rowCount = m_errors->size();
+    m_errorsWidget->setRowCount( rowCount );
+    for ( int row = 0; row < rowCount; ++row )
     {
-      std::string errorStr;
-      errorJSONEnt.stringAppendTo( errorStr );
-      QString errorQString =
-        QString::fromUtf8( errorStr.data(), errorStr.size() );
-      int row = m_errorsWidget->rowCount();
-      m_errorsWidget->insertRow( row );
-      QTableWidgetItem *tableWidgetItem =
-        new QTableWidgetItem( errorQString );
-      m_errorsWidget->setItem( row, 0, tableWidgetItem );
+      FTL::JSONObject const *error = m_errors->getObject( row );
+
+      FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+      FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
+      FTL::CStrRef desc = error->getString( FTL_STR("desc") );
+      int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
+      int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
+
+      QString location;
+      if ( !execPath.empty() )
+        location += QString::fromUtf8( execPath.data(), execPath.size() );
+      if ( !execPath.empty() && !nodeName.empty() )
+        location += '.';
+      if ( !nodeName.empty() )
+        location += QString::fromUtf8( nodeName.data(), nodeName.size() );
+      if ( line != -1 )
+      {
+        location += ':';
+        location += QString::number( line );
+        if ( column != -1 )
+        {
+          location += ':';
+          location += QString::number( column );
+        }
+      }
+      m_errorsWidget->setItem( row, 0, new QTableWidgetItem( location ) );
+
+      m_errorsWidget->setItem(
+        row, 1, new QTableWidgetItem(
+          QString::fromUtf8( desc.data(), desc.size() )
+          )
+        );
     }
   }
   setVisible( hasErrors );
