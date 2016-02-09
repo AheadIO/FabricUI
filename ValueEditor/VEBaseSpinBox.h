@@ -171,7 +171,7 @@ public:
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
     // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
-    if (!hasFocus())
+    if (!this->hasFocus())
     {
       event->ignore();
       return;
@@ -247,4 +247,3 @@ protected:
   bool m_steppingTimerConnected;
   QTimer m_steppingTimer;
 };
-
