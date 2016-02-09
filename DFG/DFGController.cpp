@@ -17,10 +17,12 @@
 #include <FabricUI/GraphView/GraphRelaxer.h>
 
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUIUtil.h>
+#include <FabricUI/DFG/DFGWidget.h>
 
 using namespace FabricServices;
 using namespace FabricUI;

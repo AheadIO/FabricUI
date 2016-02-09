@@ -7,7 +7,7 @@
 #include <QtGui/QWidget>
 #include <FabricCore.h>
 
-class QPlainTextEdit;
+class QTableWidget;
 
 namespace FabricUI {
 namespace DFG {
@@ -31,7 +31,7 @@ public slots:
 
 private:
 
-  QPlainTextEdit *m_errorsText;
+  QTableWidget *m_errorsWidget;
 };
 
 } // namespace DFG
