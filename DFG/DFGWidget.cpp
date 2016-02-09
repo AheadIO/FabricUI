@@ -361,7 +361,6 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
-  result->addAction("Rename");
   result->addAction("Delete");
 
   try
@@ -1019,27 +1018,6 @@ void DFGWidget::onExecPortAction(QAction * action)
   if(action->text() == "Delete")
   {
     m_uiController->cmdRemovePort( portName );
-  }
-  else if ( action->text() == "Rename" )
-  {
-    DFGBaseDialog dialog( this );
-    QLineEdit *lineEdit = new QLineEdit();
-    lineEdit->setText( portName );
-    lineEdit->selectAll();
-    QObject::connect(
-      lineEdit, SIGNAL(returnPressed()),
-      &dialog, SLOT(accept())
-      );
-    dialog.addInput( lineEdit, "Desired name" );
-
-    if ( dialog.exec() == QDialog::Accepted )
-    {
-      QString desiredNewName = lineEdit->text();
-      m_uiController->cmdRenameExecPort(
-        portName,
-        desiredNewName.toUtf8().constData()
-        );
-    }
   }
   else if(action->text() == "Edit")
   {
