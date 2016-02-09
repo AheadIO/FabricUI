@@ -51,13 +51,14 @@ DFGController::DFGController(
   , m_argsChangedPending( false )
   , m_argValuesChangedPending( false )
   , m_defaultValuesChangedPending( false )
+  , m_topoDirtyPending( false )
   , m_dirtyPending( false )
 {
   m_router = NULL;
   m_logFunc = NULL;
   m_presetDictsUpToDate = false;
 
-  QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
+  QObject::connect(this, SIGNAL(topoDirty()), this, SLOT(onTopoDirty()));
   QObject::connect(this, SIGNAL(varsChanged()), this, SLOT(onVariablesChanged()));
 }
 
@@ -99,6 +100,12 @@ void DFGController::setBindingExec(
       SIGNAL(dirty()),
       this,
       SLOT(onBindingDirty())
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(topoDirty()),
+      this,
+      SLOT(onBindingTopoDirty())
       );
     connect(
       m_bindingNotifier.data(),
@@ -936,8 +943,15 @@ bool DFGController::reloadExtensionDependencies(char const * path)
   return true;
 }
 
-void DFGController::checkErrors()
+void DFGController::onTopoDirty()
 {
+  updateErrors();
+}
+
+void DFGController::updateErrors()
+{
+  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged( m_binding );
+
   try
   {
     GraphView::Graph *uiGraph = 0;
@@ -1139,9 +1153,6 @@ void DFGController::execute()
   {
     logError(e.getDesc_cstr());
   }
-
-  FabricCore::DFGExec rootExec = getBinding().getExec();
-  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged( rootExec );
 }
 
 void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
@@ -1566,6 +1577,11 @@ void DFGController::onBindingArgTypeChanged(
   )
 {
   emitArgsChanged();
+}
+
+void DFGController::onBindingTopoDirty()
+{
+  emitTopoDirty();
 }
 
 void DFGController::onBindingArgRemoved(

@@ -31,7 +31,7 @@ public:
 public slots:
   
   void onErrorsMayHaveChanged(
-    FabricCore::DFGExec const &rootExec
+    FabricCore::DFGBinding binding
     );
 
 private:

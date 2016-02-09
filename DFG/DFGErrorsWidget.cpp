@@ -47,12 +47,13 @@ DFGErrorsWidget::~DFGErrorsWidget()
 }
 
 void DFGErrorsWidget::onErrorsMayHaveChanged(
-  FabricCore::DFGExec const &rootExec
+  FabricCore::DFGBinding binding
   )
 {
-  bool hasErrors = rootExec.hasRecursiveConnectedErrors();
+  bool hasErrors = binding.hasRecursiveConnectedErrors();
   if ( hasErrors )
   {
+    FabricCore::DFGExec rootExec = binding.getExec();
     FabricCore::String errorsJSON =
       rootExec.getErrors( true /* recursive */ );
     FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
