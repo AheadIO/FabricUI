@@ -5,7 +5,6 @@
 #include "BaseViewItem.h"
 #include "BaseModelItem.h"
 #include "ViewItemFactory.h"
-#include "ViewConstants.h"
 
 #include <FabricCore.h>
 
