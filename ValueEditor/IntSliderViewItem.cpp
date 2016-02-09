@@ -28,7 +28,6 @@ IntSliderViewItem::IntSliderViewItem(
 {
   m_lineEdit = new VELineEdit;
   m_slider = new IntSlider;
-  m_slider->setFocusPolicy(Qt::StrongFocus);
 
   metadataChanged();
 

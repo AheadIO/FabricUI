@@ -27,7 +27,6 @@ FloatSliderViewItem::FloatSliderViewItem(
 {
   m_lineEdit = new VELineEdit;
   m_slider = new DoubleSlider;
-  m_slider->setFocusPolicy(Qt::StrongFocus);
 
   metadataChanged();
 

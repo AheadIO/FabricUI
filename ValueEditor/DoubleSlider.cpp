@@ -17,6 +17,7 @@ DoubleSlider::DoubleSlider( QWidget * parent )
   , m_isSettingValue( false )
 {
   setResolution( 2, m_min, m_max );
+  setFocusPolicy(Qt::StrongFocus);
 
   // Default to horizontal orientation
   setOrientation( Qt::Horizontal );

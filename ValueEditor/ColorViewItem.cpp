@@ -7,6 +7,7 @@
 #include "ViewItemFactory.h"
 #include "ItemMetadata.h"
 #include "BaseModelItem.h"
+#include "ComboBox.h"
 
 #include <assert.h>
 #include <FTL/JSONValue.h>
@@ -14,7 +15,6 @@
 #include <QtGui/QColorDialog>
 #include <QtGui/QPushButton>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QComboBox>
 
 #define IDX_RGB 0
 #define IDX_HSV 1
@@ -47,7 +47,7 @@ ColorViewItem::ColorViewItem(
 
   layout->addWidget( m_button );
 
-  m_specCombo = new QComboBox;
+  m_specCombo = new ComboBox;
   m_specCombo->addItem( tr( "RGB" ) );
   m_specCombo->addItem( tr( "HSV" ) );
 
