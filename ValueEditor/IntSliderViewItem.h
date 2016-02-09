@@ -10,7 +10,7 @@ class ItemMetadata;
 class QString;
 class QVariant;
 class QWidget;
-class QSlider;
+class IntSlider;
 class VELineEdit;
 
 class IntSliderViewItem : public BaseViewItem
@@ -45,7 +45,7 @@ private:
 
   QWidget *m_widget;
   VELineEdit *m_lineEdit;
-  QSlider *m_slider;
+  IntSlider *m_slider;
   int m_softMinimum;
   int m_softMaximum;
   int m_hardMinimum;

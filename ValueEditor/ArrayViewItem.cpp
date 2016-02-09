@@ -6,7 +6,6 @@
 #include "ViewItemFactory.h"
 #include "QVariantRTVal.h"
 #include "VEIntSpinBox.h"
-
 #include <QtGui/QWidget>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>

@@ -10,7 +10,7 @@
 
 class QPushButton;
 class ItemMetadata;
-class QComboBox;
+class ComboBox;
 
 class ColorViewItem : public BaseComplexViewItem
 {
@@ -25,7 +25,7 @@ private:
   // We store the desired format of
   // the color (HSV or RGB)
   QColor::Spec m_spec;
-  QComboBox* m_specCombo;
+  ComboBox* m_specCombo;
   
   // We need to keep an instance of the
   // metadata we pass to our children (as they

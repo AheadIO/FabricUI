@@ -10,13 +10,14 @@
 
 #include <FTL/AutoSet.h>
 
-DoubleSlider::DoubleSlider( QWidget * parent ) 
+DoubleSlider::DoubleSlider( QWidget * parent )
   : QSlider( parent )
   , m_min( 0.0 )
   , m_max( 1.0 )
   , m_isSettingValue( false )
 {
   setResolution( 2, m_min, m_max );
+  setFocusPolicy(Qt::StrongFocus);
 
   // Default to horizontal orientation
   setOrientation( Qt::Horizontal );
@@ -68,6 +69,17 @@ void DoubleSlider::mousePressEvent( QMouseEvent *event )
   QSlider::mousePressEvent( event );
 }
 
+void DoubleSlider::wheelEvent( QWheelEvent *event )
+{
+  // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
+  if (!hasFocus())
+  {
+    event->ignore();
+    return;
+  }
+
+  wheelEvent( event );
+}
 
 void DoubleSlider::setResolution( int decimals, double min, double max )
 {

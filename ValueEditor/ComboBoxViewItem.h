@@ -6,7 +6,7 @@
 
 #include "BaseViewItem.h"
 
-class QComboBox;
+class ComboBox;
 
 class ComboBoxViewItem : public BaseViewItem
 {
@@ -34,7 +34,7 @@ public:
 
 private:
 
-  QComboBox* m_comboBox;
+  ComboBox* m_comboBox;
   bool m_isString;
 
 private slots:

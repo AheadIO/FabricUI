@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QtGui/QSlider>
+#include <QtGui/qevent.h>
 
 class DoubleSlider : public QSlider {
   Q_OBJECT
@@ -20,6 +21,8 @@ public:
   // go directly to the clicked positioning (instead of
   // going there by incremenets)
   virtual void mousePressEvent( QMouseEvent * ) /*override*/;
+
+  virtual void wheelEvent( QWheelEvent *event ) /*override*/;
 
   void setResolution( int decimals, double min, double max );
 
