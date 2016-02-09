@@ -4,7 +4,6 @@
 
 #include "ComboBoxViewItem.h"
 #include "QVariantRTVal.h"
-#include "ViewConstants.h"
 
 #include <FTL/StrSplit.h>
 #include <QtGui/QComboBox>

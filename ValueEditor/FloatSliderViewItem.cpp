@@ -3,8 +3,8 @@
 //
 
 #include "DoubleSlider.h"
-#include "FloatSliderViewItem.h"
 #include "ViewConstants.h"
+#include "FloatSliderViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
 #include "VELineEdit.h"
