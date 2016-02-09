@@ -2,7 +2,9 @@
  
 #include <assert.h>
 #include <FabricCore.h>
+#include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/DFG/DFGErrorsWidget.h>
+#include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -10,14 +12,14 @@
 #include <FabricUI/DFG/Dialogs/DFGGetStringDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGGetTextDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
+#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
-#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
-#include <FabricUI/DFG/DFGHotkeys.h>
-#include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/LoadFabricStyleSheet.h>
 #include <FabricUI/Util/UIRange.h>
 #include <FTL/FS.h>
+#include <Persistence/RTValToJSONEncoder.hpp>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
@@ -28,7 +30,6 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QSplitter>
-#include <Persistence/RTValToJSONEncoder.hpp>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -55,6 +56,8 @@ DFGWidget::DFGWidget(
   , m_manager( manager )
   , m_dfgConfig( dfgConfig )
 {
+  reloadStyles();
+
   m_uiController = new DFGController(
     0,
     this,
@@ -2051,4 +2054,11 @@ void DFGWidget::onExecChanged()
   m_uiController->updateErrors();
 
   emit execChanged();
+}
+
+void DFGWidget::reloadStyles()
+{
+  QString styleSheet = LoadFabricStyleSheet( "DFGWidget.qss" );
+  if ( !styleSheet.isEmpty() )
+    setStyleSheet( styleSheet );
 }

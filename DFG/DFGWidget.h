@@ -72,6 +72,7 @@ namespace FabricUI
       void populateMenuBar(QMenuBar * menuBar, bool addFileMenu = true);
       bool maybeEditNode(FabricUI::GraphView::Node * node);
 
+      void reloadStyles();
 
     signals:
 

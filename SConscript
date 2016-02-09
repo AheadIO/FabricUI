@@ -143,6 +143,7 @@ if uiLibPrefix == 'ui':
     stageDir.srcnode().Dir('Resources').Dir('QSS'),
     [
       Glob(os.path.join(env.Dir('ValueEditor').srcnode().abspath, '*.qss')),
+      Glob(os.path.join(env.Dir('DFG').srcnode().abspath, '*.qss')),
       ]
     )
   env.Depends(uiLib, qss)

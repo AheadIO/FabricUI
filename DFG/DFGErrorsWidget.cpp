@@ -32,12 +32,17 @@ DFGErrorsWidget::DFGErrorsWidget(
   m_errorsWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   m_errorsWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
+  QLabel *titleLabel = new QLabel( "Diagnostics" );
+  titleLabel->setObjectName( "Title" );
+
   QVBoxLayout *layout = new QVBoxLayout;
-  layout->setSpacing( 0 );
   layout->setContentsMargins( 0, 0, 0, 0 );
-  layout->addWidget( new QLabel( "Diagnostics" ) );
+  layout->setSpacing( 0 );
+  layout->addWidget( titleLabel );
   layout->addWidget( m_errorsWidget );
   setLayout( layout );
+
+  setObjectName( "DFGErrorsWidget" );
   setVisible( false );
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
