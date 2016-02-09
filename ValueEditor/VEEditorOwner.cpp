@@ -640,7 +640,6 @@ void VEEditorOwner::onExecPortMetadataChanged(
   }
 }
 
-
 void VEEditorOwner::onExecNodeRemoved(
   FTL::CStrRef nodeName
   )
