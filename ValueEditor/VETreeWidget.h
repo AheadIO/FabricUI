@@ -45,7 +45,7 @@ public:
 
   void onViewItemChildrenRebuild( BaseViewItem* item );
 
-  // This slot is triggered when an item is editied in the view
+  // This slot is triggered when an item is edited in the view
   void onItemEdited( QTreeWidgetItem* item, int column );
 
 protected slots:
