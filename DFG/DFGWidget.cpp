@@ -2059,7 +2059,7 @@ void DFGWidget::onExecChanged()
     emit onGraphSet(m_uiGraph);
   }
 
-  m_uiController->updateErrors();
+  m_uiController->updateNodeErrors();
 
   emit execChanged();
 }

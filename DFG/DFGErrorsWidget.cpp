@@ -34,19 +34,16 @@ DFGErrorsWidget::DFGErrorsWidget(
     );
   m_errorsWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
   m_errorsWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
-
+  m_errorsWidget->setShowGrid( false );
+  
   connect(
     m_errorsWidget, SIGNAL(cellClicked(int, int)),
     this, SLOT(onCellClicked(int, int))
     );
 
-  QLabel *titleLabel = new QLabel( "Diagnostics" );
-  titleLabel->setObjectName( "Title" );
-
   QVBoxLayout *layout = new QVBoxLayout;
   layout->setContentsMargins( 0, 0, 0, 0 );
   layout->setSpacing( 0 );
-  layout->addWidget( titleLabel );
   layout->addWidget( m_errorsWidget );
   setLayout( layout );
 
@@ -115,7 +112,7 @@ void DFGErrorsWidget::onErrorsMayHaveChanged(
     }
   }
   else m_errorsWidget->setRowCount( 0 );
-  
+
   setVisible( hasErrors );
 }
 

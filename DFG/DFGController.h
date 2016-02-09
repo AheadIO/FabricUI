@@ -465,7 +465,7 @@ namespace FabricUI
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
 
-      void updateErrors();
+      void updateNodeErrors();
 
     signals:
 
@@ -512,6 +512,7 @@ namespace FabricUI
 
     private:
 
+      void updateErrors();
       void updatePresetPathDB();
 
       DFGWidget *m_dfgWidget;

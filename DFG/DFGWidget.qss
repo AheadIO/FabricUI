@@ -2,19 +2,12 @@
  *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  */
 
-/* why doesn't this work?? */
-/*
-#DFGErrorsWidget {
-    background-color: #c06060;
-}
-*/
-
-#DFGErrorsWidget > QLabel#Title {
-  color: #ffffff;
-  background-color: #c06060;
-  padding: 4px 3px;
-}
-
 #DFGErrorsWidget > QTableWidget {
   border: none;
+  color: #ffffff;
+  background-color: #c06060;
+}
+
+#DFGErrorsWidget > QTableWidget > QTableWidgetItem {
+  padding: 2px;
 }

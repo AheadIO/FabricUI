@@ -153,6 +153,8 @@ void DFGController::setBindingExec(
 
   setExec( execPath, exec );
 
+  updateErrors();
+
   emit bindingChanged( m_binding );
 }
 
@@ -951,6 +953,12 @@ void DFGController::onTopoDirty()
 void DFGController::updateErrors()
 {
   m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged( m_binding );
+}
+
+void DFGController::updateNodeErrors()
+{
+  // [pzion 20160209] This will force the Core to ensure errors are up-to-date
+  (void)m_binding.hasRecursiveConnectedErrors();
 
   try
   {
