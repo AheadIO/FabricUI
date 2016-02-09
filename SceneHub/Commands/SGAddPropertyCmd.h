@@ -8,10 +8,11 @@
 #include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
- 
+#include <FabricUI/Util/StringUtils.h>
+
 using namespace std;
 using namespace FabricCore;
-
+ 
 
 namespace FabricUI
 {
@@ -40,8 +41,8 @@ namespace FabricUI
           vector<string> params;
           if(SHCmd::ExtractParams(command, params) && params.size() == 2)
           {
-            string ownerPath = RemoveSpace(params[0]); 
-            string name = RemoveSpace(params[1]); 
+            string ownerPath = FabricUI::Util::RemoveSpace(params[0]); 
+            string name = FabricUI::Util::RemoveSpace(params[1]); 
          
             FABRIC_TRY_RETURN("SGAddPropertyCmd::Create", false,
               vector<RTVal> params(2);

@@ -8,6 +8,7 @@
 #include <FabricUI/SceneHub/Commands/SGAddPropertyCmd.h>
 #include <FabricUI/SceneHub/Commands/SGSetPropertyValueCmd.h>
 #include <FabricUI/SceneHub/Commands/SGSetPaintToolAttributeCmd.h>
+#include <FabricUI/Util/StringUtils.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -53,20 +54,20 @@ void SHCmdView::synchronize() {
     std::string type = std::string(typeVal.getStringCString());
       
     // SGAddObjectCmd
-    if(ToLower(type).compare(ToLower(SGAddObjectCmd_Type_Str)) == 0)
+    if(FabricUI::Util::ToLower(type).compare(FabricUI::Util::ToLower(SGAddObjectCmd_Type_Str)) == 0)
       addCommand(SGAddObjectCmd::Get(m_client, m_shObject, i), false);
 
     // SGAddPropertyCmd
-    else if(ToLower(type).compare(ToLower(SGAddPropertyCmd_Type_Str)) == 0)
+    else if(FabricUI::Util::ToLower(type).compare(FabricUI::Util::ToLower(SGAddPropertyCmd_Type_Str)) == 0)
       addCommand(SGAddPropertyCmd::Get(m_client, m_shObject, i), false);
 
     // SGSetPropertyValueCmd
-    else if(ToLower(type).compare(ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
+    else if(FabricUI::Util::ToLower(type).compare(FabricUI::Util::ToLower(SGSetPropertyValueCmd_Type_Str)) == 0)
       addCommand(SGSetPropertyValueCmd::Get(m_client, m_shObject, i), false);
 
 
     // SGSetPaintToolAttributeCmd
-    else if(ToLower(type).compare(ToLower(SGSetPaintToolAttributeCmd_Type_Str)) == 0)
+    else if(FabricUI::Util::ToLower(type).compare(FabricUI::Util::ToLower(SGSetPaintToolAttributeCmd_Type_Str)) == 0)
       addCommand(SGSetPaintToolAttributeCmd::Get(m_client, m_shObject, i), false);
 
     // log an error
@@ -91,19 +92,19 @@ bool SHCmdView::addCommand(const std::string &command, bool exec) {
   if(SHCmd::ExtractName(command, name)) 
   {
     // SGAddObjectCmd
-    if(ToLower(name).compare(ToLower(SGAddObjectCmd_Str)) == 0) 
+    if(FabricUI::Util::ToLower(name).compare(FabricUI::Util::ToLower(SGAddObjectCmd_Str)) == 0) 
       return m_shCmdHandler.addCommand(SGAddObjectCmd::Create(m_client, m_shObject, command, exec));
     
     // SGAddPropertyCmd
-    else if(ToLower(name).compare(ToLower(SGAddPropertyCmd_Str)) == 0) 
+    else if(FabricUI::Util::ToLower(name).compare(FabricUI::Util::ToLower(SGAddPropertyCmd_Str)) == 0) 
       return m_shCmdHandler.addCommand(SGAddPropertyCmd::Create(m_client, m_shObject, command, exec));
     
     // SGSetPropertyValueCmd
-    else if(ToLower(name).compare(ToLower(SGSetPropertyValueCmd_Str)) == 0) 
+    else if(FabricUI::Util::ToLower(name).compare(FabricUI::Util::ToLower(SGSetPropertyValueCmd_Str)) == 0) 
       return m_shCmdHandler.addCommand(SGSetPropertyValueCmd::Create(m_client, m_shObject, command, exec));
 
     // SGSetPaintToolAttributeCmd
-    else if(ToLower(name).compare(ToLower(SGSetPaintToolAttributeCmd_Str)) == 0)
+    else if(FabricUI::Util::ToLower(name).compare(FabricUI::Util::ToLower(SGSetPaintToolAttributeCmd_Str)) == 0)
       return m_shCmdHandler.addCommand(SGSetPaintToolAttributeCmd::Create(m_client, m_shObject, command, exec));
  
     // log an error

@@ -9,6 +9,7 @@
 #include <FTL/JSONValue.h>
 #include <FTL/JSONEnc.h>
 #include <QtGui/QMessageBox>
+#include <FabricUI/Util/StringUtils.h>
 
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
@@ -119,13 +120,13 @@ void SHCmd::DecodeRTValFromJSON(FabricCore::Client const& client, FabricCore::RT
 /// \param command The command
 /// \param params The array of parameters as string
 bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &params) {
-  std::vector<std::string> split = Split(command, '(');
+  std::vector<std::string> split = FabricUI::Util::Split(command, '(');
   if(split.size() == 2)
   {
-    std::vector<std::string> split_ = Split(split[1], ')');
+    std::vector<std::string> split_ = FabricUI::Util::Split(split[1], ')');
     if(split_.size() == 2)
     {             
-      std::string paramArray = RemoveSpace(split_[0]);
+      std::string paramArray = FabricUI::Util::RemoveSpace(split_[0]);
 
       // Parameter like {...,...,...}
       size_t begin = paramArray.find("{");
@@ -144,14 +145,14 @@ bool SHCmd::ExtractParams(const std::string &command, std::vector<std::string> &
         paramArray.erase(begin, end+index2+1-begin);
         
         // Construct the vector of parameters
-        std::vector<std::string> tempArray = Split(paramArray, ',');
+        std::vector<std::string> tempArray = FabricUI::Util::Split(paramArray, ',');
         for(uint32_t i=0; i<index; ++i) params.push_back(tempArray[i]);
         params.push_back(params_);
         for(uint32_t i=index; i<tempArray.size(); ++i) params.push_back(tempArray[i]);
       }
       else 
       {
-        params = Split(paramArray, ',');
+        params = FabricUI::Util::Split(paramArray, ',');
         if(params.size() == 0 && paramArray.compare("") != 0)
           params.push_back(paramArray);
       }
@@ -178,7 +179,7 @@ FabricCore::RTVal SHCmd::SetParamValue(FabricCore::Client const& client, std::st
 /// \param command The command
 /// \param name The command's name
 bool SHCmd::ExtractName(const std::string &command, std::string &name) {
-  std::vector<std::string> split = FabricUI::SceneHub::Split(command, '(');
+  std::vector<std::string> split = FabricUI::Util::Split(command, '(');
   if(split.size() > 1) {
     name = split[0];
     return true;

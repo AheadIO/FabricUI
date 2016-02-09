@@ -11,10 +11,11 @@
 #include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
- 
+#include <FabricUI/Util/StringUtils.h>
+
 using namespace std;
 using namespace FabricCore;
-
+ 
 namespace FabricUI
 {
   namespace SceneHub
@@ -44,10 +45,10 @@ namespace FabricUI
           if(SHCmd::ExtractParams(command, params) && params.size() == nbParams)
           {
             // Get the name of the object
-            string fullPath = RemoveSpace(params[0]); 
-            string type = RemoveSpace(params[1]); 
-            string data = RemoveSpace(params[2]); 
-            uint64_t dataSize = ToNum<uint64_t>(params[3]); 
+            string fullPath = FabricUI::Util::RemoveSpace(params[0]); 
+            string type = FabricUI::Util::RemoveSpace(params[1]); 
+            string data = FabricUI::Util::RemoveSpace(params[2]); 
+            uint64_t dataSize = FabricUI::Util::ToNum<uint64_t>(params[3]); 
 
             FABRIC_TRY_RETURN("SGSetPropertyValueCmd::Create", false,
 
@@ -93,7 +94,7 @@ namespace FabricUI
             string data = EncodeRTValToJSON(client, structVal);
         
             string res = string( SGSetPropertyValueCmd_Str + "(" + fullPath + ", " + type + 
-              ", " + RemoveSpace(RemoveNewLine(data)) + ", " + ToStr(dataSize) + ")" );
+              ", " + FabricUI::Util::RemoveSpace(FabricUI::Util::RemoveNewLine(data)) + ", " + FabricUI::Util::ToStr(dataSize) + ")" );
 
             return res;
           );
