@@ -28,38 +28,46 @@ namespace FabricUI
 
       virtual const char* getString( const char* key ) const /*override*/
       {
-        FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
-        FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
-
-        if (strcmp( "uiReadOnly", key ) == 0)
-        {
-          // Override disabled for connected ports
-          if ( exec.hasSrcPort( portPath.c_str() ) )
-            return "1";
-          if (exec.editWouldSplitFromPreset())
-            return "1";
-        }
-
-        if ( key == VEPortTypeKey )
+        try
         {
           FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
           FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
-          return DFGPortTypeToVEPortType(
-            exec.getNodePortType( portPath.c_str() )
-            ).c_str();
-        }
 
-        if ( key == VENotInspectableKey )
+          if (strcmp( "uiReadOnly", key ) == 0)
+          {
+            // Override disabled for connected ports
+            if ( exec.hasSrcPort( portPath.c_str() ) )
+              return "1";
+            if (exec.editWouldSplitFromPreset())
+              return "1";
+          }
+
+          if ( key == VEPortTypeKey )
+          {
+            FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
+            FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
+            return DFGPortTypeToVEPortType(
+              exec.getNodePortType( portPath.c_str() )
+              ).c_str();
+          }
+
+          if ( key == VENotInspectableKey )
+          {
+            FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
+            FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
+            bool isNotInspectable =
+              exec.getNodePortType( portPath.c_str() ) != FabricCore::DFGPortType_In
+                || exec.hasSrcPort( portPath.c_str() );
+            return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
+          }
+
+          return exec.getNodePortMetadata( portPath.c_str(), key );
+        }
+        catch (FabricCore::Exception* e)
         {
-          FabricCore::DFGExec exec = m_nodePortModelItem->getExec();
-          FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
-          bool isNotInspectable =
-            exec.getNodePortType( portPath.c_str() ) != FabricCore::DFGPortType_In
-              || exec.hasSrcPort( portPath.c_str() );
-          return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
+          printf( "[ERROR] %s", e->getDesc_cstr() );
+          return NULL;
         }
-
-        return exec.getNodePortMetadata( portPath.c_str(), key );
       }
     };
   }

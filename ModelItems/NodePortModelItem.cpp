@@ -88,50 +88,57 @@ void NodePortModelItem::setValue(
   QVariant valueAtInteractionBegin
   )
 {
-  if ( m_exec.hasSrcPort( m_portPath.c_str() ) )
-    return;
-
-  const char* resolvedTypeName =
-    m_exec.getNodePortResolvedType( m_portPath.c_str() );
-  assert( resolvedTypeName );
-  if ( !resolvedTypeName )
-    return;
-
-  FabricCore::DFGHost host = m_binding.getHost();
-  FabricCore::DFGNotifBracket _( host );
-  FabricCore::Context context = host.getContext();
-  FabricCore::RTVal rtVal =
-    FabricCore::RTVal::Construct( context, resolvedTypeName, 0, 0 );
-
-  if ( commit )
+  try
   {
-    if ( valueAtInteractionBegin.isValid() )
+    if ( m_exec.hasSrcPort( m_portPath.c_str() ) )
+      return;
+
+    const char* resolvedTypeName =
+      m_exec.getNodePortResolvedType( m_portPath.c_str() );
+    assert( resolvedTypeName );
+    if ( !resolvedTypeName )
+      return;
+
+    FabricCore::DFGHost host = m_binding.getHost();
+    FabricCore::DFGNotifBracket _( host );
+    FabricCore::Context context = host.getContext();
+    FabricCore::RTVal rtVal =
+      FabricCore::RTVal::Construct( context, resolvedTypeName, 0, 0 );
+
+    if ( commit )
     {
-      RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+      if ( valueAtInteractionBegin.isValid() )
+      {
+        RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+        m_exec.setPortDefaultValue(
+          m_portPath.c_str(),
+          rtVal,
+          false // canUndo
+          );
+      }
+
+      RTVariant::toRTVal( value, rtVal );
+      m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
+        m_binding,
+        m_execPath,
+        m_exec,
+        m_portPath,
+        rtVal
+        );
+    }
+    else
+    {
+      RTVariant::toRTVal( value, rtVal );
       m_exec.setPortDefaultValue(
         m_portPath.c_str(),
         rtVal,
         false // canUndo
         );
     }
-
-    RTVariant::toRTVal( value, rtVal );
-    m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
-      m_binding,
-      m_execPath,
-      m_exec,
-      m_portPath,
-      rtVal
-      );
   }
-  else
+  catch (FabricCore::Exception* e)
   {
-    RTVariant::toRTVal( value, rtVal );
-    m_exec.setPortDefaultValue(
-      m_portPath.c_str(),
-      rtVal,
-      false // canUndo
-      );
+    printf( "[ERROR] %s", e->getDesc_cstr() );
   }
 }
 
