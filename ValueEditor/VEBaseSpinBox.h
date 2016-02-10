@@ -57,7 +57,7 @@ public:
 
       // [FE-6014]
       QT_SPINBOX::lineEdit()->deselect();
-      QT_SPINBOX::clearFocus();
+      QT_SPINBOX::lineEdit()->clearFocus(); // [FE-6077] using this instead of QT_SPINBOX::clearFocus() makes the TAB key work.
     }
     else
     {
