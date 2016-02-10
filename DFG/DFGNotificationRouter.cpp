@@ -3,8 +3,8 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>
@@ -576,11 +576,6 @@ void DFGNotificationRouter::onNodeInserted(
       onNodeMetadataChanged(nodeName, key, value);
     }
   }
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeRemoved(
@@ -597,11 +592,6 @@ void DFGNotificationRouter::onNodeRemoved(
 
   // todo - the notif should provide the node type
   // m_dfgController->updatePresetDB(true);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 
   m_dfgController->emitNodeRemoved( nodeName );
 }
@@ -665,11 +655,6 @@ void DFGNotificationRouter::onNodePortRemoved(
   if(!uiPin)
     return;
   uiNode->removePin(uiPin, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onExecPortInserted(
@@ -766,11 +751,6 @@ void DFGNotificationRouter::onExecPortRemoved(
     {
       uiOutPanel->removePort(uiOutPort);
     }
-
-    if(m_performChecks)
-    {
-      ((DFGController*)m_dfgController)->checkErrors();
-    }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
   {
@@ -827,11 +807,6 @@ void DFGNotificationRouter::onPortsConnected(
     return;
 
   uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -880,11 +855,6 @@ void DFGNotificationRouter::onPortsDisconnected(
     return;
 
   uiGraph->removeConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(

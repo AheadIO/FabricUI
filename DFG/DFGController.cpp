@@ -17,10 +17,14 @@
 #include <FabricUI/GraphView/GraphRelaxer.h>
 
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUIUtil.h>
+#include <FabricUI/DFG/DFGWidget.h>
+
+#include <sstream>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -47,13 +51,14 @@ DFGController::DFGController(
   , m_argsChangedPending( false )
   , m_argValuesChangedPending( false )
   , m_defaultValuesChangedPending( false )
+  , m_topoDirtyPending( false )
   , m_dirtyPending( false )
 {
   m_router = NULL;
   m_logFunc = NULL;
   m_presetDictsUpToDate = false;
 
-  QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
+  QObject::connect(this, SIGNAL(topoDirty()), this, SLOT(onTopoDirty()));
   QObject::connect(this, SIGNAL(varsChanged()), this, SLOT(onVariablesChanged()));
 }
 
@@ -95,6 +100,12 @@ void DFGController::setBindingExec(
       SIGNAL(dirty()),
       this,
       SLOT(onBindingDirty())
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(topoDirty()),
+      this,
+      SLOT(onBindingTopoDirty())
       );
     connect(
       m_bindingNotifier.data(),
@@ -141,6 +152,8 @@ void DFGController::setBindingExec(
   }
 
   setExec( execPath, exec );
+
+  updateErrors();
 
   emit bindingChanged( m_binding );
 }
@@ -932,10 +945,42 @@ bool DFGController::reloadExtensionDependencies(char const * path)
   return true;
 }
 
-void DFGController::checkErrors()
+void DFGController::onTopoDirty()
 {
+  updateErrors();
+  updateNodeErrors();
+}
+
+void DFGController::updateErrors()
+{
+  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged();
+}
+
+void DFGController::updateNodeErrors()
+{
+  // [pzion 20160209] This will force the Core to ensure errors are up-to-date
+  (void)m_binding.hasRecursiveConnectedErrors();
+
   try
   {
+    GraphView::Graph *uiGraph = 0;
+    if ( m_exec.getType() == FabricCore::DFGExecType_Graph )
+      uiGraph = graph();
+    if ( uiGraph )
+    {
+      unsigned nodeCount = m_exec.getNodeCount();
+      for(size_t j=0;j<nodeCount;j++)
+      {
+        char const *nodeName = m_exec.getNodeName(j);
+
+        GraphView::Node *uiNode = uiGraph->nodeFromPath( nodeName );
+        if ( !uiNode )
+          continue;
+
+        uiNode->clearError();
+      }
+    }
+
     FabricCore::String errorsJSON = m_exec.getErrors( true );
     FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
     FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
@@ -945,12 +990,50 @@ void DFGController::checkErrors()
     unsigned errorCount = errorsJSONArray->size();
     for(unsigned i=0;i<errorCount;i++)
     {
-      FTL::JSONString *errorJSONString =
-        errorsJSONArray->get( i )->cast<FTL::JSONString>();
-      std::string prefixedError = m_execPath;
-      prefixedError += " : ";
-      prefixedError += errorJSONString->getValue();
-      logError( prefixedError.c_str() );
+      FTL::JSONObject const *error = errorsJSONArray->getObject( i );
+
+      FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+      FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
+      FTL::CStrRef desc = error->getString( FTL_STR("desc") );
+      int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
+      int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
+
+      std::stringstream prefixedError;
+      prefixedError << m_execPath;
+      prefixedError << " : ";
+      if ( !execPath.empty() )
+        prefixedError << execPath;
+      if ( !execPath.empty() && !nodeName.empty() )
+        prefixedError << '.';
+      if ( !nodeName.empty() )
+        prefixedError << nodeName;
+      if ( line != -1 )
+      {
+        prefixedError << ':';
+        prefixedError << line;
+        if ( column != -1 )
+        {
+          prefixedError << ':';
+          prefixedError << column;
+        }
+      }
+      prefixedError << " : ";
+      prefixedError << desc;
+      logError( prefixedError.str().c_str() );
+
+      if ( uiGraph )
+      {
+        FTL::StrRef rootNodeName;
+        if ( !execPath.empty() )
+          rootNodeName = execPath.split('.').first;
+        else
+          rootNodeName = nodeName;
+        if ( rootNodeName.empty() )
+          continue;
+
+        if ( GraphView::Node *uiNode = uiGraph->nodeFromPath( rootNodeName ) )
+          uiNode->setError( QString::fromUtf8( desc.data(), desc.size() ) );
+      }
     }
   }
   catch ( FTL::JSONException e )
@@ -959,44 +1042,6 @@ void DFGController::checkErrors()
       << "Caught exception: "
       << e.getDesc()
       << "\n";
-  }
-
-  GraphView::Graph *uiGraph = graph();
-  if ( uiGraph && m_exec.getType() == FabricCore::DFGExecType_Graph )
-  {
-    unsigned nodeCount = m_exec.getNodeCount();
-    for(size_t j=0;j<nodeCount;j++)
-    {
-      char const *nodeName = m_exec.getNodeName(j);
-
-      GraphView::Node *uiNode = NULL;
-      uiNode = uiGraph->nodeFromPath( nodeName );
-      if ( !uiNode )
-        continue;
-
-      FabricCore::String errorsJSON =
-        m_exec.getNodeErrors( uiNode->name().c_str(), true );
-      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
-      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
-      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
-        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
-        );
-      unsigned errorCount = errorsJSONArray->size();
-      if ( errorCount > 0 )
-      {
-        std::string errorsComposed;
-        for(unsigned i=0;i<errorCount;i++)
-        {
-          FTL::JSONString *errorJSONString =
-            errorsJSONArray->get( i )->cast<FTL::JSONString>();
-          if ( !errorsComposed.empty() )
-            errorsComposed += '\n';
-          errorsComposed += errorJSONString->getValue();
-        }
-        uiNode->setError( errorsComposed.c_str() );
-      }
-      else uiNode->clearError();
-    }
   }
 
   // [pzion 20150701] Upgrade old backdrops scheme
@@ -1541,6 +1586,11 @@ void DFGController::onBindingArgTypeChanged(
   )
 {
   emitArgsChanged();
+}
+
+void DFGController::onBindingTopoDirty()
+{
+  emitTopoDirty();
 }
 
 void DFGController::onBindingArgRemoved(

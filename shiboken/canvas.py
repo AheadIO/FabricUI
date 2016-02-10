@@ -341,7 +341,6 @@ class MainWindow(DFG.DFGMainWindow):
             dfgController.setBindingExec(binding, "", dfgExec)
             self.onSidePanelInspectRequested()
 
-            dfgController.checkErrors()
             self.evalContext.currentFilePath = filePath
             dfgController.execute()
 

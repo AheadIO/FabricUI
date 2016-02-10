@@ -1,0 +1,13 @@
+/*
+ *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
+ */
+
+#DFGErrorsWidget > QTableWidget {
+  border: none;
+  color: #ffffff;
+  background-color: #c04040;
+}
+
+#DFGErrorsWidget > QTableWidget > QTableWidgetItem {
+  padding: 2px;
+}

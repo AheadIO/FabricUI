@@ -384,6 +384,14 @@ namespace FabricUI
           emit defaultValuesChanged();
       }
 
+      void emitTopoDirty()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_topoDirtyPending = true;
+        else
+          emit topoDirty();
+      }
+
       void emitDirty()
       {
         if ( m_updateSignalBlockCount > 0 )
@@ -433,6 +441,11 @@ namespace FabricUI
               m_controller->m_defaultValuesChangedPending = false;
               emit m_controller->defaultValuesChanged();
             }
+            if ( m_controller->m_topoDirtyPending )
+            {
+              m_controller->m_topoDirtyPending = false;
+              emit m_controller->topoDirty();
+            }
             if ( m_controller->m_dirtyPending )
             {
               m_controller->m_dirtyPending = false;
@@ -452,6 +465,8 @@ namespace FabricUI
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
 
+      void updateNodeErrors();
+
     signals:
 
       void hostChanged();
@@ -467,6 +482,7 @@ namespace FabricUI
 
       void argValuesChanged();
       void defaultValuesChanged();
+      void topoDirty();
       void dirty();
       void execSplitChanged();
 
@@ -484,17 +500,19 @@ namespace FabricUI
 
     public slots:
 
+      void onTopoDirty();
+
       void onValueItemDelta( ValueItem *valueItem );
       void onValueItemInteractionEnter( ValueItem *valueItem );
       void onValueItemInteractionDelta( ValueItem *valueItem );
       void onValueItemInteractionLeave( ValueItem *valueItem );
 
-      void checkErrors();
       void onVariablesChanged();
       virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 
+      void updateErrors();
       void updatePresetPathDB();
 
       DFGWidget *m_dfgWidget;
@@ -520,6 +538,7 @@ namespace FabricUI
       bool m_argsChangedPending;
       bool m_argValuesChangedPending;
       bool m_defaultValuesChangedPending;
+      bool m_topoDirtyPending;
       bool m_dirtyPending;
 
     private slots:
@@ -531,6 +550,7 @@ namespace FabricUI
         FTL::CStrRef name,
         FTL::CStrRef typeName
         );
+      void onBindingTopoDirty();
 
       void onBindingArgTypeChanged(
         unsigned index,

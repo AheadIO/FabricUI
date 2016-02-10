@@ -34,6 +34,7 @@ public:
 
 signals:
   
+  void topoDirty();
   void dirty();
 
   void argInserted(
