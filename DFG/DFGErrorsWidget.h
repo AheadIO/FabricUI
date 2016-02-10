@@ -29,6 +29,16 @@ public:
     );
   ~DFGErrorsWidget();
 
+  void focusBinding( FabricCore::DFGBinding binding );
+
+  void focusExec(
+    FabricCore::DFGBinding binding,
+    FTL::StrRef execPath,
+    FabricCore::DFGExec exec
+    );
+
+  bool haveErrors();
+
 signals:
   
   void execSelected(
@@ -46,9 +56,7 @@ signals:
 
 public slots:
   
-  void onErrorsMayHaveChanged(
-    FabricCore::DFGBinding binding
-    );
+  void onErrorsMayHaveChanged();
 
 private slots:
 
@@ -56,6 +64,9 @@ private slots:
 
 private:
 
+  FabricCore::DFGBinding m_binding;
+  std::string m_execPath;
+  FabricCore::DFGExec m_exec;
   FTL::OwnedPtr<FTL::JSONArray> m_errors;
   QTableWidget *m_errorsWidget;
 };

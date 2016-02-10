@@ -56,23 +56,56 @@ DFGErrorsWidget::~DFGErrorsWidget()
 {
 }
 
-void DFGErrorsWidget::onErrorsMayHaveChanged(
+void DFGErrorsWidget::focusBinding(
   FabricCore::DFGBinding binding
   )
 {
-  m_errorsWidget->clearSelection();
+  m_binding = binding;
+  m_execPath.clear();
+  m_exec = FabricCore::DFGExec();
+  onErrorsMayHaveChanged();
+}
 
-  bool hasErrors = binding.hasRecursiveConnectedErrors();
-  if ( hasErrors )
+void DFGErrorsWidget::focusExec(
+  FabricCore::DFGBinding binding,
+  FTL::StrRef execPath,
+  FabricCore::DFGExec exec
+  )
+{
+  m_binding = binding;
+  m_execPath = execPath;
+  m_exec = exec;
+  onErrorsMayHaveChanged();
+}
+
+void DFGErrorsWidget::onErrorsMayHaveChanged()
+{
+  bool bindingHasRecursiveConnectedErrors =
+    m_binding.hasRecursiveConnectedErrors(); // updates errors by side effect
+  if ( m_exec.isValid() )
   {
-    FabricCore::DFGExec rootExec = binding.getExec();
+    FabricCore::String errorsJSON =
+      m_exec.getErrors( true /* recursive */ );
+    FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
+    FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
+    m_errors = 
+      FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
+  }
+  else if ( bindingHasRecursiveConnectedErrors )
+  {
+    FabricCore::DFGExec rootExec = m_binding.getExec();
     FabricCore::String errorsJSON =
       rootExec.getErrors( true /* recursive */ );
     FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
     FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
     m_errors = 
       FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
+  }
+  else m_errors = 0;
 
+  m_errorsWidget->clearSelection();
+  if ( m_errors && !m_errors->empty() )
+  {
     int rowCount = m_errors->size();
     m_errorsWidget->setRowCount( rowCount );
     for ( int row = 0; row < rowCount; ++row )
@@ -110,25 +143,41 @@ void DFGErrorsWidget::onErrorsMayHaveChanged(
           )
         );
     }
+    show();
   }
-  else m_errorsWidget->setRowCount( 0 );
-
-  setVisible( hasErrors );
+  else
+  {
+    m_errorsWidget->setRowCount( 0 );
+    hide();
+  }
 }
 
 void DFGErrorsWidget::onCellClicked( int row, int col )
 {
   FTL::JSONObject const *error = m_errors->getObject( row );
 
-  FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+  FTL::CStrRef baseExecPath = error->getString( FTL_STR("execPath") );
   FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
   int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
   int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
+
+  std::string execPath;
+  if ( !m_execPath.empty() )
+    execPath += m_execPath;
+  if ( !m_execPath.empty() && !baseExecPath.empty() )
+    execPath += '.';
+  if ( !baseExecPath.empty() )
+    execPath += baseExecPath;
 
   if ( !nodeName.empty() )
     emit nodeSelected( execPath, nodeName, line, column );
   else
     emit execSelected( execPath, line, column );
+}
+
+bool DFGErrorsWidget::haveErrors()
+{
+  return m_errors && !m_errors->empty();
 }
 
 } // namespace DFG

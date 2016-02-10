@@ -2024,10 +2024,16 @@ void DFGWidget::onExecChanged()
     {
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
+      m_errorsWidget->focusBinding( m_uiController->getBinding() );
     }
     else if(exec.getType() == FabricCore::DFGExecType_Func)
     {
       m_uiGraphViewWidget->hide();
+      m_errorsWidget->focusExec(
+        m_uiController->getBinding(),
+        m_uiController->getExecPath(),
+        m_uiController->getExec()
+        );
     }
 
     QString filePath = getenv("FABRIC_DIR");

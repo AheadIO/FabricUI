@@ -952,7 +952,7 @@ void DFGController::onTopoDirty()
 
 void DFGController::updateErrors()
 {
-  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged( m_binding );
+  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged();
 }
 
 void DFGController::updateNodeErrors()

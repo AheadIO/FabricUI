@@ -5,7 +5,7 @@
 #DFGErrorsWidget > QTableWidget {
   border: none;
   color: #ffffff;
-  background-color: #c06060;
+  background-color: #c04040;
 }
 
 #DFGErrorsWidget > QTableWidget > QTableWidgetItem {
