@@ -4,6 +4,7 @@
 #include <FabricCore.h>
 #include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/DFG/DFGErrorsWidget.h>
+#include <FabricUI/DFG/DFGGraphViewWidget.h>
 #include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
@@ -101,22 +102,17 @@ DFGWidget::DFGWidget(
       m_isEditable = false;
   }
 
-  if(m_isEditable)
-  {
-    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
-    m_tabSearchWidget->hide();
-  }
-
-  QVBoxLayout * layout = new QVBoxLayout();
-  layout->setSpacing(0);
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->setSpacing( 0 );
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_uiHeader);
   layout->addWidget(m_uiGraphViewWidget);
   layout->addWidget(m_klEditor);
 
   QWidget *widget = new QWidget;
-  widget->setContentsMargins(0, 0, 0, 0);
-  widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  widget->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
   widget->setLayout( layout );
 
   m_errorsWidget = new DFGErrorsWidget;
@@ -129,9 +125,11 @@ DFGWidget::DFGWidget(
     this, SLOT(onNodeSelected(FTL::CStrRef, FTL::CStrRef, int, int))
     );
 
-  QSplitter *splitter = new QSplitter(this);
-  splitter->setOrientation(Qt::Vertical);
-  splitter->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  QSplitter *splitter = new QSplitter;
+  splitter->setOrientation( Qt::Vertical );
+  splitter->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
   splitter->setContentsMargins(0, 0, 0, 0);
   splitter->setChildrenCollapsible(false);
   splitter->addWidget( widget );
@@ -139,15 +137,17 @@ DFGWidget::DFGWidget(
   splitter->addWidget( m_errorsWidget );
   splitter->setStretchFactor( 1, 1 );
 
-  layout = new QVBoxLayout();
-  layout->setSpacing(0);
-  layout->setContentsMargins(0, 0, 0, 0);
+  layout = new QVBoxLayout;
+  layout->setSpacing( 0 );
+  layout->setContentsMargins( 0, 0, 0, 0 );
   layout->addWidget( splitter );
-  setLayout(layout);
-  setContentsMargins(0, 0, 0, 0);
+  setLayout( layout );
 
-  if(m_isEditable)
+  if ( m_isEditable )
   {
+    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+    m_tabSearchWidget->hide();
+
     QObject::connect(
       m_uiHeader, SIGNAL(goUpPressed()),
       this, SLOT(onGoUpPressed())
