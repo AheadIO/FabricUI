@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <QtGui/QCombobox>
-#include <QtGui/qevent.h>
+#include <QtGui/QComboBox>
+#include <QtGui/QWheelEvent>
 
 class ComboBox : public QComboBox {
   Q_OBJECT
