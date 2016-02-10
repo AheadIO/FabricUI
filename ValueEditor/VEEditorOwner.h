@@ -98,11 +98,28 @@ namespace FabricUI {
         FTL::ArrayRef<unsigned> newOrder
         );
 
+      void onExecNodePortInserted(
+        FTL::CStrRef nodeName,
+        unsigned portIndex,
+        FTL::CStrRef portName
+        );
+
       void onExecNodePortRenamed(
         FTL::CStrRef nodeName,
         unsigned portIndex,
         FTL::CStrRef oldNodePortName,
         FTL::CStrRef newNodePortName
+        );
+
+      void onExecNodePortRemoved(
+        FTL::CStrRef nodeName,
+        unsigned portIndex,
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortsReordered(
+        FTL::CStrRef nodeName,
+        FTL::ArrayRef<unsigned> newOrder
         );
 
       void onExecPortMetadataChanged(
