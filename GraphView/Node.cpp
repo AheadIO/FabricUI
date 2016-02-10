@@ -333,7 +333,7 @@ void Node::setError(QString text)
 {
   m_errorText = text;
   setToolTip(text);
-  update();
+  m_mainWidget->update();
 }
 
 void Node::clearError()

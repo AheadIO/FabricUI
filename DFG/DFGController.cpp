@@ -948,6 +948,7 @@ bool DFGController::reloadExtensionDependencies(char const * path)
 void DFGController::onTopoDirty()
 {
   updateErrors();
+  updateNodeErrors();
 }
 
 void DFGController::updateErrors()
