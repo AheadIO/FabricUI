@@ -101,31 +101,34 @@ void FloatSliderViewItem::onModelValueChanged( QVariant const &v )
 
 void FloatSliderViewItem::metadataChanged()
 {
-  m_softMinimum = (double)0.0;
-  m_softMaximum = (double)1.0;
-  m_hardMinimum = DBL_MIN;
-  m_hardMaximum = DBL_MAX;
+  // metadata should be like this:
+  // uiRange: "(0, 200)"
+  // uiHardRange: "(0, 500)"
+
+  if ( !FabricUI::DecodeUIRange(
+    m_metadata.getString( "uiRange" ),
+    m_softMinimum,
+    m_softMaximum
+    ) )
+  {
+    m_softMinimum = 0.0;
+    m_softMaximum = 1.0;
+  }
+
+  if ( !FabricUI::DecodeUIRange(
+    m_metadata.getString( "uiHardRange" ),
+    m_hardMinimum,
+    m_hardMaximum
+    ) )
+  {
+    m_hardMinimum = -DBL_MAX;
+    m_hardMaximum = +DBL_MAX;
+  }
+
+  m_softMinimum = std::max( m_softMinimum, m_hardMinimum );
+  m_softMaximum = std::min( m_softMaximum, m_hardMaximum );
 
   m_slider->setResolution( FLOAT_SLIDER_DECIMALS, m_softMinimum, m_softMaximum );
-
-  // metadata should be like this:
-  // uiRange: "(0 - 200)"
-  // uiHardRange: "(0 - 500)"
-  const char* softRangeCStr = m_metadata.getString( "uiRange" );
-  const char* hardRangeCStr = m_metadata.getString( "uiHardRange" );
-  if(FTL::StrRef(softRangeCStr).empty())
-    softRangeCStr = hardRangeCStr;
-
-  FabricUI::DecodeUIRange(hardRangeCStr, m_hardMinimum, m_hardMaximum);
-  if(FabricUI::DecodeUIRange(softRangeCStr, m_softMinimum, m_softMaximum))
-  {
-    if(m_softMinimum < m_hardMinimum)
-      m_softMinimum = m_hardMinimum;
-    if(m_softMaximum > m_hardMaximum)
-      m_softMaximum = m_hardMaximum;
-
-    m_slider->setResolution( FLOAT_SLIDER_DECIMALS, m_softMinimum, m_softMaximum );
-  }
 }
 
 void FloatSliderViewItem::onLineEditTextModified( QString text )
