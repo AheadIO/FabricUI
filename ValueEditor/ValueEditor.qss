@@ -60,3 +60,17 @@ QWidget#StringItem > QPushButton {
     border-radius: 3px;
     background-color: #2A2A2A;
 }
+
+QWidget#ColorItem > ComboBox {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+QWidget > ComboBox {
+    margin-left: 11px;
+    margin-right: 11px;
+}
+
+QWidget > ComboBox::drop-down {
+    subcontrol-origin: margin;  
+}
