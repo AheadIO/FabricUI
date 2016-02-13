@@ -135,6 +135,7 @@ if uiLibPrefix == 'ui':
     stageDir.srcnode().Dir('Resources').Dir('Icons'),
     [
       Glob(os.path.join(env.Dir('GraphView').Dir('images').srcnode().abspath, '*.png')),
+      Glob(os.path.join(env.Dir('DFG').Dir('Icons').srcnode().abspath, '*.png')),
       # Glob(os.path.join(env.Dir('ValueEditor').Dir('images').srcnode().abspath, '*.png')),
       ]
     )

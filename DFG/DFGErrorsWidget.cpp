@@ -3,6 +3,7 @@
 //
 
 #include "DFGErrorsWidget.h"
+#include <FabricUI/Util/LoadPixmap.h>
 
 #include <FTL/JSONValue.h>
 #include <QtGui/QLabel>
@@ -17,34 +18,36 @@ DFGErrorsWidget::DFGErrorsWidget(
   QWidget *parent
   )
   : QWidget( parent )
-  , m_errorsWidget( new QTableWidget )
+  , m_tableWidget( new QTableWidget )
+  , m_errorIcon( QIcon( LoadPixmap( "DFGError.png" ) ) )
+  , m_warningIcon( QIcon( LoadPixmap( "DFGWarning.png" ) ) )
 {
-  m_errorsWidget->setColumnCount( 2 );
-  QHeaderView *horizontalHeader = m_errorsWidget->horizontalHeader();
+  m_tableWidget->setColumnCount( 2 );
+  QHeaderView *horizontalHeader = m_tableWidget->horizontalHeader();
   horizontalHeader->setMovable( false );
   horizontalHeader->setClickable( false );
   horizontalHeader->setResizeMode( QHeaderView::ResizeToContents );
   horizontalHeader->setStretchLastSection( true );
-  m_errorsWidget->setHorizontalHeaderLabels(
+  m_tableWidget->setHorizontalHeaderLabels(
     QStringList() << "Location" << "Description"
     );
-  m_errorsWidget->verticalHeader()->hide();
-  m_errorsWidget->setSizePolicy(
+  m_tableWidget->verticalHeader()->hide();
+  m_tableWidget->setSizePolicy(
     QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
     );
-  m_errorsWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
-  m_errorsWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
-  m_errorsWidget->setShowGrid( false );
+  m_tableWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
+  m_tableWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
+  m_tableWidget->setShowGrid( false );
   
   connect(
-    m_errorsWidget, SIGNAL(cellClicked(int, int)),
+    m_tableWidget, SIGNAL(cellClicked(int, int)),
     this, SLOT(onCellClicked(int, int))
     );
 
   QVBoxLayout *layout = new QVBoxLayout;
   layout->setContentsMargins( 0, 0, 0, 0 );
   layout->setSpacing( 0 );
-  layout->addWidget( m_errorsWidget );
+  layout->addWidget( m_tableWidget );
   setLayout( layout );
 
   setObjectName( "DFGErrorsWidget" );
@@ -102,11 +105,11 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
   }
   else m_errors = 0;
 
-  m_errorsWidget->clearSelection();
+  m_tableWidget->clearSelection();
   if ( m_errors && !m_errors->empty() )
   {
     int rowCount = m_errors->size();
-    m_errorsWidget->setRowCount( rowCount );
+    m_tableWidget->setRowCount( rowCount );
     for ( int row = 0; row < rowCount; ++row )
     {
       FTL::JSONObject const *error = m_errors->getObject( row );
@@ -134,10 +137,11 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
           location += QString::number( column );
         }
       }
-      m_errorsWidget->setItem( row, 0, new QTableWidgetItem( location ) );
-
-      m_errorsWidget->setItem(
+      m_tableWidget->setItem( row, 0, new QTableWidgetItem( location ) );
+      
+      m_tableWidget->setItem(
         row, 1, new QTableWidgetItem(
+          m_errorIcon,
           QString::fromUtf8( desc.data(), desc.size() )
           )
         );
@@ -146,7 +150,7 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
   }
   else
   {
-    m_errorsWidget->setRowCount( 0 );
+    m_tableWidget->setRowCount( 0 );
     hide();
   }
 }

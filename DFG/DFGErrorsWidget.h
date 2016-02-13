@@ -7,6 +7,7 @@
 #include <FabricCore.h>
 #include <FTL/OwnedPtr.h>
 #include <FTL/StrRef.h>
+#include <QtGui/QIcon>
 #include <QtGui/QWidget>
 
 class QTableWidget;
@@ -68,7 +69,9 @@ private:
   std::string m_execPath;
   FabricCore::DFGExec m_exec;
   FTL::OwnedPtr<FTL::JSONArray> m_errors;
-  QTableWidget *m_errorsWidget;
+  QTableWidget *m_tableWidget;
+  QIcon m_errorIcon;
+  QIcon m_warningIcon;
 };
 
 } // namespace DFG
