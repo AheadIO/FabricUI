@@ -2,12 +2,14 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#include "DFGErrorsWidget.h"
+#include <FabricUI/DFG/DFGErrorsWidget.h>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/Util/LoadPixmap.h>
 
 #include <FTL/JSONValue.h>
 #include <QtGui/QLabel>
 #include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
 #include <QtGui/QTableWidget>
 #include <QtGui/QVBoxLayout>
 
@@ -18,6 +20,7 @@ DFGErrorsWidget::DFGErrorsWidget(
   QWidget *parent
   )
   : QWidget( parent )
+  , m_cmdHandler( 0 )
   , m_tableWidget( new QTableWidget )
   , m_errorIcon( QIcon( LoadPixmap( "DFGError.png" ) ) )
   , m_warningIcon( QIcon( LoadPixmap( "DFGWarning.png" ) ) )
@@ -40,8 +43,8 @@ DFGErrorsWidget::DFGErrorsWidget(
   m_tableWidget->setShowGrid( false );
   
   connect(
-    m_tableWidget, SIGNAL(cellClicked(int, int)),
-    this, SLOT(onCellClicked(int, int))
+    m_tableWidget, SIGNAL(cellDoubleClicked(int, int)),
+    this, SLOT(visitRow(int, int))
     );
 
   QVBoxLayout *layout = new QVBoxLayout;
@@ -53,31 +56,116 @@ DFGErrorsWidget::DFGErrorsWidget(
   setObjectName( "DFGErrorsWidget" );
   setVisible( false );
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+ 
+  setContextMenuPolicy( Qt::CustomContextMenu );
+  QObject::connect(
+    this, SIGNAL(customContextMenuRequested(const QPoint &)),
+    this, SLOT(onCustomContextMenuRequested(const QPoint &))
+    );
 }
 
 DFGErrorsWidget::~DFGErrorsWidget()
 {
 }
 
+void DFGErrorsWidget::focusNone()
+{
+  if ( m_bindingNotifier )
+  {
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      this, SLOT(onLoadDiagInserted(unsigned))
+      );
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      this, SLOT(onLoadDiagRemoved(unsigned))
+      );
+  }
+
+  m_cmdHandler = 0;
+  m_bindingNotifier.clear();
+  m_binding = FabricCore::DFGBinding();
+  m_execPath.clear();
+  m_exec = FabricCore::DFGExec();
+}
+
 void DFGErrorsWidget::focusBinding(
+  DFGUICmdHandler *cmdHandler,
+  QSharedPointer<DFGBindingNotifier> bindingNotifier,
   FabricCore::DFGBinding binding
   )
 {
+  if ( m_bindingNotifier )
+  {
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      this, SLOT(onLoadDiagInserted(unsigned))
+      );
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      this, SLOT(onLoadDiagRemoved(unsigned))
+      );
+  }
+
+  m_cmdHandler = cmdHandler;
+  m_bindingNotifier = bindingNotifier;
   m_binding = binding;
   m_execPath.clear();
   m_exec = FabricCore::DFGExec();
+
+  if ( m_bindingNotifier )
+  {
+    connect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      this, SLOT(onLoadDiagInserted(unsigned))
+      );
+    connect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      this, SLOT(onLoadDiagRemoved(unsigned))
+      );
+  }
+
   onErrorsMayHaveChanged();
 }
 
 void DFGErrorsWidget::focusExec(
+  DFGUICmdHandler *cmdHandler,
+  QSharedPointer<DFGBindingNotifier> bindingNotifier,
   FabricCore::DFGBinding binding,
   FTL::StrRef execPath,
   FabricCore::DFGExec exec
   )
 {
+  if ( m_bindingNotifier )
+  {
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      this, SLOT(onLoadDiagInserted(unsigned))
+      );
+    disconnect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      this, SLOT(onLoadDiagRemoved(unsigned))
+      );
+  }
+
+  m_cmdHandler = cmdHandler;
+  m_bindingNotifier = bindingNotifier;
   m_binding = binding;
   m_execPath = execPath;
   m_exec = exec;
+
+  if ( m_bindingNotifier )
+  {
+    connect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      this, SLOT(onLoadDiagInserted(unsigned))
+      );
+    connect(
+      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      this, SLOT(onLoadDiagRemoved(unsigned))
+      );
+  }
+
   onErrorsMayHaveChanged();
 }
 
@@ -85,6 +173,7 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
 {
   bool bindingHasRecursiveConnectedErrors =
     m_binding.hasRecursiveConnectedErrors(); // updates errors by side effect
+  int firstErrorRow = 0;
   if ( m_exec.isValid() )
   {
     FabricCore::String errorsJSON =
@@ -94,16 +183,27 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
     m_errors = 
       FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
   }
-  else if ( bindingHasRecursiveConnectedErrors )
+  else
   {
-    FabricCore::String errorsJSON =
-      m_binding.getErrors( true /* recursive */ );
-    FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
-    FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
+    FabricCore::String loadDiagsJSON = m_binding.getLoadDiags();
+    FTL::StrRef loadDiagsJSONStr( loadDiagsJSON.getCStr(), loadDiagsJSON.getLength() );
+    FTL::JSONStrWithLoc loadDiagsJSONStrWithLoc( loadDiagsJSONStr );
     m_errors = 
-      FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
+      FTL::JSONValue::Decode( loadDiagsJSONStrWithLoc )->cast<FTL::JSONArray>();
+    firstErrorRow = m_errors->size();
+
+    if ( bindingHasRecursiveConnectedErrors )
+    {
+      FabricCore::String errorsJSON =
+        m_binding.getErrors( true /* recursive */ );
+      FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
+      FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
+      FTL::OwnedPtr<FTL::JSONArray> errors(
+        FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>()
+        );
+      m_errors->extend_take( errors );
+    }
   }
-  else m_errors = 0;
 
   m_tableWidget->clearSelection();
   if ( m_errors && !m_errors->empty() )
@@ -114,12 +214,10 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
     {
       FTL::JSONObject const *error = m_errors->getObject( row );
 
-      FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+      FTL::CStrRef execPath = error->getStringOrEmpty( FTL_STR("execPath") );
       FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
-      FTL::CStrRef desc = error->getString( FTL_STR("desc") );
       int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
       int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
-
       QString location;
       if ( !execPath.empty() )
         location += QString::fromUtf8( execPath.data(), execPath.size() );
@@ -127,6 +225,8 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
         location += '.';
       if ( !nodeName.empty() )
         location += QString::fromUtf8( nodeName.data(), nodeName.size() );
+      if ( location.isEmpty() )
+        location += "<root>";
       if ( line != -1 )
       {
         location += ':';
@@ -138,10 +238,11 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
         }
       }
       m_tableWidget->setItem( row, 0, new QTableWidgetItem( location ) );
-      
+
+      FTL::CStrRef desc = error->getString( FTL_STR("desc") );
       m_tableWidget->setItem(
         row, 1, new QTableWidgetItem(
-          m_errorIcon,
+          row < firstErrorRow? m_warningIcon: m_errorIcon,
           QString::fromUtf8( desc.data(), desc.size() )
           )
         );
@@ -155,7 +256,7 @@ void DFGErrorsWidget::onErrorsMayHaveChanged()
   }
 }
 
-void DFGErrorsWidget::onCellClicked( int row, int col )
+void DFGErrorsWidget::visitRow( int row, int col )
 {
   FTL::JSONObject const *error = m_errors->getObject( row );
 
@@ -181,6 +282,70 @@ void DFGErrorsWidget::onCellClicked( int row, int col )
 bool DFGErrorsWidget::haveErrors()
 {
   return m_errors && !m_errors->empty();
+}
+
+void DFGErrorsWidget::onDismissSelected()
+{
+  QList<int> diagIndices;
+  QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  for ( int i = 0; i < ranges.size(); ++i )
+  {
+    QTableWidgetSelectionRange const &range = ranges[i];
+    for ( int row = range.topRow(); row <= range.bottomRow(); ++row )
+    {
+      FTL::JSONObject *rowJSONObject =
+        m_errors->get( row )->cast<FTL::JSONObject>();
+      int diagIndex = rowJSONObject->getSInt32Or( FTL_STR("diagIndex"), -1 );
+      diagIndices.append( diagIndex );
+    }
+  }
+  m_cmdHandler->dfgDoDismissLoadDiags(
+    m_binding,
+    diagIndices
+    );
+}
+
+void DFGErrorsWidget::onCustomContextMenuRequested( QPoint const &pos )
+{
+  QMenu menu;
+
+  QAction *dismissAction = new QAction( "Dismiss Selected", &menu );
+  connect(
+    dismissAction, SIGNAL(triggered()),
+    this, SLOT(onDismissSelected())
+    );
+  menu.addAction( dismissAction );
+
+  bool haveDiagIndex = false;
+  QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  for ( int i = 0; i < ranges.size(); ++i )
+  {
+    QTableWidgetSelectionRange const &range = ranges[i];
+    for ( int row = range.topRow(); row <= range.bottomRow(); ++row )
+    {
+      FTL::JSONObject *rowJSONObject =
+        m_errors->get( row )->cast<FTL::JSONObject>();
+      int diagIndex = rowJSONObject->getSInt32Or( FTL_STR("diagIndex"), -1 );
+      if ( diagIndex != -1 )
+      {
+        haveDiagIndex = true;
+        break;
+      }
+    }
+  }
+  dismissAction->setEnabled( haveDiagIndex );
+
+  menu.exec( mapToGlobal( pos ) );
+}
+
+void DFGErrorsWidget::onLoadDiagInserted( unsigned diagIndex )
+{
+  onErrorsMayHaveChanged();
+}
+
+void DFGErrorsWidget::onLoadDiagRemoved( unsigned diagIndex )
+{
+  onErrorsMayHaveChanged();
 }
 
 } // namespace DFG

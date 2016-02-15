@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <FabricUI/DFG/DFGBindingNotifier.h>
 #include <FabricCore.h>
 #include <FTL/OwnedPtr.h>
 #include <FTL/StrRef.h>
@@ -19,6 +20,8 @@ class JSONArray;
 namespace FabricUI {
 namespace DFG {
 
+class DFGUICmdHandler;
+
 class DFGErrorsWidget : public QWidget
 {
   Q_OBJECT
@@ -30,9 +33,17 @@ public:
     );
   ~DFGErrorsWidget();
 
-  void focusBinding( FabricCore::DFGBinding binding );
+  void focusNone();
+
+  void focusBinding(
+    DFGUICmdHandler *cmdHandler,
+    QSharedPointer<DFGBindingNotifier> bindingNotifier,
+    FabricCore::DFGBinding binding
+    );
 
   void focusExec(
+    DFGUICmdHandler *cmdHandler,
+    QSharedPointer<DFGBindingNotifier> bindingNotifier,
     FabricCore::DFGBinding binding,
     FTL::StrRef execPath,
     FabricCore::DFGExec exec
@@ -58,13 +69,19 @@ signals:
 public slots:
   
   void onErrorsMayHaveChanged();
+  void onCustomContextMenuRequested( QPoint const &pos );
+  void onDismissSelected();
+  void onLoadDiagInserted( unsigned diagIndex );
+  void onLoadDiagRemoved( unsigned diagIndex );
 
 private slots:
 
-  void onCellClicked( int row, int col );
+  void visitRow( int row, int col );
 
 private:
 
+  DFGUICmdHandler *m_cmdHandler;
+  QSharedPointer<DFGBindingNotifier> m_bindingNotifier;
   FabricCore::DFGBinding m_binding;
   std::string m_execPath;
   FabricCore::DFGExec m_exec;

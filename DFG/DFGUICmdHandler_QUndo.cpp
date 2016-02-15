@@ -697,4 +697,17 @@ void DFGUICmdHandler_QUndo::dfgDoSplitFromPreset(
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }
 
+void DFGUICmdHandler_QUndo::dfgDoDismissLoadDiags(
+  FabricCore::DFGBinding const &binding,
+  QList<int> diagIndices
+  )
+{
+  DFGUICmd_DismissLoadDiags *cmd =
+    new DFGUICmd_DismissLoadDiags(
+      binding,
+      diagIndices
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
 FABRIC_UI_DFG_NAMESPACE_END

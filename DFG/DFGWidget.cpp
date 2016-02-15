@@ -164,6 +164,8 @@ DFGWidget::DFGWidget(
 
 DFGWidget::~DFGWidget()
 {
+  m_errorsWidget->focusNone();
+
   if ( m_uiController )
     m_uiController->setRouter( 0 );
 
@@ -2002,12 +2004,18 @@ void DFGWidget::onExecChanged()
     {
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
-      m_errorsWidget->focusBinding( m_uiController->getBinding() );
+      m_errorsWidget->focusBinding(
+        m_uiController->getCmdHandler(),
+        m_uiController->getBindingNotifier(),
+        m_uiController->getBinding()
+        );
     }
     else if(exec.getType() == FabricCore::DFGExecType_Func)
     {
       m_uiGraphViewWidget->hide();
       m_errorsWidget->focusExec(
+        m_uiController->getCmdHandler(),
+        m_uiController->getBindingNotifier(),
         m_uiController->getBinding(),
         m_uiController->getExecPath(),
         m_uiController->getExec()

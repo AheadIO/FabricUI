@@ -110,6 +110,18 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
         varPath
         );
     }
+    else if ( descStr == FTL_STR("loadDiagInserted") )
+    {
+      unsigned diagIndex = unsigned( jsonObject->getSInt32( FTL_STR("diagIndex") ) );
+
+      emit loadDiagInserted( diagIndex );
+    }
+    else if ( descStr == FTL_STR("loadDiagRemoved") )
+    {
+      unsigned diagIndex = unsigned( jsonObject->getSInt32( FTL_STR("diagIndex") ) );
+
+      emit loadDiagRemoved( diagIndex );
+    }
     else
     {
       fprintf(

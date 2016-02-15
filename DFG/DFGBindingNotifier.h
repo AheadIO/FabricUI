@@ -81,6 +81,13 @@ signals:
     FTL::CStrRef varPath
     );
 
+  void loadDiagInserted(
+    unsigned diagIndex
+    );
+  void loadDiagRemoved(
+    unsigned diagIndex
+    );
+
 private:
 
   DFGBindingNotifier( FabricCore::DFGBinding binding )
