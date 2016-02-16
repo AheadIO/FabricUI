@@ -244,7 +244,6 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     m_connection->deleteLater();
     // m_connection->setParent(this);
     scene->removeItem(this);
-    scene->update();
     this->deleteLater();
   }
 

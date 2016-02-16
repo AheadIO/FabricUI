@@ -25,6 +25,6 @@ private:
   QBrush m_brush;
 };
 
-} // namespace FabricUI;
+} // namespace FabricUI
 
 #endif // _FabricUI_DFG_HighlightEffect_h

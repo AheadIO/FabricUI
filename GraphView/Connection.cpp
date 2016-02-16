@@ -351,6 +351,7 @@ void Connection::dependencyMoved()
 
 void Connection::dependencySelected()
 {
+  bool oldHasSelectedTarget = m_hasSelectedTarget;
   m_hasSelectedTarget = false;
 
   if(m_src->targetType() == TargetType_Pin)
@@ -363,7 +364,9 @@ void Connection::dependencySelected()
     Node * node = ((Pin*)m_dst)->node();
     m_hasSelectedTarget = m_hasSelectedTarget || node->selected();
   }
-  update();
+
+  if ( m_hasSelectedTarget != oldHasSelectedTarget )
+    update();
 }
 
 float Connection::computeTangentLength() const

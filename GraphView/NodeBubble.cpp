@@ -74,7 +74,6 @@ void NodeBubble::expand()
   m_collapsed = false;
   updateSize();
   emit bubbleExpanded(this);
-  update();
 }
 
 void NodeBubble::collapse()
@@ -84,7 +83,6 @@ void NodeBubble::collapse()
   m_collapsed = true;
   updateSize();
   emit bubbleCollapsed(this);
-  update();
 }
 
 QString NodeBubble::text() const
@@ -103,7 +101,8 @@ void NodeBubble::setText(QString t)
 
   updateSize();
   emit bubbleTextChanged(this, m_text);
-  if(!m_collapsed)
+
+  if ( !m_collapsed )
     update();
 }
 
