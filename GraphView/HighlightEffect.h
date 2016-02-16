@@ -5,8 +5,8 @@
 #ifndef _FabricUI_DFG_HighlightEffect_h
 #define _FabricUI_DFG_HighlightEffect_h
 
-#include <QtGui/QBrush.h>
-#include <QtGui/QGraphicsEffect.h>
+#include <QtGui/QBrush>
+#include <QtGui/QGraphicsEffect>
 
 namespace FabricUI {
 
@@ -25,6 +25,6 @@ private:
   QBrush m_brush;
 };
 
-} // namespace FabricUI;
+} // namespace FabricUI
 
 #endif // _FabricUI_DFG_HighlightEffect_h
