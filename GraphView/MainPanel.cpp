@@ -11,7 +11,6 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphConfig.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 #include <math.h>
 

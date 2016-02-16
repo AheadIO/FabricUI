@@ -33,7 +33,6 @@ Node::Node(
   , m_header( NULL )
   , m_mainWidget( NULL )
 {
-  m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -113,10 +112,6 @@ Node::Node(
     m_mainWidget->setGraphicsEffect(shadow);
   }
 
-  // setup caching
-  m_cache = new CachingEffect(this);
-  this->setGraphicsEffect(m_cache);
-  
   m_bubble = new GraphView::NodeBubble( graph(), this, graph()->config() );
   m_bubble->hide();
 
@@ -130,8 +125,6 @@ void Node::canvasPanned()
 
 Node::~Node()
 {
-  delete m_cache;
-
   m_bubble->setNode( NULL );
   m_bubble->scene()->removeItem( m_bubble );
   m_bubble->deleteLater();

@@ -14,7 +14,6 @@ namespace FabricUI
   {
     // forward declarations
     class MainPanel;
-    class CachingEffect;
 
     class MainPanelBackground : public QGraphicsWidget
     {

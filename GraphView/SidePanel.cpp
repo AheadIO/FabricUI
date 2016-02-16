@@ -4,7 +4,6 @@
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Connection.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QGraphicsSceneMouseEvent>

@@ -14,7 +14,6 @@
 #include <FabricUI/GraphView/NodeHeader.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/GraphicItemTypes.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 namespace FabricUI
 {
@@ -202,7 +201,6 @@ namespace FabricUI
       std::vector<Node *> m_nodesToMove;
 
       std::vector<Pin*> m_pins;
-      CachingEffect * m_cache;
       int m_row;
       int m_col;
       bool m_alwaysShowDaisyChainPorts;
