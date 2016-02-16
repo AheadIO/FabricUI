@@ -20,7 +20,7 @@ class JSONArray;
 namespace FabricUI {
 namespace DFG {
 
-class DFGUICmdHandler;
+class DFGController;
 
 class DFGErrorsWidget : public QWidget
 {
@@ -29,25 +29,14 @@ class DFGErrorsWidget : public QWidget
 public:
 
   DFGErrorsWidget(
+    DFGController *dfgController,
     QWidget *parent = 0
     );
   ~DFGErrorsWidget();
 
   void focusNone();
-
-  void focusBinding(
-    DFGUICmdHandler *cmdHandler,
-    QSharedPointer<DFGBindingNotifier> bindingNotifier,
-    FabricCore::DFGBinding binding
-    );
-
-  void focusExec(
-    DFGUICmdHandler *cmdHandler,
-    QSharedPointer<DFGBindingNotifier> bindingNotifier,
-    FabricCore::DFGBinding binding,
-    FTL::StrRef execPath,
-    FabricCore::DFGExec exec
-    );
+  void focusBinding();
+  void focusExec();
 
   bool haveErrors();
 
@@ -80,11 +69,15 @@ private slots:
 
 private:
 
-  DFGUICmdHandler *m_cmdHandler;
-  QSharedPointer<DFGBindingNotifier> m_bindingNotifier;
-  FabricCore::DFGBinding m_binding;
-  std::string m_execPath;
-  FabricCore::DFGExec m_exec;
+  enum Focus
+  {
+    Focus_None,
+    Focus_Binding,
+    Focus_Exec
+  };
+
+  DFGController *m_dfgController;
+  Focus m_focus;
   FTL::OwnedPtr<FTL::JSONArray> m_errors;
   QTableWidget *m_tableWidget;
   QIcon m_errorIcon;

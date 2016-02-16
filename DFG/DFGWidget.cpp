@@ -115,7 +115,7 @@ DFGWidget::DFGWidget(
     );
   widget->setLayout( layout );
 
-  m_errorsWidget = new DFGErrorsWidget;
+  m_errorsWidget = new DFGErrorsWidget( m_uiController.get() ); 
   connect(
     m_errorsWidget, SIGNAL(execSelected(FTL::CStrRef, int, int)),
     this, SLOT(onExecSelected(FTL::CStrRef, int, int))
@@ -2004,22 +2004,12 @@ void DFGWidget::onExecChanged()
     {
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
-      m_errorsWidget->focusBinding(
-        m_uiController->getCmdHandler(),
-        m_uiController->getBindingNotifier(),
-        m_uiController->getBinding()
-        );
+      m_errorsWidget->focusBinding();
     }
     else if(exec.getType() == FabricCore::DFGExecType_Func)
     {
       m_uiGraphViewWidget->hide();
-      m_errorsWidget->focusExec(
-        m_uiController->getCmdHandler(),
-        m_uiController->getBindingNotifier(),
-        m_uiController->getBinding(),
-        m_uiController->getExecPath(),
-        m_uiController->getExec()
-        );
+      m_errorsWidget->focusExec();
     }
 
     QString filePath = getenv("FABRIC_DIR");

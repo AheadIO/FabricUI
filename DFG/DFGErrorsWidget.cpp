@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
+#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/DFGErrorsWidget.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/Util/LoadPixmap.h>
@@ -17,10 +18,12 @@ namespace FabricUI {
 namespace DFG {
 
 DFGErrorsWidget::DFGErrorsWidget(
+  DFGController *dfgController,
   QWidget *parent
   )
   : QWidget( parent )
-  , m_cmdHandler( 0 )
+  , m_dfgController( dfgController )
+  , m_focus( Focus_None )
   , m_tableWidget( new QTableWidget )
   , m_errorIcon( QIcon( LoadPixmap( "DFGError.png" ) ) )
   , m_warningIcon( QIcon( LoadPixmap( "DFGWarning.png" ) ) )
@@ -70,57 +73,23 @@ DFGErrorsWidget::~DFGErrorsWidget()
 
 void DFGErrorsWidget::focusNone()
 {
-  if ( m_bindingNotifier )
-  {
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
-      this, SLOT(onLoadDiagInserted(unsigned))
-      );
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
-      this, SLOT(onLoadDiagRemoved(unsigned))
-      );
-  }
-
-  m_cmdHandler = 0;
-  m_bindingNotifier.clear();
-  m_binding = FabricCore::DFGBinding();
-  m_execPath.clear();
-  m_exec = FabricCore::DFGExec();
+  m_focus = Focus_None;
+  onErrorsMayHaveChanged();
 }
 
-void DFGErrorsWidget::focusBinding(
-  DFGUICmdHandler *cmdHandler,
-  QSharedPointer<DFGBindingNotifier> bindingNotifier,
-  FabricCore::DFGBinding binding
-  )
+void DFGErrorsWidget::focusBinding()
 {
-  if ( m_bindingNotifier )
-  {
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
-      this, SLOT(onLoadDiagInserted(unsigned))
-      );
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
-      this, SLOT(onLoadDiagRemoved(unsigned))
-      );
-  }
-
-  m_cmdHandler = cmdHandler;
-  m_bindingNotifier = bindingNotifier;
-  m_binding = binding;
-  m_execPath.clear();
-  m_exec = FabricCore::DFGExec();
-
-  if ( m_bindingNotifier )
+  m_focus = Focus_Binding;
+  
+  if ( DFGBindingNotifier *bindingNotifier =
+    m_dfgController->getBindingNotifier().data() )
   {
     connect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      bindingNotifier, SIGNAL(loadDiagInserted(unsigned)),
       this, SLOT(onLoadDiagInserted(unsigned))
       );
     connect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      bindingNotifier, SIGNAL(loadDiagRemoved(unsigned)),
       this, SLOT(onLoadDiagRemoved(unsigned))
       );
   }
@@ -128,40 +97,19 @@ void DFGErrorsWidget::focusBinding(
   onErrorsMayHaveChanged();
 }
 
-void DFGErrorsWidget::focusExec(
-  DFGUICmdHandler *cmdHandler,
-  QSharedPointer<DFGBindingNotifier> bindingNotifier,
-  FabricCore::DFGBinding binding,
-  FTL::StrRef execPath,
-  FabricCore::DFGExec exec
-  )
+void DFGErrorsWidget::focusExec()
 {
-  if ( m_bindingNotifier )
-  {
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
-      this, SLOT(onLoadDiagInserted(unsigned))
-      );
-    disconnect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
-      this, SLOT(onLoadDiagRemoved(unsigned))
-      );
-  }
-
-  m_cmdHandler = cmdHandler;
-  m_bindingNotifier = bindingNotifier;
-  m_binding = binding;
-  m_execPath = execPath;
-  m_exec = exec;
-
-  if ( m_bindingNotifier )
+  m_focus = Focus_Exec;
+  
+  if ( DFGBindingNotifier *bindingNotifier =
+    m_dfgController->getBindingNotifier().data() )
   {
     connect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagInserted(unsigned)),
+      bindingNotifier, SIGNAL(loadDiagInserted(unsigned)),
       this, SLOT(onLoadDiagInserted(unsigned))
       );
     connect(
-      m_bindingNotifier.data(), SIGNAL(loadDiagRemoved(unsigned)),
+      bindingNotifier, SIGNAL(loadDiagRemoved(unsigned)),
       this, SLOT(onLoadDiagRemoved(unsigned))
       );
   }
@@ -171,38 +119,50 @@ void DFGErrorsWidget::focusExec(
 
 void DFGErrorsWidget::onErrorsMayHaveChanged()
 {
+  FabricCore::DFGBinding binding = m_dfgController->getBinding();
   bool bindingHasRecursiveConnectedErrors =
-    m_binding.hasRecursiveConnectedErrors(); // updates errors by side effect
-  int firstErrorRow = 0;
-  if ( m_exec.isValid() )
-  {
-    FabricCore::String errorsJSON =
-      m_exec.getErrors( true /* recursive */ );
-    FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
-    FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
-    m_errors = 
-      FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
-  }
-  else
-  {
-    FabricCore::String loadDiagsJSON = m_binding.getLoadDiags();
-    FTL::StrRef loadDiagsJSONStr( loadDiagsJSON.getCStr(), loadDiagsJSON.getLength() );
-    FTL::JSONStrWithLoc loadDiagsJSONStrWithLoc( loadDiagsJSONStr );
-    m_errors = 
-      FTL::JSONValue::Decode( loadDiagsJSONStrWithLoc )->cast<FTL::JSONArray>();
-    firstErrorRow = m_errors->size();
+    binding.hasRecursiveConnectedErrors(); // updates errors by side effect
 
-    if ( bindingHasRecursiveConnectedErrors )
+  int firstErrorRow = 0;
+  switch ( m_focus )
+  {
+    case Focus_Exec:
     {
-      FabricCore::String errorsJSON =
-        m_binding.getErrors( true /* recursive */ );
+      FabricCore::DFGExec exec = m_dfgController->getExec();
+      FabricCore::String errorsJSON = exec.getErrors( true /* recursive */ );
       FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
       FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
-      FTL::OwnedPtr<FTL::JSONArray> errors(
-        FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>()
-        );
-      m_errors->extend_take( errors );
+      m_errors = 
+        FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>();
     }
+    break;
+
+    case Focus_Binding:
+    {
+      FabricCore::String loadDiagsJSON = binding.getLoadDiags();
+      FTL::StrRef loadDiagsJSONStr( loadDiagsJSON.getCStr(), loadDiagsJSON.getLength() );
+      FTL::JSONStrWithLoc loadDiagsJSONStrWithLoc( loadDiagsJSONStr );
+      m_errors = 
+        FTL::JSONValue::Decode( loadDiagsJSONStrWithLoc )->cast<FTL::JSONArray>();
+      firstErrorRow = m_errors->size();
+
+      if ( bindingHasRecursiveConnectedErrors )
+      {
+        FabricCore::String errorsJSON =
+          binding.getErrors( true /* recursive */ );
+        FTL::StrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getLength() );
+        FTL::JSONStrWithLoc errorsJSONStrWithLoc( errorsJSONStr );
+        FTL::OwnedPtr<FTL::JSONArray> errors(
+          FTL::JSONValue::Decode( errorsJSONStrWithLoc )->cast<FTL::JSONArray>()
+          );
+        m_errors->extend_take( errors );
+      }
+    }
+    break;
+
+    case Focus_None:
+      m_errors = 0;
+      break;
   }
 
   m_tableWidget->clearSelection();
@@ -265,18 +225,20 @@ void DFGErrorsWidget::visitRow( int row, int col )
   int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
   int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
 
-  std::string execPath;
-  if ( !m_execPath.empty() )
-    execPath += m_execPath;
-  if ( !m_execPath.empty() && !baseExecPath.empty() )
-    execPath += '.';
+  FTL::StrRef execPath = m_dfgController->getExecPath();
+
+  std::string fullExecPath;
+  if ( !execPath.empty() )
+    fullExecPath += execPath;
+  if ( !execPath.empty() && !baseExecPath.empty() )
+    fullExecPath += '.';
   if ( !baseExecPath.empty() )
-    execPath += baseExecPath;
+    fullExecPath += baseExecPath;
 
   if ( !nodeName.empty() )
-    emit nodeSelected( execPath, nodeName, line, column );
+    emit nodeSelected( fullExecPath, nodeName, line, column );
   else
-    emit execSelected( execPath, line, column );
+    emit execSelected( fullExecPath, line, column );
 }
 
 bool DFGErrorsWidget::haveErrors()
@@ -299,8 +261,8 @@ void DFGErrorsWidget::onDismissSelected()
       diagIndices.append( diagIndex );
     }
   }
-  m_cmdHandler->dfgDoDismissLoadDiags(
-    m_binding,
+  m_dfgController->getCmdHandler()->dfgDoDismissLoadDiags(
+    m_dfgController->getBinding(),
     diagIndices
     );
 }
