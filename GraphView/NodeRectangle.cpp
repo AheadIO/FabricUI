@@ -1,4 +1,6 @@
+//
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
+//
 
 #include "NodeRectangle.h"
 #include "Node.h"
@@ -32,8 +34,8 @@ void NodeRectangle::paint(QPainter * painter, const QStyleOptionGraphicsItem * o
   QPen standardPen = m_node->m_defaultPen;
   if(m_node->selected())
     standardPen = m_node->m_selectedPen;
-  if(m_node->hasError())
-    standardPen = m_node->m_errorPen;
+  // if(m_node->hasError())
+  //   standardPen = m_node->m_errorPen;
 
   QRectF rect = windowFrameRect();
 

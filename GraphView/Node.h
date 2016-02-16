@@ -86,8 +86,6 @@ namespace FabricUI
       QPen selectedPen() const;
       QString comment() const;
 
-      virtual QRectF boundingRect() const;
-      
       virtual bool selected() const;
 
       virtual CollapseState collapsedState() const;
@@ -160,6 +158,8 @@ namespace FabricUI
 
     protected:
 
+      void updateEffect();
+      
 #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
       virtual void updateGeometry();
 #endif

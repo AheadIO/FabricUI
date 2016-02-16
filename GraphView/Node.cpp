@@ -1,11 +1,12 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/HighlightEffect.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/NodeLabel.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
-#include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -102,20 +103,12 @@ Node::Node(
   m_selected = false;
   m_dragging = 0;
 
-  // setup the drop shadow
-  if(m_graph->config().nodeShadowEnabled)
-  {
-    QGraphicsDropShadowEffect * shadow = new QGraphicsDropShadowEffect(m_mainWidget);
-    shadow->setColor(m_graph->config().nodeShadowColor);
-    shadow->setOffset(m_graph->config().nodeShadowOffset);
-    shadow->setBlurRadius(m_graph->config().nodeShadowBlurRadius);
-    m_mainWidget->setGraphicsEffect(shadow);
-  }
-
   m_bubble = new GraphView::NodeBubble( graph(), this, graph()->config() );
   m_bubble->hide();
 
   setAcceptHoverEvents(true);
+
+  updateEffect();
 }
 
 void Node::canvasPanned()
@@ -245,24 +238,6 @@ QString Node::comment() const
   return m_bubble->text();
 }
 
-QRectF Node::boundingRect() const
-{
-  QRectF rect = QGraphicsWidget::boundingRect();
-
-  float left = rect.left();
-  float top = rect.top();
-  float width = rect.width();
-  float height = rect.height();
-
-  if(m_graph->config().nodeShadowEnabled)
-  {
-    width += m_graph->config().nodeShadowOffset.x() * 2.0f;
-    height += m_graph->config().nodeShadowOffset.y() * 2.0f;
-  }
-
-  return QRectF(left, top, width, height);
-}
-
 bool Node::selected() const
 {
   return m_selected;
@@ -309,6 +284,7 @@ void Node::setSelected(bool state, bool quiet)
     else
       emit m_graph->nodeDeselected(this);
   }
+  updateEffect();
   update();
 }
 
@@ -327,6 +303,7 @@ void Node::setError(QString text)
   m_errorText = text;
   setToolTip(text);
   m_mainWidget->update();
+  updateEffect();
 }
 
 void Node::clearError()
@@ -844,6 +821,29 @@ void Node::updatePinLayout()
   for(size_t i=0;i<m_pins.size();i++)
   {
     m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
+  }
+}
+
+void Node::updateEffect()
+{
+  if ( !m_errorText.isEmpty() )
+  {
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setColor( QColor( 255, 0, 0 ) );
+    effect->setOffset( QPoint( 0, 0 ) );
+    effect->setBlurRadius( 24 );
+    setGraphicsEffect( effect );
+    // setGraphicsEffect(
+    //   new HighlightEffect( QColor( 255, 0, 0 ) )
+    //   );
+  }
+  else
+  {
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setColor(m_graph->config().nodeShadowColor);
+    effect->setOffset(m_graph->config().nodeShadowOffset);
+    effect->setBlurRadius(m_graph->config().nodeShadowBlurRadius);
+    setGraphicsEffect( effect );
   }
 }
 
