@@ -97,8 +97,6 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
     m_itemGroup->setScale(state);
   }
 
-  update();
-
   if(!quiet)
     emit canvasZoomChanged(m_mouseWheelZoomState);
 }
@@ -219,12 +217,7 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     m_lastPanPoint = pos;
     event->accept();
 
-    if(m_graph->controller()->panCanvas(delta + canvasPan()))
-    {
-      // if(!m_graph->config().mainPanelBackGroundPanFixed)
-      // m_backGround->setOffset(m_itemGroup->transform());
-      update();
-    }
+    m_graph->controller()->panCanvas(delta + canvasPan());
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {

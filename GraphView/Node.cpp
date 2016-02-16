@@ -85,11 +85,6 @@ Node::Node(
       m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
   }
 
-  QObject::connect(
-    m_graph->mainPanel(), SIGNAL(canvasPanChanged(QPointF)),
-    this, SLOT(canvasPanned())
-    );
-
   m_pinsWidget = new QGraphicsWidget(m_mainWidget);
   layout->addItem(m_pinsWidget);
   layout->setAlignment(m_pinsWidget, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -109,11 +104,6 @@ Node::Node(
   setAcceptHoverEvents(true);
 
   updateEffect();
-}
-
-void Node::canvasPanned()
-{
-  m_mainWidget->update();
 }
 
 Node::~Node()
@@ -184,7 +174,7 @@ void Node::setColorAsGradient(QColor a, QColor b)
 {
   m_colorA = a;
   m_colorB = b;
-  if(m_graph->config().nodeDefaultPenUsesNodeColor)
+  if ( m_graph->config().nodeDefaultPenUsesNodeColor )
     m_defaultPen.setBrush(m_colorB.darker());
   if ( m_mainWidget )
     m_mainWidget->update();
@@ -301,8 +291,7 @@ bool Node::hasError() const
 void Node::setError(QString text)
 {
   m_errorText = text;
-  setToolTip(text);
-  m_mainWidget->update();
+  setToolTip( text );
   updateEffect();
 }
 
@@ -398,8 +387,6 @@ bool Node::removePin(Pin * pin, bool quiet)
   pin->deleteLater();
   delete(pin);
 
-  update();
-
   return true;
 }
 
@@ -413,7 +400,6 @@ void Node::reorderPins(QStringList names)
   }
   m_pins = pins;
   updatePinLayout();
-  update();
 }
 
 std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> rootNodes)

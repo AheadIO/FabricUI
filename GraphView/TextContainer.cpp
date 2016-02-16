@@ -44,8 +44,6 @@ void TextContainer::refresh()
   prepareGeometryChange();
   setPreferredWidth(size.width());
   setPreferredHeight(size.height());
-
-  m_textItem->update();
 }
 
 QColor TextContainer::color() const

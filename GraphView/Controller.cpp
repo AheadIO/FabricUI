@@ -129,11 +129,7 @@ bool Controller::frameNodes(const std::vector<Node*> & nodes, float zoom)
   if(zoom != 0.0f)
     zoomCanvas(zoom);
 
-  bool result = panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
-
-  m_graph->mainPanel()->update();
-
-  return result;
+  return panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
 }
 
 bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
@@ -160,11 +156,7 @@ bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
   if(zoom != 0.0f)
     zoomCanvas(zoom);
 
-  bool result = panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
-
-  m_graph->mainPanel()->update();
-
-  return result;
+  return panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
 }
 
 bool Controller::frameSelectedNodes()
