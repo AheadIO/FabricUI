@@ -11,6 +11,7 @@
 
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
+#include <FTL/Math.h>
 #include <FTL/MapCharSingle.h>
 
 #include <FabricUI/GraphView/Graph.h>
@@ -556,6 +557,9 @@ bool DFGController::zoomCanvas(
   float zoom
   )
 {
+  if ( FTL::isnan( zoom ) || FTL::isinf( zoom ) )
+    return false;
+
   try
   {
     FabricCore::DFGExec &exec = getExec();
