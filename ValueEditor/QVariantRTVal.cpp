@@ -102,7 +102,8 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
         return false;
     }
   }
-  return origh->canConvert( d, t );
+  return !!origh->canConvert
+    && origh->canConvert( d, t );
 }
 
 bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *result, bool *ok )
