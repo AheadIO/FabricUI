@@ -58,6 +58,14 @@ signals:
     FTL::CStrRef code
     );
 
+  void didAttachPreset(
+    FTL::CStrRef presetFilePath
+    );
+
+  void willDetachPreset(
+    FTL::CStrRef presetFilePath
+    );
+
   // The executable's ports
 
   void portInserted(
@@ -100,6 +108,11 @@ signals:
     FTL::ArrayRef<unsigned> newOrder
     );
 
+  void portTypeChanged(
+    FTL::CStrRef portName,
+    FTL::CStrRef newExecPortType
+    );
+
   // The executable's nodes
 
   void nodeInserted(
@@ -128,6 +141,11 @@ signals:
 
   void instExecEditWouldSplitFromPresetMayHaveChanged(
     FTL::CStrRef instName
+    );
+
+  void instExecDidAttachPreset(
+    FTL::CStrRef instName,
+    FTL::CStrRef presetFilePath
     );
 
   void refVarPathChanged(
@@ -161,6 +179,12 @@ signals:
     FTL::CStrRef portName,
     FTL::CStrRef key,
     FTL::CStrRef value
+    );
+
+  void nodePortTypeChanged(
+    FTL::CStrRef nodeName,
+    FTL::CStrRef portName,
+    FTL::CStrRef newNodePortType
     );
 
   void nodePortResolvedTypeChanged(
@@ -230,6 +254,11 @@ private:
   void handler_portsDisconnected( FTL::JSONObject const *jsonObject );
   void handler_refVarPathChanged( FTL::JSONObject const *jsonObject );
   void handler_funcCodeChanged( FTL::JSONObject const *jsonObject );
+  void handler_nodePortTypeChanged( FTL::JSONObject const *jsonObject );
+  void handler_execPortTypeChanged( FTL::JSONObject const *jsonObject );
+  void handler_instExecDidAttachPreset( FTL::JSONObject const *jsonObject );
+  void handler_execDidAttachPreset( FTL::JSONObject const *jsonObject );
+  void handler_execWillDetachPreset( FTL::JSONObject const *jsonObject );
 
   FabricCore::DFGView m_view;
 

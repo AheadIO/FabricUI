@@ -43,6 +43,11 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("portsDisconnected")] = &DFGExecNotifier::handler_portsDisconnected;
     handlerMap[FTL_STR("refVarPathChanged")] = &DFGExecNotifier::handler_refVarPathChanged;
     handlerMap[FTL_STR("funcCodeChanged")] = &DFGExecNotifier::handler_funcCodeChanged;
+    handlerMap[FTL_STR("nodePortTypeChanged")] = &DFGExecNotifier::handler_nodePortTypeChanged;
+    handlerMap[FTL_STR("execPortTypeChanged")] = &DFGExecNotifier::handler_execPortTypeChanged;
+    handlerMap[FTL_STR("instExecDidAttachPreset")] = &DFGExecNotifier::handler_instExecDidAttachPreset;
+    handlerMap[FTL_STR("execDidAttachPreset")] = &DFGExecNotifier::handler_execDidAttachPreset;
+    handlerMap[FTL_STR("execWillDetachPreset")] = &DFGExecNotifier::handler_execWillDetachPreset;
   }
   return handlerMap;
 }
@@ -328,6 +333,45 @@ void DFGExecNotifier::handler_funcCodeChanged( FTL::JSONObject const *jsonObject
   FTL::CStrRef code = jsonObject->getString( FTL_STR("code") );
 
   emit funcCodeChanged( code );
+}
+
+void DFGExecNotifier::handler_nodePortTypeChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  FTL::CStrRef newNodePortType = jsonObject->getString( FTL_STR("newNodePortType") );
+
+  emit nodePortTypeChanged( nodeName, portName, newNodePortType );
+}
+
+void DFGExecNotifier::handler_execPortTypeChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
+  FTL::CStrRef newNodePortType = jsonObject->getString( FTL_STR("newNodePortType") );
+
+  emit portTypeChanged( portName, newNodePortType );
+}
+
+void DFGExecNotifier::handler_instExecDidAttachPreset( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
+  FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+
+  emit instExecDidAttachPreset( nodeName, presetFilePath );
+}
+
+void DFGExecNotifier::handler_execDidAttachPreset( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+
+  emit didAttachPreset( presetFilePath );
+}
+
+void DFGExecNotifier::handler_execWillDetachPreset( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
+
+  emit willDetachPreset( presetFilePath );
 }
 
 } // namespace DFG
