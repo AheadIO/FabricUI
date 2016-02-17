@@ -220,20 +220,22 @@ void DFGErrorsWidget::visitRow( int row, int col )
 {
   FTL::JSONObject const *error = m_errors->getObject( row );
 
-  FTL::CStrRef baseExecPath = error->getString( FTL_STR("execPath") );
+  FTL::CStrRef localExecPath = error->getString( FTL_STR("execPath") );
   FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
   int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
   int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
 
-  FTL::StrRef execPath = m_dfgController->getExecPath();
+  FTL::StrRef baseExecPath;
+  if ( m_focus == Focus_Exec )
+    baseExecPath = m_dfgController->getExecPath();
 
   std::string fullExecPath;
-  if ( !execPath.empty() )
-    fullExecPath += execPath;
-  if ( !execPath.empty() && !baseExecPath.empty() )
-    fullExecPath += '.';
   if ( !baseExecPath.empty() )
     fullExecPath += baseExecPath;
+  if ( !baseExecPath.empty() && !localExecPath.empty() )
+    fullExecPath += '.';
+  if ( !localExecPath.empty() )
+    fullExecPath += localExecPath;
 
   if ( !nodeName.empty() )
   {
