@@ -68,6 +68,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
       onNodePortInserted(
         jsonObject->getString( FTL_STR("nodeName") ),
         jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getSInt32( FTL_STR("portIndex") ),
         jsonObject->get( FTL_STR("nodePortDesc") )->cast<FTL::JSONObject>()
         );
     }
@@ -75,7 +76,8 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     {
       onNodePortRemoved(
         jsonObject->getString( FTL_STR("nodeName") ),
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getSInt32( FTL_STR("portIndex") )
         );
     }
     else if(descStr == FTL_STR("execPortInserted"))
@@ -519,6 +521,7 @@ void DFGNotificationRouter::onNodeInserted(
     onNodePortInserted(
       nodeName,
       portJSONObject->getString( FTL_STR("name") ),
+      i,
       portJSONObject
       );
   }
@@ -599,6 +602,7 @@ void DFGNotificationRouter::onNodeRemoved(
 void DFGNotificationRouter::onNodePortInserted(
   FTL::CStrRef nodeName,
   FTL::CStrRef portName,
+  int portIndex,
   FTL::JSONObject const *jsonObject
   )
 {
@@ -634,14 +638,15 @@ void DFGNotificationRouter::onNodePortInserted(
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
-  uiNode->addPin(uiPin, false);
+  uiNode->insertPin( uiPin, portIndex );
 
   checkAndFixNodePortOrder(subExec, uiNode);  // [FE-5716]
 }
 
 void DFGNotificationRouter::onNodePortRemoved(
   FTL::CStrRef nodeName,
-  FTL::CStrRef portName
+  FTL::CStrRef portName,
+  int portIndex
   )
 {
   GraphView::Graph * uiGraph = m_dfgController->graph();
@@ -654,7 +659,7 @@ void DFGNotificationRouter::onNodePortRemoved(
   GraphView::Pin * uiPin = uiNode->pin(portName);
   if(!uiPin)
     return;
-  uiNode->removePin(uiPin, false);
+  uiNode->removePin( uiPin, portIndex );
 }
 
 void DFGNotificationRouter::onExecPortInserted(

@@ -205,9 +205,11 @@ void Node::setFontColor(QColor col)
   m_fontColor = col;
   m_header->labelWidget()->setColor(m_fontColor, m_header->labelWidget()->highlightColor());
 
-  for(size_t i=0;i<m_pins.size();i++)
+  int pinCount = m_pinsLayout->count();
+  for ( int i = 0; i < pinCount; ++i )
   {
-    m_pins[i]->labelWidget()->setColor(m_fontColor, m_pins[i]->labelWidget()->highlightColor());
+    Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( i ) );
+    pin->labelWidget()->setColor(m_fontColor, pin->labelWidget()->highlightColor());
   }
 }
 
@@ -344,62 +346,64 @@ QPointF Node::centralPosToTopLeftPos(QPointF pos) const
   return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
 }
 
-Pin * Node::addPin(Pin * pin, bool quiet)
+void Node::insertPin( Pin *pin, int index )
 {
   // todo: we need a method to update the layout based on the collapsed state.....
-  for(size_t i=0;i<m_pins.size();i++)
-  {
-    if(m_pins[i] == pin)
-      return NULL;
-    if(m_pins[i]->name() == pin->name())
-      return NULL;
-  }
 
-  pin->setIndex((int)m_pins.size());
-  m_pins.push_back(pin);
-  if(!quiet)
-    emit pinAdded(this, pin);
+  m_pinsLayout->insertItem( index, pin );
+  m_pinsLayout->setAlignment( pin, Qt::AlignLeft | Qt::AlignTop );
+
+  pin->setIndex( index );
 
   updatePinLayout();
-  return pin;
 }
 
-bool Node::removePin(Pin * pin, bool quiet)
+void Node::removePin( Pin * pin, int index )
 {
-  size_t index = m_pins.size();
-  for(size_t i=0;i<m_pins.size();i++)
-  {
-    if(m_pins[i] == pin)
-    {
-      index = i;
-      break;
-    }
-  }
-  if(index == m_pins.size())
-    return false;
+  assert( index < m_pinsLayout->count() );
+  assert( m_pinsLayout->itemAt( index ) == pin );
+  m_pinsLayout->removeAt( index );
+  delete pin;
 
-  m_pins.erase(m_pins.begin() + index);
-  updatePinLayout();
-  if(!quiet)
-    emit pinRemoved(this, pin);
-
-  scene()->removeItem(pin);
-  pin->deleteLater();
-  delete(pin);
-
-  return true;
+  // [pzion 20160216] Workaround for possible bug in QGraphicsScene
+  // Without this, we get pretty consistent crashes walking the BSP
+  // after pin removal.  After lots of debugging I believe this is 
+  // a bug in QGraphicsScene, but I am not sure.
+  scene()->setItemIndexMethod( QGraphicsScene::NoIndex );
+  scene()->setItemIndexMethod( QGraphicsScene::BspTreeIndex );
 }
 
 void Node::reorderPins(QStringList names)
 {
-  std::vector<Pin*> pins;
-  for(int i=0;i<names.length();i++)
+  int pinCount = m_pinsLayout->count();
+  assert( names.size() == pinCount );
+
+  std::vector<Pin *> pins;
+  for ( int i = pinCount; i--; )
   {
-    pins.push_back(pin(names[i].toUtf8().constData()));
-    pins[i]->setIndex(i);
+    Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( i ) );
+    m_pinsLayout->removeAt( i );
+    pins.push_back( pin );
   }
-  m_pins = pins;
-  updatePinLayout();
+
+  for ( int i = 0; i < pinCount; ++i )
+  {
+    QString nameToMatch = names[i];
+    QByteArray nameToMatchBA = nameToMatch.toUtf8();
+    FTL::StrRef nameToMatchStr(
+      nameToMatchBA.constData(), nameToMatchBA.size()
+      );
+    for ( int j = 0; j < pinCount; ++j )
+    {
+      Pin *pin = pins[j];
+      if ( pin->name() == nameToMatchStr )
+      {
+        pin->setIndex( j );
+        m_pinsLayout->addItem( pin );
+        break;
+      }
+    }
+  }
 }
 
 std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> rootNodes)
@@ -432,8 +436,11 @@ std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> root
   std::vector<Connection*> connections = graph()->connections();
   for(size_t i=0;i<nodes.size();i++)
   {
-    for(size_t k=0;k<nodes[i]->m_pins.size();k++)
+    int pinCount = nodes[i]->m_pinsLayout->count();
+    for(size_t k=0;k<pinCount;k++)
     {
+      Pin *pin = static_cast<Pin *>( nodes[i]->m_pinsLayout->itemAt( k ) );
+
       for(size_t j=0;j<connections.size();j++)
       {
         ConnectionTarget * dst = connections[j]->dst();
@@ -452,7 +459,7 @@ std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> root
           continue;
         if(visitedNodes.find(srcNode) != visitedNodes.end())
           continue;
-        if(sortForPins && dstPin != nodes[i]->m_pins[k])
+        if(sortForPins && dstPin != pin)
           continue;
 
         if(srcNode->col() < nodes[i]->col() + 1)
@@ -514,22 +521,24 @@ void Node::setAlwaysShowDaisyChainPorts(bool state)
 
 unsigned int Node::pinCount() const
 {
-  return m_pins.size();
+  return m_pinsLayout->count();
 }
 
 Pin * Node::pin(unsigned int index)
 {
-  return m_pins[index];
+  return static_cast<Pin *>( m_pinsLayout->itemAt( index ) );
 }
 
 Pin * Node::pin(FTL::StrRef name)
 {
-  for(unsigned int i=0;i<m_pins.size();i++)
+  int pinCount = m_pinsLayout->count();
+  for ( int i = 0; i < pinCount; ++i )
   {
-    if(name == m_pins[i]->name())
-      return m_pins[i];
+    Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( i ) );
+    if ( pin->name() == name )
+      return pin;
   }
-  return NULL;
+  return 0;
 }
 
 Pin *Node::renamePin( FTL::StrRef oldName, FTL::StrRef newName )
@@ -778,35 +787,33 @@ void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
 void Node::updatePinLayout()
 {
   int count = m_pinsLayout->count();
-  if(count > 0)
-  {
-    for(int i=count-1;i>=0;i--)
-      m_pinsLayout->removeAt(i);
-    m_pinsLayout->invalidate();
-  }
 
-  for(size_t i=0;i<m_pins.size();i++)
+  int visiblePinCount = 0;
+  for ( int i = 0; i < count; ++i )
   {
+    Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( i ) );
     bool showPin = m_collapsedState == CollapseState_Expanded;
     if(!showPin && m_collapsedState == CollapseState_OnlyConnections)
-      showPin = m_pins[i]->isConnected();
-    m_pins[i]->setDrawState(showPin);
-    if(showPin)
-    {
-      m_pinsLayout->addItem(m_pins[i]);
-      m_pinsLayout->setAlignment(m_pins[i], Qt::AlignLeft | Qt::AlignTop);
-    }
+      showPin = pin->isConnected();
+    pin->setDrawState(showPin);
+    pin->setVisible( showPin );
+    if ( showPin )
+      ++visiblePinCount;
   }
 
-  if(m_pinsLayout->count() == 0 && m_pins.size() > 0)
-  {
-    m_pinsLayout->addItem(m_pins[0]);
-    m_pinsLayout->setAlignment(m_pins[0], Qt::AlignLeft | Qt::AlignTop);
-  }
+  // [pzion 20160216] Not sure what the purpose of this was; just
+  // creates strange artifacts now
+  //
+  // if(visiblePinCount == 0 && count > 0)
+  // {
+  //   Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( 0 ) );
+  //   pin->setVisible( true );
+  // }
 
-  for(size_t i=0;i<m_pins.size();i++)
+  for ( int i = 0; i < count; ++i )
   {
-    m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
+    Pin *pin = static_cast<Pin *>( m_pinsLayout->itemAt( i ) );
+    pin->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
   }
 }
 

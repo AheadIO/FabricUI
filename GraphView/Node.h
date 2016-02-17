@@ -117,8 +117,10 @@ namespace FabricUI
       virtual void setSelected(bool state, bool quiet = false);
       virtual void setGraphPos(QPointF pos, bool quiet = false);
       void setTopLeftGraphPos(QPointF pos, bool quiet = false);
-      virtual Pin * addPin(Pin * pin, bool quiet = false);
-      virtual bool removePin(Pin * pin, bool quiet = false);
+
+      void insertPin( Pin *pin, int index );
+      void removePin( Pin *pin, int index );
+
       Pin *renamePin( FTL::StrRef oldName, FTL::StrRef newName );
       virtual void reorderPins(QStringList names);
 
@@ -144,8 +146,6 @@ namespace FabricUI
       void selectionChanged(FabricUI::GraphView::Node *, bool);
       void collapsedStateChanged(FabricUI::GraphView::Node *, FabricUI::GraphView::Node::CollapseState);
       void positionChanged(FabricUI::GraphView::Node *, QPointF);
-      void pinAdded(FabricUI::GraphView::Node *, Pin *);
-      void pinRemoved(FabricUI::GraphView::Node *, Pin *);
       void doubleClicked(FabricUI::GraphView::Node *, Qt::MouseButton, Qt::KeyboardModifiers);
       void bubbleEditRequested(FabricUI::GraphView::Node * nod);
 
@@ -199,7 +199,6 @@ namespace FabricUI
       QPointF m_mouseDownPos;
       std::vector<Node *> m_nodesToMove;
 
-      std::vector<Pin*> m_pins;
       int m_row;
       int m_col;
       bool m_alwaysShowDaisyChainPorts;
