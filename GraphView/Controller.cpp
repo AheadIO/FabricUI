@@ -115,48 +115,43 @@ bool Controller::panCanvas(QPointF pan)
   return true;
 }
 
-bool Controller::frameNodes(const std::vector<Node*> & nodes, float zoom)
+bool Controller::frameAndFitNodes( FTL::ArrayRef<Node *> nodes )
 {
   if(!m_graph)
     return false;
   if(nodes.size() == 0)
     return false;
-
-  QRectF bounds;
-  for(size_t i=0;i<nodes.size();i++)
-    bounds = bounds.united(nodes[i]->boundingRect().translated(nodes[i]->topLeftGraphPos()));
-
-  if(zoom != 0.0f)
-    zoomCanvas(zoom);
-
-  return panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
-}
-
-bool Controller::frameAndFitNodes(const std::vector<Node*> & nodes)
-{
-  if(!m_graph)
-    return false;
-  if(nodes.size() == 0)
-    return false;
+  MainPanel *mainPanel = m_graph->mainPanel();
 
   // Get the boudingRect of the nodes
-  QRectF bounds;
-  for(size_t i=0;i<nodes.size();i++)
-    bounds = bounds.united(nodes[i]->boundingRect().translated(nodes[i]->topLeftGraphPos()));
+  QRectF nodesBoundingRect_ItemGroup;
+  for ( size_t i = 0; i < nodes.size(); ++i )
+  {
+    Node *node = nodes[i];
+    QRectF nodeBoundingRect = node->boundingRect();
+    QPointF nodeTopLeftPos = node->topLeftGraphPos();
+    nodesBoundingRect_ItemGroup |=
+      nodeBoundingRect.translated( nodeTopLeftPos );
+  }
 
-  // Get the boudingRect of DFG panel 
-  QRectF boundingRect = m_graph->mainPanel()->boundingRect();
+  QRectF mainPanelBoundingRect_MainPanel = mainPanel->boundingRect();
 
   // Compute the appropriate zoom
-  float zoom = std::min( boundingRect.width()/bounds.width(), boundingRect.height()/bounds.height() );
   // Zoom out a bit more, otherwise nodes will lies on the panel border
-  zoom *= 0.8f;
+  float zoom = std::min(
+    mainPanelBoundingRect_MainPanel.width()
+      / ( nodesBoundingRect_ItemGroup.width() * 1.1 ),
+    mainPanelBoundingRect_MainPanel.height()
+      / ( nodesBoundingRect_ItemGroup.height() * 1.1 )
+    );
 
-  // Apply the zoom
-  if(zoom != 0.0f)
-    zoomCanvas(zoom);
+  zoomCanvas( std::max( 0.000001f, std::min( zoom, 1.0f ) ) );
+  panCanvas(
+      mainPanelBoundingRect_MainPanel.center()
+    - nodesBoundingRect_ItemGroup.center() * mainPanel->canvasZoom()
+    );
 
-  return panCanvas(m_graph->mainPanel()->boundingRect().center() - bounds.center() * m_graph->mainPanel()->canvasZoom());
+  return true;
 }
 
 bool Controller::frameSelectedNodes()
