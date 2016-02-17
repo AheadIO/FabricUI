@@ -408,7 +408,7 @@ std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> root
   for(size_t i=0;i<nodes.size();i++)
   {
     int pinCount = nodes[i]->m_pinsLayout->count();
-    for(size_t k=0;k<pinCount;k++)
+    for(int k=0;k<pinCount;k++)
     {
       Pin *pin = static_cast<Pin *>( nodes[i]->m_pinsLayout->itemAt( k ) );
 
