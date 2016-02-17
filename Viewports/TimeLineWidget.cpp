@@ -7,6 +7,7 @@
 #include <QtGui/QDesktopWidget>
 
 #include <algorithm>
+#include <math.h>
 
 using namespace FabricUI::Viewports;
 
@@ -26,8 +27,11 @@ TimeLineWidget::TimeLineWidget()
   // default playback sim
   m_simMode = 0;
 
+  //QTimer is not precise at all; just make it call often as 
+  //possible (3 ms) and we will compute the actual elapsed time
   m_timer = new QTimer(this);
-  m_timer->setInterval(0);
+  m_timer->setInterval(3);
+  m_fps = 1000;//max
 
   // layout
   setLayout(new QHBoxLayout());
@@ -313,30 +317,38 @@ void TimeLineWidget::setSimulationMode(int mode)
   simModeChanged(mode);
 }
 
-void TimeLineWidget::setTimerFromInterval(int interval)
+double TimeLineWidget::getFps() const
 {
-  if (interval <= 1)
+  return m_fps;
+}
+
+void TimeLineWidget::setTimerFromFps(double fps)
+{
+  if (fps >= 200.0)
   {
     // use "max fps".
+    m_fps = 1000.0;
     m_timer->setInterval(1);
     m_frameRateComboBox->setCurrentIndex(0);
   }
   else
   {
     // set the timer interval and try to find a matching framerate for it.
-    m_timer->setInterval(interval);
     for (int i=0;i<m_frameRateComboBox->count();i++)
     {
-      double fps = atof(m_frameRateComboBox->itemText(i).toUtf8().constData());
-      if (fps > 0 && (int)(1000.0 / fps) == interval)
+      double itemFps = m_frameRateComboBox->itemData(i).toDouble();
+      if (fabs(itemFps - fps) < 0.01)
       {
+        m_fps = fps;
         m_frameRateComboBox->setCurrentIndex(i);
         return;
       }
     }
+
     // no match found, so we set the custom fps instead.
-    m_frameRateComboBox->setItemText(m_frameRateComboBox->count() - 1, "custom " + QString::number(1000 / interval));
+    m_frameRateComboBox->setItemText(m_frameRateComboBox->count() - 1, "custom " + QString::number((int)fps));
     m_frameRateComboBox->setCurrentIndex(m_frameRateComboBox->count() - 1);
+
   }
 }
 
@@ -367,6 +379,7 @@ void TimeLineWidget::play()
     if (m_loopMode == LOOP_MODE_PLAY_ONCE && getTime() >=  m_endSpinBox->value())
       goToStartFrame();
     m_timer->start();
+    m_lastFrameTime.start();
     m_playButton->setText("||");
   }
 }
@@ -410,8 +423,16 @@ void TimeLineWidget::goToEndFrame()
 
 void TimeLineWidget::timerUpdate()
 {
-  // calculate new time.
-  int newTime = getTime() + m_direction;
+  // We will be getting about 1 call per milli-second,
+  // however QTimer is really not precise so we cannot rely
+  // on its delay.
+  double ms = m_lastFrameTime.elapsed();
+  if( m_fps > 0 && ms + 0.5 < 1000.0 / m_fps ) // Add 0.5 so we have a better average framerate (else we are always above)
+    return; // Wait longer
+
+  m_lastFrameTime.start();
+
+  int newTime = getTime()+m_direction;
 
   // case 1: new time is inside the time range.
   if (newTime >= m_startSpinBox->value() && newTime <= m_endSpinBox->value())
@@ -471,10 +492,10 @@ void TimeLineWidget::timerUpdate()
 
 void TimeLineWidget::frameRateChanged(int index)
 {
-  double fps = m_frameRateComboBox->itemData(index).toDouble();
-  if(fps == 0.0) // max fps
+  m_fps = m_frameRateComboBox->itemData(index).toDouble();
+  if(m_fps == 0.0) // max fps
     m_timer->setInterval(1); // max fps
-  else if(fps == -1.0) // custom fps
+  else if(m_fps == -1.0) // custom fps
   {
     bool ok;
     double userFps = QInputDialog::getDouble(
@@ -482,14 +503,11 @@ void TimeLineWidget::frameRateChanged(int index)
       24.0, 1.0, 1000.0, 2, &ok );
     if(ok)
     {
-      fps = userFps;
+      m_fps = userFps;
       m_frameRateComboBox->setItemText( index, 
-        "custom " + QString::number(fps) );
+        "custom " + QString::number(m_fps) );
     }
   }
-
-  if(fps > 0.0)
-    m_timer->setInterval((int)(1000.0 / fps));
 }
 
 void TimeLineWidget::loopModeChanged(int index)

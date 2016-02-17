@@ -97,10 +97,27 @@ namespace FabricUI
       virtual void setError(QString text);
       virtual void clearError();
 
-      virtual QPointF graphPos() const;
-      virtual QPointF topLeftGraphPos() const;
-      virtual QPointF topLeftToCentralPos(QPointF pos) const;
-      virtual QPointF centralPosToTopLeftPos(QPointF pos) const;
+      QPointF graphPos() const
+        { return topLeftToCentralPos( topLeftGraphPos() ); }
+      void setGraphPos( QPointF pos, bool quiet = false );
+
+      QPointF topLeftToCentralPos( QPointF pos ) const
+      {
+        QRectF rect = boundingRect();
+        return QPointF(
+          pos.x() + rect.width() * 0.5,
+          pos.y() + rect.height() * 0.5
+          );
+      }
+      QPointF centralPosToTopLeftPos( QPointF pos ) const
+      {
+        QRectF rect = boundingRect();
+        return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
+      }
+
+      QPointF topLeftGraphPos() const
+        { return pos(); }
+      void setTopLeftGraphPos( QPointF pos, bool quiet = false );
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
@@ -115,8 +132,6 @@ namespace FabricUI
 
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
-      virtual void setGraphPos(QPointF pos, bool quiet = false);
-      void setTopLeftGraphPos(QPointF pos, bool quiet = false);
 
       void insertPin( Pin *pin, int index );
       void removePin( Pin *pin, int index );

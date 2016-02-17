@@ -302,48 +302,19 @@ void Node::clearError()
   setError("");
 }
 
-QPointF Node::graphPos() const
+void Node::setGraphPos( QPointF pos, bool quiet )
 {
-  return topLeftToCentralPos(topLeftGraphPos());
-}
-
-void Node::setGraphPos(QPointF pos, bool quiet)
-{
-  setTopLeftGraphPos(centralPosToTopLeftPos(pos));
-  if(!quiet)
-  {
-    emit positionChanged(this, pos);
-    emit m_graph->nodeMoved(this, pos);
-  }
-}
-
-QPointF Node::topLeftGraphPos() const
-{
-  QTransform xfo = transform();
-  QPointF pos(xfo.dx(), xfo.dy());
-  return pos;
+  setTopLeftGraphPos( centralPosToTopLeftPos(pos), quiet );
 }
 
 void Node::setTopLeftGraphPos(QPointF pos, bool quiet)
 {
-  setTransform(QTransform::fromTranslate(pos.x(), pos.y()), false);
-  if(!quiet)
+  setPos( pos );
+  if ( !quiet )
   {
-    emit positionChanged(this, graphPos());
-    emit m_graph->nodeMoved(this, graphPos());
+    emit positionChanged( this, graphPos() );
+    emit m_graph->nodeMoved( this, graphPos() );
   }
-}
-
-QPointF Node::topLeftToCentralPos(QPointF pos) const
-{
-  QRectF rect = boundingRect();
-  return QPointF(pos.x() + rect.width() * 0.5, pos.y() + rect.height() * 0.5);
-}
-
-QPointF Node::centralPosToTopLeftPos(QPointF pos) const
-{
-  QRectF rect = boundingRect();
-  return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
 }
 
 void Node::insertPin( Pin *pin, int index )

@@ -7,6 +7,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QHBoxLayout>
 #include <QtCore/QTimer>
+#include <QtCore/QTime>
 
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QSlider>
@@ -67,8 +68,11 @@ namespace FabricUI
         /// pointer at QTimer
         QTimer *getTimer()  { return m_timer; }
 
+        /// get the framerate of the timer
+        double getFps() const;
+
         /// set the timer from a QTimer interval.
-        void setTimerFromInterval(int interval);
+        void setTimerFromFps(double fps);
 
         /// returns the frame rate (frame per seconds) currently set in m_frameRateComboBox.
         double getFrameRateFromComboBox();
@@ -132,6 +136,8 @@ namespace FabricUI
 
         /// the timer in charge of the playback . this is paused when not active
         QTimer * m_timer;
+        QTime m_lastFrameTime;
+        double m_fps;
 
         /// current frame
         int m_lastSteppedFrame;
