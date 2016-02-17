@@ -2076,4 +2076,6 @@ void DFGWidget::onNodeSelected(
   FabricCore::DFGExec rootExec = binding.getExec();
   FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
   m_uiController->setExec( execPath, exec );
+  QApplication::processEvents(); // Let graph view resize etc.
+  m_uiController->focusNode( nodeName );
 }

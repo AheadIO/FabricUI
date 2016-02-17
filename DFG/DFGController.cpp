@@ -2334,3 +2334,18 @@ void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
   emit nodeRemoved( m_execPath, nodeName );
 }
+
+
+void DFGController::focusNode( FTL::StrRef nodeName )
+{
+  if ( m_exec.getType() == FabricCore::DFGExecType_Graph )
+  {
+    GraphView::Graph *gvGraph = graph();
+    gvGraph->clearSelection();
+    if ( GraphView::Node *gvNode = gvGraph->node( nodeName ) )
+    {
+      gvNode->setSelected( true );
+      frameSelectedNodes();
+    }
+  }
+}

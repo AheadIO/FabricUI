@@ -236,7 +236,11 @@ void DFGErrorsWidget::visitRow( int row, int col )
     fullExecPath += baseExecPath;
 
   if ( !nodeName.empty() )
-    emit nodeSelected( fullExecPath, nodeName, line, column );
+  {
+    // [pzion 20160216] We copy nodeName here because it's possible that
+    // something will erase our errors in response to receiving this signal
+    emit nodeSelected( fullExecPath, std::string( nodeName ), line, column );
+  }
   else
     emit execSelected( fullExecPath, line, column );
 }

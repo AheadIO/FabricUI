@@ -86,6 +86,8 @@ namespace FabricUI
         );
       void refreshExec();
 
+      void focusNode( FTL::StrRef nodeName );
+
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
 
