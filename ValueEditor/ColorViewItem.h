@@ -6,11 +6,37 @@
 
 #include "BaseComplexViewItem.h"
 
+#include <algorithm>
+#include <FabricCore.h>
+#include <math.h>
 #include <QtGui/QColor>
+#include <QtGui/QPushButton>
 
-class QPushButton;
 class ItemMetadata;
 class ComboBox;
+
+class AlphaWidget : public QWidget
+{
+  Q_OBJECT
+
+public:
+
+  AlphaWidget( QWidget *parent = NULL );
+
+  void setColor( QColor color )
+  {
+    m_color = color;
+    update();
+  }
+
+protected:
+
+  virtual void paintEvent( QPaintEvent * event ) /*override*/;
+
+private:
+
+  QColor m_color;
+};
 
 class ColorViewItem : public BaseComplexViewItem
 {
@@ -19,9 +45,10 @@ private:
   Q_OBJECT
 
   QWidget* m_widget;
-  QPushButton* m_button;
+  AlphaWidget *m_alphaWidget;
 
-  QColor m_color;
+  FabricCore::RTVal m_colorRTVal;
+
   // We store the desired format of
   // the color (HSV or RGB)
   QColor::Spec m_spec;
@@ -32,6 +59,7 @@ private:
   // expect it to be valid for the extent of
   // their lives
   ViewItemMetadata m_childMetadata;
+
 public:
 
   static BaseViewItem *CreateItem(
@@ -69,4 +97,34 @@ public slots:
   void onColorSelected( QColor color );
 
   void formatChanged( const QString& format );
+
+protected:
+
+  static QColor QColorFromComponents(
+    float r,
+    float g,
+    float b,
+    float a
+    )
+  {
+    return QColor(
+      int( roundf( std::max( 0.0f, std::min( 1.0f, r ) ) * 255.0f ) ),
+      int( roundf( std::max( 0.0f, std::min( 1.0f, g ) ) * 255.0f ) ),
+      int( roundf( std::max( 0.0f, std::min( 1.0f, b ) ) * 255.0f ) ),
+      int( roundf( std::max( 0.0f, std::min( 1.0f, a ) ) * 255.0f ) )
+      );
+  }
+
+  void toComponents(
+    float &r,
+    float &g,
+    float &b,
+    float &a
+    ) const;
+
+  QColor toQColor() const;
+
+  void fromQColor( QColor color );
+
+  void sync();
 };
