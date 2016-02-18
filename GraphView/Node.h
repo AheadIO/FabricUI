@@ -133,8 +133,8 @@ namespace FabricUI
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
 
-      void insertPin( Pin *pin, int index );
-      void removePin( Pin *pin, int index );
+      bool addPin( Pin * pin );
+      bool removePin( Pin * pin );
 
       Pin *renamePin( FTL::StrRef oldName, FTL::StrRef newName );
       virtual void reorderPins(QStringList names);
@@ -214,6 +214,7 @@ namespace FabricUI
       QPointF m_mouseDownPos;
       std::vector<Node *> m_nodesToMove;
 
+      std::vector<Pin*> m_pins;
       int m_row;
       int m_col;
       bool m_alwaysShowDaisyChainPorts;
