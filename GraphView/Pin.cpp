@@ -1,4 +1,6 @@
+//
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
+//
 
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Node.h>
@@ -22,7 +24,6 @@ Pin::Pin(
     m_labelCaption = name;
   m_color = color;
   m_index = 0;
-  m_drawState = true;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
@@ -262,7 +263,7 @@ bool Pin::canConnectTo(
 
 QPointF Pin::connectionPos(PortType pType) const
 {
-  if(!drawState())
+  if ( !isVisible() )
   {
     QPointF p;
     if(pType == PortType_Input)
@@ -281,6 +282,7 @@ QPointF Pin::connectionPos(PortType pType) const
     }
     return node()->header()->mapToScene(p);
   }
+
   if(pType == PortType_Input)
   {
     if(inCircle())
@@ -292,28 +294,6 @@ QPointF Pin::connectionPos(PortType pType) const
       return outCircle()->centerInSceneCoords();
   }
   return QPointF();
-}
-
-void Pin::setDrawState(bool flag)
-{
-  m_drawState = flag;
-  setVisible(m_drawState);
-
-  if(m_drawState)
-  {
-    setMaximumHeight(1000);
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-  }
-  else
-  {
-    setMaximumHeight(0);
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-  }
-}
-
-bool Pin::drawState() const
-{
-  return m_drawState;
 }
 
 void Pin::setDaisyChainCircleVisible(bool flag)
