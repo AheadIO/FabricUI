@@ -48,6 +48,7 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
     handlerMap[FTL_STR("instExecDidAttachPreset")] = &DFGExecNotifier::handler_instExecDidAttachPreset;
     handlerMap[FTL_STR("execDidAttachPreset")] = &DFGExecNotifier::handler_execDidAttachPreset;
     handlerMap[FTL_STR("execWillDetachPreset")] = &DFGExecNotifier::handler_execWillDetachPreset;
+    handlerMap[FTL_STR("extDepsChanged")] = &DFGExecNotifier::handler_extDepsChanged;
   }
   return handlerMap;
 }
@@ -347,9 +348,9 @@ void DFGExecNotifier::handler_nodePortTypeChanged( FTL::JSONObject const *jsonOb
 void DFGExecNotifier::handler_execPortTypeChanged( FTL::JSONObject const *jsonObject )
 {
   FTL::CStrRef portName = jsonObject->getString( FTL_STR("portName") );
-  FTL::CStrRef newNodePortType = jsonObject->getString( FTL_STR("newNodePortType") );
+  FTL::CStrRef newExecPortType = jsonObject->getString( FTL_STR("newExecPortType") );
 
-  emit portTypeChanged( portName, newNodePortType );
+  emit portTypeChanged( portName, newExecPortType );
 }
 
 void DFGExecNotifier::handler_instExecDidAttachPreset( FTL::JSONObject const *jsonObject )
@@ -372,6 +373,13 @@ void DFGExecNotifier::handler_execWillDetachPreset( FTL::JSONObject const *jsonO
   FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
 
   emit willDetachPreset( presetFilePath );
+}
+
+void DFGExecNotifier::handler_extDepsChanged( FTL::JSONObject const *jsonObject )
+{
+  FTL::CStrRef extDeps = jsonObject->getString( FTL_STR("extDeps") );
+
+  emit extDepsChanged( extDeps );
 }
 
 } // namespace DFG

@@ -66,6 +66,10 @@ signals:
     FTL::CStrRef presetFilePath
     );
 
+  void extDepsChanged(
+    FTL::CStrRef extDeps
+    );
+
   // The executable's ports
 
   void portInserted(
@@ -259,6 +263,7 @@ private:
   void handler_instExecDidAttachPreset( FTL::JSONObject const *jsonObject );
   void handler_execDidAttachPreset( FTL::JSONObject const *jsonObject );
   void handler_execWillDetachPreset( FTL::JSONObject const *jsonObject );
+  void handler_extDepsChanged( FTL::JSONObject const *jsonObject );
 
   FabricCore::DFGView m_view;
 
