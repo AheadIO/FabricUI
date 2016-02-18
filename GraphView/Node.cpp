@@ -1,6 +1,4 @@
-//
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
-//
 
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/Graph.h>
@@ -768,6 +766,7 @@ void Node::updatePinLayout()
     bool showPin = m_collapsedState == CollapseState_Expanded;
     if(!showPin && m_collapsedState == CollapseState_OnlyConnections)
       showPin = pin->isConnected();
+    pin->setDrawState(showPin);
     pin->setVisible( showPin );
     if ( showPin )
       ++visiblePinCount;

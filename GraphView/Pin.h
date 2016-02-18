@@ -73,6 +73,8 @@ namespace FabricUI
       virtual TargetType targetType() const { return TargetType_Pin; }
       virtual QPointF connectionPos(PortType pType) const;
 
+      virtual void setDrawState(bool flag);
+      virtual bool drawState() const;
       virtual void setDaisyChainCircleVisible(bool flag);
 
       // accessed by controller
@@ -96,6 +98,7 @@ namespace FabricUI
       PinLabel * m_label;
       PinCircle * m_inCircle;
       PinCircle * m_outCircle;
+      bool m_drawState;
     };
 
   };
