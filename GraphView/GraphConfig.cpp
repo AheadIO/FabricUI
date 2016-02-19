@@ -7,11 +7,7 @@ using namespace FabricUI::GraphView;
 
 GraphConfig::GraphConfig()
 {
-#if defined(FTL_OS_DARWIN)
-  useOpenGL = false;
-#else
   useOpenGL = true;
-#endif
   
   pathSep = ".";
   disconnectInputsAutomatically = true;
