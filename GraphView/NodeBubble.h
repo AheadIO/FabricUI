@@ -6,73 +6,66 @@
 #include "Node.h"
 #include "GraphConfig.h"
 
-namespace FabricUI
+class QGraphicsRectItem;
+class QGraphicsSimpleTextItem;
+
+namespace FabricUI {
+namespace GraphView {
+
+class Graph;
+
+class NodeBubble : public QGraphicsObject
 {
+  Q_OBJECT
 
-  namespace GraphView
-  {
-    // forward declarations
-    class Graph;
+  friend class Node;
 
-    class NodeBubble : public QGraphicsWidget
-    {
-      Q_OBJECT
+public:
 
-      friend class Node;
+  NodeBubble( Node *node, GraphConfig const &config = GraphConfig() );
+  virtual ~NodeBubble();
 
-    public:
+  virtual QRectF boundingRect() const;
 
-      NodeBubble(Graph * parent, Node * node, const GraphConfig & config = GraphConfig());
-      virtual ~NodeBubble();
+  void expand();
+  void collapse();
 
-      Graph * graph();
-      const Graph * graph() const;
+  bool isCollapsed() const;
+  bool isExpanded() const;
 
-      Node * node();
-      const Node * node() const;
-      void setNode(Node * node);
+  QString text() const;
+  void setText( QString t );
 
-      virtual void expand();
-      virtual void collapse();
-      virtual bool expanded() const { return !m_collapsed; }
-      virtual bool collapsed() const { return m_collapsed; }
+public slots:
 
-      virtual QString text() const;
-      virtual void setText(QString t);
+  void onNodePositionChanged(FabricUI::GraphView::Node *, QPointF);
 
-      virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
-      virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event);
-      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+signals:
 
-    public slots:
+  void bubbleEditRequested( FabricUI::GraphView::NodeBubble *bubble );
 
-      void onNodePositionChanged(FabricUI::GraphView::Node *, QPointF);
-      void requestEdit();
+protected:
 
-    signals:
+  virtual void paint(
+    QPainter *painter,
+    QStyleOptionGraphicsItem const *option,
+    QWidget *widget
+    );
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event);
 
-      void bubbleExpanded(FabricUI::GraphView::NodeBubble * bubble);
-      void bubbleCollapsed(FabricUI::GraphView::NodeBubble * bubble);
-      void bubbleTextChanged(FabricUI::GraphView::NodeBubble * bubble, QString text);
-      void bubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble);
+  void updateChildrenGeometries();
 
-    protected:
-
-      void updateSize();
-
-      bool m_collapsed;
-      Graph * m_graph;
-      Node * m_node;
-      GraphConfig m_config;
-      QString m_text;
-      QStringList m_textLines;
-      QFontMetrics * m_metrics;
-
-    };
-
-
-  };
-
+  Node *m_node;
+  qreal m_nodeCornerRadius, m_nodeWidthReduction;
+  QSizeF m_minSize;
+  QGraphicsRectItem *m_rectItem;
+  QGraphicsSimpleTextItem *m_textItem;
+  
+  static QSizeF const s_topLeftTextMargins, s_bottomRightTextMargins;
 };
+
+} // namespace GraphView
+} // namespace FabricUI
 
 #endif // __UI_GraphView_NodeBubble__
