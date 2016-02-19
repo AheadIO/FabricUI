@@ -39,6 +39,11 @@ NodeBubble::NodeBubble(
     );
   m_textItem->setBrush( m_node->m_defaultPen.color() );
   m_textItem->setFont( config.nodeBubbleFont );
+  
+  // [pzion 20160218] This should not be necessary; however, there seems
+  // to be a bug in OpenGL rendering of QGraphicsView that causes this
+  // text to not render properly without this cache...
+  m_textItem->setCacheMode( DeviceCoordinateCache );
 
   m_node->m_bubble = this;
 
