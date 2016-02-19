@@ -98,7 +98,7 @@ Node::Node(
   m_selected = false;
   m_dragging = 0;
 
-  m_bubble = new GraphView::NodeBubble( graph(), this, graph()->config() );
+  m_bubble = new GraphView::NodeBubble( this, graph()->config() );
   m_bubble->hide();
 
   setAcceptHoverEvents(true);
@@ -108,9 +108,9 @@ Node::Node(
 
 Node::~Node()
 {
-  m_bubble->setNode( NULL );
+  m_bubble->setParentItem( NULL );
   m_bubble->scene()->removeItem( m_bubble );
-  m_bubble->deleteLater();
+  delete m_bubble;
 }
 
 Graph * Node::graph()

@@ -4,199 +4,172 @@
 #include "Graph.h"
 #include "Controller.h"
 
+#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneMouseEvent>
+#include <QtGui/QGraphicsSimpleTextItem>
 #include <QtGui/QPainter>
-#include <QtGui/QLinearGradient>
-#include <QtGui/QGraphicsDropShadowEffect>
-#include <QtCore/QDebug>
 
-using namespace FabricUI::GraphView;
+namespace FabricUI {
+namespace GraphView {
 
-NodeBubble::NodeBubble(Graph * parent, Node * node, const GraphConfig & config)
-: QGraphicsWidget(parent->itemGroup())
-, m_graph(parent)
-, m_node(node)
-, m_config(config)
+QSizeF const NodeBubble::s_topLeftTextMargins( 4.0, 4.0 );
+QSizeF const NodeBubble::s_bottomRightTextMargins( 4.0, 4.0 );
+
+NodeBubble::NodeBubble(
+  Node *node,
+  GraphConfig const &config
+  )
+  : QGraphicsObject( node->m_graph->itemGroup() )
+  , m_node( node )
+  , m_nodeCornerRadius( config.nodeCornerRadius )
+  , m_nodeWidthReduction( config.nodeWidthReduction )
+  , m_minSize( config.nodeBubbleMinWidth, config.nodeBubbleMinHeight )
+  , m_rectItem( new QGraphicsRectItem( this ) )
+  , m_textItem( new QGraphicsSimpleTextItem( this ) )
 {
-  m_collapsed = true;
-  m_metrics = new QFontMetrics(m_config.nodeBubbleFont);
-  setZValue(-50);
+  setZValue( -50 );
 
-  // connect the bubble to the node
-  QObject::connect(m_node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)),
-    this, SLOT(onNodePositionChanged(FabricUI::GraphView::Node *, QPointF)));
-  QObject::connect(this, SIGNAL(bubbleEditRequested(FabricUI::GraphView::NodeBubble *)), 
-    m_node, SLOT(onBubbleEditRequested(FabricUI::GraphView::NodeBubble *)));
+  m_rectItem->setPen( m_node->m_defaultPen );
+  m_rectItem->setBrush( config.nodeBubbleColor );
+
+  m_textItem->setPos(
+    s_topLeftTextMargins.width(),
+    s_topLeftTextMargins.height()
+    );
+  m_textItem->setBrush( m_node->m_defaultPen.color() );
+  m_textItem->setFont( config.nodeBubbleFont );
+  
+  // [pzion 20160218] This should not be necessary; however, there seems
+  // to be a bug in OpenGL rendering of QGraphicsView that causes this
+  // text to not render properly without this cache...
+  m_textItem->setCacheMode( DeviceCoordinateCache );
 
   m_node->m_bubble = this;
 
-  setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  updateSize();
+  QObject::connect(
+    m_node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)),
+    this, SLOT(onNodePositionChanged(FabricUI::GraphView::Node *, QPointF))
+    );
+  QObject::connect(
+    this, SIGNAL(bubbleEditRequested(FabricUI::GraphView::NodeBubble *)), 
+    m_node, SLOT(onBubbleEditRequested(FabricUI::GraphView::NodeBubble *))
+    );
+
+  updateChildrenGeometries();
 }
 
 NodeBubble::~NodeBubble()
 {
-  delete m_metrics;
-  if ( m_node )
-    m_node->m_bubble = 0;
 }
 
-Graph * NodeBubble::graph()
+QRectF NodeBubble::boundingRect() const
 {
-  return m_graph;
+  return m_rectItem->boundingRect();
 }
 
-const Graph * NodeBubble::graph() const
+bool NodeBubble::isCollapsed() const
 {
-  return m_graph;
+  return !m_textItem->isVisible();
 }
 
-Node * NodeBubble::node()
+bool NodeBubble::isExpanded() const
 {
-  return m_node;
-}
-
-const Node * NodeBubble::node() const
-{
-  return m_node;
-}
-
-void NodeBubble::setNode(Node * node)
-{
-  m_node = node;  
+  return !isCollapsed();
 }
 
 void NodeBubble::expand()
 {
-  if(!m_collapsed)
-    return;
-  m_collapsed = false;
-  updateSize();
-  emit bubbleExpanded(this);
+  if ( isCollapsed() )
+  {
+    m_textItem->show();
+
+    updateChildrenGeometries();
+  }
 }
 
 void NodeBubble::collapse()
 {
-  if(m_collapsed)
-    return;
-  m_collapsed = true;
-  updateSize();
-  emit bubbleCollapsed(this);
+  if ( isExpanded() )
+  {
+    m_textItem->hide();
+
+    updateChildrenGeometries();
+  }
 }
 
 QString NodeBubble::text() const
 {
-  return m_text;
+  return m_textItem->text();
 }
 
-void NodeBubble::setText(QString t)
+void NodeBubble::setText( QString t )
 {
-  if(t == m_text)
-    return;
-  m_text = t;
-  m_textLines.clear();
-  if(m_text.length() > 0)
-    m_textLines = m_text.split('\n');
+  m_textItem->setText( t );
 
-  updateSize();
-  emit bubbleTextChanged(this, m_text);
-
-  if ( !m_collapsed )
-    update();
+  updateChildrenGeometries();
 }
 
-void NodeBubble::mousePressEvent(QGraphicsSceneMouseEvent * event)
+void NodeBubble::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
-  if(event->button() == Qt::RightButton)
+  if ( event->button() == Qt::RightButton )
   {
     // toggle the expanded state
-    graph()->controller()->gvcDoSetNodeCommentExpanded( m_node, m_collapsed );
-    event->accept();
+    m_node->m_graph->controller()->gvcDoSetNodeCommentExpanded(
+      m_node,
+      isCollapsed()
+      );
   }
+
+  event->accept();
 }
 
-void NodeBubble::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
+void NodeBubble::mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event )
 {
-  if(m_collapsed)
-  {
-    graph()->controller()->gvcDoSetNodeCommentExpanded(m_node, true);
-    event->accept();
-  }
+  if ( isCollapsed() )
+    m_node->m_graph->controller()->gvcDoSetNodeCommentExpanded( m_node, true );
   else
-  {
-    // request editing of a comment!
-    emit bubbleEditRequested(this);
-  }
+    emit bubbleEditRequested( this );
+
+  event->accept();
 }
 
-void NodeBubble::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+void NodeBubble::onNodePositionChanged(
+  FabricUI::GraphView::Node *node,
+  QPointF pos
+  )
 {
-  painter->setPen(m_node->m_defaultPen);
-  painter->setBrush(m_config.nodeBubbleColor);
-
-  QRectF rect = windowFrameRect();
-  painter->drawRect(rect);
-
-  if(!m_collapsed && m_textLines.length() > 0)
-  {
-    painter->setFont(m_config.nodeBubbleFont);
-
-    float offset = 0.0f;
-    for(int i=0;i<m_textLines.length();i++)
-    {
-      offset += m_metrics->lineSpacing();
-      painter->drawText(QPointF(4.0f, 4.0f + offset), m_textLines[i]);
-    }
-  }
-
-  QGraphicsWidget::paint(painter, option, widget);
+  updateChildrenGeometries();
 }
 
-void NodeBubble::onNodePositionChanged(FabricUI::GraphView::Node * node, QPointF pos)
+void NodeBubble::updateChildrenGeometries()
 {
-  QPointF p = node->topLeftGraphPos();
-  p += QPointF(m_config.nodeCornerRadius * 0.5 + m_config.nodeWidthReduction * 0.5f, -size().height());
-
-  setTransform(QTransform::fromTranslate(p.x(), p.y()), false);
-}
-
-void NodeBubble::requestEdit()
-{
-  emit bubbleEditRequested(this);
-}
-
-void NodeBubble::updateSize()
-{
-  float width = 0.0;
-  float height = 0.0;
-
-  if(m_collapsed)
-  {
-    width = m_config.nodeBubbleMinWidth;
-    height = m_config.nodeBubbleMinHeight;
-  }
+  QSizeF effectiveTextSize;
+  if ( m_textItem->isVisible() )
+    effectiveTextSize =
+      ( s_topLeftTextMargins
+      + m_textItem->boundingRect().size()
+      + s_bottomRightTextMargins ).expandedTo( m_minSize );
   else
-  {
-    width = m_config.nodeBubbleMinWidth;
-    height = 2.0f + float(m_metrics->lineSpacing());
+    effectiveTextSize = m_minSize;
 
-    if(m_textLines.length() > 0)
-    {
-      for(int i=0;i<m_textLines.length();i++)
-      {
-        float lineW = (float)m_metrics->width(m_textLines[i]) + 10.0f;
-        if(lineW > width)
-          width = lineW;
-        height += float(m_metrics->lineSpacing());
-      }
-    }
-  }
+  m_rectItem->setRect( QRectF( QPointF( 0, 0 ), effectiveTextSize ) );
 
-  setMinimumWidth(width);
-  setMaximumWidth(width);
-  setMinimumHeight(height);
-  setMaximumHeight(height);
-
-  onNodePositionChanged(m_node, m_node->topLeftGraphPos());
+  QPointF p = m_node->topLeftGraphPos();
+  p += QPointF(
+    m_nodeCornerRadius * 0.5 + m_nodeWidthReduction * 0.5f,
+    -effectiveTextSize.height()
+    );
+  setPos( p );
 }
+
+void NodeBubble::paint(
+  QPainter *painter,
+  QStyleOptionGraphicsItem const *option,
+  QWidget *widget
+  )
+{
+}
+
+} // namespace GraphView
+} // namespace FabricUI

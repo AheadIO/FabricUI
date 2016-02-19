@@ -1562,7 +1562,7 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   {
     text = bubble->text();
     visible = bubble->isVisible();
-    collapsed = bubble->collapsed();
+    collapsed = bubble->isCollapsed();
     bubble->show();
     bubble->expand();
   }
