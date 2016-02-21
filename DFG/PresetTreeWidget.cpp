@@ -88,7 +88,7 @@ PresetTreeWidget::PresetTreeWidget(
                && item->path() != "Variables")
       {
         FTL::StrRef path = host.getPresetImportPathname(item->path().c_str());
-        if (path.data())
+        if ( !path.empty() )
         {
           // try creating a file inside the folder to see whether we have write permission or not.
           // (this is kind of ugly, but unfortunately the access() function always returns 0 under Windows).
