@@ -43,6 +43,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   : ViewportWidget(client, QColor(), qglContext, parent, share, settings)
   , m_viewportIndex(viewportIndex)
   , m_alwaysRefresh(false)
+  , m_orthographic(false)
   , m_shObject(shObject)
 {
   m_geometryDialog = new FabricUI::SceneHub::SGGeometryManagerDialog(this, m_client, m_shObject);
@@ -73,6 +74,16 @@ RTRGLViewportWidget::~RTRGLViewportWidget() {
   emit viewportDestroying();
 }
  
+void RTRGLViewportWidget::setOrthographic( bool orthographic ) {
+  m_orthographic = orthographic;
+  FABRIC_TRY( "RTRGLViewportWidget::setOrthographic",
+    FabricCore::RTVal args[2];
+    args[0] = m_viewportIndexRTVal;
+    args[1] = FabricCore::RTVal::ConstructBoolean(*m_client, orthographic);
+    m_shObject.callMethod( "", "setOrthographicViewport", 2, args );
+  );
+}
+
 void RTRGLViewportWidget::paintGL() {
   ViewportWidget::computeFPS();
   
