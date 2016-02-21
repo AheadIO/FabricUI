@@ -815,3 +815,12 @@ void Node::updateGeometry()
   emit geometryChanged();
 }
 #endif
+
+// [pzion 20160221] Why isn't this happening automatically???
+QRectF Node::boundingRect() const
+{
+  QRectF rect = QGraphicsWidget::boundingRect();
+  if ( QGraphicsEffect *effect = graphicsEffect() )
+    rect = effect->boundingRectFor( rect );
+  return rect;
+}

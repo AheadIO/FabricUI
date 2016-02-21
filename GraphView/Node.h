@@ -130,6 +130,8 @@ namespace FabricUI
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
+      virtual QRectF boundingRect() const;
+
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
 
