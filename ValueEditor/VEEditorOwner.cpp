@@ -14,7 +14,9 @@
 #include <FabricUI/ModelItems/SetModelItem.h>
 #include <FabricUI/ModelItems/VarModelItem.h>
 #include <FabricUI/ValueEditor/ItemMetadata.h>
+#include <FabricUI/ValueEditor/BaseViewItem.h>
 #include <FabricUI/ValueEditor/VETreeWidget.h>
+#include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 using namespace FabricUI;
 using namespace ValueEditor;
@@ -51,6 +53,10 @@ void VEEditorOwner::initConnections()
 
   connect(
     getUIController(), SIGNAL( argsChanged() ),
+    this, SLOT( onStructureChanged() )
+    );
+  connect(  // [FE-6010]
+    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
     this, SLOT( onStructureChanged() )
     );
 
@@ -206,9 +212,27 @@ void VEEditorOwner::setModelRoot(
       );
     connect(
       m_notifier.data(),
+      SIGNAL(nodePortInserted(FTL::CStrRef, unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodePortInserted(FTL::CStrRef, unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
       SIGNAL(nodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef)),
       this,
       SLOT(onExecNodePortRenamed(FTL::CStrRef, unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodePortRemoved(FTL::CStrRef, unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onExecNodePortRemoved(FTL::CStrRef, unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_notifier.data(),
+      SIGNAL(nodePortsReordered(FTL::CStrRef, FTL::ArrayRef<unsigned>)),
+      this,
+      SLOT(onExecNodePortsReordered(FTL::CStrRef, FTL::ArrayRef<unsigned>))
       );
     connect(
       m_notifier.data(),
@@ -528,8 +552,7 @@ void VEEditorOwner::onOutputsChanged()
 void VEEditorOwner::onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL::CStrRef type )
 {
   assert( m_modelRoot );
-
-  if ( m_modelRoot->argInserted( index, name.c_str(), type.c_str() ) )
+  if ( m_modelRoot->isBinding() )
   {
     emit modelItemInserted( m_modelRoot, int( index ), name.c_str() );
   }
@@ -538,11 +561,10 @@ void VEEditorOwner::onBindingArgInserted( unsigned index, FTL::CStrRef name, FTL
 void VEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, FTL::CStrRef newType )
 {
   assert( m_modelRoot );
-
-  if (m_modelRoot->argTypeChanged( index, name.c_str(), newType.c_str() ))
+  if ( m_modelRoot->isBinding() )
   {
-    BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
-    if (changingChild != NULL)
+    BaseModelItem *changingChild = m_modelRoot->getChild( name, false );
+    if ( changingChild != NULL )
       emit modelItemTypeChange( changingChild, newType.c_str() );
   }
 }
@@ -550,12 +572,16 @@ void VEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef name, 
 void VEEditorOwner::onBindingArgRemoved( unsigned index, FTL::CStrRef name )
 {
   assert( m_modelRoot );
-
-  BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
-  if (removedChild != NULL)
+  if ( m_modelRoot->isBinding() )
   {
-    emit modelItemRemoved( removedChild );
-    m_modelRoot->argRemoved( int( index ), name.c_str() );
+    BindingModelItem *bindingModelItem =
+      static_cast<BindingModelItem *>( m_modelRoot );
+    BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
+    if ( removedChild != NULL )
+    {
+      emit modelItemRemoved( removedChild );
+      bindingModelItem->argRemoved( index, name );
+    }
   }
 }
 
@@ -566,9 +592,9 @@ void VEEditorOwner::onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder )
   // The array will specify the new order of our base arrays children
   // We will need to keep track of 
   QList<int> newIntOrder;
-#if QT_VERSION >= 0x040800
-  newIntOrder.reserve( newOrder.size() );
-#endif
+  #if QT_VERSION >= 0x040800
+    newIntOrder.reserve( newOrder.size() );
+  #endif
   for (size_t i = 0; i < newOrder.size(); i++)
     newIntOrder.push_back( int( newOrder[i] ) );
 
@@ -593,6 +619,19 @@ void VEEditorOwner::onBindingArgRenamed(
     emit modelItemRenamed( changingChild );
 }
 
+void VEEditorOwner::onExecNodePortInserted(
+  FTL::CStrRef nodeName,
+  unsigned portIndex,
+  FTL::CStrRef portName
+  )
+{
+  assert( m_modelRoot );
+  if ( m_modelRoot->isNode() )
+  {
+    emit modelItemInserted( m_modelRoot, int( portIndex ), portName.c_str() );
+  }
+}
+
 void VEEditorOwner::onExecNodePortRenamed(
   FTL::CStrRef nodeName,
   unsigned portIndex,
@@ -609,6 +648,45 @@ void VEEditorOwner::onExecNodePortRenamed(
       newPortName
       ) )
     emit modelItemRenamed( changingChild );
+}
+
+void VEEditorOwner::onExecNodePortRemoved(
+  FTL::CStrRef nodeName,
+  unsigned portIndex,
+  FTL::CStrRef portName
+  )
+{
+  assert( m_modelRoot );
+  if ( m_modelRoot->isNode() )
+  {
+    BindingModelItem *bindingModelItem =
+      static_cast<BindingModelItem *>( m_modelRoot );
+    BaseModelItem* removedChild = m_modelRoot->getChild( portName, false );
+    if ( removedChild != NULL )
+    {
+      emit modelItemRemoved( removedChild );
+      bindingModelItem->argRemoved( portIndex, portName );
+    }
+  }
+}
+
+void VEEditorOwner::onExecNodePortsReordered(
+  FTL::CStrRef nodeName,
+  FTL::ArrayRef<unsigned> newOrder
+  )
+{
+  assert( m_modelRoot );
+  if ( m_modelRoot->isNode() )
+  {
+    QList<int> newIntOrder;
+    #if QT_VERSION >= 0x040800
+      newIntOrder.reserve( newOrder.size() );
+    #endif
+    for (size_t i = 0; i < newOrder.size(); i++)
+      newIntOrder.push_back( int( newOrder[i] ) );
+
+    emit modelItemChildrenReordered( m_modelRoot, newIntOrder );
+  }
 }
 
 void VEEditorOwner::onExecPortMetadataChanged(
@@ -631,7 +709,6 @@ void VEEditorOwner::onExecPortMetadataChanged(
     emit modelItemTypeChange( changingChild, "" );
   }
 }
-
 
 void VEEditorOwner::onExecNodeRemoved(
   FTL::CStrRef nodeName
@@ -741,7 +818,7 @@ void VEEditorOwner::onStructureChanged()
         FTL::CStrRef portName = graph.getExecPortName( i );
         if (portName != FTL_STR( "timeline" ))
           continue;
-        if (!graph.isExecPortResolvedType( i, "SInt32" )
+        if (    !graph.isExecPortResolvedType( i, "SInt32" )
              && !graph.isExecPortResolvedType( i, "UInt32" )
              && !graph.isExecPortResolvedType( i, "Float32" )
              && !graph.isExecPortResolvedType( i, "Float64" ))

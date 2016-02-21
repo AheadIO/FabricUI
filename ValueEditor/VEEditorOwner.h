@@ -59,6 +59,9 @@ namespace FabricUI {
 
       void initConnections();
 
+    public slots :
+      void onOutputsChanged(); // Call after each evaluation
+
     protected slots:
 
       void onControllerBindingChanged(
@@ -69,7 +72,6 @@ namespace FabricUI {
       void onNodeInspectRequested(FabricUI::GraphView::Node *node);
 
       void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
-      void onOutputsChanged(); // Call after each evalation
 
       void onBindingArgInserted(
         unsigned index,
@@ -98,11 +100,28 @@ namespace FabricUI {
         FTL::ArrayRef<unsigned> newOrder
         );
 
+      void onExecNodePortInserted(
+        FTL::CStrRef nodeName,
+        unsigned portIndex,
+        FTL::CStrRef portName
+        );
+
       void onExecNodePortRenamed(
         FTL::CStrRef nodeName,
         unsigned portIndex,
         FTL::CStrRef oldNodePortName,
         FTL::CStrRef newNodePortName
+        );
+
+      void onExecNodePortRemoved(
+        FTL::CStrRef nodeName,
+        unsigned portIndex,
+        FTL::CStrRef portName
+        );
+
+      void onExecNodePortsReordered(
+        FTL::CStrRef nodeName,
+        FTL::ArrayRef<unsigned> newOrder
         );
 
       void onExecPortMetadataChanged(

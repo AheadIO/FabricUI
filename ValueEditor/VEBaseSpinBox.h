@@ -27,6 +27,7 @@ public:
     , m_stepping( false )
     , m_steppingTimerConnected( false )
   {
+    QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
     QT_SPINBOX::lineEdit()->setAlignment( Qt::AlignRight | Qt::AlignCenter );
     QT_SPINBOX::setKeyboardTracking( false );
     m_steppingTimer.setSingleShot( true );
@@ -56,7 +57,7 @@ public:
 
       // [FE-6014]
       QT_SPINBOX::lineEdit()->deselect();
-      QT_SPINBOX::clearFocus();
+      QT_SPINBOX::lineEdit()->clearFocus(); // [FE-6077] using this instead of QT_SPINBOX::clearFocus() makes the TAB key work.
     }
     else
     {
@@ -116,11 +117,22 @@ public:
     event->accept();
   }
 
-  virtual void focusInEvent( QFocusEvent *event )
+  virtual void focusInEvent( QFocusEvent *event ) /*override*/
   {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
+    QT_SPINBOX::setFocusPolicy(Qt::WheelFocus);
+
     if ( event->reason() != Qt::PopupFocusReason )
       m_last = QT_SPINBOX::value();
     QT_SPINBOX::focusInEvent( event );
+  }
+
+  virtual void focusOutEvent( QFocusEvent *event ) /*override*/
+  {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
+    QT_SPINBOX::setFocusPolicy(Qt::StrongFocus);
+
+    QT_SPINBOX::focusOutEvent( event );
   }
 
   virtual void keyPressEvent( QKeyEvent *event ) /*override*/
@@ -158,6 +170,13 @@ public:
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/
   {
+    // [FE-5997] inspired by http://stackoverflow.com/questions/5821802/qspinbox-inside-a-qscrollarea-how-to-prevent-spin-box-from-stealing-focus-when
+    if (!this->hasFocus())
+    {
+      event->ignore();
+      return;
+    }
+
     beginStepping();
 
     QT_SPINBOX::wheelEvent( event );
@@ -228,4 +247,3 @@ protected:
   bool m_steppingTimerConnected;
   QTimer m_steppingTimer;
 };
-

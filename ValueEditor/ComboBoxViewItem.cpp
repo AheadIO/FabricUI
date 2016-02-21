@@ -3,10 +3,10 @@
 //
 
 #include "ComboBoxViewItem.h"
+#include "ComboBox.h"
 #include "QVariantRTVal.h"
 
 #include <FTL/StrSplit.h>
-#include <QtGui/QComboBox>
 #include "QVariantRTVal.h"
 
 ComboBoxViewItem::ComboBoxViewItem( QString const &name, QVariant const &v, ItemMetadata* metadata, bool isString )
@@ -14,7 +14,7 @@ ComboBoxViewItem::ComboBoxViewItem( QString const &name, QVariant const &v, Item
   , m_comboBox(NULL)
   , m_isString(isString)
 {
-  m_comboBox = new QComboBox;
+  m_comboBox = new ComboBox;
   m_comboBox->setObjectName( "ComboBoxItem" );
 
   metadataChanged();

@@ -1,11 +1,12 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/BackDropNode.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/HighlightEffect.h>
 #include <FabricUI/GraphView/Node.h>
+#include <FabricUI/GraphView/NodeBubble.h>
 #include <FabricUI/GraphView/NodeLabel.h>
 #include <FabricUI/GraphView/NodeRectangle.h>
-#include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/GraphView/Graph.h>
 
 #include <QtGui/QGraphicsLinearLayout>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -33,7 +34,6 @@ Node::Node(
   , m_header( NULL )
   , m_mainWidget( NULL )
 {
-  m_cache = NULL;
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -85,11 +85,6 @@ Node::Node(
       m_graph->controller(), SLOT(onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton*)));
   }
 
-  QObject::connect(
-    m_graph->mainPanel(), SIGNAL(canvasPanChanged(QPointF)),
-    this, SLOT(canvasPanned())
-    );
-
   m_pinsWidget = new QGraphicsWidget(m_mainWidget);
   layout->addItem(m_pinsWidget);
   layout->setAlignment(m_pinsWidget, Qt::AlignHCenter | Qt::AlignVCenter);
@@ -103,38 +98,19 @@ Node::Node(
   m_selected = false;
   m_dragging = 0;
 
-  // setup the drop shadow
-  if(m_graph->config().nodeShadowEnabled)
-  {
-    QGraphicsDropShadowEffect * shadow = new QGraphicsDropShadowEffect(m_mainWidget);
-    shadow->setColor(m_graph->config().nodeShadowColor);
-    shadow->setOffset(m_graph->config().nodeShadowOffset);
-    shadow->setBlurRadius(m_graph->config().nodeShadowBlurRadius);
-    m_mainWidget->setGraphicsEffect(shadow);
-  }
-
-  // setup caching
-  m_cache = new CachingEffect(this);
-  this->setGraphicsEffect(m_cache);
-  
-  m_bubble = new GraphView::NodeBubble( graph(), this, graph()->config() );
+  m_bubble = new GraphView::NodeBubble( this, graph()->config() );
   m_bubble->hide();
 
   setAcceptHoverEvents(true);
-}
 
-void Node::canvasPanned()
-{
-  m_mainWidget->update();
+  updateEffect();
 }
 
 Node::~Node()
 {
-  delete m_cache;
-
-  m_bubble->setNode( NULL );
+  m_bubble->setParentItem( NULL );
   m_bubble->scene()->removeItem( m_bubble );
-  m_bubble->deleteLater();
+  delete m_bubble;
 }
 
 Graph * Node::graph()
@@ -198,7 +174,7 @@ void Node::setColorAsGradient(QColor a, QColor b)
 {
   m_colorA = a;
   m_colorB = b;
-  if(m_graph->config().nodeDefaultPenUsesNodeColor)
+  if ( m_graph->config().nodeDefaultPenUsesNodeColor )
     m_defaultPen.setBrush(m_colorB.darker());
   if ( m_mainWidget )
     m_mainWidget->update();
@@ -252,24 +228,6 @@ QString Node::comment() const
   return m_bubble->text();
 }
 
-QRectF Node::boundingRect() const
-{
-  QRectF rect = QGraphicsWidget::boundingRect();
-
-  float left = rect.left();
-  float top = rect.top();
-  float width = rect.width();
-  float height = rect.height();
-
-  if(m_graph->config().nodeShadowEnabled)
-  {
-    width += m_graph->config().nodeShadowOffset.x() * 2.0f;
-    height += m_graph->config().nodeShadowOffset.y() * 2.0f;
-  }
-
-  return QRectF(left, top, width, height);
-}
-
 bool Node::selected() const
 {
   return m_selected;
@@ -316,6 +274,7 @@ void Node::setSelected(bool state, bool quiet)
     else
       emit m_graph->nodeDeselected(this);
   }
+  updateEffect();
   update();
 }
 
@@ -332,8 +291,8 @@ bool Node::hasError() const
 void Node::setError(QString text)
 {
   m_errorText = text;
-  setToolTip(text);
-  update();
+  setToolTip( text );
+  updateEffect();
 }
 
 void Node::clearError()
@@ -341,71 +300,41 @@ void Node::clearError()
   setError("");
 }
 
-QPointF Node::graphPos() const
+void Node::setGraphPos( QPointF pos, bool quiet )
 {
-  return topLeftToCentralPos(topLeftGraphPos());
-}
-
-void Node::setGraphPos(QPointF pos, bool quiet)
-{
-  setTopLeftGraphPos(centralPosToTopLeftPos(pos));
-  if(!quiet)
-  {
-    emit positionChanged(this, pos);
-    emit m_graph->nodeMoved(this, pos);
-  }
-}
-
-QPointF Node::topLeftGraphPos() const
-{
-  QTransform xfo = transform();
-  QPointF pos(xfo.dx(), xfo.dy());
-  return pos;
+  setTopLeftGraphPos( centralPosToTopLeftPos(pos), quiet );
 }
 
 void Node::setTopLeftGraphPos(QPointF pos, bool quiet)
 {
-  setTransform(QTransform::fromTranslate(pos.x(), pos.y()), false);
-  if(!quiet)
+  setPos( pos );
+  if ( !quiet )
   {
-    emit positionChanged(this, graphPos());
-    emit m_graph->nodeMoved(this, graphPos());
+    emit positionChanged( this, graphPos() );
+    emit m_graph->nodeMoved( this, graphPos() );
   }
 }
 
-QPointF Node::topLeftToCentralPos(QPointF pos) const
-{
-  QRectF rect = boundingRect();
-  return QPointF(pos.x() + rect.width() * 0.5, pos.y() + rect.height() * 0.5);
-}
-
-QPointF Node::centralPosToTopLeftPos(QPointF pos) const
-{
-  QRectF rect = boundingRect();
-  return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
-}
-
-Pin * Node::addPin(Pin * pin, bool quiet)
+bool Node::addPin( Pin *pin )
 {
   // todo: we need a method to update the layout based on the collapsed state.....
   for(size_t i=0;i<m_pins.size();i++)
   {
     if(m_pins[i] == pin)
-      return NULL;
+      return false;
     if(m_pins[i]->name() == pin->name())
-      return NULL;
+      return false;
   }
 
   pin->setIndex((int)m_pins.size());
   m_pins.push_back(pin);
-  if(!quiet)
-    emit pinAdded(this, pin);
 
   updatePinLayout();
-  return pin;
+
+  return true;
 }
 
-bool Node::removePin(Pin * pin, bool quiet)
+bool Node::removePin( Pin * pin )
 {
   size_t index = m_pins.size();
   for(size_t i=0;i<m_pins.size();i++)
@@ -421,14 +350,17 @@ bool Node::removePin(Pin * pin, bool quiet)
 
   m_pins.erase(m_pins.begin() + index);
   updatePinLayout();
-  if(!quiet)
-    emit pinRemoved(this, pin);
 
   scene()->removeItem(pin);
-  pin->deleteLater();
-  delete(pin);
+  
+  delete pin;
 
-  update();
+  // [pzion 20160216] Workaround for possible bug in QGraphicsScene
+  // Without this, we get pretty consistent crashes walking the BSP
+  // after pin removal.  After lots of debugging I believe this is 
+  // a bug in QGraphicsScene, but I am not certain.
+  scene()->setItemIndexMethod( QGraphicsScene::NoIndex );
+  scene()->setItemIndexMethod( QGraphicsScene::BspTreeIndex );
 
   return true;
 }
@@ -443,7 +375,6 @@ void Node::reorderPins(QStringList names)
   }
   m_pins = pins;
   updatePinLayout();
-  update();
 }
 
 std::vector<Node*> Node::upStreamNodes(bool sortForPins, std::vector<Node*> rootNodes)
@@ -851,6 +782,29 @@ void Node::updatePinLayout()
   for(size_t i=0;i<m_pins.size();i++)
   {
     m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
+  }
+}
+
+void Node::updateEffect()
+{
+  if ( !m_errorText.isEmpty() )
+  {
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setColor( QColor( 255, 0, 0 ) );
+    effect->setOffset( QPoint( 0, 0 ) );
+    effect->setBlurRadius( 24 );
+    setGraphicsEffect( effect );
+    // setGraphicsEffect(
+    //   new HighlightEffect( QColor( 255, 0, 0 ) )
+    //   );
+  }
+  else
+  {
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setColor(m_graph->config().nodeShadowColor);
+    effect->setOffset(m_graph->config().nodeShadowOffset);
+    effect->setBlurRadius(m_graph->config().nodeShadowBlurRadius);
+    setGraphicsEffect( effect );
   }
 }
 

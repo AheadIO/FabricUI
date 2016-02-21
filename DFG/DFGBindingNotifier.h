@@ -34,6 +34,7 @@ public:
 
 signals:
   
+  void topoDirty();
   void dirty();
 
   void argInserted(
@@ -78,6 +79,13 @@ signals:
   void varRemoved(
     FTL::CStrRef varName,
     FTL::CStrRef varPath
+    );
+
+  void loadDiagInserted(
+    unsigned diagIndex
+    );
+  void loadDiagRemoved(
+    unsigned diagIndex
     );
 
 private:

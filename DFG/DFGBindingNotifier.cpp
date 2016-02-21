@@ -30,6 +30,10 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
     {
       emit dirty();
     }
+    else if ( descStr == FTL_STR("topoDirty") )
+    {
+      emit topoDirty();
+    }
     else if ( descStr == FTL_STR("argChanged") )
     {
       unsigned index = unsigned( jsonObject->getSInt32( FTL_STR("index") ) );
@@ -105,6 +109,18 @@ void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
         varName,
         varPath
         );
+    }
+    else if ( descStr == FTL_STR("loadDiagInserted") )
+    {
+      unsigned diagIndex = unsigned( jsonObject->getSInt32( FTL_STR("diagIndex") ) );
+
+      emit loadDiagInserted( diagIndex );
+    }
+    else if ( descStr == FTL_STR("loadDiagRemoved") )
+    {
+      unsigned diagIndex = unsigned( jsonObject->getSInt32( FTL_STR("diagIndex") ) );
+
+      emit loadDiagRemoved( diagIndex );
     }
     else
     {

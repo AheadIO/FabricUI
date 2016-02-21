@@ -21,9 +21,9 @@ TextContainer::TextContainer(
   m_highlighted = false;
   
   m_textItem = new QGraphicsSimpleTextItem(text, this);
-  m_textItem->setPen(QPen(Qt::NoPen));
   m_textItem->setBrush(color);
   m_textItem->setFont(font);
+  m_textItem->setCacheMode( DeviceCoordinateCache );
 
   setWindowFrameMargins(0, 0, 0, 0);
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
@@ -44,8 +44,6 @@ void TextContainer::refresh()
   prepareGeometryChange();
   setPreferredWidth(size.width());
   setPreferredHeight(size.height());
-
-  m_textItem->update();
 }
 
 QColor TextContainer::color() const

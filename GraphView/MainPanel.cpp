@@ -11,7 +11,6 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphConfig.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 #include <math.h>
 
@@ -97,8 +96,6 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
     graphicsView->setRenderHint(QPainter::SmoothPixmapTransform, true);
     m_itemGroup->setScale(state);
   }
-
-  update();
 
   if(!quiet)
     emit canvasZoomChanged(m_mouseWheelZoomState);
@@ -220,12 +217,7 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     m_lastPanPoint = pos;
     event->accept();
 
-    if(m_graph->controller()->panCanvas(delta + canvasPan()))
-    {
-      // if(!m_graph->config().mainPanelBackGroundPanFixed)
-      // m_backGround->setOffset(m_itemGroup->transform());
-      update();
-    }
+    m_graph->controller()->panCanvas(delta + canvasPan());
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {

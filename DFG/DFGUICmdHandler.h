@@ -12,6 +12,7 @@
 #include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 
+#include <QtCore/QList>
 #include <QtCore/QPoint>
 #include <QtCore/QSize>
 
@@ -291,6 +292,11 @@ public:
     FabricCore::DFGBinding const &binding,
     FTL::CStrRef execPath,
     FabricCore::DFGExec const &exec
+    ) = 0;
+
+  virtual void dfgDoDismissLoadDiags(
+    FabricCore::DFGBinding const &binding,
+    QList<int> diagIndices
     ) = 0;
 };
 

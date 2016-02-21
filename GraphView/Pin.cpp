@@ -309,8 +309,6 @@ void Pin::setDrawState(bool flag)
     setMaximumHeight(0);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
   }
-
-  update();
 }
 
 bool Pin::drawState() const

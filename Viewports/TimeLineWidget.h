@@ -71,8 +71,11 @@ namespace FabricUI
         /// pointer at QTimer
         QTimer *getTimer()  { return m_timer; }
 
+        /// get the framerate of the timer
+        double getFps() const;
+
         /// set the timer from a QTimer interval.
-        void setTimerFromInterval(int interval);
+        void setTimerFromFps(double fps);
 
         /// returns the frame rate (frame per seconds) currently set in m_frameRateComboBox.
         double getFrameRateFromComboBox();

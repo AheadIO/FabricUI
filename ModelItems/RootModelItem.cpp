@@ -63,43 +63,6 @@ int RootModelItem::getChildIndex( FTL::CStrRef name )
   return -1;
 }
 
-bool RootModelItem::argInserted( int index, const char* name, const char* type )
-{
-  // Assert that this child exists.  We will get notifications
-  // for children that we do not have.
-  if ( getChildName( index ) == name )
-  {
-    return true;
-  }
-  return false;
-}
-
-bool RootModelItem::argTypeChanged( int index, const char* name, const char* newType )
-{
-  // Assert that this child exists.  We will get notifications
-  // for children that we do not have.
-  if ( getChildName( index ) == name )
-  {
-    return true;
-  }
-  return false;
-}
-
-void RootModelItem::argRemoved( int index, const char* name )
-{
-  for ( ChildVec::iterator itr = m_children.begin();
-    itr != m_children.end(); itr++ )
-  {
-    BaseModelItem *childModelItem = *itr;
-    if ( childModelItem->getName() == name )
-    {
-      delete childModelItem;
-      m_children.erase( itr );
-      break;
-    }
-  }
-}
-
 BaseModelItem *RootModelItem::onPortRenamed(
   unsigned index,
   FTL::CStrRef oldName,

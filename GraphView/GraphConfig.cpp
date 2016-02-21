@@ -8,6 +8,10 @@ using namespace FabricUI::GraphView;
 GraphConfig::GraphConfig()
 {
 #if defined(FTL_OS_DARWIN)
+  // [pzion 20160218] We can't use OpenGL drawing on OS X because you
+  // can't pop up the tab-search window overtop.  We can fix this if we
+  // convert the tab-search window into a QGraphicsItem, which should be 
+  // quite trivial to do.
   useOpenGL = false;
 #else
   useOpenGL = true;

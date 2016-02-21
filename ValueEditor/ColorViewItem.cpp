@@ -7,18 +7,51 @@
 #include "ViewItemFactory.h"
 #include "ItemMetadata.h"
 #include "BaseModelItem.h"
+#include "ComboBox.h"
 
 #include <assert.h>
 #include <FTL/JSONValue.h>
 #include <QtCore/QVariant>
 #include <QtGui/QColorDialog>
-#include <QtGui/QPushButton>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QComboBox>
+#include <QtGui/QPainter>
 
 #define IDX_RGB 0
 #define IDX_HSV 1
 #define META_FORMAT  "displayFormat"
+
+AlphaWidget::AlphaWidget( QWidget *parent )
+  : QWidget( parent )
+{
+  setAutoFillBackground( false );
+}
+
+void AlphaWidget::paintEvent( QPaintEvent *event )
+{
+  QPainter painter( this );
+
+  QRect r = rect();
+
+  painter.setPen( Qt::NoPen );
+
+  painter.setBrush( Qt::white );
+  painter.drawRoundedRect( r, 4, 4 );
+
+  QRect sr(
+    r.left() + ( r.width() >> 2 ),
+    r.top() + ( r.height() >> 2 ),
+    r.width() >> 1,
+    r.height() >> 1
+    );
+  painter.setBrush( Qt::black );
+  painter.drawRoundedRect( sr, 4, 4 );
+
+  if ( m_color.isValid() )
+  {
+    painter.setBrush( m_color );
+    painter.drawRoundedRect( r, 4, 4 );
+  }
+}
 
 ColorViewItem::ColorViewItem(
   const QVariant& value,
@@ -27,7 +60,6 @@ ColorViewItem::ColorViewItem(
   )
   : BaseComplexViewItem( name, metadata )
   , m_widget( NULL )
-  , m_button( NULL )
   , m_spec( QColor::Rgb )
   , m_specCombo( NULL )
   , m_childMetadata (metadata)
@@ -36,18 +68,27 @@ ColorViewItem::ColorViewItem(
   m_widget = new QWidget;
   m_widget->setObjectName( "ColorItem" );
 
+  m_alphaWidget = new AlphaWidget;
+  m_alphaWidget->setSizePolicy(
+    QSizePolicy::Expanding,
+    QSizePolicy::Expanding
+    );
+
+  QHBoxLayout *buttonLayout = new QHBoxLayout;
+  buttonLayout->setContentsMargins( 0, 0, 0, 0 );
+  buttonLayout->addWidget( m_alphaWidget );
+
+  QPushButton *button = new QPushButton;
+  button->setLayout( buttonLayout );
+  connect(
+    button, SIGNAL( clicked() ),
+    this, SLOT( pickColor() )
+    );
+
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  layout->addWidget( button );
 
-  m_button = new QPushButton();
-  m_button->setAutoFillBackground( true );
-
-  // Connect button signal to appropriate slot
-  connect( m_button, SIGNAL( clicked() ),
-           this, SLOT( pickColor() ) );
-
-  layout->addWidget( m_button );
-
-  m_specCombo = new QComboBox;
+  m_specCombo = new ComboBox;
   m_specCombo->addItem( tr( "RGB" ) );
   m_specCombo->addItem( tr( "HSV" ) );
 
@@ -56,10 +97,10 @@ ColorViewItem::ColorViewItem(
 
   layout->addWidget( m_specCombo );
 
-  // Our children are inherently limited to 0->1
-  m_childMetadata.setString( "uiHardRange", "(0.0, 1.0)" );
+  m_childMetadata.setString( "uiRange", "(0.0, 1.0)" );
 
   metadataChanged();
+
   onModelValueChanged( value );
 }
 
@@ -72,97 +113,186 @@ QWidget *ColorViewItem::getWidget()
   return m_widget;
 }
 
+void ColorViewItem::toComponents(
+  float &r,
+  float &g,
+  float &b,
+  float &a
+  ) const
+{
+  if ( m_colorRTVal.hasType( "RGB" ) )
+  {
+    r = m_colorRTVal.getMemberRef( 0 ).getUInt8() / 255.0f;
+    g = m_colorRTVal.getMemberRef( 1 ).getUInt8() / 255.0f;
+    b = m_colorRTVal.getMemberRef( 2 ).getUInt8() / 255.0f;
+    a = 1.0f;
+  }
+  else if ( m_colorRTVal.hasType( "RGBA" ) )
+  {
+    r = m_colorRTVal.getMemberRef( 0 ).getUInt8() / 255.0f;
+    g = m_colorRTVal.getMemberRef( 1 ).getUInt8() / 255.0f;
+    b = m_colorRTVal.getMemberRef( 2 ).getUInt8() / 255.0f;
+    a = m_colorRTVal.getMemberRef( 3 ).getUInt8() / 255.0f;
+  }
+  else if ( m_colorRTVal.hasType( "Color" ) )
+  {
+    r = m_colorRTVal.getMemberRef( 0 ).getFloat32();
+    g = m_colorRTVal.getMemberRef( 1 ).getFloat32();
+    b = m_colorRTVal.getMemberRef( 2 ).getFloat32();
+    a = m_colorRTVal.getMemberRef( 3 ).getFloat32();
+  }
+  else
+  {
+    r = g = b = 0.0f;
+    a = 1.0f;
+  }
+}
+
+QColor ColorViewItem::toQColor() const
+{
+  float r, g, b, a;
+  toComponents( r, g, b, a );
+  return QColorFromComponents( r, g, b, a );
+}
+ 
 void ColorViewItem::onModelValueChanged( QVariant const &value )
 {
-  m_color = value.value<QColor>();
-  m_color = m_color.convertTo( m_spec );
-  setButtonColor( m_color );
+  RTVariant::toRTVal( value, m_colorRTVal );
 
-  switch (m_spec)
+  sync();
+}
+
+void ColorViewItem::sync()
+{
+  float r, g, b, a;
+  toComponents( r, g, b, a );
+  QColor qColor = QColorFromComponents( r, g, b, a );
+
+  switch ( m_spec )
   {
     case QColor::Rgb:
-      routeModelValueChanged( 0, QVariant( m_color.redF() ) );
-      routeModelValueChanged( 1, QVariant( m_color.greenF() ) );
-      routeModelValueChanged( 2, QVariant( m_color.blueF() ) );
-      routeModelValueChanged( 3, QVariant( m_color.alphaF() ) );
-      break;
+    {
+      routeModelValueChanged( 0, QVariant( r ) );
+      routeModelValueChanged( 1, QVariant( g ) );
+      routeModelValueChanged( 2, QVariant( b ) );
+      if ( !m_colorRTVal.hasType( "RGB" ) )
+        routeModelValueChanged( 3, QVariant( a ) );
+    }
+    break;
+
     case QColor::Hsv:
-      routeModelValueChanged( 0, QVariant( m_color.hueF() ) );
-      routeModelValueChanged( 1, QVariant( m_color.saturationF() ) );
-      routeModelValueChanged( 2, QVariant( m_color.valueF() ) );
-      routeModelValueChanged( 3, QVariant( m_color.alphaF() ) );
-      break;
+    {
+      routeModelValueChanged( 0, QVariant( std::max( 0.0, qColor.hueF() ) ) );
+      routeModelValueChanged( 1, QVariant( qColor.saturationF() ) );
+      routeModelValueChanged( 2, QVariant( qColor.valueF() ) );
+      if ( !m_colorRTVal.hasType( "RGB" ) )
+        routeModelValueChanged( 3, QVariant( qColor.alphaF() ) );
+    }
+    break;
+
     default:
       assert( !"Error: Bad Color Spec in ColorViewItem" );
       break;
   }
+
+  setButtonColor( qColor );
 }
 
 void ColorViewItem::onChildViewValueChanged( int index, QVariant value )
 {
-  QColor color = m_color;
-  QColor::Spec spec = color.spec();
-  switch (spec)
+  switch ( m_spec )
   {
     case QColor::Hsv:
+    {
       qreal v[4];
-      color.getHsvF( v, v + 1, v + 2, v + 3 );
+      toQColor().getHsvF( &v[0], &v[1], &v[2], &v[3] );
+      v[0] = std::max( 0.0, v[0] );
       v[index] = value.toDouble();
-      color = QColor::fromHsvF( v[0], v[1], v[2], v[3] );
-      break;
+      fromQColor( QColor::fromHsvF( v[0], v[1], v[2], v[3] ) );
+    }
+    break;
 
     case QColor::Rgb:
-      switch (index)
+    {
+      if ( m_colorRTVal.hasType( "RGB" ) )
       {
-        case 0:
-          color.setRedF( value.toDouble() );
-          break;
-        case 1:
-          color.setGreenF( value.toDouble() );
-          break;
-        case 2:
-          color.setBlueF( value.toDouble() );
-          break;
-        case 3:
-          color.setAlphaF( value.toDouble() );
-          break;
-        default:
-          assert( false );
-          break;
+        assert( index >= 0 && index < 3 );
+        if ( index >= 0 && index < 3 )
+          m_colorRTVal.getMemberRef( index ).setUInt8(
+            uint8_t(
+              round(
+                255.0f * std::max( 0.0f, std::min( 1.0f, float( value.toDouble() ) ) )
+                )
+              )
+            );
       }
-      break;
+      else if ( m_colorRTVal.hasType( "RGBA" ) )
+      {
+        assert( index >= 0 && index < 4 );
+        if ( index >= 0 && index < 4 )
+          m_colorRTVal.getMemberRef( index ).setUInt8(
+            uint8_t(
+              round(
+                255.0f * std::max( 0.0f, std::min( 1.0f, float( value.toDouble() ) ) )
+                )
+              )
+            );
+      }
+      else if ( m_colorRTVal.hasType( "Color" ) )
+      {
+        assert( index >= 0 && index < 4 );
+        if ( index >= 0 && index < 4 )
+          m_colorRTVal.getMemberRef( index ).setFloat32( float( value.toDouble() ) );
+      }
+    }
+    break;
 
     default:
       assert( false );
       break;
   }
-  emit viewValueChanged( QVariant( color ) );
+
+  emit viewValueChanged( toVariant( m_colorRTVal ) );
 }
 
 void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 {
   ViewItemFactory* factory = ViewItemFactory::GetInstance();
   BaseViewItem *children[4];
-  switch (m_color.spec())
+  int childCount = 0;
+  switch ( m_spec )
   {
     case QColor::Rgb:
-      children[0] = factory->createViewItem( "R", QVariant( m_color.redF() ), &m_childMetadata );
-      children[1] = factory->createViewItem( "G", QVariant( m_color.greenF() ), &m_childMetadata );
-      children[2] = factory->createViewItem( "B", QVariant( m_color.blueF() ), &m_childMetadata );
-      children[3] = factory->createViewItem( "A", QVariant( m_color.alphaF() ), &m_childMetadata );
-      break;
+    {
+      float r, g, b, a;
+      toComponents( r, g, b, a );
+
+      children[childCount++] = factory->createViewItem( "R", QVariant( r ), &m_childMetadata );
+      children[childCount++] = factory->createViewItem( "G", QVariant( g ), &m_childMetadata );
+      children[childCount++] = factory->createViewItem( "B", QVariant( b ), &m_childMetadata );
+      if ( !m_colorRTVal.hasType( "RGB" ) )
+        children[childCount++] = factory->createViewItem( "A", QVariant( a ), &m_childMetadata );
+    }
+    break;
+
     case QColor::Hsv:
-      children[0] = factory->createViewItem( "H", QVariant( m_color.hueF() ), &m_childMetadata );
-      children[1] = factory->createViewItem( "S", QVariant( m_color.saturationF() ), &m_childMetadata );
-      children[2] = factory->createViewItem( "V", QVariant( m_color.valueF() ), &m_childMetadata );
-      children[3] = factory->createViewItem( "A", QVariant( m_color.alphaF() ), &m_childMetadata );
-      break;
+    {
+      QColor color = toQColor();
+
+      children[childCount++] = factory->createViewItem( "H", QVariant( std::max( 0.0, color.hueF() ) ), &m_childMetadata );
+      children[childCount++] = factory->createViewItem( "S", QVariant( color.saturationF() ), &m_childMetadata );
+      children[childCount++] = factory->createViewItem( "V", QVariant( color.valueF() ), &m_childMetadata );
+      if ( !m_colorRTVal.hasType( "RGB" ) )
+        children[childCount++] = factory->createViewItem( "A", QVariant( color.alphaF() ), &m_childMetadata );
+    }
+    break;
+
     default:
       assert( !"Invalid Color" );
       return;
   }
 
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < childCount; ++i)
   {
     connectChild( i, children[i] );
     items.append( children[i] );
@@ -171,37 +301,41 @@ void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 
 void ColorViewItem::setButtonColor( const QColor& color ) 
 {
-  if (color.isValid())
-  {
-    // Set value via CSS to keep in sync with other styles
-    QString qss = QString( "background-color: %1" ).arg( color.name() );
-    m_button->setStyleSheet( qss );
-  }
+  m_alphaWidget->setColor( color );
 }
 
 void ColorViewItem::metadataChanged()
 {
-  const char* dispType = m_metadata.getString( META_FORMAT );
-  if (dispType == NULL)
-    return;
+  FTL::StrRef dispType = m_metadata.getString( META_FORMAT );
 
-  if (strcmp( dispType, "HSV" ) == 0)
+  if ( dispType == FTL_STR("HSV") )
   {
-    m_spec = QColor::Hsv;
-    m_specCombo->setCurrentIndex( IDX_HSV );
+    if ( m_spec != QColor::Hsv )
+    {
+      m_spec = QColor::Hsv;
+      m_specCombo->setCurrentIndex( IDX_HSV );
+      sync();
+    }
   }
   else
   {
-    m_spec = QColor::Rgb;
-    m_specCombo->setCurrentIndex( IDX_RGB );
+    if ( m_spec != QColor::Rgb )
+    {
+      m_spec = QColor::Rgb;
+      m_specCombo->setCurrentIndex( IDX_RGB );
+      sync();
+    }
   }
 }
 
 void ColorViewItem::pickColor()
 {
-  QColor currColor = m_button->palette().color( QPalette::Button );
-  QColorDialog qcd( currColor, NULL );
-  qcd.setOption( QColorDialog::ShowAlphaChannel, true );
+  QColor color = toQColor();
+  QColorDialog qcd( color, NULL );
+  qcd.setOption(
+    QColorDialog::ShowAlphaChannel,
+    !m_colorRTVal.hasType( "RGB" )
+    );
   
   connect( &qcd, SIGNAL( colorSelected( QColor ) ), 
            this, SLOT( onColorSelected( QColor ) ) );
@@ -210,43 +344,71 @@ void ColorViewItem::pickColor()
 
   emit interactionBegin();
   
-  qcd.exec();
+  int execResult = qcd.exec();
 
   // If the user hits cancel, we wish to restore
   // the current state to the previous value
-  emit interactionEnd( qcd.selectedColor().isValid() );
+  emit interactionEnd( execResult == QDialog::Accepted );
+}
+
+void ColorViewItem::fromQColor( QColor color )
+{
+  if ( color.isValid() )
+  {
+    if ( m_colorRTVal.hasType( "RGB" ) )
+    {
+      m_colorRTVal.getMemberRef( 0 ).setUInt8( uint8_t( color.red() ) );
+      m_colorRTVal.getMemberRef( 1 ).setUInt8( uint8_t( color.green() ) );
+      m_colorRTVal.getMemberRef( 2 ).setUInt8( uint8_t( color.blue() ) );
+    }
+    else if ( m_colorRTVal.hasType( "RGBA" ) )
+    {
+      m_colorRTVal.getMemberRef( 0 ).setUInt8( uint8_t( color.red() ) );
+      m_colorRTVal.getMemberRef( 1 ).setUInt8( uint8_t( color.green() ) );
+      m_colorRTVal.getMemberRef( 2 ).setUInt8( uint8_t( color.blue() ) );
+      m_colorRTVal.getMemberRef( 3 ).setUInt8( uint8_t( color.alpha() ) );
+    }
+    else if ( m_colorRTVal.hasType( "Color" ) )
+    {
+      m_colorRTVal.getMemberRef( 0 ).setFloat32( float( color.redF() ) );
+      m_colorRTVal.getMemberRef( 1 ).setFloat32( float( color.greenF() ) );
+      m_colorRTVal.getMemberRef( 2 ).setFloat32( float( color.blueF() ) );
+      m_colorRTVal.getMemberRef( 3 ).setFloat32( float( color.alphaF() ) );
+    }
+  }
 }
 
 void ColorViewItem::onColorChanged( QColor color )
 {
-  emit viewValueChanged( QVariant::fromValue( color ) );
+  fromQColor( color );
+  emit viewValueChanged( toVariant( m_colorRTVal ) );
 }
 
 void ColorViewItem::onColorSelected( QColor color )
 {
-  emit viewValueChanged( QVariant::fromValue( color ) );
+  fromQColor( color );
+  emit viewValueChanged( toVariant( m_colorRTVal ) );
 }
 
 void ColorViewItem::formatChanged( const QString& format )
 {
   BaseModelItem* modelItem = getModelItem();
+
   // Note: setting metadata will delete this
   // class
-  if (format == tr("HSV"))
+  if ( format == tr("HSV") )
   {
     m_spec = QColor::Hsv;
-    if (modelItem != NULL)
+    if ( modelItem != NULL )
       modelItem->setMetadata( META_FORMAT, "HSV", 0 );
   }
   else
   {
     m_spec = QColor::Rgb;
-    if (modelItem != NULL)
+    if ( modelItem != NULL )
       modelItem->setMetadata( META_FORMAT, "RGB", 0 );
   }
 
-  // Convert cached color
-  onModelValueChanged( m_color );
   emit rebuildChildren( this );
 }
 
@@ -261,11 +423,20 @@ BaseViewItem *ColorViewItem::CreateItem(
   ItemMetadata* metaData
   )
 {
-  if (RTVariant::isType<QColor>(value))
-  {
-    return new ColorViewItem( value, name, metaData );
-  }
-  return 0;
+  if ( value.type() != QVariant::UserType )
+    return NULL;
+  if ( value.userType() != qMetaTypeId<FabricCore::RTVal>() )
+    return NULL;
+
+  FabricCore::RTVal rtVal = value.value<FabricCore::RTVal>();
+  if ( !rtVal.isValid() )
+    return NULL;
+  if ( !rtVal.hasType( "RGB" )
+    && !rtVal.hasType( "RGBA" )
+    && !rtVal.hasType( "Color" ) )
+    return NULL;
+
+  return new ColorViewItem( value, name, metaData );
 }
 
 const int ColorViewItem::Priority = 3;

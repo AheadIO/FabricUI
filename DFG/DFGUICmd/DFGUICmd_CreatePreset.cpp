@@ -96,7 +96,7 @@ void DFGUICmd_CreatePreset::invoke( unsigned &coreUndoCount )
     {
       subExec.setPortDefaultValue(
         subExec.getExecPortName(i),
-        defaultValueRTVal
+        defaultValueRTVal.copy()
         );
       ++coreUndoCount;
     }

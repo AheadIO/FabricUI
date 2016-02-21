@@ -73,11 +73,6 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
         return val.isFloat64();
       case int( QVariant::String ):
         return val.isString();
-      case int( QVariant::Color ):
-        return val.hasType( "RGB" ) ||
-          val.hasType( "RGBA" ) ||
-          val.hasType( "ARGB" ) ||
-          val.hasType( "Color" );
       case int( QVariant::Matrix ):
         return val.hasType( "Mat22" );
       case int( QVariant::Transform ):
@@ -102,7 +97,8 @@ bool RTVariant::rtCanConvert( const QVariant::Private *d, Type t )
         return false;
     }
   }
-  return origh->canConvert( d, t );
+  return !!origh->canConvert
+    && origh->canConvert( d, t );
 }
 
 bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *result, bool *ok )
@@ -257,32 +253,6 @@ bool RTVariant::rtConvert( const QVariant::Private *d, QVariant::Type t, void *r
         str = QString::fromUtf8( data, size );
         break;
       }
-      case int( QVariant::Color ):
-      {
-        QColor& v = *((QColor*)result);
-        if ( val.hasType( "RGB" ) )
-        {
-          v.setRed( val.maybeGetMember( "r" ).getUInt8() );
-          v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
-          v.setBlue( val.maybeGetMember( "b" ).getUInt8());
-        }
-        else if ( val.hasType( "RGBA" )
-          || val.hasType( "ARGB" ) )
-        {
-          v.setRed( val.maybeGetMember( "r" ).getUInt8() );
-          v.setGreen( val.maybeGetMember( "g" ).getUInt8() );
-          v.setBlue( val.maybeGetMember( "b" ).getUInt8() );
-          v.setAlpha( val.maybeGetMember( "a" ).getUInt8() );
-        }
-        else if ( val.hasType( "Color" ) )
-        {
-          v.setRedF( val.maybeGetMember( "r" ).getFloat32() );
-          v.setGreenF( val.maybeGetMember( "g" ).getFloat32() );
-          v.setBlueF( val.maybeGetMember( "b" ).getFloat32() );
-          v.setAlphaF( val.maybeGetMember( "a" ).getFloat32() );
-        }
-      }
-      break;
       //case int( QVariant::Matrix ):
       //  if ( strcmp( rtype, "Mat22" ) == 0 )
       //  {
@@ -415,7 +385,7 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
   else
   {
     // A single QVariant type can translate to multiple RTVal
-    // types (eg QColor -> RGB && RGBA && Color).  Because we
+    // types.  Because we
     // cannot know the correct type from just the QVariant, we
     // require a valid type to cast to.
     if (!ioVal.isValid())
@@ -473,29 +443,6 @@ bool RTVariant::toRTVal( const QVariant & var, FabricCore::RTVal & ioVal )
       QString str = var.toString();
       QByteArray utf8 = str.toUtf8();
       ioVal.setString( utf8.data(), utf8.size() );
-    }
-    else if ( ioVal.hasType( "RGB" ) )
-    {
-      QColor color = var.value<QColor>();
-      ioVal.setMember( "r", FabricCore::RTVal::ConstructUInt8( ctxt, color.red() ) );
-      ioVal.setMember( "g", FabricCore::RTVal::ConstructUInt8( ctxt, color.green() ) );
-      ioVal.setMember( "b", FabricCore::RTVal::ConstructUInt8( ctxt, color.blue() ) );
-    }
-    else if ( ioVal.hasType( "RGBA" ) || ioVal.hasType( "ARGB" ) )
-    {
-      QColor color = var.value<QColor>();
-      ioVal.setMember( "r", FabricCore::RTVal::ConstructUInt8( ctxt, color.red() ) );
-      ioVal.setMember( "g", FabricCore::RTVal::ConstructUInt8( ctxt, color.green() ) );
-      ioVal.setMember( "b", FabricCore::RTVal::ConstructUInt8( ctxt, color.blue() ) );
-      ioVal.setMember( "a", FabricCore::RTVal::ConstructUInt8( ctxt, color.alpha() ) );
-    }
-    else if ( ioVal.hasType( "Color" ) )
-    {
-      QColor color = var.value<QColor>();
-      ioVal.maybeGetMemberRef( "r" ).setFloat32( color.redF() );
-      ioVal.maybeGetMemberRef( "g" ).setFloat32( color.greenF() );
-      ioVal.maybeGetMemberRef( "b" ).setFloat32( color.blueF() );
-      ioVal.maybeGetMemberRef( "a" ).setFloat32( color.alphaF() );
     }
     else if ( ioVal.hasType( "Mat33" ) )
     {

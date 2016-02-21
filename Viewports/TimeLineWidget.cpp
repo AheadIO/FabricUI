@@ -7,6 +7,7 @@
 #include <QtGui/QDesktopWidget>
 
 #include <algorithm>
+#include <math.h>
 
 using namespace FabricUI::TimeLine;
 
@@ -27,7 +28,7 @@ TimeLineWidget::TimeLineWidget()
   m_simMode = 0;
 
   //QTimer is not precise at all; just make it call often as 
-  //possible (1 ms) and we will compute the actual elapsed time
+  //possible (3 ms) and we will compute the actual elapsed time
   m_timer = new QTimer(this);
   m_timer->setInterval(3);
   m_fps = 1000;//max
@@ -330,30 +331,38 @@ void TimeLineWidget::setSimulationMode(int mode)
   simModeChanged(mode);
 }
 
-void TimeLineWidget::setTimerFromInterval(int interval)
+double TimeLineWidget::getFps() const
 {
-  if (interval <= 1)
+  return m_fps;
+}
+
+void TimeLineWidget::setTimerFromFps(double fps)
+{
+  if (fps >= 200.0)
   {
     // use "max fps".
+    m_fps = 1000.0;
     m_timer->setInterval(1);
     m_frameRateComboBox->setCurrentIndex(0);
   }
   else
   {
     // set the timer interval and try to find a matching framerate for it.
-    m_timer->setInterval(interval);
     for (int i=0;i<m_frameRateComboBox->count();i++)
     {
-      double fps = atof(m_frameRateComboBox->itemText(i).toUtf8().constData());
-      if (fps > 0 && (int)(1000.0 / fps) == interval)
+      double itemFps = m_frameRateComboBox->itemData(i).toDouble();
+      if (fabs(itemFps - fps) < 0.01)
       {
+        m_fps = fps;
         m_frameRateComboBox->setCurrentIndex(i);
         return;
       }
     }
+
     // no match found, so we set the custom fps instead.
-    m_frameRateComboBox->setItemText(m_frameRateComboBox->count() - 1, "custom " + QString::number(1000 / interval));
+    m_frameRateComboBox->setItemText(m_frameRateComboBox->count() - 1, "custom " + QString::number((int)fps));
     m_frameRateComboBox->setCurrentIndex(m_frameRateComboBox->count() - 1);
+
   }
 }
 
@@ -440,7 +449,7 @@ void TimeLineWidget::timerUpdate()
 
   m_lastFrameTime.start();
 
-  int newTime = getTime() + m_direction;
+  int newTime = getTime()+m_direction;
 
   // case 1: new time is inside the time range.
   if (newTime >= m_startSpinBox->value() && newTime <= m_endSpinBox->value())

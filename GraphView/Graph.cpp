@@ -386,7 +386,6 @@ void Graph::updateColorForConnections(const ConnectionTarget * target) const
     if(m_connections[i]->dst() == target || m_connections[i]->src() == target)
     {
       m_connections[i]->setColor(target->color());
-      m_connections[i]->update();
     }
   }
 }

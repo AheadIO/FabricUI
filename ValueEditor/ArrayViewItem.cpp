@@ -6,7 +6,6 @@
 #include "ViewItemFactory.h"
 #include "QVariantRTVal.h"
 #include "VEIntSpinBox.h"
-
 #include <QtGui/QWidget>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>
@@ -54,6 +53,9 @@ ArrayViewItem::ArrayViewItem( QString name,
     );
 
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
+  m_minIndexEdit->setObjectName( "MinIndexEdit" );
+  m_maxIndexEdit->setObjectName( "MaxIndexEdit" );
+  m_arraySizeEdit->setObjectName( "ArraySizeEdit" );
   layout->addWidget( m_minIndexEdit );
   layout->addWidget( new QLabel( "to" ) );
   layout->addWidget( m_maxIndexEdit );
