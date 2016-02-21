@@ -9,10 +9,11 @@
 #include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
- 
+#include <FabricUI/Util/StringUtils.h>
+
 using namespace std;
 using namespace FabricCore;
-
+ 
 
 namespace FabricUI
 {
@@ -42,12 +43,12 @@ namespace FabricUI
           if(SHCmd::ExtractParams(command, params) && params.size() == 2)
           {
             // Get the name of the object
-            string name = RemoveSpace(params[0]); 
-            string isGlobalStr = RemoveSpace(params[1]); 
+            string name = FabricUI::Util::RemoveSpace(params[0]); 
+            string isGlobalStr = FabricUI::Util::RemoveSpace(params[1]); 
             // Get if it a global object
             bool isGlobal = false;
-            if(IsNumber(isGlobalStr)) isGlobal = bool(ToNum<int>(isGlobalStr));
-            else isGlobal = (ToLower(isGlobalStr).compare("true") == 0) ? true : false;   
+            if(FabricUI::Util::IsNumber(isGlobalStr)) isGlobal = bool(FabricUI::Util::ToNum<int>(isGlobalStr));
+            else isGlobal = (FabricUI::Util::ToLower(isGlobalStr).compare("true") == 0) ? true : false;   
 
             FABRIC_TRY_RETURN("SGAddObjectCmd::Create", false,
               vector<RTVal> params(2);
@@ -78,7 +79,7 @@ namespace FabricUI
             RTVal isGlobalVal = sgCmd.callMethod("Boolean", "getBooleanParam", 1, &keyVal);
             bool isGlobal = isGlobalVal.getBoolean();
 
-            return string( SGAddObjectCmd_Str + "(" + name + ", " + ToStr(isGlobal) + ")" );
+            return string( SGAddObjectCmd_Str + "(" + name + ", " + FabricUI::Util::ToStr(isGlobal) + ")" );
           );
         };
         

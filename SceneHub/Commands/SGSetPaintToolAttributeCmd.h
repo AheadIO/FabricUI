@@ -9,10 +9,11 @@
 #include <FabricUI/Util/macros.h>
 #include <QtGui/QKeyEvent>
 #include <FabricUI/SceneHub/Commands/SHCmd.h>
- 
+#include <FabricUI/Util/StringUtils.h>
+
 using namespace std;
 using namespace FabricCore;
-
+ 
 
 namespace FabricUI
 {
@@ -46,7 +47,7 @@ namespace FabricUI
           if(SHCmd::ExtractParams(command, params) && params.size() == 1)
           {
             // Get the name of the object
-            string fullPath = RemoveSpace(params[0]); 
+            string fullPath = FabricUI::Util::RemoveSpace(params[0]); 
             FABRIC_TRY_RETURN("SGSetPaintToolAttributeCmd::Create", false,
               vector<RTVal> params(1);
               params[0] = RTVal::ConstructString(client, fullPath.c_str());
