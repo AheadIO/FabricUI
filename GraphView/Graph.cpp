@@ -248,13 +248,17 @@ bool Graph::removeNode(Node * node, bool quiet)
 
   prepareGeometryChange();
   scene()->removeItem(node);
-  delete(node);
+  delete node;
 
   controller()->endInteraction();
 
   // recreate the overlay info
   if(m_nodes.size() == 0 && m_centralOverlayText.length() > 0)
     setCentralOverlayText(m_centralOverlayText);
+
+  // [pzion 20160222] Workaround for possible bug in QGraphicsScene
+  scene()->setItemIndexMethod( QGraphicsScene::NoIndex );
+  scene()->setItemIndexMethod( QGraphicsScene::BspTreeIndex );
 
   return true;
 }
