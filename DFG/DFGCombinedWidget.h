@@ -64,8 +64,8 @@ namespace FabricUI
     public slots:
       virtual void onUndo() = 0;
       virtual void onRedo() = 0;
-//      virtual void onValueChanged();
-//      virtual void onStructureChanged();
+      //virtual void onValueChanged();
+      //virtual void onStructureChanged();
       virtual void onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString);
       virtual void onGraphSet(FabricUI::GraphView::Graph * graph);
 
@@ -73,7 +73,7 @@ namespace FabricUI
       virtual void onNodeEditRequested(FabricUI::GraphView::Node * node);
       virtual void onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix);
 
-    private slots:
+    protected slots:
       void onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
       void onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog, FTL::JSONObjectEnc<> * additionalMetaData);
 
@@ -83,9 +83,15 @@ namespace FabricUI
       void portEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog);
       void portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog * dialog, FTL::JSONObjectEnc<> * additionalMetaData);
 
-    private:
-
-      void log(const char * message) const;
+    protected:
+      virtual void initMenu();
+      /// Initiliazes the DFG widget.
+      virtual void initDFG();
+      /// Initializes the treeView widget.
+      virtual void initTreeView();
+      /// Initializes the windows docks.
+      virtual void initDocks();
+      virtual void log(const char * message) const;
 
       QSplitter * m_hSplitter;
       FabricCore::Client m_client;
@@ -95,6 +101,7 @@ namespace FabricUI
       DFGLogWidget * m_dfgLogWidget;
       FabricUI::GraphView::Graph * m_setGraph;
       ValueEditor::VEEditorOwner * m_valueEditor;
+      DFG::DFGConfig m_config;
     };
 
   };

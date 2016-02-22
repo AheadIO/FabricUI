@@ -119,6 +119,7 @@ dirs = [
   'DFG/Dialogs',
  
   'SceneHub',
+  'SceneHub/DFG',
   'SceneHub/Managers',
   'SceneHub/TreeView',
   'SceneHub/Viewports',

@@ -13,7 +13,7 @@
 
 using namespace FabricUI::DFG;
 
-DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
+DFGCombinedWidget::DFGCombinedWidget(QWidget *parent)
 :QSplitter(parent)
 {
   m_manager = NULL;
@@ -27,6 +27,109 @@ DFGCombinedWidget::DFGCombinedWidget(QWidget * parent)
   setStyle(new FabricUI::Style::FabricStyle());
   setOrientation(Qt::Vertical);
 };
+
+void DFGCombinedWidget::initMenu() {
+
+  QMenuBar * menuBar = new QMenuBar(this);
+  menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  addWidget(menuBar);
+
+  // populate the menu bar
+  QObject::connect(
+    m_dfgWidget, 
+    SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
+    this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
+    );
+
+  m_dfgWidget->populateMenuBar(menuBar, false);
+}
+
+void DFGCombinedWidget::initTreeView() {
+
+  // [Julien] FE-5252
+  // preset library
+  // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
+  m_treeWidget = new DFG::PresetTreeWidget(
+      m_dfgWidget->getDFGController(),
+      m_config,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true);
+
+  if(m_dfgWidget->isEditable())
+  {
+    QObject::connect(m_dfgWidget->getUIController(), SIGNAL(varsChanged()), m_treeWidget, SLOT(refresh()) );
+    QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
+  }
+}
+
+void DFGCombinedWidget::initDFG() {
+ 
+  m_valueEditor = new ValueEditor::VEEditorOwner( this );
+
+  m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
+  m_dfgLogWidget = new DFGLogWidget( m_config );
+  if(m_dfgWidget->isEditable())
+  {
+    // QObject::connect(
+    //   m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
+    //   this, SLOT(onValueChanged())
+    //   );
+    // QObject::connect(
+    //   m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
+    //   this, SLOT(onValueChanged())
+    //   );
+    QObject::connect(
+      m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)),
+      this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*))
+      );
+    QObject::connect(
+      m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)),
+      this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*))
+      );
+
+    // QObject::connect(
+    //   m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+    //   m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+    //   );
+    // QObject::connect(
+    //   m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+    //   m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
+    //   );
+
+    //QObject::connect(
+    //  m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
+    //  this, SLOT(onStructureChanged())
+    //  );
+    // QObject::connect(
+    //   m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
+    //   this, SLOT(onValueChanged())
+    //   );
+    
+    // QObject::connect(
+    //   m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
+    //   this, SLOT(onValueChanged())
+    //   );
+    QObject::connect(
+      m_dfgWidget, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
+      this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
+      );
+
+    QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
+      this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
+  }
+}
+
+void DFGCombinedWidget::initDocks() {
+  m_hSplitter->addWidget(m_treeWidget);
+  m_hSplitter->addWidget(m_dfgWidget);
+  m_hSplitter->addWidget(m_valueEditor->getWidget());
+  addWidget(m_hSplitter);
+  addWidget(m_dfgLogWidget);
+}
 
 void DFGCombinedWidget::init(
   FabricCore::Client &client,
@@ -43,12 +146,9 @@ void DFGCombinedWidget::init(
   if(m_dfgWidget)
     return;
 
-  QMenuBar * menuBar = new QMenuBar(this);
-  menuBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-  addWidget(menuBar);
-
-  try
+   try
   {
+    m_config = config;
     m_client = client;
     m_manager = manager;
 
@@ -62,111 +162,21 @@ void DFGCombinedWidget::init(
         exec,
         m_manager,
         cmdHandler,
-        config,
+        m_config,
         overTakeBindingNotifications
         );
-
-    // [Julien] FE-5252
-    // preset library
-    // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
-    m_treeWidget =
-      new DFG::PresetTreeWidget(
-        m_dfgWidget->getDFGController(),
-        config,
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-        );
-
-    m_valueEditor = new ValueEditor::VEEditorOwner( this );
-
-    m_dfgWidget->getUIController()->setLogFunc(DFGLogWidget::log);
-
-    setContentsMargins(0, 0, 0, 0);
 
     m_hSplitter = new QSplitter(this);
     m_hSplitter->setOrientation(Qt::Horizontal);
     m_hSplitter->setContentsMargins(0, 0, 0, 0);
-
-    m_hSplitter->addWidget(m_treeWidget);
-    m_hSplitter->addWidget(m_dfgWidget);
-    m_hSplitter->addWidget(m_valueEditor->getWidget());
-
-    addWidget(m_hSplitter);
-
-    m_dfgLogWidget = new DFGLogWidget( config );
-    addWidget(m_dfgLogWidget);
-
-    if(m_dfgWidget->isEditable())
-    {
-      // QObject::connect(
-      //   m_dfgValueEditor, SIGNAL(valueItemDelta(ValueItem*)),
-      //   this, SLOT(onValueChanged())
-      //   );
-      // QObject::connect(
-      //   m_dfgValueEditor, SIGNAL(valueItemInteractionDelta(ValueItem*)),
-      //   this, SLOT(onValueChanged())
-      //   );
-      QObject::connect(
-        m_dfgWidget, SIGNAL(portEditDialogCreated(FabricUI::DFG::DFGBaseDialog*)),
-        this, SLOT(onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog*))
-        );
-      QObject::connect(
-        m_dfgWidget, SIGNAL(portEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*)),
-        this, SLOT(onPortEditDialogInvoked(FabricUI::DFG::DFGBaseDialog*, FTL::JSONObjectEnc<>*))
-        );
-
-      // QObject::connect(
-      //   m_dfgWidget->getUIController(), SIGNAL(nodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
-      //   m_dfgValueEditor, SLOT(onNodeRenamed(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
-      //   );
-      // QObject::connect(
-      //   m_dfgWidget->getUIController(), SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
-      //   m_dfgValueEditor, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
-      //   );
-
-      //QObject::connect(
-      //  m_dfgWidget->getUIController(), SIGNAL(argsChanged()),
-      //  this, SLOT(onStructureChanged())
-      //  );
-      // QObject::connect(
-      //   m_dfgWidget->getUIController(), SIGNAL(argValuesChanged()),
-      //   this, SLOT(onValueChanged())
-      //   );
-      QObject::connect(
-        m_dfgWidget->getUIController(), SIGNAL(varsChanged()),
-        m_treeWidget, SLOT(refresh())
-        );
-      // QObject::connect(
-      //   m_dfgWidget->getUIController(), SIGNAL(defaultValuesChanged()),
-      //   this, SLOT(onValueChanged())
-      //   );
-      QObject::connect(
-        m_dfgWidget, SIGNAL(nodeInspectRequested(FabricUI::GraphView::Node*)),
-        this, SLOT(onNodeInspectRequested(FabricUI::GraphView::Node*))
-        );
-
-      QObject::connect(m_dfgWidget, SIGNAL(onGraphSet(FabricUI::GraphView::Graph*)), 
-        this, SLOT(onGraphSet(FabricUI::GraphView::Graph*)));
-
-      QObject::connect(m_dfgWidget, SIGNAL(newPresetSaved(QString)), m_treeWidget, SLOT(refresh()));
-    }
-
-    // populate the menu bar
-    QObject::connect(
-      m_dfgWidget, 
-      SIGNAL(additionalMenuActionsRequested(QString, QMenu*, bool)), 
-      this, SLOT(onAdditionalMenuActionsRequested(QString, QMenu *, bool))
-      );
-
-    // [Julien]
-    m_dfgWidget->populateMenuBar(menuBar, false);
-
+    
+    initDFG();
+    initTreeView();
+    initDocks();
+    initMenu();
     onGraphSet(m_dfgWidget->getUIGraph());
     m_valueEditor->initConnections();
+    setContentsMargins(0, 0, 0, 0);
   }
   catch(FabricCore::Exception e)
   {
