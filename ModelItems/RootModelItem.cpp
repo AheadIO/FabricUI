@@ -17,7 +17,12 @@ RootModelItem::RootModelItem()
 
 RootModelItem::~RootModelItem()
 {
-
+  for ( ChildVec::iterator it = m_children.begin();
+    it != m_children.end(); ++it )
+  {
+    BaseModelItem *child = *it;
+    delete child;
+  }
 }
 
 BaseModelItem *RootModelItem::getChild(

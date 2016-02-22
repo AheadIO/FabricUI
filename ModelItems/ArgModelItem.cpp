@@ -11,7 +11,6 @@
 namespace FabricUI {
 namespace ModelItems {
 
-//////////////////////////////////////////////////////////////////////////
 ArgModelItem::ArgModelItem(
   DFG::DFGUICmdHandler *dfgUICmdHandler,
   FabricCore::DFGBinding binding,
@@ -22,6 +21,10 @@ ArgModelItem::ArgModelItem(
   , m_argName( argName )
   , m_rootExec( binding.getExec() )
   , m_metadata( 0 )
+{
+}
+
+ArgModelItem::~ArgModelItem()
 {
 }
 
