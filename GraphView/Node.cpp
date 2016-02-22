@@ -794,9 +794,6 @@ void Node::updateEffect()
     effect->setOffset( QPoint( 0, 0 ) );
     effect->setBlurRadius( 24 );
     setGraphicsEffect( effect );
-    // setGraphicsEffect(
-    //   new HighlightEffect( QColor( 255, 0, 0 ) )
-    //   );
   }
   else
   {
