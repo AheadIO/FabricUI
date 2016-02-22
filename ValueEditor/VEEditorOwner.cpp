@@ -34,7 +34,7 @@ VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner *owner )
 
 VEEditorOwner::~VEEditorOwner()
 {
-
+  delete m_modelRoot;
 }
 
 QWidget* VEEditorOwner::getWidget() const
