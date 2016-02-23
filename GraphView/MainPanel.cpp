@@ -97,6 +97,8 @@ void MainPanel::setCanvasZoom(float state, bool quiet)
     m_itemGroup->setScale(state);
   }
 
+  update();
+
   if(!quiet)
     emit canvasZoomChanged(m_mouseWheelZoomState);
 }
@@ -109,6 +111,8 @@ QPointF MainPanel::canvasPan() const
 void MainPanel::setCanvasPan(QPointF pos, bool quiet)
 {
   m_itemGroup->setPos(pos);
+
+  update();
 
   if(!quiet)
     emit canvasPanChanged(pos);

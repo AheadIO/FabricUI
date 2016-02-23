@@ -38,6 +38,7 @@ class DFGUICmdHandler;
         FabricCore::DFGBinding binding,
         FTL::StrRef argName
         );
+      ~ArgModelItem();
 
       FabricCore::DFGExec getRootExec()
         { return m_rootExec; }

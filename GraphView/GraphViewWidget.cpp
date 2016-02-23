@@ -31,7 +31,6 @@ GraphViewWidget::GraphViewWidget(
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
   setBackgroundBrush(config.mainPanelBackgroundColor);
-  setCacheMode(CacheBackground);
 
   setViewportUpdateMode(SmartViewportUpdate);
 
