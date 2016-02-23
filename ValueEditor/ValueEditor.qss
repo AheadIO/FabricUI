@@ -55,7 +55,7 @@ QWidget#FilePathItem > QLineEdit {
 QWidget#StringItem > QPushButton {
     max-width: 20px;
     max-height: 20px;
-    border-image: url(Resources/Icons/mag_glass.png);
+    border-image: url(${FABRIC_DIR}/Resources/Icons/mag_glass.png);
     border-style: outset;
     border-radius: 3px;
     background-color: #2A2A2A;

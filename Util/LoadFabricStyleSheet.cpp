@@ -6,9 +6,52 @@
 
 #include <FTL/Path.h>
 #include <QtCore/QFile>
+#include <QtCore/QRegExp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+
+static QString ExpandEnvironmentVariables( QString string )
+{
+  static bool initialized = false;
+  static QRegExp re;
+  if ( !initialized )
+  {
+    initialized = true;
+    re = QRegExp( "\\$\\{([^}]+)\\}" );
+    re.setMinimal( true );
+  }
+
+  QString result;
+
+  int offset = 0;
+  for (;;)
+  {
+    int pos = re.indexIn( string, offset );
+    if ( pos == -1 )
+      break;
+
+    if ( pos > offset )
+      result += string.midRef( offset, pos - offset );
+
+    QString envvarName = re.cap( 1 );
+    char const *envvarValue = getenv( envvarName.toAscii().constData() );
+    if ( envvarValue )
+    {
+#if defined(FTL_PLATFORM_WINDOWS)
+      result += QString::fromLatin1( envvarValue );
+#else
+      result += QString::fromUtf8( envvarValue );
+#endif
+    }
+
+    offset = pos + re.matchedLength();
+  }
+
+  result += string.midRef( offset );
+
+  return result;
+}
 
 QString LoadFabricStyleSheet( FTL::StrRef basename )
 {
@@ -51,5 +94,5 @@ QString LoadFabricStyleSheet( FTL::StrRef basename )
       qssPath.c_str()
       );
   }
-  return styleSheet;
+  return ExpandEnvironmentVariables( styleSheet );
 }
