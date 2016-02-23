@@ -32,19 +32,30 @@ void AlphaWidget::paintEvent( QPaintEvent *event )
 
   QRect r = rect();
 
+  QPainterPath clipPath;
+  clipPath.addRoundedRect( r, 4, 4 );
+  painter.setClipPath( clipPath );
+
   painter.setPen( Qt::NoPen );
 
-  painter.setBrush( Qt::white );
-  painter.drawRoundedRect( r, 4, 4 );
+  for ( int row = 0; ; ++row )
+  {
+    int top = r.top() + 4 * row;
+    int bottom = std::min( top + 4, r.bottom() );
+    if ( bottom <= top )
+      break;
 
-  QRect sr(
-    r.left() + ( r.width() >> 2 ),
-    r.top() + ( r.height() >> 2 ),
-    r.width() >> 1,
-    r.height() >> 1
-    );
-  painter.setBrush( Qt::black );
-  painter.drawRoundedRect( sr, 4, 4 );
+    for ( int col = 0; ; ++col )
+    {
+      int left = r.left() + 4 * col;
+      int right = std::min( left + 4, r.right() );
+      if ( right <= left )
+        break;
+      
+      painter.setBrush( ((row + col) % 2 == 0)? Qt::white: Qt::black );
+      painter.drawRect( QRect( left, top, right, bottom ) );
+    }
+  }
 
   if ( m_color.isValid() )
   {
