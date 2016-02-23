@@ -44,7 +44,8 @@ DFGErrorsWidget::DFGErrorsWidget(
   m_tableWidget->setEditTriggers( QAbstractItemView::NoEditTriggers );
   m_tableWidget->setSelectionBehavior( QAbstractItemView::SelectRows );
   m_tableWidget->setShowGrid( false );
-  
+  m_tableWidget->setIconSize( QSize( 20, 20 ) );
+
   connect(
     m_tableWidget, SIGNAL(cellDoubleClicked(int, int)),
     this, SLOT(visitRow(int, int))
