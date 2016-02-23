@@ -32,10 +32,6 @@ void AlphaWidget::paintEvent( QPaintEvent *event )
 
   QRect r = rect();
 
-  QPainterPath clipPath;
-  clipPath.addRoundedRect( r, 4, 4 );
-  painter.setClipPath( clipPath );
-
   painter.setPen( Qt::NoPen );
 
   for ( int row = 0; ; ++row )
@@ -60,7 +56,7 @@ void AlphaWidget::paintEvent( QPaintEvent *event )
   if ( m_color.isValid() )
   {
     painter.setBrush( m_color );
-    painter.drawRoundedRect( r, 4, 4 );
+    painter.drawRect( r );
   }
 }
 
