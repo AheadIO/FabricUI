@@ -48,7 +48,7 @@ void AlphaWidget::paintEvent( QPaintEvent *event )
       if ( right <= left )
         break;
       
-      painter.setBrush( ((row + col) % 2 == 0)? Qt::white: Qt::black );
+      painter.setBrush( ((row + col) % 2 == 0)? Qt::white: Qt::gray );
       painter.drawRect( QRect( left, top, right, bottom ) );
     }
   }
