@@ -50,14 +50,14 @@ void DFGCombinedWidget::initTreeView() {
   // preset library
   // Because of a lack of performances, we don't expose the search tool of the PresetTreeWidget
   m_treeWidget = new DFG::PresetTreeWidget(
-      m_dfgWidget->getDFGController(),
-      m_config,
-      true,
-      false,
-      false,
-      false,
-      false,
-      true);
+    m_dfgWidget->getDFGController(),
+    m_config,
+    true,
+    false,
+    false,
+    false,
+    false,
+    true);
 
   if(m_dfgWidget->isEditable())
   {
@@ -152,7 +152,7 @@ void DFGCombinedWidget::init(
     m_client = client;
     m_manager = manager;
 
-    m_dfgWidget =
+    m_dfgWidget = 
       new DFG::DFGWidget(
         this,
         m_client,
@@ -172,8 +172,8 @@ void DFGCombinedWidget::init(
     
     initDFG();
     initTreeView();
-    initDocks();
     initMenu();
+    initDocks();
     onGraphSet(m_dfgWidget->getUIGraph());
     m_valueEditor->initConnections();
     setContentsMargins(0, 0, 0, 0);

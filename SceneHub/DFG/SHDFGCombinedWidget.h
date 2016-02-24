@@ -3,6 +3,7 @@
 #ifndef _SHDFGCOMBINEDWIDGET_H_
 #define _SHDFGCOMBINEDWIDGET_H_
  
+#include <QtGui/QLineEdit>
 #include <FabricUI/Util/macros.h>
 #include <FabricUI/DFG/DFGCombinedWidget.h>
 #include <FabricUI/ValueEditor/VEEditorOwner.h>
@@ -19,7 +20,7 @@ namespace FabricUI
       Q_OBJECT
       
       public:
-        SHDFGCombinedWidget(QWidget * parent);
+        SHDFGCombinedWidget(QWidget * parent) : DFGCombinedWidget(parent) {};
 
         ~SHDFGCombinedWidget() {};
  
@@ -45,7 +46,9 @@ namespace FabricUI
         /// \param item The deselected item.
         void treeItemDeselected(FabricUI::SceneHub::SHTreeItem *item);
         /// Calls when the SceneGraph hierachy changed.
-        void onSceneHierarchyChanged();  
+        void onSceneHierarchyChanged(); 
+        /// Calls when the SceneGraph hierachy changed.
+        void refresh();   
 
       signals :
         void sceneHierarchyChanged();
@@ -62,11 +65,10 @@ namespace FabricUI
         void addSceneHubAsPort();
         
         SceneHub::SHTreeView *m_shTreeView;
-        FabricCore::RTVal m_shHost;
+        QLineEdit *m_LineEdit;
+        QString m_shHostName;
     };
-
   }
-
 }
 
 #endif 
