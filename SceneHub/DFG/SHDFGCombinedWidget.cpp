@@ -14,8 +14,7 @@
 #include <FabricUI/DFG/DFGActions.h>
 
 using namespace FabricUI::DFG;
- 
- 
+  
 void SHDFGCombinedWidget::initTreeView() {
   DFGCombinedWidget::initTreeView();
   m_shTreeView = new FabricUI::SceneHub::SHTreeView(m_client);
@@ -46,11 +45,8 @@ void SHDFGCombinedWidget::refresh() {
     if(shHost.isNullObject()) return;
     
     m_shHostName = shHostName;
-    if(shHost.isValid()) std::cout << "I am valid" << std::endl;
-    if(shHost.isObject()) std::cout << "I am an object" << std::endl;
-    if(shHost.isNullObject()) std::cout << "I am a null object" << std::endl;
  
-    //FABRIC_TRY( "SHDFGCombinedWidget::initTreeView",
+    FABRIC_TRY( "SHDFGCombinedWidget::initTreeView",
       FabricCore::RTVal sceneGraphRTVal = shHost.callMethod("SceneGraph", "getScene", 0, 0);
       if(sceneGraphRTVal.isNullObject()) return;
 
@@ -75,8 +71,7 @@ void SHDFGCombinedWidget::refresh() {
       QObject::connect(treeModel, SIGNAL( sceneHierarchyChanged() ), this, SLOT( onSceneHierarchyChanged() ));
     
       showTreeView(1);
-    //);
-    std::cout << "I am a boss 3 " << std::endl;  
+    );
   }
 }
 
