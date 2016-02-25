@@ -17,6 +17,7 @@ class VETreeWidget : public QTreeWidget
 public:
 
   VETreeWidget();
+  ~VETreeWidget();
 
   void reloadStyles();
 

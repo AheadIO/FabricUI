@@ -12,6 +12,7 @@
 #include <FabricCore.h>
 #include <FabricUI/Util/LoadFabricStyleSheet.h>
 #include <FabricUI/Util/QTSignalBlocker.h>
+#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
@@ -55,6 +56,34 @@ VETreeWidget::VETreeWidget( )
   header()->close();
 
   reloadStyles();
+}
+
+static void DeleteAllItemWidgets( QTreeWidget *treeWidget, QTreeWidgetItem *treeWidgetItem )
+{
+  for ( int i = 0; i < treeWidget->columnCount(); ++i )
+  {
+    QWidget *oldItemWidget = treeWidget->itemWidget( treeWidgetItem, i );
+    treeWidget->setItemWidget( treeWidgetItem, i, NULL );
+    delete oldItemWidget;
+  }
+
+  for ( int i = 0; i < treeWidgetItem->childCount(); ++i )
+  {
+    DeleteAllItemWidgets( treeWidget, treeWidgetItem->child( i ) );
+  }
+}
+
+static void DeleteAllItemWidgets( QTreeWidget *treeWidget )
+{
+  for ( int i = 0; i < treeWidget->topLevelItemCount(); ++i )
+  {
+    DeleteAllItemWidgets( treeWidget, treeWidget->topLevelItem( i ) );
+  }
+}
+
+VETreeWidget::~VETreeWidget()
+{
+  DeleteAllItemWidgets( this );
 }
 
 void VETreeWidget::reloadStyles()
@@ -534,6 +563,10 @@ void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
   }
   else
     pViewLayer = 0;
+
+  // [pzion 20160225] FE-6201
+  // On Qt 4.6, *not* doing this causes crashes later.  No. Idea. Why.
+  DeleteAllItemWidgets( this );
 
   // Remove all existing
   clear();

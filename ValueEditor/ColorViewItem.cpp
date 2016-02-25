@@ -20,13 +20,12 @@
 #define IDX_HSV 1
 #define META_FORMAT  "displayFormat"
 
-AlphaWidget::AlphaWidget( QWidget *parent )
-  : QWidget( parent )
+AlphaButton::AlphaButton( QWidget *parent )
+  : QPushButton( parent )
 {
-  setAutoFillBackground( false );
 }
 
-void AlphaWidget::paintEvent( QPaintEvent *event )
+void AlphaButton::paintEvent( QPaintEvent *event )
 {
   QPainter painter( this );
 
@@ -71,38 +70,27 @@ ColorViewItem::ColorViewItem(
   , m_specCombo( NULL )
   , m_childMetadata (metadata)
 {
-
   m_widget = new QWidget;
   m_widget->setObjectName( "ColorItem" );
 
-  m_alphaWidget = new AlphaWidget;
-  m_alphaWidget->setSizePolicy(
-    QSizePolicy::Expanding,
-    QSizePolicy::Expanding
-    );
-
-  QHBoxLayout *buttonLayout = new QHBoxLayout;
-  buttonLayout->setContentsMargins( 0, 0, 0, 0 );
-  buttonLayout->addWidget( m_alphaWidget );
-
-  QPushButton *button = new QPushButton;
-  button->setLayout( buttonLayout );
+  m_alphaButton = new AlphaButton;
   connect(
-    button, SIGNAL( clicked() ),
+    m_alphaButton, SIGNAL( clicked() ),
     this, SLOT( pickColor() )
     );
-
-  QHBoxLayout *layout = new QHBoxLayout( m_widget );
-  layout->addWidget( button );
 
   m_specCombo = new ComboBox;
   m_specCombo->addItem( tr( "RGB" ) );
   m_specCombo->addItem( tr( "HSV" ) );
+  connect(
+    m_specCombo, SIGNAL( currentIndexChanged( const QString& ) ),
+    this, SLOT( formatChanged( const QString& ) )
+    );
 
-  connect( m_specCombo, SIGNAL( currentIndexChanged( const QString& ) ),
-           this, SLOT( formatChanged( const QString& ) ) );
-
+  QHBoxLayout *layout = new QHBoxLayout;
+  layout->addWidget( m_alphaButton );
   layout->addWidget( m_specCombo );
+  m_widget->setLayout( layout );
 
   m_childMetadata.setString( "uiRange", "(0.0, 1.0)" );
 
@@ -308,7 +296,7 @@ void ColorViewItem::doAppendChildViewItems( QList<BaseViewItem*>& items )
 
 void ColorViewItem::setButtonColor( const QColor& color ) 
 {
-  m_alphaWidget->setColor( color );
+  m_alphaButton->setColor( color );
 }
 
 void ColorViewItem::metadataChanged()
