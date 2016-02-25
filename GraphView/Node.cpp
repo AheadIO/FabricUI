@@ -804,6 +804,7 @@ QRectF Node::boundingRect() const
   
   if ( !m_errorText.isEmpty() )
     rect.adjust( 0, -4, 0, 4 );
+  // [pzion 20160225] Disable shadow for now
   // else
   //   rect.adjust( 0, 0, 0, 4 );
 
@@ -825,6 +826,7 @@ void Node::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QW
     rect.adjust( -4, -4, 4, 4 );
     painter->drawRoundedRect( rect, 6, 6 );
   }
+  // [pzion 20160225] Disable shadow for now
   // else
   // {
   //   QRectF rect = QRectF(
