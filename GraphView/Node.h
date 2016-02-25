@@ -131,6 +131,7 @@ namespace FabricUI
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
       virtual QRectF boundingRect() const;
+      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
