@@ -787,22 +787,7 @@ void Node::updatePinLayout()
 
 void Node::updateEffect()
 {
-  if ( !m_errorText.isEmpty() )
-  {
-    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
-    effect->setColor( QColor( 255, 0, 0 ) );
-    effect->setOffset( QPoint( 0, 0 ) );
-    effect->setBlurRadius( 24 );
-    setGraphicsEffect( effect );
-  }
-  else
-  {
-    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
-    effect->setColor(m_graph->config().nodeShadowColor);
-    effect->setOffset(m_graph->config().nodeShadowOffset);
-    effect->setBlurRadius(m_graph->config().nodeShadowBlurRadius);
-    setGraphicsEffect( effect );
-  }
+  prepareGeometryChange();
 }
 
 #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
@@ -813,11 +798,48 @@ void Node::updateGeometry()
 }
 #endif
 
-// [pzion 20160221] Why isn't this happening automatically???
 QRectF Node::boundingRect() const
 {
   QRectF rect = QGraphicsWidget::boundingRect();
-  if ( QGraphicsEffect *effect = graphicsEffect() )
-    rect = effect->boundingRectFor( rect );
+  
+  if ( !m_errorText.isEmpty() )
+    rect.adjust( 0, -4, 0, 4 );
+  // [pzion 20160225] Disable shadow for now
+  // else
+  //   rect.adjust( 0, 0, 0, 4 );
+
   return rect;
+}
+
+void Node::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+{
+  if ( !m_errorText.isEmpty() )
+  {
+    QRectF rect = QRectF(
+      QPointF( 0, 0 ),
+      m_mainWidget->size()
+      );
+    rect.adjust( 7, 0, -7, 0 ); // compensate for ports
+
+    painter->setPen( Qt::NoPen );
+    painter->setBrush( QColor( 255, 0, 0, 128 ) );
+    rect.adjust( -4, -4, 4, 4 );
+    painter->drawRoundedRect( rect, 6, 6 );
+  }
+  // [pzion 20160225] Disable shadow for now
+  // else
+  // {
+  //   QRectF rect = QRectF(
+  //     QPointF( 0, 0 ),
+  //     m_mainWidget->size()
+  //     );
+  //   rect.adjust( 7, 0, -7, 0 ); // compensate for ports
+
+  //   painter->setPen( Qt::NoPen );
+  //   painter->setBrush( QColor( 0, 0, 0, 128 ) );
+  //   rect.adjust( 4, 4, 4, 4 );
+  //   painter->drawRoundedRect( rect, 4, 4 );
+  // }
+
+  QGraphicsWidget::paint(painter, option, widget);
 }
