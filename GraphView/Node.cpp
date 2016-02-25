@@ -803,9 +803,9 @@ QRectF Node::boundingRect() const
   QRectF rect = QGraphicsWidget::boundingRect();
   
   if ( !m_errorText.isEmpty() )
-    rect.adjust( -4, -4, 4, 4 );
+    rect.adjust( 0, -4, 0, 4 );
   else
-    rect.adjust( 0, 0, 4, 4 );
+    rect.adjust( 0, 0, 0, 4 );
 
   return rect;
 }
@@ -816,21 +816,21 @@ void Node::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QW
     QPointF( 0, 0 ),
     m_mainWidget->size()
     );
+  rect.adjust( 7, 0, -7, 0 ); // compensate for ports
 
   painter->setPen( Qt::NoPen );
   if ( !m_errorText.isEmpty() )
   {
     painter->setBrush( QColor( 255, 0, 0, 128 ) );
     rect.adjust( -4, -4, 4, 4 );
-    painter->drawRoundedRect( rect, 4, 4 );
+    painter->drawRoundedRect( rect, 6, 6 );
   }
   else
   {
-    painter->setBrush( QColor( 32, 32, 32, 128 ) );
-    rect.adjust( 0, 0, 4, 4 );
+    painter->setBrush( QColor( 0, 0, 0, 128 ) );
     rect.adjust( 4, 4, 4, 4 );
     painter->drawRoundedRect( rect, 4, 4 );
   }
-  
+
   QGraphicsWidget::paint(painter, option, widget);
 }
