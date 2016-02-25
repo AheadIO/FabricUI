@@ -18,5 +18,5 @@ void ComboBox::wheelEvent( QWheelEvent *event )
     return;
   }
 
-  wheelEvent( event );
+  QComboBox::wheelEvent( event );
 }
