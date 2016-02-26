@@ -1745,7 +1745,7 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTitle",
-            dialog.getText().toStdString().c_str()
+            dialog.getText().toUtf8().constData()
             );
 
         if ( nodeType != FabricCore::DFGNodeType_Inst )
@@ -1753,13 +1753,13 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTooltip",
-            dialog.getToolTip().toStdString().c_str()
+            dialog.getToolTip().toUtf8().constData()
             );
 
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiDocUrl",
-            dialog.getDocUrl().toStdString().c_str()
+            dialog.getDocUrl().toUtf8().constData()
             );
 
           DFGAddMetaDataPair_Color(
@@ -1804,13 +1804,13 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTooltip",
-            dialog.getToolTip().toStdString().c_str()
+            dialog.getToolTip().toUtf8().constData()
             );
 
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiDocUrl",
-            dialog.getDocUrl().toStdString().c_str()
+            dialog.getDocUrl().toUtf8().constData()
             );
 
           DFGAddMetaDataPair_Color(
@@ -1845,7 +1845,7 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
 
       controller->cmdEditNode(
         node->name(),
-        dialog.getScriptName().toStdString(),
+        dialog.getScriptName().toUtf8().constData(),
         nodeMetadata,
         execMetadata
         );  // undoable.
