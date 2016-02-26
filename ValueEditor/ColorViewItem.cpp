@@ -70,9 +70,6 @@ ColorViewItem::ColorViewItem(
   , m_specCombo( NULL )
   , m_childMetadata (metadata)
 {
-  m_widget = new QWidget;
-  m_widget->setObjectName( "ColorItem" );
-
   m_alphaButton = new AlphaButton;
   connect(
     m_alphaButton, SIGNAL( clicked() ),
@@ -90,6 +87,9 @@ ColorViewItem::ColorViewItem(
   QHBoxLayout *layout = new QHBoxLayout;
   layout->addWidget( m_alphaButton );
   layout->addWidget( m_specCombo );
+
+  m_widget = new QWidget;
+  m_widget->setObjectName( "ColorItem" );
   m_widget->setLayout( layout );
 
   m_childMetadata.setString( "uiRange", "(0.0, 1.0)" );

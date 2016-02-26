@@ -58,32 +58,8 @@ VETreeWidget::VETreeWidget( )
   reloadStyles();
 }
 
-static void DeleteAllItemWidgets( QTreeWidget *treeWidget, QTreeWidgetItem *treeWidgetItem )
-{
-  for ( int i = 0; i < treeWidget->columnCount(); ++i )
-  {
-    QWidget *oldItemWidget = treeWidget->itemWidget( treeWidgetItem, i );
-    treeWidget->setItemWidget( treeWidgetItem, i, NULL );
-    delete oldItemWidget;
-  }
-
-  for ( int i = 0; i < treeWidgetItem->childCount(); ++i )
-  {
-    DeleteAllItemWidgets( treeWidget, treeWidgetItem->child( i ) );
-  }
-}
-
-static void DeleteAllItemWidgets( QTreeWidget *treeWidget )
-{
-  for ( int i = 0; i < treeWidget->topLevelItemCount(); ++i )
-  {
-    DeleteAllItemWidgets( treeWidget, treeWidget->topLevelItem( i ) );
-  }
-}
-
 VETreeWidget::~VETreeWidget()
 {
-  DeleteAllItemWidgets( this );
 }
 
 void VETreeWidget::reloadStyles()
@@ -141,32 +117,66 @@ void gatherTabWidgets(
   }
 }
 
+static void ReorderTabs( VETreeWidgetItem *item, QWidget *&last )
+{
+  if ( BaseViewItem *viewItem = item->getViewItem() )
+  {
+    QWidget *self = viewItem->getWidget();
+    QWidget::setTabOrder( last, self );
+    last = self;
+
+    for ( int i = 0; i < item->childCount(); ++i )
+      ReorderTabs(
+        static_cast<VETreeWidgetItem*>( item->child( i ) ),
+        last
+        );
+  }
+}
+
 void VETreeWidget::sortTree()
 {
   // Ensure ordering is maintained.
   sortItems( 0, Qt::AscendingOrder );
 
-  // Once the items have been re-ordered, re-create the tab ordering
-  QWidget *myWindow = window();
-  QWidgetList tabWidgets;
-  for ( int i = 0; i < topLevelItemCount(); ++i )
+  // Reorder tabs
+  VETreeWidgetItem *item =
+    static_cast<VETreeWidgetItem*>( topLevelItem( 0 ) );
+  if ( BaseViewItem *viewItem = item->getViewItem() )
   {
-    VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
-    gatherTabWidgets( baseItem, myWindow, tabWidgets );
-  }
+    QWidget *last = viewItem->getWidget();
 
-  if (!tabWidgets.empty())
-  {
-    QWidget* lastWidget = tabWidgets.first();
     // Connect this treeview to the first widget.  This ensures
     // if the treeview is tabbed-to, it will tab to the correct sub-widget
-    setTabOrder( this, lastWidget );
-    for (QWidgetList::iterator itr = tabWidgets.begin() + 1; itr != tabWidgets.end(); itr++)
-    {
-      setTabOrder( lastWidget, *itr );
-      lastWidget = *itr;
-    }
+    setTabOrder( this, last );
+
+    for ( int i = 0; i < item->childCount(); ++i )
+      ReorderTabs(
+        static_cast<VETreeWidgetItem*>( item->child( i ) ),
+        last
+        );
   }
+
+  // // Once the items have been re-ordered, re-create the tab ordering
+  // QWidget *myWindow = window();
+  // QWidgetList tabWidgets;
+  // for ( int i = 0; i < topLevelItemCount(); ++i )
+  // {
+  //   VETreeWidgetItem* baseItem = static_cast<VETreeWidgetItem*>(topLevelItem( 0 ));
+  //   gatherTabWidgets( baseItem, myWindow, tabWidgets );
+  // }
+  
+  // if (!tabWidgets.empty())
+  // {
+  //   QWidget* lastWidget = tabWidgets.first();
+  //   // Connect this treeview to the first widget.  This ensures
+  //   // if the treeview is tabbed-to, it will tab to the correct sub-widget
+  //   setTabOrder( this, lastWidget );
+  //   for (QWidgetList::iterator itr = tabWidgets.begin() + 1; itr != tabWidgets.end(); itr++)
+  //   {
+  //     setTabOrder( lastWidget, *itr );
+  //     lastWidget = *itr;
+  //   }
+  // }
 }
 
 // Get the next widget in the focus chain that accepts tab focus
@@ -563,10 +573,6 @@ void VETreeWidget::onSetModelItem( BaseModelItem* pItem )
   }
   else
     pViewLayer = 0;
-
-  // [pzion 20160225] FE-6201
-  // On Qt 4.6, *not* doing this causes crashes later.  No. Idea. Why.
-  DeleteAllItemWidgets( this );
 
   // Remove all existing
   clear();
