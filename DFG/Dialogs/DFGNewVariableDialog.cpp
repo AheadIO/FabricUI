@@ -36,7 +36,7 @@ DFGNewVariableDialog::DFGNewVariableDialog(
   if(setAlphaNum) alphaNumicStringOnly();
 }
 
-/// Destuctor
+/// Destructor
 DFGNewVariableDialog::~DFGNewVariableDialog()
 {
 }

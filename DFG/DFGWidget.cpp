@@ -491,7 +491,8 @@ void DFGWidget::onGraphAction(QAction * action)
 
       text = dialog.text();
       if(text.length() == 0)
-        return;
+      { m_uiController->log("Warning: graph not created (empty name).");
+        return; }
     }
 
     QString nodeName = m_uiController->cmdAddInstWithEmptyGraph(
@@ -514,7 +515,8 @@ void DFGWidget::onGraphAction(QAction * action)
 
       text = dialog.text();
       if(text.length() == 0)
-        return;
+      { m_uiController->log("Warning: function node not created (empty name).");
+        return; }
     }
 
     m_uiController->beginInteraction();
@@ -546,7 +548,8 @@ dfgEntry {\n\
 
       text = dialog.text();
       if(text.length() == 0)
-        return;
+      { m_uiController->log("Warning: no backdrop created (empty name).");
+        return; }
     }
 
     m_uiController->cmdAddBackDrop(
@@ -565,7 +568,8 @@ dfgEntry {\n\
 
       text = dialog.text();
       if(text.length() == 0)
-        return;
+      { m_uiController->log("Warning: nodes not imploded (empty name).");
+        return; }
     }
 
     const std::vector<GraphView::Node*> & nodes =
@@ -603,6 +607,13 @@ dfgEntry {\n\
     QString name = dialog.name();
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
+
+    if (name.empty())
+    { controller->log("Warning: no variable created (empty name).");
+      return; }
+    if (dataType.empty())
+    { controller->log("Warning: no variable created (empty type).");
+      return; }
 
     m_uiController->cmdAddVar(
       name,
