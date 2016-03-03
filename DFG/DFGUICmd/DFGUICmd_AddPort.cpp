@@ -50,29 +50,32 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
     ++coreUndoCount;
   }
 
-  FTL::CStrRef portName =
-    exec.addExecPort(
-      desiredPortName.c_str(),
-      portType,
-      typeSpec.c_str()
-      );
-  ++coreUndoCount;
+  // [pzion 20160226] This needs to live at least as long as metadataKeys
+  // and metadataValues, since this owns the storage they refer to
+  FTL::OwnedPtr<FTL::JSONObject> jo;
+
+  unsigned metadataCount = 0;
+  char const **metadataKeys = NULL;
+  char const **metadataValues = NULL;
 
   if ( !metaData.empty() )
   {
     try
     {
       FTL::JSONStrWithLoc swl( metaData );
-      FTL::OwnedPtr<FTL::JSONObject> jo(
-        FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
-        );
+      jo = FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>();
+
+      metadataCount = jo->size();
+      metadataKeys = (char const **)alloca( metadataCount * sizeof( char const *) );
+      metadataValues = (char const **)alloca( metadataCount * sizeof( char const *) );
 
       FTL::JSONObject::const_iterator it = jo->begin();
+      unsigned index = 0;
       for(;it!=jo->end();it++)
       {
-        FTL::CStrRef key = it->first;
-        FTL::CStrRef value = it->second->getStringValue();
-        exec.setExecPortMetadata(portName.c_str(), key.c_str(), value.c_str(), false);
+        metadataKeys[index] = it->first.c_str();
+        metadataValues[index] = it->second->getStringValue().c_str();
+        ++index;
       }
     }
     catch(FTL::JSONException e)
@@ -80,6 +83,17 @@ FTL::CStrRef DFGUICmd_AddPort::Perform(
       printf("DFGUICmd_AddPort: Json exception: '%s'\n", e.getDescCStr());
     }
   }
+
+  FTL::CStrRef portName =
+    exec.addExecPortWithMetadata(
+      desiredPortName.c_str(),
+      portType,
+      metadataCount,
+      metadataKeys,
+      metadataValues,
+      typeSpec.c_str()
+      );
+  ++coreUndoCount;
 
   // we should always bind an rt val, even if we are
   // going to create a connection lateron.

@@ -15,13 +15,13 @@
 class ItemMetadata;
 class ComboBox;
 
-class AlphaWidget : public QWidget
+class AlphaButton : public QPushButton
 {
   Q_OBJECT
 
 public:
 
-  AlphaWidget( QWidget *parent = NULL );
+  AlphaButton( QWidget *parent = NULL );
 
   void setColor( QColor color )
   {
@@ -45,7 +45,7 @@ private:
   Q_OBJECT
 
   QWidget* m_widget;
-  AlphaWidget *m_alphaWidget;
+  AlphaButton *m_alphaButton;
 
   FabricCore::RTVal m_colorRTVal;
 
