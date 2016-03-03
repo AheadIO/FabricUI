@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/DFG/DFGTabSearchWidget.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -353,6 +353,9 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   QPoint localPos = geometry().topLeft();
   QPointF scenePos = m_parent->getGraphViewWidget()->graph()->itemGroup()->mapFromScene(localPos);
 
+  // init node name.
+  std::string nodeName = "";
+
   // deal with special case
   if(path == "var")
   {
@@ -366,12 +369,10 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
       return;
 
     QString name = dialog.name();
-    if(name.length() == 0)
-      return;
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 
-    controller->cmdAddVar(
+    nodeName = controller->cmdAddVar(
       name.toUtf8().constData(), 
       dataType.toUtf8().constData(), 
       extension.toUtf8().constData(), 
@@ -380,7 +381,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "get")
   {
-    controller->cmdAddGet(
+    nodeName = controller->cmdAddGet(
       "get",
       "",
       scenePos
@@ -388,7 +389,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "set")
   {
-    controller->cmdAddSet(
+    nodeName = controller->cmdAddSet(
       "set",
       "",
       scenePos
@@ -396,7 +397,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "get.")
   {
-    controller->cmdAddGet(
+    nodeName = controller->cmdAddGet(
       "get",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -404,7 +405,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "set.")
   {
-    controller->cmdAddSet(
+    nodeName = controller->cmdAddSet(
       "set",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -412,9 +413,17 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else
   {
-    controller->cmdAddInstFromPreset(
+    nodeName = controller->cmdAddInstFromPreset(
       path.toUtf8().constData(),
       scenePos
       );
+  }
+
+  // was a new node created?
+  if (!nodeName.empty())
+  {
+    m_parent->getGraphViewWidget()->graph()->clearSelection();
+    if ( GraphView::Node *uiNode = m_parent->getGraphViewWidget()->graph()->node( nodeName ) )
+      uiNode->setSelected( true );
   }
 }

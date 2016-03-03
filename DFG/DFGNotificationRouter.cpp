@@ -1,10 +1,10 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>
@@ -83,14 +83,16 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortInserted"))
     {
       onExecPortInserted(
-        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) ),
         jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("execPortRemoved"))
     {
       onExecPortRemoved(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) )
         );
     }
     else if(descStr == FTL_STR("portsConnected"))
@@ -261,7 +263,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if( descStr == FTL_STR("execPortDefaultValuesChanged") )
     {
       onExecPortDefaultValuesChanged(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getString( FTL_STR("execPortName") )
         );
     }
     else if( descStr == FTL_STR("nodePortDefaultValuesChanged") )
@@ -332,16 +334,14 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
       FTL::CStrRef presetFilePath = jsonObject->getString( FTL_STR("presetFilePath") );
       onInstExecWillDetachPreset( nodeName, presetFilePath );
     }
-    else if (descStr == FTL_STR("execPresetFileRefCountDidChange") )
+    else if (descStr == FTL_STR("execEditWouldSplitFromPresetMayHaveChanged") )
     {
-      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
-      onExecPresetFileRefCountDidChange( newPresetFileRefCount );
+      onExecEditWouldSplitFromPresetMayHaveChanged();
     }
-    else if (descStr == FTL_STR("instExecPresetFileRefCountDidChange") )
+    else if (descStr == FTL_STR("instExecEditWouldSplitFromPresetMayHaveChanged") )
     {
-      FTL::CStrRef nodeName = jsonObject->getString( FTL_STR("nodeName") );
-      int newPresetFileRefCount = jsonObject->getSInt32( FTL_STR("newPresetFileRefCount") );
-      onInstExecPresetFileRefCountDidChange( nodeName, newPresetFileRefCount );
+      FTL::CStrRef instName = jsonObject->getString( FTL_STR("instName") );
+      onInstExecEditWouldSplitFromPresetMayHaveChanged( instName );
     }
     else
     {
@@ -396,6 +396,7 @@ void DFGNotificationRouter::onGraphSet()
       FTL::JSONObject const *portObject =
         portsArray->get( i )->cast<FTL::JSONObject>();
       onExecPortInserted(
+        i,
         portObject->getString( FTL_STR("name") ),
         portObject
         );
@@ -487,21 +488,25 @@ void DFGNotificationRouter::onNodeInserted(
     uiNode->setTitleColor(m_config.varLabelDefaultColor);
   }
 
-  FTL::CStrRef title;
   if(nodeType == FabricCore::DFGNodeType_Inst)
   {
-    if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
-      onNodeTitleChanged( nodeName, title );
-
-    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
-    FTL::StrRef presetName = subExec.getPresetName();
-    if(presetName.empty())
+    if ( exec.instExecIsPreset( nodeName.c_str() ) )
+    {
+      FTL::CStrRef title;
+      if ( jsonObject->maybeGetString( FTL_STR("execTitle"), title ) )
+        uiNode->setTitle( title );
+    }
+    else
+    {
+      uiNode->setTitle( nodeName );
       uiNode->setTitleSuffixAsterisk();
+    }
   }
   else if(nodeType == FabricCore::DFGNodeType_Var)
   {
-    if ( jsonObject->maybeGetString( FTL_STR("name"), title ) )
-      onNodeTitleChanged( nodeName, title );
+    FTL::CStrRef name;
+    if ( jsonObject->maybeGetString( FTL_STR("name"), name ) )
+      uiNode->setTitle( name );
   }
   else if(nodeType == FabricCore::DFGNodeType_Get || nodeType == FabricCore::DFGNodeType_Set)
   {
@@ -575,11 +580,6 @@ void DFGNotificationRouter::onNodeInserted(
       onNodeMetadataChanged(nodeName, key, value);
     }
   }
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeRemoved(
@@ -596,11 +596,6 @@ void DFGNotificationRouter::onNodeRemoved(
 
   // todo - the notif should provide the node type
   // m_dfgController->updatePresetDB(true);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 
   m_dfgController->emitNodeRemoved( nodeName );
 }
@@ -623,9 +618,10 @@ void DFGNotificationRouter::onNodePortInserted(
   FabricCore::DFGExec &exec = m_dfgController->getExec();
 
   QColor color;
+  FabricCore::DFGExec subExec;
   if(exec.getNodeType(nodeName.c_str()) == FabricCore::DFGNodeType_Inst)
   {
-    FabricCore::DFGExec subExec = exec.getSubExec(nodeName.c_str());
+    subExec = exec.getSubExec(nodeName.c_str());
     color = m_config.getColorForDataType(dataType, &subExec, portName.c_str());
   }
   else
@@ -642,7 +638,9 @@ void DFGNotificationRouter::onNodePortInserted(
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
-  uiNode->addPin(uiPin, false);
+  uiNode->addPin( uiPin );
+
+  checkAndFixNodePortOrder(subExec, uiNode);  // [FE-5716]
 }
 
 void DFGNotificationRouter::onNodePortRemoved(
@@ -660,15 +658,11 @@ void DFGNotificationRouter::onNodePortRemoved(
   GraphView::Pin * uiPin = uiNode->pin(portName);
   if(!uiPin)
     return;
-  uiNode->removePin(uiPin, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
+  uiNode->removePin( uiPin );
 }
 
 void DFGNotificationRouter::onExecPortInserted(
+  int index,
   FTL::CStrRef portName,
   FTL::JSONObject const *jsonObject
   )
@@ -712,9 +706,11 @@ void DFGNotificationRouter::onExecPortInserted(
         );
       uiPanel->addPort(uiOutPort);
     }
-    if(uiOutPort && uiInPort)
+    if(uiOutPort || uiInPort)
     {
-      uiGraph->addConnection(uiOutPort, uiInPort, false, m_settingGraph);
+      if(uiOutPort && uiInPort)
+        uiGraph->addConnection(uiOutPort, uiInPort, false);
+      checkAndFixPanelPortOrder();  // [FE-5716]
     }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
@@ -727,6 +723,7 @@ void DFGNotificationRouter::onExecPortInserted(
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
+  int index,
   FTL::CStrRef portName
   )
 {
@@ -757,11 +754,6 @@ void DFGNotificationRouter::onExecPortRemoved(
     if(uiOutPort)
     {
       uiOutPanel->removePort(uiOutPort);
-    }
-
-    if(m_performChecks)
-    {
-      ((DFGController*)m_dfgController)->checkErrors();
     }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
@@ -818,14 +810,7 @@ void DFGNotificationRouter::onPortsConnected(
   if(!uiSrcTarget || !uiDstTarget)
     return;
 
-  uiGraph->addConnection(uiSrcTarget, uiDstTarget, false, m_settingGraph);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
-
-  m_dfgController->bindUnboundRTVals();
+  uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -874,11 +859,6 @@ void DFGNotificationRouter::onPortsDisconnected(
     return;
 
   uiGraph->removeConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
@@ -1056,8 +1036,14 @@ void DFGNotificationRouter::onNodeTitleChanged(
   GraphView::Node * uiNode = uiGraph->node(nodeName);
   if(!uiNode)
     return;
-  uiNode->setTitle(title);
-  uiNode->update();
+
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if ( exec.getNodeType( nodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+    && exec.instExecIsPreset( nodeName.c_str() ) )
+  {
+    uiNode->setTitle( title );
+    uiNode->update();
+  }
 }
 
 
@@ -1066,11 +1052,21 @@ void DFGNotificationRouter::onNodeRenamed(
   FTL::CStrRef newNodeName
   )
 {
-  GraphView::Graph * uiGraph = m_dfgController->graph();
-  if(!uiGraph)
+  GraphView::Graph *uiGraph = m_dfgController->graph();
+  if ( !uiGraph )
     return;
 
-  uiGraph->renameNode( oldNodeName, newNodeName );
+  GraphView::Node *uiNode = uiGraph->renameNode( oldNodeName, newNodeName );
+
+  FabricCore::DFGExec &exec = m_dfgController->getExec();
+  if ( exec.getNodeType( newNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+    && !exec.instExecIsPreset( newNodeName.c_str() ) )
+  {
+    assert( !!uiNode );
+    uiNode->setTitle( newNodeName );
+  }
+
+  m_dfgController->emitNodeRenamed( oldNodeName, newNodeName );
 }
 
 
@@ -1120,7 +1116,13 @@ void DFGNotificationRouter::onNodePortRenamed(
   FTL::CStrRef newPortName
   )
 {
-  // this shouldn't happen for us for now
+  if ( GraphView::Graph *uiGraph = m_dfgController->graph() )
+  {
+    if ( GraphView::Node *uiNode = uiGraph->node( nodeName ) )
+    {
+      uiNode->renamePin( oldPortName, newPortName );
+    }
+  }
 }
 
 void DFGNotificationRouter::onExecMetadataChanged(
@@ -1284,7 +1286,6 @@ void DFGNotificationRouter::onExecPortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
@@ -1293,7 +1294,6 @@ void DFGNotificationRouter::onNodePortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onExecPortTypeChanged(
@@ -1335,7 +1335,14 @@ void DFGNotificationRouter::onRefVarPathChanged(
     title = "get "+title;
   else if(nodeType == FabricCore::DFGNodeType_Set)
     title = "set "+title;
-  onNodeTitleChanged(refName, title.c_str());
+
+  GraphView::Graph *uiGraph = m_dfgController->graph();
+  if ( !uiGraph )
+    return;
+  GraphView::Node *uiNode = uiGraph->node( refName );
+  if ( !uiNode )
+    return;
+  uiNode->setTitle( title );
 }
 
 void DFGNotificationRouter::onFuncCodeChanged(
@@ -1502,27 +1509,97 @@ void DFGNotificationRouter::onInstExecWillDetachPreset(
   // nothing to be done here for now.
 }
 
-void DFGNotificationRouter::onExecPresetFileRefCountDidChange(
-  int newPresetFileRefCount
-  )
+void DFGNotificationRouter::onExecEditWouldSplitFromPresetMayHaveChanged()
 {
   m_dfgController->emitExecSplitChanged();
 }
 
-void DFGNotificationRouter::onInstExecPresetFileRefCountDidChange(
-  FTL::CStrRef nodeName,
-  int newPresetFileRefCount
+void DFGNotificationRouter::onInstExecEditWouldSplitFromPresetMayHaveChanged(
+  FTL::CStrRef instName
   )
 {
   GraphView::Graph * uiGraph = m_dfgController->graph();
   if(!uiGraph)
     return;
-  GraphView::Node * uiNode = uiGraph->node(nodeName);
+  GraphView::Node * uiNode = uiGraph->node(instName);
   if(!uiNode)
     return;
 
-  if(newPresetFileRefCount == 0)
+  FabricCore::DFGExec & exec = m_dfgController->getExec();
+  FabricCore::DFGExec subExec = exec.getSubExec( instName.c_str() );
+  if ( !subExec.isPreset() )
+  {
+    uiNode->setTitle( instName );
     uiNode->setTitleSuffixAsterisk();
+  }
   else
+  {
+    uiNode->setTitle( subExec.getTitle() );
     uiNode->removeTitleSuffix();
+  }
+}
+
+void DFGNotificationRouter::checkAndFixPanelPortOrder()
+{
+  // get graph and exec.
+  GraphView::Graph    *uiGraph = m_dfgController->graph();
+  FabricCore::DFGExec &exec    = m_dfgController->getExec();
+  if (!uiGraph || !exec.isValid() || !exec.getExecPortCount())
+    return;
+
+  // check if all exec ports are in uiGraph.
+  for (int i=exec.getExecPortCount()-1;i>=0;i--)
+    if (!uiGraph->port(exec.getExecPortName(i)))
+      return;
+
+  // check/fix the panels.
+  for (int pass=0;pass<2;pass++)
+  {
+    GraphView::SidePanel *panel = uiGraph->sidePanel(pass == 0 ? GraphView::PortType_Input : GraphView::PortType_Output);
+    FabricCore::DFGPortType portType = (pass == 0 ? FabricCore::DFGPortType_In : FabricCore::DFGPortType_Out);
+    if (!panel) continue;
+
+    // create the correct list of names based on the ports in exec.
+    QStringList correctNames;
+    for (unsigned int i=0;i<exec.getExecPortCount();i++)
+      if (exec.getExecPortType(i) != portType)
+        correctNames.append(QString(exec.getExecPortName(i)));
+
+    // check if the panel's port order mismatches and reorder the ports if necessary.
+    if (size_t(panel->portCount()) == size_t(correctNames.count()))
+    {
+      for (int i=0;i<correctNames.count();i++)
+        if (panel->port(i)->name() != correctNames.at(i).toLocal8Bit().constData())
+        {
+          panel->reorderPorts(correctNames);
+          break;
+        }
+    }
+  }
+}
+
+void DFGNotificationRouter::checkAndFixNodePortOrder(FabricCore::DFGExec &nodeExec, GraphView::Node *uiNode)
+{
+  // check inputs.
+  if (!nodeExec.isValid() || !uiNode)
+    return;
+
+  // check if all exec ports are in uiNode.
+  for (int i=nodeExec.getExecPortCount()-1;i>=0;i--)
+    if (!uiNode->pin(nodeExec.getExecPortName(i)))
+      return;
+
+  // create the correct list of names based on the ports in nodeExec.
+  QStringList correctNames;
+  for (unsigned int i=0;i<nodeExec.getExecPortCount();i++)
+    correctNames.append(QString(nodeExec.getExecPortName(i)));
+
+  // check if the uiNode's pin order mismatches and reorder them if necessary.
+  if (size_t(uiNode->pinCount()) == size_t(correctNames.count()))
+    for (int i=0;i<correctNames.count();i++)
+      if (uiNode->pin(i)->name() != correctNames.at(i).toLocal8Bit().constData())
+      {
+        uiNode->reorderPins(correctNames);
+        break;
+      }
 }

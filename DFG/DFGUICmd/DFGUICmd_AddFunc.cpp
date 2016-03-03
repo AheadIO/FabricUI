@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddFunc.h>
 
@@ -13,7 +13,7 @@ void DFGUICmd_AddFunc::appendDesc( std::string &desc )
 FTL::CStrRef DFGUICmd_AddFunc::invokeAdd( unsigned &coreUndoCount )
 {
   FTL::CStrRef actualNodeName =
-    getExec().addInstWithNewFunc( getTitle().c_str() );
+    getExec().addInstWithNewFunc( getDesiredNodeName().c_str() );
   ++coreUndoCount;
 
   FabricCore::DFGExec subExec =

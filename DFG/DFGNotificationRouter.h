@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGNotificationRouter__
 #define __UI_DFG_DFGNotificationRouter__
@@ -7,6 +7,7 @@
 #include <FTL/CStrRef.h>
 #include <FTL/JSONValue.h>
 #include <FabricUI/DFG/DFGConfig.h>
+#include <FabricUI/GraphView/Node.h>
 
 namespace FabricUI
 {
@@ -56,10 +57,12 @@ namespace FabricUI
         FTL::CStrRef portName
         );
       void onExecPortInserted(
+        int index,
         FTL::CStrRef portName,
         FTL::JSONObject const *jsonObject
         );
       void onExecPortRemoved(
+        int index,
         FTL::CStrRef portName
         );
       void onPortsConnected(
@@ -189,15 +192,15 @@ namespace FabricUI
         FTL::CStrRef nodeName,
         FTL::CStrRef presetFilePath
         );
-      void onExecPresetFileRefCountDidChange(
-        int newPresetFileRefCount
-        );
-      void onInstExecPresetFileRefCountDidChange(
-        FTL::CStrRef nodeName,
-        int newPresetFileRefCount
+      void onExecEditWouldSplitFromPresetMayHaveChanged();
+      void onInstExecEditWouldSplitFromPresetMayHaveChanged(
+        FTL::CStrRef instName
         );
 
     private:
+
+      void checkAndFixPanelPortOrder();
+      void checkAndFixNodePortOrder(FabricCore::DFGExec &nodeExec, GraphView::Node *uiNode);
 
       void callback( FTL::CStrRef jsonStr );
 

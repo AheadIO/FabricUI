@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGKLEditorWidget__
 #define __UI_DFG_DFGKLEditorWidget__
@@ -59,8 +59,6 @@ namespace FabricUI
       DFGController * m_controller;
       DFGKLEditorPortTableWidget * m_ports;
       KLEditor::KLEditorWidget * m_klEditor;
-      QStringListModel m_diagsModel;
-      QListView *m_diagsView;
       DFGConfig m_config;
       bool m_unsavedChanges;
       bool m_isSettingPorts;

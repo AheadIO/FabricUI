@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QLayout>
 #include "DFGGetStringDialog.h"
@@ -27,7 +27,7 @@ DFGGetStringDialog::~DFGGetStringDialog()
 
 /// Allows only alpha-numeric text only 
 void DFGGetStringDialog::alphaNumicStringOnly() {
-  setRegexFilter(QString("^[a-zA-Z0-9]*$*"));
+  setRegexFilter(QString("[a-zA-Z][_a-zA-Z0-9]*"));
 }
 
 /// Filters the QLineEdit text with the regexFilter

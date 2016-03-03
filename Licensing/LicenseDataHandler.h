@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+ *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  */
 
 #ifndef __FABRICUI_LICENSE_DATA_HANDLER_H
@@ -117,6 +117,17 @@ namespace FabricUI
 
     void onExpiryWarning( FTL::CStrRef expiry )
     {
+      const char *noExpiryDialog = getenv( "FABRIC_NO_EXPIRY_DIALOG" );
+      if ( noExpiryDialog && ::atoi( noExpiryDialog ) > 0 )
+      {
+        fprintf( stderr,
+                 "WARNING: Your Fabric license will expire in less than a "
+                 "month on %s, please contact Fabric Software if you wish "
+                 "to renew it.\n",
+                 expiry.c_str() );
+        return;
+      }
+
       QDialog *dialog = new ExpiryWarningDialog( 0, expiry );
       if ( m_modal )
       {
@@ -172,9 +183,12 @@ namespace FabricUI
 
     void onLiceseEntered( QString licenseText )
     {
-      std::string text = licenseText.toStdString();
-      if ( !text.empty() )
-        FabricCore::SetStandaloneLicense( text.c_str() );
+      QByteArray text = licenseText.toUtf8();
+      if ( !text.isEmpty() )
+      {
+        text.append( '\0' );
+        FabricCore::SetStandaloneLicense( text.constData() );
+      }
       if ( m_client.validateLicense() )
         onValidLicenseEntered();
       else

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGUICmd_Binding__
 #define __UI_DFG_DFGUICmd_Binding__
@@ -22,6 +22,9 @@ protected:
 
   FabricCore::DFGBinding &getBinding()
     { return m_binding; }
+
+  FabricCore::DFGHost getHost()
+    { return m_binding.getHost(); }
   
   void appendDesc_ArgName(
     FTL::CStrRef argName,

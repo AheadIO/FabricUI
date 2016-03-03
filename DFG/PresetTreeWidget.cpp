@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/DFG/NameSpaceTreeItem.h>
@@ -26,6 +26,9 @@ PresetTreeWidget::PresetTreeWidget(
   const DFGConfig & config,
   bool showsPresets,
   bool showSearch,
+  bool hideFabricDir,
+  bool hideVariablesDir,
+  bool hideWriteProtectedDirs,
   bool setupContextMenu
   )
   : m_dfgController( dfgController )
@@ -57,7 +60,52 @@ PresetTreeWidget::PresetTreeWidget(
     layout->addWidget(m_searchEdit);
   layout->addWidget(m_treeView);
 
+  // fill the tree.
   refresh();
+
+  // remove "Fabric" from the tree.
+  if (hideFabricDir)
+  {
+    TreeView::TreeItem *item = m_treeModel->item("Fabric");
+    if (item)   m_treeModel->removeItem(item);
+  }
+
+  // remove "Variables" from the tree.
+  if (hideVariablesDir)
+  {
+    TreeView::TreeItem *item = m_treeModel->item("Variables");
+    if (item)   m_treeModel->removeItem(item);
+  }
+
+  // remove inexisting / write-protected folders from the tree.
+  if (hideWriteProtectedDirs)
+  {
+    FabricCore::DFGHost &host = m_dfgController->getHost();
+    for (int i=0;i<(int)m_treeModel->numItems();i++)
+    {
+      TreeView::TreeItem *item = m_treeModel->item(i);
+      if (item && item->path() != "Fabric"
+               && item->path() != "Variables")
+      {
+        FTL::StrRef path = host.getPresetImportPathname(item->path().c_str());
+        if ( !path.empty() )
+        {
+          // try creating a file inside the folder to see whether we have write permission or not.
+          // (this is kind of ugly, but unfortunately the access() function always returns 0 under Windows).
+          std::string filepath = std::string(path.data()) + std::string("/_tmp_test_write_permission_");
+          FILE *stream = fopen(filepath.c_str(), "w");
+          if (stream)
+          {
+            fclose(stream);
+            std::remove(filepath.c_str());
+            continue;
+          }
+          m_treeModel->removeItem(item);
+          i = -1;
+        }
+      }
+    }
+  }
 
   if(m_searchEdit)
   {
@@ -230,6 +278,7 @@ void PresetTreeWidget::onCustomContextMenuRequested(QPoint globalPos, FabricUI::
   m_contextPath = item->path();
 
   QMenu menu(NULL);
+  menu.addAction("Refresh");
   if(item->type() == "NameSpace" || item->type() == "Preset")
     menu.addAction("Open Folder");
   if(item->type() == "Preset")
@@ -241,7 +290,17 @@ void PresetTreeWidget::onCustomContextMenuRequested(QPoint globalPos, FabricUI::
 
 void PresetTreeWidget::onContextMenuAction(QAction * action)
 {
-  if(action->text() == "Open Folder" || action->text() == "Open File")
+  if(action->text() == "Refresh")
+  {
+    try
+    {
+      refresh();
+    }
+    catch(FabricCore::Exception e)
+    {
+    }
+  }
+  else if(action->text() == "Open Folder" || action->text() == "Open File")
   {
     try
     {

@@ -1,5 +1,5 @@
 #
-# Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+# Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 #
 
 import os
@@ -15,6 +15,9 @@ AddOption('--buildType',
 if not os.environ.has_key('FABRIC_DIR'):
   raise Exception("No FABRIC_DIR environment variable specified.")
 
+#if not os.environ.has_key('SHIBOKEN_PYSIDE_DIR'):
+#  raise Exception("No SHIBOKEN_PYSIDE_DIR environment variable specified.")
+
 buildOS = 'Darwin'
 if platform.system().lower().startswith('win'):
   buildOS = 'Windows'
@@ -29,6 +32,10 @@ if str(GetOption('buildType')).lower() == 'debug':
 
 env = Environment(MSVC_VERSION = "12.0")
 env.Append(CPPPATH = [env.Dir('#').srcnode().abspath])
+
+shibokenPysideDir = env.Dir('')
+if buildOS == 'Linux':
+  shibokenPysideDir = env.Dir(os.environ['SHIBOKEN_PYSIDE_DIR'])
 
 qtDir = None
 
@@ -59,6 +66,9 @@ if buildOS == 'Linux':
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   qtMOC = '/usr/bin/moc-qt4'
   env.Append(CXXFLAGS = ['-fPIC'])
+  if buildType == 'Debug':
+    env.Append(CXXFLAGS = ['-g'])
+    env.Append(LDFLAGS = ['-g'])
 
 if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
@@ -67,20 +77,20 @@ if buildOS == 'Windows':
 
 fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
-  'CPPDEFINES': ['FEC_SHARED'],
+  'CPPDEFINES': ['FEC_SHARED', "ENABLE_STYLERELOAD"],
   'CPPPATH': [
     '..',
     os.path.join(fabricDir, 'include'),
     os.path.join(fabricDir, 'include', 'FabricServices'),
   ],
   'LIBPATH': [os.path.join(fabricDir, 'lib')],
-  'LIBS': ['FabricCore-2.0', 'FabricServices']
+  'LIBS': ['FabricCore', 'FabricServices']
 }
 uiLib = SConscript('SConscript',
 
   exports= {
     'parentEnv': env,
-    'stageDir': env.Dir('#').Dir('stage'),
+    'stageDir': env.Dir(fabricDir),
     'buildOS': buildOS,
     'buildArch': buildArch,
     'buildType': buildType,
@@ -89,12 +99,14 @@ uiLib = SConscript('SConscript',
     'qtFlags': qtFlags,
     'qtDir': qtDir,
     'uiLibPrefix': 'ui',
+    'shibokenPysideDir': shibokenPysideDir,
   },
-  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'))
+  variant_dir = env.Dir('#').Dir('build').Dir('FabricUI'),
+  duplicate=0)
 
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')
   env.Depends(pdbFile, uiLib)
-  uiLib += env.InstallAs(env.Dir('#').Dir('stage').Dir('lib').File('FabricUI.pdb'), pdbFile)
+  uiLib += env.InstallAs(env.Dir(fabricDir).Dir('lib').File('FabricUI.pdb'), pdbFile)
 
 env.Default(uiLib)

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_Graph__
 #define __UI_GraphView_Graph__
@@ -20,15 +20,13 @@
 #include <FabricUI/GraphView/MainPanel.h>
 #include <FabricUI/GraphView/SidePanel.h>
 #include <FabricUI/GraphView/InfoOverlay.h>
+#include <FabricUI/Util/QString_Conversion.h>
 
 #if QT_VERSION > 0x040602
 # define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
 #else
 # define DFG_QT_MIDDLE_MOUSE Qt::MidButton
 #endif
-
-#define QSTRING_FROM_FTL_UTF8(s) QString::fromUtf8((s).data(), (s).size())
-#define QSTRING_FROM_STL_UTF8(s) QString::fromUtf8((s).c_str(), (s).length())
 
 namespace FabricUI
 {
@@ -77,7 +75,7 @@ namespace FabricUI
       virtual Node * node( FTL::StrRef name ) const;
       virtual Node * nodeFromPath( FTL::StrRef path ) const
         { return node( path ); }
-      void renameNode( FTL::StrRef oldName, FTL::StrRef newName );
+      Node *renameNode( FTL::StrRef oldName, FTL::StrRef newName );
 
       virtual std::vector<Node *> selectedNodes() const;
       virtual void selectAllNodes();

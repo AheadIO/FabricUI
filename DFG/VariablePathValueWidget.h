@@ -1,11 +1,11 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_VariablePathValueWidget__
 #define __UI_DFG_VariablePathValueWidget__
 
 #include <QtGui/QLineEdit>
 
-#include <FabricUI/ValueEditor/ValueWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ValueWidget.h>
 #include "Dialogs/DFGVariablePathLineEdit.h"
 
 namespace FabricUI
@@ -13,7 +13,7 @@ namespace FabricUI
 
   namespace DFG
   {
-    class VariablePathValueWidget : public ValueEditor::ValueWidget
+    class VariablePathValueWidget : public ValueEditor_Legacy::ValueWidget
     {
       Q_OBJECT
 

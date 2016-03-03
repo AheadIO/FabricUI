@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Node.h>
@@ -309,8 +309,6 @@ void Pin::setDrawState(bool flag)
     setMaximumHeight(0);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
   }
-
-  update();
 }
 
 bool Pin::drawState() const
@@ -324,5 +322,17 @@ void Pin::setDaisyChainCircleVisible(bool flag)
   {
     m_outCircle->setVisible(flag);
     m_outCircle->setShouldBeVisible(flag);
+  }
+}
+
+void Pin::setName( FTL::StrRef newName )
+{
+  if ( newName != m_name )
+  {
+    bool labelIsName = m_labelCaption == m_name;
+    m_name = newName;
+    if ( labelIsName )
+      m_labelCaption = newName;
+    m_label->setText( QSTRING_FROM_STL_UTF8(m_labelCaption + m_labelSuffix) );
   }
 }

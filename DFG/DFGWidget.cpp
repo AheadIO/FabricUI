@@ -1,7 +1,11 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  
 #include <assert.h>
 #include <FabricCore.h>
+#include <FabricUI/DFG/DFGActions.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
+#include <FabricUI/DFG/DFGGraphViewWidget.h>
+#include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -9,21 +13,24 @@
 #include <FabricUI/DFG/Dialogs/DFGGetStringDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGGetTextDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
+#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
-#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
-#include <FabricUI/DFG/DFGHotkeys.h>
-#include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/LoadFabricStyleSheet.h>
+#include <FabricUI/Util/UIRange.h>
+#include <FTL/FS.h>
+#include <Persistence/RTValToJSONEncoder.hpp>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
+#include <QtGui/QApplication>
 #include <QtGui/QColorDialog>
 #include <QtGui/QCursor>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include <Persistence/RTValToJSONEncoder.hpp>
+#include <QtGui/QSplitter>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -44,11 +51,14 @@ DFGWidget::DFGWidget(
   bool overTakeBindingNotifications
   )
   : QWidget( parent )
+  , m_errorsWidget( 0 )
   , m_uiGraph( 0 )
   , m_router( 0 )
   , m_manager( manager )
   , m_dfgConfig( dfgConfig )
 {
+  reloadStyles();
+
   m_uiController = new DFGController(
     0,
     this,
@@ -92,24 +102,52 @@ DFGWidget::DFGWidget(
       m_isEditable = false;
   }
 
-  if(m_isEditable)
-  {
-    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
-    m_tabSearchWidget->hide();
-  }
-
-  QVBoxLayout * layout = new QVBoxLayout();
-  layout->setSpacing(0);
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->setSpacing( 0 );
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_uiHeader);
   layout->addWidget(m_uiGraphViewWidget);
   layout->addWidget(m_klEditor);
-  layout->setContentsMargins(0, 0, 0, 0);
-  setLayout(layout);
-  setContentsMargins(0, 0, 0, 0);
 
-  if(m_isEditable)
+  QWidget *widget = new QWidget;
+  widget->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
+  widget->setLayout( layout );
+
+  m_errorsWidget = new DFGErrorsWidget( m_uiController.get() ); 
+  connect(
+    m_errorsWidget, SIGNAL(execSelected(FTL::CStrRef, int, int)),
+    this, SLOT(onExecSelected(FTL::CStrRef, int, int))
+    );
+  connect(
+    m_errorsWidget, SIGNAL(nodeSelected(FTL::CStrRef, FTL::CStrRef, int, int)),
+    this, SLOT(onNodeSelected(FTL::CStrRef, FTL::CStrRef, int, int))
+    );
+
+  QSplitter *splitter = new QSplitter;
+  splitter->setOrientation( Qt::Vertical );
+  splitter->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
+  splitter->setContentsMargins(0, 0, 0, 0);
+  splitter->setChildrenCollapsible(false);
+  splitter->addWidget( widget );
+  splitter->setStretchFactor( 0, 4 );
+  splitter->addWidget( m_errorsWidget );
+  splitter->setStretchFactor( 1, 1 );
+
+  layout = new QVBoxLayout;
+  layout->setSpacing( 0 );
+  layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->addWidget( splitter );
+  setLayout( layout );
+
+  if ( m_isEditable )
   {
+    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+    m_tabSearchWidget->hide();
+
     QObject::connect(
       m_uiHeader, SIGNAL(goUpPressed()),
       this, SLOT(onGoUpPressed())
@@ -126,6 +164,8 @@ DFGWidget::DFGWidget(
 
 DFGWidget::~DFGWidget()
 {
+  m_errorsWidget->focusNone();
+
   if ( m_uiController )
     m_uiController->setRouter( 0 );
 
@@ -353,10 +393,11 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
+  if (!graphWidget->getDFGController()->validPresetSplit())
+    return NULL;
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
-  result->addAction("Rename");
   result->addAction("Delete");
 
   try
@@ -392,8 +433,12 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
-  result->addAction(DFG_CREATE_PORT);
-  result->addSeparator();
+
+  if (graphWidget->getDFGController()->validPresetSplit())
+  {
+    result->addAction(DFG_CREATE_PORT);
+    result->addSeparator();
+  }
   result->addAction(DFG_SCROLL_UP);
   result->addAction(DFG_SCROLL_DOWN);
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
@@ -414,7 +459,15 @@ void DFGWidget::onGoUpPressed()
   FabricCore::DFGExec parentExec =
     rootExec.getSubExec( parentExecPath.c_str() );
 
-  maybeEditNode( parentExecPath, parentExec );
+  std::string selectMe;
+  if (parentExecPath.empty()) selectMe = execPath;
+  else                        selectMe = split.second;
+  if (maybeEditNode(parentExecPath, parentExec))
+  {
+    getUIGraph()->clearSelection();
+    if ( GraphView::Node *uiNode = getUIGraph()->node( selectMe ) )
+      uiNode->setSelected( true );
+  }
 }
 
 void DFGWidget::onGraphAction(QAction * action)
@@ -424,30 +477,45 @@ void DFGWidget::onGraphAction(QAction * action)
   pos = m_uiGraph->itemGroup()->mapFromScene(pos);
   pos += mouseOffset;
 
+  Qt::KeyboardModifiers keyMod = QApplication::keyboardModifiers();
+  bool isCTRL  = keyMod.testFlag(Qt::ControlModifier);
+
   if(action->text() == DFG_NEW_GRAPH)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true); 
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "graph";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true); 
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
-    m_uiController->cmdAddInstWithEmptyGraph(
-      text.toUtf8().constData(),
-      QPointF(pos.x(), pos.y())
-      );
+    std::string nodeName = m_uiController->cmdAddInstWithEmptyGraph(
+                            text.toUtf8().constData(),
+                            QPointF(pos.x(), pos.y())
+                            );
+
+    m_uiGraph->clearSelection();
+    if ( GraphView::Node *uiNode = m_uiGraph->node( nodeName ) )
+      uiNode->setSelected( true );
   }
   else if(action->text() == DFG_NEW_FUNCTION)
   {
-    DFGGetStringDialog dialog(NULL, "func", m_dfgConfig, true);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "func";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     m_uiController->beginInteraction();
 
@@ -455,13 +523,13 @@ void DFGWidget::onGraphAction(QAction * action)
 dfgEntry {\n\
   // result = a + b;\n\
 }\n");
-    FTL::CStrRef nodeName =
+    std::string nodeName =
       m_uiController->cmdAddInstWithEmptyFunc(
         text.toUtf8().constData(),
         initialCode,
         QPointF(pos.x(), pos.y())
         );
-    GraphView::Node * uiNode = m_uiGraph->node(nodeName);
+    GraphView::Node * uiNode = m_uiGraph->node(nodeName.c_str());
     if(uiNode)
     {
       maybeEditNode( uiNode );
@@ -470,13 +538,17 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_NEW_BACKDROP)
   {
-    DFGGetStringDialog dialog(NULL, "backdrop", m_dfgConfig, true);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "backdrop";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, false);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     m_uiController->cmdAddBackDrop(
       text.toUtf8().constData(),
@@ -485,13 +557,17 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_IMPLODE_NODE)
   {
-    DFGGetStringDialog dialog(NULL, "graph", m_dfgConfig, true);
-    if(dialog.exec() != QDialog::Accepted)
-      return;
+    QString text = "graph";
+    if (!isCTRL)
+    {
+      DFGGetStringDialog dialog(NULL, text, m_dfgConfig, true);
+      if(dialog.exec() != QDialog::Accepted)
+        return;
 
-    QString text = dialog.text();
-    if(text.length() == 0)
-      return;
+      text = dialog.text();
+      if(text.length() == 0)
+        return;
+    }
 
     const std::vector<GraphView::Node*> & nodes =
       m_uiController->graph()->selectedNodes();
@@ -523,8 +599,6 @@ dfgEntry {\n\
       return;
 
     std::string name = dialog.name().toUtf8().constData();
-    if ( name.empty() )
-      return;
     std::string dataType = dialog.dataType().toUtf8().constData();
     std::string extension = dialog.extension().toUtf8().constData();
 
@@ -642,9 +716,14 @@ void DFGWidget::onNodeAction(QAction * action)
       subExec.exportJSON().getCString() );
     FabricCore::DFGExec newBindingExec = newBinding.getExec();
 
-    QString title = newBindingExec.getTitle();
-    if(title.toLower().endsWith(".canvas"))
-      title = title.left(title.length() - 7);
+    QString title;
+    if ( newBindingExec.isPreset() )
+    {
+      title = newBindingExec.getTitle();
+      if ( title.toLower().endsWith(".canvas") )
+        title = title.left( title.length() - 7 );
+    }
+    else title = nodeName;
 
     FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
     if(!uiNodeColor.empty())
@@ -739,29 +818,34 @@ void DFGWidget::onNodeAction(QAction * action)
     FabricCore::DFGExec &exec = m_uiController->getExec();
     if ( exec.getNodeType( nodeName ) != FabricCore::DFGNodeType_Inst )
       return;
+    FabricCore::DFGExec subExec = exec.getSubExec( nodeName );
 
     try
     {
-      // Get the title (name) of the preset
-      FabricCore::DFGExec subExec = exec.getSubExec(nodeName);
-      // QString title = subExec.getTitle();
-      // Get the name of the last selected nodes instead
-      const std::vector<GraphView::Node*> &nodes = m_uiController->graph()->selectedNodes();
-      QString title = QString(nodes[nodes.size()-1]->name().c_str());
+      FTL::CStrRef defaultPresetName;
+      if ( subExec.isPreset() )
+        defaultPresetName = subExec.getTitle();
+      else
+        defaultPresetName = nodeName;
        
       FabricCore::DFGHost &host = m_uiController->getHost();
 
-      DFGSavePresetDialog dialog( this, m_uiController.get(), true, title);
-      while(true)
+      DFGSavePresetDialog dialog(
+        this,
+        m_uiController.get(),
+        true,
+        defaultPresetName.c_str()
+        );
+      while ( true )
       {
         if(dialog.exec() != QDialog::Accepted)
           return;
 
-        QString name = dialog.name();
+        QString presetName = dialog.name();
         // QString version = dialog.version();
-        QString location = dialog.location();
+        QString presetDirPath = dialog.location();
 
-        if(name.length() == 0 || location.length() == 0)
+        if(presetName.length() == 0 || presetDirPath.length() == 0)
         {
           QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
             "You need to provide a valid name and pick a valid location!");
@@ -770,8 +854,8 @@ void DFGWidget::onNodeAction(QAction * action)
           continue;
         }
 
-        if(location.startsWith("Fabric.") || location.startsWith("Variables.") ||
-          location == "Fabric" || location == "Variables")
+        if(presetDirPath.startsWith("Fabric.") || presetDirPath.startsWith("Variables.") ||
+          presetDirPath == "Fabric" || presetDirPath == "Variables")
         {
           QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
             "You can't save a preset into a factory path (below Fabric).");
@@ -780,103 +864,76 @@ void DFGWidget::onNodeAction(QAction * action)
           continue;
         }
 
-        std::string filePathStr = host.getPresetImportPathname(location.toUtf8().constData());
-        filePathStr += "/";
-        filePathStr += name.toUtf8().constData();
-        filePathStr += ".canvas";
+        std::string pathname =
+          DFGUICmdHandler::NewPresetPathname(
+            host,
+            presetDirPath.toUtf8().constData(),
+            presetName.toUtf8().constData()
+            );
 
-        FILE * file = fopen(filePathStr.c_str(), "rb");
-        if(file)
+        if ( pathname.empty() )
         {
-          fclose(file);
-          file = NULL;
-
-          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-            "The file "+QString(filePathStr.c_str())+" already exists.\nAre you sure to overwrite the file?");
-          msg.addButton("Cancel", QMessageBox::RejectRole);
-          msg.addButton("Ok", QMessageBox::AcceptRole);
-          if(msg.exec() != QDialog::Accepted)
-            continue;
-        }
-
-        subExec.setTitle(name.toUtf8().constData());
-
-        // NOTE: isn't this is actually modifying the meta-data of an active
-        //       executable for the current graph, and not a copy of it;
-        //       should instead do like in the DFG_EXPORT_GRAPH case..
-        FTL::CStrRef uiNodeColor = exec.getNodeMetadata( nodeName, "uiNodeColor" );
-        if(!uiNodeColor.empty())
-          subExec.setMetadata("uiNodeColor", uiNodeColor.c_str(), true, true);
-        FTL::CStrRef uiHeaderColor = exec.getNodeMetadata( nodeName, "uiHeaderColor" );
-        if(!uiHeaderColor.empty())
-          subExec.setMetadata("uiHeaderColor", uiHeaderColor.c_str(), true, true);
-        FTL::CStrRef uiTextColor = exec.getNodeMetadata( nodeName, "uiTextColor" );
-        if(!uiTextColor.empty())
-          subExec.setMetadata("uiTextColor", uiTextColor.c_str(), true, true);
-        FTL::CStrRef uiTooltip = exec.getNodeMetadata( nodeName, "uiTooltip" );
-        if(!uiTooltip.empty())
-          subExec.setMetadata("uiTooltip", uiTooltip.c_str(), true, true);
-        FTL::CStrRef uiDocUrl = exec.getNodeMetadata( nodeName, "uiDocUrl" );
-        if(!uiDocUrl.empty())
-          subExec.setMetadata("uiDocUrl", uiDocUrl.c_str(), true, true);
-        FTL::CStrRef uiAlwaysShowDaisyChainPorts = exec.getNodeMetadata( nodeName, "uiAlwaysShowDaisyChainPorts" );
-        if(!uiAlwaysShowDaisyChainPorts.empty())
-          subExec.setMetadata("uiAlwaysShowDaisyChainPorts", uiAlwaysShowDaisyChainPorts.c_str(), true, true);
-
-        // copy all defaults
-        for(unsigned int i=0;i<subExec.getExecPortCount();i++)
-        {
-          std::string pinPath = nodeName;
-          pinPath += ".";
-          pinPath += subExec.getExecPortName(i);
-
-          FTL::StrRef rType = exec.getNodePortResolvedType(pinPath.c_str());
-          if(rType.size() == 0 || rType.find('$') != rType.end())
-            rType = subExec.getExecPortResolvedType(i);
-          if(rType.size() == 0 || rType.find('$') != rType.end())
-            rType = subExec.getExecPortTypeSpec(i);
-          if(rType.size() == 0 || rType.find('$') != rType.end())
-            continue;
-          FabricCore::RTVal val =
-            exec.getInstPortResolvedDefaultValue(pinPath.c_str(), rType.data());
-          if(val.isValid())
-            subExec.setPortDefaultValue(subExec.getExecPortName(i), val, false);
-        }
-
-        // Important: set the preset file association BEFORE getting the JSON,
-        // as with this association the Core will generate a presetGUID.
-        subExec.setImportPathname(filePathStr.c_str());
-        subExec.attachPresetFile(
-          location.toUtf8().constData(),
-          name.toUtf8().constData(),
-          true // replaceExisting
-          );
-
-        std::string json = subExec.exportJSON().getCString();
-
-        file = fopen(filePathStr.c_str(), "wb");
-        if(!file)
-        {
-          QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-            "The file "+QString(filePathStr.c_str())+" cannot be opened for writing.");
-          msg.addButton("Ok", QMessageBox::AcceptRole);
+          QMessageBox msg(
+            QMessageBox::Warning,
+            "Fabric Error", 
+              "The preset directory '"
+            + presetDirPath
+            + "' does not have an assocaited path and so the preset cannot be saved."
+            );
+          msg.addButton( "Ok", QMessageBox::AcceptRole );
           msg.exec();
           continue;
         }
 
-        fwrite(json.c_str(), json.length(), 1, file);
-        fclose(file);
+        if ( FTL::FSExists( pathname ) )
+        {
+          QMessageBox msg(
+            QMessageBox::Warning,
+            "Fabric Warning", 
+              "The file "
+            + QString(pathname.c_str())
+            + " already exists.\n"
+            + "Are you sure to overwrite the file?"
+            );
+          msg.addButton( "Cancel", QMessageBox::RejectRole );
+          msg.addButton( "Ok", QMessageBox::AcceptRole );
+          if ( msg.exec() != QDialog::Accepted )
+            continue;
+        }
 
-        emit newPresetSaved(filePathStr.c_str());
+        pathname =
+          m_uiController->cmdCreatePreset(
+            nodeName,
+            presetDirPath.toUtf8().constData(),
+            presetName.toUtf8().constData()
+            );
+        if ( pathname.empty() )
+        {
+          QMessageBox msg(
+            QMessageBox::Warning,
+            "Fabric Warning", 
+              "The file "
+            + QString( pathname.c_str() )
+            + " cannot be opened for writing."
+            );
+          msg.addButton( "Ok", QMessageBox::AcceptRole );
+          msg.exec();
+          continue;
+        }
+
+        emit newPresetSaved( pathname.c_str() );
         // update the preset search paths within the controller
         m_uiController->onVariablesChanged();
         break;
       }
     }
-    catch(FabricCore::Exception e)
+    catch ( FabricCore::Exception e )
     {
-      QMessageBox msg(QMessageBox::Warning, "Fabric Warning", 
-        e.getDesc_cstr());
+      QMessageBox msg(
+        QMessageBox::Warning,
+        "Fabric Warning", 
+        e.getDesc_cstr()
+        );
       msg.addButton("Ok", QMessageBox::AcceptRole);
       msg.exec();
       return;
@@ -951,10 +1008,43 @@ void DFGWidget::onNodeEditRequested(FabricUI::GraphView::Node * node)
   maybeEditNode( node );
 }
 
-void DFGAddMetaDataPair( FTL::JSONObjectEnc<>& metaDataObjectEnc, char const* key, char const* value ) {
-  FTL::JSONEnc<> enc( metaDataObjectEnc, FTL::CStrRef( key ) );
-  FTL::JSONStringEnc<> valueEnc( enc, FTL::CStrRef( value ) );
+static inline void DFGAddMetaDataPair(
+  FTL::JSONObjectEnc<>& metaDataObjectEnc,
+  FTL::StrRef key,
+  FTL::StrRef value
+  )
+{
+  FTL::JSONEnc<> enc( metaDataObjectEnc, key );
+  FTL::JSONStringEnc<> valueEnc( enc, value );
 }
+
+static inline void DFGAddMetaDataPair_Color(
+  FTL::JSONObjectEnc<>& metaDataObjectEnc,
+  FTL::StrRef key,
+  QColor const &color
+  )
+{
+  std::string value;
+  {
+    FTL::JSONEnc<> enc( value );
+    FTL::JSONObjectEnc<> objEnc( enc );
+    {
+      FTL::JSONEnc<> rEnc( objEnc, FTL_STR("r") );
+      FTL::JSONSInt32Enc<> rS32Enc( rEnc, color.red() );
+    }
+    {
+      FTL::JSONEnc<> gEnc( objEnc, FTL_STR("g") );
+      FTL::JSONSInt32Enc<> gS32Enc( gEnc, color.green() );
+    }
+    {
+      FTL::JSONEnc<> bEnc( objEnc, FTL_STR("b") );
+      FTL::JSONSInt32Enc<> bS32Enc( bEnc, color.blue() );
+    }
+  }
+
+  DFGAddMetaDataPair( metaDataObjectEnc, key, value );
+}
+
 
 void DFGWidget::onExecPortAction(QAction * action)
 {
@@ -965,27 +1055,6 @@ void DFGWidget::onExecPortAction(QAction * action)
   if(action->text() == "Delete")
   {
     m_uiController->cmdRemovePort( portName );
-  }
-  else if ( action->text() == "Rename" )
-  {
-    DFGBaseDialog dialog( this );
-    QLineEdit *lineEdit = new QLineEdit();
-    lineEdit->setText( portName );
-    lineEdit->selectAll();
-    QObject::connect(
-      lineEdit, SIGNAL(returnPressed()),
-      &dialog, SLOT(accept())
-      );
-    dialog.addInput( lineEdit, "Desired name" );
-
-    if ( dialog.exec() == QDialog::Accepted )
-    {
-      QString desiredNewName = lineEdit->text();
-      m_uiController->cmdRenameExecPort(
-        portName,
-        desiredNewName.toUtf8().constData()
-        );
-    }
   }
   else if(action->text() == "Edit")
   {
@@ -1006,25 +1075,23 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setPersistValue( uiPersistValue == "true" );
 
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
-      if(uiRange.size() > 0)
+      double softMinimum = 0.0;
+      double softMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiRange, softMinimum, softMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiRange.size();i++)
-        {
-          char c = uiRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
+        dialog.setHasSoftRange(true);
+        dialog.setSoftRangeMin(softMinimum);
+        dialog.setSoftRangeMax(softMaximum);
+      }
 
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasRange(true);
-          dialog.setRangeMin(minimum);
-          dialog.setRangeMax(maximum);
-        }
+      FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
+      double hardMinimum = 0.0;
+      double hardMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiHardRange, hardMinimum, hardMaximum))
+      {
+        dialog.setHasHardRange(true);
+        dialog.setHardRangeMin(hardMinimum);
+        dialog.setHardRangeMax(hardMaximum);
       }
 
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
@@ -1063,12 +1130,19 @@ void DFGWidget::onExecPortAction(QAction * action)
 
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
-        if(dialog.hasRange())
+        if(dialog.hasSoftRange())
         {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
         } else
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
+        if(dialog.hasHardRange())
+        {
+          QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );//"" will remove the metadata
 
         if(dialog.hasCombo())
         {
@@ -1302,11 +1376,20 @@ void DFGWidget::onSidePanelAction(QAction * action)
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
 
-      if(dialog.hasRange())
+      if(dialog.hasSoftRange())
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
         DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
-      }
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );
+
+      if(dialog.hasHardRange())
+      {
+        QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );
+
       if(dialog.hasCombo())
       {
         QStringList combo = dialog.comboValues();
@@ -1362,66 +1445,69 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
 void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 { 
-  if(hotkey == DFG_DELETE || hotkey == DFG_DELETE_2)
+  if(hotkey == DFGHotkeys::DELETE_1 || hotkey == DFGHotkeys::DELETE_2)
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     getUIController()->gvcDoRemoveNodes(nodes);
   }
-  else if(hotkey == DFG_FRAME_SELECTED)
+  else if(hotkey == DFGHotkeys::FRAME_SELECTED)
   {
     getUIController()->frameSelectedNodes();
   }
-  else if(hotkey == DFG_FRAME_ALL)
+  else if(hotkey == DFGHotkeys::FRAME_ALL)
   {
     getUIController()->frameAllNodes();
   }
-  else if(hotkey == DFG_TAB_SEARCH)
+  else if(hotkey == DFGHotkeys::TAB_SEARCH)
   {
-    QPoint pos = getGraphViewWidget()->lastEventPos();
-    pos = getGraphViewWidget()->mapToGlobal(pos);
-    getTabSearchWidget()->showForSearch(pos);
+    if (getUIController()->validPresetSplit())
+    {
+      QPoint pos = getGraphViewWidget()->lastEventPos();
+      pos = getGraphViewWidget()->mapToGlobal(pos);
+      getTabSearchWidget()->showForSearch(pos);
+    }
   }
-  else if(hotkey == DFG_SELECT_ALL)
+  else if(hotkey == DFGHotkeys::SELECT_ALL)
   {
     onSelectAll();
   }
-  else if(hotkey == DFG_COPY)
+  else if(hotkey == DFGHotkeys::COPY)
   {
     onCopy();
   }
-  else if(hotkey == DFG_CUT)
+  else if(hotkey == DFGHotkeys::CUT)
   {
     onCut();
   }
-  else if(hotkey == DFG_PASTE)
+  else if(hotkey == DFGHotkeys::PASTE)
   {
     onPaste();
   }
-  else if(hotkey == DFG_EDIT_PROPERTIES)
+  else if(hotkey == DFGHotkeys::EDIT_PROPERTIES)
   {
     onEditPropertiesForCurrentSelection();
   }
-  else if(hotkey == DFG_RELAX_NODES)
+  else if(hotkey == DFGHotkeys::RELAX_NODES)
   {
     getUIController()->relaxNodes();
   }
-  else if(hotkey == DFG_RESET_ZOOM)
+  else if(hotkey == DFGHotkeys::RESET_ZOOM)
   {
     onResetZoom();
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_1)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_1)
   {
     getUIController()->setSelectedNodeCollapseState(2);
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_2)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_2)
   {
     getUIController()->setSelectedNodeCollapseState(1);
   }
-  else if(hotkey == DFG_COLLAPSE_LEVEL_3)
+  else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_3)
   {
     getUIController()->setSelectedNodeCollapseState(0);
   }
-  else if(hotkey == DFG_PAN_GRAPH)
+  else if(hotkey == DFGHotkeys::PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(true);
   }
@@ -1429,7 +1515,7 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
 
 void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 {
-  if(hotkey == DFG_PAN_GRAPH)
+  if(hotkey == DFGHotkeys::PAN_GRAPH)
   {
     m_uiGraph->mainPanel()->setAlwaysPan(false);
   }
@@ -1462,7 +1548,7 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   {
     text = bubble->text();
     visible = bubble->isVisible();
-    collapsed = bubble->collapsed();
+    collapsed = bubble->isCollapsed();
     bubble->show();
     bubble->expand();
   }
@@ -1604,7 +1690,7 @@ bool DFGWidget::maybeEditNode(
 void DFGWidget::onEditPropertiesForCurrentSelection()
 {
   FabricUI::DFG::DFGController *controller = getUIController();
-  if (controller)
+  if ( controller )
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     if (nodes.size() != 1)
@@ -1615,7 +1701,10 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
     }
     GraphView::Node *node = nodes[0];
 
-    FabricCore::DFGNodeType nodeType = controller->getExec().getNodeType( node->name().c_str() );
+    FabricCore::DFGExec &exec = controller->getExec();
+    std::string oldNodeName = node->name();
+      
+    FabricCore::DFGNodeType nodeType = exec.getNodeType( oldNodeName.c_str() );
     if (   nodeType == FabricCore::DFGNodeType_Var
         || nodeType == FabricCore::DFGNodeType_Get
         || nodeType == FabricCore::DFGNodeType_Set)
@@ -1624,27 +1713,129 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
       return;
     }
 
-    DFG::DFGNodePropertiesDialog dialog(NULL, controller, node->name().c_str(), getConfig(), true);
-    if(dialog.exec())
+    DFG::DFGNodePropertiesDialog dialog(
+      NULL,
+      controller,
+      oldNodeName.c_str(),
+      getConfig(),
+      true
+      );
+    if ( dialog.exec() )
     {
-      controller->cmdRenameNode(
-        node->name().c_str(),
-        dialog.getScriptName().toStdString()
-        );  // undoable.
-      dialog.updateNodeName( node->name() ); // since this can change the node name
-      controller->setNodeToolTip        (node->name().c_str(), dialog.getToolTip().toStdString().c_str());  // not undoable.
-      controller->setNodeDocUrl         (node->name().c_str(), dialog.getDocUrl() .toStdString().c_str());  // not undoable.
+      std::string nodeMetadata;
+      {
+        FTL::JSONEnc<> metaDataEnc( nodeMetadata );
+        FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
 
-      controller->setNodeBackgroundColor(node->name().c_str(), dialog.getNodeColor());    // not undoable.  
+        if ( nodeType == FabricCore::DFGNodeType_User )
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTitle",
+            dialog.getText().toUtf8().constData()
+            );
+
+        if ( nodeType != FabricCore::DFGNodeType_Inst )
+        {
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTooltip",
+            dialog.getToolTip().toUtf8().constData()
+            );
+
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiDocUrl",
+            dialog.getDocUrl().toUtf8().constData()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiNodeColor",
+            dialog.getNodeColor()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiTextColor",
+            dialog.getTextColor()
+            );
+          
+          // [Julien] FE-5246
+          // Add or remove the geader colo node metadata
+          QColor headerColor;  
+          if ( dialog.getHeaderColor( headerColor ) )
+            DFGAddMetaDataPair_Color(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              headerColor
+              );
+          else
+            DFGAddMetaDataPair(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              FTL::StrRef()
+              );
+        }
+      }
+
+      std::string execMetadata;
+      if ( nodeType == FabricCore::DFGNodeType_Inst )
+      {
+        FabricCore::DFGExec subExec = exec.getSubExec( oldNodeName.c_str() );
+        if ( !subExec.editWouldSplitFromPreset() )
+        {
+          FTL::JSONEnc<> metaDataEnc( execMetadata );
+          FTL::JSONObjectEnc<> metaDataObjectEnc( metaDataEnc );
+
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiTooltip",
+            dialog.getToolTip().toUtf8().constData()
+            );
+
+          DFGAddMetaDataPair(
+            metaDataObjectEnc,
+            "uiDocUrl",
+            dialog.getDocUrl().toUtf8().constData()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiNodeColor",
+            dialog.getNodeColor()
+            );
+
+          DFGAddMetaDataPair_Color(
+            metaDataObjectEnc,
+            "uiTextColor",
+            dialog.getTextColor()
+            );
+          
+          // [Julien] FE-5246
+          // Add or remove the geader colo node metadata
+          QColor headerColor;  
+          if ( dialog.getHeaderColor( headerColor ) )
+            DFGAddMetaDataPair_Color(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              headerColor
+              );
+          else
+            DFGAddMetaDataPair(
+              metaDataObjectEnc,
+              "uiHeaderColor",
+              FTL::StrRef()
+              );
+        }
+      }
+
+      controller->cmdEditNode(
+        node->name(),
+        dialog.getScriptName().toUtf8().constData(),
+        nodeMetadata,
+        execMetadata
+        );  // undoable.
       
-      // [Julien] FE-5246
-      // Add or remove the geader colo node metadata
-      QColor headerColor;  
-      if(dialog.getHeaderColor(headerColor))
-        controller->setNodeHeaderColor(node->name().c_str(), headerColor);  // not undoable.
-      else controller->removeNodeHeaderColor(node->name().c_str());                       // not undoable.
-      
-      controller->setNodeTextColor(node->name().c_str(), dialog.getTextColor());          // not undoable.
       // [Julien] FE-5246
       // Force update the header/nody node color
       onExecChanged();
@@ -1771,7 +1962,7 @@ void DFGWidget::onExecChanged()
         m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
       );  
-      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFG_PAN_GRAPH);
+      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
     }
 
     // [Julien] FE-5264
@@ -1799,10 +1990,12 @@ void DFGWidget::onExecChanged()
     {
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
+      m_errorsWidget->focusBinding();
     }
     else if(exec.getType() == FabricCore::DFGExecType_Func)
     {
       m_uiGraphViewWidget->hide();
+      m_errorsWidget->focusExec();
     }
 
     QString filePath = getenv("FABRIC_DIR");
@@ -1834,5 +2027,41 @@ void DFGWidget::onExecChanged()
     emit onGraphSet(m_uiGraph);
   }
 
+  m_uiController->updateNodeErrors();
+
   emit execChanged();
+}
+
+void DFGWidget::reloadStyles()
+{
+  QString styleSheet = LoadFabricStyleSheet( "DFGWidget.qss" );
+  if ( !styleSheet.isEmpty() )
+    setStyleSheet( styleSheet );
+}
+
+void DFGWidget::onExecSelected(
+  FTL::CStrRef execPath,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
+}
+
+void DFGWidget::onNodeSelected(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
+  QApplication::processEvents(); // Let graph view resize etc.
+  m_uiController->focusNode( nodeName );
 }

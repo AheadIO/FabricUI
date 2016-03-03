@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 #include <QtGui/QGraphicsView>
 
 #include <FabricUI/GraphView/BackDropNode.h>
@@ -248,13 +248,17 @@ bool Graph::removeNode(Node * node, bool quiet)
 
   prepareGeometryChange();
   scene()->removeItem(node);
-  delete(node);
+  delete node;
 
   controller()->endInteraction();
 
   // recreate the overlay info
   if(m_nodes.size() == 0 && m_centralOverlayText.length() > 0)
     setCentralOverlayText(m_centralOverlayText);
+
+  // [pzion 20160222] Workaround for possible bug in QGraphicsScene
+  scene()->setItemIndexMethod( QGraphicsScene::NoIndex );
+  scene()->setItemIndexMethod( QGraphicsScene::BspTreeIndex );
 
   return true;
 }
@@ -386,7 +390,6 @@ void Graph::updateColorForConnections(const ConnectionTarget * target) const
     if(m_connections[i]->dst() == target || m_connections[i]->src() == target)
     {
       m_connections[i]->setColor(target->color());
-      m_connections[i]->update();
     }
   }
 }
@@ -767,18 +770,21 @@ void Graph::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, Q
   QGraphicsWidget::paint(painter, option, widget);
 }
 
-void Graph::renameNode( FTL::StrRef oldName, FTL::StrRef newName )
+Node *Graph::renameNode( FTL::StrRef oldName, FTL::StrRef newName )
 {
   std::map<FTL::StrRef, size_t>::iterator it = m_nodeMap.find( oldName );
   if ( it != m_nodeMap.end() )
   {
     size_t index = it->second;
+    Node *node = m_nodes[index];
     m_nodeMap.erase( it );
-    m_nodes[index]->m_name = newName;
+    node->m_name = newName;
     m_nodeMap.insert(
       std::pair<FTL::StrRef, size_t>(
-        m_nodes[index]->m_name, index
+        node->m_name, index
         )
       );
+    return node;
   }
+  else return 0;
 }

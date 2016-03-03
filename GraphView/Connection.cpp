@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QGraphicsSceneHoverEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
@@ -103,8 +103,8 @@ Connection::Connection(
     {
       Pin * pin = (Pin*)target;
       Node * node = pin->node();
-      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()));
-      QObject::connect(pin, SIGNAL(yChanged()), this, SLOT(dependencyMoved()));
+      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()), Qt::QueuedConnection);
+      QObject::connect(pin, SIGNAL(yChanged()), this, SLOT(dependencyMoved()), Qt::QueuedConnection);
       QObject::connect(node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(geometryChanged()), this, SLOT(dependencyMoved()));
       QObject::connect(node, SIGNAL(selectionChanged(FabricUI::GraphView::Node *, bool)), this, SLOT(dependencySelected()));
@@ -370,6 +370,7 @@ void Connection::dependencyMoved()
 
 void Connection::dependencySelected()
 {
+  bool oldHasSelectedTarget = m_hasSelectedTarget;
   m_hasSelectedTarget = false;
 
   if(m_src->targetType() == TargetType_Pin)
@@ -382,7 +383,9 @@ void Connection::dependencySelected()
     Node * node = ((Pin*)m_dst)->node();
     m_hasSelectedTarget = m_hasSelectedTarget || node->selected();
   }
-  update();
+
+  if ( m_hasSelectedTarget != oldHasSelectedTarget )
+    update();
 }
 
 float Connection::computeTangentLength() const

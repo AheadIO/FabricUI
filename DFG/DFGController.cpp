@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <iostream>
 #include <QtCore/QDebug>
@@ -11,16 +11,21 @@
 
 #include <FTL/JSONEnc.h>
 #include <FTL/Str.h>
+#include <FTL/Math.h>
 #include <FTL/MapCharSingle.h>
 
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphRelaxer.h>
 
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
 #include <FabricUI/DFG/DFGLogWidget.h>
 #include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUIUtil.h>
+#include <FabricUI/DFG/DFGWidget.h>
+
+#include <sstream>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -47,14 +52,14 @@ DFGController::DFGController(
   , m_argsChangedPending( false )
   , m_argValuesChangedPending( false )
   , m_defaultValuesChangedPending( false )
+  , m_topoDirtyPending( false )
   , m_dirtyPending( false )
 {
   m_router = NULL;
   m_logFunc = NULL;
-  m_overTakeBindingNotifications = overTakeBindingNotifications;
   m_presetDictsUpToDate = false;
 
-  QObject::connect(this, SIGNAL(argsChanged()), this, SLOT(checkErrors()));
+  QObject::connect(this, SIGNAL(topoDirty()), this, SLOT(onTopoDirty()));
   QObject::connect(this, SIGNAL(varsChanged()), this, SLOT(onVariablesChanged()));
 }
 
@@ -82,9 +87,74 @@ void DFGController::setBindingExec(
   FabricCore::DFGExec &exec
   )
 {
+  if ( m_binding.isValid() )
+    m_bindingNotifier.clear();
+
   m_binding = binding;
 
+  if ( m_binding.isValid() )
+  {
+    m_bindingNotifier = DFGBindingNotifier::Create( m_binding );
+
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(dirty()),
+      this,
+      SLOT(onBindingDirty())
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(topoDirty()),
+      this,
+      SLOT(onBindingTopoDirty())
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argInserted(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgInserted(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgTypeChanged(unsigned, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argRemoved(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgRemoved(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argsReordered(FTL::ArrayRef<unsigned>)),
+      this,
+      SLOT(onBindingArgsReordered(FTL::ArrayRef<unsigned>))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(argValueChanged(unsigned, FTL::CStrRef)),
+      this,
+      SLOT(onBindingArgValueChanged(unsigned, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarInserted(FTL::CStrRef, FTL::CStrRef, FTL::CStrRef, FTL::CStrRef))
+      );
+    connect(
+      m_bindingNotifier.data(),
+      SIGNAL(varRemoved(FTL::CStrRef, FTL::CStrRef)),
+      this,
+      SLOT(onBindingVarRemoved(FTL::CStrRef, FTL::CStrRef))
+      );
+  }
+
   setExec( execPath, exec );
+
+  updateErrors();
 
   emit bindingChanged( m_binding );
 }
@@ -116,8 +186,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
 {
   if ( m_router )
   {
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback( NULL, NULL );
     QObject::disconnect(
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
@@ -132,11 +200,6 @@ void DFGController::setRouter(DFGNotificationRouter * router)
       this, SIGNAL(execChanged()),
       m_router, SLOT(onExecChanged())
       );
-
-    if ( m_overTakeBindingNotifications )
-      m_binding.setNotificationCallback(
-        &BindingNotificationCallback, this
-        );
   }
 }
 
@@ -219,9 +282,11 @@ void DFGController::cmdSetTitle(
     );
 }
 
-std::string DFGController::cmdRenameNode(
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+std::string DFGController::cmdEditNode(
+  FTL::StrRef oldName,
+  FTL::StrRef desiredNewName,
+  FTL::StrRef nodeMetadata,
+  FTL::StrRef execMetadata
   )
 {
   if(!validPresetSplit())
@@ -229,12 +294,14 @@ std::string DFGController::cmdRenameNode(
 
   UpdateSignalBlocker blocker( this );
   
-  return m_cmdHandler->dfgDoRenameNode(
+  return m_cmdHandler->dfgDoEditNode(
     getBinding(),
     getExecPath(),
     getExec(),
     oldName,
-    desiredNewName
+    desiredNewName,
+    nodeMetadata,
+    execMetadata
     );
 }
 
@@ -268,40 +335,6 @@ void DFGController::setNodeCommentExpanded(
     expanded? "true": "",
     false,
     false
-    );
-}
-
-void DFGController::setNodeToolTip(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newToolTip
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiTooltip",
-    newToolTip.c_str(),
-    false,
-    true
-    );
-}
-
-void DFGController::setNodeDocUrl(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef newDocUrl
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  m_exec.setNodeMetadata(
-    nodeName.c_str(),
-    "uiDocUrl",
-    newDocUrl.c_str(),
-    false,
-    true
     );
 }
 
@@ -524,6 +557,9 @@ bool DFGController::zoomCanvas(
   float zoom
   )
 {
+  if ( FTL::isnan( zoom ) || FTL::isinf( zoom ) )
+    return false;
+
   try
   {
     FabricCore::DFGExec &exec = getExec();
@@ -702,59 +738,6 @@ bool DFGController::setNodeColor(
     return false;
   }
   return true;
-}
-
-/// Remove a color node
-bool DFGController::removeNodeColor(
-  const char * nodeName,
-  const char * key 
-)
-{
-  try {
-    if(!validPresetSplit())
-      return false;
-    // [Julien] FE-5246, remove header color meta-data if needed
-    // Very big hack, we just set the value to the property to nothing
-    FabricCore::DFGExec &exec = getExec();
-    exec.setNodeMetadata(nodeName, key, "", false, true);
-  }
-  catch(FabricCore::Exception e)
-  {
-    logError(e.getDesc_cstr());
-    return false;
-  }
-  return true;
-}
-
-bool DFGController::setNodeBackgroundColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiNodeColor", color);
-}
-
-bool DFGController::setNodeHeaderColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiHeaderColor", color);
-}
-
-bool DFGController::removeNodeHeaderColor(const char * nodeName)
-{
-  if(!validPresetSplit())
-    return false;
-  return removeNodeColor(nodeName, "uiHeaderColor");
-}
-
-bool DFGController::setNodeTextColor(const char * nodeName, QColor color)
-{
-  if(!validPresetSplit())
-    return false;
-
-  return setNodeColor(nodeName, "uiTextColor", color);
 }
 
 /// Sets the collapse state of the selected node.
@@ -966,58 +949,103 @@ bool DFGController::reloadExtensionDependencies(char const * path)
   return true;
 }
 
-void DFGController::checkErrors()
+void DFGController::onTopoDirty()
 {
-  unsigned errorCount = m_exec.getErrorCount();
-  for(unsigned i=0;i<errorCount;i++)
-  {
-    std::string prefixedError = m_execPath;
-    prefixedError += " : ";
-    prefixedError += m_exec.getError(i);
-    logError( prefixedError.c_str() );
-  }
+  updateErrors();
+  updateNodeErrors();
+}
 
-  if(m_exec.getType() == FabricCore::DFGExecType_Graph)
+void DFGController::updateErrors()
+{
+  m_dfgWidget->getErrorsWidget()->onErrorsMayHaveChanged();
+}
+
+void DFGController::updateNodeErrors()
+{
+  // [pzion 20160209] This will force the Core to ensure errors are up-to-date
+  (void)m_binding.hasRecursiveConnectedErrors();
+
+  try
   {
-    unsigned nodeCount = m_exec.getNodeCount();
-    for(size_t j=0;j<nodeCount;j++)
+    GraphView::Graph *uiGraph = 0;
+    if ( m_exec.getType() == FabricCore::DFGExecType_Graph )
+      uiGraph = graph();
+    if ( uiGraph )
     {
-      char const *nodeName = m_exec.getNodeName(j);
-
-      if ( !graph() )
-        continue;
-      GraphView::Node *uiNode = NULL;
-      if ( graph() )
+      unsigned nodeCount = m_exec.getNodeCount();
+      for(size_t j=0;j<nodeCount;j++)
       {
-        uiNode = graph()->nodeFromPath( nodeName );
-        if ( uiNode )
-          uiNode->clearError();
-      }
+        char const *nodeName = m_exec.getNodeName(j);
 
-      if ( m_exec.getNodeType(j) == FabricCore::DFGNodeType_Inst )
-      {
-        FabricCore::DFGExec instExec = m_exec.getSubExec( nodeName );
+        GraphView::Node *uiNode = uiGraph->nodeFromPath( nodeName );
+        if ( !uiNode )
+          continue;
 
-        unsigned errorCount = instExec.getErrorCount();
-        if ( errorCount > 0 )
-        {
-          std::string errorComposed;
-          errorComposed += nodeName;
-          errorComposed += " : ";
-          for(size_t i=0;i<errorCount;i++)
-          {
-            if(i > 0)
-              errorComposed += "\n";
-            errorComposed += instExec.getError(i);
-          }
-    
-          logError( errorComposed.c_str() );
-          if ( uiNode )
-            uiNode->setError(errorComposed.c_str());
-        }
-
+        uiNode->clearError();
       }
     }
+
+    FabricCore::String errorsJSON = m_exec.getErrors( true );
+    FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
+    FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
+    FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
+      FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
+      );
+    unsigned errorCount = errorsJSONArray->size();
+    for(unsigned i=0;i<errorCount;i++)
+    {
+      FTL::JSONObject const *error = errorsJSONArray->getObject( i );
+
+      FTL::CStrRef execPath = error->getString( FTL_STR("execPath") );
+      FTL::CStrRef nodeName = error->getStringOrEmpty( FTL_STR("nodeName") );
+      FTL::CStrRef desc = error->getString( FTL_STR("desc") );
+      int32_t line = error->getSInt32Or( FTL_STR("line"), -1 );
+      int32_t column = error->getSInt32Or( FTL_STR("column"), -1 );
+
+      std::stringstream prefixedError;
+      prefixedError << m_execPath;
+      prefixedError << " : ";
+      if ( !execPath.empty() )
+        prefixedError << execPath;
+      if ( !execPath.empty() && !nodeName.empty() )
+        prefixedError << '.';
+      if ( !nodeName.empty() )
+        prefixedError << nodeName;
+      if ( line != -1 )
+      {
+        prefixedError << ':';
+        prefixedError << line;
+        if ( column != -1 )
+        {
+          prefixedError << ':';
+          prefixedError << column;
+        }
+      }
+      prefixedError << " : ";
+      prefixedError << desc;
+      logError( prefixedError.str().c_str() );
+
+      if ( uiGraph )
+      {
+        FTL::StrRef rootNodeName;
+        if ( !execPath.empty() )
+          rootNodeName = execPath.split('.').first;
+        else
+          rootNodeName = nodeName;
+        if ( rootNodeName.empty() )
+          continue;
+
+        if ( GraphView::Node *uiNode = uiGraph->nodeFromPath( rootNodeName ) )
+          uiNode->setError( QString::fromUtf8( desc.data(), desc.size() ) );
+      }
+    }
+  }
+  catch ( FTL::JSONException e )
+  {
+    std::cout
+      << "Caught exception: "
+      << e.getDesc()
+      << "\n";
   }
 
   // [pzion 20150701] Upgrade old backdrops scheme
@@ -1140,7 +1168,7 @@ void DFGController::execute()
   }
 }
 
-void DFGController::onValueItemDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1302,7 +1330,7 @@ void DFGController::cmdReorderPorts(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoReorderPorts(
     binding,
@@ -1340,11 +1368,11 @@ void DFGController::cmdSplitFromPreset()
     );
 }
 
-void DFGController::onValueItemInteractionEnter( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionEnter( ValueEditor_Legacy::ValueItem *valueItem )
 {
 }
 
-void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionDelta( ValueEditor_Legacy::ValueItem *valueItem )
 {
   try
   {
@@ -1410,7 +1438,7 @@ void DFGController::onValueItemInteractionDelta( ValueEditor::ValueItem *valueIt
   }
 }
 
-void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueItem )
+void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *valueItem )
 {
   UpdateSignalBlocker blocker( this );
 
@@ -1494,53 +1522,6 @@ void DFGController::onValueItemInteractionLeave( ValueEditor::ValueItem *valueIt
   }
 }
 
-bool DFGController::bindUnboundRTVals()
-{
-  return bindUnboundRTVals(m_client, m_binding);
-}
-
-bool DFGController::bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding)
-{
-  bool argsHaveChanged = false;
-  try
-  {
-    FabricCore::DFGExec rootExec = binding.getExec();
-    unsigned argCount = rootExec.getExecPortCount();
-    for ( unsigned i = 0; i < argCount; ++i )
-    {
-      FTL::CStrRef dataTypeToCheck = rootExec.getExecPortResolvedType( i );
-      if ( dataTypeToCheck.empty() )
-        continue;
-
-      // if there is already a bound value, make sure it has the right type
-      FabricCore::RTVal value;
-      try
-      {
-        value = binding.getArgValue( i );
-      }
-      catch ( FabricCore::Exception e )
-      {
-        continue;
-      }
-      if ( !!value && value.hasType( dataTypeToCheck.c_str() ) )
-        continue;
-
-      binding.setArgValue(
-        i,
-        DFGCreateDefaultValue( client.getContext(), dataTypeToCheck ),
-        false
-        );
-
-      argsHaveChanged = true;
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    // logError( e.getDesc_cstr() );
-  }
-  return argsHaveChanged;
-}
-
 bool DFGController::canConnectTo(
   char const *pathA,
   char const *pathB,
@@ -1588,53 +1569,73 @@ void DFGController::onVariablesChanged()
   updatePresetPathDB();
 }
 
-void DFGController::bindingNotificationCallback( FTL::CStrRef jsonStr )
+void DFGController::onBindingDirty()
 {
-  // printf("bindingNotif = %s\n", jsonStr.c_str());
+  emitDirty();
+}
 
-  try
-  {
-    FTL::JSONStrWithLoc jsonStrWithLoc( jsonStr );
-    FTL::OwnedPtr<FTL::JSONObject const> jsonObject(
-      FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>()
-      );
+void DFGController::onBindingArgInserted(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef typeName
+  )
+{
+  emitArgsChanged();
+}
 
-    FTL::CStrRef descStr = jsonObject->getString( FTL_STR("desc") );
-    if ( descStr == FTL_STR("dirty") )
-    {
-      emitDirty();
-    }
-    else if ( descStr == FTL_STR("argTypeChanged")
-      || descStr == FTL_STR("argInserted")
-      || descStr == FTL_STR("argRemoved") )
-    {
-      bindUnboundRTVals();
-      emitArgsChanged();
-    }
-    else if ( descStr == FTL_STR("argChanged") )
-    {
-      emitArgValuesChanged();
-    }
-    else if ( descStr == FTL_STR("varInserted")
-      || descStr == FTL_STR("varRemoved") )
-    {
-      emitVarsChanged();
-    }
-  }
-  catch ( FabricCore::Exception e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught Core exception: %s\n",
-      e.getDesc_cstr()
-      );
-  }
-  catch ( FTL::JSONException e )
-  {
-    printf(
-      "DFGController::bindingNotificationCallback: caught FTL::JSONException: %s\n",
-      e.getDescCStr()
-      );
-  }
+void DFGController::onBindingArgTypeChanged(
+  unsigned index,
+  FTL::CStrRef name,
+  FTL::CStrRef newTypeName
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingTopoDirty()
+{
+  emitTopoDirty();
+}
+
+void DFGController::onBindingArgRemoved(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgsReordered(
+  FTL::ArrayRef<unsigned> newOrder
+  )
+{
+  emitArgsChanged();
+}
+
+void DFGController::onBindingArgValueChanged(
+  unsigned index,
+  FTL::CStrRef name
+  )
+{
+  emitArgValuesChanged();
+}
+
+void DFGController::onBindingVarInserted(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath,
+  FTL::CStrRef typeName,
+  FTL::CStrRef extDep
+  )
+{
+  emitVarsChanged();
+}
+
+void DFGController::onBindingVarRemoved(
+  FTL::CStrRef varName,
+  FTL::CStrRef varPath
+  )
+{
+  emitVarsChanged();
 }
 
 QStringList DFGController::getPresetPathsFromSearch(char const * search, bool includePresets, bool includeNameSpaces)
@@ -1970,7 +1971,9 @@ std::string DFGController::cmdAddVar(
   QPointF pos
   )
 {
-  if(!validPresetSplit())
+  if(  !validPresetSplit()
+     || desiredNodeName.empty()
+     || dataType.empty())
     return "";
 
   UpdateSignalBlocker blocker( this );
@@ -2053,6 +2056,24 @@ std::string DFGController::cmdAddPort(
     );
 }
 
+std::string DFGController::cmdCreatePreset(
+  FTL::StrRef nodeName,
+  FTL::StrRef presetDirPath,
+  FTL::StrRef presetName
+  )
+{
+  UpdateSignalBlocker blocker( this );
+  
+  return m_cmdHandler->dfgDoCreatePreset(
+    getBinding(),
+    getExecPath(),
+    getExec(),
+    nodeName,
+    presetDirPath,
+    presetName
+    );
+}
+
 std::string DFGController::cmdEditPort(
   FTL::StrRef oldPortName,
   FTL::StrRef desiredNewPortName,
@@ -2064,7 +2085,7 @@ std::string DFGController::cmdEditPort(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoEditPort(
     getBinding(),
@@ -2085,7 +2106,7 @@ void DFGController::cmdRemovePort(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
+  //UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoRemovePort(
     getBinding(),
@@ -2301,12 +2322,30 @@ void DFGController::setBlockCompilations( bool blockCompilations )
   }
 }
 
+void DFGController::emitNodeRenamed(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName
+  )
+{
+  emit nodeRenamed( m_execPath, oldNodeName, newNodeName );
+}
+
 void DFGController::emitNodeRemoved( FTL::CStrRef nodeName )
 {
-  std::string nodePathFromRoot = m_execPath;
-  if ( !nodePathFromRoot.empty() )
-    nodePathFromRoot += '.';
-  nodePathFromRoot += nodeName;
+  emit nodeRemoved( m_execPath, nodeName );
+}
 
-  emit nodeRemoved( nodePathFromRoot );
+
+void DFGController::focusNode( FTL::StrRef nodeName )
+{
+  if ( m_exec.getType() == FabricCore::DFGExecType_Graph )
+  {
+    GraphView::Graph *gvGraph = graph();
+    gvGraph->clearSelection();
+    if ( GraphView::Node *gvNode = gvGraph->node( nodeName ) )
+    {
+      gvNode->setSelected( true );
+      frameSelectedNodes();
+    }
+  }
 }

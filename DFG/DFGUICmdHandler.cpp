@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+ *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  */
 
 #include <FabricUI/DFG/DFGUICmdHandler.h>
@@ -10,6 +10,7 @@
 
 #include <FTL/JSONValue.h>
 #include <FTL/JSONEnc.h>
+#include <FTL/Path.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -115,6 +116,22 @@ void DFGUICmdHandler::decodeRTValFromJSON(
   }
 
   rtVal.setJSON( json.c_str() );
+}
+
+std::string DFGUICmdHandler::NewPresetPathname(
+  FabricCore::DFGHost &host,
+  FTL::CStrRef presetDirPath,
+  FTL::CStrRef presetName
+  )
+{
+  std::string pathname =
+    host.getPresetImportPathname( presetDirPath.c_str() );
+  if ( !pathname.empty() )
+  {
+    FTL::PathAppendEntry( pathname, presetName );
+    pathname += ".canvas";
+  }
+  return pathname;
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

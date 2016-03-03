@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_Style_FabricStyle__
 #define __UI_Style_FabricStyle__
@@ -18,7 +18,7 @@ namespace FabricUI
     public:
         FabricStyle() {}
 
-        void polish(QPalette &palette);
+        virtual void polish(QPalette &palette);
     };
 
   };

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGLogWidget__
 #define __UI_DFG_DFGLogWidget__
@@ -21,7 +21,7 @@ namespace FabricUI
 
     public:
 
-      DFGLogWidget( const DFGConfig & config = DFGConfig() );
+      DFGLogWidget( const DFGConfig & config );
       virtual ~DFGLogWidget();
 
       static void log(const char * message);

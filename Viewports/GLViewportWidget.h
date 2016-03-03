@@ -46,16 +46,14 @@ namespace FabricUI
       FabricCore::RTVal getDrawContext() const { return m_drawContext; }
       ManipulationTool * getManipTool() { return m_manipTool; }
 
-      bool isUsingStage();
-      bool isStageVisible();
+      bool isGridVisible();
 
     public slots:
 
       void redraw();
       void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
-      void setUsingStage( bool usingStage, bool update = true );
-      void setStageVisible( bool stageVisible, bool update = true );
+      void setGridVisible( bool gridVisible, bool update = true );
       void resetCamera();
 
     signals:
@@ -84,8 +82,7 @@ namespace FabricUI
       int m_width;
       int m_height;
       bool m_resizedOnce;
-      bool m_stageVisible;
-      bool m_usingStage;
+      bool m_gridVisible;
       bool m_hasCommercialLicense;
       QColor m_bgColor;
       FabricCore::Client * m_client;

@@ -1,0 +1,10 @@
+moc_*.cpp
+Debug/
+*.sdf
+x64/
+ipch/
+Makefile
+*.cxx
+*.cxx_parameters
+TestProject
+*.opendb

@@ -1,9 +1,10 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include "DFGValueEditor.h"
 #include "VariablePathValueItem.h"
 #include "VariablePathValueWidget.h"
 #include <QtGui/QMessageBox>
+#include <FTL/AutoSet.h>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -13,7 +14,7 @@ DFGValueEditor::DFGValueEditor(
   DFGController * controller,
   const DFGConfig & config
   )
-  : ValueEditor::ValueEditorWidget(
+  : ValueEditor_Legacy::ValueEditorWidget(
     controller->getClient()
     )
   , m_config( config )
@@ -27,8 +28,8 @@ DFGValueEditor::DFGValueEditor(
     this, SLOT(setBinding(FabricCore::DFGBinding const &))
     );
   QObject::connect(
-    m_controller, SIGNAL(nodeRemoved(FTL::CStrRef)),
-    this, SLOT(onNodeRemoved(FTL::CStrRef))
+    m_controller, SIGNAL(nodeRemoved(FTL::CStrRef, FTL::CStrRef)),
+    this, SLOT(onNodeRemoved(FTL::CStrRef, FTL::CStrRef))
     );
 
   QObject::connect(
@@ -58,7 +59,7 @@ DFGValueEditor::~DFGValueEditor()
 
 void DFGValueEditor::clear()
 {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   m_binding.invalidate();
   m_execPath.clear();
@@ -95,7 +96,7 @@ void DFGValueEditor::setNode(
 
 void DFGValueEditor::onArgsChanged()
 {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   try
   {
@@ -331,18 +332,34 @@ void DFGValueEditor::onArgsChanged()
   }
 }
 
-void DFGValueEditor::onNodeRemoved( FTL::CStrRef nodePathFromRoot )
+void DFGValueEditor::onNodeRenamed(
+  FTL::CStrRef execPath,
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef newNodeName 
+  )
 {
-  if ( !m_nodeName.empty() )
-  {
-    FTL::CStrRef::Split split = nodePathFromRoot.rsplit('.');
-    if ( split.first == m_execPath && split.second == m_nodeName )
-      clear();
-  }
+  if ( execPath == m_execPath && oldNodeName == m_nodeName )
+    setNode(
+      m_binding,
+      m_execPath,
+      m_exec,
+      newNodeName
+      );
+}
+
+void DFGValueEditor::onNodeRemoved(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName
+  )
+{
+  if ( execPath == m_execPath && nodeName == m_nodeName )
+    clear();
 }
 
 void DFGValueEditor::updateOutputs()
 {
+  FTL::AutoSet<bool> updatingOutputsAutoSet( m_updatingOutputs, true );
+
   if ( m_nodeName.empty() )
   {
     for ( unsigned i = 0; i < m_treeModel->numItems(); ++i )

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include "GraphViewWidget.h"
 
@@ -8,6 +8,8 @@
 #ifdef FABRICUI_TIMERS
   #include <Util/Timer.h>
 #endif
+
+#include <stdlib.h>
 
 using namespace FabricUI::GraphView;
 
@@ -31,18 +33,21 @@ GraphViewWidget::GraphViewWidget(
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
   setBackgroundBrush(config.mainPanelBackgroundColor);
-  setCacheMode(CacheBackground);
 
   setViewportUpdateMode(SmartViewportUpdate);
 
   // use opengl for rendering with multi sampling
   if(config.useOpenGL)
   {
-    QGLFormat format;
-    format.setSampleBuffers(true);
-    QGLContext * context = new QGLContext(format);
-    QGLWidget * glWidget = new QGLWidget(context);
-    setViewport(glWidget);
+    char const *useCanvasOpenGL = ::getenv( "FABRIC_USE_CANVAS_OPENGL" );
+    if ( !!useCanvasOpenGL && !!useCanvasOpenGL[0] )
+    {
+      QGLFormat format;
+      format.setSampleBuffers(true);
+      QGLContext * context = new QGLContext(format);
+      QGLWidget * glWidget = new QGLWidget(context);
+      setViewport(glWidget);
+    }
   }
 
   setGraph(graph);

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_MainPanelBackground__
 #define __UI_GraphView_MainPanelBackground__
@@ -14,7 +14,6 @@ namespace FabricUI
   {
     // forward declarations
     class MainPanel;
-    class CachingEffect;
 
     class MainPanelBackground : public QGraphicsWidget
     {

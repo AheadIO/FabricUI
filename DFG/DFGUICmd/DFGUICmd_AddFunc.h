@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGUICmd_AddFunc__
 #define __UI_DFG_DFGUICmd_AddFunc__
@@ -34,7 +34,7 @@ public:
 
 protected:
 
-  FTL::CStrRef getTitle()
+  FTL::CStrRef getDesiredNodeName()
     { return getPrimaryArg(); }
   
   virtual void appendDesc( std::string &desc );

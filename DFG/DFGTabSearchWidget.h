@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGTabSearchWidget__
 #define __UI_DFG_DFGTabSearchWidget__
@@ -21,7 +21,7 @@ namespace FabricUI
 
     public:
 
-      DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & config = DFGConfig());
+      DFGTabSearchWidget(DFGWidget * parent, const DFGConfig & config);
       virtual ~DFGTabSearchWidget();
 
       void showForSearch( QPoint globalPos );
