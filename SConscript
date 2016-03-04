@@ -45,7 +45,6 @@ if buildOS == 'Darwin':
   env.Append(LINKFLAGS = ['-stdlib=libstdc++'])
 
 if buildOS == 'Linux':
-  env.Append(CPPPATH=['/usr/include/qt4'])
   env.Replace( CC = '/opt/centos5/usr/bin/gcc' )
   env.Replace( CXX = '/opt/centos5/usr/bin/gcc' )
 
@@ -188,7 +187,7 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
     if buildOS == 'Windows':
       diffFile = shibokenDir.File('fabricui.Windows.diff')
     if buildOS == 'Linux':
-      diffFile = shibokenDir.File('fabricui.Windows.diff')
+      diffFile = shibokenDir.File('fabricui.diff')
     if buildOS == 'Darwin':
       diffFile = shibokenDir.File('fabricui.diff')
 
