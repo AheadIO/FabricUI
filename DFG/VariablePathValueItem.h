@@ -1,9 +1,9 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_VariablePathValueItem__
 #define __UI_DFG_VariablePathValueItem__
 
-#include <FabricUI/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor_Legacy/ValueItem.h>
 #include <map>
 
 #include <FabricCore.h>
@@ -14,7 +14,7 @@ namespace FabricUI
 
   namespace DFG
   {
-    class VariablePathValueItem : public ValueEditor::ValueItem
+    class VariablePathValueItem : public ValueEditor_Legacy::ValueItem
     {
       Q_OBJECT
 

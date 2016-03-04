@@ -2,3 +2,5 @@ build
 stage
 *.dblite
 *.pdb
+FabricUI.vcxproj*
+x64/

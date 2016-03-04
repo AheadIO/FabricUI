@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ViewItems">
+      <UniqueIdentifier>{55af20b8-cad8-42be-b973-480d5fd10782}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\Vec3ViewItem">
+      <UniqueIdentifier>{f2f754fc-25ca-4aa6-91bd-d5c27e5d8e1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\DefaultViewItem">
+      <UniqueIdentifier>{38fe4060-2895-46bf-805f-3072f248a159}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\FloatViewItem">
+      <UniqueIdentifier>{7f9386c7-d6de-4066-ba25-28326edcc65c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\RTValViewItem">
+      <UniqueIdentifier>{90dc53e2-0cda-4f86-bef5-fd2bfcf9cddb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\ColorViewItem">
+      <UniqueIdentifier>{0d5b7434-c299-450c-a368-f685fead4d42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VETreeWidget">
+      <UniqueIdentifier>{238bf36f-147c-454a-ae58-e5dcb640d393}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BaseClasses">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="ViewItems\FloatSliderViewItem">
+      <UniqueIdentifier>{d0650ba1-51dc-4e12-88c7-bcc66619c730}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\IntSliderViewItem">
+      <UniqueIdentifier>{63ce19ae-7713-485a-bd51-7cd18b5dc72f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\FilepathViewItem">
+      <UniqueIdentifier>{ae7ab274-dec1-4f80-8754-5390564526df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewItems\StringViewItem">
+      <UniqueIdentifier>{2f90ef9a-c7fb-469d-867a-b0c51b9aaecc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="Vec3ViewItem.cpp">
+      <Filter>ViewItems\Vec3ViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultViewItem.cpp">
+      <Filter>ViewItems\DefaultViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatViewItem.cpp">
+      <Filter>ViewItems\FloatViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="RTValViewItem.cpp">
+      <Filter>ViewItems\RTValViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorViewItem.cpp">
+      <Filter>ViewItems\ColorViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseModelItem.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseViewItem.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewItemChildRouter.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewItemFactory.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="VETreeWidget.cpp">
+      <Filter>VETreeWidget</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseComplexViewItem.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatSliderViewItem.cpp">
+      <Filter>ViewItems\FloatSliderViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleSlider.cpp">
+      <Filter>ViewItems\FloatSliderViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="VETreeWidgetItem.cpp">
+      <Filter>VETreeWidget</Filter>
+    </ClCompile>
+    <ClCompile Include="QVariantRTVal.cpp" />
+    <ClCompile Include="ItemMetadata.cpp">
+      <Filter>BaseClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="IntSliderViewItem.cpp">
+      <Filter>ViewItems\IntSliderViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="FilepathViewItem.cpp">
+      <Filter>ViewItems\FilepathViewItem</Filter>
+    </ClCompile>
+    <ClCompile Include="StringViewItem.cpp">
+      <Filter>ViewItems\StringViewItem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ViewItemFactory.h">
+      <Filter>BaseClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="QVariantRTVal.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="VETreeWidgetItem.h">
+      <Filter>VETreeWidget</Filter>
+    </ClInclude>
+    <ClInclude Include="DllExport.h" />
+    <ClInclude Include="BaseComplexViewItem.h">
+      <Filter>BaseClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="RTValViewItem.h">
+      <Filter>ViewItems\RTValViewItem</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultViewItem.h">
+      <Filter>ViewItems\DefaultViewItem</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemMetadata.h">
+      <Filter>BaseClasses</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMOC Include="BaseModelItem.h">
+      <Filter>BaseClasses</Filter>
+    </QtMOC>
+    <QtMOC Include="BaseViewItem.h">
+      <Filter>BaseClasses</Filter>
+    </QtMOC>
+    <QtMOC Include="ColorViewItem.h">
+      <Filter>ViewItems\ColorViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="FloatViewItem.h">
+      <Filter>ViewItems\FloatViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="Vec3ViewItem.h">
+      <Filter>ViewItems\Vec3ViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="VETreeWidget.h">
+      <Filter>VETreeWidget</Filter>
+    </QtMOC>
+    <QtMOC Include="ViewItemChildRouter.h">
+      <Filter>BaseClasses</Filter>
+    </QtMOC>
+    <QtMOC Include="FloatSliderViewItem.h">
+      <Filter>ViewItems\FloatSliderViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="DoubleSlider.h">
+      <Filter>ViewItems\FloatSliderViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="IntSliderViewItem.h">
+      <Filter>ViewItems\IntSliderViewItem</Filter>
+    </QtMOC>
+    <QtMOC Include="StringViewItem.h">
+      <Filter>ViewItems\StringViewItem</Filter>
+    </QtMOC>
+    </QtMOC>
+    <QtMOC Include="FilepathViewItem.h">
+      <Filter>ViewItems\FilepathViewItem</Filter>
+    </QtMOC>
+  </ItemGroup>
+</Project>

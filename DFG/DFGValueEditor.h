@@ -1,9 +1,9 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGValueEditor__
 #define __UI_DFG_DFGValueEditor__
 
-#include <FabricUI/ValueEditor/ValueEditorWidget.h>
+#include <FabricUI/ValueEditor_Legacy/ValueEditorWidget.h>
 
 #include "DFGConfig.h"
 #include "DFGController.h"
@@ -14,7 +14,7 @@ namespace FabricUI
   namespace DFG
   {
 
-    class DFGValueEditor : public FabricUI::ValueEditor::ValueEditorWidget
+    class DFGValueEditor : public FabricUI::ValueEditor_Legacy::ValueEditorWidget
     {
       Q_OBJECT
 

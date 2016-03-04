@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include "DFGValueEditor.h"
 #include "VariablePathValueItem.h"
@@ -14,7 +14,7 @@ DFGValueEditor::DFGValueEditor(
   DFGController * controller,
   const DFGConfig & config
   )
-  : ValueEditor::ValueEditorWidget(
+  : ValueEditor_Legacy::ValueEditorWidget(
     controller->getClient()
     )
   , m_config( config )
@@ -59,7 +59,7 @@ DFGValueEditor::~DFGValueEditor()
 
 void DFGValueEditor::clear()
 {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   m_binding.invalidate();
   m_execPath.clear();
@@ -96,7 +96,7 @@ void DFGValueEditor::setNode(
 
 void DFGValueEditor::onArgsChanged()
 {
-  ValueEditor::ValueEditorWidget::clear();
+  ValueEditor_Legacy::ValueEditorWidget::clear();
 
   try
   {

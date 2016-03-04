@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/DFG/DFGHotkeys.h>
 
@@ -28,6 +28,10 @@ namespace FabricUI
     const char *DFGHotkeys::COLLAPSE_LEVEL_1 = "Collapse level 1";
     const char *DFGHotkeys::COLLAPSE_LEVEL_2 = "Collapse level 2";
     const char *DFGHotkeys::COLLAPSE_LEVEL_3 = "Collapse level 3";
+
+#ifdef ENABLE_STYLERELOAD
+    const char *DFGHotkeys::RELOAD_STYLES = "Reload StyleSheet";
+#endif
   }
 }
 

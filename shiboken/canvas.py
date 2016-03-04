@@ -1498,8 +1498,11 @@ class MainWindow(DFG.DFGMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, timeLineDock,
                            QtCore.Qt.Vertical)
 
-        treeWidget = DFG.PresetTreeWidget(self.dfgWidget.getDFGController(),
-                                          self.config, True, False, True)
+        treeWidget = DFG.PresetTreeWidget(
+            self.dfgWidget.getDFGController(),
+            self.config,
+            True, False, False, False, False, True
+            )
         treeDock = QtGui.QDockWidget("Explorer", self)
         treeDock.setObjectName("Explorer")
         treeDock.setFeatures(dockFeatures)
@@ -1508,14 +1511,32 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.newPresetSaved.connect(treeWidget.refresh)
 
-        self.dfgValueEditor = DFG.DFGValueEditor(
-            self.dfgWidget.getDFGController(), self.config)
-        dfgValueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
-        dfgValueEditorDockWidget.setObjectName("Values")
-        dfgValueEditorDockWidget.setFeatures(dockFeatures)
-        dfgValueEditorDockWidget.setWidget(self.dfgValueEditor)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
-                           dfgValueEditorDockWidget)
+        class VEBridgeOwner(FabricUI.ValueEditor.ValueEditorBridgeOwner):
+            def __init__(self, mainWindow):
+                FabricUI.ValueEditor.ValueEditorBridgeOwner.__init__(self)
+                self.mainWindow = mainWindow
+
+            def log(self, txt):
+                if self.mainWindow.dfgWidget:
+                    self.mainWindow.dfgWidget.getDFGController().logError(txt)
+
+            def getDfgWidget(self):
+                return self.mainWindow.dfgWidget
+        self.veBridgeOwner = VEBridgeOwner(self)
+
+        self.valueEditor = FabricUI.ValueEditor.VEEditorOwner(self.veBridgeOwner)
+        valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
+        valueEditorDockWidget.setObjectName("Values")
+        valueEditorDockWidget.setFeatures(dockFeatures)
+        print self.valueEditor
+        valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
+        self.addDockWidget(
+            QtCore.Qt.RightDockWidgetArea,
+            valueEditorDockWidget
+            )
+
+        self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
+        self.contentChanged.connect(self.valueEditor.onOutputsChanged)
 
         self.logWidget = DFG.DFGLogWidget(self.config)
         logDockWidget = QtGui.QDockWidget("Log Messages", self)
@@ -1548,16 +1569,11 @@ class MainWindow(DFG.DFGMainWindow):
 
         controller = self.dfgWidget.getDFGController()
         controller.varsChanged.connect(treeWidget.refresh)
-        controller.argsChanged.connect(self.onStructureChanged)
-        controller.argValuesChanged.connect(self.onValueChanged)
-        controller.defaultValuesChanged.connect(self.onValueChanged)
-        self.dfgWidget.nodeInspectRequested.connect(
-            self.onNodeInspectRequested)
         controller.dirty.connect(self.onDirty)
-        controller.bindingChanged.connect(self.dfgValueEditor.setBinding)
-        controller.nodeRemoved.connect(self.dfgValueEditor.onNodeRemoved)
+
         tabSearchWidget = self.dfgWidget.getTabSearchWidget()
         tabSearchWidget.enabled.connect(self.enableShortCuts)
+
         self.timeLine.frameChanged.connect(self.onFrameChanged)
         self.dfgWidget.onGraphSet.connect(self.onGraphSet)
 
@@ -1575,8 +1591,8 @@ class MainWindow(DFG.DFGMainWindow):
         toggleAction = treeDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_2)
         windowMenu.addAction(toggleAction)
-        toggleAction = dfgValueEditorDockWidget.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_3)
+        toggleAction = valueEditorDockWidget.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
         toggleAction = timeLineDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_4)
@@ -1594,7 +1610,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.onFrameChanged(self.timeLine.getTime())
         self.onGraphSet(self.dfgWidget.getUIGraph())
-        self.onSidePanelInspectRequested()
+        
+        self.valueEditor.initConnections()
 
         self.installEventFilter(MainWindowEventFilter(self))
 
@@ -1642,14 +1659,7 @@ class MainWindow(DFG.DFGMainWindow):
 
     def onDirty(self):
         self.dfgWidget.getDFGController().execute()
-        self.onValueChanged()
         self.contentChanged.emit()
-
-    def onValueChanged(self):
-        try:
-            self.dfgValueEditor.updateOutputs()
-        except Exception as e:
-            self.dfgWidget.getDFGController().logError(str(e))
 
     def loadGraph(self, filePath):
         self.timeLine.pause()
@@ -1660,7 +1670,6 @@ class MainWindow(DFG.DFGMainWindow):
             binding = dfgController.getBinding()
             binding.deallocValues()
 
-            self.dfgValueEditor.clear()
             self.host.flushUndoRedo()
             self.qUndoStack.clear()
             self.qUndoView.setEmptyLabel("Load Graph")
@@ -1675,9 +1684,7 @@ class MainWindow(DFG.DFGMainWindow):
             dfgController.setBindingExec(binding, "", dfgExec)
             self.onSidePanelInspectRequested()
 
-            dfgController.checkErrors()
             self.evalContext.currentFilePath = filePath
-            dfgController.bindUnboundRTVals()
             dfgController.execute()
 
             tl_start = dfgExec.getMetadata("timeline_start")
@@ -1718,7 +1725,6 @@ class MainWindow(DFG.DFGMainWindow):
                     sys.stderr.write("Exception: " + str(e) + "\n")
 
             self.contentChanged.emit()
-            self.onStructureChanged()
 
             self.onFileNameChanged(filePath)
 
@@ -1776,41 +1782,6 @@ class MainWindow(DFG.DFGMainWindow):
             else:
                 return self.saveGraph(False)
         return True
-
-    def onStructureChanged(self):
-        if self.dfgWidget.getDFGController().isViewingRootGraph():
-            self.timeLinePortPath = None
-            try:
-                graph = self.dfgWidget.getDFGController().getExec()
-                portCount = graph.getExecPortCount()
-                for i in range(0, portCount):
-                    if graph.getExecPortType(
-                        i) == self.client.DFG.PortTypes.Out:
-                        continue
-                    portName = graph.getExecPortName(i)
-                    if portName != "timeline":
-                        continue
-                    if not graph.isExecPortResolvedType(
-                        i, "SInt32") and not graph.isExecPortResolvedType(
-                            i, "UInt32") and not graph.isExecPortResolvedType(
-                                i,
-                                "Float32") and not graph.isExecPortResolvedType(
-                                    i, "Float64"):
-                        continue
-                    self.timeLinePortPath = "timeline"
-                    self.timeLinePortIndex = i
-                    break
-            except Exception as e:
-                self.dfgWidget.getDFGController().logError(str(e))
-
-    def onNodeInspectRequested(self, node):
-        if node.isBackDropNode():
-            return
-
-        dfgController = self.dfgWidget.getDFGController()
-        self.dfgValueEditor.setNode(dfgController.getBinding(),
-                                    dfgController.getExecPath(),
-                                    dfgController.getExec(), node.name())
 
     def onNodeEditRequested(self, node):
         self.dfgWidget.maybeEditNode(node)
@@ -1870,14 +1841,6 @@ class MainWindow(DFG.DFGMainWindow):
                     os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
-    def onSidePanelInspectRequested(self):
-        dfgController = self.dfgWidget.getDFGController()
-
-        if dfgController.isViewingRootGraph():
-            self.dfgValueEditor.setBinding(dfgController.getBinding())
-        else:
-            self.dfgValueEditor.clear()
-
     def onNewGraph(self):
         self.timeLine.pause()
 
@@ -1891,8 +1854,6 @@ class MainWindow(DFG.DFGMainWindow):
 
             binding = dfgController.getBinding()
             binding.deallocValues()
-
-            self.dfgValueEditor.clear()
 
             self.host.flushUndoRedo()
             self.qUndoStack.clear()
@@ -1921,7 +1882,6 @@ class MainWindow(DFG.DFGMainWindow):
             self.onSidePanelInspectRequested()
 
             self.contentChanged.emit()
-            self.onStructureChanged()
 
             self.onFileNameChanged('')
 
@@ -2132,9 +2092,9 @@ class MainWindow(DFG.DFGMainWindow):
                     QtCore.Qt.CTRL + QtCore.Qt.Key_G)
                 self.setGridVisibleAction.setCheckable(True)
                 self.setGridVisibleAction.setChecked(
-                    self.viewport.isStageVisible())
+                    self.viewport.isGridVisible())
                 self.setGridVisibleAction.toggled.connect(
-                    self.viewport.setStageVisible)
+                    self.viewport.setGridVisible)
 
                 self.resetCameraAction = QtGui.QAction('&Reset Camera',
                                                        self.viewport)
@@ -2223,10 +2183,7 @@ class MainWindow(DFG.DFGMainWindow):
             graph.defineHotkey(QtCore.Qt.Key_3, QtCore.Qt.NoModifier,
                                DFG.DFGHotkeys.COLLAPSE_LEVEL_3)
 
-            graph.nodeInspectRequested.connect(self.onNodeInspectRequested)
             graph.nodeEditRequested.connect(self.onNodeEditRequested)
-            graph.sidePanelInspectRequested.connect(
-                self.onSidePanelInspectRequested)
 
             self.currentGraph = graph
 

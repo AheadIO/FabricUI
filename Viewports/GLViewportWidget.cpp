@@ -22,18 +22,15 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client * client, QColor bgColor, 
   m_client = client;
   m_bgColor = bgColor;
   m_manipTool = new ManipulationTool(this);
-  m_usingStage = true;
-  m_stageVisible = true;
+  m_gridVisible = true;
   m_hasCommercialLicense = client->hasCommercialLicense();
   setFocusPolicy(Qt::StrongFocus);
   setAutoBufferSwap(false);
 
   if(m_settings)
   {
-    if(m_settings->contains("glviewport/usingStage"))
-      m_usingStage = m_settings->value("glviewport/usingStage").toBool();
-    if(m_settings->contains("glviewport/stageVisible"))
-      m_stageVisible = m_settings->value("glviewport/stageVisible").toBool();
+    if(m_settings->contains("glviewport/gridVisible"))
+      m_gridVisible = m_settings->value("glviewport/gridVisible").toBool();
   }
 
   try
@@ -129,7 +126,7 @@ void GLViewportWidget::initializeGL()
   {
     m_viewport.callMethod("", "setup", 1, &m_drawContext);
     m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getInstance", 0, 0);
-    setStageVisible(m_stageVisible, false);
+    setGridVisible(m_gridVisible, false);
   }
   catch(FabricCore::Exception e)
   {
@@ -267,8 +264,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
     printf("Error: %s\n", e.getDesc_cstr());
   }
 
-  setUsingStage( m_usingStage, shouldUpdateGL );
-  setStageVisible( m_stageVisible, shouldUpdateGL );
+  setGridVisible( m_gridVisible, shouldUpdateGL );
 }
 
 void GLViewportWidget::mousePressEvent(QMouseEvent *event)
@@ -335,25 +331,17 @@ bool GLViewportWidget::manipulateCamera(
   return result;
 }
 
-bool GLViewportWidget::isUsingStage()
+bool GLViewportWidget::isGridVisible()
 {
-  return m_usingStage;
+  return m_gridVisible;
 }
 
-bool GLViewportWidget::isStageVisible()
+void GLViewportWidget::setGridVisible( bool gridVisible, bool update )
 {
-  return m_stageVisible;
-}
-
-void GLViewportWidget::setUsingStage(
-  bool usingStage,
-  bool update
-  )
-{
-  m_usingStage = usingStage;
+  m_gridVisible = gridVisible;
   if(m_settings)
   {
-    m_settings->setValue("glviewport/usingStage", m_usingStage);
+    m_settings->setValue("glviewport/gridVisible", m_gridVisible);
   }
 
   if(!m_viewport.isValid())
@@ -361,32 +349,8 @@ void GLViewportWidget::setUsingStage(
 
   try
   {
-    FabricCore::RTVal usingStageVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_usingStage);
-    m_viewport.callMethod("", "setUsingStage", 1, &usingStageVal);
-  }
-  catch(FabricCore::Exception e)
-  {
-    printf("Error: %s\n", e.getDesc_cstr());
-  }
-  if(update)
-    updateGL();
-}
-
-void GLViewportWidget::setStageVisible( bool stageVisible, bool update )
-{
-  m_stageVisible = stageVisible;
-  if(m_settings)
-  {
-    m_settings->setValue("glviewport/stageVisible", m_stageVisible);
-  }
-
-  if(!m_viewport.isValid())
-    return;
-
-  try
-  {
-    FabricCore::RTVal stageVisibleVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_stageVisible);
-    m_viewport.callMethod("", "setStageVisible", 1, &stageVisibleVal);
+    FabricCore::RTVal gridVisibleVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_gridVisible);
+    m_viewport.callMethod("", "setGridVisible", 1, &gridVisibleVal);
   }
   catch(FabricCore::Exception e)
   {

@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
 #ifndef __UI_DFG_DFGUICmdHandler__
@@ -277,6 +277,11 @@ public:
     FabricCore::DFGBinding const &binding,
     QString execPath,
     FabricCore::DFGExec const &exec
+    ) = 0;
+
+  virtual void dfgDoDismissLoadDiags(
+    FabricCore::DFGBinding const &binding,
+    QList<int> diagIndices
     ) = 0;
 };
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_CreatePreset.h>
@@ -115,7 +115,7 @@ QString DFGUICmd_CreatePreset::invoke(
     {
       subExec.setPortDefaultValue(
         subExec.getExecPortName(i),
-        defaultValueRTVal
+        defaultValueRTVal.copy()
         );
       ++coreUndoCount;
     }

@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_DFG_DFGNotificationRouter__
 #define __UI_DFG_DFGNotificationRouter__
@@ -57,10 +57,12 @@ namespace FabricUI
         FTL::CStrRef portName
         );
       void onExecPortInserted(
+        int index,
         FTL::CStrRef portName,
         FTL::JSONObject const *jsonObject
         );
       void onExecPortRemoved(
+        int index,
         FTL::CStrRef portName
         );
       void onPortsConnected(

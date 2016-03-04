@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/MouseGrabber.h>
 #include <FabricUI/GraphView/Graph.h>
@@ -244,7 +244,6 @@ void MouseGrabber::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     m_connection->deleteLater();
     // m_connection->setParent(this);
     scene->removeItem(this);
-    scene->update();
     this->deleteLater();
   }
 

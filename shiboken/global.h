@@ -56,7 +56,9 @@
 #include <FabricUI/DFG/PresetTreeWidget.h>
 #include <FabricUI/Licensing/Licensing.h>
 #include <FabricUI/Style/FabricStyle.h>
-#include <FabricUI/ValueEditor/ValueEditorWidget.h>
+#include <FabricUI/ValueEditor/ValueEditorBridgeOwner.h>
+#include <FabricUI/ValueEditor/VEEditorOwner.h>
+#include <FabricUI/ValueEditor/VTreeWidget.h>
 #include <FabricUI/Viewports/GLViewportWidget.h>
 #include <FabricUI/Viewports/TimeLineWidget.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>

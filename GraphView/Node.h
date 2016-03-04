@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_Node__
 #define __UI_GraphView_Node__
@@ -14,7 +14,6 @@
 #include <FabricUI/GraphView/NodeHeader.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/GraphicItemTypes.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 namespace FabricUI
 {
@@ -87,8 +86,6 @@ namespace FabricUI
       QPen selectedPen() const;
       QString comment() const;
 
-      virtual QRectF boundingRect() const;
-      
       virtual bool selected() const;
 
       virtual CollapseState collapsedState() const;
@@ -100,10 +97,27 @@ namespace FabricUI
       virtual void setError(QString text);
       virtual void clearError();
 
-      virtual QPointF graphPos() const;
-      virtual QPointF topLeftGraphPos() const;
-      virtual QPointF topLeftToCentralPos(QPointF pos) const;
-      virtual QPointF centralPosToTopLeftPos(QPointF pos) const;
+      QPointF graphPos() const
+        { return topLeftToCentralPos( topLeftGraphPos() ); }
+      void setGraphPos( QPointF pos, bool quiet = false );
+
+      QPointF topLeftToCentralPos( QPointF pos ) const
+      {
+        QRectF rect = boundingRect();
+        return QPointF(
+          pos.x() + rect.width() * 0.5,
+          pos.y() + rect.height() * 0.5
+          );
+      }
+      QPointF centralPosToTopLeftPos( QPointF pos ) const
+      {
+        QRectF rect = boundingRect();
+        return QPointF(pos.x() - rect.width() * 0.5, pos.y() - rect.height() * 0.5);
+      }
+
+      QPointF topLeftGraphPos() const
+        { return pos(); }
+      void setTopLeftGraphPos( QPointF pos, bool quiet = false );
 
       virtual unsigned int pinCount() const;
       virtual Pin * pin(unsigned int index);
@@ -116,12 +130,16 @@ namespace FabricUI
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
+      virtual QRectF boundingRect() const;
+      virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+
       // accessed by controller
       virtual void setSelected(bool state, bool quiet = false);
-      virtual void setGraphPos(QPointF pos, bool quiet = false);
-      void setTopLeftGraphPos(QPointF pos, bool quiet = false);
-      virtual Pin * addPin(Pin * pin, bool quiet = false);
-      virtual bool removePin(Pin * pin, bool quiet = false);
+
+      bool addPin( Pin * pin );
+      bool removePin( Pin * pin );
+
+      Pin *renamePin( FTL::StrRef oldName, FTL::StrRef newName );
       virtual void reorderPins(QStringList names);
 
       virtual std::vector<Node*> upStreamNodes(bool sortForPins = false, std::vector<Node*> rootNodes = std::vector<Node*>());
@@ -140,15 +158,12 @@ namespace FabricUI
 
       void onConnectionsChanged();
       void onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble);
-      void canvasPanned();
       
     signals:
 
       void selectionChanged(FabricUI::GraphView::Node *, bool);
       void collapsedStateChanged(FabricUI::GraphView::Node *, FabricUI::GraphView::Node::CollapseState);
       void positionChanged(FabricUI::GraphView::Node *, QPointF);
-      void pinAdded(FabricUI::GraphView::Node *, Pin *);
-      void pinRemoved(FabricUI::GraphView::Node *, Pin *);
       void doubleClicked(FabricUI::GraphView::Node *, Qt::MouseButton, Qt::KeyboardModifiers);
       void bubbleEditRequested(FabricUI::GraphView::Node * nod);
 
@@ -160,6 +175,8 @@ namespace FabricUI
 
     protected:
 
+      void updateEffect();
+      
 #if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
       virtual void updateGeometry();
 #endif
@@ -201,7 +218,6 @@ namespace FabricUI
       std::vector<Node *> m_nodesToMove;
 
       std::vector<Pin*> m_pins;
-      CachingEffect * m_cache;
       int m_row;
       int m_col;
       bool m_alwaysShowDaisyChainPorts;

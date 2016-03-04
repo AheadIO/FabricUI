@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #ifndef __UI_GraphView_Controller__
 #define __UI_GraphView_Controller__
@@ -100,8 +100,7 @@ namespace FabricUI
       virtual bool clearSelection();
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);
-      virtual bool frameNodes(const std::vector<Node*> & nodes, float zoom = 0.0f);
-      virtual bool frameAndFitNodes(const std::vector<Node*> & nodes);
+      virtual bool frameAndFitNodes( FTL::ArrayRef<Node *> nodes );
       virtual bool frameSelectedNodes();
       virtual bool frameAllNodes();
       virtual bool canConnectTo(

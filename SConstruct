@@ -1,5 +1,5 @@
 #
-# Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+# Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 #
 
 import os
@@ -66,6 +66,9 @@ if buildOS == 'Linux':
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']
   qtMOC = '/usr/bin/moc-qt4'
   env.Append(CXXFLAGS = ['-fPIC'])
+  if buildType == 'Debug':
+    env.Append(CXXFLAGS = ['-g'])
+    env.Append(LDFLAGS = ['-g'])
 
 if buildOS == 'Windows':
   env.Append(CCFLAGS = ['/Od', '/Zi']) # 'Z7'
@@ -74,7 +77,7 @@ if buildOS == 'Windows':
 
 fabricDir = os.environ['FABRIC_DIR']
 fabricFlags = {
-  'CPPDEFINES': ['FEC_SHARED'],
+  'CPPDEFINES': ['FEC_SHARED', "ENABLE_STYLERELOAD"],
   'CPPPATH': [
     '..',
     os.path.join(fabricDir, 'include'),
@@ -87,7 +90,7 @@ uiLib = SConscript('SConscript',
 
   exports= {
     'parentEnv': env,
-    'stageDir': env.Dir('#').Dir('stage'),
+    'stageDir': env.Dir(fabricDir),
     'buildOS': buildOS,
     'buildArch': buildArch,
     'buildType': buildType,
@@ -104,6 +107,6 @@ uiLib = SConscript('SConscript',
 if buildOS == 'Windows':
   pdbFile = env.Dir('#').File('vc'+env['MSVC_VERSION'].replace('.', '')+'.pdb')
   env.Depends(pdbFile, uiLib)
-  uiLib += env.InstallAs(env.Dir('#').Dir('stage').Dir('lib').File('FabricUI.pdb'), pdbFile)
+  uiLib += env.InstallAs(env.Dir(fabricDir).Dir('lib').File('FabricUI.pdb'), pdbFile)
 
 env.Default(uiLib)

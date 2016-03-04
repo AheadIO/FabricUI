@@ -1,10 +1,10 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/BackDropNode.h>
 #include <FabricUI/GraphView/NodeBubble.h>
-#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGController.h>
+#include <FabricUI/DFG/DFGNotificationRouter.h>
 #include <FabricUI/DFG/DFGWidget.h>
 
 #include <FTL/JSONValue.h>
@@ -81,14 +81,16 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if(descStr == FTL_STR("execPortInserted"))
     {
       onExecPortInserted(
-        jsonObject->getString( FTL_STR("portName") ),
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) ),
         jsonObject->get( FTL_STR("execPortDesc") )->cast<FTL::JSONObject>()
         );
     }
     else if(descStr == FTL_STR("execPortRemoved"))
     {
       onExecPortRemoved(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getSInt32( FTL_STR( "portIndex" ) ),
+        jsonObject->getString( FTL_STR( "portName" ) )
         );
     }
     else if(descStr == FTL_STR("portsConnected"))
@@ -259,7 +261,7 @@ void DFGNotificationRouter::callback( FTL::CStrRef jsonStr )
     else if( descStr == FTL_STR("execPortDefaultValuesChanged") )
     {
       onExecPortDefaultValuesChanged(
-        jsonObject->getString( FTL_STR("portName") )
+        jsonObject->getString( FTL_STR("execPortName") )
         );
     }
     else if( descStr == FTL_STR("nodePortDefaultValuesChanged") )
@@ -390,6 +392,7 @@ void DFGNotificationRouter::onGraphSet()
       FTL::JSONObject const *portObject =
         portsArray->get( i )->cast<FTL::JSONObject>();
       onExecPortInserted(
+        i,
         portObject->getString( FTL_STR("name") ),
         portObject
         );
@@ -573,11 +576,6 @@ void DFGNotificationRouter::onNodeInserted(
       onNodeMetadataChanged(nodeName, key, value);
     }
   }
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeRemoved(
@@ -594,11 +592,6 @@ void DFGNotificationRouter::onNodeRemoved(
 
   // todo - the notif should provide the node type
   // m_dfgController->updatePresetDB(true);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 
   m_dfgController->emitNodeRemoved( nodeName );
 }
@@ -641,7 +634,7 @@ void DFGNotificationRouter::onNodePortInserted(
   GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
-  uiNode->addPin(uiPin, false);
+  uiNode->addPin( uiPin );
 
   checkAndFixNodePortOrder(subExec, uiNode);  // [FE-5716]
 }
@@ -661,15 +654,11 @@ void DFGNotificationRouter::onNodePortRemoved(
   GraphView::Pin * uiPin = uiNode->pin(portName);
   if(!uiPin)
     return;
-  uiNode->removePin(uiPin, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
+  uiNode->removePin( uiPin );
 }
 
 void DFGNotificationRouter::onExecPortInserted(
+  int index,
   FTL::CStrRef portName,
   FTL::JSONObject const *jsonObject
   )
@@ -730,6 +719,7 @@ void DFGNotificationRouter::onExecPortInserted(
 }
 
 void DFGNotificationRouter::onExecPortRemoved(
+  int index,
   FTL::CStrRef portName
   )
 {
@@ -760,11 +750,6 @@ void DFGNotificationRouter::onExecPortRemoved(
     if(uiOutPort)
     {
       uiOutPanel->removePort(uiOutPort);
-    }
-
-    if(m_performChecks)
-    {
-      ((DFGController*)m_dfgController)->checkErrors();
     }
   }
   else if(exec.getType() == FabricCore::DFGExecType_Func)
@@ -822,13 +807,6 @@ void DFGNotificationRouter::onPortsConnected(
     return;
 
   uiGraph->addConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
-
-  m_dfgController->bindUnboundRTVals();
 }
 
 void DFGNotificationRouter::onPortsDisconnected(
@@ -877,11 +855,6 @@ void DFGNotificationRouter::onPortsDisconnected(
     return;
 
   uiGraph->removeConnection(uiSrcTarget, uiDstTarget, false);
-
-  if(m_performChecks)
-  {
-    ((DFGController*)m_dfgController)->checkErrors();
-  }
 }
 
 void DFGNotificationRouter::onNodeMetadataChanged(
@@ -1082,7 +1055,7 @@ void DFGNotificationRouter::onNodeRenamed(
   GraphView::Node *uiNode = uiGraph->renameNode( oldNodeName, newNodeName );
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
-  if ( exec.getNodeType( oldNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
+  if ( exec.getNodeType( newNodeName.c_str() ) == FabricCore::DFGNodeType_Inst
     && !exec.instExecIsPreset( newNodeName.c_str() ) )
   {
     assert( !!uiNode );
@@ -1139,7 +1112,13 @@ void DFGNotificationRouter::onNodePortRenamed(
   FTL::CStrRef newPortName
   )
 {
-  // this shouldn't happen for us for now
+  if ( GraphView::Graph *uiGraph = m_dfgController->graph() )
+  {
+    if ( GraphView::Node *uiNode = uiGraph->node( nodeName ) )
+    {
+      uiNode->renamePin( oldPortName, newPortName );
+    }
+  }
 }
 
 void DFGNotificationRouter::onExecMetadataChanged(
@@ -1303,7 +1282,6 @@ void DFGNotificationRouter::onExecPortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onNodePortMetadataChanged(
@@ -1312,7 +1290,6 @@ void DFGNotificationRouter::onNodePortMetadataChanged(
   FTL::CStrRef key,
   FTL::CStrRef value)
 {
-  // todo: we don't do anything here...
 }
 
 void DFGNotificationRouter::onExecPortTypeChanged(

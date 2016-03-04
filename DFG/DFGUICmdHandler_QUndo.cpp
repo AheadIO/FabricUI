@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+ *  Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  */
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmds.h>
@@ -648,6 +648,19 @@ void DFGUICmdHandler_QUndo::dfgDoSplitFromPreset(
       binding,
       execPath,
       exec
+      );
+  m_qUndoStack->push( new WrappedCommand( cmd ) );
+}
+
+void DFGUICmdHandler_QUndo::dfgDoDismissLoadDiags(
+  FabricCore::DFGBinding const &binding,
+  QList<int> diagIndices
+  )
+{
+  DFGUICmd_DismissLoadDiags *cmd =
+    new DFGUICmd_DismissLoadDiags(
+      binding,
+      diagIndices
       );
   m_qUndoStack->push( new WrappedCommand( cmd ) );
 }

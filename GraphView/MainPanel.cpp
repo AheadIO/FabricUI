@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsSceneWheelEvent>
@@ -11,7 +11,6 @@
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphConfig.h>
-#include <FabricUI/GraphView/CachingEffect.h>
 
 #include <math.h>
 
@@ -112,6 +111,8 @@ QPointF MainPanel::canvasPan() const
 void MainPanel::setCanvasPan(QPointF pos, bool quiet)
 {
   m_itemGroup->setPos(pos);
+
+  update();
 
   if(!quiet)
     emit canvasPanChanged(pos);
@@ -220,12 +221,7 @@ void MainPanel::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     m_lastPanPoint = pos;
     event->accept();
 
-    if(m_graph->controller()->panCanvas(delta + canvasPan()))
-    {
-      // if(!m_graph->config().mainPanelBackGroundPanFixed)
-      // m_backGround->setOffset(m_itemGroup->transform());
-      update();
-    }
+    m_graph->controller()->panCanvas(delta + canvasPan());
   }
   else if(m_manipulationMode == ManipulationMode_Zoom)
   {

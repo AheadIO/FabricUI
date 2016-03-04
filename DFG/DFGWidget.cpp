@@ -1,7 +1,11 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
  
 #include <assert.h>
 #include <FabricCore.h>
+#include <FabricUI/DFG/DFGActions.h>
+#include <FabricUI/DFG/DFGErrorsWidget.h>
+#include <FabricUI/DFG/DFGGraphViewWidget.h>
+#include <FabricUI/DFG/DFGHotkeys.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGWidget.h>
@@ -9,13 +13,14 @@
 #include <FabricUI/DFG/Dialogs/DFGGetStringDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGGetTextDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGNewVariableDialog.h>
+#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGPickVariableDialog.h>
 #include <FabricUI/DFG/Dialogs/DFGSavePresetDialog.h>
-#include <FabricUI/DFG/Dialogs/DFGNodePropertiesDialog.h>
-#include <FabricUI/DFG/DFGHotkeys.h>
-#include <FabricUI/DFG/DFGActions.h>
 #include <FabricUI/GraphView/NodeBubble.h>
+#include <FabricUI/Util/LoadFabricStyleSheet.h>
+#include <FabricUI/Util/UIRange.h>
 #include <FTL/FS.h>
+#include <Persistence/RTValToJSONEncoder.hpp>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
@@ -25,7 +30,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include <Persistence/RTValToJSONEncoder.hpp>
+#include <QtGui/QSplitter>
 
 using namespace FabricServices;
 using namespace FabricUI;
@@ -46,11 +51,14 @@ DFGWidget::DFGWidget(
   bool overTakeBindingNotifications
   )
   : QWidget( parent )
+  , m_errorsWidget( 0 )
   , m_uiGraph( 0 )
   , m_router( 0 )
   , m_manager( manager )
   , m_dfgConfig( dfgConfig )
 {
+  reloadStyles();
+
   m_uiController = new DFGController(
     0,
     this,
@@ -94,24 +102,52 @@ DFGWidget::DFGWidget(
       m_isEditable = false;
   }
 
-  if(m_isEditable)
-  {
-    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
-    m_tabSearchWidget->hide();
-  }
-
-  QVBoxLayout * layout = new QVBoxLayout();
-  layout->setSpacing(0);
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->setSpacing( 0 );
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_uiHeader);
   layout->addWidget(m_uiGraphViewWidget);
   layout->addWidget(m_klEditor);
-  layout->setContentsMargins(0, 0, 0, 0);
-  setLayout(layout);
-  setContentsMargins(0, 0, 0, 0);
 
-  if(m_isEditable)
+  QWidget *widget = new QWidget;
+  widget->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
+  widget->setLayout( layout );
+
+  m_errorsWidget = new DFGErrorsWidget( m_uiController.get() ); 
+  connect(
+    m_errorsWidget, SIGNAL(execSelected(FTL::CStrRef, int, int)),
+    this, SLOT(onExecSelected(FTL::CStrRef, int, int))
+    );
+  connect(
+    m_errorsWidget, SIGNAL(nodeSelected(FTL::CStrRef, FTL::CStrRef, int, int)),
+    this, SLOT(onNodeSelected(FTL::CStrRef, FTL::CStrRef, int, int))
+    );
+
+  QSplitter *splitter = new QSplitter;
+  splitter->setOrientation( Qt::Vertical );
+  splitter->setSizePolicy(
+    QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
+    );
+  splitter->setContentsMargins(0, 0, 0, 0);
+  splitter->setChildrenCollapsible(false);
+  splitter->addWidget( widget );
+  splitter->setStretchFactor( 0, 4 );
+  splitter->addWidget( m_errorsWidget );
+  splitter->setStretchFactor( 1, 1 );
+
+  layout = new QVBoxLayout;
+  layout->setSpacing( 0 );
+  layout->setContentsMargins( 0, 0, 0, 0 );
+  layout->addWidget( splitter );
+  setLayout( layout );
+
+  if ( m_isEditable )
   {
+    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+    m_tabSearchWidget->hide();
+
     QObject::connect(
       m_uiHeader, SIGNAL(goUpPressed()),
       this, SLOT(onGoUpPressed())
@@ -128,6 +164,8 @@ DFGWidget::DFGWidget(
 
 DFGWidget::~DFGWidget()
 {
+  m_errorsWidget->focusNone();
+
   if ( m_uiController )
     m_uiController->setRouter( 0 );
 
@@ -355,10 +393,11 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
+  if (!graphWidget->getDFGController()->validPresetSplit())
+    return NULL;
   graphWidget->m_contextPort = port;
   QMenu* result = new QMenu(NULL);
   result->addAction("Edit");
-  result->addAction("Rename");
   result->addAction("Delete");
 
   try
@@ -394,8 +433,12 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
   graphWidget->m_contextSidePanel = panel;
   graphWidget->m_contextPortType = panel->portType();
   QMenu* result = new QMenu(NULL);
-  result->addAction(DFG_CREATE_PORT);
-  result->addSeparator();
+
+  if (graphWidget->getDFGController()->validPresetSplit())
+  {
+    result->addAction(DFG_CREATE_PORT);
+    result->addSeparator();
+  }
   result->addAction(DFG_SCROLL_UP);
   result->addAction(DFG_SCROLL_DOWN);
   graphWidget->connect(result, SIGNAL(triggered(QAction*)), graphWidget, SLOT(onSidePanelAction(QAction*)));
@@ -1020,27 +1063,6 @@ void DFGWidget::onExecPortAction(QAction * action)
   {
     m_uiController->cmdRemovePort( portName );
   }
-  else if ( action->text() == "Rename" )
-  {
-    DFGBaseDialog dialog( this );
-    QLineEdit *lineEdit = new QLineEdit();
-    lineEdit->setText( portName );
-    lineEdit->selectAll();
-    QObject::connect(
-      lineEdit, SIGNAL(returnPressed()),
-      &dialog, SLOT(accept())
-      );
-    dialog.addInput( lineEdit, "Desired name" );
-
-    if ( dialog.exec() == QDialog::Accepted )
-    {
-      QString desiredNewName = lineEdit->text();
-      m_uiController->cmdRenameExecPort(
-        portName,
-        desiredNewName.toUtf8().constData()
-        );
-    }
-  }
   else if(action->text() == "Edit")
   {
     try
@@ -1068,25 +1090,23 @@ void DFGWidget::onExecPortAction(QAction * action)
       dialog.setPersistValue( uiPersistValue == "true" );
 
       FTL::StrRef uiRange = exec.getExecPortMetadata(portName, "uiRange");
-      if(uiRange.size() > 0)
+      double softMinimum = 0.0;
+      double softMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiRange, softMinimum, softMaximum))
       {
-        QString filteredUiRange;
-        for(unsigned int i=0;i<uiRange.size();i++)
-        {
-          char c = uiRange[i];
-          if(isalnum(c) || c == '.' || c == ',' || c == '-')
-            filteredUiRange += c;
-        }
+        dialog.setHasSoftRange(true);
+        dialog.setSoftRangeMin(softMinimum);
+        dialog.setSoftRangeMax(softMaximum);
+      }
 
-        QStringList parts = filteredUiRange.split(',');
-        if(parts.length() == 2)
-        {
-          float minimum = parts[0].toFloat();
-          float maximum = parts[1].toFloat();
-          dialog.setHasRange(true);
-          dialog.setRangeMin(minimum);
-          dialog.setRangeMax(maximum);
-        }
+      FTL::StrRef uiHardRange = exec.getExecPortMetadata(portName, "uiHardRange");
+      double hardMinimum = 0.0;
+      double hardMaximum = 0.0;
+      if(FabricUI::DecodeUIRange(uiHardRange, hardMinimum, hardMaximum))
+      {
+        dialog.setHasHardRange(true);
+        dialog.setHardRangeMin(hardMinimum);
+        dialog.setHardRangeMax(hardMaximum);
       }
 
       FTL::StrRef uiCombo = exec.getExecPortMetadata(portName, "uiCombo");
@@ -1125,12 +1145,19 @@ void DFGWidget::onExecPortAction(QAction * action)
         DFGAddMetaDataPair( metaDataObjectEnc, "uiOpaque", dialog.opaque() ? "true" : "" );//"" will remove the metadata
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, dialog.persistValue() ? "true" : "" );//"" will remove the metadata
 
-        if(dialog.hasRange())
+        if(dialog.hasSoftRange())
         {
-          QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+          QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
         } else
           DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );//"" will remove the metadata
+
+        if(dialog.hasHardRange())
+        {
+          QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+        } else
+          DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );//"" will remove the metadata
 
         if(dialog.hasCombo())
         {
@@ -1373,11 +1400,20 @@ void DFGWidget::onSidePanelAction(QAction * action)
       if(dialog.persistValue())
         DFGAddMetaDataPair( metaDataObjectEnc, DFG_METADATA_UIPERSISTVALUE, "true" );
 
-      if(dialog.hasRange())
+      if(dialog.hasSoftRange())
       {
-        QString range = "(" + QString::number(dialog.rangeMin()) + ", " + QString::number(dialog.rangeMax()) + ")";
+        QString range = "(" + QString::number(dialog.softRangeMin()) + ", " + QString::number(dialog.softRangeMax()) + ")";
         DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", range.toUtf8().constData() );
-      }
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiRange", "" );
+
+      if(dialog.hasHardRange())
+      {
+        QString range = "(" + QString::number(dialog.hardRangeMin()) + ", " + QString::number(dialog.hardRangeMax()) + ")";
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", range.toUtf8().constData() );
+      } else
+        DFGAddMetaDataPair( metaDataObjectEnc, "uiHardRange", "" );
+
       if(dialog.hasCombo())
       {
         QStringList combo = dialog.comboValues();
@@ -1536,7 +1572,7 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   {
     text = bubble->text();
     visible = bubble->isVisible();
-    collapsed = bubble->collapsed();
+    collapsed = bubble->isCollapsed();
     bubble->show();
     bubble->expand();
   }
@@ -1719,7 +1755,7 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTitle",
-            dialog.getText().toStdString().c_str()
+            dialog.getText().toUtf8().constData()
             );
 
         if ( nodeType != FabricCore::DFGNodeType_Inst )
@@ -1727,13 +1763,13 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTooltip",
-            dialog.getToolTip().toStdString().c_str()
+            dialog.getToolTip().toUtf8().constData()
             );
 
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiDocUrl",
-            dialog.getDocUrl().toStdString().c_str()
+            dialog.getDocUrl().toUtf8().constData()
             );
 
           DFGAddMetaDataPair_Color(
@@ -1778,13 +1814,13 @@ void DFGWidget::onEditPropertiesForCurrentSelection()
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiTooltip",
-            dialog.getToolTip().toStdString().c_str()
+            dialog.getToolTip().toUtf8().constData()
             );
 
           DFGAddMetaDataPair(
             metaDataObjectEnc,
             "uiDocUrl",
-            dialog.getDocUrl().toStdString().c_str()
+            dialog.getDocUrl().toUtf8().constData()
             );
 
           DFGAddMetaDataPair_Color(
@@ -1979,10 +2015,12 @@ void DFGWidget::onExecChanged()
     {
       m_uiGraphViewWidget->show();
       m_uiGraphViewWidget->setFocus();
+      m_errorsWidget->focusBinding();
     }
     else if(exec.getType() == FabricCore::DFGExecType_Func)
     {
       m_uiGraphViewWidget->hide();
+      m_errorsWidget->focusExec();
     }
 
     QString filePath = getenv("FABRIC_DIR");
@@ -2014,5 +2052,41 @@ void DFGWidget::onExecChanged()
     emit onGraphSet(m_uiGraph);
   }
 
+  m_uiController->updateNodeErrors();
+
   emit execChanged();
+}
+
+void DFGWidget::reloadStyles()
+{
+  QString styleSheet = LoadFabricStyleSheet( "DFGWidget.qss" );
+  if ( !styleSheet.isEmpty() )
+    setStyleSheet( styleSheet );
+}
+
+void DFGWidget::onExecSelected(
+  FTL::CStrRef execPath,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
+}
+
+void DFGWidget::onNodeSelected(
+  FTL::CStrRef execPath,
+  FTL::CStrRef nodeName,
+  int line,
+  int column
+  )
+{
+  FabricCore::DFGBinding binding = m_uiController->getBinding();
+  FabricCore::DFGExec rootExec = binding.getExec();
+  FabricCore::DFGExec exec = rootExec.getSubExec( execPath.c_str() );
+  m_uiController->setExec( execPath, exec );
+  QApplication::processEvents(); // Let graph view resize etc.
+  m_uiController->focusNode( nodeName );
 }

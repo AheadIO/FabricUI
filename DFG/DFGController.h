@@ -1,21 +1,22 @@
 //
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
 #ifndef __UI_DFG_DFGController__
 #define __UI_DFG_DFGController__
 
+#include <FabricUI/DFG/DFGBindingNotifier.h>
 #include <FabricUI/GraphView/Controller.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/BackDropNode.h>
-#include <FabricUI/ValueEditor/ValueItem.h>
+#include <FabricUI/ValueEditor_Legacy/ValueItem.h>
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
 
-using namespace FabricUI::ValueEditor;
+using namespace FabricUI::ValueEditor_Legacy;
 
 namespace FabricUI
 {
@@ -57,6 +58,9 @@ namespace FabricUI
         { return m_host; }
       FabricCore::DFGBinding &getBinding()
         { return m_binding; }
+      QSharedPointer<DFGBindingNotifier> const &
+      getBindingNotifier()
+        { return m_bindingNotifier; }
       FTL::CStrRef getExecPath()
         { return m_execPath; }
       QString getExecPath_QS()
@@ -83,6 +87,8 @@ namespace FabricUI
         FabricCore::DFGExec &exec
         );
       void refreshExec();
+
+      void focusNode( FTL::StrRef nodeName );
 
       DFGNotificationRouter * getRouter();
       void setRouter(DFGNotificationRouter * router);
@@ -329,9 +335,6 @@ namespace FabricUI
 
       void execute();
 
-      bool bindUnboundRTVals();
-      static bool bindUnboundRTVals(FabricCore::Client &client, FabricCore::DFGBinding &binding);
-
       virtual bool canConnectTo(
         char const *pathA,
         char const *pathB,
@@ -362,7 +365,7 @@ namespace FabricUI
 
       void emitArgValuesChanged()
       {
-        if ( m_updateSignalBlockCount > 0 )
+        if (m_updateSignalBlockCount > 0)
           m_argValuesChangedPending = true;
         else
           emit argValuesChanged();
@@ -374,6 +377,14 @@ namespace FabricUI
           m_defaultValuesChangedPending = true;
         else
           emit defaultValuesChanged();
+      }
+
+      void emitTopoDirty()
+      {
+        if ( m_updateSignalBlockCount > 0 )
+          m_topoDirtyPending = true;
+        else
+          emit topoDirty();
       }
 
       void emitDirty()
@@ -425,6 +436,11 @@ namespace FabricUI
               m_controller->m_defaultValuesChangedPending = false;
               emit m_controller->defaultValuesChanged();
             }
+            if ( m_controller->m_topoDirtyPending )
+            {
+              m_controller->m_topoDirtyPending = false;
+              emit m_controller->topoDirty();
+            }
             if ( m_controller->m_dirtyPending )
             {
               m_controller->m_dirtyPending = false;
@@ -444,6 +460,8 @@ namespace FabricUI
         );
       void emitNodeRemoved( FTL::CStrRef nodeName );
 
+      void updateNodeErrors();
+
     signals:
 
       void hostChanged();
@@ -452,13 +470,18 @@ namespace FabricUI
 
       void varsChanged();
       void argsChanged();
+      void argInserted( int index, const char* name, const char* type );
+      void argTypeChanged( int index, const char* name, const char* type );
+      void argRemoved( int index, const char* name );
+      void argsReordered( const FTL::JSONArray* newOrder );
+
       void argValuesChanged();
       void defaultValuesChanged();
+      void topoDirty();
       void dirty();
       void execSplitChanged();
 
       void nodeEditRequested(FabricUI::GraphView::Node *);
-      void execPortRenamed(char const * path, char const * newName);
 
       void nodeRenamed(
         FTL::CStrRef execPath,
@@ -472,42 +495,33 @@ namespace FabricUI
 
     public slots:
 
+      void onTopoDirty();
+
       void onValueItemDelta( ValueItem *valueItem );
       void onValueItemInteractionEnter( ValueItem *valueItem );
       void onValueItemInteractionDelta( ValueItem *valueItem );
       void onValueItemInteractionLeave( ValueItem *valueItem );
 
-      void checkErrors();
       void onVariablesChanged();
       virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
     private:
 
-      void bindingNotificationCallback( FTL::CStrRef jsonStr );
-      static void BindingNotificationCallback(
-        void * userData,
-        char const *jsonCString,
-        uint32_t jsonLength
-        )
-      {
-        static_cast<DFGController *>( userData )->bindingNotificationCallback(
-          FTL::CStrRef( jsonCString, jsonLength )
-          );
-      }
-
+      void updateErrors();
       void updatePresetPathDB();
 
       DFGWidget *m_dfgWidget;
       FabricCore::Client m_client;
       FabricCore::DFGHost m_host;
       FabricCore::DFGBinding m_binding;
+      QSharedPointer<DFGBindingNotifier> m_bindingNotifier;
       std::string m_execPath;
       FabricCore::DFGExec m_exec;
       FabricServices::ASTWrapper::KLASTManager * m_manager;
       DFGUICmdHandler *m_cmdHandler;
       DFGNotificationRouter * m_router;
       LogFunc m_logFunc;
-      bool m_overTakeBindingNotifications;
+      bool const m_overTakeBindingNotifications;
       FabricServices::SplitSearch::Dict m_presetNameSpaceDict;
       FabricServices::SplitSearch::Dict m_presetPathDict;
       std::vector<std::string> m_presetNameSpaceDictSTL;
@@ -519,7 +533,51 @@ namespace FabricUI
       bool m_argsChangedPending;
       bool m_argValuesChangedPending;
       bool m_defaultValuesChangedPending;
+      bool m_topoDirtyPending;
       bool m_dirtyPending;
+
+    private slots:
+
+      void onBindingDirty();
+
+      void onBindingArgInserted(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef typeName
+        );
+      void onBindingTopoDirty();
+
+      void onBindingArgTypeChanged(
+        unsigned index,
+        FTL::CStrRef name,
+        FTL::CStrRef newTypeName
+        );
+
+      void onBindingArgRemoved(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingArgsReordered(
+        FTL::ArrayRef<unsigned> newOrder
+        );
+
+      void onBindingArgValueChanged(
+        unsigned index,
+        FTL::CStrRef name
+        );
+
+      void onBindingVarInserted(
+        FTL::CStrRef varName,
+        FTL::CStrRef varPath,
+        FTL::CStrRef typeName,
+        FTL::CStrRef extDep
+        );
+
+      void onBindingVarRemoved(
+        FTL::CStrRef varName,
+        FTL::CStrRef varPath
+        );
     };
 
   };

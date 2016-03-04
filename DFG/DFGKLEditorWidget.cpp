@@ -1,4 +1,4 @@
-// Copyright 2010-2015 Fabric Software Inc. All rights reserved.
+// Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -10,7 +10,9 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/SidePanel.h>
 
+#include "DFGErrorsWidget.h"
 #include "DFGKLEditorWidget.h"
+#include "DFGWidget.h"
 
 #include <FTL/AutoSet.h>
 
@@ -87,15 +89,10 @@ DFGKLEditorWidget::DFGKLEditorWidget(
 
   m_klEditor = new KLEditor::KLEditorWidget(splitter, manager, config.klEditorConfig);
 
-  m_diagsView = new QListView;
-  m_diagsView->setModel( &m_diagsModel );
-
   splitter->addWidget(m_ports);
   splitter->setStretchFactor(0, 1);
   splitter->addWidget(m_klEditor);
   splitter->setStretchFactor(1, 7);
-  splitter->addWidget(m_diagsView);
-  splitter->setStretchFactor(0, 1);
 
   layout->addWidget(buttonsWidget);
   layout->addWidget(splitter);
@@ -311,39 +308,16 @@ void DFGKLEditorWidget::save()
 
 void DFGKLEditorWidget::updateDiags( bool saving )
 {
-  QStringList stringList;
-
+  bool haveErrors = false;
   if ( FabricCore::DFGExec exec = m_controller->getExec() )
   {
-    try
-    {
-      FabricCore::String errorsJSON = exec.getErrors( true );
-      FTL::CStrRef errorsJSONStr( errorsJSON.getCStr(), errorsJSON.getSize() );
-      FTL::JSONStrWithLoc strWithLoc( errorsJSONStr );
-      FTL::OwnedPtr<FTL::JSONArray> errorsJSONArray(
-        FTL::JSONValue::Decode( strWithLoc )->cast<FTL::JSONArray>()
-        );
-      unsigned errorCount = errorsJSONArray->size();
-      for(unsigned i=0;i<errorCount;i++)
-      {
-        FTL::JSONString *errorJSONString =
-          errorsJSONArray->get( i )->cast<FTL::JSONString>();
-        stringList.append( errorJSONString->getValue().c_str() );
-      }
-    }
-    catch ( FTL::JSONException e )
-    {
-      std::cout
-        << "Caught exception: "
-        << e.getDesc()
-        << "\n";
-    }
+    DFGWidget *dfgWidget = m_controller->getDFGWidget();
+    DFGErrorsWidget *dfgErrorsWidget = dfgWidget->getErrorsWidget();
+    dfgErrorsWidget->onErrorsMayHaveChanged();
+    haveErrors = dfgErrorsWidget->haveErrors();
   }
 
-  m_diagsModel.setStringList( stringList );
-  m_diagsView->setVisible( stringList.size() > 0 );
-
-  if ( saving && stringList.size() == 0 )
+  if ( saving && !haveErrors )
     m_controller->log("Save successful.");
 }
 
