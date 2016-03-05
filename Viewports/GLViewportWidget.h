@@ -23,7 +23,7 @@ namespace FabricUI
 
     public:
 
-    	GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
+    	GLViewportWidget(FabricCore::Client client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
       
       virtual void setBackgroundColor(QColor color);
@@ -76,7 +76,7 @@ namespace FabricUI
       FabricCore::RTVal m_drawContext;
       FabricCore::RTVal m_camera;
       FabricCore::RTVal m_cameraManipulator;
-      ManipulationTool * m_manipTool;
+      ManipulationTool *m_manipTool;
     };
   };
 };

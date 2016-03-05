@@ -25,7 +25,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        SGLightManagerDialog(QWidget*, FabricCore::Client*, FabricCore::RTVal);
+        SGLightManagerDialog(QWidget*, FabricCore::Client, FabricCore::RTVal);
         virtual ~SGLightManagerDialog() {};
         
       public slots:

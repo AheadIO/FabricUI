@@ -17,7 +17,7 @@ using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
 
-SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
+SGLightManagerDialog::SGLightManagerDialog(QWidget* parent, FabricCore::Client client, FabricCore::RTVal testObject) {
 
   init(parent, client, testObject);
 
@@ -49,7 +49,7 @@ void SGLightManagerDialog::updateLightProperties() {
     // Get the click position
     std::vector<FabricCore::RTVal> klParams(2); 
     klParams[0] = m_color;
-    klParams[1] = FabricCore::RTVal::ConstructFloat32(*m_client, float(m_intensitySlider->value()/10.0f));;
+    klParams[1] = FabricCore::RTVal::ConstructFloat32(m_client, float(m_intensitySlider->value()/10.0f));;
     m_testObject.callMethod("", "onSetlightProperties", 2, &klParams[0]); 
     m_parent->update();
   );

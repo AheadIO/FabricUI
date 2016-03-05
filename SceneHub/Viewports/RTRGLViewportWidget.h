@@ -16,6 +16,7 @@
 #include <QtGui/QMainWindow>
 #include <QtOpenGL/QGLWidget>
 #include <FabricCore.h>
+#include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/Viewports/ViewportWidget.h>
 #include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
 #include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
@@ -31,8 +32,9 @@ namespace FabricUI
 
     public:
       RTRGLViewportWidget(
-        FabricCore::Client*,
+        FabricCore::Client,
         FabricCore::RTVal,
+        SceneHub::SHGLRenderer *shGLRenderer,
         int,
         QGLContext*,
         QWidget *parent = 0,
@@ -110,10 +112,11 @@ namespace FabricUI
         FabricCore::RTVal m_shObject;
         FabricCore::RTVal m_viewportIndexRTVal;
 
-        FabricUI::SceneHub::SGLightManagerDialog *m_lightDialog;
-        FabricUI::SceneHub::SGBaseManagerDialog *m_geometryDialog;
+        SceneHub::SGLightManagerDialog *m_lightDialog;
+        SceneHub::SGBaseManagerDialog *m_geometryDialog;
+        SceneHub::SHGLRenderer *m_shGLRenderer;
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_RTRGLVIEWPORTWIDGET_H__

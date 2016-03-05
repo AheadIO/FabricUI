@@ -22,18 +22,18 @@ SGBaseManagerDialog::SGBaseManagerDialog() {
   setMouseTracking( true );
 }
 
-bool SGBaseManagerDialog::init(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
-  if(!client) return false;
+bool SGBaseManagerDialog::init(QWidget* parent, FabricCore::Client client, FabricCore::RTVal testObject) {
+
   m_parent = parent;
   m_client = client;
   m_testObject = testObject;
 
   std::vector<FabricCore::RTVal> klColorRGBA(4); 
-  klColorRGBA[0] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
-  klColorRGBA[1] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
-  klColorRGBA[2] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
-  klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
-  m_color = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
+  klColorRGBA[0] = FabricCore::RTVal::ConstructFloat32(m_client, 1.0f);
+  klColorRGBA[1] = FabricCore::RTVal::ConstructFloat32(m_client, 1.0f);
+  klColorRGBA[2] = FabricCore::RTVal::ConstructFloat32(m_client, 1.0f);
+  klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(m_client, 1.0f);
+  m_color = FabricCore::RTVal::Construct(m_client, "Color", 4, &klColorRGBA[0]);
 
   setWindowTitle ("");
   setMouseTracking( true );
@@ -51,11 +51,11 @@ bool SGBaseManagerDialog::showColorDialog() {
 
   FABRIC_TRY_RETURN("SGBaseManagerDialog::showColorDialog", false, 
     std::vector<FabricCore::RTVal> klColorRGBA(4); 
-    klColorRGBA[0] = FabricCore::RTVal::ConstructFloat32(*m_client, float(color.redF()));
-    klColorRGBA[1] = FabricCore::RTVal::ConstructFloat32(*m_client, float(color.greenF()));
-    klColorRGBA[2] = FabricCore::RTVal::ConstructFloat32(*m_client, float(color.blueF()));
-    klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(*m_client, 1.0f);
-    m_color = FabricCore::RTVal::Construct(*m_client, "Color", 4, &klColorRGBA[0]);
+    klColorRGBA[0] = FabricCore::RTVal::ConstructFloat32(m_client, float(color.redF()));
+    klColorRGBA[1] = FabricCore::RTVal::ConstructFloat32(m_client, float(color.greenF()));
+    klColorRGBA[2] = FabricCore::RTVal::ConstructFloat32(m_client, float(color.blueF()));
+    klColorRGBA[3] = FabricCore::RTVal::ConstructFloat32(m_client, 1.0f);
+    m_color = FabricCore::RTVal::Construct(m_client, "Color", 4, &klColorRGBA[0]);
   );
   return true;
 }

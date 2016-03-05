@@ -17,7 +17,7 @@ using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
 
-SGGeometryManagerDialog::SGGeometryManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject) {
+SGGeometryManagerDialog::SGGeometryManagerDialog(QWidget* parent, FabricCore::Client client, FabricCore::RTVal testObject) {
   init(parent, client, testObject);
   m_colorButton = new QPushButton("Color");
   m_closeButton = new QPushButton("Close");

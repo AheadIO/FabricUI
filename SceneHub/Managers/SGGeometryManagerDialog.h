@@ -25,7 +25,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        SGGeometryManagerDialog(QWidget* parent, FabricCore::Client *client, FabricCore::RTVal testObject);
+        SGGeometryManagerDialog(QWidget* parent, FabricCore::Client client, FabricCore::RTVal testObject);
         virtual ~SGGeometryManagerDialog() {};
  
       public slots:

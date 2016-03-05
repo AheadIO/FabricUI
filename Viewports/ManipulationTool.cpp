@@ -72,7 +72,7 @@ void ManipulationTool::toolOnSetup()
 {
   try
   {
-    FabricCore::RTVal eventDispatcherHandle = FabricCore::RTVal::Create(*m_view->getClient(), "EventDispatcherHandle", 0, 0);
+    FabricCore::RTVal eventDispatcherHandle = FabricCore::RTVal::Create(m_view->getClient(), "EventDispatcherHandle", 0, 0);
     if(eventDispatcherHandle.isValid())
     {
       m_eventDispatcher = eventDispatcherHandle.callMethod("EventDispatcher", "getEventDispatcher", 0, 0);
@@ -141,7 +141,7 @@ bool ManipulationTool::onEvent(QEvent *event)
     return false;
 
   // Now we translate the Qt events to FabricEngine events..
-  FabricCore::RTVal klevent = QtToKLEvent(event, *m_view->getClient(), m_view->getViewport());
+  FabricCore::RTVal klevent = QtToKLEvent(event, m_view->getClient(), m_view->getViewport());
 
   try
   {
@@ -171,8 +171,8 @@ bool ManipulationTool::onEvent(QEvent *event)
       if(customCommand == "setArg")
       {
         FabricCore::RTVal customCommandParams = host.maybeGetMember("customCommandParams");
-        FabricCore::RTVal portNameVal = FabricCore::RTVal::ConstructString(*m_view->getClient(), "portName");
-        FabricCore::RTVal xfoVal = FabricCore::RTVal::ConstructString(*m_view->getClient(), "xfo");
+        FabricCore::RTVal portNameVal = FabricCore::RTVal::ConstructString(m_view->getClient(), "portName");
+        FabricCore::RTVal xfoVal = FabricCore::RTVal::ConstructString(m_view->getClient(), "xfo");
         std::string portName = customCommandParams.callMethod("String", "getString", 1, &portNameVal).getStringCString();
         m_lastManipValue = customCommandParams.callMethod("Xfo", "getXfo", 1, &xfoVal);
 

@@ -29,14 +29,14 @@ namespace FabricUI
         virtual ~SGBaseManagerDialog() {};
  
       protected:
-        bool init(QWidget*, FabricCore::Client *, FabricCore::RTVal);
+        bool init(QWidget*, FabricCore::Client, FabricCore::RTVal);
         virtual void mouseMoveEvent( QMouseEvent * );
         virtual void mouseReleaseEvent( QMouseEvent * );
         virtual void closeEvent( QCloseEvent * );
         bool showColorDialog();
 
         FabricCore::RTVal m_color;
-        FabricCore::Client *m_client;
+        FabricCore::Client m_client;
         FabricCore::RTVal m_testObject;
         QWidget* m_parent;
     };

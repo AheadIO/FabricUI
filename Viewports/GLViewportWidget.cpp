@@ -7,7 +7,7 @@
 
 using namespace FabricUI::Viewports;
 
-GLViewportWidget::GLViewportWidget(FabricCore::Client *client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
+GLViewportWidget::GLViewportWidget(FabricCore::Client client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
 : ViewportWidget(client, bgColor, format, parent, settings)
 {	
   m_manipTool = new ManipulationTool(this);
@@ -21,8 +21,8 @@ GLViewportWidget::GLViewportWidget(FabricCore::Client *client, QColor bgColor, Q
 
   try
   {
-    m_client->loadExtension("Manipulation", "", false);
-    m_client->loadExtension("InlineDrawing", "", false);
+    m_client.loadExtension("Manipulation", "", false);
+    m_client.loadExtension("InlineDrawing", "", false);
   }
   catch(FabricCore::Exception e)
   {
@@ -46,9 +46,9 @@ void GLViewportWidget::setBackgroundColor(QColor color)
     try
     {
       FabricCore::RTVal bgColorVal = m_viewport.maybeGetMember("bgColor");
-      bgColorVal.setMember("r", FabricCore::RTVal::ConstructFloat32(*m_client, float(m_bgColor.red()) / 255.0f));
-      bgColorVal.setMember("g", FabricCore::RTVal::ConstructFloat32(*m_client, float(m_bgColor.green()) / 255.0f));
-      bgColorVal.setMember("b", FabricCore::RTVal::ConstructFloat32(*m_client, float(m_bgColor.blue()) / 255.0f));
+      bgColorVal.setMember("r", FabricCore::RTVal::ConstructFloat32(m_client, float(m_bgColor.red()) / 255.0f));
+      bgColorVal.setMember("g", FabricCore::RTVal::ConstructFloat32(m_client, float(m_bgColor.green()) / 255.0f));
+      bgColorVal.setMember("b", FabricCore::RTVal::ConstructFloat32(m_client, float(m_bgColor.blue()) / 255.0f));
       m_viewport.setMember("bgColor", bgColorVal);
     }
     catch(FabricCore::Exception e)
@@ -112,8 +112,8 @@ void GLViewportWidget::resizeGL(int width, int height)
   {
     FabricCore::RTVal args[3];
     args[0] = m_drawContext;
-    args[1] = FabricCore::RTVal::ConstructUInt32(*m_client, (unsigned int)m_width);
-    args[2] = FabricCore::RTVal::ConstructUInt32(*m_client, (unsigned int)m_height);
+    args[1] = FabricCore::RTVal::ConstructUInt32(m_client, (unsigned int)m_width);
+    args[2] = FabricCore::RTVal::ConstructUInt32(m_client, (unsigned int)m_height);
     m_viewport.callMethod("", "resize", 3, args);
     m_resizedOnce = true;
   }
@@ -136,7 +136,7 @@ void GLViewportWidget::paintGL()
   try
   {
     FabricCore::RTVal args[2];
-    args[0] = FabricCore::RTVal::ConstructString(*m_client, "default");
+    args[0] = FabricCore::RTVal::ConstructString(m_client, "default");
     args[1] = m_drawContext;
     m_drawing.callMethod("", "drawViewport", 2, args);
   }
@@ -153,7 +153,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
 {
   try
   {
-    m_drawing = FabricCore::RTVal::Create(*m_client, "OGLInlineDrawing", 0, 0);
+    m_drawing = FabricCore::RTVal::Create(m_client, "OGLInlineDrawing", 0, 0);
     if(!m_drawing.isValid())
     {
       printf("[GLWidget] Error: Cannot construct OGLInlineDrawing RTVal (extension loaded?)\n");
@@ -161,7 +161,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
     }
     m_drawing = m_drawing.callMethod("OGLInlineDrawing", "getNewInstance", 0, 0);
 
-    m_viewport = FabricCore::RTVal::Create(*m_client, "OGLStandaloneViewport", 0, 0);
+    m_viewport = FabricCore::RTVal::Create(m_client, "OGLStandaloneViewport", 0, 0);
     if(!m_viewport.isValid())
     {
       printf("[GLWidget] Error: Cannot construct OGLStandaloneViewport RTVal (extension loaded?)\n");
@@ -170,7 +170,7 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
     else
     {
       FabricCore::RTVal args[2];
-      args[0] = FabricCore::RTVal::ConstructString(*m_client, "default");
+      args[0] = FabricCore::RTVal::ConstructString(m_client, "default");
       args[1] = m_viewport;
       m_drawing.callMethod("", "registerViewport", 2, args);
 
@@ -180,13 +180,13 @@ void GLViewportWidget::resetRTVals( bool shouldUpdateGL )
     }
 
     m_camera = m_viewport.maybeGetMember("camera");
-    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraManipulator", 1, &m_camera);
+    m_cameraManipulator = FabricCore::RTVal::Create(m_client, "CameraManipulator", 1, &m_camera);
 
-    m_viewport.setMember("windowId", FabricCore::RTVal::ConstructUInt64(*m_client, (uint64_t)this->winId()));
+    m_viewport.setMember("windowId", FabricCore::RTVal::ConstructUInt64(m_client, (uint64_t)this->winId()));
 
     setBackgroundColor(m_bgColor);
 
-    m_drawContext = FabricCore::RTVal::Create(*m_client, "DrawContext", 0, 0);
+    m_drawContext = FabricCore::RTVal::Create(m_client, "DrawContext", 0, 0);
     if(!m_drawContext.isValid())
     {
       printf("[GLWidget] Error: Cannot construct DrawContext RTVal (extension loaded?)\n");
@@ -268,7 +268,7 @@ bool GLViewportWidget::manipulateCamera(
   try
   {
     // Now we translate the Qt events to FabricEngine events..
-    FabricCore::RTVal klevent = QtToKLEvent(event, *m_client, m_viewport);
+    FabricCore::RTVal klevent = QtToKLEvent(event, m_client, m_viewport);
 
     // And then pass the event to the camera manipulator for handling.
     m_cameraManipulator.callMethod("", "onEvent", 1, &klevent);
@@ -301,7 +301,7 @@ void GLViewportWidget::setGridVisible( bool gridVisible, bool update )
 
   try
   {
-    FabricCore::RTVal gridVisibleVal = FabricCore::RTVal::ConstructBoolean(*m_client, m_gridVisible);
+    FabricCore::RTVal gridVisibleVal = FabricCore::RTVal::ConstructBoolean(m_client, m_gridVisible);
     m_viewport.callMethod("", "setGridVisible", 1, &gridVisibleVal);
   }
   catch(FabricCore::Exception e)
@@ -321,21 +321,21 @@ void GLViewportWidget::resetCamera()
   try
   {
     FabricCore::RTVal position[3];
-    position[0] = FabricCore::RTVal::ConstructFloat32(*m_client, 30.0f);
-    position[1] = FabricCore::RTVal::ConstructFloat32(*m_client, 20.0f);
-    position[2] = FabricCore::RTVal::ConstructFloat32(*m_client, 40.0f);
+    position[0] = FabricCore::RTVal::ConstructFloat32(m_client, 30.0f);
+    position[1] = FabricCore::RTVal::ConstructFloat32(m_client, 20.0f);
+    position[2] = FabricCore::RTVal::ConstructFloat32(m_client, 40.0f);
     
     FabricCore::RTVal target[3];
-    target[0] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
-    target[1] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
-    target[2] = FabricCore::RTVal::ConstructFloat32(*m_client, 0.0f);
+    target[0] = FabricCore::RTVal::ConstructFloat32(m_client, 0.0f);
+    target[1] = FabricCore::RTVal::ConstructFloat32(m_client, 0.0f);
+    target[2] = FabricCore::RTVal::ConstructFloat32(m_client, 0.0f);
     
     FabricCore::RTVal args[2];
-    args[0] = FabricCore::RTVal::Construct(*m_client, "Vec3", 3, position);
-    args[1] = FabricCore::RTVal::Construct(*m_client, "Vec3", 3, target);
+    args[0] = FabricCore::RTVal::Construct(m_client, "Vec3", 3, position);
+    args[1] = FabricCore::RTVal::Construct(m_client, "Vec3", 3, target);
 
     m_camera.callMethod("", "setFromPositionAndTarget", 2, args);
-    m_cameraManipulator = FabricCore::RTVal::Create(*m_client, "CameraManipulator", 1, &m_camera);
+    m_cameraManipulator = FabricCore::RTVal::Create(m_client, "CameraManipulator", 1, &m_camera);
   }
   catch(FabricCore::Exception e)
   {

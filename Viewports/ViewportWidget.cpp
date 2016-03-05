@@ -6,12 +6,12 @@
 
 using namespace FabricUI::Viewports;
 
-void ViewportWidget::init(FabricCore::Client *client, QColor bgColor, QSettings *settings) { 
+void ViewportWidget::init(FabricCore::Client client, QColor bgColor, QSettings *settings) { 
   m_settings = settings;
   m_client = client;
   m_bgColor = bgColor;
  
-  m_hasCommercialLicense = client->hasCommercialLicense();
+  m_hasCommercialLicense = client.hasCommercialLicense();
   setFocusPolicy(Qt::StrongFocus);
  
   m_fps = 0.0;
@@ -19,7 +19,7 @@ void ViewportWidget::init(FabricCore::Client *client, QColor bgColor, QSettings 
 }
 
 ViewportWidget::ViewportWidget(
-  FabricCore::Client *client, 
+  FabricCore::Client client, 
   QColor bgColor, 
   QGLContext *qglContext, 
   QWidget *parent, 
@@ -31,7 +31,7 @@ ViewportWidget::ViewportWidget(
 }
 
 ViewportWidget::ViewportWidget(
-  FabricCore::Client *client, 
+  FabricCore::Client client, 
   QColor bgColor, 
   QGLFormat format, 
   QWidget *parent, 
