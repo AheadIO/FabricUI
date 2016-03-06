@@ -15,20 +15,20 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    class SHCmdHandler_QUndo : public DFG::DFGUICmdHandler_QUndo
+    class SHDFGUICmdHandler_QUndo : public DFG::DFGUICmdHandler_QUndo
     {
       protected:
         class WrappedCmd;
 
       public:
         /// Default constructor
-        SHCmdHandler_QUndo() : DFG::DFGUICmdHandler_QUndo() {};
+        SHDFGUICmdHandler_QUndo() : DFG::DFGUICmdHandler_QUndo() {};
 
-        /// Constructs a new SHCmdHandler_QUndo.
+        /// Constructs a new SHDFGUICmdHandler_QUndo.
         /// \param qUndoStack A pointer to the Qt undo-redo stack
-        SHCmdHandler_QUndo(QUndoStack *qUndoStack) : DFG::DFGUICmdHandler_QUndo(qUndoStack) {};
+        SHDFGUICmdHandler_QUndo(QUndoStack *qUndoStack) : DFG::DFGUICmdHandler_QUndo(qUndoStack) {};
   
-        virtual ~SHCmdHandler_QUndo() {};
+        virtual ~SHDFGUICmdHandler_QUndo() {};
 
         // ***** Canvas *****
         /// Specialization of DFG::DFGUICmdHandler_QUndo

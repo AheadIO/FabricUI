@@ -23,6 +23,13 @@ SHGLScene::SHGLScene(Client *client, QString sceneName)
   }
 }
 
+SHGLScene::SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene) 
+  : m_client(client)
+{
+  m_shGLScene = shGLScene;
+}
+
+
 bool SHGLScene::getSHGLScene(RTVal &shGLScene) {
   shGLScene = m_shGLScene;
   return true;

@@ -3,11 +3,11 @@
 #ifndef _SHDFGCOMBINEDWIDGET_H_
 #define _SHDFGCOMBINEDWIDGET_H_
  
-#include <QtGui/QLineEdit>
-#include <FabricUI/Util/macros.h>
+#include <FabricUI/SceneHub/SHGLScene.h>
+#include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/DFG/DFGCombinedWidget.h>
 #include <FabricUI/ValueEditor/VEEditorOwner.h>
-#include <FabricUI/SceneHub/TreeView/SHTreeView.h>
+#include <FabricUI/SceneHub/TreeView/SHTreeViewWidget.h>
 
 using namespace FabricServices;
  
@@ -33,25 +33,10 @@ namespace FabricUI
         virtual void onNodeInspectRequested(FabricUI::GraphView::Node * node) { DFGCombinedWidget::onNodeInspectRequested(node); };
         virtual void onNodeEditRequested(FabricUI::GraphView::Node * node) { DFGCombinedWidget::onNodeEditRequested(node); };
         virtual void onAdditionalMenuActionsRequested(QString name, QMenu * menu, bool prefix) { DFGCombinedWidget::onAdditionalMenuActionsRequested(name, menu, prefix); }; 
-        /// Displays the treeView in the application.
-        /// \param initalExpandLevel The initial level of expension of the treeView.
-        void showTreeView(unsigned int initalExpandLevel);
-        /// Displays the treeView in the application.
-        /// Expands the whole treeView.  
-        void showTreeView();
-        /// Updates the application when an item of the treeView is selected.
-        /// \param item The selected item.
-        void treeItemSelected(FabricUI::SceneHub::SHTreeItem *item);
-        /// Updates the application when an item of the treeView is deselected.
-        /// \param item The deselected item.
-        void treeItemDeselected(FabricUI::SceneHub::SHTreeItem *item);
-        /// Calls when the SceneGraph hierachy changed.
-        void onSceneHierarchyChanged(); 
-        /// Calls when the SceneGraph hierachy changed.
+
         void refresh();   
 
-      signals :
-        void sceneHierarchyChanged();
+        void setScene();
 
       private slots:
         void onPortEditDialogCreated(FabricUI::DFG::DFGBaseDialog * dialog) { DFGCombinedWidget::onPortEditDialogCreated(dialog); }
@@ -64,9 +49,8 @@ namespace FabricUI
         virtual void initDocks();
         void addSceneHubAsPort();
         
-        SceneHub::SHTreeView *m_shTreeView;
-        QLineEdit *m_LineEdit;
-        QString m_shHostName;
+        SceneHub::SHGLScene *m_shGLScene;
+        SceneHub::SHTreeViewWidget *m_shTreeViewWidget;
     };
   }
 }

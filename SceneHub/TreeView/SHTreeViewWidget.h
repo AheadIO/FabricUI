@@ -22,14 +22,20 @@ namespace FabricUI
       public:
         SHTreeViewWidget(
           SHGLScene *shGLScene,
-          SHGLRenderer *shGLRenderer,
+          //SHGLRenderer *shGLRenderer,
           QWidget *parent = 0);
 
-        ~SHTreeViewWidget() {}
+        SHTreeViewWidget(
+          //SHGLScene *shGLScene,
+          //SHGLRenderer *shGLRenderer,
+          QWidget *parent = 0);
 
+        void init(SHGLScene *shGLScene);
+
+        ~SHTreeViewWidget() {}
+        
 
       public slots:
-        void resetTree();
         void expandTree(uint32_t level);
 
         /// Calls when the SceneGraph hierachy changed.
@@ -43,12 +49,14 @@ namespace FabricUI
         /// Updates the treeView from the 3D scene selection.
         void updateFrom3DSelection();
 
+
       signals:
         void sceneHierarchyChanged();
+        void updateScene();
  
       protected:
         SHGLScene *m_shGLScene;
-        SHGLRenderer *m_shGLRenderer;
+        //SHGLRenderer *m_shGLRenderer;
         SHTreeView *m_shTreeView;
         QComboBox *m_comboBox;
         bool m_bUpdatingSelectionFrom3D;

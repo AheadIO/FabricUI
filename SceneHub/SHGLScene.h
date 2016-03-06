@@ -14,7 +14,6 @@
 #include <FTL/OwnedPtr.h>
 #include <FTL/JSONValue.h>
 
-
 namespace FabricUI
 {
   namespace SceneHub
@@ -23,6 +22,8 @@ namespace FabricUI
 
       public:
         SHGLScene(FabricCore::Client *client, QString sceneName);
+
+        SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene);
 
         ~SHGLScene() {}
         

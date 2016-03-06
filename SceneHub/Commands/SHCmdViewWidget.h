@@ -11,7 +11,7 @@
 #include <QtGui/QLineEdit>
 
 #include <FabricUI/Util/macros.h>
-#include "SHCmdHandler_QUndo.h"
+#include "SHDFGUICmdHandler_QUndo.h"
 #include <FabricUI/SceneHub/SHGLScene.h>
 
 namespace FabricUI
@@ -49,7 +49,7 @@ namespace FabricUI
         /// View displaying an history of the commands
         QUndoView *m_qUndoView;
         /// Reference to the SHCmdHandler.
-        SHCmdHandler_QUndo m_shCmdHandler;
+        SHDFGUICmdHandler_QUndo m_shCmdHandler;
         SceneHub::SHGLScene *m_shGLScene;
    
     };

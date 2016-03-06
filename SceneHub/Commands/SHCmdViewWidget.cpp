@@ -19,7 +19,7 @@ using namespace FabricUI::SceneHub;
 SHCmdViewWidget::SHCmdViewWidget(SHGLScene *shGLScene, QUndoStack *qUndoStack) 
   : m_shGLScene(shGLScene)
 {
-  m_shCmdHandler = FabricUI::SceneHub::SHCmdHandler_QUndo(qUndoStack);
+  m_shCmdHandler = FabricUI::SceneHub::SHDFGUICmdHandler_QUndo(qUndoStack);
 
   m_qUndoView = new QUndoView(m_shCmdHandler.getStack());
   m_qUndoView->setEmptyLabel("addObjectCmd(root, true)");
