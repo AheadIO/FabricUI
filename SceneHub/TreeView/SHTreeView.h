@@ -70,7 +70,7 @@ namespace FabricUI
         /// Reference to the client -> construct RTVal.
         FabricCore::Client m_client;
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_SHTREEVIEW_H__

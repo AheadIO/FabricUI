@@ -2,38 +2,30 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#ifndef __UI_SCENEHUB_RTRGLVIEWPORTWIDGET_H__
-#define __UI_SCENEHUB_RTRGLVIEWPORTWIDGET_H__
+#ifndef __UI_SCENEHUB_RTR_GLVIEWPORT_WIDGET_H__
+#define __UI_SCENEHUB_RTR_GLVIEWPORT_WIDGET_H__
 
-#include <QtCore/QTime>
-#include <QtCore/QtCore>
+
 #include <QtGui/QDrag>
-#include <QtGui/QImage>
-#include <QtGui/QDialog>
-#include <QtGui/QMenuBar>
-#include <QtGui/QTextEdit>
+#include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
-#include <QtGui/QMainWindow>
+#include <QtGui/QWheelEvent>
 #include <QtOpenGL/QGLWidget>
-#include <FabricCore.h>
+#include <FabricUI/SceneHub/SHGLScene.h>
 #include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/Viewports/ViewportWidget.h>
-#include <FabricUI/SceneHub/Managers/SGLightManagerDialog.h>
-#include <FabricUI/SceneHub/Managers/SGGeometryManagerDialog.h>
-#include <FabricUI/SceneHub/Commands/SHCmdView.h>
-
 
 namespace FabricUI
 {
   namespace Viewports
   {
     class RTRGLViewportWidget : public ViewportWidget {
-      Q_OBJECT
+    
+    Q_OBJECT
 
     public:
       RTRGLViewportWidget(
-        FabricCore::Client,
-        FabricCore::RTVal,
+        SceneHub::SHGLScene *shGLScene,
         SceneHub::SHGLRenderer *shGLRenderer,
         int,
         QGLContext*,
@@ -63,37 +55,20 @@ namespace FabricUI
         void manipsAcceptedEvent(bool);
         void synchronizeCommands();
 
-
-      public slots:
-        virtual void onContextMenu(const QPoint &point);
-        void editObjectColor();
-        void editLocalObjectColor();
-
-        void addLight();
-        void addArchive();
-        void addTexture();
-        void editLightProperties();
-
-
       private:
-        void constuctAddMenu();
-        void constuctLightMenu();
         bool onEvent(QEvent *event);
-        void editObjectColor( bool local );
-        void addExternalFile(QStringList, QPoint, bool);
-        void constuctGeometryMenu(std::string category);
 
-
-      protected:
         virtual void paintGL();
         virtual void resizeGL(int w, int h);
 
-        virtual void wheelEvent(QWheelEvent *event);
-        virtual void keyPressEvent(QKeyEvent *event);
-        virtual void keyReleaseEvent(QKeyEvent *event);
-        virtual void mouseMoveEvent(QMouseEvent *event);
+        virtual void enterEvent(QEvent * event);
+        virtual void leaveEvent(QEvent * event);
+        virtual void wheelEvent(QWheelEvent *event) { onEvent(event); }
+        virtual void keyPressEvent(QKeyEvent *event) { onEvent(event); }
+        virtual void keyReleaseEvent(QKeyEvent *event) { onEvent(event); }
+        virtual void mouseMoveEvent(QMouseEvent *event) { onEvent(event); }
         virtual void mousePressEvent(QMouseEvent *event);
-        virtual void mouseReleaseEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *event) { onEvent(event); emit synchronizeCommands(); }
 
         virtual void dropEvent(QDropEvent *event);
         virtual void dragMoveEvent(QDragMoveEvent *event);
@@ -105,18 +80,14 @@ namespace FabricUI
         int m_viewportIndex;
         bool m_alwaysRefresh;
         bool m_orthographic;
+        uint32_t m_width;
+        uint32_t m_height;
+        uint32_t m_samples;
 
-        FabricCore::RTVal m_width;
-        FabricCore::RTVal m_height;
-        FabricCore::RTVal m_samples;
-        FabricCore::RTVal m_shObject;
-        FabricCore::RTVal m_viewportIndexRTVal;
-
-        SceneHub::SGLightManagerDialog *m_lightDialog;
-        SceneHub::SGBaseManagerDialog *m_geometryDialog;
+        SceneHub::SHGLScene *m_shGLScene;
         SceneHub::SHGLRenderer *m_shGLRenderer;
     };
   }
 }
 
-#endif // __UI_SCENEHUB_RTRGLVIEWPORTWIDGET_H__
+#endif // __UI_SCENEHUB_RTR_GLVIEWPORT_WIDGET_H__

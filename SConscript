@@ -120,7 +120,7 @@ dirs = [
  
   'SceneHub',
   'SceneHub/DFG',
-  'SceneHub/Managers',
+  'SceneHub/Editors',
   'SceneHub/TreeView',
   'SceneHub/Viewports',
   'SceneHub/Commands',

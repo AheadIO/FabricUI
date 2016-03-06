@@ -5,9 +5,9 @@
 #ifndef __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
 #define __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
 
+#include "SHCmd.h"
 #include <QtGui/QUndoStack>
 #include <FabricUI/Util/macros.h>
-#include <FabricUI/SceneHub/Commands/SHCmd.h>
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
 
@@ -290,8 +290,8 @@ namespace FabricUI
         /// \param cmd The command
         bool addCommand(SHCmd *cmd);
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_CMDHANDLER_QUNDO_H__
 

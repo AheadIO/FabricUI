@@ -11,7 +11,6 @@
 #include <QtGui/QMouseEvent>
 #include <FabricCore.h>
  
-
 namespace FabricUI
 {
   namespace SceneHub
@@ -19,9 +18,22 @@ namespace FabricUI
     class SHGLRenderer {
 
       public:
-        SHGLRenderer(FabricCore::Client client) : m_client(client) {}
+        SHGLRenderer(FabricCore::Client *client) : m_client(client) {}
 
         ~SHGLRenderer() {}
+        
+        /// Gets the drawing statistics.
+        /// \param viewportID The viewport ID.
+        /// \param obj the total number of renderer objects
+        /// \param point the total number of renderer points
+        /// \param line the total number of renderer lines
+        /// \param triangle the total number of renderer triangless
+        void SHGLRenderer::getDrawStats(
+          uint32_t viewportID, 
+          uint32_t &obj, 
+          uint32_t &point, 
+          uint32_t &line, 
+          uint32_t &triangle);
         
         /// Fast getter to the viewport at this viewportID.
         /// \param viewportID The viewport ID.
@@ -43,12 +55,28 @@ namespace FabricUI
         /// \param viewportID The viewport ID.
         void setOrthographicViewport(uint32_t viewportID, bool orthographic);
         
+        /// Gets the viewport camera.
+        /// \param viewportID The viewport ID.
+        FabricCore::RTVal getCamera(uint32_t viewportID);
+        
+        /// Casts a ray from a Viewport and a position in camera space.
+        /// \param viewportID The ID of the viewport.
+        /// \param pos The mouse's position in the viewport
+        FabricCore::RTVal castRay(uint32_t viewportID, float pos[2]);
+
+        /// This helper method will raycast in the scene. 
+        // If no result is found, it will intersect with the Y = 0 plane. 
+        // If this is outside the near/far camera range, it will return the origin.
+        // \param viewportID The ID of the viewport.
+        // \param pos The mouse's position in the viewport
+        void get3DScenePosFrom2DScreenPos(uint32_t viewportID, float pos[2], float *pos3D);
+
         /// Activates the playback.
         /// \param playback It true, playback.
         void setPlayback(bool playback);
         
         /// Checks if the playback is active.
-        bool SHGLRenderer::isPlayback(bool playback);
+        bool isPlayback(bool playback);
         
         /// Renders within this viewport.
         /// \param viewportID The viewport ID.
@@ -73,7 +101,11 @@ namespace FabricUI
           uint32_t height,
           uint32_t samples,
           uint32_t drawPhase);
-       
+        
+        /// Propagates the events.
+        /// \param event The event.
+        bool onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports);
+      
         /// Gets the names and the keys of the registered tools.
         /// \param toolNames Name of the registered tools.
         /// \param enableKeys Key of the registered tools.
@@ -81,10 +113,6 @@ namespace FabricUI
         
         /// Returns the selection set if any.
         FabricCore::RTVal getSelectionSet();
-        
-        /// Propagates the events.
-        /// \param event The event.
-        bool onEvent(FabricCore::RTVal event);
         
         /// Checks if the selection changed from the manipulation system.
         /// Synchronizes with the tree-view.
@@ -96,13 +124,12 @@ namespace FabricUI
         QString getSelectionCategory();
 
 
-      protected:
+      private:
         /// \internal
-        FabricCore::Client m_client;    
+        FabricCore::Client *m_client;    
         /// \internal
         FabricCore::RTVal getSHGLRenderer();
     };
-
   }
 }
 

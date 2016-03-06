@@ -5,9 +5,9 @@
 #ifndef __UI_SCENEHUB_CMD_H__
 #define __UI_SCENEHUB_CMD_H__
 
-
 #include <QtGui/QUndoCommand>
-#include <FabricUI/Util/macros.h>
+#include <FabricUI/Util/StringUtils.h>
+#include <FabricUI/SceneHub/SHGLScene.h>
 
 namespace FabricUI
 {
@@ -16,17 +16,6 @@ namespace FabricUI
     class SHCmd
     {
       public:
-        /// Encodes a rtVal into a Json, saves the rtVal
-        /// \param client The core client
-        /// \param rtVal The value to encode
-        static std::string EncodeRTValToJSON(FabricCore::Client const& client, FabricCore::RTVal const& rtVal);
-
-        /// Decodes a rtVal from a Json, reads the rtVal
-        /// \param client The core client
-        /// \param rtVal The result value
-        /// \param json The string to decode
-        static void DecodeRTValFromJSON(FabricCore::Client const& client, FabricCore::RTVal &rtVal, FTL::CStrRef json); 
-        
         /// Extracts the name of a command.
         /// \param command The command
         /// \param name The command's name
@@ -37,31 +26,16 @@ namespace FabricUI
         /// \param params The array of parameters as string
         static bool ExtractParams(const std::string &command, std::vector<std::string> &params);
 
-        /// From the parameter type and its value, creates 
-        /// \param client The core client
-        /// \param type The parameter type
-        /// \param value The parameter value JSon encoded
-        static FabricCore::RTVal SetParamValue(FabricCore::Client const& client, std::string const& type, std::string const& value);
-
-        /// Gets the command manager.
-        /// \param shObject A reference to SceneHub application
-        static FabricCore::RTVal GetCmdManager(FabricCore::RTVal &shObject);
-
-        /// Gets the command at index i of KL stack.
-        /// \param client A reference to the fabric client
-        /// \param shObject A reference to SceneHub application
-        /// \param index The name of the object
-        static FabricCore::RTVal RetrieveCmd(FabricCore::Client &client, FabricCore::RTVal &shObject, uint32_t index);
-
         /// Constructs and executes a command.
-        /// \param shObject A reference to SceneHub application
+        /// \param shGLScene A reference to shGLScene
         /// \param cmdName The name of the command
         /// \param cmdDes The command desciprtion
         /// \param params The command parameters
         /// \param exec If true executes the command, just add it to the Qt stack otherwise
-        SHCmd(FabricCore::RTVal &shObject,
-          const std::string &cmdName, 
-          const std::string &cmdDes, 
+        SHCmd(
+          SHGLScene *shGLScene,
+          std::string cmdName, 
+          std::string cmdDes, 
           std::vector<FabricCore::RTVal> &params, 
           bool exec = true);
 
@@ -79,9 +53,7 @@ namespace FabricUI
         /// Sets the command decription (here the command itself).
         /// \param desc The description
         void setDesc(std::string desc) {m_desc = desc;};
-
-        /// Gets a reference to the sceneHub application. 
-        FabricCore::RTVal& getRefOnSCeneHub() { return m_shObject; }
+ 
 
       protected:
         /// Checks if the command has been already applied.
@@ -100,10 +72,9 @@ namespace FabricUI
         unsigned m_coreUndoCount;
 
         /// \internal
-        /// Refenrece to the sceneHub applcaiton.
-        FabricCore::RTVal m_shObject;
+        SHGLScene *m_shGLScene;
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_CMD_H__

@@ -6,33 +6,29 @@
 #define __UI_SCENEHUB_CMDVIEW_H__
 
 #include <QtGui/QWidget>
+#include <QtGui/QKeyEvent>
 #include <QtGui/QUndoView>
 #include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QPlainTextEdit>
 
 #include <FabricUI/Util/macros.h>
-#include <FabricUI/SceneHub/Commands/SHCmdHandler_QUndo.h>
-
+#include "SHCmdHandler_QUndo.h"
+#include <FabricUI/SceneHub/SHGLScene.h>
 
 namespace FabricUI
 {
   namespace SceneHub
   {
-    class SHCmdView : public QWidget
+    class SHCmdViewWidget : public QWidget
     {
       Q_OBJECT
 
       public:
         /// Constructs a new SHCmdWidget.
-        /// \param client A reference to the fabric client
         /// \param shObject A reference to SceneHub application
         /// \param qUndoStack A pointer to the Qt undo-redo stack
-        SHCmdView(FabricCore::Client &client, FabricCore::RTVal &shObject, QUndoStack *QUndoStack);
+        SHCmdViewWidget(SHGLScene *shGLScene, QUndoStack *QUndoStack);
 
-        virtual ~SHCmdView() {};
+        virtual ~SHCmdViewWidget() {};
  
       public slots:
         /// Gets the "Return/Enter" key event, validate the command.
@@ -54,12 +50,10 @@ namespace FabricUI
         QUndoView *m_qUndoView;
         /// Reference to the SHCmdHandler.
         SHCmdHandler_QUndo m_shCmdHandler;
-        /// Reference to the client --> construct RTVal.
-        FabricCore::Client m_client;
-        /// Reference to the SceneHub app.
-        FabricCore::RTVal m_shObject;
+        SceneHub::SHGLScene *m_shGLScene;
+   
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_CMDVIEW_H__

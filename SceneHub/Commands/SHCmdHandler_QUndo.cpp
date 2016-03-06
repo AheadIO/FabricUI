@@ -727,9 +727,10 @@ void SHCmdHandler_QUndo::dfgDoSplitFromPreset(
 /// Adds an object to the scene-graph
 /// \param command The command as string
 bool SHCmdHandler_QUndo::addCommand(SHCmd *cmd) {
-  if(cmd) {
+  if(cmd) 
+  {
     // Clears the kl undo stack --> synchronize Qt and K stacks
-    SHCmd::GetCmdManager(cmd->getRefOnSCeneHub()).callMethod("", "clearRedoStack", 0, 0);
+    //SHCmd::GetCmdManager(cmd->getRefOnSCeneHub()).callMethod("", "clearRedoStack", 0, 0);
     m_qUndoStack->push( new WrappedCmd(cmd) );
     return true;
   }

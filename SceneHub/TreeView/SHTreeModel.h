@@ -216,7 +216,7 @@ namespace FabricUI
       uint32_t m_sceneHierarchyChangedBlockCount;
       bool m_sceneHierarchyChangedPending;
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_SHTREEMODEL_H__

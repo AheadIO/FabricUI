@@ -23,7 +23,7 @@ namespace FabricUI
 
     public:
 
-    	GLViewportWidget(FabricCore::Client client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
+    	GLViewportWidget(FabricCore::Client *client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
       
       virtual void setBackgroundColor(QColor color);

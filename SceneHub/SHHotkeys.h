@@ -9,8 +9,8 @@ namespace FabricUI
 {
   namespace SceneHub
   {
-    #define SH_ASSETS_LIBRARY       "assets"
-    #define SH_IMAGES_LIBRARY       "images"
+    #define SH_ASSETS_LIBRARY "assets"
+    #define SH_IMAGES_LIBRARY "images"
   };
 };
 

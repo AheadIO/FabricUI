@@ -146,7 +146,7 @@ namespace FabricUI
       QModelIndex m_index;
       QString m_name;
     };
-  };
-};
+  }
+}
 
 #endif // __UI_SCENEHUB_SHTREEITEM_H__

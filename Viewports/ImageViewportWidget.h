@@ -20,7 +20,7 @@ namespace FabricUI
 
     public:
 
-    	ImageViewportWidget(FabricCore::Client client, QString argumentName, QWidget *parent = NULL);
+    	ImageViewportWidget(FabricCore::Client *client, QString argumentName, QWidget *parent = NULL);
     	virtual ~ImageViewportWidget();
 
       void setBinding(FabricCore::DFGBinding binding);
@@ -40,7 +40,7 @@ namespace FabricUI
 
       int m_width;
       int m_height;
-      FabricCore::Client m_client;
+      FabricCore::Client *m_client;
       QString m_argumentName;
       FabricCore::RTVal m_imageSeq;
       FabricCore::RTVal m_workData;
