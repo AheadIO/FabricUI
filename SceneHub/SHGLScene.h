@@ -154,7 +154,6 @@ namespace FabricUI
         
       private:
         /// Encodes a rtVal into a Json, saves the rtVal
-        /// \param client The core client
         /// \param rtVal The value to encode
         std::string EncodeRTValToJSON(FabricCore::Client client, FabricCore::RTVal rtVal);
 
@@ -163,7 +162,7 @@ namespace FabricUI
         /// \param rtVal The result value
         /// \param json The string to decode
         void DecodeRTValFromJSON(FabricCore::Client client, FabricCore::RTVal &rtVal, FTL::CStrRef json); 
-      
+       
       
         /// \internal
         FabricCore::Client *m_client;    

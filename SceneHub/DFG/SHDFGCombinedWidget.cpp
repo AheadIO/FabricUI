@@ -18,7 +18,10 @@ using namespace FabricUI::DFG;
 
 void SHDFGCombinedWidget::initTreeView() {
   DFGCombinedWidget::initTreeView(); 
-  m_shTreeViewWidget = new SceneHub::SHTreeViewWidget(this);
+  m_shTreeViewWidget = new SceneHub::SHTreeViewWidget(
+    m_client,
+    m_dfgWidget->getUIController(),
+    this);
   QObject::connect(m_shTreeViewWidget, SIGNAL(updateScene()), this, SIGNAL(setScene()));
 }
 
@@ -38,8 +41,8 @@ void SHDFGCombinedWidget::setScene() {
   QString sceneName = "TRUX";//m_LineEdit->text();
   if(exec.hasVar(sceneName.toUtf8())) 
   {
-    if(m_shGLScene) delete m_shGLScene;
-    m_shGLScene = new SceneHub::SHGLScene(&m_client, exec.getVarValue(sceneName.toUtf8()));
-    m_shTreeViewWidget->init(m_shGLScene);
+    //if(m_shGLScene) delete m_shGLScene;
+    //m_shGLScene = new SceneHub::SHGLScene(&m_client, exec.getVarValue(sceneName.toUtf8()));
+    //m_shTreeViewWidget->init(m_shGLScene);
   }
 }

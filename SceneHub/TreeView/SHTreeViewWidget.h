@@ -7,6 +7,8 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QComboBox>
+#include <QtGui/QPushButton.h>
+#include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/SceneHub/SHGLScene.h>
 #include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/SceneHub/TreeView/SHTreeView.h>
@@ -21,23 +23,33 @@ namespace FabricUI
 
       public:
         SHTreeViewWidget(
-          SHGLScene *shGLScene,
-          //SHGLRenderer *shGLRenderer,
+          FabricCore::Client client,
+          SHGLScene *shGLScene, 
+          FabricUI::DFG::DFGController *controller,
           QWidget *parent = 0);
 
         SHTreeViewWidget(
-          //SHGLScene *shGLScene,
-          //SHGLRenderer *shGLRenderer,
+          FabricCore::Client client,
+          FabricUI::DFG::DFGController *controller,
           QWidget *parent = 0);
 
-        void init(SHGLScene *shGLScene);
-
         ~SHTreeViewWidget() {}
+
+        void init(FabricCore::Client client);
+
+        void setScene(SHGLScene *shGLScene);
+
+        void setMainScene(SHGLScene *shGLScene);
+
         
 
       public slots:
-        void expandTree(uint32_t level);
+        void onSetScene(const QString &sceneName);
 
+        void onUpdateSceneList();
+
+        void expandTree(uint32_t level);
+        /// Calls when the SceneGraph hierachy changed.
         /// Calls when the SceneGraph hierachy changed.
         void onSceneHierarchyChanged();
         /// Updates the application when an item of the treeView is selected.
@@ -52,14 +64,17 @@ namespace FabricUI
 
       signals:
         void sceneHierarchyChanged();
-        void updateScene();
  
+
       protected:
         SHGLScene *m_shGLScene;
-        //SHGLRenderer *m_shGLRenderer;
+        SHGLScene *m_mainSHGLScene;
+        FabricUI::DFG::DFGController *m_controller;
         SHTreeView *m_shTreeView;
+        QPushButton *m_refreshButton;
         QComboBox *m_comboBox;
         bool m_bUpdatingSelectionFrom3D;
+        FabricCore::Client m_client;
 
     };
   }

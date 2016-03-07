@@ -29,7 +29,6 @@ SHGLScene::SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene)
   m_shGLScene = shGLScene;
 }
 
-
 bool SHGLScene::getSHGLScene(RTVal &shGLScene) {
   shGLScene = m_shGLScene;
   return true;
@@ -547,10 +546,8 @@ void SHGLScene::redoCmd(uint32_t redoCount) {
   }
 }
 
+
 // ****************
-/// Encodes a rtVal into a Json, saves the rtVal
-/// \param client The core client
-/// \param rtVal The value to encode
 std::string SHGLScene::EncodeRTValToJSON(FabricCore::Client client, FabricCore::RTVal rtVal) {
   if(rtVal.isValid())
   {
@@ -586,10 +583,6 @@ std::string SHGLScene::EncodeRTValToJSON(FabricCore::Client client, FabricCore::
   return valueJSON.getStringCString();
 }
 
-/// Decodes a rtVal from a Json, reads the rtVal
-/// \param client The core client
-/// \param rtVal The result value
-/// \param json The string to decode
 void SHGLScene::DecodeRTValFromJSON(FabricCore::Client client, FabricCore::RTVal & rtVal, FTL::CStrRef json) {
 
   if(json.size() > 2)
