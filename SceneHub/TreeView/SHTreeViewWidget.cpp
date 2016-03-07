@@ -39,6 +39,8 @@ void SHTreeViewWidget::init(SHGLScene *shGLScene) {
   m_bUpdatingSelectionFrom3D = false;
   m_comboBox = new QComboBox();//"graph");
   m_shTreeView = new FabricUI::SceneHub::SHTreeView(m_shGLScene->getClient());
+  QObject::connect( m_shTreeView, SIGNAL( itemSelected( FabricUI::SceneHub::SHTreeItem * ) ), this, SLOT( treeItemSelected( FabricUI::SceneHub::SHTreeItem * ) ) );
+  QObject::connect( m_shTreeView, SIGNAL( itemDeselected( FabricUI::SceneHub::SHTreeItem * ) ), this, SLOT( treeItemDeselected( FabricUI::SceneHub::SHTreeItem * ) ) );
 
   //setScene(shGLScene);
   QLayout *layout = new QVBoxLayout();
@@ -82,9 +84,9 @@ void SHTreeViewWidget::treeItemSelected(FabricUI::SceneHub::SHTreeItem *item) {
   {
     if(m_shTreeView)
     {
-      if(!m_bUpdatingSelectionFrom3D) 
+      if( !m_bUpdatingSelectionFrom3D )
       {
-        m_shGLScene->treeItemSelected(item->getSGObject()); 
+        m_shGLScene->treeItemSelected( item->getSGObject() );
         emit sceneHierarchyChanged();
       }
     }
