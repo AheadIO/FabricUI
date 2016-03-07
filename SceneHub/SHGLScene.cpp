@@ -9,12 +9,12 @@ using namespace FabricCore;
 using namespace FabricUI::SceneHub;
 
 
-SHGLScene::SHGLScene(Client *client, QString sceneName) 
+SHGLScene::SHGLScene(Client client, QString sceneName) 
   : m_client(client) 
 {
   try 
   {
-    m_shGLScene = RTVal::Create(*client, sceneName.toUtf8().constData(), 0, 0);
+    m_shGLScene = RTVal::Create(client, sceneName.toUtf8().constData(), 0, 0);
     m_shGLScene.callMethod("", "initializeSceneAndRTR", 0, 0);
   }
   catch(Exception e)
@@ -23,7 +23,7 @@ SHGLScene::SHGLScene(Client *client, QString sceneName)
   }
 }
 
-SHGLScene::SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene) 
+SHGLScene::SHGLScene(FabricCore::Client client, FabricCore::RTVal shGLScene) 
   : m_client(client)
 {
   m_shGLScene = shGLScene;

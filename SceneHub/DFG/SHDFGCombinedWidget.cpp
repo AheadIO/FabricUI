@@ -39,7 +39,7 @@ void SHDFGCombinedWidget::setScene() {
   if(exec.hasVar(sceneName.toUtf8())) 
   {
     if(m_shGLScene) delete m_shGLScene;
-    m_shGLScene = new SceneHub::SHGLScene(&m_client, exec.getVarValue(sceneName.toUtf8()));
+    m_shGLScene = new SceneHub::SHGLScene(m_client, exec.getVarValue(sceneName.toUtf8()));
     m_shTreeViewWidget->init(m_shGLScene);
   }
 }

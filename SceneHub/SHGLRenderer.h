@@ -18,7 +18,7 @@ namespace FabricUI
     class SHGLRenderer {
 
       public:
-        SHGLRenderer(FabricCore::Client *client) : m_client(client) {}
+        SHGLRenderer(FabricCore::Client client) : m_client(client) {}
 
         ~SHGLRenderer() {}
         
@@ -126,9 +126,11 @@ namespace FabricUI
 
       private:
         /// \internal
-        FabricCore::Client *m_client;    
+        FabricCore::Client m_client;    
         /// \internal
         FabricCore::RTVal getSHGLRenderer();
+        /// \internal
+        FabricCore::RTVal m_shGLRendererVal;
     };
   }
 }

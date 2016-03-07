@@ -21,14 +21,14 @@ namespace FabricUI
     class SHGLScene {
 
       public:
-        SHGLScene(FabricCore::Client *client, QString sceneName);
+        SHGLScene(FabricCore::Client client, QString sceneName);
 
-        SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene);
+        SHGLScene(FabricCore::Client client, FabricCore::RTVal shGLScene);
 
         ~SHGLScene() {}
         
         /// Gets the client.
-        FabricCore::Client getClient() { return *m_client; };
+        FabricCore::Client getClient() { return m_client; };
 
         /// Gets a reference to the scenegraph.
         bool getSHGLScene(FabricCore::RTVal &shGLScene);
@@ -166,7 +166,7 @@ namespace FabricUI
       
       
         /// \internal
-        FabricCore::Client *m_client;    
+        FabricCore::Client m_client;    
         /// \internal
         FabricCore::RTVal m_shGLScene;
         // \internal

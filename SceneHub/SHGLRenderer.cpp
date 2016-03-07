@@ -10,17 +10,18 @@ using namespace FabricUI::SceneHub;
 
  
 RTVal SHGLRenderer::getSHGLRenderer() {
-  RTVal shGLRendererVal;
   try 
   {
-    shGLRendererVal = RTVal::Construct(*m_client, "SHBaseRenderer", 0, 0);
-    shGLRendererVal = shGLRendererVal.callMethod("SHRenderer_Virtual", "get", 0, 0);
+    if( !m_shGLRendererVal.isValid() || m_shGLRendererVal.isNullObject() ) {
+      RTVal dummyGLRendererVal = RTVal::Construct( m_client, "SHBaseRenderer", 0, 0 );
+      m_shGLRendererVal = dummyGLRendererVal.callMethod( "SHRenderer_Virtual", "get", 0, 0 );
+    }
   }
   catch(Exception e)
   {
     printf("SHGLRenderer::getSHGLRenderer: exception: %s\n", e.getDesc_cstr());
   }
-  return shGLRendererVal;
+  return m_shGLRendererVal;
 }
 
 void SHGLRenderer::getDrawStats(
@@ -33,11 +34,11 @@ void SHGLRenderer::getDrawStats(
   try 
   {
     RTVal args[5] = {
-      RTVal::ConstructUInt32(*m_client, viewportID), 
-      RTVal::ConstructUInt32(*m_client, 0),
-      RTVal::ConstructUInt32(*m_client, 0),
-      RTVal::ConstructUInt32(*m_client, 0),
-      RTVal::ConstructUInt32(*m_client, 0)
+      RTVal::ConstructUInt32(m_client, viewportID), 
+      RTVal::ConstructUInt32(m_client, 0),
+      RTVal::ConstructUInt32(m_client, 0),
+      RTVal::ConstructUInt32(m_client, 0),
+      RTVal::ConstructUInt32(m_client, 0)
     };
     getSHGLRenderer().callMethod("Boolean", "getDrawStats", 5, &args[0]);
     obj = args[1].getUInt32();
@@ -55,7 +56,7 @@ RTVal SHGLRenderer::getOrAddViewport(uint32_t viewportID) {
   RTVal viewportVal;
   try 
   {
-    RTVal arg = RTVal::ConstructUInt32(*m_client, viewportID);
+    RTVal arg = RTVal::ConstructUInt32(m_client, viewportID);
     viewportVal = getSHGLRenderer().callMethod("BaseRTRViewport", "getOrAddViewport", 1, &arg);
   }
   catch(Exception e)
@@ -69,7 +70,7 @@ RTVal SHGLRenderer::getOrAddStereoViewport(uint32_t viewportID) {
   RTVal viewportVal;
   try 
   {
-    RTVal arg = RTVal::ConstructUInt32(*m_client, viewportID);
+    RTVal arg = RTVal::ConstructUInt32(m_client, viewportID);
     viewportVal = getSHGLRenderer().callMethod("BaseRTRViewport", "getOrAddStereoViewport", 1, &arg);
   }
   catch(Exception e)
@@ -82,8 +83,11 @@ RTVal SHGLRenderer::getOrAddStereoViewport(uint32_t viewportID) {
 void SHGLRenderer::removeViewport(uint32_t viewportID) {
   try 
   {
-    RTVal arg = RTVal::ConstructUInt32(*m_client, viewportID);
-    getSHGLRenderer().callMethod("BaseRTRViewport", "removeViewport", 1, &arg);
+    RTVal glRenderer = getSHGLRenderer();
+    if( glRenderer.isValid() && !glRenderer.isNullObject() ) {
+      RTVal arg = RTVal::ConstructUInt32( m_client, viewportID );
+      getSHGLRenderer().callMethod( "BaseRTRViewport", "removeViewport", 1, &arg );
+    }
   }
   catch(Exception e)
   {
@@ -95,8 +99,8 @@ void SHGLRenderer::setOrthographicViewport(uint32_t viewportID, bool orthographi
   try 
   {
     RTVal args[2] = {
-      RTVal::ConstructUInt32(*m_client, viewportID),
-      RTVal::ConstructBoolean(*m_client, orthographic)
+      RTVal::ConstructUInt32(m_client, viewportID),
+      RTVal::ConstructBoolean(m_client, orthographic)
     };
     getSHGLRenderer().callMethod("", "setOrthographicViewport", 2, &args[0]);
   }
@@ -123,7 +127,7 @@ RTVal SHGLRenderer::getCamera(uint32_t viewportID) {
 void SHGLRenderer::setPlayback(bool playback) {
   try 
   {
-    RTVal arg = RTVal::ConstructBoolean(*m_client, playback);
+    RTVal arg = RTVal::ConstructBoolean(m_client, playback);
     getSHGLRenderer().callMethod("", "setPlayback", 1, &arg);
   }
   catch(Exception e)
@@ -148,11 +152,11 @@ FabricCore::RTVal SHGLRenderer::castRay(uint32_t viewportID, float pos[2]) {
   RTVal rayVal;
   try 
   {
-    RTVal posVal = RTVal::Construct(*m_client, "Vec2", 0, 0);
-    posVal.setMember("x", RTVal::ConstructFloat32(*m_client, pos[0]));
-    posVal.setMember("y", RTVal::ConstructFloat32(*m_client, pos[1]));
+    RTVal posVal = RTVal::Construct(m_client, "Vec2", 0, 0);
+    posVal.setMember("x", RTVal::ConstructFloat32(m_client, pos[0]));
+    posVal.setMember("y", RTVal::ConstructFloat32(m_client, pos[1]));
     RTVal args[2] = {
-      RTVal::ConstructUInt32(*m_client, viewportID),
+      RTVal::ConstructUInt32(m_client, viewportID),
       posVal
     };
     rayVal = getSHGLRenderer().callMethod("Ray", "castRay", 2, &args[0]);
@@ -167,11 +171,11 @@ FabricCore::RTVal SHGLRenderer::castRay(uint32_t viewportID, float pos[2]) {
 void SHGLRenderer::get3DScenePosFrom2DScreenPos(uint32_t viewportID, float pos[2], float *pos3D) {
   try 
   {
-    RTVal posVal = RTVal::Construct(*m_client, "Vec2", 0, 0);
-    posVal.setMember("x", RTVal::ConstructFloat32(*m_client, pos[0]));
-    posVal.setMember("y", RTVal::ConstructFloat32(*m_client, pos[1]));
+    RTVal posVal = RTVal::Construct(m_client, "Vec2", 0, 0);
+    posVal.setMember("x", RTVal::ConstructFloat32(m_client, pos[0]));
+    posVal.setMember("y", RTVal::ConstructFloat32(m_client, pos[1]));
     RTVal args[2] = {
-      RTVal::ConstructUInt32(*m_client, viewportID),
+      RTVal::ConstructUInt32(m_client, viewportID),
       posVal
     };
     RTVal pos3DVal = getSHGLRenderer().callMethod("Vec3", "get3DScenePosFrom2DScreenPos", 2, &args[0]);
@@ -189,10 +193,10 @@ void SHGLRenderer::render(uint32_t viewportID, uint32_t width, uint32_t height, 
   try 
   {
     RTVal args[4] = {
-      RTVal::ConstructUInt32(*m_client, viewportID),
-      RTVal::ConstructUInt32(*m_client, width),
-      RTVal::ConstructUInt32(*m_client, height),
-      RTVal::ConstructUInt32(*m_client, samples)
+      RTVal::ConstructUInt32(m_client, viewportID),
+      RTVal::ConstructUInt32(m_client, width),
+      RTVal::ConstructUInt32(m_client, height),
+      RTVal::ConstructUInt32(m_client, samples)
     };
     getSHGLRenderer().callMethod("", "render", 4, &args[0]);
   }
@@ -206,11 +210,11 @@ void SHGLRenderer::render(uint32_t viewportID, uint32_t width, uint32_t height, 
   try 
   {
     RTVal args[5] = {
-      RTVal::ConstructUInt32(*m_client, viewportID),
-      RTVal::ConstructUInt32(*m_client, width),
-      RTVal::ConstructUInt32(*m_client, height),
-      RTVal::ConstructUInt32(*m_client, samples),
-      RTVal::ConstructUInt32(*m_client, drawPhase)
+      RTVal::ConstructUInt32(m_client, viewportID),
+      RTVal::ConstructUInt32(m_client, width),
+      RTVal::ConstructUInt32(m_client, height),
+      RTVal::ConstructUInt32(m_client, samples),
+      RTVal::ConstructUInt32(m_client, drawPhase)
     };
     getSHGLRenderer().callMethod("", "render", 5, &args[0]);
   }
@@ -224,7 +228,7 @@ bool SHGLRenderer::onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllVi
   try 
   {
     RTVal viewportVal = getOrAddViewport(viewportID);
-    RTVal klevent = QtToKLEvent(event, *m_client, viewportVal, true);
+    RTVal klevent = QtToKLEvent(event, m_client, viewportVal, true);
     
     getSHGLRenderer().callMethod("", "onEvent", 1, &klevent);
     bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
@@ -243,8 +247,8 @@ void SHGLRenderer::getRegisteredTools(QStringList &toolNames, QStringList &toolK
   try 
   {
     RTVal args[2] = {
-      RTVal::ConstructVariableArray(*m_client, "String"),
-      RTVal::ConstructVariableArray(*m_client, "Key")
+      RTVal::ConstructVariableArray(m_client, "String"),
+      RTVal::ConstructVariableArray(m_client, "Key")
     };
     getSHGLRenderer().callMethod("", "getRegisteredTools", 2, &args[0]);
 

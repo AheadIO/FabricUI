@@ -116,7 +116,8 @@ void SHTreeViewWidget::updateFrom3DSelection() {
       FabricCore::RTVal scene;
       if(m_shGLScene->getSHGLScene(scene))
       {
-        SHGLRenderer shGLRenderer(&m_shGLScene->getClient());// = new SHGLRenderer()
+        SHGLRenderer shGLRenderer( m_shGLScene->getClient() );// = new SHGLRenderer()
+
         // Ensure it really changed; we will be called for any accepted event; only a few will be selection changes
         if(shGLRenderer.selectionChangedFromManips())
         {
