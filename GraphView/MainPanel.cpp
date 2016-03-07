@@ -149,7 +149,7 @@ void MainPanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     m_manipulationMode = ManipulationMode_Select;
   }
-  else if((event->button() == DFG_QT_MIDDLE_MOUSE && event->modifiers().testFlag(Qt::AltModifier))
+  else if((event->button() == Qt::MiddleButton && event->modifiers().testFlag(Qt::AltModifier))
     || (event->button() == Qt::LeftButton && m_alwaysPan)
     || (event->button() == Qt::LeftButton && event->modifiers().testFlag(Qt::AltModifier))
     )
@@ -326,10 +326,3 @@ void MainPanel::resizeEvent(QGraphicsSceneResizeEvent * event)
     emit m_graph->sidePanel(PortType_Output)->scrolled();
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
-void MainPanel::updateGeometry()
-{
-  QGraphicsWidget::updateGeometry();
-  emit geometryChanged();
-}
-#endif

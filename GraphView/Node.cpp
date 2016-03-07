@@ -561,7 +561,7 @@ bool Node::onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers,
     return false;
 
   if ( button == Qt::LeftButton
-    || button == DFG_QT_MIDDLE_MOUSE
+    || button == Qt::MiddleButton
     || button == Qt::RightButton )
   {
     m_dragButton = button;
@@ -584,7 +584,7 @@ bool Node::onMousePress(Qt::MouseButton button, Qt::KeyboardModifiers modifiers,
     }
 
     bool clearSelection = true;
-    if(button == DFG_QT_MIDDLE_MOUSE)
+    if(button == Qt::MiddleButton)
     {
       std::vector<Node*> nodes = hitNode->upStreamNodes();
 
@@ -789,14 +789,6 @@ void Node::updateEffect()
 {
   prepareGeometryChange();
 }
-
-#if (QT_VERSION < QT_VERSION_CHECK(4,7,0))
-void Node::updateGeometry()
-{
-  QGraphicsWidget::updateGeometry();
-  emit geometryChanged();
-}
-#endif
 
 QRectF Node::boundingRect() const
 {

@@ -592,9 +592,7 @@ void VEEditorOwner::onBindingArgsReordered( FTL::ArrayRef<unsigned> newOrder )
   // The array will specify the new order of our base arrays children
   // We will need to keep track of 
   QList<int> newIntOrder;
-  #if QT_VERSION >= 0x040800
-    newIntOrder.reserve( newOrder.size() );
-  #endif
+  newIntOrder.reserve( newOrder.size() );
   for (size_t i = 0; i < newOrder.size(); i++)
     newIntOrder.push_back( int( newOrder[i] ) );
 
@@ -679,9 +677,7 @@ void VEEditorOwner::onExecNodePortsReordered(
   if ( m_modelRoot->isNode() )
   {
     QList<int> newIntOrder;
-    #if QT_VERSION >= 0x040800
-      newIntOrder.reserve( newOrder.size() );
-    #endif
+    newIntOrder.reserve( newOrder.size() );
     for (size_t i = 0; i < newOrder.size(); i++)
       newIntOrder.push_back( int( newOrder[i] ) );
 

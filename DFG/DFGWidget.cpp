@@ -572,9 +572,7 @@ dfgEntry {\n\
       m_uiController->graph()->selectedNodes();
 
     QStringList nodeNames;
-#if QT_VERSION >= 0x040800
     nodeNames.reserve( nodes.size() );
-#endif
     for ( size_t i = 0; i < nodes.size(); ++i )
     {
       FTL::CStrRef nodeName = nodes[i]->name();
@@ -957,9 +955,7 @@ void DFGWidget::onNodeAction(QAction * action)
       m_uiController->graph()->selectedNodes();
 
     QStringList nodeNames;
-#if QT_VERSION >= 0x040800
     nodeNames.reserve( nodes.size() );
-#endif
     for ( size_t i = 0; i < nodes.size(); ++i )
     {
       FTL::CStrRef nodeName = nodes[i]->name();

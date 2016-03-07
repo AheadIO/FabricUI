@@ -22,12 +22,6 @@
 #include <FabricUI/GraphView/InfoOverlay.h>
 #include <FabricUI/Util/QString_Conversion.h>
 
-#if QT_VERSION > 0x040602
-# define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
-#else
-# define DFG_QT_MIDDLE_MOUSE Qt::MidButton
-#endif
-
 namespace FabricUI
 {
 

@@ -227,7 +227,7 @@ void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
     m_lastDragPoint = mapToScene(event->pos());
     event->accept();
   }
-  else if(event->button() == DFG_QT_MIDDLE_MOUSE)
+  else if(event->button() == Qt::MiddleButton)
   {
     if(graph()->config().middleClickDeletesConnections)
     {

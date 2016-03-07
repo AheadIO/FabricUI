@@ -15,9 +15,7 @@ void DFGUICmd_MoveNodes::appendDesc( QString &desc )
 void DFGUICmd_MoveNodes::invoke( unsigned &coreUndoCount )
 {
   QList<QByteArray> nodeNameBAs;
-#if QT_VERSION >= 0x040800
   nodeNameBAs.reserve( m_nodeNames.size() );
-#endif
   foreach ( QString nodeName, m_nodeNames )
     nodeNameBAs.push_back( nodeName.toUtf8() );
 

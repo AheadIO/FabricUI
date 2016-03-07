@@ -237,9 +237,7 @@ bool DFGController::gvcDoRemoveNodes(
   if ( !nodes.empty() )
   {
     QStringList nodeNames;
-#if QT_VERSION >= 0x040800
     nodeNames.reserve( nodes.size() );
-#endif
     for ( unsigned i = 0; i < nodes.size(); ++i )
     {
       FTL::CStrRef nodeName = nodes[i]->name();
@@ -666,13 +664,9 @@ bool DFGController::relaxNodes(QStringList paths)
   relaxer.relax(50);
 
   QStringList nodeNames;
-#if QT_VERSION >= 0x040800
   nodeNames.reserve( relaxer.numNodes() );
-#endif
   QList<QPointF> newTopLeftPoss;
-#if QT_VERSION >= 0x040800
   newTopLeftPoss.reserve( relaxer.numNodes() );
-#endif
   for ( unsigned i=0; i<relaxer.numNodes(); i++ )
   {
     FTL::CStrRef nodeName = relaxer.getName(i);
@@ -832,9 +826,7 @@ void DFGController::cmdCut()
     clipboard->setText( json.c_str() );
 
     QStringList paths;
-#if QT_VERSION >= 0x040800
     paths.reserve( pathStrs.size() );
-#endif
     for ( size_t i = 0; i < pathStrs.size(); ++i )
       paths.push_back(
         QString::fromUtf8( pathStrs[i].data(), pathStrs[i].size() )
@@ -2177,10 +2169,8 @@ void DFGController::gvcDoMoveNodes(
   {
     QStringList nodeNames;
     QList<QPointF> newTopLeftPoss;
-#if QT_VERSION >= 0x040800
     nodeNames.reserve( nodes.size() );
     newTopLeftPoss.reserve( nodes.size() );
-#endif
     for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
       it != nodes.end(); ++it )
     {

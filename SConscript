@@ -14,7 +14,7 @@ Import(
   'qtMOC',
   'uiLibPrefix',
   'qtIncludeDir',
-  'qtDir',
+  'qtLibDir',
   'stageDir',
   'pythonConfigs',
   'capiSharedLibFlags',
@@ -229,6 +229,9 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
       diffFile = shibokenDir.File('fabricui.diff')
     if buildOS == 'Darwin':
       diffFile = shibokenDir.File('fabricui.diff')
+
+    if buildOS == 'Linux':
+      pysideEnv['ENV']['LD_LIBRARY_PATH'] = qtLibDir
 
     pysideGen = pysideEnv.Command(
       pysideDir.Dir('FabricUI').File('fabricui_python.h'),
