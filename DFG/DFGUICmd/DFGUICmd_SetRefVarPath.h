@@ -14,10 +14,10 @@ public:
 
   DFGUICmd_SetRefVarPath(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef refName,
-    FTL::StrRef varPath
+    QString refName,
+    QString varPath
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_refName( refName )
@@ -29,14 +29,20 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef refName,
+    FTL::CStrRef varPath,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_refName;
-  std::string m_varPath;
+  QString m_refName;
+  QString m_varPath;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

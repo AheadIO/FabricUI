@@ -6,18 +6,31 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_SetNodeComment::appendDesc( std::string &desc )
+void DFGUICmd_SetNodeComment::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Change comment of ");
+  desc += "Change comment of ";
   appendDesc_NodeName( m_nodeName, desc );
 }
 
 void DFGUICmd_SetNodeComment::invoke( unsigned &coreUndoCount )
 {
+  invoke(
+    m_nodeName.toUtf8().constData(),
+    m_comment.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_SetNodeComment::invoke(
+  FTL::CStrRef nodeName,
+  FTL::CStrRef comment,
+  unsigned &coreUndoCount
+  )
+{
   getExec().setNodeMetadata(
-    m_nodeName.c_str(),
+    nodeName.c_str(),
     "uiComment",
-    m_comment.c_str(),
+    comment.c_str(),
     true,
     true
     );

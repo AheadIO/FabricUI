@@ -45,7 +45,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
   try
   {
     FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
-    std::vector <std::string> droppedNodes;
+    QList<QString> droppedNodes;
     if(jsonVar.isArray())
     {
       for(uint32_t i=0;i<jsonVar.getArraySize();i++)
@@ -56,7 +56,7 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
           const FabricCore::Variant * typeVar = dictVar->getDictValue("type");
           if(typeVar->isString())
           {
-            std::string node = "";
+            QString node;
 
             if(std::string(typeVar->getStringData()) == "DFGPreset")
             {
@@ -123,18 +123,18 @@ void DFGGraphViewWidget::dropEvent(QDropEvent *event)
               }
             }
 
-            if (!node.empty())
-              droppedNodes.push_back(node);
+            if ( !node.isEmpty() )
+              droppedNodes.append( node );
           }
         }
       }
-      if (droppedNodes.size())
+      if ( !droppedNodes.empty() )
       {
         graph()->clearSelection();
-        for (unsigned i=0;i<droppedNodes.size();i++)
+        for ( int i = 0; i < droppedNodes.size(); i++ )
         {
-          if (GraphView::Node *uiNode = graph()->node(droppedNodes[i]))
-            uiNode->setSelected(true);
+          if ( GraphView::Node *uiNode = graph()->node( droppedNodes.at( i ) ) )
+            uiNode->setSelected( true );
         }
       }
     }

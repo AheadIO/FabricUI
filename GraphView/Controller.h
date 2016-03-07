@@ -65,17 +65,17 @@ namespace FabricUI
         ) = 0;
 
       virtual bool gvcDoAddInstFromPreset(
-        FTL::CStrRef presetPath,
+        QString presetPath,
         QPointF pos
         ) = 0;
 
       virtual void gvcDoAddPort(
-        FTL::CStrRef desiredPortName,
+        QString desiredPortName,
         PortType portType,
-        FTL::CStrRef typeSpec = FTL::CStrRef(),
+        QString typeSpec = QString(),
         ConnectionTarget *connectWith = 0,
-        FTL::StrRef extDep = FTL::StrRef(),
-        FTL::CStrRef metaData = FTL::CStrRef()
+        QString extDep = QString(),
+        QString metaData = QString()
         ) = 0;
       
       virtual void gvcDoSetNodeCommentExpanded(

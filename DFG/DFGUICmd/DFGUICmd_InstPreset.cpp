@@ -4,18 +4,27 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_InstPreset::appendDesc( std::string &desc )
+void DFGUICmd_InstPreset::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Instance preset ");
+  desc += "Instance preset ";
   AppendDesc_String( getPresetPath(), desc );
-  desc += FTL_STR(" as ");
+  desc += " as ";
   appendDesc_NodeName( getActualNodeName(), desc );
 }
 
 FTL::CStrRef DFGUICmd_InstPreset::invokeAdd( unsigned &coreUndoCount )
 {
-  FTL::CStrRef presetPath = getPresetPath();
+  return invokeAdd(
+    getPresetPath().toUtf8().constData(),
+    coreUndoCount
+    );
+}
 
+FTL::CStrRef DFGUICmd_InstPreset::invokeAdd(
+  FTL::CStrRef presetPath,
+  unsigned &coreUndoCount
+  )
+{
   std::string desiredNodeName = presetPath.rsplit('.').second;
   desiredNodeName += FTL_STR("_1");
 

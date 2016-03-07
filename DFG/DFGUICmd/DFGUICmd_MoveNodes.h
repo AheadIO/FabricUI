@@ -15,23 +15,15 @@ public:
 
   DFGUICmd_MoveNodes(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::StrRef> nodeNames,
-    FTL::ArrayRef<QPointF> newTopLeftPoss
+    QStringList nodeNames,
+    QList<QPointF> newTopLeftPoss
     )
     : DFGUICmd_Exec( binding, execPath, exec )
+    , m_nodeNames( nodeNames )
+    , m_newTopLeftPoss( newTopLeftPoss )
   {
-    m_nodeNames.insert(
-      m_nodeNames.begin(),
-      nodeNames.begin(),
-      nodeNames.end()
-      );
-    m_newTopLeftPoss.insert(
-      m_newTopLeftPoss.begin(),
-      newTopLeftPoss.begin(),
-      newTopLeftPoss.end()
-      );
   }
 
   static FTL::CStrRef CmdName()
@@ -39,14 +31,14 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
 private:
 
-  std::vector<std::string> m_nodeNames;
-  std::vector<QPointF> m_newTopLeftPoss;
+  QList<QString> m_nodeNames;
+  QList<QPointF> m_newTopLeftPoss;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

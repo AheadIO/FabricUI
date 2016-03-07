@@ -14,30 +14,30 @@ public:
 
   DFGUICmd_EditPort(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef oldPortName,
-    FTL::StrRef desiredNewPortName,
-    FTL::StrRef typeSpec,
-    FTL::StrRef extDep,
-    FTL::StrRef uiMetadata
+    QString oldPortName,
+    QString desiredNewPortName,
+    QString typeSpec,
+    QString extDep,
+    QString uiMetadata
     )
     : DFGUICmd_Exec(
       binding,
       execPath,
       exec
       )
-    , m_oldPortName( oldPortName.trim() )
-    , m_desiredNewPortName( desiredNewPortName.trim() )
-    , m_typeSpec( typeSpec.trim() )
-    , m_extDep( extDep.trim() )
-    , m_uiMetadata( uiMetadata.trim() )
+    , m_oldPortName( oldPortName.trimmed() )
+    , m_desiredNewPortName( desiredNewPortName.trimmed() )
+    , m_typeSpec( typeSpec.trimmed() )
+    , m_extDep( extDep.trimmed() )
+    , m_uiMetadata( uiMetadata.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("EditPort"); }
 
-  FTL::CStrRef getActualNewPortName()
+  QString getActualNewPortName()
   {
     assert( wasInvoked() );
     return m_actualNewPortName;
@@ -45,14 +45,12 @@ public:
 
 protected:
 
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual void invoke( unsigned &coreUndoCount );
 
-  static FTL::CStrRef Perform(
-    FabricCore::DFGBinding &binding,
+  FTL::CStrRef invoke(
     FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
     FTL::CStrRef oldPortName,
     FTL::CStrRef desiredNewPortName,
     FTL::CStrRef typeSpec,
@@ -63,13 +61,13 @@ protected:
 
 private:
 
-  std::string m_oldPortName;
-  std::string m_desiredNewPortName;
-  std::string m_typeSpec;
-  std::string m_extDep;
-  std::string m_uiMetadata;
+  QString m_oldPortName;
+  QString m_desiredNewPortName;
+  QString m_typeSpec;
+  QString m_extDep;
+  QString m_uiMetadata;
   
-  std::string m_actualNewPortName;
+  QString m_actualNewPortName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

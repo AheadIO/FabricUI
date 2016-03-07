@@ -14,7 +14,7 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-std::string DFGUICmdHandler::encodeRTValToJSON(
+QString DFGUICmdHandler::encodeRTValToJSON(
   FabricCore::Context const& context,
   FabricCore::RTVal const& rtVal
   )
@@ -41,7 +41,7 @@ std::string DFGUICmdHandler::encodeRTValToJSON(
                   FTL::JSONEnc<> jsonEnc( json );
                   FTL::JSONStringEnc<> jsonStringEnc( jsonEnc, ref );
                 }
-                return json;
+                return QString::fromUtf8( json.c_str() );
               }
             }
           }
@@ -50,16 +50,17 @@ std::string DFGUICmdHandler::encodeRTValToJSON(
     }
   }
   FabricCore::RTVal valueJSON = rtVal.getJSON();
-  return valueJSON.getStringCString();
+  return QString::fromUtf8( valueJSON.getStringCString() );
 }
 
 void DFGUICmdHandler::decodeRTValFromJSON(
   FabricCore::Context const& context,
   FabricCore::RTVal & rtVal,
-  FTL::CStrRef json
+  QString jsonQS
   )
 {
-  if(json.size() > 2)
+  std::string json = jsonQS.toUtf8().constData();
+  if(json.length() > 2)
   {
     try
     {
@@ -118,20 +119,20 @@ void DFGUICmdHandler::decodeRTValFromJSON(
   rtVal.setJSON( json.c_str() );
 }
 
-std::string DFGUICmdHandler::NewPresetPathname(
+QString DFGUICmdHandler::NewPresetPathname(
   FabricCore::DFGHost &host,
-  FTL::CStrRef presetDirPath,
-  FTL::CStrRef presetName
+  QString presetDirPath,
+  QString presetName
   )
 {
   std::string pathname =
-    host.getPresetImportPathname( presetDirPath.c_str() );
+    host.getPresetImportPathname( presetDirPath.toUtf8().constData() );
   if ( !pathname.empty() )
   {
-    FTL::PathAppendEntry( pathname, presetName );
-    pathname += ".canvas";
+    FTL::PathAppendEntry( pathname, presetName.toUtf8().constData() );
+    pathname += FTL_STR(".canvas");
   }
-  return pathname;
+  return QString::fromUtf8( pathname.c_str() );
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

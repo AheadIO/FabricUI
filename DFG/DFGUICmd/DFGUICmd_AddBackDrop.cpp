@@ -4,13 +4,24 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_AddBackDrop::appendDesc( std::string &desc )
+void DFGUICmd_AddBackDrop::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Add backdrop ");
+  desc += "Add backdrop ";
   appendDesc_NodeName( getActualNodeName(), desc );
 }
 
 FTL::CStrRef DFGUICmd_AddBackDrop::invokeAdd( unsigned &coreUndoCount )
+{
+  return invokeAdd(
+    getText().toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+FTL::CStrRef DFGUICmd_AddBackDrop::invokeAdd(
+  FTL::CStrRef text,
+  unsigned &coreUndoCount
+  )
 {
   FTL::CStrRef actualNodeName =
     getExec().addUser( "backDrop" );
@@ -19,7 +30,7 @@ FTL::CStrRef DFGUICmd_AddBackDrop::invokeAdd( unsigned &coreUndoCount )
   getExec().setNodeMetadata(
     actualNodeName.c_str(),
     "uiTitle",
-    getText().c_str(),
+    text.c_str(),
     true,
     true
     );

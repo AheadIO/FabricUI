@@ -13,17 +13,17 @@ public:
 
   DFGUICmd_AddNode(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef primaryArg,
+    QString primaryArg,
     QPointF pos
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_primaryArg( primaryArg )
+    , m_primaryArg( primaryArg.trimmed() )
     , m_pos( pos )
     {}
 
-  FTL::CStrRef getActualNodeName() const
+  QString getActualNodeName() const
   {
     assert( wasInvoked() );
     return m_actualNodeName;
@@ -31,21 +31,26 @@ public:
 
 protected:
 
-  FTL::CStrRef getPrimaryArg()
+  QString getPrimaryArg()
     { return m_primaryArg; }
   QPointF getPos()
     { return m_pos; }
   
   virtual void invoke( unsigned &coreUndoCount );
 
-  virtual FTL::CStrRef invokeAdd( unsigned &coreUndoCount ) = 0;
+  virtual FTL::CStrRef invokeAdd( unsigned &coreUndoCount )
+  {
+    // [pzion 20151216] This should be abstract, but Shiboken can't deal
+    // with abstract classes
+    return FTL::CStrRef();
+  }
 
 private:
 
-  std::string m_primaryArg;
+  QString m_primaryArg;
   QPointF m_pos;
   
-  std::string m_actualNodeName;
+  QString m_actualNodeName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

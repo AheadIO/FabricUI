@@ -110,13 +110,12 @@ void GraphViewWidget::dropEvent(QDropEvent *event)
   m_lastEventPos = event->pos();
 
   // event->mimeData()->text()
-  QString presetQString = event->mimeData()->text();
-  FTL::CStrRef presetCStr = presetQString.toUtf8().constData();
+  QString presetPath = event->mimeData()->text();
 
   QPointF pos( event->pos().x(), event->pos().y() );
   pos = graph()->itemGroup()->mapFromScene( pos );
 
-  if ( graph()->controller()->gvcDoAddInstFromPreset( presetCStr, pos ) )
+  if ( graph()->controller()->gvcDoAddInstFromPreset( presetPath, pos ) )
     event->acceptProposedAction();
 }
 

@@ -8,7 +8,9 @@ FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 void DFGUICmd_AddNode::invoke( unsigned &coreUndoCount )
 {
-  m_actualNodeName = invokeAdd( coreUndoCount );
+  FTL::CStrRef actualNodeName = invokeAdd( coreUndoCount );
+  m_actualNodeName =
+    QString::fromUtf8( actualNodeName.data(), actualNodeName.size() );
 
   std::string posJSONString;
   {
@@ -24,13 +26,12 @@ void DFGUICmd_AddNode::invoke( unsigned &coreUndoCount )
     }
   }
   getExec().setNodeMetadata(
-    m_actualNodeName.c_str(),
+    actualNodeName.c_str(),
     "uiGraphPos",
     posJSONString.c_str(),
     true // canUndo
     );
   ++coreUndoCount;
-
 }
 
 FABRIC_UI_DFG_NAMESPACE_END

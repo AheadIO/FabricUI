@@ -15,20 +15,20 @@ public:
 
   DFGUICmd_RenamePort(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef oldPortName,
-    FTL::StrRef desiredNewPortName
+    QString oldPortName,
+    QString desiredNewPortName
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_oldPortName( oldPortName )
-    , m_desiredNewPortName( desiredNewPortName )
+    , m_oldPortName( oldPortName.trimmed() )
+    , m_desiredNewPortName( desiredNewPortName.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("RenamePort"); }
 
-  FTL::CStrRef getActualNewPortName()
+  QString getActualNewPortName()
   {
     assert( wasInvoked() );
     return m_actualNewPortName;
@@ -36,16 +36,22 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  FTL::CStrRef invoke(
+    FTL::CStrRef oldPortName,
+    FTL::CStrRef desiredNewPortName,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_oldPortName;
-  std::string m_desiredNewPortName;
+  QString m_oldPortName;
+  QString m_desiredNewPortName;
 
-  std::string m_actualNewPortName;
+  QString m_actualNewPortName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

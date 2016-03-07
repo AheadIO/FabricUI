@@ -63,6 +63,8 @@ namespace FabricUI
         { return m_bindingNotifier; }
       FTL::CStrRef getExecPath()
         { return m_execPath; }
+      QString getExecPath_QS()
+        { return QString::fromUtf8( m_execPath.data(), m_execPath.size() ); }
       FabricCore::DFGExec &getExec()
         { return m_exec; }
 
@@ -116,17 +118,17 @@ namespace FabricUI
         );
       
       virtual bool gvcDoAddInstFromPreset(
-        FTL::CStrRef presetPath,
+        QString presetPath,
         QPointF pos
         );
 
       virtual void gvcDoAddPort(
-        FTL::CStrRef desiredPortName,
+        QString desiredPortName,
         GraphView::PortType portType,
-        FTL::CStrRef typeSpec = FTL::CStrRef(),
+        QString typeSpec = QString(),
         GraphView::ConnectionTarget *connectWith = 0,
-        FTL::StrRef extDep = FTL::StrRef(),
-        FTL::CStrRef metaData = FTL::CStrRef()
+        QString extDep = QString(),
+        QString metaData = QString()
         );
 
       virtual void gvcDoSetNodeCommentExpanded(
@@ -150,178 +152,169 @@ namespace FabricUI
       // Commands
 
       void cmdRemoveNodes(
-        FTL::ArrayRef<FTL::StrRef> nodeNames
+        QStringList nodeNames
         );
 
       void cmdConnect(
-        FTL::CStrRef srcPath, 
-        FTL::CStrRef dstPath
+        QString srcPath, 
+        QString dstPath
         );
 
       void cmdDisconnect(
-        FTL::CStrRef srcPath, 
-        FTL::CStrRef dstPath
+        QString srcPath, 
+        QString dstPath
         );
 
-      std::string cmdAddInstWithEmptyGraph(
-        FTL::CStrRef title,
+      QString cmdAddInstWithEmptyGraph(
+        QString title,
         QPointF pos
         );
 
-      std::string cmdAddInstWithEmptyFunc(
-        FTL::CStrRef title,
-        FTL::CStrRef initialCode,
+      QString cmdAddInstWithEmptyFunc(
+        QString title,
+        QString initialCode,
         QPointF pos
         );
 
-      std::string cmdAddInstFromPreset(
-        FTL::CStrRef presetPath,
+      QString cmdAddInstFromPreset(
+        QString presetPath,
         QPointF pos
         );
 
-      std::string cmdAddVar(
-        FTL::CStrRef desiredNodeName,
-        FTL::CStrRef dataType,
-        FTL::CStrRef extDep,
+      QString cmdAddVar(
+        QString desiredNodeName,
+        QString dataType,
+        QString extDep,
         QPointF pos
         );
 
-      std::string cmdAddGet(
-        FTL::CStrRef desiredNodeName,
-        FTL::CStrRef varPath,
+      QString cmdAddGet(
+        QString desiredNodeName,
+        QString varPath,
         QPointF pos
         );
 
-      std::string cmdAddSet(
-        FTL::CStrRef desiredNodeName,
-        FTL::CStrRef varPath,
+      QString cmdAddSet(
+        QString desiredNodeName,
+        QString varPath,
         QPointF pos
         );
 
-      std::string cmdAddPort(
-        FTL::CStrRef desiredPortName,
+      QString cmdAddPort(
+        QString desiredPortName,
         FabricCore::DFGPortType dfgPortType,
-        FTL::CStrRef typeSpec,
-        FTL::CStrRef portToConnect,
-        FTL::StrRef extDep,
-        FTL::CStrRef uiMetadata
+        QString typeSpec,
+        QString portToConnect,
+        QString extDep,
+        QString uiMetadata
         );
       
-      std::string cmdCreatePreset(
-        FTL::StrRef nodeName,
-        FTL::StrRef presetDirPath,
-        FTL::StrRef presetName
+      QString cmdCreatePreset(
+        QString nodeName,
+        QString presetDirPath,
+        QString presetName
         );
 
-      std::string cmdEditPort(
-        FTL::StrRef oldPortName,
-        FTL::StrRef desiredNewPortName,
-        FTL::StrRef typeSpec,
-        FTL::StrRef extDep,
-        FTL::StrRef uiMetadata
+      QString cmdEditPort(
+        QString oldPortName,
+        QString desiredNewPortName,
+        QString typeSpec,
+        QString extDep,
+        QString uiMetadata
         );
 
       void cmdRemovePort(
-        FTL::CStrRef portName
+        QString portName
         );
 
       void cmdMoveNodes(
-        FTL::ArrayRef<FTL::StrRef> nodeNames,
-        FTL::ArrayRef<QPointF> newTopLeftPoss
+        QStringList nodeNames,
+        QList<QPointF> newTopLeftPoss
         );
 
       void cmdResizeBackDropNode(
-        FTL::CStrRef backDropNodeName,
+        QString backDropNodeName,
         QPointF newTopLeftPos,
         QSizeF newSize
         );
 
-      std::string cmdImplodeNodes(
-        FTL::ArrayRef<FTL::StrRef> nodeNames,
-        FTL::CStrRef desiredNodeName
+      QString cmdImplodeNodes(
+        QStringList nodeNames,
+        QString desiredNodeName
         );
 
-      std::vector<std::string> cmdExplodeNode(
-        FTL::CStrRef nodeName
+      QList<QString> cmdExplodeNode(
+        QString nodeName
         );
 
       void cmdAddBackDrop(
-        FTL::CStrRef title,
+        QString title,
         QPointF pos
         );
 
-      void cmdSetTitle(
-        FTL::CStrRef newTitle
-        );
-
       void cmdSetNodeComment(
-        FTL::CStrRef nodeName, 
-        FTL::CStrRef comment
+        QString nodeName, 
+        QString comment
         );
 
       void setNodeCommentExpanded(
-        FTL::CStrRef nodeName, 
+        QString nodeName, 
         bool expanded
         );
 
-      void cmdSetCode( FTL::CStrRef code );
+      void cmdSetCode( QString code );
 
-      std::string cmdEditNode(
-        FTL::StrRef oldName,
-        FTL::StrRef desiredNewName,
-        FTL::StrRef nodeMetadata,
-        FTL::StrRef execMetadata
+      QString cmdEditNode(
+        QString oldName,
+        QString desiredNewName,
+        QString nodeMetadata,
+        QString execMetadata
         );
 
-      std::string cmdRenameExecPort(
-        FTL::CStrRef oldName,
-        FTL::CStrRef desiredNewName
+      QString cmdRenameExecPort(
+        QString oldName,
+        QString desiredNewName
         );
 
       void cmdCut();
 
       void cmdPaste();
 
-      void cmdSetArgType(
-        FTL::CStrRef argName,
-        FTL::CStrRef typeName
-        );
-
       void cmdSetArgValue(
-        FTL::CStrRef argName,
+        QString argName,
         FabricCore::RTVal const &value
         );
 
       bool cmdSetDefaultValue(
         FabricCore::DFGBinding &binding,
-        FTL::CStrRef execPath,
+        QString execPath,
         FabricCore::DFGExec &exec,
-        FTL::CStrRef portPath,
+        QString portPath,
         FabricCore::RTVal const &value
         );
 
       void cmdSetRefVarPath(
         FabricCore::DFGBinding &binding,
-        FTL::CStrRef execPath,
+        QString execPath,
         FabricCore::DFGExec &exec,
-        FTL::CStrRef refName,
-        FTL::CStrRef varPath
+        QString refName,
+        QString varPath
         );
 
       void cmdReorderPorts(
         FabricCore::DFGBinding &binding,
-        FTL::CStrRef execPath,
+        QString execPath,
         FabricCore::DFGExec &exec,
-        const std::vector<unsigned int> & indices
+        QList<int> indices
         );
 
       void cmdSetExtDeps(
-        FTL::ArrayRef<FTL::StrRef> nameAndVers
+        QStringList nameAndVers
         );
 
       void cmdSplitFromPreset();
 
-      virtual std::string reloadCode();
+      virtual QString reloadCode();
 
       virtual bool zoomCanvas(float zoom);
       virtual bool panCanvas(QPointF pan);

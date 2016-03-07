@@ -41,6 +41,1336 @@ class MainWindowEventFilter(QtCore.QObject):
 
         return QtCore.QObject.eventFilter(obj, event)
 
+class UndoCmd(QtGui.QUndoCommand):
+    def __init__(self, cmd):
+        QtGui.QUndoCommand.__init__(self)
+        self.cmd = cmd
+        self.done = False
+    def redo(self):
+        if not self.done:
+            self.done = True
+            self.cmd.doit()
+        else:
+            self.cmd.redo()
+    def undo(self):
+        self.cmd.undo()
+
+def InvokeCmd(cmd, qUndoStack):
+    undoCmd = UndoCmd(cmd)
+    qUndoStack.push(undoCmd)
+    undoCmd.setText(cmd.getDesc())
+
+class BindingWrapper:
+
+    def __init__(self, client, binding, qUndoStack):
+        self.client = client
+        self.binding = binding
+        self.qUndoStack = qUndoStack
+
+    @staticmethod
+    def splitInts(packedIndices):
+        return map(
+            lambda indexStr: int(indexStr),
+            packedIndices.split('|')
+            )
+
+    @staticmethod
+    def splitNames(names):
+        return names.split('|')
+
+    @staticmethod
+    def splitPoss(posXs, posYs):
+        if isinstance(posXs, basestring):
+            posXs = map(
+                lambda str: float(str),
+                posXs.split('|')
+                )
+        elif not hasattr(posXs, '__iter__'):
+            posXs = [posXs]
+        if isinstance(posYs, basestring):
+            posYs = map(
+                lambda str: float(str),
+                posYs.split('|')
+                )
+        elif not hasattr(posYs, '__iter__'):
+            posYs = [posYs]
+        result = []
+        for i in range(0, len(posXs)):
+            result.append(QtCore.QPointF(posXs[i], posYs[i]))
+        return result
+
+    def undo(
+        self,
+        ):
+        self.qUndoStack.undo()
+
+    def redo(
+        self,
+        ):
+        self.qUndoStack.redo()
+
+    def instPreset(
+        self,
+        execPath,
+        presetPath,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_InstPreset(
+            self.binding,
+            execPath,
+            exec_,
+            presetPath,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addGraph(
+        self,
+        execPath,
+        title,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddGraph(
+            self.binding,
+            execPath,
+            exec_,
+            title,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addFunc(
+        self,
+        execPath,
+        title,
+        initialCode,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddFunc(
+            self.binding,
+            execPath,
+            exec_,
+            title,
+            initialCode,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addBackDrop(
+        self,
+        execPath,
+        title,
+        posX,
+        posY,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddBackDrop(
+            self.binding,
+            execPath,
+            exec_,
+            title,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addVar(
+        self,
+        execPath,
+        desiredNodeName,
+        dataType,
+        extDep,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddVar(
+            self.binding,
+            execPath,
+            exec_,
+            desiredNodeName,
+            dataType,
+            extDep,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addGet(
+        self,
+        execPath,
+        desiredNodeName,
+        varPath,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddGet(
+            self.binding,
+            execPath,
+            exec_,
+            desiredNodeName,
+            varPath,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def addSet(
+        self,
+        execPath,
+        desiredNodeName,
+        varPath,
+        posX,
+        posY
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_AddSet(
+            self.binding,
+            execPath,
+            exec_,
+            desiredNodeName,
+            varPath,
+            QtCore.QPointF(posX, posY)
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNodeName()
+
+    def moveNodes(
+        self,
+        execPath,
+        packedNodeNames,
+        packedNewTopLeftPosXs,
+        packedNewTopLeftPosYs
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        nodeNames = BindingWrapper.splitNames(packedNodeNames)
+        newTopLeftPoss = BindingWrapper.splitPoss(
+            packedNewTopLeftPosXs,
+            packedNewTopLeftPosYs
+            )
+        cmd = DFG.DFGUICmd_MoveNodes(
+            self.binding,
+            execPath,
+            exec_,
+            nodeNames,
+            newTopLeftPoss
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def resizeBackDrop(
+        self,
+        execPath,
+        backDropNodeName,
+        newTopLeftPosX,
+        newTopLeftPosY,
+        newSizeW,
+        newSizeH,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_ResizeBackDrop(
+            self.binding,
+            execPath,
+            exec_,
+            backDropNodeName,
+            QtCore.QPointF(newTopLeftPosX, newTopLeftPosY),
+            QtCore.QSizeF(newSizeW, newSizeH),
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def removeNodes(
+        self,
+        execPath,
+        packedNodeNames,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        nodeNames = BindingWrapper.splitNames(packedNodeNames)
+        cmd = DFG.DFGUICmd_RemoveNodes(
+            self.binding,
+            execPath,
+            exec_,
+            nodeNames,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def implodeNodes(
+        self,
+        execPath,
+        packedNodeNames,
+        desiredNodeName
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        nodeNames = BindingWrapper.splitNames(packedNodeNames)
+        cmd = DFG.DFGUICmd_ImplodeNodes(
+            self.binding,
+            execPath,
+            exec_,
+            nodeNames,
+            desiredNodeName
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualImplodedNodeName()
+
+    def explodeNode(
+        self,
+        execPath,
+        nodeName
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_Explode(
+            self.binding,
+            execPath,
+            exec_,
+            nodeName
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return "|".join(cmd.getExplodedNodeNames())
+
+    def connect(
+        self,
+        execPath,
+        srcPort,
+        dstPort,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_Connect(
+            self.binding,
+            execPath,
+            exec_,
+            srcPort,
+            dstPort
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def disconnect(
+        self,
+        execPath,
+        srcPort,
+        dstPort,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_Disonnect(
+            self.binding,
+            execPath,
+            exec_,
+            srcPort,
+            dstPort
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def addPort(
+        self,
+        execPath,
+        desiredPortName,
+        portTypeStr,
+        typeSpec,
+        portToConnect,
+        extDep,
+        metaData,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        portTypeStrLower = portTypeStr.lower()
+        if portTypeStrLower == "io":
+            portType = self.client.DFG.PortTypes.IO
+        elif portTypeStrLower == "out":
+            portType = self.client.DFG.PortTypes.Out
+        else:
+            portType = self.client.DFG.PortTypes.In
+        cmd = DFG.DFGUICmd_AddPort(
+            self.binding,
+            execPath,
+            exec_,
+            desiredPortName,
+            portType,
+            typeSpec,
+            portToConnect,
+            extDep,
+            metaData,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualPortName()
+
+    def editPort(
+        self,
+        execPath,
+        oldPortName,
+        desiredNewPortName,
+        typeSpec,
+        extDep,
+        metaData,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_EditPort(
+            self.binding,
+            execPath,
+            exec_,
+            oldPortName,
+            desiredNewPortName,
+            typeSpec,
+            extDep,
+            metaData,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNewPortName()
+
+    def removePort(
+        self,
+        execPath,
+        portName,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_RemovePort(
+            self.binding,
+            execPath,
+            exec_,
+            portName,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def createPreset(
+        self,
+        execPath,
+        nodeName,
+        presetDirPath,
+        presetName,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_CreatePreset(
+            self.binding,
+            execPath,
+            exec_,
+            nodeName,
+            presetDirPath,
+            presetName,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getPathname()
+
+    def setNodeComment(
+        self,
+        execPath,
+        nodeName,
+        comment,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_SetNodeComment(
+            self.binding,
+            execPath,
+            exec_,
+            nodeName,
+            comment,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def setCode(
+        self,
+        execPath,
+        code,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_SetCode(
+            self.binding,
+            execPath,
+            exec_,
+            code,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def editNode(
+        self,
+        execPath,
+        oldNodeName,
+        desiredNewNodeName,
+        nodeMetadata,
+        execMetadata,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_EditNode(
+            self.binding,
+            execPath,
+            exec_,
+            oldNodeName,
+            desiredNewNodeName,
+            nodeMetadata,
+            execMetadata,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNewNodeName()
+
+    def renamePort(
+        self,
+        execPath,
+        oldPortName,
+        desiredNewPortName,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_RenamePort(
+            self.binding,
+            execPath,
+            exec_,
+            oldPortName,
+            desiredNewPortName,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return cmd.getActualNewPortName()
+
+    def paste(
+        self,
+        execPath,
+        json,
+        cursorPosX,
+        cursorPosY,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_Paste(
+            self.binding,
+            execPath,
+            exec_,
+            json,
+            QtCore.QPointF(cursorPosX, cursorPosY),
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+        return "|".join(cmd.getPastedNodeNames())
+
+    def setArgValue(
+        self,
+        argName,
+        typeName,
+        valueJSON,
+        ):
+        value = getattr(self.client.RT.types, typeName)()
+        value.setJSON(valueJSON)
+        cmd = DFG.DFGUICmd_SetArgValue(
+            self.binding,
+            argName,
+            value,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def setPortDefaultValue(
+        self,
+        execPath,
+        portPath,
+        typeName,
+        valueJSON,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        value = getattr(self.client.RT.types, typeName)()
+        value.setJSON(valueJSON)
+        cmd = DFG.DFGUICmd_SetPortDefaultValue(
+            self.binding,
+            execPath,
+            exec_,
+            portPath,
+            value,
+            )
+
+    def setRefVarPath(
+        self,
+        execPath,
+        refName,
+        varPath,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_SetRefVarPath(
+            self.binding,
+            execPath,
+            exec_,
+            refName,
+            varPath,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def reorderPorts(
+        self,
+        execPath,
+        packedIndices,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        indices = BindingWrapper.splitInts(packedIndices)
+        cmd = DFG.DFGUICmd_ReorderPorts(
+            self.binding,
+            execPath,
+            exec_,
+            indices,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def setExtDeps(
+        self,
+        execPath,
+        packedExtDeps,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        extDeps = BindingWrapper.splitNames(packedExtDeps)
+        cmd = DFG.DFGUICmd_SetExtDeps(
+            self.binding,
+            execPath,
+            exec_,
+            extDeps,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+    def splitFromPreset(
+        self,
+        execPath,
+        ):
+        rootExec = self.binding.getExec()
+        exec_ = rootExec.getSubExec(execPath)
+        cmd = DFG.DFGUICmd_SplitFromPreset(
+            self.binding,
+            execPath,
+            exec_,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
+class AppendingTextWidget(QtGui.QTextEdit):
+  def __init__(self):
+    QtGui.QTextEdit.__init__(self)
+
+    self.setReadOnly(True)
+
+  def append(self, text, color):
+    self.setTextColor(color)
+    charFormat = self.currentCharFormat()
+    textCursor = self.textCursor()
+    textCursor.movePosition(QtGui.QTextCursor.End)
+    textCursor.insertText(text + "\n", charFormat)
+    self.setTextCursor(textCursor)
+    self.ensureCursorVisible()
+
+  def appendSeparator(self):
+    textCursor = self.textCursor()
+    textCursor.movePosition(QtGui.QTextCursor.End)
+    textCursor.insertHtml("<hr /><br />")
+    self.setTextCursor(textCursor)
+    self.ensureCursorVisible()
+
+class LogWidget(AppendingTextWidget):
+  def __init__(self):
+    AppendingTextWidget.__init__(self)
+
+    self.setFocusPolicy(QtCore.Qt.NoFocus)
+
+    self.commandColor = QtGui.QColor(QtCore.Qt.white)
+    self.commentColor = QtGui.QColor(QtCore.Qt.black)
+    self.exceptionColor = QtGui.QColor("#E04040")
+
+  def appendCommand(self, text):
+    self.append(text, self.commandColor)
+
+  def appendComment(self, text):
+    self.append(text, self.commentColor)
+
+  def appendException(self, text):
+    self.append(text, self.exceptionColor)
+
+class ScriptEditor(QtGui.QWidget):
+
+    def __init__(self, client, binding, qUndoStack):
+        QtGui.QWidget.__init__(self)
+
+        self.eval_globals = {
+            "binding": BindingWrapper(client, binding, qUndoStack),
+            "undo": qUndoStack.undo,
+            "redo": qUndoStack.redo,
+            }
+
+        fixedFont = QtGui.QFont("Courier", 12)
+        # fixedFont.setFamily("Monospace")
+        # fixedFont.setStyleHint(QtGui.QFont.TypeWriter)
+        # fixedFont.setPointSize(14)
+
+        self.log = LogWidget()
+        self.log.setFont(fixedFont);
+
+        self.cmd = QtGui.QLineEdit()
+        self.cmd.setFont(fixedFont)
+        self.cmd.returnPressed.connect(self.onReturnPressed)
+
+        layout = QtGui.QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(QtGui.QLabel("Python:"))
+        layout.addWidget(self.cmd)
+
+        bottom = QtGui.QWidget()
+        bottom.setContentsMargins(0,0,0,0)
+        bottom.setLayout(layout)
+
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(self.log)
+        layout.addWidget(bottom)
+
+        self.setContentsMargins(0,0,0,0)
+        self.setLayout(layout)
+
+    def onReturnPressed(self):
+        code = self.cmd.text()
+        self.execute(code)
+
+    def eval(self, code):
+        self.log.appendCommand(code)
+        try:
+            result = eval(code, self.eval_globals)
+            if result is not None:
+                self.log.appendComment("# Result: " + str(result))
+            return result
+        except Exception as e:
+            self.log.appendException("# Exception: " + str(e))
+
+    def exec_(self, code):
+        self.log.appendCommand(code)
+        try:
+            exec code in self.eval_globals
+        except Exception as e:
+            self.log.appendException("# Exception: " + str(e))
+
+class UICmdHandler(DFG.DFGUICmdHandler_Python):
+
+    def __init__(self, client, scriptEditor):
+        super(UICmdHandler, self).__init__()
+        self.client = client
+        self.scriptEditor = scriptEditor
+
+    @staticmethod
+    def encodeStringChars(string):
+        result = ""
+        for ch in string:
+            if ch == "\"":
+                result += "\\\""
+            elif ch == "\r":
+                result += "\\r"
+            elif ch == "\n":
+                result += "\\n"
+            elif ch == "\t":
+                result += "\\t"
+            elif ch == "\\":
+                result += "\\\\"
+            else:
+                result += ch
+        return result
+    
+    @staticmethod
+    def encodeString(string):
+        return "\"" + UICmdHandler.encodeStringChars(string) + "\""
+
+    @staticmethod
+    def encodeStrings(strings):
+        result = "\""
+        for i in range(0, len(strings)):
+            if i > 0:
+                result += "|"
+            result += UICmdHandler.encodeStringChars(strings[i])
+        result += "\""
+        return result
+
+    @staticmethod
+    def encodeInt(x):
+        return str(x)
+
+    @staticmethod
+    def encodeInts(xs):
+        result = "\""
+        for i in range(0, len(xs)):
+            if i > 0:
+                result += "|"
+            result += UICmdHandler.encodeInt(xs[i])
+        result += "\""
+        return result
+
+    @staticmethod
+    def encodeFloat(x):
+        return str(x)
+
+    @staticmethod
+    def encodePosXs(poss):
+        result = "\""
+        for i in range(0, len(poss)):
+            if i > 0:
+                result += "|"
+            result += UICmdHandler.encodeFloat(poss[i].x())
+        result += "\""
+        return result
+
+    @staticmethod
+    def encodePosYs(poss):
+        result = "\""
+        for i in range(0, len(poss)):
+            if i > 0:
+                result += "|"
+            result += UICmdHandler.encodeFloat(poss[i].y())
+        result += "\""
+        return result
+
+    def evalCmdWithArgs(self, cmd, encodedArgs):
+        code = "binding."
+        code += cmd
+        code += "("
+        code += ", ".join(encodedArgs)
+        code += ")"
+        return self.scriptEditor.eval(code)
+
+    def dfgDoInstPreset(
+        self,
+        binding,
+        execPath,
+        exec_,
+        presetPath,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "instPreset",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(presetPath),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddGraph(
+        self,
+        binding,
+        execPath,
+        exec_,
+        title,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addGraph",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(title),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddFunc(
+        self,
+        binding,
+        execPath,
+        exec_,
+        title,
+        initialCode,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addFunc",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(title),
+                UICmdHandler.encodeString(initialCode),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddBackDrop(
+        self,
+        binding,
+        execPath,
+        exec_,
+        title,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addBackDrop",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(title),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddVar(
+        self,
+        binding,
+        execPath,
+        exec_,
+        desiredNodeName,
+        dataType,
+        extDep,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addVar",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(desiredNodeName),
+                UICmdHandler.encodeString(dataType),
+                UICmdHandler.encodeString(extDep),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddGet(
+        self,
+        binding,
+        execPath,
+        exec_,
+        desiredNodeName,
+        varPath,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addGet",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(desiredNodeName),
+                UICmdHandler.encodeString(varPath),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoAddSet(
+        self,
+        binding,
+        execPath,
+        exec_,
+        desiredNodeName,
+        varPath,
+        pos
+        ):
+        return self.evalCmdWithArgs(
+            "addSet",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(desiredNodeName),
+                UICmdHandler.encodeString(varPath),
+                UICmdHandler.encodeFloat(pos.x()),
+                UICmdHandler.encodeFloat(pos.y()),
+                ]
+            )
+
+    def dfgDoMoveNodes(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeNames,
+        newTopLeftPoss
+        ):
+        self.evalCmdWithArgs(
+            "moveNodes",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeStrings(nodeNames),
+                UICmdHandler.encodePosXs(newTopLeftPoss),
+                UICmdHandler.encodePosYs(newTopLeftPoss),
+                ]
+            )
+
+    def dfgDoResizeBackDrop(
+        self,
+        binding,
+        execPath,
+        exec_,
+        backDropNodeName,
+        newTopLeftPos,
+        newSize,
+        ):
+        self.evalCmdWithArgs(
+            "resizeBackDrop",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(backDropNodeName),
+                UICmdHandler.encodeFloat(newTopLeftPos.x()),
+                UICmdHandler.encodeFloat(newTopLeftPos.y()),
+                UICmdHandler.encodeFloat(newSize.width()),
+                UICmdHandler.encodeFloat(newSize.height()),
+                ]
+            )
+
+    def dfgDoRemoveNodes(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeNames,
+        ):
+        self.evalCmdWithArgs(
+            "removeNodes",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeStrings(nodeNames),
+                ]
+            )
+ 
+    def dfgDoImplodeNodes(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeNames,
+        desiredNodeName
+        ):
+        return self.evalCmdWithArgs(
+            "implodeNodes",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeStrings(nodeNames),
+                UICmdHandler.encodeString(desiredNodeName),
+                ]
+            )
+ 
+    def dfgDoExplodeNode(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeName
+        ):
+        return self.evalCmdWithArgs(
+            "explodeNode",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(nodeName),
+                ]
+            )
+ 
+    def dfgDoConnect(
+        self,
+        binding,
+        execPath,
+        exec_,
+        srcPort,
+        dstPort,
+        ):
+        return self.evalCmdWithArgs(
+            "connect",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(srcPort),
+                UICmdHandler.encodeString(dstPort),
+                ]
+            )
+ 
+    def dfgDoDisconnect(
+        self,
+        binding,
+        execPath,
+        exec_,
+        srcPort,
+        dstPort,
+        ):
+        return self.evalCmdWithArgs(
+            "disconnect",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(srcPort),
+                UICmdHandler.encodeString(dstPort),
+                ]
+            )
+
+    def dfgDoAddPort(
+        self,
+        binding,
+        execPath,
+        exec_,
+        desiredPortName,
+        portType,
+        typeSpec,
+        portToConnect,
+        extDep,
+        metaData,
+        ):
+        if portType == self.client.DFG.PortTypes.IO:
+            portTypeStr = "io"
+        elif portType == self.client.DFG.PortTypes.Out:
+            portTypeStr = "out"
+        else:
+            portTypeStr = "in"
+        return self.evalCmdWithArgs(
+            "addPort",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(desiredPortName),
+                UICmdHandler.encodeString(portTypeStr),
+                UICmdHandler.encodeString(typeSpec),
+                UICmdHandler.encodeString(portToConnect),
+                UICmdHandler.encodeString(extDep),
+                UICmdHandler.encodeString(metaData),
+                ]
+            )
+
+    def dfgDoEditPort(
+        self,
+        binding,
+        execPath,
+        exec_,
+        oldPortName,
+        desiredNewPortName,
+        typeSpec,
+        extDep,
+        metaData,
+        ):
+        return self.evalCmdWithArgs(
+            "editPort",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(oldPortName),
+                UICmdHandler.encodeString(desiredNewPortName),
+                UICmdHandler.encodeString(typeSpec),
+                UICmdHandler.encodeString(extDep),
+                UICmdHandler.encodeString(metaData),
+                ]
+            )
+
+    def dfgDoRemovePort(
+        self,
+        binding,
+        execPath,
+        exec_,
+        portName,
+        ):
+        return self.evalCmdWithArgs(
+            "removePort",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(portName),
+                ]
+            )
+
+    def dfgDoCreatePreset(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeName,
+        presetDirPath,
+        presetName,
+        ):
+        return self.evalCmdWithArgs(
+            "createPreset",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(nodeName),
+                UICmdHandler.encodeString(presetDirPath),
+                UICmdHandler.encodeString(presetName),
+                ]
+            )
+
+    def dfgDoSetNodeComment(
+        self,
+        binding,
+        execPath,
+        exec_,
+        nodeName,
+        comment,
+        ):
+        return self.evalCmdWithArgs(
+            "setNodeComment",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(nodeName),
+                UICmdHandler.encodeString(comment),
+                ]
+            )
+
+    def dfgDoSetCode(
+        self,
+        binding,
+        execPath,
+        exec_,
+        code,
+        ):
+        return self.evalCmdWithArgs(
+            "setCode",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(code),
+                ]
+            )
+
+    def dfgDoEditNode(
+        self,
+        binding,
+        execPath,
+        exec_,
+        oldNodeName,
+        desiredNewNodeName,
+        nodeMetadata,
+        execMetadata,
+        ):
+        return self.evalCmdWithArgs(
+            "editNode",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(oldNodeName),
+                UICmdHandler.encodeString(desiredNewNodeName),
+                UICmdHandler.encodeString(nodeMetadata),
+                UICmdHandler.encodeString(execMetadata),
+                ]
+            )
+
+    def dfgDoRenamePort(
+        self,
+        binding,
+        execPath,
+        exec_,
+        oldPortName,
+        desiredNewPortName,
+        ):
+        return self.evalCmdWithArgs(
+            "renamePort",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(oldPortName),
+                UICmdHandler.encodeString(desiredNewPortName),
+                ]
+            )
+
+    def dfgDoPaste(
+        self,
+        binding,
+        execPath,
+        exec_,
+        json,
+        cursorPos,
+        ):
+        return self.evalCmdWithArgs(
+            "paste",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(json),
+                UICmdHandler.encodeFloat(cursorPos.x()),
+                UICmdHandler.encodeFloat(cursorPos.y()),
+                ]
+            )
+
+    def dfgDoSetArgValue(
+        self,
+        binding,
+        argName,
+        value,
+        ):
+        return self.evalCmdWithArgs(
+            "setArgValue",
+            [
+                UICmdHandler.encodeString(argName),
+                UICmdHandler.encodeString(value.getTypeNameStr()),
+                UICmdHandler.encodeString(value.getJSONStr()),
+                ]
+            )
+
+    def dfgDoSetPortDefaultValue(
+        self,
+        binding,
+        execPath,
+        exec_,
+        portPath,
+        value,
+        ):
+        return self.evalCmdWithArgs(
+            "setPortDefaultValue",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(portPath),
+                UICmdHandler.encodeString(value.getTypeNameStr()),
+                UICmdHandler.encodeString(value.getJSONStr()),
+                ]
+            )
+
+    def dfgDoSetRefVarPath(
+        self,
+        binding,
+        execPath,
+        exec_,
+        refName,
+        varPath,
+        ):
+        return self.evalCmdWithArgs(
+            "setRefVarPath",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeString(refName),
+                UICmdHandler.encodeString(varPath),
+                ]
+            )
+
+    def dfgDoReorderPorts(
+        self,
+        binding,
+        execPath,
+        exec_,
+        indices,
+        ):
+        return self.evalCmdWithArgs(
+            "reorderPorts",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeInts(indices),
+                ]
+            )
+
+    def dfgDoSetExtDeps(
+        self,
+        binding,
+        execPath,
+        exec_,
+        extDeps,
+        ):
+        return self.evalCmdWithArgs(
+            "setExtDeps",
+            [
+                UICmdHandler.encodeString(execPath),
+                UICmdHandler.encodeStrings(extDeps),
+                ]
+            )
+
+    def dfgDoSplitFromPreset(
+        self,
+        binding,
+        execPath,
+        exec_,
+        ):
+        return self.evalCmdWithArgs(
+            "splitFromPreset",
+            [
+                UICmdHandler.encodeString(execPath),
+                ]
+            )
 
 class MainWindow(DFG.DFGMainWindow):
     contentChanged = QtCore.Signal()
@@ -89,10 +1419,11 @@ class MainWindow(DFG.DFGMainWindow):
         self.fpsTimer.timeout.connect(self.updateFPS)
         self.fpsTimer.start()
 
-        client = Core.createClient(
-            {'unguarded': unguarded,
-             'reportCallback': self.reportCallback
-            })
+        clientOpts = {
+            'guarded': not unguarded,
+            'reportCallback': self.reportCallback
+            }
+        client = Core.createClient(clientOpts)
         #options.licenseType = FabricCore::ClientLicenseType_Interactive
         client.loadExtension('Math')
         client.loadExtension('Parameters')
@@ -101,7 +1432,6 @@ class MainWindow(DFG.DFGMainWindow):
         self.client = client
 
         self.qUndoStack = QtGui.QUndoStack()
-        self.dfguiCommandHandler = DFG.DFGUICmdHandler_QUndo(self.qUndoStack)
 
         astManager = KLASTManager(client)
 
@@ -128,6 +1458,9 @@ class MainWindow(DFG.DFGMainWindow):
             client, self.config.defaultWindowColor, glFormat, None, None)
         self.setCentralWidget(self.viewport)
 
+        self.scriptEditor = ScriptEditor(client, binding, self.qUndoStack)
+        self.dfguiCommandHandler = UICmdHandler(client, self.scriptEditor)
+
         self.dfgWidget = DFG.DFGWidget(None, client, self.host,
                                        binding, '', graph, astManager,
                                        self.dfguiCommandHandler, self.config)
@@ -143,6 +1476,13 @@ class MainWindow(DFG.DFGMainWindow):
         dfgDock.setFeatures(dockFeatures)
         dfgDock.setWidget(self.dfgWidget)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock,
+                           QtCore.Qt.Vertical)
+
+        scriptEditorDock = QtGui.QDockWidget('Script Editor', self)
+        scriptEditorDock.setObjectName('Script Editor')
+        scriptEditorDock.setFeatures(dockFeatures)
+        scriptEditorDock.setWidget(self.scriptEditor)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, scriptEditorDock,
                            QtCore.Qt.Vertical)
 
         self.timeLinePortIndex = -1
@@ -246,23 +1586,26 @@ class MainWindow(DFG.DFGMainWindow):
         windowMenu = self.menuBar().addMenu("&Window")
 
         toggleAction = dfgDock.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_4)
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_1)
         windowMenu.addAction(toggleAction)
         toggleAction = treeDock.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_5)
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_2)
         windowMenu.addAction(toggleAction)
         toggleAction = valueEditorDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
         toggleAction = timeLineDock.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_9)
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_4)
         windowMenu.addAction(toggleAction)
         windowMenu.addSeparator()
         toggleAction = undoDockWidget.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_7)
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_5)
         windowMenu.addAction(toggleAction)
         toggleAction = logDockWidget.toggleViewAction()
-        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_8)
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
+        windowMenu.addAction(toggleAction)
+        toggleAction = scriptEditorDock.toggleViewAction()
+        toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_7)
         windowMenu.addAction(toggleAction)
 
         self.onFrameChanged(self.timeLine.getTime())
@@ -712,10 +2055,20 @@ class MainWindow(DFG.DFGMainWindow):
                 self.quitAction.triggered.connect(self.close)
         elif name == 'Edit':
             if prefix:
-                undoAction = self.qUndoStack.createUndoAction(menu)
+                undoAction = QtGui.QAction("Undo", self)
+                def onUndo():
+                    self.scriptEditor.eval("undo()")
+                undoAction.triggered.connect(onUndo)
+                undoAction.setEnabled(self.qUndoStack.canUndo())
+                self.qUndoStack.canUndoChanged.connect(undoAction.setEnabled)
                 undoAction.setShortcut(QtGui.QKeySequence.Undo)
                 menu.addAction(undoAction)
-                redoAction = self.qUndoStack.createRedoAction(menu)
+                redoAction = QtGui.QAction("Redo", self)
+                def onRedo():
+                    self.scriptEditor.eval("redo()")
+                redoAction.triggered.connect(onRedo)
+                redoAction.setEnabled(self.qUndoStack.canRedo())
+                self.qUndoStack.canRedoChanged.connect(redoAction.setEnabled)
                 redoAction.setShortcut(QtGui.QKeySequence.Redo)
                 menu.addAction(redoAction)
             else:
@@ -739,9 +2092,9 @@ class MainWindow(DFG.DFGMainWindow):
                     QtCore.Qt.CTRL + QtCore.Qt.Key_G)
                 self.setGridVisibleAction.setCheckable(True)
                 self.setGridVisibleAction.setChecked(
-                    self.viewport.isStageVisible())
+                    self.viewport.isGridVisible())
                 self.setGridVisibleAction.toggled.connect(
-                    self.viewport.setStageVisible)
+                    self.viewport.setGridVisible)
 
                 self.resetCameraAction = QtGui.QAction('&Reset Camera',
                                                        self.viewport)
@@ -851,9 +2204,13 @@ opt_parser.add_option('-u', '--unguarded',
                       action='store_true',
                       dest='unguarded',
                       help='compile KL code in unguarded mode')
+opt_parser.add_option('-e', '--exec',
+                      action='store',
+                      dest='script',
+                      help='execute Python script on startup')
 (opts, args) = opt_parser.parse_args()
 
-unguarded = opts.unguarded
+unguarded = opts.unguarded is True
 
 settings = QtCore.QSettings()
 mainWin = MainWindow(settings, unguarded)
@@ -861,5 +2218,9 @@ mainWin.show()
 
 for arg in args:
     mainWin.loadGraph(arg)
+
+if opts.script:
+    with open(opts.script, "r") as f:
+        mainWin.scriptEditor.exec_(f.read())
 
 app.exec_()

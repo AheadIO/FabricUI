@@ -42,10 +42,10 @@ void ArgModelItem::rename( FTL::CStrRef newName )
 {
   m_dfgUICmdHandler->dfgDoRenamePort(
     m_binding,
-    FTL::CStrRef(),
+    QString(),
     m_rootExec,
-    m_argName,
-    newName
+    QString::fromUtf8( m_argName.data(), m_argName.size() ),
+    QString::fromUtf8( newName.data(), newName.size() )
     );
 }
 
@@ -107,7 +107,7 @@ void ArgModelItem::setValue(
     RTVariant::toRTVal( var, rtVal );
     m_dfgUICmdHandler->dfgDoSetArgValue(
       m_binding,
-      m_argName,
+      QString::fromUtf8( m_argName.data(), m_argName.size() ),
       rtVal
       );
   }

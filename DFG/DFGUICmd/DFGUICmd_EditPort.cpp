@@ -7,13 +7,13 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_EditPort::appendDesc( std::string &desc )
+void DFGUICmd_EditPort::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Edit ");
+  desc += "Edit ";
   appendDesc_PortPath( m_oldPortName, desc );
   if ( m_actualNewPortName != m_oldPortName )
   {
-    desc += FTL_STR("(renamed to ");
+    desc += "(renamed to ";
     appendDesc_PortPath( m_actualNewPortName, desc );
     desc += ')';
   }
@@ -21,24 +21,22 @@ void DFGUICmd_EditPort::appendDesc( std::string &desc )
 
 void DFGUICmd_EditPort::invoke( unsigned &coreUndoCount )
 {
-  m_actualNewPortName =
-    Perform(
-      getBinding(),
-      getExecPath(),
-      getExec(),
-      m_oldPortName,
-      m_desiredNewPortName,
-      m_typeSpec,
-      m_extDep,
-      m_uiMetadata,
+  FTL::CStrRef actualNewPortName =
+    invoke(
+      getExecPath().toUtf8().constData(),
+      m_oldPortName.toUtf8().constData(),
+      m_desiredNewPortName.toUtf8().constData(),
+      m_typeSpec.toUtf8().constData(),
+      m_extDep.toUtf8().constData(),
+      m_uiMetadata.toUtf8().constData(),
       coreUndoCount
       );
+  m_actualNewPortName =
+    QString::fromUtf8( actualNewPortName.data(), actualNewPortName.size() );
 }
 
-FTL::CStrRef DFGUICmd_EditPort::Perform(
-  FabricCore::DFGBinding &binding,
+FTL::CStrRef DFGUICmd_EditPort::invoke(
   FTL::CStrRef execPath,
-  FabricCore::DFGExec &exec,
   FTL::CStrRef oldPortName,
   FTL::CStrRef desiredNewPortName,
   FTL::CStrRef typeSpec,
@@ -47,6 +45,9 @@ FTL::CStrRef DFGUICmd_EditPort::Perform(
   unsigned &coreUndoCount
   )
 {
+  FabricCore::DFGBinding &binding = getBinding();
+  FabricCore::DFGExec &exec = getExec();
+
   if ( !extDep.empty() )
   {
     exec.addExtDep( extDep.c_str() );

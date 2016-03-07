@@ -14,7 +14,7 @@ public:
 
   DFGUICmd_SplitFromPreset(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec
     )
     : DFGUICmd_Exec( binding, execPath, exec )
@@ -25,7 +25,7 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 };

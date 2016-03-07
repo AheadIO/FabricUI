@@ -6,16 +6,27 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_Paste::appendDesc( std::string &desc )
+void DFGUICmd_Paste::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Paste JSON as ");
+  desc += "Paste JSON as ";
   appendDesc_NodeNames( m_pastedNodeNames, desc );
 }
 
 void DFGUICmd_Paste::invoke( unsigned &coreUndoCount )
 {
-  FabricCore::DFGStringResult newNodeNamesJSON =
-    getExec().importNodesJSON( m_json.c_str() );
+  invoke(
+    m_json.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_Paste::invoke(
+  FTL::CStrRef json,
+  unsigned &coreUndoCount
+  )
+{
+  FabricCore::String newNodeNamesJSON =
+    getExec().importNodesJSON( json.c_str() );
   ++coreUndoCount;
 
   m_pastedNodeNames =

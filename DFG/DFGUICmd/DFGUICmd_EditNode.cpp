@@ -9,33 +9,53 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_EditNode::appendDesc( std::string &desc )
+void DFGUICmd_EditNode::appendDesc( QString &desc )
 {
-  desc += FTL_STR("EditNode ");
+  desc += "EditNode ";
   appendDesc_NodeName( m_oldNodeName, desc );
   if ( m_actualNewNodeName != m_oldNodeName )
   {
-    desc += FTL_STR(" (renamed to ");
+    desc += " (renamed to ";
     appendDesc_NodeName( m_actualNewNodeName, desc );
-    desc += FTL_STR(")");
+    desc += ")";
   }
 }
 
 void DFGUICmd_EditNode::invoke( unsigned &coreUndoCount )
 {
+  invoke(
+    m_oldNodeName.toUtf8().constData(),
+    m_desiredNewNodeName.toUtf8().constData(),
+    m_nodeMetadata.toUtf8().constData(),
+    m_execMetadata.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+void DFGUICmd_EditNode::invoke(
+  FTL::CStrRef oldNodeName,
+  FTL::CStrRef desiredNewNodeName,
+  FTL::CStrRef nodeMetadata,
+  FTL::CStrRef execMetadata,
+  unsigned &coreUndoCount
+  )
+{
   FabricCore::DFGExec &exec = getExec();
 
-  m_actualNewNodeName = exec.renameNode(
-    m_oldNodeName.c_str(),
-    m_desiredNewNodeName.c_str()
-    );
+  FTL::CStrRef actualNewNodeName =
+    exec.renameNode(
+      oldNodeName.c_str(),
+      desiredNewNodeName.c_str()
+      );
+  m_actualNewNodeName =
+    QString::fromUtf8( actualNewNodeName.data(), actualNewNodeName.size() );
   ++coreUndoCount;
 
-  if ( !m_nodeMetadata.empty() )
+  if ( !nodeMetadata.empty() )
   {
     try
     {
-      FTL::JSONStrWithLoc swl( m_nodeMetadata );
+      FTL::JSONStrWithLoc swl( nodeMetadata );
       FTL::OwnedPtr<FTL::JSONObject> jo(
         FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
         );
@@ -46,7 +66,7 @@ void DFGUICmd_EditNode::invoke( unsigned &coreUndoCount )
         FTL::CStrRef key = it->first;
         FTL::CStrRef value = it->second->getStringValue();
         exec.setNodeMetadata(
-          m_actualNewNodeName.c_str(),
+          actualNewNodeName.c_str(),
           key.c_str(),
           !value.empty()? value.c_str(): NULL,
           true
@@ -60,14 +80,14 @@ void DFGUICmd_EditNode::invoke( unsigned &coreUndoCount )
     }
   }
 
-  if ( !m_execMetadata.empty() )
+  if ( !execMetadata.empty() )
   {
     FabricCore::DFGExec subExec =
-      exec.getSubExec( m_actualNewNodeName.c_str() );
+      exec.getSubExec( actualNewNodeName.c_str() );
 
     try
     {
-      FTL::JSONStrWithLoc swl( m_execMetadata );
+      FTL::JSONStrWithLoc swl( execMetadata );
       FTL::OwnedPtr<FTL::JSONObject> jo(
         FTL::JSONValue::Decode( swl )->cast<FTL::JSONObject>()
         );

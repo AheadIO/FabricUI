@@ -46,12 +46,12 @@ void NodeModelItem::rename( FTL::CStrRef newName )
 {
   m_dfgUICmdHandler->dfgDoEditNode(
     m_binding,
-    m_execPath,
+    QString::fromUtf8( m_execPath.data(), m_execPath.size() ),
     m_exec,
-    m_nodeName,
-    newName,
-    FTL::StrRef(),
-    FTL::StrRef()
+    QString::fromUtf8( m_nodeName.data(), m_nodeName.size() ),
+    QString::fromUtf8( newName.data(), newName.size() ),
+    QString(),
+    QString()
     );
 }
 

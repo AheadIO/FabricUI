@@ -6,11 +6,11 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_SetExtDeps::appendDesc( std::string &desc )
+void DFGUICmd_SetExtDeps::appendDesc( QString &desc )
 {
-  desc += FTL_STR("SetExtDeps");
-  FTL::StrRef execPath = getExecPath();
-  if ( !execPath.empty() )
+  desc += "SetExtDeps";
+  QString execPath = getExecPath();
+  if ( !execPath.isEmpty() )
   {
     desc += ' ';
     desc += execPath;
@@ -19,15 +19,30 @@ void DFGUICmd_SetExtDeps::appendDesc( std::string &desc )
 
 void DFGUICmd_SetExtDeps::invoke( unsigned &coreUndoCount )
 {
-  char const **nameAndVerCStrs =
+  QList<QByteArray> extDepBAs;
+  extDepBAs.reserve( m_extDeps.size() );
+  foreach ( QString extDep, m_extDeps )
+    extDepBAs.append( extDep.toUtf8() );
+
+  char const **extDepCStrs =
     static_cast<char const **>(
       alloca( m_extDeps.size() * sizeof( char const * ) )
       );
+  for ( int i = 0; i < m_extDeps.size(); ++i )
+    extDepCStrs[i] = extDepBAs[i].constData();
 
-  for ( size_t i = 0; i < m_extDeps.size(); ++i )
-    nameAndVerCStrs[i] = m_extDeps[i].c_str();
+  invoke(
+    FTL::ArrayRef<char const *>( extDepCStrs, m_extDeps.size() ),
+    coreUndoCount
+    );
+}
   
-  getExec().setExtDeps( m_extDeps.size(), nameAndVerCStrs );
+void DFGUICmd_SetExtDeps::invoke(
+  FTL::ArrayRef<char const *> extDepCStrs,
+  unsigned &coreUndoCount
+  )
+{
+  getExec().setExtDeps( extDepCStrs.size(), extDepCStrs.data() );
   ++coreUndoCount;
 }
 

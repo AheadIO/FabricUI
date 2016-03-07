@@ -14,9 +14,9 @@ public:
 
   DFGUICmd_SetCode(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef code
+    QString code
     )
     : DFGUICmd_Exec( binding, execPath, exec )
     , m_code( code )
@@ -27,13 +27,18 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
+  void invoke(
+    FTL::CStrRef code,
+    unsigned &coreUndoCount
+    );
+
 private:
 
-  std::string m_code;
+  QString m_code;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

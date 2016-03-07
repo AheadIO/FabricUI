@@ -14,32 +14,32 @@ public:
 
   DFGUICmd_AddPort(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::StrRef desiredPortName,
+    QString desiredPortName,
     FabricCore::DFGPortType portType,
-    FTL::StrRef typeSpec,
-    FTL::StrRef portToConnectWith,
-    FTL::StrRef extDep,
-    FTL::StrRef metaData
+    QString typeSpec,
+    QString portToConnectWith,
+    QString extDep,
+    QString metaData
     )
     : DFGUICmd_Exec(
       binding,
       execPath,
       exec
       )
-    , m_desiredPortName( desiredPortName )
+    , m_desiredPortName( desiredPortName.trimmed() )
     , m_portType( portType )
-    , m_typeSpec( typeSpec )
-    , m_portToConnectWith( portToConnectWith )
-    , m_extDep( extDep )
-    , m_metaData( metaData )
+    , m_typeSpec( typeSpec.trimmed() )
+    , m_portToConnectWith( portToConnectWith.trimmed() )
+    , m_extDep( extDep.trimmed() )
+    , m_metaData( metaData.trimmed() )
     {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("AddPort"); }
 
-  FTL::CStrRef getActualPortName()
+  QString getActualPortName()
   {
     assert( wasInvoked() );
     return m_actualPortName;
@@ -47,16 +47,13 @@ public:
 
 protected:
 
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual void invoke( unsigned &coreUndoCount );
 
-  static FTL::CStrRef Perform(
-    FabricCore::DFGBinding &binding,
+  FTL::CStrRef invoke(
     FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
     FTL::CStrRef desiredPortName,
-    FabricCore::DFGPortType portType,
     FTL::CStrRef typeSpec,
     FTL::CStrRef portToConnect,
     FTL::CStrRef extDep,
@@ -66,14 +63,14 @@ protected:
 
 private:
 
-  std::string m_desiredPortName;
+  QString m_desiredPortName;
   FabricCore::DFGPortType m_portType;
-  std::string m_typeSpec;
-  std::string m_portToConnectWith;
-  std::string m_extDep;
-  std::string m_metaData;
+  QString m_typeSpec;
+  QString m_portToConnectWith;
+  QString m_extDep;
+  QString m_metaData;
   
-  std::string m_actualPortName;
+  QString m_actualPortName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

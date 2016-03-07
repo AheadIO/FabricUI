@@ -236,10 +236,15 @@ bool DFGController::gvcDoRemoveNodes(
 {
   if ( !nodes.empty() )
   {
-    std::vector<FTL::StrRef> nodeNames;
+    QStringList nodeNames;
     nodeNames.reserve( nodes.size() );
     for ( unsigned i = 0; i < nodes.size(); ++i )
-      nodeNames.push_back( nodes[i]->name() );
+    {
+      FTL::CStrRef nodeName = nodes[i]->name();
+      nodeNames.push_back(
+        QString::fromUtf8( nodeName.data(), nodeName.size() )
+        );
+    }
 
     cmdRemoveNodes( nodeNames );
   }
@@ -247,7 +252,7 @@ bool DFGController::gvcDoRemoveNodes(
 }
 
 void DFGController::cmdAddBackDrop(
-  FTL::CStrRef title,
+  QString title,
   QPointF pos
   )
 {
@@ -258,35 +263,18 @@ void DFGController::cmdAddBackDrop(
   
   m_cmdHandler->dfgDoAddBackDrop(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     title,
     pos
     );
 }
 
-void DFGController::cmdSetTitle(
-  FTL::CStrRef newTitle
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  UpdateSignalBlocker blocker( this );
-  
-  return m_cmdHandler->dfgDoSetTitle(
-    getBinding(),
-    getExecPath(),
-    getExec(),
-    newTitle
-    );
-}
-
-std::string DFGController::cmdEditNode(
-  FTL::StrRef oldName,
-  FTL::StrRef desiredNewName,
-  FTL::StrRef nodeMetadata,
-  FTL::StrRef execMetadata
+QString DFGController::cmdEditNode(
+  QString oldName,
+  QString desiredNewName,
+  QString nodeMetadata,
+  QString execMetadata
   )
 {
   if(!validPresetSplit())
@@ -296,7 +284,7 @@ std::string DFGController::cmdEditNode(
   
   return m_cmdHandler->dfgDoEditNode(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     oldName,
     desiredNewName,
@@ -306,8 +294,8 @@ std::string DFGController::cmdEditNode(
 }
 
 void DFGController::cmdSetNodeComment(
-  FTL::CStrRef nodeName,
-  FTL::CStrRef comment
+  QString nodeName,
+  QString comment
   )
 {
   if(!validPresetSplit())
@@ -317,7 +305,7 @@ void DFGController::cmdSetNodeComment(
   
   m_cmdHandler->dfgDoSetNodeComment(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeName,
     comment
@@ -325,12 +313,12 @@ void DFGController::cmdSetNodeComment(
 }
 
 void DFGController::setNodeCommentExpanded(
-  FTL::CStrRef nodeName,
+  QString nodeName,
   bool expanded
   )
 {
   m_exec.setNodeMetadata(
-    nodeName.c_str(),
+    nodeName.toUtf8().constData(),
     "uiCommentExpanded",
     expanded? "true": "",
     false,
@@ -339,7 +327,7 @@ void DFGController::setNodeCommentExpanded(
 }
 
 bool DFGController::gvcDoAddInstFromPreset(
-  FTL::CStrRef presetPath,
+  QString presetPath,
   QPointF pos
   )
 {
@@ -352,12 +340,12 @@ bool DFGController::gvcDoAddInstFromPreset(
 }
 
 void DFGController::gvcDoAddPort(
-  FTL::CStrRef desiredPortName,
+  QString desiredPortName,
   GraphView::PortType portType,
-  FTL::CStrRef typeSpec,
+  QString typeSpec,
   GraphView::ConnectionTarget *connectWith,
-  FTL::StrRef extDep,
-  FTL::CStrRef metaData
+  QString extDep,
+  QString metaData
   )
 {
   FabricCore::DFGPortType dfgPortType;
@@ -383,11 +371,14 @@ void DFGController::gvcDoAddPort(
       break;
   }
 
+  std::string connectWithPath;
+  if ( connectWith )
+    connectWithPath = connectWith->path();
   cmdAddPort(
     desiredPortName,
     dfgPortType,
     typeSpec,
-    connectWith? FTL::CStrRef( connectWith->path() ): FTL::CStrRef(),
+    QString::fromUtf8( connectWithPath.data(), connectWithPath.size() ),
     extDep,
     metaData
     );
@@ -398,28 +389,32 @@ void DFGController::gvcDoSetNodeCommentExpanded(
   bool expanded
   )
 {
-  setNodeCommentExpanded( node->name(), expanded );
+  FTL::CStrRef nodeName = node->name();
+  setNodeCommentExpanded(
+    QString::fromUtf8( nodeName.data(), nodeName.size() ),
+    expanded
+    );
 }
 
-std::string DFGController::cmdRenameExecPort(
-  FTL::CStrRef oldName,
-  FTL::CStrRef desiredNewName
+QString DFGController::cmdRenameExecPort(
+  QString oldName,
+  QString desiredNewName
   )
 {
   if(!validPresetSplit())
-    return "";
+    return QString();
 
   UpdateSignalBlocker blocker( this );
 
-  std::string result = m_cmdHandler->dfgDoRenamePort(
+  QString result = m_cmdHandler->dfgDoRenamePort(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     oldName,
     desiredNewName
     );
 
-  if(result.length() > 0)
+  if ( !result.isEmpty() )
     emit argsChanged();
 
   return result;
@@ -442,7 +437,10 @@ bool DFGController::gvcDoAddConnection(
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
 
-  cmdConnect( srcPath, dstPath );
+  cmdConnect(
+    QString::fromUtf8( srcPath.data(), srcPath.size() ),
+    QString::fromUtf8( dstPath.data(), dstPath.size() )
+    );
   
   return true;
 }
@@ -464,12 +462,15 @@ bool DFGController::gvcDoRemoveConnection(
   else if(dst->targetType() == GraphView::TargetType_Port)
     dstPath = ((GraphView::Port*)dst)->path();
 
-  cmdDisconnect( srcPath.c_str(), dstPath.c_str() );
+  cmdDisconnect(
+    QString::fromUtf8( srcPath.data(), srcPath.size() ),
+    QString::fromUtf8( dstPath.data(), dstPath.size() )
+    );
 
   return true;
 }
 
-void DFGController::cmdSetCode( FTL::CStrRef code )
+void DFGController::cmdSetCode( QString code )
 {
   if(!validPresetSplit())
     return;
@@ -478,20 +479,20 @@ void DFGController::cmdSetCode( FTL::CStrRef code )
   
   m_cmdHandler->dfgDoSetCode(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     code
     );
 }
 
-std::string DFGController::reloadCode()
+QString DFGController::reloadCode()
 {
   if(!validPresetSplit())
-    return "";
+    return QString();
 
   FabricCore::DFGExec &func = getExec();
   if ( func.getType() != FabricCore::DFGExecType_Func )
-    return "";
+    return QString();
 
   char const * filePath = func.getImportPathname();
   FILE * file = fopen(filePath, "rb");
@@ -521,9 +522,11 @@ std::string DFGController::reloadCode()
         {
           if(klCodeVar->isString())
           {
-            std::string klCode = klCodeVar->getStringData();
-            cmdSetCode( klCode.c_str() );
-            return klCode.c_str();
+            QString klCode = QString::fromUtf8(
+              klCodeVar->getString_cstr()
+              );
+            cmdSetCode( klCode );
+            return klCode;
           }
         }
       }
@@ -533,24 +536,7 @@ std::string DFGController::reloadCode()
       logError(e.getDesc_cstr());
     }
   }    
-  return "";
-}
-
-void DFGController::cmdSetArgType(
-  FTL::CStrRef argName,
-  FTL::CStrRef typeName
-  )
-{
-  if(!validPresetSplit())
-    return;
-
-  UpdateSignalBlocker blocker( this );
-  
-  m_cmdHandler->dfgDoSetArgType(
-    getBinding(),
-    argName,
-    typeName
-    );
+  return QString();
 }
 
 bool DFGController::zoomCanvas(
@@ -637,10 +623,8 @@ bool DFGController::relaxNodes(QStringList paths)
   std::vector<GraphView::Node*> rootNodes;
   for(int i=0;i<paths.length();i++)
   {
-    GraphView::Node * uiNode = graph()->node(paths[i].toUtf8().constData());
-    if(!uiNode)
-      continue;
-    rootNodes.push_back(uiNode);
+    if ( GraphView::Node *uiNode = graph()->node( paths[i] ) )
+      rootNodes.push_back( uiNode );
   }
 
   if(rootNodes.size() == 0)
@@ -679,13 +663,14 @@ bool DFGController::relaxNodes(QStringList paths)
 
   relaxer.relax(50);
 
-  std::vector<FTL::StrRef> nodeNames;
+  QStringList nodeNames;
   nodeNames.reserve( relaxer.numNodes() );
-  std::vector<QPointF> newTopLeftPoss;
+  QList<QPointF> newTopLeftPoss;
   newTopLeftPoss.reserve( relaxer.numNodes() );
   for ( unsigned i=0; i<relaxer.numNodes(); i++ )
   {
-    nodeNames.push_back( relaxer.getName(i) );
+    FTL::CStrRef nodeName = relaxer.getName(i);
+    nodeNames.push_back( QString::fromUtf8( nodeName.data(), nodeName.size() ) );
     newTopLeftPoss.push_back( relaxer.getPos(i) );
   }
 
@@ -840,12 +825,14 @@ void DFGController::cmdCut()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText( json.c_str() );
 
-    std::vector<FTL::StrRef> pathCStrRefs;
-    pathCStrRefs.reserve( pathStrs.size() );
+    QStringList paths;
+    paths.reserve( pathStrs.size() );
     for ( size_t i = 0; i < pathStrs.size(); ++i )
-      pathCStrRefs.push_back( pathStrs[i] );
+      paths.push_back(
+        QString::fromUtf8( pathStrs[i].data(), pathStrs[i].size() )
+        );
 
-    cmdRemoveNodes( pathCStrRefs );
+    cmdRemoveNodes( paths );
   }
   catch(FabricCore::Exception e)
   {
@@ -874,42 +861,20 @@ void DFGController::cmdPaste()
       if (zoom != 0)  pos /= zoom;
 
       // paste.
-      std::vector<std::string> pastedNodes = m_cmdHandler->dfgDoPaste(getBinding(),
-                                                                      getExecPath(),
-                                                                      getExec(),
-                                                                      clipboard->text().toUtf8().constData(),
-                                                                      pos);
+      QList<QString> pastedNodes =
+        m_cmdHandler->dfgDoPaste(
+          getBinding(),
+          getExecPath_QS(),
+          getExec(),
+          clipboard->text().toUtf8().constData(),
+          pos
+          );
 
-      // clear the current selection.
       graph()->clearSelection();
-
-      // select the freshly pasted nodes.
-      // note: some integrations (e.g. Standalone, Softimage) return the names
-      //       of the pasted node as an array while others (e.g. Maya) return
-      //       them as a single string with the names separated by '|'.
-      if (pastedNodes.size() != 1 || pastedNodes[0].find('|') == std::string::npos)
+      for ( int i = 0; i < pastedNodes.size(); ++i )
       {
-        // we have an array of names.
-        for (size_t i=0;i<pastedNodes.size();i++)
-        {
-          FabricUI::GraphView::Node *n = graph()->node(pastedNodes[i].c_str());
-          if (n)  n->setSelected(true);
-        }
-      }
-      else
-      {
-        // we have a single string and the names are separated by '|'.
-        FTL::StrRef names = pastedNodes[0].c_str();
-        while (!names.empty())
-        {
-          FTL::StrRef::Split split = names.trimSplit('|');
-          if (!split.first.empty())
-          {
-            FabricUI::GraphView::Node *n = graph()->node(split.first);
-            if (n)  n->setSelected(true);
-          }
-          names = split.second;
-        }
+        if ( FabricUI::GraphView::Node *node = graph()->node( pastedNodes[i] ) )
+          node->setSelected( true );
       }
     }
   }
@@ -1206,9 +1171,9 @@ void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
 
         if(!cmdSetDefaultValue(
             m_binding,
-            execPath,
+            QString::fromUtf8( execPath.data(), execPath.size() ),
             exec,
-            portPath,
+            QString::fromUtf8( portPath.data(), portPath.size() ),
             valueItem->value())
           )
           // we are emitting this so that the value editor resets,
@@ -1221,16 +1186,19 @@ void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
       {
         cmdSetRefVarPath(
           m_binding,
-          execPath,
+          QString::fromUtf8( execPath.data(), execPath.size() ),
           exec,
-          nodePath,
+          QString::fromUtf8( nodePath.data(), nodePath.size() ),
           valueItem->value().getStringCString()
           );
       }
     }
     else
     {
-      cmdSetArgValue( portOrPinPath, valueItem->value() );
+      cmdSetArgValue(
+        QString::fromUtf8( portOrPinPath.data(), portOrPinPath.size() ),
+        valueItem->value()
+        );
     }
   }
   catch(FabricCore::Exception e)
@@ -1241,9 +1209,9 @@ void DFGController::onValueItemDelta( ValueEditor_Legacy::ValueItem *valueItem )
 
 bool DFGController::cmdSetDefaultValue(
   FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef portPath,
+  QString portPath,
   FabricCore::RTVal const &value
   )
 {
@@ -1252,7 +1220,7 @@ bool DFGController::cmdSetDefaultValue(
 
   FabricCore::RTVal currentDefaultValue =
     exec.getPortDefaultValue(
-      portPath.c_str(),
+      portPath.toUtf8().constData(),
       value.getTypeNameCStr()
       );
   if ( !currentDefaultValue
@@ -1273,14 +1241,15 @@ bool DFGController::cmdSetDefaultValue(
 }
 
 void DFGController::cmdSetArgValue(
-  FTL::CStrRef argName,
+  QString argName,
   FabricCore::RTVal const &value
   )
 {
   if(!validPresetSplit())
     return;
 
-  FabricCore::RTVal currentValue = m_binding.getArgValue( argName.c_str() );
+  FabricCore::RTVal currentValue =
+    m_binding.getArgValue( argName.toUtf8().constData() );
   if ( !currentValue
     || !currentValue.isExEQTo( value ) )
   {
@@ -1296,17 +1265,18 @@ void DFGController::cmdSetArgValue(
 
 void DFGController::cmdSetRefVarPath(
   FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec &exec,
-  FTL::CStrRef refName,
-  FTL::CStrRef varPath
+  QString refName,
+  QString varPath
   )
 {
   if(!validPresetSplit())
     return;
 
-  FTL::CStrRef currentVarPath = exec.getRefVarPath( refName.c_str() );
-  if ( currentVarPath != varPath )
+  FTL::CStrRef currentVarPath =
+    exec.getRefVarPath( refName.toUtf8().constData() );
+  if ( QString::fromUtf8( currentVarPath.c_str() ) != varPath )
   {
     UpdateSignalBlocker blocker( this );
     
@@ -1322,9 +1292,9 @@ void DFGController::cmdSetRefVarPath(
 
 void DFGController::cmdReorderPorts(
   FabricCore::DFGBinding &binding,
-  FTL::CStrRef execPath,
+  QString execPath,
   FabricCore::DFGExec &exec,
-  const std::vector<unsigned int> & indices
+  QList<int> indices
   )
 {
   if(!validPresetSplit())
@@ -1341,7 +1311,7 @@ void DFGController::cmdReorderPorts(
 }
 
 void DFGController::cmdSetExtDeps(
-  FTL::ArrayRef<FTL::StrRef> nameAndVers
+  QStringList nameAndVers
   )
 {
   if(!validPresetSplit())
@@ -1351,7 +1321,7 @@ void DFGController::cmdSetExtDeps(
   
   m_cmdHandler->dfgDoSetExtDeps(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nameAndVers
     );
@@ -1363,7 +1333,7 @@ void DFGController::cmdSplitFromPreset()
   
   m_cmdHandler->dfgDoSplitFromPreset(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec()
     );
 }
@@ -1488,9 +1458,9 @@ void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *
 
         cmdSetDefaultValue(
           m_binding,
-          execPath,
+          QString::fromUtf8( execPath.c_str() ),
           exec,
-          portPath,
+          QString::fromUtf8( portPath.c_str() ),
           value
           );
       }
@@ -1513,7 +1483,10 @@ void DFGController::onValueItemInteractionLeave( ValueEditor_Legacy::ValueItem *
         false // canUndo
         );
 
-      cmdSetArgValue( argName, value );
+      cmdSetArgValue(
+        QString::fromUtf8( argName.c_str() ),
+        value
+        );
     }
   }
   catch(FabricCore::Exception e)
@@ -1854,7 +1827,7 @@ QStringList DFGController::getVariableWordsFromBinding(FabricCore::DFGBinding & 
 }
 
 void DFGController::cmdRemoveNodes(
-  FTL::ArrayRef<FTL::StrRef> nodeNames
+  QStringList nodeNames
   )
 {
   if(!validPresetSplit())
@@ -1864,15 +1837,15 @@ void DFGController::cmdRemoveNodes(
   
   m_cmdHandler->dfgDoRemoveNodes(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeNames
     );
 }
 
 void DFGController::cmdConnect(
-  FTL::CStrRef srcPath, 
-  FTL::CStrRef dstPath
+  QString srcPath, 
+  QString dstPath
   )
 {
   if(!validPresetSplit())
@@ -1882,7 +1855,7 @@ void DFGController::cmdConnect(
   
   m_cmdHandler->dfgDoConnect(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     srcPath,
     dstPath
@@ -1890,8 +1863,8 @@ void DFGController::cmdConnect(
 }
 
 void DFGController::cmdDisconnect(
-  FTL::CStrRef srcPath, 
-  FTL::CStrRef dstPath
+  QString srcPath, 
+  QString dstPath
   )
 {
   if(!validPresetSplit())
@@ -1901,15 +1874,15 @@ void DFGController::cmdDisconnect(
   
   m_cmdHandler->dfgDoDisconnect(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     srcPath,
     dstPath
     );
 }
 
-std::string DFGController::cmdAddInstWithEmptyGraph(
-  FTL::CStrRef title,
+QString DFGController::cmdAddInstWithEmptyGraph(
+  QString title,
   QPointF pos
   )
 {
@@ -1919,16 +1892,16 @@ std::string DFGController::cmdAddInstWithEmptyGraph(
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGraph(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     title,
     pos
     );
 }
 
-std::string DFGController::cmdAddInstWithEmptyFunc(
-  FTL::CStrRef title,
-  FTL::CStrRef initialCode,
+QString DFGController::cmdAddInstWithEmptyFunc(
+  QString title,
+  QString initialCode,
   QPointF pos
   )
 {
@@ -1938,7 +1911,7 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddFunc(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     title,
     initialCode,
@@ -1946,8 +1919,8 @@ std::string DFGController::cmdAddInstWithEmptyFunc(
     );
 }
 
-std::string DFGController::cmdAddInstFromPreset(
-  FTL::CStrRef presetPath,
+QString DFGController::cmdAddInstFromPreset(
+  QString presetPath,
   QPointF pos
   )
 {
@@ -1957,29 +1930,29 @@ std::string DFGController::cmdAddInstFromPreset(
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoInstPreset(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     presetPath,
     pos
     );
 }
 
-std::string DFGController::cmdAddVar(
-  FTL::CStrRef desiredNodeName,
-  FTL::CStrRef dataType,
-  FTL::CStrRef extDep,
+QString DFGController::cmdAddVar(
+  QString desiredNodeName,
+  QString dataType,
+  QString extDep,
   QPointF pos
   )
 {
-  if(  !validPresetSplit()
-     || desiredNodeName.empty()
-     || dataType.empty())
-    return "";
+  if ( !validPresetSplit()
+     || desiredNodeName.isEmpty()
+     || dataType.isEmpty() )
+    return QString();
 
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddVar(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     desiredNodeName,
     dataType,
@@ -1988,9 +1961,9 @@ std::string DFGController::cmdAddVar(
     );
 }
 
-std::string DFGController::cmdAddGet(
-  FTL::CStrRef desiredNodeName,
-  FTL::CStrRef varPath,
+QString DFGController::cmdAddGet(
+  QString desiredNodeName,
+  QString varPath,
   QPointF pos
   )
 {
@@ -2000,7 +1973,7 @@ std::string DFGController::cmdAddGet(
   UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGet(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     desiredNodeName,
     varPath,
@@ -2008,9 +1981,9 @@ std::string DFGController::cmdAddGet(
     );
 }
 
-std::string DFGController::cmdAddSet(
-  FTL::CStrRef desiredNodeName,
-  FTL::CStrRef varPath,
+QString DFGController::cmdAddSet(
+  QString desiredNodeName,
+  QString varPath,
   QPointF pos
   )
 {
@@ -2021,7 +1994,7 @@ std::string DFGController::cmdAddSet(
   
   return m_cmdHandler->dfgDoAddSet(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     desiredNodeName,
     varPath,
@@ -2029,23 +2002,23 @@ std::string DFGController::cmdAddSet(
     );
 }
 
-std::string DFGController::cmdAddPort(
-  FTL::CStrRef desiredPortName,
+QString DFGController::cmdAddPort(
+  QString desiredPortName,
   FabricCore::DFGPortType portType,
-  FTL::CStrRef typeSpec,
-  FTL::CStrRef portToConnect,
-  FTL::StrRef extDep,
-  FTL::CStrRef metaData
+  QString typeSpec,
+  QString portToConnect,
+  QString extDep,
+  QString metaData
   )
 {
   if(!validPresetSplit())
-    return "";
+    return QString();
 
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoAddPort(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     desiredPortName,
     portType,
@@ -2056,17 +2029,17 @@ std::string DFGController::cmdAddPort(
     );
 }
 
-std::string DFGController::cmdCreatePreset(
-  FTL::StrRef nodeName,
-  FTL::StrRef presetDirPath,
-  FTL::StrRef presetName
+QString DFGController::cmdCreatePreset(
+  QString nodeName,
+  QString presetDirPath,
+  QString presetName
   )
 {
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoCreatePreset(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeName,
     presetDirPath,
@@ -2074,22 +2047,22 @@ std::string DFGController::cmdCreatePreset(
     );
 }
 
-std::string DFGController::cmdEditPort(
-  FTL::StrRef oldPortName,
-  FTL::StrRef desiredNewPortName,
-  FTL::StrRef typeSpec,
-  FTL::StrRef extDep,
-  FTL::StrRef uiMetadata
+QString DFGController::cmdEditPort(
+  QString oldPortName,
+  QString desiredNewPortName,
+  QString typeSpec,
+  QString extDep,
+  QString uiMetadata
   )
 {
   if(!validPresetSplit())
-    return "";
+    return QString();
 
   //UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoEditPort(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     oldPortName,
     desiredNewPortName,
@@ -2100,7 +2073,7 @@ std::string DFGController::cmdEditPort(
 }
 
 void DFGController::cmdRemovePort(
-  FTL::CStrRef portName
+  QString portName
   )
 {
   if(!validPresetSplit())
@@ -2110,22 +2083,22 @@ void DFGController::cmdRemovePort(
   
   m_cmdHandler->dfgDoRemovePort(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     portName
     );
 }
 
 void DFGController::cmdMoveNodes(
-  FTL::ArrayRef<FTL::StrRef> nodeNames,
-  FTL::ArrayRef<QPointF> newTopLeftPoss
+  QStringList nodeNames,
+  QList<QPointF> newTopLeftPoss
   )
 {
   UpdateSignalBlocker blocker( this );
   
   m_cmdHandler->dfgDoMoveNodes(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeNames,
     newTopLeftPoss
@@ -2133,7 +2106,7 @@ void DFGController::cmdMoveNodes(
 }
 
 void DFGController::cmdResizeBackDropNode(
-  FTL::CStrRef backDropNodeName,
+  QString backDropNodeName,
   QPointF newTopLeftPos,
   QSizeF newSize
   )
@@ -2142,7 +2115,7 @@ void DFGController::cmdResizeBackDropNode(
   
   m_cmdHandler->dfgDoResizeBackDrop(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     backDropNodeName,
     newTopLeftPos,
@@ -2150,9 +2123,9 @@ void DFGController::cmdResizeBackDropNode(
     );
 }
 
-std::string DFGController::cmdImplodeNodes(
-  FTL::ArrayRef<FTL::StrRef> nodeNames,
-  FTL::CStrRef desiredNodeName
+QString DFGController::cmdImplodeNodes(
+  QStringList nodeNames,
+  QString desiredNodeName
   )
 {
   if(!validPresetSplit())
@@ -2162,25 +2135,25 @@ std::string DFGController::cmdImplodeNodes(
 
   return m_cmdHandler->dfgDoImplodeNodes(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeNames,
     desiredNodeName
     );
 }
 
-std::vector<std::string> DFGController::cmdExplodeNode(
-  FTL::CStrRef nodeName
+QList<QString> DFGController::cmdExplodeNode(
+  QString nodeName
   )
 {
   if(!validPresetSplit())
-    return std::vector<std::string>();
+    return QList<QString>();
 
   UpdateSignalBlocker blocker( this );
   
   return m_cmdHandler->dfgDoExplodeNode(
     getBinding(),
-    getExecPath(),
+    getExecPath_QS(),
     getExec(),
     nodeName
     );
@@ -2194,16 +2167,17 @@ void DFGController::gvcDoMoveNodes(
 {
   if ( allowUndo )
   {
-    std::vector<FTL::StrRef> nodeNames;
-    std::vector<QPointF> newTopLeftPoss;
+    QStringList nodeNames;
+    QList<QPointF> newTopLeftPoss;
     nodeNames.reserve( nodes.size() );
     newTopLeftPoss.reserve( nodes.size() );
     for ( std::vector<GraphView::Node *>::const_iterator it = nodes.begin();
       it != nodes.end(); ++it )
     {
       GraphView::Node *node = *it;
-      nodeNames.push_back( node->name() );
-      newTopLeftPoss.push_back( node->topLeftGraphPos() + delta );
+      FTL::CStrRef nodeName = node->name();
+      nodeNames.append( QString::fromUtf8( nodeName.data(), nodeName.size() ) );
+      newTopLeftPoss.append( node->topLeftGraphPos() + delta );
     }
 
     cmdMoveNodes( nodeNames, newTopLeftPoss );
@@ -2253,7 +2227,7 @@ void DFGController::gvcDoResizeBackDropNode(
   if ( allowUndo )
   {
     cmdResizeBackDropNode(
-      backDropNode->name(),
+      QString::fromUtf8( backDropNode->name().c_str() ),
       newTopLeftPos,
       newSize
       );

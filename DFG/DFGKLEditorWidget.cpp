@@ -182,9 +182,11 @@ void DFGKLEditorWidget::onExecPortsChanged()
         {
           try
           {
+            FTL::CStrRef oldName = exec.getExecPortName(i);
+            FTL::CStrRef desiredNewName = infos[i].portName;
             m_controller->cmdRenameExecPort(
-              exec.getExecPortName(i),
-              infos[i].portName.c_str()
+              QString::fromUtf8( oldName.data(), oldName.size() ),
+              QString::fromUtf8( desiredNewName.data(), desiredNewName.size() )
               );
           }
           catch(FabricCore::Exception e)
@@ -209,16 +211,16 @@ void DFGKLEditorWidget::onExecPortsChanged()
 
       if(addRemovePort)
       {
-        char const * name = exec.getExecPortName(i);
+        QString portName = QString::fromUtf8( exec.getExecPortName(i) );
 
-        m_controller->cmdRemovePort( name );
+        m_controller->cmdRemovePort( portName );
         m_controller->cmdAddPort(
-          name,
+          portName,
           infos[i].portType,
-          infos[i].dataType.c_str(),
-          FTL::CStrRef(), // portToConnectWith
-          FTL::StrRef(), // extDep
-          FTL::CStrRef() // metaData
+          QString::fromUtf8( infos[i].dataType.c_str() ),
+          QString(), // portToConnectWith
+          QString(), // extDep
+          QString() // metaData
           ); 
         modified = true;
       }
@@ -278,12 +280,12 @@ void DFGKLEditorWidget::onExecPortsChanged()
     }
 
     m_controller->cmdAddPort(
-      infos[indexToAdd].portName,
+      QString::fromUtf8( infos[indexToAdd].portName.c_str() ),
       infos[indexToAdd].portType,
-      infos[indexToAdd].dataType,
-      FTL::CStrRef(), // portToConnectWith
-      FTL::StrRef(), // extDep
-      FTL::CStrRef() // metaData
+      QString::fromUtf8( infos[indexToAdd].dataType.c_str() ),
+      QString(), // portToConnectWith
+      QString(), // extDep
+      QString() // metaData
       );
     
     modified = true;
@@ -296,7 +298,7 @@ void DFGKLEditorWidget::onExecPortsChanged()
 void DFGKLEditorWidget::save()
 {
   m_controller->cmdSetCode(
-    m_klEditor->sourceCodeWidget()->code().toUtf8().constData()
+    m_klEditor->sourceCodeWidget()->code()
     );
 
   m_unsavedChanges = false;
@@ -335,12 +337,12 @@ void DFGKLEditorWidget::reload()
       return;
   }
 
-  std::string code = m_controller->reloadCode();
+  QString code = m_controller->reloadCode();
   if(code.length() > 0)
   {
     try
     {
-      m_klEditor->sourceCodeWidget()->setCode(code.c_str());
+      m_klEditor->sourceCodeWidget()->setCode( code );
     }
     catch(FabricCore::Exception e)
     {

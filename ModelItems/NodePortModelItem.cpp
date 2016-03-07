@@ -120,9 +120,9 @@ void NodePortModelItem::setValue(
       RTVariant::toRTVal( value, rtVal );
       m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
         m_binding,
-        m_execPath,
+        QString::fromUtf8( m_execPath.data(), m_execPath.size() ),
         m_exec,
-        m_portPath,
+        QString::fromUtf8( m_portPath.data(), m_portPath.size() ),
         rtVal
         );
     }

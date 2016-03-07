@@ -22,12 +22,6 @@
 #include <FabricUI/GraphView/InfoOverlay.h>
 #include <FabricUI/Util/QString_Conversion.h>
 
-#if QT_VERSION > 0x040602
-# define DFG_QT_MIDDLE_MOUSE Qt::MiddleButton
-#else
-# define DFG_QT_MIDDLE_MOUSE Qt::MidButton
-#endif
-
 namespace FabricUI
 {
 
@@ -73,6 +67,11 @@ namespace FabricUI
       // nodes
       virtual std::vector<Node *> nodes() const;
       virtual Node * node( FTL::StrRef name ) const;
+      Node * node( QString const &name ) const
+      {
+        QByteArray nameUtf8 = name.toUtf8();
+        return node( FTL::CStrRef( nameUtf8.constData() ) );
+      }
       virtual Node * nodeFromPath( FTL::StrRef path ) const
         { return node( path ); }
       Node *renameNode( FTL::StrRef oldName, FTL::StrRef newName );

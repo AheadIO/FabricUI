@@ -92,10 +92,10 @@ void InstPortModelItem::rename( FTL::CStrRef newName )
   assert( !subExec.editWouldSplitFromPreset() );
   m_dfgUICmdHandler->dfgDoRenamePort(
     m_binding,
-    subExecPath,
+    QString::fromUtf8( subExecPath.data(), subExecPath.size() ),
     subExec,
-    m_portName,
-    newName
+    QString::fromUtf8( m_portName.data(), m_portName.size() ),
+    QString::fromUtf8( newName.data(), newName.size() )
     );
 }
 

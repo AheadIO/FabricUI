@@ -15,25 +15,20 @@ public:
 
   DFGUICmd_ImplodeNodes(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec,
-    FTL::ArrayRef<FTL::StrRef> nodeNames,
-    FTL::StrRef desiredImplodedNodeName
+    QList<QString> nodeNames,
+    QString desiredImplodedNodeName
     )
     : DFGUICmd_Exec( binding, execPath, exec )
+    , m_nodeNames( nodeNames )
     , m_desiredImplodedNodeName( desiredImplodedNodeName )
-  {
-    m_nodeNames.insert(
-      m_nodeNames.end(),
-      nodeNames.begin(),
-      nodeNames.end()
-      );
-  }
+    {}
 
   static FTL::CStrRef CmdName()
     { return DFG_CMD_NAME("ImplodeNodes"); }
 
-  FTL::CStrRef getActualImplodedNodeName()
+  QString getActualImplodedNodeName()
   {
     assert( wasInvoked() );
     return m_actualImplodedNodeName;
@@ -41,25 +36,22 @@ public:
 
 protected:
   
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
   
   virtual void invoke( unsigned &coreUndoCount );
 
-  static std::string Perform(
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
-    FTL::ArrayRef<std::string> nodeNames,
+  FTL::CStrRef invoke(
+    FTL::ArrayRef<FTL::CStrRef> nodeNames,
     FTL::CStrRef desiredImplodedNodeName,
     unsigned &coreUndoCount
     );
 
 private:
 
-  std::vector<std::string> m_nodeNames;
-  std::string m_desiredImplodedNodeName;
+  QList<QString> m_nodeNames;
+  QString m_desiredImplodedNodeName;
 
-  std::string m_actualImplodedNodeName;
+  QString m_actualImplodedNodeName;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END

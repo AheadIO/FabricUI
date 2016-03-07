@@ -5,6 +5,10 @@
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Binding.h>
 
+#include <QtCore/QStringList>
+
+#include <FTL/ArrayRef.h>
+
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
 class DFGUICmd_Exec : public DFGUICmd_Binding
@@ -13,39 +17,39 @@ public:
 
   DFGUICmd_Exec(
     FabricCore::DFGBinding const &binding,
-    FTL::StrRef execPath,
+    QString execPath,
     FabricCore::DFGExec const &exec
     )
     : DFGUICmd_Binding( binding )
-    , m_execPath( execPath )
+    , m_execPath( execPath.trimmed() )
     , m_exec( exec )
     {}
 
 protected:
 
-  FTL::CStrRef getExecPath()
+  QString getExecPath()
     { return m_execPath; }
   FabricCore::DFGExec &getExec()
     { return m_exec; }
 
   void appendDesc_Path(
-    FTL::CStrRef path,
-    std::string &desc
+    QString path,
+    QString &desc
     )
   {
     desc += '\'';
-    desc += m_execPath;
-    if ( !m_execPath.empty() && !path.empty() )
+    desc += m_execPath.toUtf8().constData();
+    if ( !m_execPath.isEmpty() && !path.isEmpty() )
       desc += '.';
-    desc += path;
+    desc += path.toUtf8().constData();
     desc += '\'';
   }
 
   void appendDesc_Paths(
-    FTL::CStrRef singular,
-    FTL::CStrRef plural,
-    FTL::ArrayRef<FTL::CStrRef> paths,
-    std::string &desc
+    char const *singular,
+    char const *plural,
+    QStringList paths,
+    QString &desc
     )
   {
     if ( paths.size() == 1 )
@@ -58,15 +62,12 @@ protected:
     {
       desc += plural;
       desc += ' ';
-      FTL::ArrayRef<FTL::CStrRef> headPaths = paths.head( 4 );
-      FTL::ArrayRef<FTL::CStrRef>::IT itBegin = headPaths.begin();
-      FTL::ArrayRef<FTL::CStrRef>::IT itEnd = headPaths.end();
       desc += '[';
-      for ( FTL::ArrayRef<FTL::CStrRef>::IT it = itBegin; it != itEnd; ++it )
+      for ( int i = 0; i < paths.size() && i < 4; ++i )
       {
-        if ( it != itBegin )
+        if ( i != 0 )
           desc += ',';
-        appendDesc_Path( *it, desc );
+        appendDesc_Path( paths.at( i ), desc );
       }
       desc += ']';
     }
@@ -78,79 +79,61 @@ protected:
       desc += buf;
       desc += ' ';
       desc += plural;
-      desc += FTL_STR(" in ");
+      desc += " in ";
       AppendDesc_String( m_execPath, desc );
     }
   }
 
   void appendDesc_NodeName(
-    FTL::CStrRef nodeName,
-    std::string &desc
+    QString nodeName,
+    QString &desc
     )
   {
-    desc += FTL_STR("node ");
+    desc += "node ";
     appendDesc_Path( nodeName, desc );
   }
 
   void appendDesc_NodeNames(
-    FTL::ArrayRef<FTL::CStrRef> nodeNames,
-    std::string &desc
+    QStringList nodeNames,
+    QString &desc
     )
   {
     appendDesc_Paths(
-      FTL_STR("node"),
-      FTL_STR("nodes"),
+      "node",
+      "nodes",
       nodeNames,
       desc
       );
   }
 
-  void appendDesc_NodeNames(
-    FTL::ArrayRef<std::string> nodeNames,
-    std::string &desc
-    )
-  {
-    std::vector<FTL::CStrRef> nodeNameCStrRefs;
-    nodeNameCStrRefs.insert(
-      nodeNameCStrRefs.end(),
-      nodeNames.begin(),
-      nodeNames.end()
-      );
-    appendDesc_NodeNames( nodeNameCStrRefs, desc );
-  }
-
   void appendDesc_PortPath(
-    FTL::CStrRef refName,
-    std::string &desc
+    QString refName,
+    QString &desc
     )
   {
-    desc += FTL_STR("port ");
+    desc += "port ";
     appendDesc_Path( refName, desc );
   }
 
-  std::vector<std::string> adjustNewNodes(
-    FabricCore::DFGStringResult const &newNodeNamesJSON,
+  QStringList adjustNewNodes(
+    FabricCore::String const &newNodeNamesJSON,
     QPointF targetPos,
     unsigned &coreUndoCount
     );
 
-  static void MoveNodes(
-    FabricCore::DFGBinding &binding,
-    FTL::CStrRef execPath,
-    FabricCore::DFGExec &exec,
-    FTL::ArrayRef<std::string> nodeNames,
+  void moveNodes(
+    FTL::ArrayRef<FTL::CStrRef> nodeNames,
     FTL::ArrayRef<QPointF> newTopLeftPoss,
     unsigned &coreUndoCount
     );
 
-  static QPointF GetNodeUIGraphPos( 
-    FabricCore::DFGExec &exec,
+  QPointF getNodeUIGraphPos( 
     FTL::CStrRef nodeName
     );
 
 private:
 
-  std::string m_execPath;
+  QString m_execPath;
   FabricCore::DFGExec m_exec;
 };
 

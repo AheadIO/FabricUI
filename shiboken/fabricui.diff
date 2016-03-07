@@ -1,54 +1,68 @@
-diff -purN orig/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp out/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp
---- orig/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp	2015-10-27 06:51:05.461511437 -0400
-+++ out/FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp	2015-10-27 06:52:00.253511431 -0400
-@@ -1501,7 +1501,7 @@ static PyObject* Sbk_FabricUI_DFG_DFGTab
+diff -purN FabricUI.orig/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp
+--- FabricUI.orig/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp	2016-03-04 13:52:50.346219992 +0100
++++ FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.cpp	2016-03-04 13:47:51.866220028 +0100
+@@ -1503,7 +1503,7 @@ static PyObject* Sbk_FabricUI_DFG_DFGTab
          if (!PyErr_Occurred()) {
              // getHelpText()const
              PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
--            char * cppResult = const_cast<const ::FabricUI::DFG::DFGTabSearchWidget*>(cppSelf)->getHelpText();
-+            const char * cppResult = const_cast<const ::FabricUI::DFG::DFGTabSearchWidget*>(cppSelf)->getHelpText();
+-            char * cppResult = ((::DFGTabSearchWidgetWrapper*) cppSelf)->DFGTabSearchWidgetWrapper::getHelpText_protected();
++            const char * cppResult = ((::DFGTabSearchWidgetWrapper*) cppSelf)->DFGTabSearchWidgetWrapper::getHelpText_protected();
              PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
              pyResult = Shiboken::Conversions::copyToPython(Shiboken::Conversions::PrimitiveTypeConverter<const char*>(), cppResult);
          }
-diff -purN orig/FabricUI/fabricui_dfg_dfguicmdhandler_wrapper.cpp out/FabricUI/fabricui_dfg_dfguicmdhandler_wrapper.cpp
---- orig/FabricUI/fabricui_dfg_dfguicmdhandler_wrapper.cpp	2015-10-27 06:51:05.217511437 -0400
-+++ out/FabricUI/fabricui_dfg_dfguicmdhandler_wrapper.cpp	2015-10-27 06:52:00.201511431 -0400
-@@ -698,7 +698,6 @@ Sbk_FabricUI_DFG_DFGUICmdHandler_Init(Py
-         if (!PyErr_Occurred()) {
-             // DFGUICmdHandler()
-             PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
--            cptr = new ::DFGUICmdHandlerWrapper();
-             PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
-         }
-     }
-diff -purN orig/FabricUI/fabricui_graphview_controller_wrapper.cpp out/FabricUI/fabricui_graphview_controller_wrapper.cpp
---- orig/FabricUI/fabricui_graphview_controller_wrapper.cpp	2015-10-27 06:51:05.533511437 -0400
-+++ out/FabricUI/fabricui_graphview_controller_wrapper.cpp	2015-10-27 06:52:00.213511431 -0400
-@@ -31,9 +31,6 @@ using namespace FabricUI;
+diff -purN FabricUI.orig/fabricui_dfg_dfgtabsearchwidget_wrapper.h FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.h
+--- FabricUI.orig/fabricui_dfg_dfgtabsearchwidget_wrapper.h	2016-03-04 13:52:50.546219992 +0100
++++ FabricUI/fabricui_dfg_dfgtabsearchwidget_wrapper.h	2016-03-04 13:47:51.870220028 +0100
+@@ -50,7 +50,7 @@ public:
+     inline void focusOutEvent_protected(QFocusEvent * event) { FabricUI::DFG::DFGTabSearchWidget::focusOutEvent(event); }
+     virtual void focusOutEvent(QFocusEvent * event);
+     inline bool focusPreviousChild_protected() { return FabricUI::DFG::DFGTabSearchWidget::focusPreviousChild(); }
+-    inline char * getHelpText_protected() const { return FabricUI::DFG::DFGTabSearchWidget::getHelpText(); }
++    inline const char * getHelpText_protected() const { return FabricUI::DFG::DFGTabSearchWidget::getHelpText(); }
+     virtual int heightForWidth(int arg__1) const;
+     inline int heightFromResults_protected() const { return FabricUI::DFG::DFGTabSearchWidget::heightFromResults(); }
+     virtual void hideEvent(QHideEvent * event);
+diff -purN FabricUI.orig/fabricui_dfg_dfgvalueeditor_wrapper.cpp FabricUI/fabricui_dfg_dfgvalueeditor_wrapper.cpp
+--- FabricUI.orig/fabricui_dfg_dfgvalueeditor_wrapper.cpp	2016-03-04 13:52:49.970219993 +0100
++++ FabricUI/fabricui_dfg_dfgvalueeditor_wrapper.cpp	2016-03-04 13:49:26.802220017 +0100
+@@ -29,17 +29,6 @@ DFGValueEditorWrapper::DFGValueEditorWra
+     // ... middle
+ }
  
- // Native ---------------------------------------------------------
- 
--ControllerWrapper::ControllerWrapper(FabricUI::GraphView::Graph * graph) : FabricUI::GraphView::Controller(graph) {
--    // ... middle
+-const QMetaObject* DFGValueEditorWrapper::metaObject() const
+-{
+-    #if QT_VERSION >= 0x040700
+-    if (QObject::d_ptr->metaObject) return QObject::d_ptr->metaObject;
+-    #endif
+-    SbkObject* pySelf = Shiboken::BindingManager::instance().retrieveWrapper(this);
+-    if (pySelf == NULL)
+-        return FabricUI::DFG::DFGValueEditor::metaObject();
+-    return PySide::SignalManager::retriveMetaObject(reinterpret_cast<PyObject*>(pySelf));
 -}
- 
- bool ControllerWrapper::beginInteraction()
+-
+ int DFGValueEditorWrapper::qt_metacall(QMetaObject::Call call, int id, void** args)
  {
-@@ -679,10 +676,8 @@ Sbk_FabricUI_GraphView_Controller_Init(P
+     int result = FabricUI::DFG::DFGValueEditor::qt_metacall(call, id, args);
+diff -purN FabricUI.orig/fabricui_graphview_controller_wrapper.cpp FabricUI/fabricui_graphview_controller_wrapper.cpp
+--- FabricUI.orig/fabricui_graphview_controller_wrapper.cpp	2016-03-04 13:52:50.410219992 +0100
++++ FabricUI/fabricui_graphview_controller_wrapper.cpp	2016-03-04 13:47:51.866220028 +0100
+@@ -681,10 +681,10 @@ Sbk_FabricUI_GraphView_Controller_Init(P
              void* addr = PySide::nextQObjectMemoryAddr();
              PyThreadState* _save = PyEval_SaveThread(); // Py_BEGIN_ALLOW_THREADS
              if (addr) {
 -                cptr = new (addr) ::ControllerWrapper(cppArg0);
++                // cptr = new (addr) ::ControllerWrapper(cppArg0);
                  PySide::setNextQObjectMemoryAddr(0);
              } else {
 -                cptr = new ::ControllerWrapper(cppArg0);
++                // cptr = new ::ControllerWrapper(cppArg0);
              }
  
              PyEval_RestoreThread(_save); // Py_END_ALLOW_THREADS
-diff -purN orig/FabricUI/fabricui_graphview_graph_wrapper.cpp out/FabricUI/fabricui_graphview_graph_wrapper.cpp
---- orig/FabricUI/fabricui_graphview_graph_wrapper.cpp	2015-10-27 06:51:05.301511437 -0400
-+++ out/FabricUI/fabricui_graphview_graph_wrapper.cpp	2015-10-27 06:52:00.249511431 -0400
-@@ -1118,16 +1118,6 @@ Qt::WindowFrameSection GraphWrapper::win
+diff -purN FabricUI.orig/fabricui_graphview_graph_wrapper.cpp FabricUI/fabricui_graphview_graph_wrapper.cpp
+--- FabricUI.orig/fabricui_graphview_graph_wrapper.cpp	2016-03-04 13:52:50.142219993 +0100
++++ FabricUI/fabricui_graphview_graph_wrapper.cpp	2016-03-04 13:47:51.866220028 +0100
+@@ -1119,17 +1119,6 @@ Qt::WindowFrameSection GraphWrapper::win
      return cppResult;
  }
  
@@ -62,13 +76,14 @@ diff -purN orig/FabricUI/fabricui_graphview_graph_wrapper.cpp out/FabricUI/fabri
 -        return FabricUI::GraphView::Graph::metaObject();
 -    return PySide::SignalManager::retriveMetaObject(reinterpret_cast<PyObject*>(pySelf));
 -}
- 
+-
  int GraphWrapper::qt_metacall(QMetaObject::Call call, int id, void** args)
  {
-diff -purN orig/FabricUI/fabricui_graphview_node_wrapper.cpp out/FabricUI/fabricui_graphview_node_wrapper.cpp
---- orig/FabricUI/fabricui_graphview_node_wrapper.cpp	2015-10-27 06:51:05.281511437 -0400
-+++ out/FabricUI/fabricui_graphview_node_wrapper.cpp	2015-10-27 06:52:00.313511431 -0400
-@@ -1441,16 +1441,6 @@ Qt::WindowFrameSection NodeWrapper::wind
+     int result = FabricUI::GraphView::Graph::qt_metacall(call, id, args);
+diff -purN FabricUI.orig/fabricui_graphview_node_wrapper.cpp FabricUI/fabricui_graphview_node_wrapper.cpp
+--- FabricUI.orig/fabricui_graphview_node_wrapper.cpp	2016-03-04 13:52:50.186219993 +0100
++++ FabricUI/fabricui_graphview_node_wrapper.cpp	2016-03-04 13:47:51.866220028 +0100
+@@ -1319,17 +1319,6 @@ Qt::WindowFrameSection NodeWrapper::wind
      return cppResult;
  }
  
@@ -82,6 +97,7 @@ diff -purN orig/FabricUI/fabricui_graphview_node_wrapper.cpp out/FabricUI/fabric
 -        return FabricUI::GraphView::Node::metaObject();
 -    return PySide::SignalManager::retriveMetaObject(reinterpret_cast<PyObject*>(pySelf));
 -}
- 
+-
  int NodeWrapper::qt_metacall(QMetaObject::Call call, int id, void** args)
  {
+     int result = FabricUI::GraphView::Node::qt_metacall(call, id, args);

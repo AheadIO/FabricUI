@@ -6,19 +6,34 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_AddVar::appendDesc( std::string &desc )
+void DFGUICmd_AddVar::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Add variable ");
+  desc += "Add variable ";
   appendDesc_NodeName( getActualNodeName(), desc );
 }
 
 FTL::CStrRef DFGUICmd_AddVar::invokeAdd( unsigned &coreUndoCount )
 {
+  return invokeAdd(
+    getDesiredNodeName().toUtf8().constData(),
+    m_dataType.toUtf8().constData(),
+    m_extDep.toUtf8().constData(),
+    coreUndoCount
+    );
+}
+
+FTL::CStrRef DFGUICmd_AddVar::invokeAdd(
+  FTL::CStrRef desiredNodeName,
+  FTL::CStrRef dataType,
+  FTL::CStrRef extDep,
+  unsigned &coreUndoCount
+  )
+{
   FTL::CStrRef actualNodeName =
     getExec().addVar(
-      getDesiredNodeName().c_str(),
-      m_dataType.c_str(),
-      m_extDep.c_str()
+      desiredNodeName.c_str(),
+      dataType.c_str(),
+      extDep.c_str()
       );
   ++coreUndoCount;
 
