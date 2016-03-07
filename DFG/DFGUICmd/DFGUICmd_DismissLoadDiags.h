@@ -28,7 +28,7 @@ public:
 
 protected:
 
-  virtual void appendDesc( std::string &desc );
+  virtual void appendDesc( QString &desc );
 
   virtual void invoke( unsigned &coreUndoCount );
 

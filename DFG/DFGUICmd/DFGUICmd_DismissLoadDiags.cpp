@@ -7,12 +7,12 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-void DFGUICmd_DismissLoadDiags::appendDesc( std::string &desc )
+void DFGUICmd_DismissLoadDiags::appendDesc( QString &desc )
 {
-  desc += FTL_STR("Dismiss load diagnostic");
+  desc += "Dismiss load diagnostic";
   if ( m_diagIndices.size() != 1 )
     desc += 's';
-  desc += FTL_STR(" [");
+  desc += " [";
   for ( int i = 0; i < m_diagIndices.size(); ++i )
   {
     if ( i != 0 )
