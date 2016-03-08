@@ -177,12 +177,10 @@ FabricCore::RTVal SHGLRenderer::castRay(uint32_t viewportID, float pos[2]) {
   return rayVal;
 }
 
-void SHGLRenderer::get3DScenePosFrom2DScreenPos(uint32_t viewportID, float pos[2], float *pos3D) {
+void SHGLRenderer::get3DScenePosFrom2DScreenPos( uint32_t viewportID, QPoint pos, float *pos3D ) {
   try 
   {
-    RTVal posVal = RTVal::Construct(m_client, "Vec2", 0, 0);
-    posVal.setMember("x", RTVal::ConstructFloat32(m_client, pos[0]));
-    posVal.setMember("y", RTVal::ConstructFloat32(m_client, pos[1]));
+    FabricCore::RTVal posVal = QtToKLMousePosition( pos, m_client, getOrAddViewport( viewportID ), true );
     RTVal args[2] = {
       RTVal::ConstructUInt32(m_client, viewportID),
       posVal
@@ -233,16 +231,19 @@ void SHGLRenderer::render(uint32_t viewportID, uint32_t width, uint32_t height, 
   }
 }
 
-bool SHGLRenderer::onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports) {
+bool SHGLRenderer::onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports, bool dragging) {
   try 
   {
     RTVal viewportVal = getOrAddViewport(viewportID);
-    RTVal klevent = QtToKLEvent(event, m_client, viewportVal, true);
+
+    RTVal args[2];
+    args[0] = QtToKLEvent( event, m_client, viewportVal, true );
+    args[1] = RTVal::ConstructBoolean( m_client, dragging );
     
-    m_shGLRendererVal.callMethod("", "onEvent", 1, &klevent);
-    bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
+    m_shGLRendererVal.callMethod( "", "onEvent", 2, args );
+    bool result = args[0].callMethod( "Boolean", "isAccepted", 0, 0 ).getBoolean();
     event->setAccepted(result);
-    redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
+    redrawAllViewports = args[0].callMethod( "Boolean", "redrawAllViewports", 0, 0 ).getBoolean();
     return result;
   }
   catch(Exception e)

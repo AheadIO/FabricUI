@@ -97,7 +97,7 @@ void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
  
 bool RTRGLViewportWidget::onEvent(QEvent *event) {
   bool redrawAllViewports;
-  if(m_shGLRenderer->onEvent(m_viewportIndex, event, redrawAllViewports))
+  if(m_shGLRenderer->onEvent(m_viewportIndex, event, redrawAllViewports, false))
   {
     emit manipsAcceptedEvent(redrawAllViewports);
     return true;
@@ -116,11 +116,11 @@ void RTRGLViewportWidget::dragEnterEvent(QDragEnterEvent *event) {
 void RTRGLViewportWidget::dragMoveEvent(QDragMoveEvent* event) {
   if(event->mimeData()->hasUrls() && (event->possibleActions() & Qt::CopyAction))
   {
-    // Simulate a MousePressEvent to automatically select the scene object
-    // Use to drop a texture on a mesh, or add a asset as child of a scene instance
-    QMouseEvent mouseEvent(QEvent::MouseButtonPress, event->pos(), Qt::LeftButton, Qt::LeftButton,  Qt::NoModifier);
-    mousePressEvent(&mouseEvent);
-    event->acceptProposedAction();
+    // Convert to a mouseMove event
+    QMouseEvent mouseEvent( QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier );
+    bool redrawAllViewports;
+    if( m_shGLRenderer->onEvent( m_viewportIndex, &mouseEvent, redrawAllViewports, true ) )
+      emit manipsAcceptedEvent( redrawAllViewports );
   }
 }
 
@@ -139,10 +139,8 @@ void RTRGLViewportWidget::dropEvent(QDropEvent *event) {
         
     if(pathList.size() == 0) return;
      
-    float pos[2], pos3D[3];
-    pos[0] = event->pos().x();
-    pos[1] = event->pos().y();
-    m_shGLRenderer->get3DScenePosFrom2DScreenPos(m_viewportIndex, pos, pos3D);
+  float pos3D[3];
+  m_shGLRenderer->get3DScenePosFrom2DScreenPos( m_viewportIndex, event->pos(), pos3D );
     SHEditorWidget::AddExternalFileList(m_shGLScene, pathList, pos3D, forceExpand);
     event->acceptProposedAction();
     emit sceneChanged();

@@ -78,7 +78,7 @@ namespace FabricUI
         // If this is outside the near/far camera range, it will return the origin.
         // \param viewportID The ID of the viewport.
         // \param pos The mouse's position in the viewport
-        void get3DScenePosFrom2DScreenPos(uint32_t viewportID, float pos[2], float *pos3D);
+        void get3DScenePosFrom2DScreenPos( uint32_t viewportID, QPoint pos, float *pos3D );
 
         /// Activates the playback.
         /// \param playback It true, playback.
@@ -113,7 +113,7 @@ namespace FabricUI
         
         /// Propagates the events.
         /// \param event The event.
-        bool onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports);
+        bool onEvent( uint32_t viewportID, QEvent *event, bool &redrawAllViewports, bool dragging );
         
         /// Returns a reference to the ToolDispatcher.
         FabricCore::RTVal getToolDispatcher();
