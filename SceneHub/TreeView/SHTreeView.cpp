@@ -133,7 +133,7 @@ void SHTreeView::mousePressEvent(QMouseEvent *event) {
         if(parentName.compare(SH_ASSETS_LIBRARY) == 0)
         {
           FabricCore::RTVal param = FabricCore::RTVal::ConstructString(m_client, "path");
-          FabricCore::RTVal sgProperty = sgObject.callMethod("SGObjectProperty", "getOrAddLocalProperty", 1, &param);
+          FabricCore::RTVal sgProperty = sgObject.callMethod("SGObjectProperty", "getLocalProperty", 1, &param);
             
           if(sgProperty.callMethod("Boolean", "isValid", 0, 0).getBoolean())
           {

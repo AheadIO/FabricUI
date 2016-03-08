@@ -17,10 +17,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        SHGeometryEditorDialog(
-          QWidget*parent, 
-          SHGLScene *shGLScene, 
-          SHGLRenderer *shGLRenderer);
+        SHGeometryEditorDialog(QWidget*parent, SHGLScene *shGLScene);
 
         virtual ~SHGeometryEditorDialog() {};
  

@@ -136,17 +136,11 @@ void SHEditorWidget::ExportToAlembic(SHGLScene *shGLScene) {
 
 
 // *************************
-SHEditorWidget::SHEditorWidget(
-  QWidget* parent,
-  const QPoint &point,
-  SHGLScene *shGLScene,
-  SHGLRenderer *shGLRenderer) 
-    : QMenu(parent)
-    , m_shGLScene(shGLScene)
-    , m_shGLRenderer(shGLRenderer)
+SHEditorWidget::SHEditorWidget(QWidget* parent, SHGLScene *shGLScene, const QPoint &point) 
+  : QMenu(parent)
+  , m_shGLScene(shGLScene)
 {
-  QString category = m_shGLRenderer->getSelectionCategory();
- 
+  QString category = m_shGLScene->getSelectionCategory();
   if(point.x() > 0) 
   {
     //m_screenPos = point;

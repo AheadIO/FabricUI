@@ -8,19 +8,15 @@
 #include <QtCore/QCoreApplication>
 using namespace FabricUI::SceneHub;
 
-SHBaseEditorDialog::SHBaseEditorDialog(
-  QWidget*parent, 
-  SHGLScene *shGLScene, 
-  SHGLRenderer *shGLRenderer) 
+SHBaseEditorDialog::SHBaseEditorDialog(QWidget*parent, SHGLScene *shGLScene) 
   : QWidget(parent)
   , m_shGLScene(shGLScene)
-  , m_shGLRenderer(shGLRenderer)
 {
   setMouseTracking(true);
   setWindowTitle("");
   setMouseTracking(true);
   setFixedSize(400, 400);
-  if(parent) move(parent->mapToGlobal( parent->rect().center()));
+  if(parent) move(parent->mapToGlobal(parent->rect().center()));
   setWindowFlags(Qt::WindowStaysOnTopHint);
 }
  

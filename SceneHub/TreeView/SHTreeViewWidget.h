@@ -10,7 +10,6 @@
 #include <QtGui/QPushButton.h>
 #include <FabricUI/DFG/DFGController.h>
 #include <FabricUI/SceneHub/SHGLScene.h>
-#include <FabricUI/SceneHub/SHGLRenderer.h>
 #include <FabricUI/SceneHub/TreeView/SHTreeView.h>
 
 namespace FabricUI
@@ -23,54 +22,60 @@ namespace FabricUI
 
       public:
         SHTreeViewWidget(
-          FabricCore::Client client,
           SHGLScene *shGLScene, 
-          FabricUI::DFG::DFGController *controller,
+          DFG::DFGController *controller,
           QWidget *parent = 0);
 
         SHTreeViewWidget(
           FabricCore::Client client,
-          FabricUI::DFG::DFGController *controller,
+          DFG::DFGController *controller,
           QWidget *parent = 0);
 
         ~SHTreeViewWidget() {}
-
-        void init(FabricCore::Client client);
-
-        void setScene(SHGLScene *shGLScene);
-
-        void setMainScene(SHGLScene *shGLScene);
-
         
-
+        SHGLScene* getScene() { return m_shGLScene; }
+  
+  
       public slots:
-        void onSetScene(const QString &sceneName);
+        void onUpdateScene(const QString &sceneName);
 
         void onUpdateSceneList();
 
         void expandTree(uint32_t level);
+        
         /// Calls when the SceneGraph hierachy changed.
         /// Calls when the SceneGraph hierachy changed.
         void onSceneHierarchyChanged();
+        
         /// Updates the application when an item of the treeView is selected.
         /// \param item The selected item.
         void treeItemSelected(FabricUI::SceneHub::SHTreeItem *item);
+        
         /// Updates the application when an item of the treeView is deselected.
         /// \param item The deselected item.
         void treeItemDeselected(FabricUI::SceneHub::SHTreeItem *item);
+        
         /// Updates the treeView from the 3D scene selection.
         void updateFrom3DSelection();
 
 
       signals:
         void sceneHierarchyChanged();
- 
+  
+        void sceneUpdated(FabricUI::SceneHub::SHGLScene *);
 
-      protected:
+
+      private:
+        void resetTree();
+
+        void constructTree();
+
         SHGLScene *m_shGLScene;
-        SHGLScene *m_mainSHGLScene;
-        FabricUI::DFG::DFGController *m_controller;
         SHTreeView *m_shTreeView;
+        SHGLScene *m_mainSHGLScene;
+        SHTreeModel *m_treeModel;
+        DFG::DFGController *m_controller;
+
         QPushButton *m_refreshButton;
         QComboBox *m_comboBox;
         bool m_bUpdatingSelectionFrom3D;

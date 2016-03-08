@@ -14,19 +14,20 @@ using namespace FabricUI::SceneHub;
 using namespace FabricUI::Viewports;
 
 RTRGLViewportWidget::RTRGLViewportWidget(
-  SHGLScene *shGLScene,
   SHGLRenderer *shGLRenderer,
+  SHGLScene *shGLScene,
   int viewportIndex, 
   QGLContext *qglContext, 
   QWidget *parent, 
   QGLWidget *share,
   QSettings *settings) 
-  : ViewportWidget(&shGLScene->getClient(), QColor(), qglContext, parent, share, settings)
+  : ViewportWidget(&shGLRenderer->getClient(), QColor(), qglContext, parent, share, settings)
   , m_viewportIndex(viewportIndex)
   , m_alwaysRefresh(false)
   , m_orthographic(false)
-  , m_shGLScene(shGLScene)
   , m_shGLRenderer(shGLRenderer)
+  , m_shGLScene(shGLScene)
+
 {
   m_samples = qglContext->format().samples();
   // Force to track mouse movment when not clicking
@@ -70,6 +71,7 @@ FabricCore::RTVal RTRGLViewportWidget::getCamera() {
   return m_shGLRenderer->getCamera(m_viewportIndex);
 }
 
+
 void RTRGLViewportWidget::enterEvent(QEvent * event) {
   grabKeyboard();
 }
@@ -79,15 +81,17 @@ void RTRGLViewportWidget::leaveEvent(QEvent * event) {
 }
 
 void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
-  if(!onEvent(event) && event->button() == Qt::RightButton) 
+  if(m_shGLScene)
   {
-    SHEditorWidget *contextualMenu = 
-      new SHEditorWidget(
-        this, 
-        mapToGlobal(event->pos()), 
-        m_shGLScene,
-        m_shGLRenderer);
-    emit sceneChanged();
+    if(!onEvent(event) && event->button() == Qt::RightButton) 
+    {
+      SHEditorWidget *contextualMenu = 
+        new SHEditorWidget(
+          this, 
+          m_shGLScene, 
+          mapToGlobal(event->pos()));
+      emit sceneChanged();
+    }
   }
 }
  
@@ -121,22 +125,26 @@ void RTRGLViewportWidget::dragMoveEvent(QDragMoveEvent* event) {
 }
 
 void RTRGLViewportWidget::dropEvent(QDropEvent *event) {
-  const QMimeData *myData = qobject_cast<const QMimeData*>(event->mimeData());
-  if(!myData) return;
-  if(!event->mimeData()->hasUrls()) return;
 
-  bool forceExpand = event->keyboardModifiers() & Qt::ControlModifier;
-  QStringList pathList;
-  foreach(QUrl url, event->mimeData()->urls())
-    pathList.append(url.toLocalFile());
-      
-  if(pathList.size() == 0) return;
-   
-  float pos[2], pos3D[3];
-  pos[0] = event->pos().x();
-  pos[1] = event->pos().y();
-  m_shGLRenderer->get3DScenePosFrom2DScreenPos(m_viewportIndex, pos, pos3D);
-  SHEditorWidget::AddExternalFileList(m_shGLScene, pathList, pos3D, forceExpand);
-  event->acceptProposedAction();
-  emit sceneChanged();
+  if(m_shGLScene)
+  {
+    const QMimeData *myData = qobject_cast<const QMimeData*>(event->mimeData());
+    if(!myData) return;
+    if(!event->mimeData()->hasUrls()) return;
+
+    bool forceExpand = event->keyboardModifiers() & Qt::ControlModifier;
+    QStringList pathList;
+    foreach(QUrl url, event->mimeData()->urls())
+      pathList.append(url.toLocalFile());
+        
+    if(pathList.size() == 0) return;
+     
+    float pos[2], pos3D[3];
+    pos[0] = event->pos().x();
+    pos[1] = event->pos().y();
+    m_shGLRenderer->get3DScenePosFrom2DScreenPos(m_viewportIndex, pos, pos3D);
+    SHEditorWidget::AddExternalFileList(m_shGLScene, pathList, pos3D, forceExpand);
+    event->acceptProposedAction();
+    emit sceneChanged();
+  }
 }

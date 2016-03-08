@@ -8,8 +8,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QDialog>
 #include <FabricUI/SceneHub/SHGLScene.h>
-#include <FabricUI/SceneHub/SHGLRenderer.h>
-
+ 
 namespace FabricUI
 {
   namespace SceneHub
@@ -37,11 +36,7 @@ namespace FabricUI
         static void ExportToAlembic(SHGLScene *shGLScene);
 
 
-        SHEditorWidget(
-          QWidget* parent,
-          const QPoint &point,
-          SHGLScene *shGLScene,
-          SHGLRenderer *shGLRenderer);
+        SHEditorWidget(QWidget* parent, SHGLScene *shGLScene, const QPoint &point);
 
         ~SHEditorWidget() {} 
 
@@ -70,7 +65,6 @@ namespace FabricUI
         void constuctAddMenu();
 
         SHGLScene *m_shGLScene;
-        SHGLRenderer *m_shGLRenderer;
     };
   }
 }

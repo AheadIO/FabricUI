@@ -7,8 +7,7 @@
 
 #include <QtGui/QWidget>
 #include <FabricUI/SceneHub/SHGLScene.h>
-#include <FabricUI/SceneHub/SHGLRenderer.h>
-
+ 
 namespace FabricUI
 {
   namespace SceneHub
@@ -18,10 +17,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        SHBaseEditorDialog(
-          QWidget*parent, 
-          SHGLScene *shGLScene, 
-          SHGLRenderer *shGLRenderer);
+        SHBaseEditorDialog(QWidget*parent, SHGLScene *shGLScene);
 
         virtual ~SHBaseEditorDialog() {};
 
@@ -36,7 +32,6 @@ namespace FabricUI
 
         float m_color[4];
         SHGLScene *m_shGLScene;
-        SHGLRenderer *m_shGLRenderer;
     };
   }
 }

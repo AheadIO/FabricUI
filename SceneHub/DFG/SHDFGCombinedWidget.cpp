@@ -22,27 +22,10 @@ void SHDFGCombinedWidget::initTreeView() {
     m_client,
     m_dfgWidget->getUIController(),
     this);
-  QObject::connect(m_shTreeViewWidget, SIGNAL(updateScene()), this, SIGNAL(setScene()));
+  QObject::connect(m_shTreeViewWidget, SIGNAL(sceneHierarchyChanged()), this, SLOT(onRefreshScene()));
 }
 
 void SHDFGCombinedWidget::initDocks() { 
   DFGCombinedWidget::initDocks(); 
   m_hSplitter->addWidget(m_shTreeViewWidget);
-}
-
-void SHDFGCombinedWidget::refresh() {
-
-}
-
-void SHDFGCombinedWidget::setScene() {
-  FabricCore::DFGBinding binding = m_dfgWidget->getUIController()->getBinding();
-  FabricCore::DFGExec exec = binding.getExec();
-  
-  QString sceneName = "TRUX";//m_LineEdit->text();
-  if(exec.hasVar(sceneName.toUtf8())) 
-  {
-    //if(m_shGLScene) delete m_shGLScene;
-    //m_shGLScene = new SceneHub::SHGLScene(&m_client, exec.getVarValue(sceneName.toUtf8()));
-    //m_shTreeViewWidget->init(m_shGLScene);
-  }
 }

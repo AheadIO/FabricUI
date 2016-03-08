@@ -19,10 +19,7 @@ namespace FabricUI
       Q_OBJECT
 
       public:
-        SHLightEditorDialog(
-          QWidget*parent, 
-          SHGLScene *shGLScene, 
-          SHGLRenderer *shGLRenderer);
+        SHLightEditorDialog(QWidget*parent, SHGLScene *shGLScene);
 
         virtual ~SHLightEditorDialog() {};
 
@@ -30,7 +27,7 @@ namespace FabricUI
         virtual void showColorDialog();
         
         void updateLightProperties();
- 
+
       private:
         QPoint m_glWidgetScreenPos;
         QPushButton *m_colorButton;

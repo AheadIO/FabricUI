@@ -7,37 +7,21 @@
 #include <FabricUI/SceneHub/TreeView/SHTreeViewWidget.h>
 
 using namespace FabricCore;
+using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-
 SHTreeViewWidget::SHTreeViewWidget(
   FabricCore::Client client,
-  SHGLScene *shGLScene,
-  FabricUI::DFG::DFGController *controller,
-  QWidget *parent) 
-  : QWidget(parent)
-  , m_client(client)
-  , m_controller(controller)
-{ 
-  init(m_client);
-  setMainScene(shGLScene);
-}
-
-SHTreeViewWidget::SHTreeViewWidget(
-  FabricCore::Client client,
-  FabricUI::DFG::DFGController *controller,
+  DFG::DFGController *controller,
   QWidget *parent) 
   : QWidget(parent) 
   , m_client(client)
   , m_controller(controller)
 {
-  init(m_client);
-}
-
-void SHTreeViewWidget::init(FabricCore::Client client) {
-  m_bUpdatingSelectionFrom3D = false;
-  m_shGLScene = 0;
+  m_treeModel = 0;
   m_mainSHGLScene = 0;
+  m_bUpdatingSelectionFrom3D = false;
+  m_shGLScene = new SHGLScene(m_client);
 
   m_comboBox = new QComboBox();
   m_refreshButton = new QPushButton("Refresh");
@@ -49,53 +33,72 @@ void SHTreeViewWidget::init(FabricCore::Client client) {
   layout->addWidget(m_shTreeView);
   this->setLayout(layout);
 
+  QObject::connect( m_shTreeView, SIGNAL( itemSelected( FabricUI::SceneHub::SHTreeItem * ) ), this, SLOT( treeItemSelected( FabricUI::SceneHub::SHTreeItem * ) ) );
+  QObject::connect( m_shTreeView, SIGNAL( itemDeselected( FabricUI::SceneHub::SHTreeItem * ) ), this, SLOT( treeItemDeselected( FabricUI::SceneHub::SHTreeItem * ) ) );
   QObject::connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(onUpdateSceneList()));
-  QObject::connect(m_comboBox, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(onSetScene(const QString &)));
+  QObject::connect(m_comboBox, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(onUpdateScene(const QString &)));
 }
 
-void SHTreeViewWidget::setScene(SHGLScene *shGLScene) {
- 
-  m_shGLScene = shGLScene;
-  SHTreeModel *treeModel = new FabricUI::SceneHub::SHTreeModel(m_shGLScene->getClient(), m_shGLScene->getSG(), m_shTreeView);
-  QObject::connect(this, SIGNAL(sceneHierarchyChanged()), treeModel, SLOT(onSceneHierarchyChanged()));
-  QObject::connect(treeModel, SIGNAL(sceneHierarchyChanged()), this, SLOT(onSceneHierarchyChanged()));
+SHTreeViewWidget::SHTreeViewWidget(
+  SHGLScene *shGLScene,
+  DFG::DFGController *controller,
+  QWidget *parent) 
+  : SHTreeViewWidget(shGLScene->getClient(), controller, parent)
+{ 
+  m_mainSHGLScene = shGLScene;
+  m_comboBox->addItem("Main Scene");
+  constructTree();
+}
 
-  QModelIndex sceneRootIndex = treeModel->addRootItem(m_shGLScene->getSceneRoot());
-  treeModel->addRootItem(m_shGLScene->getAssetLibraryRoot());
-  treeModel->addRootItem(m_shGLScene->getMaterialLibraryRoot());
-  treeModel->addRootItem(m_shGLScene->getImageLibraryRoot());
+void SHTreeViewWidget::resetTree() {
+  m_shTreeView->reset();
+  if(m_treeModel)
+  {
+    delete m_treeModel;
+    m_treeModel = 0;
+  }
+}
 
-  m_shTreeView->setModel(treeModel);
+void SHTreeViewWidget::constructTree() {
+  resetTree();
+
+  m_treeModel = new FabricUI::SceneHub::SHTreeModel(m_shGLScene->getClient(), m_shGLScene->getSG(), m_shTreeView);
+  QObject::connect(this, SIGNAL(sceneHierarchyChanged()), m_treeModel, SLOT(onSceneHierarchyChanged()));
+  QObject::connect(m_treeModel, SIGNAL(sceneHierarchyChanged()), this, SLOT(onSceneHierarchyChanged()));
+
+  QModelIndex sceneRootIndex = m_treeModel->addRootItem(m_shGLScene->getSceneRoot());
+  m_treeModel->addRootItem(m_shGLScene->getAssetLibraryRoot());
+  m_treeModel->addRootItem(m_shGLScene->getMaterialLibraryRoot());
+  m_treeModel->addRootItem(m_shGLScene->getImageLibraryRoot());
+
+  m_shTreeView->setModel(m_treeModel);
   m_shTreeView->setExpanded(sceneRootIndex, true);
 }
 
-void SHTreeViewWidget::setMainScene(SHGLScene *shGLScene) {
-  m_mainSHGLScene = shGLScene;
-  m_comboBox->addItem("Main Scene");
-  setScene(shGLScene);
-}
-
-void SHTreeViewWidget::onSetScene(const QString &sceneName) {
-  if(sceneName == "Main Scene") setScene(m_mainSHGLScene);
-  else
+void SHTreeViewWidget::onUpdateScene(const QString &sceneName) {
+  if(sceneName == "Main Scene") 
   {
-    FabricCore::DFGBinding binding = m_controller->getBinding();
-    FabricCore::DFGExec exec = binding.getExec();
-    if(exec.hasVar(sceneName.toUtf8().constData()))
-    {
-      m_shGLScene = new SHGLScene(
-        &m_client,
-        exec.getVarValue(sceneName.toUtf8().constData()));
-      setScene(m_shGLScene);
-    }
+    m_shGLScene->setSHGLScene(m_mainSHGLScene->getSHGLScene());
+    constructTree();
+    emit sceneUpdated(m_shGLScene);
+  }
+  else if(m_controller->getBinding().getExec().hasVar(sceneName.toUtf8().constData()))
+  {
+    m_shGLScene->setSHGLScene(m_controller->getBinding().getExec().getVarValue(sceneName.toUtf8().constData()));
+    constructTree();
+    emit sceneUpdated(m_shGLScene);
+  }
+  else 
+  {
+    m_comboBox->clear();
+    resetTree();
   }
 }
 
 void SHTreeViewWidget::onUpdateSceneList() {
-  FabricCore::DFGBinding binding = m_controller->getBinding();
-  FabricCore::DFGExec exec = binding.getExec();
- 
-  FabricCore::DFGStringResult json =  binding.getVars();
+  m_comboBox->clear();
+
+  FabricCore::DFGStringResult json =  m_controller->getBinding().getVars();
   FTL::JSONStrWithLoc jsonStrWithLoc( json.getCString() );
   FTL::OwnedPtr<FTL::JSONObject> jsonObject(FTL::JSONValue::Decode( jsonStrWithLoc )->cast<FTL::JSONObject>() );
 
@@ -103,30 +106,30 @@ void SHTreeViewWidget::onUpdateSceneList() {
   objects.push_back(jsonObject.get());
   QStringList sceneNameList;
 
-  for(size_t i=0;i<objects.size();i++)
+  for(size_t i=0; i<objects.size(); i++)
   {
     FTL::JSONObject const * varsObject = objects[i]->maybeGetObject( FTL_STR("vars") );
     if(varsObject)
     {
       for(FTL::JSONObject::const_iterator it = varsObject->begin(); it != varsObject->end(); it++)
       {
-        FTL::CStrRef key = it->first;
-        std::string name = key.c_str();
-
+        QString sceneName(it->first.c_str());
         FTL::JSONObject const *value = it->second->cast<FTL::JSONObject>();
         for(FTL::JSONObject::const_iterator jt = value->begin(); jt != value->end(); jt++) 
         {
           if(QString(jt->second->getStringValue().c_str()) == "SHGLScene")
           {
-            if(!sceneNameList.contains(name.c_str()))
-            sceneNameList.append(key.c_str());
+            if(!sceneNameList.contains(sceneName))
+              sceneNameList.append(sceneName);
           }
         }
       }
     }
   }
 
-  m_comboBox->clear();
+  if(sceneNameList.size() == 0 && !m_mainSHGLScene)
+    resetTree();
+
   if(m_mainSHGLScene) m_comboBox->addItem("Main Scene");
   for(size_t i=0; i<sceneNameList.size(); ++i)
     m_comboBox->addItem(sceneNameList[i]);
@@ -135,11 +138,8 @@ void SHTreeViewWidget::onUpdateSceneList() {
 
 // **********************
 void SHTreeViewWidget::expandTree(uint32_t level) {
-  if(m_shTreeView)
-  {
-    if(level == uint32_t(-1)) m_shTreeView->expandAll();
-    else if(level > 0) m_shTreeView->expandToDepth(level - 1);
-  }
+  if(level == uint32_t(-1)) m_shTreeView->expandAll();
+  else if(level > 0) m_shTreeView->expandToDepth(level - 1);
 }
 
 void SHTreeViewWidget::onSceneHierarchyChanged() {
@@ -154,13 +154,10 @@ void SHTreeViewWidget::onSceneHierarchyChanged() {
 void SHTreeViewWidget::treeItemSelected(FabricUI::SceneHub::SHTreeItem *item) {
   if(m_shGLScene)
   {
-    if(m_shTreeView)
+    if( !m_bUpdatingSelectionFrom3D )
     {
-      if(!m_bUpdatingSelectionFrom3D) 
-      {
-        m_shGLScene->treeItemSelected(item->getSGObject()); 
-        emit sceneHierarchyChanged();
-      }
+      m_shGLScene->treeItemSelected( item->getSGObject() );
+      emit sceneHierarchyChanged();
     }
   }
 }
@@ -168,13 +165,10 @@ void SHTreeViewWidget::treeItemSelected(FabricUI::SceneHub::SHTreeItem *item) {
 void SHTreeViewWidget::treeItemDeselected(FabricUI::SceneHub::SHTreeItem *item) {
   if(m_shGLScene)
   {
-    if(m_shTreeView)
+    if(!m_bUpdatingSelectionFrom3D) 
     {
-      if(!m_bUpdatingSelectionFrom3D) 
-      {
-        m_shGLScene->treeItemDeselected(item->getSGObject()); 
-        emit sceneHierarchyChanged();
-      }
+      m_shGLScene->treeItemDeselected(item->getSGObject()); 
+      emit sceneHierarchyChanged();
     }
   }
 }
@@ -182,24 +176,14 @@ void SHTreeViewWidget::treeItemDeselected(FabricUI::SceneHub::SHTreeItem *item) 
 void SHTreeViewWidget::updateFrom3DSelection() {
   if(m_shGLScene)
   {
-    if(m_shTreeView)
+    // Ensure there's not a loopback from TreeView selection change to 3D view
+    m_bUpdatingSelectionFrom3D = true;
+    // Ensure it really changed; we will be called for any accepted event; only a few will be selection changes
+    if(m_shGLScene->selectionChangedFromManips())
     {
-      // Ensure there's not a loopback from TreeView selection change to 3D view
-      m_bUpdatingSelectionFrom3D = true;
-       /// Gets a reference to the scenegraph.
-      FabricCore::RTVal scene;
-      if(m_shGLScene->getSHGLScene(scene))
-      {
-        SHGLRenderer shGLRenderer(&m_shGLScene->getClient());// = new SHGLRenderer()
-        // Ensure it really changed; we will be called for any accepted event; only a few will be selection changes
-        if(shGLRenderer.selectionChangedFromManips())
-        {
-          m_shTreeView->setSelectedObjects(m_shGLScene->getSelectedObjects());//selectedObjects);
-          emit sceneHierarchyChanged();
-        }
-      }
-
-      m_bUpdatingSelectionFrom3D = false;
+      m_shTreeView->setSelectedObjects(m_shGLScene->getSelectedObjects());
+      emit sceneHierarchyChanged();
     }
+    m_bUpdatingSelectionFrom3D = false;
   }
 }

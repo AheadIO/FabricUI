@@ -21,17 +21,22 @@ namespace FabricUI
     class SHGLScene {
 
       public:
-        SHGLScene(FabricCore::Client *client, QString sceneName);
+        SHGLScene(FabricCore::Client client) : m_client(client) {}
 
-        SHGLScene(FabricCore::Client *client, FabricCore::RTVal shGLScene);
+        SHGLScene(FabricCore::Client client, QString sceneName);
+
+        SHGLScene(FabricCore::Client client, FabricCore::RTVal shGLScene);
 
         ~SHGLScene() {}
         
         /// Gets the client.
-        FabricCore::Client getClient() { return *m_client; };
+        FabricCore::Client getClient() { return m_client; }
 
         /// Gets a reference to the scenegraph.
-        bool getSHGLScene(FabricCore::RTVal &shGLScene);
+        FabricCore::RTVal getSHGLScene() { return m_shGLSceneVal; }
+
+        /// Sets a reference to the scenegraph.
+        void setSHGLScene(FabricCore::RTVal shGLSceneVal) { m_shGLSceneVal = shGLSceneVal; }
 
         /// Gets a reference to the scenegraph.
         FabricCore::RTVal getSG();
@@ -92,9 +97,16 @@ namespace FabricUI
         /// Updates the 'selection' from TreeView's selection.
         /// \param obj The selected scenegraph object
         void treeItemDeselected(FabricCore::RTVal obj); 
-
-        bool showTreeViewByDefault(uint32_t &level);
+                    
+        /// Checks if the selection changed from the manipulation system.
+        /// Synchronizes with the tree-view.
+        bool selectionChangedFromManips();
         
+        /// Gets the category of the selection.
+        /// Used to know what type of element is selected.
+        /// For showing the right contextual menu.
+        QString getSelectionCategory();
+
         /// Adds texture or asset files.
         /// Contains a list of file paths associated with a mouse position. 
         /// Depending on their type, a Scene hierarchy or a texture might be created.
@@ -120,10 +132,11 @@ namespace FabricUI
         /// Exports the scene to alembic.
         /// \param filePath The path of the alembic file.
         void exportToAlembic(QString filePath);
-                
+    
+        bool showTreeViewByDefault(uint32_t &level);
 
         /// Gets the command manager.
-        bool getCmdManager(FabricCore::RTVal &cmdManager);
+        FabricCore::RTVal getCmdManager();
 
         /// From the parameter type and its value, creates 
         /// \param type The parameter type
@@ -136,7 +149,7 @@ namespace FabricUI
 
         /// Gets the number of commands in the kl stacks.
         /// Uses for synchronizaztion
-        uint32_t SHGLScene::getNumCmdInUndoStack();
+        uint32_t getNumCmdInUndoStack();
 
         /// Executes the command at index i of KL stack.
         /// \param cmdName The name of the commands
@@ -163,13 +176,10 @@ namespace FabricUI
         /// \param json The string to decode
         void DecodeRTValFromJSON(FabricCore::Client client, FabricCore::RTVal &rtVal, FTL::CStrRef json); 
        
-      
         /// \internal
-        FabricCore::Client *m_client;    
+        FabricCore::Client m_client;    
         /// \internal
-        FabricCore::RTVal m_shGLScene;
-        // \internal
-        //FabricCore::RTVal m_shGLSceneDefault;
+        FabricCore::RTVal m_shGLSceneVal;
     };
 
   }

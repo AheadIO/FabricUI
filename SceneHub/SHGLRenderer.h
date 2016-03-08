@@ -18,10 +18,19 @@ namespace FabricUI
     class SHGLRenderer {
 
       public:
-        SHGLRenderer(FabricCore::Client *client) : m_client(client) {}
+        SHGLRenderer(FabricCore::Client client);
 
         ~SHGLRenderer() {}
-        
+
+        /// Updates the Renderer, if set externally
+        void update();
+
+        /// Gets the client.
+        FabricCore::Client getClient() { return m_client; }
+
+        /// \internal
+        FabricCore::RTVal getSHGLRenderer() { return m_shGLRendererVal; }
+            
         /// Gets the drawing statistics.
         /// \param viewportID The viewport ID.
         /// \param obj the total number of renderer objects
@@ -105,7 +114,10 @@ namespace FabricUI
         /// Propagates the events.
         /// \param event The event.
         bool onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports);
-      
+        
+        /// Returns a reference to the ToolDispatcher.
+        FabricCore::RTVal getToolDispatcher();
+
         /// Gets the names and the keys of the registered tools.
         /// \param toolNames Name of the registered tools.
         /// \param enableKeys Key of the registered tools.
@@ -126,9 +138,9 @@ namespace FabricUI
 
       private:
         /// \internal
-        FabricCore::Client *m_client;    
+        FabricCore::Client m_client;    
         /// \internal
-        FabricCore::RTVal getSHGLRenderer();
+        FabricCore::RTVal m_shGLRendererVal;
     };
   }
 }

@@ -7,11 +7,8 @@
 using namespace FabricUI::SceneHub;
 
 
-SHLightEditorDialog::SHLightEditorDialog(
-  QWidget *parent, 
-  SHGLScene *shGLScene, 
-  SHGLRenderer *shGLRenderer)
-  : SHBaseEditorDialog(parent, shGLScene, shGLRenderer)
+SHLightEditorDialog::SHLightEditorDialog(QWidget *parent, SHGLScene *shGLScene)
+  : SHBaseEditorDialog(parent, shGLScene)
 {
   m_colorButton = new QPushButton("Color");
   m_closeButton = new QPushButton("Close");
