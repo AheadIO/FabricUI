@@ -10,14 +10,8 @@ using namespace FabricCore;
 using namespace FabricUI;
 using namespace FabricUI::SceneHub;
 
-SHTreeViewWidget::SHTreeViewWidget(
-  FabricCore::Client client,
-  DFG::DFGController *controller,
-  QWidget *parent) 
-  : QWidget(parent) 
-  , m_client(client)
-  , m_controller(controller)
-{
+
+void SHTreeViewWidget::init() {
   m_treeModel = 0;
   m_mainSHGLScene = 0;
   m_bUpdatingSelectionFrom3D = false;
@@ -25,7 +19,7 @@ SHTreeViewWidget::SHTreeViewWidget(
 
   m_comboBox = new QComboBox();
   m_refreshButton = new QPushButton("Refresh");
-  m_shTreeView = new FabricUI::SceneHub::SHTreeView(client);
+  m_shTreeView = new FabricUI::SceneHub::SHTreeView(m_client);
   
   QLayout *layout = new QVBoxLayout();
   layout->addWidget(m_refreshButton);
@@ -40,6 +34,17 @@ SHTreeViewWidget::SHTreeViewWidget(
 }
 
 SHTreeViewWidget::SHTreeViewWidget(
+  FabricCore::Client client,
+  DFG::DFGController *controller,
+  QWidget *parent) 
+  : QWidget(parent) 
+  , m_client(client)
+  , m_controller(controller)
+{
+  init();
+}
+
+SHTreeViewWidget::SHTreeViewWidget(
   SHGLScene *shGLScene,
   DFG::DFGController *controller,
   QWidget *parent) 
@@ -47,6 +52,7 @@ SHTreeViewWidget::SHTreeViewWidget(
   , m_client(shGLScene->getClient())
   , m_controller(controller) 
 { 
+  init();
   m_mainSHGLScene = shGLScene;
   m_comboBox->addItem("Main Scene");
   constructTree();

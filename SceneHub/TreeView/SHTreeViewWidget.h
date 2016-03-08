@@ -66,6 +66,8 @@ namespace FabricUI
 
 
       private:
+        void init();
+        
         void resetTree();
 
         void constructTree();
