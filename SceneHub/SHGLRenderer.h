@@ -104,7 +104,7 @@ namespace FabricUI
         
         /// Propagates the events.
         /// \param event The event.
-        bool onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports);
+        bool onEvent( uint32_t viewportID, QEvent *event, bool &redrawAllViewports, bool dragging );
       
         /// Gets the names and the keys of the registered tools.
         /// \param toolNames Name of the registered tools.

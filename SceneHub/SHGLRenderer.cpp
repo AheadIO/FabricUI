@@ -224,16 +224,19 @@ void SHGLRenderer::render(uint32_t viewportID, uint32_t width, uint32_t height, 
   }
 }
 
-bool SHGLRenderer::onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports) {
+bool SHGLRenderer::onEvent(uint32_t viewportID, QEvent *event, bool &redrawAllViewports, bool dragging) {
   try 
   {
     RTVal viewportVal = getOrAddViewport(viewportID);
-    RTVal klevent = QtToKLEvent(event, m_client, viewportVal, true);
+
+    RTVal args[2];
+    args[0] = QtToKLEvent( event, m_client, viewportVal, true );
+    args[1] = RTVal::ConstructBoolean( m_client, dragging );
     
-    getSHGLRenderer().callMethod("", "onEvent", 1, &klevent);
-    bool result = klevent.callMethod("Boolean", "isAccepted", 0, 0).getBoolean();
+    getSHGLRenderer().callMethod( "", "onEvent", 2, args );
+    bool result = args[0].callMethod( "Boolean", "isAccepted", 0, 0 ).getBoolean();
     event->setAccepted(result);
-    redrawAllViewports = klevent.callMethod("Boolean", "redrawAllViewports", 0, 0).getBoolean();
+    redrawAllViewports = args[0].callMethod( "Boolean", "redrawAllViewports", 0, 0 ).getBoolean();
     return result;
   }
   catch(Exception e)

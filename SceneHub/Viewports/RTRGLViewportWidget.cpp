@@ -93,7 +93,7 @@ void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
  
 bool RTRGLViewportWidget::onEvent(QEvent *event) {
   bool redrawAllViewports;
-  if(m_shGLRenderer->onEvent(m_viewportIndex, event, redrawAllViewports))
+  if(m_shGLRenderer->onEvent(m_viewportIndex, event, redrawAllViewports, false))
   {
     emit manipsAcceptedEvent(redrawAllViewports);
     return true;
@@ -112,11 +112,11 @@ void RTRGLViewportWidget::dragEnterEvent(QDragEnterEvent *event) {
 void RTRGLViewportWidget::dragMoveEvent(QDragMoveEvent* event) {
   if(event->mimeData()->hasUrls() && (event->possibleActions() & Qt::CopyAction))
   {
-    // Simulate a MousePressEvent to automatically select the scene object
-    // Use to drop a texture on a mesh, or add a asset as child of a scene instance
-    QMouseEvent mouseEvent(QEvent::MouseButtonPress, event->pos(), Qt::LeftButton, Qt::LeftButton,  Qt::NoModifier);
-    mousePressEvent(&mouseEvent);
-    event->acceptProposedAction();
+    // Convert to a mouseMove event
+    QMouseEvent mouseEvent( QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier );
+    bool redrawAllViewports;
+    if( m_shGLRenderer->onEvent( m_viewportIndex, &mouseEvent, redrawAllViewports, true ) )
+      emit manipsAcceptedEvent( redrawAllViewports );
   }
 }
 
