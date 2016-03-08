@@ -132,10 +132,8 @@ void RTRGLViewportWidget::dropEvent(QDropEvent *event) {
       
   if(pathList.size() == 0) return;
    
-  float pos[2], pos3D[3];
-  pos[0] = event->pos().x();
-  pos[1] = event->pos().y();
-  m_shGLRenderer->get3DScenePosFrom2DScreenPos(m_viewportIndex, pos, pos3D);
+  float pos3D[3];
+  m_shGLRenderer->get3DScenePosFrom2DScreenPos( m_viewportIndex, event->pos(), pos3D );
   SHEditorWidget::AddExternalFileList(m_shGLScene, pathList, pos3D, forceExpand);
   event->acceptProposedAction();
   emit sceneChanged();
