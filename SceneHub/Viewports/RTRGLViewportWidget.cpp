@@ -14,6 +14,7 @@ using namespace FabricUI::SceneHub;
 using namespace FabricUI::Viewports;
 
 RTRGLViewportWidget::RTRGLViewportWidget(
+  FabricCore::Client client,
   SHGLRenderer *shGLRenderer,
   SHGLScene *shGLScene,
   int viewportIndex, 
@@ -21,7 +22,7 @@ RTRGLViewportWidget::RTRGLViewportWidget(
   QWidget *parent, 
   QGLWidget *share,
   QSettings *settings) 
-  : ViewportWidget(&shGLRenderer->getClient(), QColor(), qglContext, parent, share, settings)
+  : ViewportWidget(&client, QColor(), qglContext, parent, share, settings)
   , m_viewportIndex(viewportIndex)
   , m_alwaysRefresh(false)
   , m_orthographic(false)
@@ -85,11 +86,11 @@ void RTRGLViewportWidget::mousePressEvent(QMouseEvent *event) {
   {
     if(!onEvent(event) && event->button() == Qt::RightButton) 
     {
-      SHEditorWidget *contextualMenu = 
-        new SHEditorWidget(
+      SHEditorWidget *editor = new SHEditorWidget(
           this, 
           m_shGLScene, 
           mapToGlobal(event->pos()));
+      editor->exec(mapToGlobal(event->pos()));
       emit sceneChanged();
     }
   }

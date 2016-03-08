@@ -10,7 +10,7 @@ using namespace FabricUI::SceneHub;
 
 
 SHGLScene::SHGLScene(Client client, QString sceneName) 
-  : SHGLScene(client) 
+  : m_client(client) 
 {
   try 
   {
@@ -24,7 +24,7 @@ SHGLScene::SHGLScene(Client client, QString sceneName)
 }
 
 SHGLScene::SHGLScene(FabricCore::Client client, FabricCore::RTVal shGLScene) 
-  : SHGLScene(client)
+  : m_client(client)
 {
   m_shGLSceneVal = shGLScene;
 }
@@ -252,7 +252,7 @@ QString SHGLScene::getSelectionCategory() {
 }
 
 bool SHGLScene::showTreeViewByDefault(uint32_t &level) {
-  bool show;
+  bool show = false;
   try 
   {
     RTVal levelVal = RTVal::ConstructUInt32(getClient(), level); 

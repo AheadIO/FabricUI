@@ -153,8 +153,6 @@ SHEditorWidget::SHEditorWidget(QWidget* parent, SHGLScene *shGLScene, const QPoi
     if(category == "geometry" || category == "parent") constuctGeometryMenu(category);
     else if (category == "light") editLightProperties();
   }
-
-  exec(point);
 }
 
 void SHEditorWidget::constuctAddMenu() {

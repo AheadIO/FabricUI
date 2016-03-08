@@ -25,6 +25,7 @@ namespace FabricUI
 
       public:
         RTRGLViewportWidget(
+          FabricCore::Client client,
           SceneHub::SHGLRenderer *shGLRenderer,
           SceneHub::SHGLScene *shGLScene,
           int,
@@ -107,8 +108,9 @@ namespace FabricUI
         uint32_t m_width;
         uint32_t m_height;
         uint32_t m_samples;
-        SceneHub::SHGLScene *m_shGLScene;
         SceneHub::SHGLRenderer *m_shGLRenderer;
+        SceneHub::SHGLScene *m_shGLScene;
+
     };
   }
 }

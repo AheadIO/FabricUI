@@ -37,7 +37,7 @@ namespace FabricUI
         /// \param point the total number of renderer points
         /// \param line the total number of renderer lines
         /// \param triangle the total number of renderer triangless
-        void SHGLRenderer::getDrawStats(
+        void getDrawStats(
           uint32_t viewportID, 
           uint32_t &obj, 
           uint32_t &point, 

@@ -43,7 +43,9 @@ SHTreeViewWidget::SHTreeViewWidget(
   SHGLScene *shGLScene,
   DFG::DFGController *controller,
   QWidget *parent) 
-  : SHTreeViewWidget(shGLScene->getClient(), controller, parent)
+  : QWidget(parent)
+  , m_client(shGLScene->getClient())
+  , m_controller(controller) 
 { 
   m_mainSHGLScene = shGLScene;
   m_comboBox->addItem("Main Scene");
@@ -131,7 +133,7 @@ void SHTreeViewWidget::onUpdateSceneList() {
     resetTree();
 
   if(m_mainSHGLScene) m_comboBox->addItem("Main Scene");
-  for(size_t i=0; i<sceneNameList.size(); ++i)
+  for(int i=0; i<sceneNameList.size(); ++i)
     m_comboBox->addItem(sceneNameList[i]);
 }
 
