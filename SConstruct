@@ -60,7 +60,7 @@ if buildOS == 'Darwin':
   qtFlags['FRAMEWORKS'] = ['QtCore', 'QtGui', 'QtOpenGL']
   qtMOC = '/usr/local/bin/moc'
 if buildOS == 'Linux':
-  qtFlags['CPPDEFINES'] = ['_DEBUG']
+  qtFlags['CPPDEFINES'] = ['__STDC_CONSTANT_MACROS']
   qtFlags['CPPPATH'] = ['/usr/include']
   qtFlags['LIBPATH'] = ['/usr/lib']
   qtFlags['LIBS'] = ['QtGui', 'QtCore', 'QtOpenGL']

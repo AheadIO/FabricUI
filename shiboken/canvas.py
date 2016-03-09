@@ -188,7 +188,6 @@ class MainWindow(DFG.DFGMainWindow):
         valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
         valueEditorDockWidget.setObjectName("Values")
         valueEditorDockWidget.setFeatures(dockFeatures)
-        print self.valueEditor
         valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
         self.addDockWidget(
             QtCore.Qt.RightDockWidgetArea,
@@ -739,9 +738,9 @@ class MainWindow(DFG.DFGMainWindow):
                     QtCore.Qt.CTRL + QtCore.Qt.Key_G)
                 self.setGridVisibleAction.setCheckable(True)
                 self.setGridVisibleAction.setChecked(
-                    self.viewport.isStageVisible())
+                    self.viewport.isGridVisible())
                 self.setGridVisibleAction.toggled.connect(
-                    self.viewport.setStageVisible)
+                    self.viewport.setGridVisible)
 
                 self.resetCameraAction = QtGui.QAction('&Reset Camera',
                                                        self.viewport)
