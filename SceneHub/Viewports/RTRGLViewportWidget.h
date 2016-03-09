@@ -5,7 +5,6 @@
 #ifndef __UI_SCENEHUB_RTR_GLVIEWPORT_WIDGET_H__
 #define __UI_SCENEHUB_RTR_GLVIEWPORT_WIDGET_H__
 
-
 #include <QtGui/QDrag>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>

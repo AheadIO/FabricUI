@@ -2,10 +2,6 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-
-#if defined(FTL_OS_DARWIN)
-# include <CoreFoundation/CFURL.h>
-#endif
 #include <FabricUI/Viewports/QtToKLEvent.h>
 #include <FabricUI/SceneHub/Editors/SHEditorWidget.h>
 #include "FabricUI/SceneHub/Viewports/RTRGLViewportWidget.h"

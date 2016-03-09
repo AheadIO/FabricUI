@@ -2,6 +2,24 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
+#include <FTL/Config.h>
+#include <FabricCore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <streambuf>
+#include <memory>
+#include <assert.h>
+#if defined(FTL_OS_DARWIN)
+# include <CoreFoundation/CFURL.h>
+#endif
+
 #include "SHEditorWidget.h"
 #include "SHLightEditorDialog.h"
 #include "SHGeometryEditorDialog.h"
