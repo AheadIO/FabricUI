@@ -61,7 +61,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.config = DFG.DFGConfig()
 
-        self.autosaveFilename = os.path.join(fabricDir, 'autosave')
+        autosaveDir = Core.CAPI.GetFabricDir()
+        self.autosaveFilename = os.path.join(autosaveDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
             os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
@@ -834,31 +835,32 @@ class MainWindow(DFG.DFGMainWindow):
             self.currentGraph = graph
 
 
-app = QtGui.QApplication([])
-app.setOrganizationName('Fabric Software Inc')
-app.setApplicationName('Fabric Canvas Standalone')
-app.setApplicationVersion('2.0.0')
-app.setStyle( FabricStyle() )
+if __name__ == "__main__":
+    app = QtGui.QApplication([])
+    app.setOrganizationName('Fabric Software Inc')
+    app.setApplicationName('Fabric Canvas Standalone')
+    app.setApplicationVersion('2.0.0')
+    app.setStyle( FabricStyle() )
 
-fabricDir = os.environ.get('FABRIC_DIR', None)
-if fabricDir:
-    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
-    app.setWindowIcon(QtGui.QIcon(logoPath))
+    fabricDir = os.environ.get('FABRIC_DIR', None)
+    if fabricDir:
+        logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
+        app.setWindowIcon(QtGui.QIcon(logoPath))
 
-opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
-opt_parser.add_option('-u', '--unguarded',
-                      action='store_true',
-                      dest='unguarded',
-                      help='compile KL code in unguarded mode')
-(opts, args) = opt_parser.parse_args()
+    opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
+    opt_parser.add_option('-u', '--unguarded',
+                          action='store_true',
+                          dest='unguarded',
+                          help='compile KL code in unguarded mode')
+    (opts, args) = opt_parser.parse_args()
 
-unguarded = opts.unguarded
+    unguarded = opts.unguarded
 
-settings = QtCore.QSettings()
-mainWin = MainWindow(settings, unguarded)
-mainWin.show()
+    settings = QtCore.QSettings()
+    mainWin = MainWindow(settings, unguarded)
+    mainWin.show()
 
-for arg in args:
-    mainWin.loadGraph(arg)
+    for arg in args:
+        mainWin.loadGraph(arg)
 
-app.exec_()
+    app.exec_()
