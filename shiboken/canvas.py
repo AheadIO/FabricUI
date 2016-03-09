@@ -416,6 +416,9 @@ class MainWindow(DFG.DFGMainWindow):
 
         QtGui.QMainWindow.closeEvent(self, event)
 
+        self.valueEditor = None
+        self.client.close()
+
         if os.path.exists(self.autosaveFilename):
             os.remove(self.autosaveFilename)
 
