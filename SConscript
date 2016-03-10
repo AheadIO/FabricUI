@@ -87,11 +87,12 @@ env.AddMethod(GlobQObjectSources)
 if buildType == 'Debug':
   env.Append(CPPDEFINES = ['_DEBUG'])
 
-if buildOS == 'Windows':
-  if buildType == 'Debug':
-    env.Append(CCFLAGS = ['/MDd'])
-  else:
-    env.Append(CCFLAGS = ['/MD'])
+# [andrew 20160310] no DLL support yet, FE-6026
+#if buildOS == 'Windows':
+#  if buildType == 'Debug':
+#    env.Append(CCFLAGS = ['/MDd'])
+#  else:
+#    env.Append(CCFLAGS = ['/MD'])
 
 env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
