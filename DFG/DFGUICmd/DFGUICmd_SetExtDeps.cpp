@@ -42,7 +42,7 @@ void DFGUICmd_SetExtDeps::invoke(
   unsigned &coreUndoCount
   )
 {
-  getExec().setExtDeps( extDepCStrs.size(), extDepCStrs.data() );
+  getExec().setExtDeps( extDepCStrs.size(), (const char**)extDepCStrs.data() );
   ++coreUndoCount;
 }
 
