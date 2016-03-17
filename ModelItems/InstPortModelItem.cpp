@@ -49,7 +49,7 @@ QVariant InstPortModelItem::getValue()
   try
   {
     // TODO: Find a way to show values of connected ports
-    if (m_exec.hasSrcPort( m_portPath.c_str() ))
+    if (m_exec.hasSrcPorts( m_portPath.c_str() ))
       return QVariant();
 
     // If we have a resolved type, allow getting the default val

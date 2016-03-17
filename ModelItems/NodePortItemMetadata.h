@@ -36,7 +36,7 @@ namespace FabricUI
           if (strcmp( "uiReadOnly", key ) == 0)
           {
             // Override disabled for connected ports
-            if ( exec.hasSrcPort( portPath.c_str() ) )
+            if ( exec.hasSrcPorts( portPath.c_str() ) )
               return "1";
             if (exec.editWouldSplitFromPreset())
               return "1";
@@ -57,7 +57,7 @@ namespace FabricUI
             FTL::CStrRef portPath = m_nodePortModelItem->getPortPath();
             bool isNotInspectable =
               exec.getNodePortType( portPath.c_str() ) != FabricCore::DFGPortType_In
-                || exec.hasSrcPort( portPath.c_str() );
+                || exec.hasSrcPorts( portPath.c_str() );
             return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
           }
 

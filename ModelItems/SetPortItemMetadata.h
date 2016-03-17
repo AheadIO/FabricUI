@@ -32,7 +32,7 @@ public:
       {
         FabricCore::DFGExec exec = m_setPortModelItem->getExec();
         FTL::CStrRef portPath = m_setPortModelItem->getPortPath();
-        bool isNotInspectable = exec.hasSrcPort( portPath.c_str() );
+        bool isNotInspectable = exec.hasSrcPorts( portPath.c_str() );
         return isNotInspectable? FTL_STR("1").c_str(): FTL_STR("").c_str();
       }
 
