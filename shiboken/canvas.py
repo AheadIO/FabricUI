@@ -1682,7 +1682,7 @@ class MainWindow(DFG.DFGMainWindow):
             self.lastSavedBindingVersion = binding.getVersion()
             dfgExec = binding.getExec()
             dfgController.setBindingExec(binding, "", dfgExec)
-            self.onSidePanelInspectRequested()
+            #self.onSidePanelInspectRequested()
 
             self.evalContext.currentFilePath = filePath
             dfgController.execute()
@@ -1879,9 +1879,9 @@ class MainWindow(DFG.DFGMainWindow):
             QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")
 
-            self.onSidePanelInspectRequested()
+            #self.onSidePanelInspectRequested()
 
-            self.contentChanged.emit()
+            self.contentChanged.semit()
 
             self.onFileNameChanged('')
 
@@ -1897,15 +1897,18 @@ class MainWindow(DFG.DFGMainWindow):
         if not self.checkUnsavedChanges():
             return
 
-        lastPresetFolder = self.settings.value(
-            "mainWindow/lastPresetFolder").toString()
-        filePath = QtGui.QFileDialog.getOpenFileName(
+        lastPresetFolder = str(self.settings.value(
+            "mainWindow/lastPresetFolder"))
+        filePath, _ = QtGui.QFileDialog.getOpenFileName(
             self, "Load graph", lastPresetFolder, "*.canvas")
-        if len(filePath.length):
+
+        print "filePath " + str(filePath)
+        filePath = str(filePath)
+        if len(filePath) > 0:
             folder = QtCore.QDir(filePath)
             folder.cdUp()
             self.settings.setValue("mainWindow/lastPresetFolder",
-                                   folder.path())
+                                   str(folder.path()))
             self.loadGraph(filePath)
 
     # [andrew 20151027] FIXME Core.CAPI normally takes care of this
@@ -1957,8 +1960,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         filePath = self.lastFileName
         if len(filePath) == 0 or saveAs:
-            lastPresetFolder = self.settings.value(
-                "mainWindow/lastPresetFolder").toString()
+            lastPresetFolder = str(self.settings.value(
+                "mainWindow/lastPresetFolder"))#.toString()
             if len(self.lastFileName) > 0:
                 filePath = self.lastFileName
                 if filePath.lower().endswith('.canvas'):
@@ -1966,7 +1969,7 @@ class MainWindow(DFG.DFGMainWindow):
             else:
                 filePath = lastPresetFolder
 
-            filePath = QtGui.QFileDialog.getSaveFileName(self, "Save graph",
+            filePath, _ = QtGui.QFileDialog.getSaveFileName(self, "Save graph",
                                                          filePath, "*.canvas")
             if len(filePath) == 0:
                 return False
@@ -2187,7 +2190,6 @@ class MainWindow(DFG.DFGMainWindow):
 
             self.currentGraph = graph
 
-
 app = QtGui.QApplication([])
 app.setOrganizationName('Fabric Software Inc')
 app.setApplicationName('Fabric Canvas Standalone')
@@ -2213,6 +2215,7 @@ opt_parser.add_option('-e', '--exec',
 unguarded = opts.unguarded is True
 
 settings = QtCore.QSettings()
+settings.setValue("mainWindow/lastPresetFolder", str("."))
 mainWin = MainWindow(settings, unguarded)
 mainWin.show()
 
