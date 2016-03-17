@@ -608,10 +608,10 @@ dfgEntry {\n\
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 
-    if (name.empty())
+    if (name.isEmpty())
     { controller->log("Warning: no variable created (empty name).");
       return; }
-    if (dataType.empty())
+    if (dataType.isEmpty())
     { controller->log("Warning: no variable created (empty type).");
       return; }
 
