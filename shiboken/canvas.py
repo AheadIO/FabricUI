@@ -1881,7 +1881,7 @@ class MainWindow(DFG.DFGMainWindow):
 
             #self.onSidePanelInspectRequested()
 
-            self.contentChanged.semit()
+            self.contentChanged.emit()
 
             self.onFileNameChanged('')
 
