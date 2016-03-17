@@ -372,6 +372,13 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
     QString dataType = dialog.dataType();
     QString extension = dialog.extension();
 
+    if (name.isEmpty())
+    { controller->log("Warning: no variable created (empty name).");
+      return; }
+    if (dataType.isEmpty())
+    { controller->log("Warning: no variable created (empty type).");
+      return; }
+
     nodeName = controller->cmdAddVar(
       name.toUtf8().constData(), 
       dataType.toUtf8().constData(), 
