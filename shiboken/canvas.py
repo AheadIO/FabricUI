@@ -1716,8 +1716,7 @@ class MainWindow(DFG.DFGMainWindow):
                     focalDistance = self.client.RT.constructRTValFromJSON('Float32',
                         camera_focalDistance)
 
-                    camera = self.wrapRTVal(self.viewport.getCamera())
-
+                    camera = self.viewport.getCamera()
                     camera.setFromMat44('', mat44)
                     camera.setFocalDistance("", focalDistance)
                 except Exception as e:
@@ -1909,10 +1908,6 @@ class MainWindow(DFG.DFGMainWindow):
                                    str(folder.path()))
             self.loadGraph(filePath)
 
-    # [andrew 20151027] FIXME Core.CAPI normally takes care of this
-    def wrapRTVal(self, rtVal):
-        return Core.Util.rtValToPyObject(self.client._client.getContext(), rtVal)
-
     def performSave(self, binding, filePath):
         graph = binding.getExec()
 
@@ -1928,7 +1923,7 @@ class MainWindow(DFG.DFGMainWindow):
                           str(self.timeLine.simulationMode()), False)
 
         try:
-            camera = self.wrapRTVal(self.viewport.getCamera())
+            camera = self.viewport.getCamera()
             mat44 = camera.getMat44('Mat44')
             focalDistance = camera.getFocalDistance('Float32')
 
@@ -1983,8 +1978,7 @@ class MainWindow(DFG.DFGMainWindow):
         binding = self.dfgWidget.getDFGController().getBinding()
 
         if self.performSave(binding, filePath):
-            self.evalContext.setMember("currentFilePath",
-                                       self.client.RT.types.String(filePath))
+            self.evalContext.currentFilePath = filePath
 
         self.lastFileName = filePath
 
