@@ -1528,7 +1528,6 @@ class MainWindow(DFG.DFGMainWindow):
         valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
         valueEditorDockWidget.setObjectName("Values")
         valueEditorDockWidget.setFeatures(dockFeatures)
-        print self.valueEditor
         valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
         self.addDockWidget(
             QtCore.Qt.RightDockWidgetArea,
@@ -1902,7 +1901,6 @@ class MainWindow(DFG.DFGMainWindow):
         filePath, _ = QtGui.QFileDialog.getOpenFileName(
             self, "Load graph", lastPresetFolder, "*.canvas")
 
-        print "filePath " + str(filePath)
         filePath = str(filePath)
         if len(filePath) > 0:
             folder = QtCore.QDir(filePath)
@@ -1961,7 +1959,7 @@ class MainWindow(DFG.DFGMainWindow):
         filePath = self.lastFileName
         if len(filePath) == 0 or saveAs:
             lastPresetFolder = str(self.settings.value(
-                "mainWindow/lastPresetFolder"))#.toString()
+                "mainWindow/lastPresetFolder"))
             if len(self.lastFileName) > 0:
                 filePath = self.lastFileName
                 if filePath.lower().endswith('.canvas'):
@@ -2215,7 +2213,6 @@ opt_parser.add_option('-e', '--exec',
 unguarded = opts.unguarded is True
 
 settings = QtCore.QSettings()
-settings.setValue("mainWindow/lastPresetFolder", str("."))
 mainWin = MainWindow(settings, unguarded)
 mainWin.show()
 
