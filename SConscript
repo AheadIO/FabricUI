@@ -338,7 +338,10 @@ if uiLibPrefix == 'ui':
         )
 
     pysideModuleDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('PySide')
-    pysideModuleSrcDir = pythonConfig['pysideDir'].Dir('lib').Dir('python'+pythonVersion).Dir('site-packages').Dir('PySide')
+    if buildOS == 'Windows':
+      pysideModuleSrcDir = pythonConfig['pysideDir'].Dir('lib').Dir('site-packages').Dir('PySide')
+    else:
+      pysideModuleSrcDir = pythonConfig['pysideDir'].Dir('lib').Dir('python'+pythonVersion).Dir('site-packages').Dir('PySide')
     installedPySideLibs.append(
       pysideEnv.Install(
         pysideModuleDstDir,
