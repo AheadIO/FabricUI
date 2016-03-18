@@ -1587,14 +1587,21 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
   DFGGetTextDialog dialog(NULL, text);
   if ( dialog.exec() == QDialog::Accepted )
   {
-    m_uiController->cmdSetNodeComment(
-      QString::fromUtf8( node->name().c_str() ),
-      dialog.text()
-      );
-    m_uiController->setNodeCommentExpanded(
-      QString::fromUtf8( node->name().c_str() ),
-      true
-      );
+    if ( !text.isEmpty() || !dialog.text().isEmpty() )
+    {
+      m_uiController->cmdSetNodeComment(
+        QString::fromUtf8( node->name().c_str() ),
+        dialog.text()
+        );
+      m_uiController->setNodeCommentExpanded(
+        QString::fromUtf8( node->name().c_str() ),
+        true
+        );
+    }
+    else
+    {
+      bubble->hide();
+    }
   }
   else if ( bubble )
   {

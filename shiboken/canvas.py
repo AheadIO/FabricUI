@@ -1391,7 +1391,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.config = DFG.DFGConfig()
 
-        self.autosaveFilename = os.path.join(fabricDir, 'autosave')
+        autosaveDir = Core.CAPI.GetFabricDir()
+        self.autosaveFilename = os.path.join(autosaveDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
             os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
@@ -1756,6 +1757,9 @@ class MainWindow(DFG.DFGMainWindow):
         self.settings.setValue("mainWindow/state", self.saveState())
 
         QtGui.QMainWindow.closeEvent(self, event)
+
+        self.valueEditor = None
+        self.client.close()
 
         if os.path.exists(self.autosaveFilename):
             os.remove(self.autosaveFilename)
@@ -2182,39 +2186,41 @@ class MainWindow(DFG.DFGMainWindow):
 
             self.currentGraph = graph
 
-app = QtGui.QApplication([])
-app.setOrganizationName('Fabric Software Inc')
-app.setApplicationName('Fabric Canvas Standalone')
-app.setApplicationVersion('2.0.0')
-app.setStyle( FabricStyle() )
 
-fabricDir = os.environ.get('FABRIC_DIR', None)
-if fabricDir:
-    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
-    app.setWindowIcon(QtGui.QIcon(logoPath))
+if __name__ == "__main__":
+    app = QtGui.QApplication([])
+    app.setOrganizationName('Fabric Software Inc')
+    app.setApplicationName('Fabric Canvas Standalone')
+    app.setApplicationVersion('2.0.0')
+    app.setStyle( FabricStyle() )
 
-opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
-opt_parser.add_option('-u', '--unguarded',
-                      action='store_true',
-                      dest='unguarded',
-                      help='compile KL code in unguarded mode')
-opt_parser.add_option('-e', '--exec',
-                      action='store',
-                      dest='script',
-                      help='execute Python script on startup')
-(opts, args) = opt_parser.parse_args()
+    fabricDir = os.environ.get('FABRIC_DIR', None)
+    if fabricDir:
+        logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
+        app.setWindowIcon(QtGui.QIcon(logoPath))
 
-unguarded = opts.unguarded is True
+    opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
+    opt_parser.add_option('-u', '--unguarded',
+                          action='store_true',
+                          dest='unguarded',
+                          help='compile KL code in unguarded mode')
+    opt_parser.add_option('-e', '--exec',
+                          action='store',
+                          dest='script',
+                          help='execute Python script on startup')
+    (opts, args) = opt_parser.parse_args()
 
-settings = QtCore.QSettings()
-mainWin = MainWindow(settings, unguarded)
-mainWin.show()
+    unguarded = opts.unguarded is True
 
-for arg in args:
-    mainWin.loadGraph(arg)
+    settings = QtCore.QSettings()
+    mainWin = MainWindow(settings, unguarded)
+    mainWin.show()
 
-if opts.script:
-    with open(opts.script, "r") as f:
-        mainWin.scriptEditor.exec_(f.read())
+    for arg in args:
+        mainWin.loadGraph(arg)
 
-app.exec_()
+    if opts.script:
+        with open(opts.script, "r") as f:
+            mainWin.scriptEditor.exec_(f.read())
+
+    app.exec_()
