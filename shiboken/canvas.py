@@ -1391,7 +1391,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         self.config = DFG.DFGConfig()
 
-        self.autosaveFilename = os.path.join(fabricDir, 'autosave')
+        autosaveDir = Core.CAPI.GetFabricDir()
+        self.autosaveFilename = os.path.join(autosaveDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
             os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
@@ -1528,7 +1529,6 @@ class MainWindow(DFG.DFGMainWindow):
         valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
         valueEditorDockWidget.setObjectName("Values")
         valueEditorDockWidget.setFeatures(dockFeatures)
-        print self.valueEditor
         valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
         self.addDockWidget(
             QtCore.Qt.RightDockWidgetArea,
@@ -1682,7 +1682,7 @@ class MainWindow(DFG.DFGMainWindow):
             self.lastSavedBindingVersion = binding.getVersion()
             dfgExec = binding.getExec()
             dfgController.setBindingExec(binding, "", dfgExec)
-            self.onSidePanelInspectRequested()
+            #self.onSidePanelInspectRequested()
 
             self.evalContext.currentFilePath = filePath
             dfgController.execute()
@@ -1717,8 +1717,7 @@ class MainWindow(DFG.DFGMainWindow):
                     focalDistance = self.client.RT.constructRTValFromJSON('Float32',
                         camera_focalDistance)
 
-                    camera = self.wrapRTVal(self.viewport.getCamera())
-
+                    camera = self.viewport.getCamera()
                     camera.setFromMat44('', mat44)
                     camera.setFocalDistance("", focalDistance)
                 except Exception as e:
@@ -1758,6 +1757,9 @@ class MainWindow(DFG.DFGMainWindow):
         self.settings.setValue("mainWindow/state", self.saveState())
 
         QtGui.QMainWindow.closeEvent(self, event)
+
+        self.valueEditor = None
+        self.client.close()
 
         if os.path.exists(self.autosaveFilename):
             os.remove(self.autosaveFilename)
@@ -1879,7 +1881,7 @@ class MainWindow(DFG.DFGMainWindow):
             QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")
 
-            self.onSidePanelInspectRequested()
+            #self.onSidePanelInspectRequested()
 
             self.contentChanged.emit()
 
@@ -1897,20 +1899,18 @@ class MainWindow(DFG.DFGMainWindow):
         if not self.checkUnsavedChanges():
             return
 
-        lastPresetFolder = self.settings.value(
-            "mainWindow/lastPresetFolder").toString()
-        filePath = QtGui.QFileDialog.getOpenFileName(
+        lastPresetFolder = str(self.settings.value(
+            "mainWindow/lastPresetFolder"))
+        filePath, _ = QtGui.QFileDialog.getOpenFileName(
             self, "Load graph", lastPresetFolder, "*.canvas")
-        if len(filePath.length):
+
+        filePath = str(filePath)
+        if len(filePath) > 0:
             folder = QtCore.QDir(filePath)
             folder.cdUp()
             self.settings.setValue("mainWindow/lastPresetFolder",
-                                   folder.path())
+                                   str(folder.path()))
             self.loadGraph(filePath)
-
-    # [andrew 20151027] FIXME Core.CAPI normally takes care of this
-    def wrapRTVal(self, rtVal):
-        return Core.Util.rtValToPyObject(self.client._client.getContext(), rtVal)
 
     def performSave(self, binding, filePath):
         graph = binding.getExec()
@@ -1927,7 +1927,7 @@ class MainWindow(DFG.DFGMainWindow):
                           str(self.timeLine.simulationMode()), False)
 
         try:
-            camera = self.wrapRTVal(self.viewport.getCamera())
+            camera = self.viewport.getCamera()
             mat44 = camera.getMat44('Mat44')
             focalDistance = camera.getFocalDistance('Float32')
 
@@ -1957,8 +1957,8 @@ class MainWindow(DFG.DFGMainWindow):
 
         filePath = self.lastFileName
         if len(filePath) == 0 or saveAs:
-            lastPresetFolder = self.settings.value(
-                "mainWindow/lastPresetFolder").toString()
+            lastPresetFolder = str(self.settings.value(
+                "mainWindow/lastPresetFolder"))
             if len(self.lastFileName) > 0:
                 filePath = self.lastFileName
                 if filePath.lower().endswith('.canvas'):
@@ -1966,7 +1966,7 @@ class MainWindow(DFG.DFGMainWindow):
             else:
                 filePath = lastPresetFolder
 
-            filePath = QtGui.QFileDialog.getSaveFileName(self, "Save graph",
+            filePath, _ = QtGui.QFileDialog.getSaveFileName(self, "Save graph",
                                                          filePath, "*.canvas")
             if len(filePath) == 0:
                 return False
@@ -1982,8 +1982,7 @@ class MainWindow(DFG.DFGMainWindow):
         binding = self.dfgWidget.getDFGController().getBinding()
 
         if self.performSave(binding, filePath):
-            self.evalContext.setMember("currentFilePath",
-                                       self.client.RT.types.String(filePath))
+            self.evalContext.currentFilePath = filePath
 
         self.lastFileName = filePath
 
@@ -2188,39 +2187,40 @@ class MainWindow(DFG.DFGMainWindow):
             self.currentGraph = graph
 
 
-app = QtGui.QApplication([])
-app.setOrganizationName('Fabric Software Inc')
-app.setApplicationName('Fabric Canvas Standalone')
-app.setApplicationVersion('2.0.0')
-app.setStyle( FabricStyle() )
+if __name__ == "__main__":
+    app = QtGui.QApplication([])
+    app.setOrganizationName('Fabric Software Inc')
+    app.setApplicationName('Fabric Canvas Standalone')
+    app.setApplicationVersion('2.0.0')
+    app.setStyle( FabricStyle() )
 
-fabricDir = os.environ.get('FABRIC_DIR', None)
-if fabricDir:
-    logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
-    app.setWindowIcon(QtGui.QIcon(logoPath))
+    fabricDir = os.environ.get('FABRIC_DIR', None)
+    if fabricDir:
+        logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
+        app.setWindowIcon(QtGui.QIcon(logoPath))
 
-opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
-opt_parser.add_option('-u', '--unguarded',
-                      action='store_true',
-                      dest='unguarded',
-                      help='compile KL code in unguarded mode')
-opt_parser.add_option('-e', '--exec',
-                      action='store',
-                      dest='script',
-                      help='execute Python script on startup')
-(opts, args) = opt_parser.parse_args()
+    opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
+    opt_parser.add_option('-u', '--unguarded',
+                          action='store_true',
+                          dest='unguarded',
+                          help='compile KL code in unguarded mode')
+    opt_parser.add_option('-e', '--exec',
+                          action='store',
+                          dest='script',
+                          help='execute Python script on startup')
+    (opts, args) = opt_parser.parse_args()
 
-unguarded = opts.unguarded is True
+    unguarded = opts.unguarded is True
 
-settings = QtCore.QSettings()
-mainWin = MainWindow(settings, unguarded)
-mainWin.show()
+    settings = QtCore.QSettings()
+    mainWin = MainWindow(settings, unguarded)
+    mainWin.show()
 
-for arg in args:
-    mainWin.loadGraph(arg)
+    for arg in args:
+        mainWin.loadGraph(arg)
 
-if opts.script:
-    with open(opts.script, "r") as f:
-        mainWin.scriptEditor.exec_(f.read())
+    if opts.script:
+        with open(opts.script, "r") as f:
+            mainWin.scriptEditor.exec_(f.read())
 
-app.exec_()
+    app.exec_()
