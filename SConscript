@@ -10,15 +10,17 @@ Import(
   'buildDir',
   'parentEnv',
   'fabricFlags',
+  'glewFlags',
   'qtFlags',
   'qtMOC',
   'uiLibPrefix',
   'qtIncludeDir',
+  'qtBinDir',
   'qtLibDir',
   'stageDir',
   'pythonConfigs',
   'capiSharedLibFlags',
-  'servicesFlags',
+  'servicesFlags_mt',
   )
 
 suffix = '4'
@@ -87,15 +89,9 @@ env.AddMethod(GlobQObjectSources)
 if buildType == 'Debug':
   env.Append(CPPDEFINES = ['_DEBUG'])
 
-# [andrew 20160310] no DLL support yet, FE-6026
-#if buildOS == 'Windows':
-#  if buildType == 'Debug':
-#    env.Append(CCFLAGS = ['/MDd'])
-#  else:
-#    env.Append(CCFLAGS = ['/MD'])
-
 env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
+env.MergeFlags(glewFlags)
 
 dirs = [
   'Util',
@@ -178,7 +174,7 @@ Export(uiLibPrefix + 'Lib', uiLibPrefix + 'IncludeDir', uiLibPrefix + 'Flags')
 
 env.Alias(uiLibPrefix + 'Lib', uiFiles)
 
-if uiLibPrefix == 'ui' and buildOS != 'Windows':
+if uiLibPrefix == 'ui':
 
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
 
@@ -192,7 +188,7 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
 
     pysideEnv = env.Clone()
     pysideEnv.MergeFlags(capiSharedLibFlags)
-    pysideEnv.MergeFlags(servicesFlags)
+    pysideEnv.MergeFlags(servicesFlags_mt)
     pysideEnv.Append(LIBS = ['FabricSplitSearch'])
     pysideEnv.MergeFlags(pythonConfig['pythonFlags'])
     pysideEnv.MergeFlags(pythonConfig['shibokenFlags'])
@@ -211,10 +207,8 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
     shibokenDir = pysideEnv.Dir('shiboken')
 
     if buildOS == 'Windows':
-      if buildType == 'Debug':
-        pysideEnv.Append(CCFLAGS = ['/MDd'])
-      else:
-        pysideEnv.Append(CCFLAGS = ['/MD'])
+      pysideEnv['CCFLAGS'].remove('/W2')
+      pysideEnv.Append(LINKFLAGS = ['/NODEFAULTLIB:LIBCMT'])
     else:
       pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
@@ -224,15 +218,12 @@ if uiLibPrefix == 'ui' and buildOS != 'Windows':
     shibokenIncludePaths.append(qtIncludeDir)
     shibokenIncludePaths.append(os.path.join(os.environ['FABRIC_DIR'], "include"))
 
-    if buildOS == 'Windows':
-      diffFile = shibokenDir.File('fabricui.Windows.diff')
-    if buildOS == 'Linux':
-      diffFile = shibokenDir.File('fabricui.diff')
-    if buildOS == 'Darwin':
-      diffFile = shibokenDir.File('fabricui.diff')
-
     if buildOS == 'Linux':
       pysideEnv['ENV']['LD_LIBRARY_PATH'] = qtLibDir
+    elif buildOS == 'Windows':
+      pysideEnv['ENV']['PATH'] = qtBinDir+';'+pysideEnv['ENV']['PATH']
+
+    diffFile = shibokenDir.File('fabricui.diff')
 
     pysideGen = pysideEnv.Command(
       pysideDir.Dir('FabricUI').File('fabricui_python.h'),
