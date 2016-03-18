@@ -325,14 +325,26 @@ if uiLibPrefix == 'ui':
       )
     pysideEnv.Depends(installedPySideLib, pysideGen)
     installedPySideLibs.append(installedPySideLib)
-    # if buildOS == 'Windows':
-    #   for pysideDLL in pythonConfig['pysideDLLs']:
-    #     installedPySideLibs.append(
-    #       pysideEnv.Install(
-    #         pythonDstDir,
-    #         pysideDLL
-    #         )
-    #       )
+    if buildOS == 'Windows':
+      pysideDLLDst = pysideEnv['STAGE_DIR'].Dir('bin')
+    else:
+      pysideDLLDst = pysideEnv['STAGE_DIR'].Dir('lib')
+    for pysideDLL in pythonConfig['pysideDLLs']:
+      installedPySideLibs.append(
+        pysideEnv.Install(
+          pysideDLLDst,
+          pysideDLL
+          )
+        )
+
+    pysideModuleDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('PySide')
+    pysideModuleSrcDir = pythonConfig['pysideDir'].Dir('lib').Dir('python'+pythonVersion).Dir('site-packages').Dir('PySide')
+    installedPySideLibs.append(
+      pysideEnv.Install(
+        pysideModuleDstDir,
+        Glob(os.path.join(pysideModuleSrcDir.abspath, '*'))
+        )
+      )
 
   pysideEnv.Alias('pysideGen', pysideGens)
   pysideEnv.Alias('pysideLib', installedPySideLibs)
