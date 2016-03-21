@@ -20,7 +20,7 @@ namespace FabricUI
 
     public:
 
-    	ImageViewportWidget(FabricCore::Client client, QString argumentName, QWidget *parent = NULL);
+    	ImageViewportWidget(FabricCore::Client &client, QString argumentName, QWidget *parent = NULL);
     	virtual ~ImageViewportWidget();
 
       void setBinding(FabricCore::DFGBinding binding);

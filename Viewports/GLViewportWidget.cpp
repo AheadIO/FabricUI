@@ -15,7 +15,7 @@
 
 using namespace FabricUI::Viewports;
 
-GLViewportWidget::GLViewportWidget(FabricCore::Client client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
+GLViewportWidget::GLViewportWidget(FabricCore::Client &client, QColor bgColor, QGLFormat format, QWidget *parent, QSettings *settings)
 : QGLWidget(format, parent)
 , m_client(client)
 , m_settings(settings)

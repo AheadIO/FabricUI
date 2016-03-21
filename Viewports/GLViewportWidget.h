@@ -26,7 +26,7 @@ namespace FabricUI
 
     public:
 
-    	GLViewportWidget(FabricCore::Client client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
+    	GLViewportWidget(FabricCore::Client &client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
 
       double fps() const { return m_fps; }

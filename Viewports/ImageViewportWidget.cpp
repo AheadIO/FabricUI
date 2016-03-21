@@ -14,7 +14,7 @@
 
 using namespace FabricUI::Viewports;
 
-ImageViewportWidget::ImageViewportWidget(FabricCore::Client client, QString argumentName, QWidget *parent)
+ImageViewportWidget::ImageViewportWidget(FabricCore::Client &client, QString argumentName, QWidget *parent)
 :	QGLWidget(parent)
 , m_client(client)
 {	
