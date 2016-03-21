@@ -12,6 +12,7 @@
         <modify-function signature="DFGUICmdHandler()" remove="all" />
       </object-type>
       <object-type name="DFGUICmdHandler_QUndo" />
+      <object-type name="UndoCmd_Python" />
       <object-type name="DFGUICmdHandler_Python" />
       <object-type name="DFGUICmd" />
       <object-type name="DFGUICmd_AddBackDrop" />

@@ -53,6 +53,19 @@ DFGExecNotifier::HandlerMap const &DFGExecNotifier::GetHandlerMap()
   return handlerMap;
 }
 
+DFGExecNotifier::~DFGExecNotifier()
+{
+  try
+  {
+    m_view.invalidate();
+  }
+  catch ( FabricCore::Exception e )
+  {
+    // [andrew 20160320] an exception will be thrown here if the Core
+    // is destroyed before the Qt widgets
+  }
+}
+
 void DFGExecNotifier::handle( FTL::CStrRef jsonStr )
 {
   try

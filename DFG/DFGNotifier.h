@@ -17,7 +17,7 @@ class DFGNotifier : public QObject
 
 public:
 
-  ~DFGNotifier() {}
+  virtual ~DFGNotifier() {}
 
 protected:
 

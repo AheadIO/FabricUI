@@ -9,6 +9,61 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
+class UndoCmd_Python : public QUndoCommand
+{
+public:
+
+  UndoCmd_Python( DFGUICmd *dfgUICmd )
+    : QUndoCommand()
+    , m_dfgUICmd( dfgUICmd )
+    , m_didit( false )
+  {
+  }
+
+protected:
+
+  virtual void redo()
+  {
+    try
+    {
+      if ( m_didit )
+      {
+        m_dfgUICmd->redo();
+      }
+      else
+      {
+        m_didit = true;
+        m_dfgUICmd->doit();
+        QUndoCommand::setText( m_dfgUICmd->getDesc() );
+      }
+    }
+    catch ( FabricCore::Exception e )
+    {
+      // [andrew 20160321] FIXME FE-6332
+      printf( "Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );
+    }
+  }
+
+  virtual void undo()
+  {
+    try
+    {
+      assert( m_didit );
+      m_dfgUICmd->undo();
+    }
+    catch ( FabricCore::Exception e )
+    {
+      // [andrew 20160321] FIXME FE-6332
+      printf( "Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );
+    }
+  }
+
+private:
+
+  FTL::OwnedPtr<DFGUICmd> m_dfgUICmd;
+  bool m_didit;
+};
+
 class DFGUICmdHandler_Python : public DFGUICmdHandler
 {
 public:
