@@ -14,11 +14,11 @@
 
 using namespace FabricUI::Viewports;
 
-ImageViewportWidget::ImageViewportWidget(FabricCore::Client * client, QString argumentName, QWidget *parent)
+ImageViewportWidget::ImageViewportWidget(FabricCore::Client client, QString argumentName, QWidget *parent)
 :	QGLWidget(parent)
+, m_client(client)
 {	
   // setAutoBufferSwap(false);
-  m_client = client;
   m_argumentName = argumentName;
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -66,9 +66,9 @@ void ImageViewportWidget::resizeGL(int width, int height)
   try
   {
     if(!m_workData.isValid())
-      m_workData = FabricCore::RTVal::Create(*m_client, "ImageSeqWorkData", 0, 0);
-    m_workData.setMember("width", FabricCore::RTVal::ConstructSInt32(*m_client, m_width));
-    m_workData.setMember("height", FabricCore::RTVal::ConstructSInt32(*m_client, m_height));
+      m_workData = FabricCore::RTVal::Create(m_client, "ImageSeqWorkData", 0, 0);
+    m_workData.setMember("width", FabricCore::RTVal::ConstructSInt32(m_client, m_width));
+    m_workData.setMember("height", FabricCore::RTVal::ConstructSInt32(m_client, m_height));
   }
   catch(FabricCore::Exception e)
   {
@@ -128,9 +128,9 @@ void ImageViewportWidget::paintGL()
   {
     if(!m_workData.isValid())
     {
-      m_workData = FabricCore::RTVal::Create(*m_client, "ImageSeqWorkData", 0, 0);
-      m_workData.setMember("width", FabricCore::RTVal::ConstructSInt32(*m_client, width()));
-      m_workData.setMember("height", FabricCore::RTVal::ConstructSInt32(*m_client, height()));
+      m_workData = FabricCore::RTVal::Create(m_client, "ImageSeqWorkData", 0, 0);
+      m_workData.setMember("width", FabricCore::RTVal::ConstructSInt32(m_client, width()));
+      m_workData.setMember("height", FabricCore::RTVal::ConstructSInt32(m_client, height()));
     }
     m_imageSeq.callMethod("", "draw", 1, &m_workData);
   }
