@@ -4,6 +4,7 @@
 
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
+#include <string>
 
 #include <stdio.h>
 

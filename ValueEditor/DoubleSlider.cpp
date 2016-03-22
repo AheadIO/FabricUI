@@ -5,6 +5,7 @@
 #include "DoubleSlider.h"
 
 #include <math.h>
+#include <algorithm>
 #include <QtGui/QStyleOptionSlider>
 #include <QtGui/QMouseEvent>
 

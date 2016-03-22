@@ -9,6 +9,7 @@
 #include "ConnectionTarget.h"
 #include "PinCircle.h"
 #include "NodeHeaderButton.h"
+#include <vector>
 
 namespace FabricUI
 {

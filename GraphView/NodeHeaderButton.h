@@ -7,6 +7,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QPen>
 #include "GraphicItemTypes.h"
+#include <map>
 
 namespace FabricUI
 {

@@ -5,6 +5,7 @@
 
 #include <QtGui/QListWidget>
 #include <QtGui/QListWidgetItem>
+#include <string>
 
 namespace FabricUI
 {
