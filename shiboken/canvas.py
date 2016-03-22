@@ -41,24 +41,9 @@ class MainWindowEventFilter(QtCore.QObject):
 
         return QtCore.QObject.eventFilter(obj, event)
 
-class UndoCmd(QtGui.QUndoCommand):
-    def __init__(self, cmd):
-        QtGui.QUndoCommand.__init__(self)
-        self.cmd = cmd
-        self.done = False
-    def redo(self):
-        if not self.done:
-            self.done = True
-            self.cmd.doit()
-        else:
-            self.cmd.redo()
-    def undo(self):
-        self.cmd.undo()
-
 def InvokeCmd(cmd, qUndoStack):
-    undoCmd = UndoCmd(cmd)
+    undoCmd = DFG.UndoCmd_Python(cmd)
     qUndoStack.push(undoCmd)
-    undoCmd.setText(cmd.getDesc())
 
 class BindingWrapper:
 
@@ -740,6 +725,10 @@ class ScriptEditor(QtGui.QWidget):
 
         self.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
+
+    def updateBinding(self, binding):
+        prev = self.eval_globals['binding'] 
+        self.eval_globals['binding'] = BindingWrapper(prev.client, binding, prev.qUndoStack)
 
     def onReturnPressed(self):
         code = self.cmd.text()
@@ -1682,6 +1671,7 @@ class MainWindow(DFG.DFGMainWindow):
             self.lastSavedBindingVersion = binding.getVersion()
             dfgExec = binding.getExec()
             dfgController.setBindingExec(binding, "", dfgExec)
+            self.scriptEditor.updateBinding(binding)
             #self.onSidePanelInspectRequested()
 
             self.evalContext.currentFilePath = filePath

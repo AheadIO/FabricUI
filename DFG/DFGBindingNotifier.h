@@ -27,10 +27,7 @@ public:
       );
   }
 
-  ~DFGBindingNotifier()
-  {
-    m_binding.unregisterNotificationCallback( &Callback, this );
-  }
+  virtual ~DFGBindingNotifier();
 
 signals:
   

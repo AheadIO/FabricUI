@@ -36,8 +36,7 @@ public:
       );
   }
 
-  ~DFGExecNotifier()
-    { m_view.invalidate(); }
+  virtual ~DFGExecNotifier();
 
 signals:
 

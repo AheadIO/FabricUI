@@ -10,6 +10,19 @@
 namespace FabricUI {
 namespace DFG {
 
+DFGBindingNotifier::~DFGBindingNotifier()
+{
+  try
+  {
+    m_binding.unregisterNotificationCallback( &Callback, this );
+  }
+  catch ( FabricCore::Exception e )
+  {
+    // [andrew 20160320] an exception will be thrown here if the Core
+    // is destroyed before the Qt widgets
+  }
+}
+
 void DFGBindingNotifier::handle( FTL::CStrRef jsonStr )
 {
   try
