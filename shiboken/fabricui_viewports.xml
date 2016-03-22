@@ -3,25 +3,6 @@
   <namespace-type name="FabricUI"  generate="no">
     <namespace-type name="Viewports"  generate="yes">
       <object-type name="GLViewportWidget" copyable="false">
-        <modify-function signature="GLViewportWidget(FabricCore::Client*,QColor,QGLFormat,QWidget*,QSettings*)">
-          <modify-argument index="1">
-            <replace-type modified-type="PyObject"/>
-          </modify-argument>
-          <inject-code class="target" position="beginning">
-            FabricCore::Client *client_ptr = 0;
-
-            <insert-template name="to_cpp_Client">
-              <replace from="%INPUT" to="%PYARG_1"/>
-              <replace from="%OUTPUT" to="client_ptr"/>
-              <replace from="%DEREF" to=""/>
-            </insert-template>
-
-            if (!PyErr_Occurred()) {
-             %0 = new %TYPE(client_ptr, %2, %3, %4, %5);
-            }
-          </inject-code>
-        </modify-function>
-
         <rejection field-name="m_fpsStack"/>
       </object-type>
       <object-type name="TimeLineWidget" copyable="false"/>

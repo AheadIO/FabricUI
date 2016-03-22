@@ -26,7 +26,7 @@ namespace FabricUI
 
     public:
 
-    	GLViewportWidget(FabricCore::Client * client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
+    	GLViewportWidget(FabricCore::Client &client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
 
       double fps() const { return m_fps; }
@@ -39,7 +39,7 @@ namespace FabricUI
 
       void clearInlineDrawing();
 
-      FabricCore::Client * getClient() { return m_client; }
+      FabricCore::Client getClient() { return m_client; }
       FabricCore::RTVal getCamera() const { return m_camera; }
       FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
       FabricCore::RTVal getViewport() const { return m_viewport; }
@@ -85,7 +85,7 @@ namespace FabricUI
       bool m_gridVisible;
       bool m_hasCommercialLicense;
       QColor m_bgColor;
-      FabricCore::Client * m_client;
+      FabricCore::Client m_client;
       FabricCore::RTVal m_drawing;
       FabricCore::RTVal m_camera;
       FabricCore::RTVal m_cameraManipulator;
