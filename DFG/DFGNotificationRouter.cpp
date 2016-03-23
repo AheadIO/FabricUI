@@ -635,7 +635,14 @@ void DFGNotificationRouter::onNodePortInserted(
   else if(nodePortType == FTL_STR("IO"))
     pType = GraphView::PortType_IO;
 
-  GraphView::Pin * uiPin = new GraphView::Pin(uiNode, portName.c_str(), pType, color, portName.c_str());
+  GraphView::Pin * uiPin =
+    new GraphView::Pin(
+      uiNode,
+      portName,
+      pType,
+      color,
+      portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
+      );
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
   uiNode->addPin( uiPin );
@@ -691,7 +698,12 @@ void DFGNotificationRouter::onExecPortInserted(
         return;
 
       uiInPort = new GraphView::Port(
-        uiPanel, portName, GraphView::PortType_Input, dataType, color, portName
+        uiPanel,
+        portName,
+        GraphView::PortType_Input,
+        dataType,
+        color,
+        portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
         );
       uiPanel->addPort(uiInPort);
     }
@@ -702,7 +714,12 @@ void DFGNotificationRouter::onExecPortInserted(
         return;
 
       uiOutPort = new GraphView::Port(
-        uiPanel, portName, GraphView::PortType_Output, dataType, color, portName
+        uiPanel,
+        portName,
+        GraphView::PortType_Output,
+        dataType,
+        color,
+        portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
         );
       uiPanel->addPort(uiOutPort);
     }

@@ -78,7 +78,13 @@ namespace FabricUI
       virtual void setDaisyChainCircleVisible(bool flag);
 
       // accessed by controller
-      Pin(Node * parent, char const *name, PortType pType, QColor color, const char * label = "");
+      Pin(
+        Node * parent,
+        FTL::StrRef name,
+        PortType pType,
+        QColor color,
+        FTL::StrRef label = FTL::StrRef()
+        );
       
     signals:
 
