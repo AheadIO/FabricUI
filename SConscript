@@ -329,13 +329,75 @@ if uiLibPrefix == 'ui':
       pysideDLLDst = pysideEnv['STAGE_DIR'].Dir('bin')
     else:
       pysideDLLDst = pysideEnv['STAGE_DIR'].Dir('lib')
-    for pysideDLL in pythonConfig['pysideDLLs']:
-      installedPySideLibs.append(
-        pysideEnv.Install(
-          pysideDLLDst,
-          pysideDLL
+
+    pysideDLLs = ['shiboken-python'+pythonVersion, 'pyside-python'+pythonVersion]
+    pysideVersion = pythonConfig['pysideVersion']
+    pysideMaj, pysideMin, pysideBug = pysideVersion.split('.')
+
+    if buildOS == 'Windows':
+      for pysideDLL in pysideDLLs:
+        installedPySideLibs.append(
+          pysideEnv.Install(
+            pysideDLLDst,
+            pythonConfig['pysideDir'].Dir('bin').File(pysideDLL+'.dll').abspath
+            )
           )
-        )
+    elif buildOS == 'Linux':
+      libSuffix = 'so'
+      for pysideDLL in pysideDLLs:
+        installedPySideLibs.append(
+          pysideEnv.AddPostAction(
+            pysideEnv.Install(
+              pysideDLLDst,
+              pythonConfig['pysideDir'].Dir('lib').File('lib'+pysideDLL+'.'+libSuffix+'.'+pysideVersion)
+              ),
+            [
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, libSuffix, pysideMaj, pysideMin, pysideBug]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, libSuffix, pysideMaj, pysideMin])),
+                ],
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, libSuffix, pysideMaj, pysideMin]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, libSuffix, pysideMaj])),
+                ],
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, libSuffix, pysideMaj]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, libSuffix])),
+                ]
+              ]
+            )
+          )
+    elif buildOS == 'Darwin':
+      libSuffix = 'dylib'
+      for pysideDLL in pysideDLLs:
+        installedPySideLibs.append(
+          pysideEnv.AddPostAction(
+            pysideEnv.Install(
+              pysideDLLDst,
+              pythonConfig['pysideDir'].Dir('lib').File('lib'+pysideDLL+'.'+pysideVersion+'.'+libSuffix)
+              ),
+            [
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, pysideMaj, pysideMin, pysideBug, libSuffix]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, pysideMaj, pysideMin, libSuffix])),
+                ],
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, pysideMaj, pysideMin, libSuffix]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, pysideMaj, libSuffix])),
+                ],
+              [
+                'ln', '-snf',
+                '.'.join(['lib' + pysideDLL, pysideMaj, libSuffix]),
+                pysideDLLDst.File('.'.join(['lib' + pysideDLL, libSuffix])),
+                ]
+              ]
+            )
+          )
 
     pysideModuleDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('PySide')
     if buildOS == 'Windows':
