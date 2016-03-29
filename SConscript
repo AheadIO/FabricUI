@@ -188,6 +188,7 @@ if uiLibPrefix == 'ui':
       continue
 
     pysideEnv = env.Clone()
+    pysideEnv['ENV'] = {'PATH': pysideEnv['ENV']['PATH']}
     pysideEnv.MergeFlags(capiSharedLibFlags)
     pysideEnv.MergeFlags(servicesFlags_mt)
     pysideEnv.Append(LIBS = ['FabricSplitSearch'])
@@ -243,7 +244,8 @@ if uiLibPrefix == 'ui':
           [
               pythonConfig['shibokenBin'],
               '${SOURCES[0]}',
-              #'--no-suppress-warnings',
+              # '--no-suppress-warnings',
+              '--debug-level=full',
               '--typesystem-paths='+os.pathsep.join([
                 str(shibokenDir.srcnode()),
                 str(pythonConfig['pysideTypesystemsDir']),
