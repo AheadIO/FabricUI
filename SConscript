@@ -21,6 +21,7 @@ Import(
   'pythonConfigs',
   'capiSharedLibFlags',
   'servicesFlags_mt',
+  'corePythonModuleFiles',
   )
 
 suffix = '4'
@@ -220,6 +221,9 @@ if uiLibPrefix == 'ui':
 
     if buildOS == 'Linux':
       pysideEnv['ENV']['LD_LIBRARY_PATH'] = qtLibDir
+    elif buildOS == 'Darwin':
+      # [andrew 20160329] need to point here so that rpath'd paths show up as expected for shiboken
+      pysideEnv['ENV']['DYLD_LIBRARY_PATH'] = os.path.join(os.environ['FABRIC_DIR'], 'lib')
     elif buildOS == 'Windows':
       pysideEnv['ENV']['PATH'] = qtBinDir+';'+pysideEnv['ENV']['PATH']
 
@@ -262,6 +266,8 @@ if uiLibPrefix == 'ui':
       ]
       )
     pysideEnv.Depends(pysideGen, installedHeaders)
+    pysideEnv.Depends(pysideGen, uiLib)
+    pysideEnv.Depends(pysideGen, corePythonModuleFiles)
     pysideGens.append(pysideGen)
 
     pysideEnv.Append(CPPPATH = [
