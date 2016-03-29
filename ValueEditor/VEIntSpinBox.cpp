@@ -5,6 +5,7 @@
 #include "VEIntSpinBox.h"
 
 #include <limits.h>
+#include <algorithm>
 
 //////////////////////////////////////////////////////////////////////////
 VEIntSpinBox::VEIntSpinBox( )
