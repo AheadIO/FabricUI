@@ -77,7 +77,8 @@ FTL::CStrRef InstPortModelItem::getName()
 bool InstPortModelItem::canRename()
 {
   FabricCore::DFGExec nodeExec = m_exec.getSubExec( m_nodeName.c_str() );
-  return !nodeExec.editWouldSplitFromPreset();
+  return nodeExec.getExecPortIndex( m_portName.c_str() ) > 0
+    && !nodeExec.editWouldSplitFromPreset();
 }
 
 void InstPortModelItem::rename( FTL::CStrRef newName )
