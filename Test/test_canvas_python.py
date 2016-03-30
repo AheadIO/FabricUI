@@ -3,14 +3,20 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 shiboken_dir = os.path.join(current_dir, '..', 'shiboken')
 sys.path.append(shiboken_dir)
 
-import canvas, time, unittest
-from PySide import QtCore, QtGui
-from PySide.QtTest import QTest
+import unittest
 
 fabric_dir = os.environ['FABRIC_DIR']
 
 class CanvasTest(unittest.TestCase):
     def test_main(self):
+        # [andrew 20160330] FE-6364
+        if sys.version_info < (2, 7):
+            return
+
+        import canvas
+        from PySide import QtCore, QtGui
+        from PySide.QtTest import QTest
+
         app = QtGui.QApplication([])
         app.setOrganizationName('Fabric Software Inc')
         app.setApplicationName('Fabric Canvas Standalone')
