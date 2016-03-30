@@ -641,7 +641,7 @@ void DFGNotificationRouter::onNodePortInserted(
       portName,
       pType,
       color,
-      portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
+      portName
       );
   if ( !dataType.empty() )
     uiPin->setDataType(dataType);
@@ -703,7 +703,7 @@ void DFGNotificationRouter::onExecPortInserted(
         GraphView::PortType_Input,
         dataType,
         color,
-        portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
+        portName
         );
       uiPanel->addPort(uiInPort);
     }
@@ -719,7 +719,7 @@ void DFGNotificationRouter::onExecPortInserted(
         GraphView::PortType_Output,
         dataType,
         color,
-        portName == FTL_STR("__deps__")? FTL_STR("(exec)"): portName
+        portName
         );
       uiPanel->addPort(uiOutPort);
     }
