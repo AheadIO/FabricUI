@@ -22,6 +22,7 @@ Port::Port(
   , m_sidePanel( parent )
   , m_name( name )
   , m_labelCaption( !label.empty()? label: name )
+  , m_allowEdits( true )
 {
   // if(parent->graph()->path().length() > 0)
   //   m_path = parent->graph()->path() + parent->graph()->config().pathSep + m_path;

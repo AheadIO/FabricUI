@@ -399,11 +399,11 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
   QMenu* result = new QMenu(NULL);
 
   QAction *editAction = new QAction("Edit", result);
-  editAction->setEnabled( port->index() > 0 );
+  editAction->setEnabled( port->allowEdits() );
   result->addAction(editAction);
 
   QAction *deleteAction = new QAction("Delete", result);
-  deleteAction->setEnabled( port->index() > 0 );
+  deleteAction->setEnabled( port->allowEdits() );
   result->addAction(deleteAction);
 
   try
@@ -414,19 +414,19 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
       result->addSeparator();
 
       QAction *MOVE_TOP_Action = new QAction( DFG_MOVE_TOP, result );
-      MOVE_TOP_Action->setEnabled( port->index() > 0 );
+      MOVE_TOP_Action->setEnabled( port->allowEdits() );
       result->addAction( MOVE_TOP_Action );
 
       QAction *MOVE_UP_Action = new QAction( DFG_MOVE_UP, result );
-      MOVE_UP_Action->setEnabled( port->index() > 0 );
+      MOVE_UP_Action->setEnabled( port->allowEdits() );
       result->addAction( MOVE_UP_Action );
 
       QAction *MOVE_DOWN_Action = new QAction( DFG_MOVE_DOWN, result );
-      MOVE_DOWN_Action->setEnabled( port->index() > 0 );
+      MOVE_DOWN_Action->setEnabled( port->allowEdits() );
       result->addAction( MOVE_DOWN_Action );
 
       QAction *MOVE_BOTTOM_Action = new QAction( DFG_MOVE_BOTTOM, result );
-      MOVE_BOTTOM_Action->setEnabled( port->index() > 0 );
+      MOVE_BOTTOM_Action->setEnabled( port->allowEdits() );
       result->addAction( MOVE_BOTTOM_Action );
 
       result->addSeparator();

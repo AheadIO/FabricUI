@@ -84,6 +84,11 @@ namespace FabricUI
 
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
 
+      bool allowEdits() const
+        { return m_allowEdits; }
+      void disableEdits()
+        { m_allowEdits = false; }
+
     signals:
 
       void positionChanged();
@@ -106,6 +111,7 @@ namespace FabricUI
       TextContainer * m_label;
       PinCircle * m_circle;
       unsigned int m_index;
+      bool m_allowEdits;
     };
 
   };

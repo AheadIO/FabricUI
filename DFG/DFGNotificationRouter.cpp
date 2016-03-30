@@ -677,6 +677,7 @@ void DFGNotificationRouter::onExecPortInserted(
   FTL::CStrRef dataType = jsonObject->getStringOrEmpty( FTL_STR("type") );
 
   FabricCore::DFGExec &exec = m_dfgController->getExec();
+  FTL::CStrRef execPath = m_dfgController->getExecPath();
 
   if(exec.getType() == FabricCore::DFGExecType_Graph)
   {
@@ -691,7 +692,7 @@ void DFGNotificationRouter::onExecPortInserted(
 
     FTL::CStrRef execPortType =
       jsonObject->getStringOrEmpty( FTL_STR("execPortType") );
-    if(execPortType != FTL_STR("In"))
+    if ( execPortType != FTL_STR("In") )
     {
       GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Input);
       if(!uiPanel)
@@ -705,9 +706,12 @@ void DFGNotificationRouter::onExecPortInserted(
         color,
         portName
         );
+      if ( index == 0 )
+        uiInPort->disableEdits();
       uiPanel->addPort(uiInPort);
     }
-    if(execPortType != FTL_STR("Out"))
+    if ( execPortType != FTL_STR("Out")
+      && ( !execPath.empty() || index > 0 ) )  // Show root exec port as Out even though it is IO
     {
       GraphView::SidePanel * uiPanel = uiGraph->sidePanel(GraphView::PortType_Output);
       if(!uiPanel)
@@ -721,11 +725,15 @@ void DFGNotificationRouter::onExecPortInserted(
         color,
         portName
         );
+      if ( index == 0 )
+        uiOutPort->disableEdits();
       uiPanel->addPort(uiOutPort);
     }
     if(uiOutPort || uiInPort)
     {
-      if(uiOutPort && uiInPort)
+      if ( uiOutPort
+        && uiInPort
+        && index > 0 ) // don't do this for exec port
         uiGraph->addConnection(uiOutPort, uiInPort, false);
       checkAndFixPanelPortOrder();  // [FE-5716]
     }
