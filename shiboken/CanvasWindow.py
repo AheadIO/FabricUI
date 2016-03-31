@@ -347,7 +347,6 @@ class CanvasWindow(DFG.DFGMainWindow):
             dfgExec = binding.getExec()
             dfgController.setBindingExec(binding, "", dfgExec)
             self.scriptEditor.updateBinding(binding)
-            #self.onSidePanelInspectRequested()
 
             self.evalContext.currentFilePath = filePath
             dfgController.execute()
@@ -546,8 +545,6 @@ class CanvasWindow(DFG.DFGMainWindow):
 
             QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")
-
-            #self.onSidePanelInspectRequested()
 
             self._contentChanged()
 

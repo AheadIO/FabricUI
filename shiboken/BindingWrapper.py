@@ -1,11 +1,23 @@
-import optparse, os, sys
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
-from PySide import QtCore, QtGui, QtOpenGL
+from FabricEngine.FabricUI import DFG
+from PySide import QtCore, QtGui
 
+class UndoCmd(QtGui.QUndoCommand):
+    def __init__(self, cmd):
+        QtGui.QUndoCommand.__init__(self)
+        self.cmd = cmd
+        self.done = False
+    def redo(self):
+        if not self.done:
+            self.done = True
+            DFG.UndoCmd_Python.TryCatchDoit(self.cmd)
+            self.setText(self.cmd.getDesc())
+        else:
+            DFG.UndoCmd_Python.TryCatchRedo(self.cmd)
+    def undo(self):
+        DFG.UndoCmd_Python.TryCatchUndo(self.cmd)
 
 def InvokeCmd(cmd, qUndoStack):
-    undoCmd = DFG.UndoCmd_Python(cmd)
+    undoCmd = UndoCmd(cmd)
     qUndoStack.push(undoCmd)
 
 class BindingWrapper:
@@ -545,6 +557,7 @@ class BindingWrapper:
             portPath,
             value,
             )
+        InvokeCmd(cmd, self.qUndoStack)
 
     def setRefVarPath(
         self,
