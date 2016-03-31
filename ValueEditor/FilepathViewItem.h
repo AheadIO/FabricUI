@@ -26,16 +26,16 @@ public:
     );
   static const int Priority;
 
-	FilepathViewItem(
+  FilepathViewItem(
     QString const &name,
     QVariant const &value,
     ItemMetadata* metadata
     );
-	~FilepathViewItem();
+  ~FilepathViewItem();
 
-	QWidget *getWidget() /*override*/;
+  QWidget *getWidget() /*override*/;
   
-	void onModelValueChanged( QVariant const &value ) /*override*/;
+  void onModelValueChanged( QVariant const &value ) /*override*/;
 
   void deleteMe() /*override*/ { delete this; }
 
@@ -44,12 +44,12 @@ public:
 
 private:
 
-	VELineEdit* m_edit;
+  VELineEdit* m_edit;
   QWidget *m_widget;
   QString m_filter;
 
 private slots:
 
-	void onTextModified( QString text );
+  void onTextModified( QString text );
   void doBrowse();
 };
