@@ -8,7 +8,7 @@
 #include <FabricCore.h>
 
 class QWidget;
-class QLineEdit;
+class VELineEdit;
 class ItemMetadata;
 
 class FilepathViewItem : public BaseViewItem
@@ -44,13 +44,12 @@ public:
 
 private:
 
+	VELineEdit* m_edit;
   QWidget *m_widget;
-  QLineEdit *m_lineEdit;
   QString m_filter;
 
 private slots:
-  void doBrowse();
-  void OnTextEdited( const QString& text );
-  void OnEditFinished();
 
+	void onTextModified( QString text );
+  void doBrowse();
 };
