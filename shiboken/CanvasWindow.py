@@ -508,11 +508,12 @@ class CanvasWindow(DFG.DFGMainWindow):
                     os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
-    def onNewGraph(self):
+    def onNewGraph(self, skip_save=False):
         self.timeLine.pause()
 
-        if not self.checkUnsavedChanges():
-            return
+        if not skip_save:
+            if not self.checkUnsavedChanges():
+                return
 
         self.lastFileName = ""
 
@@ -537,11 +538,11 @@ class CanvasWindow(DFG.DFGMainWindow):
 
             dfgController.setBindingExec(binding, '', dfgExec)
 
-            self.timeLine.setTimeRange(MainWindow.defaultFrameIn,
-                                       MainWindow.defaultFrameOut)
+            self.timeLine.setTimeRange(CanvasWindow.defaultFrameIn,
+                                       CanvasWindow.defaultFrameOut)
             self.timeLine.setLoopMode(1)
             self.timeLine.setSimulationMode(0)
-            self.timeLine.updateTime(MainWindow.defaultFrameIn, True)
+            self.timeLine.updateTime(CanvasWindow.defaultFrameIn, True)
 
             QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")

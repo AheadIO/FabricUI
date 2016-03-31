@@ -13,18 +13,19 @@ class CanvasTest(unittest.TestCase):
         if sys.version_info < (2, 7):
             return
 
-        import canvas
+        from canvas import FabricStyle
+        from CanvasWindow import CanvasWindow
         from PySide import QtCore, QtGui
         from PySide.QtTest import QTest
 
         app = QtGui.QApplication([])
         app.setOrganizationName('Fabric Software Inc')
         app.setApplicationName('Fabric Canvas Standalone')
-        app.setStyle( canvas.FabricStyle() )
+        app.setStyle( FabricStyle() )
 
         settings = QtCore.QSettings()
         unguarded = False
-        main_win = canvas.MainWindow(settings, unguarded)
+        main_win = CanvasWindow(fabric_dir, settings, unguarded)
         main_win.show()
         QTest.qWaitForWindowShown(main_win)
 
@@ -32,9 +33,17 @@ class CanvasTest(unittest.TestCase):
 
         dfg_controller = main_win.dfgWidget.getDFGController()
         self.assertEqual(dfg_controller.getExecPath(), '')
+        main_win.onNewGraph(skip_save=True)
 
         # QTest.mousePress(main_win.viewport, QtCore.Qt.LeftButton, pos=QtCore.QPoint(0, 0))
         ## https://bugreports.qt.io/browse/QTBUG-5232
         # QTest.mouseMove(main_win.viewport, pos=QtCore.QPoint(500, 230))
         # QTest.mouseRelease(main_win.viewport, QtCore.Qt.LeftButton, pos=QtCore.QPoint(500, 230))
+
+        # FE-5730
+        binding = dfg_controller.getBinding()
+        root_exec = binding.getExec()
+        i_name = root_exec.addExecPort('i', main_win.client.DFG.PortTypes.In)
+        binding.setArgValue(i_name, main_win.client.RT.types.UInt32(5))
+        main_win.onNewGraph(skip_save=True)
 
