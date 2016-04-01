@@ -36,6 +36,15 @@ class LogWidget(AppendingTextWidget):
     self.commentColor = QtGui.QColor("#9AD6D6")
     self.exceptionColor = QtGui.QColor("#E14D59")
 
+    self.copyAction = QtGui.QAction("Copy", self)
+    self.copyAction.setShortcut(QtGui.QKeySequence.Copy)
+    self.copyAction.setEnabled(self.textCursor().hasSelection())
+    self.copyAction.triggered.connect(self.copy)
+    self.copyAvailable.connect(self.copyAction.setEnabled)
+
+    self.clearAction = QtGui.QAction("Clear", self)
+    self.clearAction.triggered.connect(self.clear)
+
   def appendCommand(self, text):
     self.append(text, self.commandColor)
 
@@ -44,3 +53,10 @@ class LogWidget(AppendingTextWidget):
 
   def appendException(self, text):
     self.append(text, self.exceptionColor)
+
+  def contextMenuEvent(self, event):
+    menu = QtGui.QMenu()
+    menu.addAction(self.copyAction)
+    menu.addSeparator()
+    menu.addAction(self.clearAction)
+    menu.exec_(self.mapToGlobal(event.pos()))
