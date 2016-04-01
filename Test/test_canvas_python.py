@@ -5,36 +5,42 @@ sys.path.append(shiboken_dir)
 
 import unittest
 
-fabric_dir = os.environ['FABRIC_DIR']
-
 class CanvasTest(unittest.TestCase):
-    def test_main(self):
+    def test_all(self):
         # [andrew 20160330] FE-6364
         if sys.version_info < (2, 7):
             return
 
-        import canvas
+        from canvas import FabricStyle
+        from CanvasWindow import CanvasWindow
         from PySide import QtCore, QtGui
         from PySide.QtTest import QTest
 
         app = QtGui.QApplication([])
         app.setOrganizationName('Fabric Software Inc')
         app.setApplicationName('Fabric Canvas Standalone')
-        app.setStyle( canvas.FabricStyle() )
+        app.setStyle( FabricStyle() )
 
+        fabric_dir = os.environ['FABRIC_DIR']
         settings = QtCore.QSettings()
         unguarded = False
-        main_win = canvas.MainWindow(settings, unguarded)
+        main_win = CanvasWindow(fabric_dir, settings, unguarded)
         main_win.show()
+
+        # https://doc.qt.io/qt-4.8/qttest-module.html
         QTest.qWaitForWindowShown(main_win)
 
-        main_win.loadGraph(os.path.join(fabric_dir, 'Samples', 'Canvas', 'InlineDrawing', 'inlinedrawing_teapot.canvas'))
-
+        # FE-5730
         dfg_controller = main_win.dfgWidget.getDFGController()
-        self.assertEqual(dfg_controller.getExecPath(), '')
+        binding = dfg_controller.getBinding()
+        root_exec = binding.getExec()
+        i_name = root_exec.addExecPort('i', main_win.client.DFG.PortTypes.In)
+        binding.setArgValue(i_name, main_win.client.RT.types.UInt32(5))
+        main_win.onNewGraph(skip_save=True)
 
-        # QTest.mousePress(main_win.viewport, QtCore.Qt.LeftButton, pos=QtCore.QPoint(0, 0))
-        ## https://bugreports.qt.io/browse/QTBUG-5232
-        # QTest.mouseMove(main_win.viewport, pos=QtCore.QPoint(500, 230))
-        # QTest.mouseRelease(main_win.viewport, QtCore.Qt.LeftButton, pos=QtCore.QPoint(500, 230))
-
+        # FE-6338
+        dfg_controller = main_win.dfgWidget.getDFGController()
+        binding = dfg_controller.getBinding()
+        main_win.dfguiCommandHandler.dfgDoSetArgValue(binding, 'not_exist',
+                main_win.client.RT.types.UInt32(5))
+        main_win.onNewGraph(skip_save=True)

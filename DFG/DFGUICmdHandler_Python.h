@@ -9,33 +9,20 @@
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
-class UndoCmd_Python : public QUndoCommand
+class UndoCmd_Python
 {
+private:
+  UndoCmd_Python()
+  {
+  }
+
 public:
 
-  UndoCmd_Python( DFGUICmd *dfgUICmd )
-    : QUndoCommand()
-    , m_dfgUICmd( dfgUICmd )
-    , m_didit( false )
-  {
-  }
-
-protected:
-
-  virtual void redo()
+  static void TryCatchDoit( DFGUICmd *cmd )
   {
     try
     {
-      if ( m_didit )
-      {
-        m_dfgUICmd->redo();
-      }
-      else
-      {
-        m_didit = true;
-        m_dfgUICmd->doit();
-        QUndoCommand::setText( m_dfgUICmd->getDesc() );
-      }
+      cmd->doit();
     }
     catch ( FabricCore::Exception e )
     {
@@ -44,12 +31,11 @@ protected:
     }
   }
 
-  virtual void undo()
+  static void TryCatchRedo( DFGUICmd *cmd )
   {
     try
     {
-      assert( m_didit );
-      m_dfgUICmd->undo();
+      cmd->redo();
     }
     catch ( FabricCore::Exception e )
     {
@@ -58,10 +44,19 @@ protected:
     }
   }
 
-private:
+  static void TryCatchUndo( DFGUICmd *cmd )
+  {
+    try
+    {
+      cmd->undo();
+    }
+    catch ( FabricCore::Exception e )
+    {
+      // [andrew 20160321] FIXME FE-6332
+      printf( "Caught FabricCore::Exception: %s\n", e.getDesc_cstr() );
+    }
 
-  FTL::OwnedPtr<DFGUICmd> m_dfgUICmd;
-  bool m_didit;
+  }
 };
 
 class DFGUICmdHandler_Python : public DFGUICmdHandler
