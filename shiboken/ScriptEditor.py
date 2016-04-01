@@ -54,22 +54,31 @@ class ScriptEditor(QtGui.QWidget):
         self.log.setFont(fixedFont);
 
         self.cmd = self.CmdEditor()
-        # self.cmd.setFont(fixedFont)
+        self.cmd.setFont(fixedFont)
         self.cmd.returnPressed.connect(self.onReturnPressed)
 
-        layout = QtGui.QHBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
-        layout.addWidget(QtGui.QLabel("Python:"))
-        layout.addWidget(self.cmd)
+        cmdLayout = QtGui.QHBoxLayout()
+        cmdLayout.setContentsMargins(0,0,0,0)
+        cmdLayout.addWidget(QtGui.QLabel("Editor:"))
+        cmdLayout.addWidget(self.cmd)
 
-        bottom = QtGui.QWidget()
-        bottom.setContentsMargins(0,0,0,0)
-        bottom.setLayout(layout)
+        cmdContainer = QtGui.QWidget()
+        cmdContainer.setContentsMargins(0,0,0,0)
+        cmdContainer.setLayout(cmdLayout)
+
+        logLayout = QtGui.QHBoxLayout()
+        logLayout.setContentsMargins(0,0,0,0)
+        logLayout.addWidget(QtGui.QLabel("History:"))
+        logLayout.addWidget(self.log)
+
+        logContainer = QtGui.QWidget()
+        logContainer.setContentsMargins(0,0,0,0)
+        logContainer.setLayout(logLayout)
 
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         splitter.setContentsMargins(0,0,0,0)
-        splitter.addWidget(self.log)
-        splitter.addWidget(bottom)
+        splitter.addWidget(cmdContainer)
+        splitter.addWidget(logContainer)
 
         layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0,0,0,0)
