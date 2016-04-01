@@ -3,7 +3,6 @@ from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 from CanvasWindow import CanvasWindow
-from CanvasWindow import CanvasWindow
 
 # [andrew 20151028] shiboken thinks FabricStyle is an abstract class
 # unless we re-define the virtual standardPixmap method
@@ -33,8 +32,12 @@ if __name__ == "__main__":
                           help='compile KL code in unguarded mode')
     opt_parser.add_option('-e', '--exec',
                           action='store',
+                          dest='exec_',
+                          help='Python code to execute on startup')
+    opt_parser.add_option('-s', '--script',
+                          action='store',
                           dest='script',
-                          help='execute Python script on startup')
+                          help='Python script file to execute on startup')
     (opts, args) = opt_parser.parse_args()
 
     unguarded = opts.unguarded is True
@@ -45,6 +48,9 @@ if __name__ == "__main__":
 
     for arg in args:
         mainWin.loadGraph(arg)
+
+    if opts.exec_:
+        mainWin.scriptEditor.exec_(opts.exec_)
 
     if opts.script:
         with open(opts.script, "r") as f:

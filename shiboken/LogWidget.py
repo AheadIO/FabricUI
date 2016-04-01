@@ -33,8 +33,8 @@ class LogWidget(AppendingTextWidget):
     self.setFocusPolicy(QtCore.Qt.NoFocus)
 
     self.commandColor = QtGui.QColor(QtCore.Qt.white)
-    self.commentColor = QtGui.QColor(QtCore.Qt.black)
-    self.exceptionColor = QtGui.QColor("#E04040")
+    self.commentColor = QtGui.QColor("#9AD6D6")
+    self.exceptionColor = QtGui.QColor("#E14D59")
 
   def appendCommand(self, text):
     self.append(text, self.commandColor)

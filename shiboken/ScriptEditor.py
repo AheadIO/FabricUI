@@ -4,11 +4,23 @@ from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
 from BindingWrapper import BindingWrapper
 from LogWidget import LogWidget
+import StringIO
+import contextlib
 
+@contextlib.contextmanager
+def stdoutIO():
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    sio = StringIO.StringIO()
+    sys.stdout = sio
+    sys.stderr = sio
+    yield sio
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
 
 class ScriptEditor(QtGui.QWidget):
 
-    def __init__(self, client, binding, qUndoStack):
+    def __init__(self, client, binding, qUndoStack, dfgLogWidget):
         QtGui.QWidget.__init__(self)
 
         self.eval_globals = {
@@ -21,6 +33,8 @@ class ScriptEditor(QtGui.QWidget):
         # fixedFont.setFamily("Monospace")
         # fixedFont.setStyleHint(QtGui.QFont.TypeWriter)
         # fixedFont.setPointSize(14)
+
+        self.dfgLogWidget = dfgLogWidget
 
         self.log = LogWidget()
         self.log.setFont(fixedFont);
@@ -52,7 +66,7 @@ class ScriptEditor(QtGui.QWidget):
 
     def onReturnPressed(self):
         code = self.cmd.text()
-        self.execute(code)
+        self.exec_(code)
 
     def eval(self, code):
         self.log.appendCommand(code)
@@ -67,6 +81,9 @@ class ScriptEditor(QtGui.QWidget):
     def exec_(self, code):
         self.log.appendCommand(code)
         try:
-            exec code in self.eval_globals
+            with stdoutIO() as sio:
+                exec code in self.eval_globals
+                for s in sio.getvalue()[:-1].split("\n"):
+                    self.dfgLogWidget.log(s)
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))

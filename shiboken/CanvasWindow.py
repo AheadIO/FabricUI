@@ -56,11 +56,11 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.__init(fabricDir)
         self._initWindow()
         self._initKL(unguarded)
+        self._initLog()
         self._initDFG()
         self._initTreeView()
         self._initGL()
         self._initValueEditor()
-        self._initLog()
         self._initTimeLine()
         self._initDocksAndMenus()
 
@@ -157,7 +157,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.lastAutosaveBindingVersion = self.lastSavedBindingVersion
 
         graph = binding.getExec()
-        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack)
+        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget)
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
        
         self.dfgWidget = DFG.DFGWidget(None, self.client, self.host,
