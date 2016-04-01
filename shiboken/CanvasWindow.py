@@ -536,6 +536,7 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.timeLinePortPath = None
 
             dfgController.setBindingExec(binding, '', dfgExec)
+            self.scriptEditor.updateBinding(binding)
 
             self.timeLine.setTimeRange(CanvasWindow.defaultFrameIn,
                                        CanvasWindow.defaultFrameOut)

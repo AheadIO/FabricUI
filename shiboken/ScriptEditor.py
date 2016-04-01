@@ -20,6 +20,20 @@ def stdoutIO():
 
 class ScriptEditor(QtGui.QWidget):
 
+    class CmdEditor(QtGui.QPlainTextEdit):
+
+        returnPressed = QtCore.Signal()
+
+        def __init__(self):
+            QtGui.QPlainTextEdit.__init__(self)
+
+        def keyPressEvent(self, event):
+            QtGui.QPlainTextEdit.keyPressEvent(self, event)
+
+            if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.NoModifier:
+                self.selectAll()
+                self.returnPressed.emit()
+
     def __init__(self, client, binding, qUndoStack, dfgLogWidget):
         QtGui.QWidget.__init__(self)
 
@@ -39,8 +53,8 @@ class ScriptEditor(QtGui.QWidget):
         self.log = LogWidget()
         self.log.setFont(fixedFont);
 
-        self.cmd = QtGui.QLineEdit()
-        self.cmd.setFont(fixedFont)
+        self.cmd = self.CmdEditor()
+        # self.cmd.setFont(fixedFont)
         self.cmd.returnPressed.connect(self.onReturnPressed)
 
         layout = QtGui.QHBoxLayout()
@@ -52,10 +66,14 @@ class ScriptEditor(QtGui.QWidget):
         bottom.setContentsMargins(0,0,0,0)
         bottom.setLayout(layout)
 
-        layout = QtGui.QVBoxLayout()
+        splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        splitter.setContentsMargins(0,0,0,0)
+        splitter.addWidget(self.log)
+        splitter.addWidget(bottom)
+
+        layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0,0,0,0)
-        layout.addWidget(self.log)
-        layout.addWidget(bottom)
+        layout.addWidget(splitter)
 
         self.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
@@ -65,7 +83,7 @@ class ScriptEditor(QtGui.QWidget):
         self.eval_globals['binding'] = BindingWrapper(prev.client, binding, prev.qUndoStack)
 
     def onReturnPressed(self):
-        code = self.cmd.text()
+        code = self.cmd.toPlainText()
         self.exec_(code)
 
     def eval(self, code):
