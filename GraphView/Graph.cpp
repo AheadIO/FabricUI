@@ -409,26 +409,6 @@ Connection * Graph::addConnection(ConnectionTarget * src, ConnectionTarget * dst
       return NULL;
   }
 
-  if(m_config.disconnectInputsAutomatically)
-  {
-    for(size_t i=0;i<m_connections.size();i++)
-    {
-      if(m_connections[i]->dst() == dst)
-      {
-        // filter out IO ports
-        if(m_connections[i]->src()->targetType() == TargetType_Port && m_connections[i]->dst()->targetType() == TargetType_Port)
-        {
-          if(((Port*)m_connections[i]->src())->name() == ((Port*)m_connections[i]->dst())->name())
-            continue;
-        }
-
-        if(!controller()->gvcDoRemoveConnection(m_connections[i]))
-          return NULL;
-        break;
-      }
-    }
-  }
-
   prepareGeometryChange();
   controller()->beginInteraction();
 

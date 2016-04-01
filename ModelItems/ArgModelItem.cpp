@@ -35,7 +35,7 @@ FTL::CStrRef ArgModelItem::getName()
 
 bool ArgModelItem::canRename()
 {
-  return true;
+  return m_rootExec.getExecPortIndex( m_argName.c_str() ) > 0;
 }
 
 void ArgModelItem::rename( FTL::CStrRef newName )

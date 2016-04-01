@@ -11,15 +11,20 @@
 using namespace FabricUI::GraphView;
 
 Pin::Pin(
-  Node * parent, char const *name, PortType pType, QColor color, char const * label)
+  Node * parent,
+  FTL::StrRef name,
+  PortType pType,
+  QColor color,
+  FTL::StrRef label
+  )
   : ConnectionTarget(parent->pinsWidget())
   , m_node( parent )
-  , m_name( name )
+  , m_name( name.data(), name.size() )
+  , m_labelCaption( label.data(), label.size() )
 {
   m_portType = pType;
-  m_labelCaption = label;
-  if(m_labelCaption.length() == 0)
-    m_labelCaption = name;
+  if ( m_labelCaption.empty() )
+    m_labelCaption = m_name;
   m_color = color;
   m_index = 0;
   m_drawState = true;

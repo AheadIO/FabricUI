@@ -79,20 +79,18 @@ void DFGKLEditorPortTableWidget::refresh()
   {
     FabricCore::DFGExec &exec = getExec();
 
-    if(exec.getExecPortCount() == 0)
+    for(size_t i=0;i<exec.getExecPortCount();i++)
+    {
+      FabricCore::DFGPortType portType = exec.getExecPortType(i);
+      char const * portName = exec.getExecPortName(i);
+      char const * portTypeSpec = exec.getExecPortTypeSpec(i);
+      addPort(portType, portName, portTypeSpec, "", i == 0);
+    }
+
+    if(exec.getExecPortCount() == 1)
     {
       // add a single port to start off of
-      addPort(FabricCore::DFGPortType_In, "", "$TYPE$");
-    }
-    else
-    {
-      for(size_t i=0;i<exec.getExecPortCount();i++)
-      {
-        FabricCore::DFGPortType portType = exec.getExecPortType(i);
-        char const * portName = exec.getExecPortName(i);
-        char const * portTypeSpec = exec.getExecPortTypeSpec(i);
-        addPort(portType, portName, portTypeSpec);
-      }
+      addPort(FabricCore::DFGPortType_In, "", "$TYPE$", "", false);
     }
   }
   catch(FabricCore::Exception e)
@@ -197,7 +195,13 @@ void DFGKLEditorPortTableWidget::keyPressEvent(QKeyEvent * event)
         int index = currentRow_safe();
         if(portName(index).length() > 0)
         {
-          index = addPort(portType(index), "", dataType(index), extension(index));
+          index = addPort(
+            portType(index),
+            "",
+            dataType(index),
+            extension(index),
+            false
+            );
           setCurrentCell(index, 0);
           return;
         }
@@ -248,7 +252,13 @@ int DFGKLEditorPortTableWidget::currentRow_safe() const
   return result;
 }
 
-int DFGKLEditorPortTableWidget::addPort(FabricCore::DFGPortType portType, QString portName, QString dataType, QString extension)
+int DFGKLEditorPortTableWidget::addPort(
+  FabricCore::DFGPortType portType,
+  QString portName,
+  QString dataType,
+  QString extension,
+  bool readonly
+  )
 {
   int index = rowCount();
   insertRow(index);
@@ -265,11 +275,24 @@ int DFGKLEditorPortTableWidget::addPort(FabricCore::DFGPortType portType, QStrin
   else
     modeBox->setCurrentIndex(2);
 
-  QObject::connect(modeBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxChanged(int)));
+  modeBox->setEnabled( !readonly );
+
+  QObject::connect(
+    modeBox, SIGNAL(currentIndexChanged(int)),
+    this, SLOT(onComboBoxChanged(int))
+    );
 
   setCellWidget(index, 0, modeBox);
-  setItem(index, 1, new QTableWidgetItem(portName));
-  setItem(index, 2, new QTableWidgetItem(dataType));
+
+  QTableWidgetItem *portNameTWI = new QTableWidgetItem(portName);
+  if ( readonly )
+    portNameTWI->setFlags( 0 );
+  setItem(index, 1, portNameTWI);
+
+  QTableWidgetItem *dataTypeTWI = new QTableWidgetItem(dataType);
+  if ( readonly )
+    dataTypeTWI->setFlags( 0 );
+  setItem(index, 2, dataTypeTWI);
 
   return index;
 }
@@ -309,7 +332,13 @@ void DFGKLEditorPortTableWidget::contextMenuTriggered(QAction * action)
   else if(action->text() == "Add New Port (Ctrl+Enter)")
   {
     int index = currentRow_safe();
-    index = addPort(portType(index), "", dataType(index), extension(index));
+    index = addPort(
+      portType(index),
+      "",
+      dataType(index),
+      extension(index),
+      false //readonly
+      );
     setCurrentCell(index, 0);
     return;
   }

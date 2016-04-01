@@ -175,7 +175,7 @@ void DFGValueEditor::onArgsChanged()
           std::string portPath = m_nodeName;
           portPath += '.';
           portPath += portName;
-          if ( m_exec.hasSrcPort( portPath.c_str() ) )
+          if ( m_exec.hasSrcPorts( portPath.c_str() ) )
             continue;
 
           FTL::CStrRef dataType = 
