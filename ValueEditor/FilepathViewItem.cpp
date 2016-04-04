@@ -5,6 +5,7 @@
 #include "FilepathViewItem.h"
 #include "ItemMetadata.h"
 #include "QVariantRTVal.h"
+#include "VELineEdit.h"
 
 #include <QtCore/QVariant>
 #include <QtGui/QWidget>
@@ -24,30 +25,26 @@ FilepathViewItem::FilepathViewItem(
   : BaseViewItem( name, metadata )
   , m_val(value.value<FabricCore::RTVal>())
 {
-  // Our widget shows the value and a "Browse" button
   m_widget = new QWidget;
   m_widget->setObjectName( "FilePathItem" );
   QHBoxLayout *layout = new QHBoxLayout( m_widget );
   QPushButton* browseButton = new QPushButton( m_widget );
   browseButton->setText( "..." );
-  m_lineEdit = new QLineEdit(m_widget);
-  layout->addWidget( m_lineEdit );
-  layout->addWidget( browseButton );
+  m_edit = new VELineEdit( m_widget );
 
   onModelValueChanged( value );
 
-  // Connect button signal to appropriate slot
+  layout->addWidget( m_edit );
+  layout->addWidget( browseButton );
+
   connect(
-    m_lineEdit, SIGNAL( textEdited( const QString& ) ),
-    this, SLOT( OnTextEdited( const QString& ) )
-    );
-  connect(
-    m_lineEdit, SIGNAL( editingFinished() ),
-    this, SLOT( OnEditFinished() )
+    m_edit, SIGNAL( textModified( QString ) ),
+    this, SLOT( onTextModified( QString ) )
     );
   connect( 
     browseButton, SIGNAL( clicked() ), 
     this, SLOT( doBrowse() ) );
+
   metadataChanged();
 }
 
@@ -60,7 +57,6 @@ QWidget *FilepathViewItem::getWidget()
   return m_widget;
 }
 
-
 void FilepathViewItem::metadataChanged()
 {
   if (m_metadata.has( "filter" ))
@@ -69,13 +65,9 @@ void FilepathViewItem::metadataChanged()
     m_filter = QString();
 }
 
-
-
 void FilepathViewItem::onModelValueChanged( QVariant const &v )
 {
-  m_val = v.value<FabricCore::RTVal>();
-  QString str = ToQString( v );
-  m_lineEdit->setText( str );
+  m_edit->setText( ToQString(v) );
 }
 
 void FilepathViewItem::doBrowse()
@@ -87,25 +79,15 @@ void FilepathViewItem::doBrowse()
   if (!fileName.isEmpty())
   {
     // Update the string widget
-    m_lineEdit->setText( fileName );
+    m_edit->setText( fileName );
     // Update the model
-    OnEditFinished();
+    onTextModified( fileName );
   }
 }
 
-
-
-void FilepathViewItem::OnTextEdited( const QString& text )
+void FilepathViewItem::onTextModified( QString text )
 {
   m_val = ToFilePath( m_val, text );
-  emit viewValueChanged(
-    QVariant::fromValue<FabricCore::RTVal>( m_val )
-    );
-}
-
-void FilepathViewItem::OnEditFinished()
-{
-  m_val = ToFilePath( m_val, m_lineEdit->text() );
   emit viewValueChanged(
     QVariant::fromValue<FabricCore::RTVal>( m_val )
     );
@@ -116,6 +98,8 @@ void FilepathViewItem::OnEditFinished()
 
 inline QString ToQString( const QVariant& var )
 {
+  if (var.isNull())
+    return "";
   FabricCore::RTVal val = var.value<FabricCore::RTVal>();
   const FabricCore::RTVal pathStr = val.callMethod( "String", "string", 0, NULL );
   const char* asCStr = pathStr.getStringCString();
