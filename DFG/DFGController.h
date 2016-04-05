@@ -440,6 +440,10 @@ namespace FabricUI
             {
               m_controller->m_topoDirtyPending = false;
               emit m_controller->topoDirty();
+
+              // [pzion 20160405] FE-6269
+              // topoDirty implies dirty
+              m_controller->m_dirtyPending = false;
             }
             if ( m_controller->m_dirtyPending )
             {
