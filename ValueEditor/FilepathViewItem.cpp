@@ -13,6 +13,8 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
 
+using namespace FabricUI::ValueEditor;
+
 inline QString ToQString( const QVariant& var );
 FabricCore::RTVal ToFilePath( FabricCore::RTVal& val, const QString& text );
 

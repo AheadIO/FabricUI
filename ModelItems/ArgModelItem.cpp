@@ -91,12 +91,12 @@ void ArgModelItem::setValue(
   FabricCore::RTVal rtVal =
     FabricCore::RTVal::Construct( context, curRTVal.getTypeNameCStr(), 0, 0 );
   assert( rtVal.isValid() );
-  RTVariant::toRTVal( var, rtVal );
+  FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
   if ( commit )
   {
     if ( valueAtInteractionBegin.isValid() )
     {
-      RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+      FabricUI::ValueEditor::RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
       m_binding.setArgValue(
         m_argName.c_str(),
         rtVal,
@@ -104,7 +104,7 @@ void ArgModelItem::setValue(
         );
     }
 
-    RTVariant::toRTVal( var, rtVal );
+    FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
     m_dfgUICmdHandler->dfgDoSetArgValue(
       m_binding,
       QString::fromUtf8( m_argName.data(), m_argName.size() ),
@@ -113,7 +113,7 @@ void ArgModelItem::setValue(
   }
   else
   {
-    RTVariant::toRTVal( var, rtVal );
+    FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
     m_binding.setArgValue(
       m_argName.c_str(),
       rtVal,
@@ -122,7 +122,7 @@ void ArgModelItem::setValue(
   }
 }
 
-ItemMetadata* ArgModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* ArgModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new ArgItemMetadata( this );

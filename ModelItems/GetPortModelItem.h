@@ -40,7 +40,7 @@ public:
 
   virtual FTL::CStrRef getName() /*override*/;
 
-  virtual ItemMetadata* getMetadata();
+  virtual FabricUI::ValueEditor::ItemMetadata* getMetadata();
 };
 
 } // namespace ModelItems

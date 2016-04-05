@@ -7,6 +7,8 @@
 #include <limits.h>
 #include <algorithm>
 
+using namespace FabricUI::ValueEditor;
+
 //////////////////////////////////////////////////////////////////////////
 VEIntSpinBox::VEIntSpinBox( )
 {

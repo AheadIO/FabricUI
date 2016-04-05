@@ -6,11 +6,16 @@
 
 #include "BaseViewItem.h"
 
-class ItemMetadata;
 class QString;
 class QVariant;
 class QWidget;
 class QCheckBox;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
+class ItemMetadata;
 
 class BooleanCheckBoxViewItem : public BaseViewItem
 {
@@ -46,3 +51,7 @@ private slots:
 
   void onStateChanged( int state );
 };
+
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -16,6 +16,17 @@ inline bool isRTVal( const QVariant& var ) {
   return var.userType() == qMetaTypeId<FabricCore::RTVal>();
 }
 
+// Initially at least - A set of functions for 
+// converting RTVal <--> QVariant
+inline QVariant toVariant(const FabricCore::RTVal& val) 
+{ 
+  return QVariant::fromValue<FabricCore::RTVal>(val); 
+}
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 // This class is not a class meant to be constructed,
 // instead it overwrites a static member of the
 // base class to inject our own versions of some
@@ -82,9 +93,5 @@ private:
   static const Handler* origh;
 };
 
-// Initially at least - A set of functions for 
-// converting RTVal <--> QVariant
-inline QVariant toVariant(const FabricCore::RTVal& val) 
-{ 
-	return QVariant::fromValue<FabricCore::RTVal>(val); 
-}
+} // namespace FabricUI 
+} // namespace ValueEditor 

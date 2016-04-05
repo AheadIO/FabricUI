@@ -19,7 +19,7 @@
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 using namespace FabricUI;
-using namespace ValueEditor;
+using namespace FabricUI::ValueEditor;
 using namespace ModelItems;
 
 VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner *owner )
@@ -29,7 +29,7 @@ VEEditorOwner::VEEditorOwner( ValueEditorBridgeOwner *owner )
   , m_setGraph( NULL )
   , m_modelRoot( NULL )
 {
-  m_dfgValueEditor = new VETreeWidget();
+  m_dfgValueEditor = new FabricUI::ValueEditor::VETreeWidget();
 }
 
 VEEditorOwner::~VEEditorOwner()
@@ -56,7 +56,7 @@ void VEEditorOwner::initConnections()
     this, SLOT( onStructureChanged() )
     );
   connect(  // [FE-6010]
-    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
+    this, SIGNAL( modelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) ),
     this, SLOT( onStructureChanged() )
     );
 
@@ -66,24 +66,24 @@ void VEEditorOwner::initConnections()
     );
 
   connect(
-    this, SIGNAL( modelItemInserted( BaseModelItem*, int, const char* ) ),
-    m_dfgValueEditor, SLOT( onModelItemChildInserted( BaseModelItem*, int, const char* ) )
+    this, SIGNAL( modelItemInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) ),
+    m_dfgValueEditor, SLOT( onModelItemChildInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) )
     );
   connect(
-    this, SIGNAL( modelItemTypeChange( BaseModelItem*, const char* ) ),
-    m_dfgValueEditor, SLOT( onModelItemTypeChanged( BaseModelItem*, const char* ) )
+    this, SIGNAL( modelItemTypeChange( FabricUI::ValueEditor::BaseModelItem*, const char* ) ),
+    m_dfgValueEditor, SLOT( onModelItemTypeChanged( FabricUI::ValueEditor::BaseModelItem*, const char* ) )
     );
   connect(
-    this, SIGNAL( modelItemRemoved( BaseModelItem* ) ),
-    m_dfgValueEditor, SLOT( onModelItemRemoved( BaseModelItem* ) )
+    this, SIGNAL( modelItemRemoved( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_dfgValueEditor, SLOT( onModelItemRemoved( FabricUI::ValueEditor::BaseModelItem* ) )
     );
   connect(
-    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
-    m_dfgValueEditor, SLOT( onModelItemRenamed( BaseModelItem* ) )
+    this, SIGNAL( modelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_dfgValueEditor, SLOT( onModelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) )
     );
   connect(
-    this, SIGNAL( modelItemChildrenReordered( BaseModelItem*, const QList<int>& ) ),
-    m_dfgValueEditor, SLOT( onModelItemChildrenReordered( BaseModelItem*, const QList<int>& ) )
+    this, SIGNAL( modelItemChildrenReordered( FabricUI::ValueEditor::BaseModelItem*, const QList<int>& ) ),
+    m_dfgValueEditor, SLOT( onModelItemChildrenReordered( FabricUI::ValueEditor::BaseModelItem*, const QList<int>& ) )
     );
 
   // connect(
@@ -91,8 +91,8 @@ void VEEditorOwner::initConnections()
 //   m_dfgValueEditor, SLOT(setBinding(FabricCore::DFGBinding const &))
 //   );
   connect(
-    this, SIGNAL( replaceModelRoot( BaseModelItem* ) ),
-    m_dfgValueEditor, SLOT( onSetModelItem( BaseModelItem* ) )
+    this, SIGNAL( replaceModelRoot( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_dfgValueEditor, SLOT( onSetModelItem( FabricUI::ValueEditor::BaseModelItem* ) )
     );
 
   connect( getDfgWidget(), SIGNAL( onGraphSet( FabricUI::GraphView::Graph* ) ),

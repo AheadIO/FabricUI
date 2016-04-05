@@ -5,10 +5,13 @@
 #pragma once
 
 #include "BaseComplexViewItem.h"
-
 #include <FabricCore.h>
 
 class QLabel;
+
+
+namespace FabricUI {
+namespace ValueEditor {
 
 // A default RTVal implementation that can display any RTVal class
 class RTValViewItem : public BaseComplexViewItem
@@ -55,3 +58,6 @@ private:
 
   void UpdateWidget();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

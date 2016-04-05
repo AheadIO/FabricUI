@@ -5,6 +5,7 @@
 #include "BaseComplexViewItem.h"
 #include "ViewItemChildRouter.h"
 
+using namespace FabricUI::ValueEditor;
 
 BaseComplexViewItem::BaseComplexViewItem( QString const &name, ItemMetadata* metadata )
   : BaseViewItem(name, metadata)

@@ -14,6 +14,8 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QDialogButtonBox>
 
+using namespace FabricUI::ValueEditor;
+
 StringViewItem::StringViewItem(
   QString const &name,
   QVariant const &value,

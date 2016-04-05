@@ -7,6 +7,9 @@
 #include <QtGui/QDialog>
 #include <QtGui/QShowEvent>
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class VEDialog : public QDialog
 {
   Q_OBJECT
@@ -19,3 +22,6 @@ protected:
 
   void showEvent( QShowEvent * event );
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

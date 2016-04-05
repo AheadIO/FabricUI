@@ -7,6 +7,9 @@
 #include <QtGui/QSlider>
 #include <QtGui/qevent.h>
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class IntSlider : public QSlider {
   Q_OBJECT
 
@@ -16,3 +19,6 @@ public:
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -7,6 +7,11 @@
 #include "BaseViewItem.h"
 
 class QWidget;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 class VELineEdit;
 
 class StringViewItem : public BaseViewItem
@@ -45,3 +50,6 @@ protected slots:
 	void onTextModified( QString text );
   void onInspect();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

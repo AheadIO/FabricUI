@@ -18,6 +18,8 @@
 #include <FabricUI/Util/UIRange.h>
 #include <FTL/AutoSet.h>
 
+using namespace FabricUI::ValueEditor;
+
 IntSliderViewItem::IntSliderViewItem(
   QString const &name,
   QVariant const &variant,

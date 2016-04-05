@@ -27,12 +27,9 @@
       <object-type name="FabricStyle" />
     </namespace-type>
 
-    <namespace-type name="ValueEditor" generate="yes">
-      <object-type name="ValueEditorBridgeOwner" />
-      <object-type name="VEEditorOwner" />
-      <object-type name="VETreeWidget" />
-    </namespace-type>
+    <load-typesystem name="fabricui_valueeditor.xml" generate="yes"/>
 
+     
   </namespace-type>
 
   <namespace-type name="FabricServices" generate="no">

@@ -30,7 +30,7 @@ public:
 
   virtual QVariant getValue() /*override*/;
 
-  virtual ItemMetadata *getMetadata() /*override*/;
+  virtual FabricUI::ValueEditor::ItemMetadata *getMetadata() /*override*/;
 
 protected:
 

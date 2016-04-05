@@ -6,7 +6,11 @@
 
 #include <FTL/CStrRef.h>
 #include <QtCore/QObject>
+#include <QtCore/QString>
 #include <QtCore/QVariant>
+
+namespace FabricUI {
+namespace ValueEditor {
 
 class ItemMetadata;
 
@@ -94,20 +98,20 @@ public:
   /////////////////////////////////////////////////////////////////////////
 
 	// The name of this node
-  virtual FTL::CStrRef getName() = 0;
+  virtual FTL::CStrRef getName() { return FTL::CStrRef(); }
 
   // Implement this function to prevent the system
   // from allowing renames from the UI
-  virtual bool canRename() = 0;
+  virtual bool canRename() { return false; }
 
   // Implement this to rename the underlying data
-  virtual void rename( FTL::CStrRef newName ) = 0;
+  virtual void rename( FTL::CStrRef newName ) {}
 
   // Handle the actual name change in the model
   virtual void onRenamed(
     FTL::CStrRef oldName,
     FTL::CStrRef newName
-    ) = 0;
+    ) {}
 
   /////////////////////////////////////////////////////////////////////////
   // Metadata
@@ -140,16 +144,16 @@ public:
   //virtual bool IsReadOnline();
 
 	// Return a copy of this classes value
-	virtual QVariant getValue() = 0;
+	virtual QVariant getValue() { return QVariant(); }
 
   // Returns true if a ModelItem has a default
   // value - in other words, if resetToDefault
   // will have an effect
-  virtual bool hasDefault() = 0;
+  virtual bool hasDefault() { return false; }
 
   // An implementation should implement this function
   // to reset its value back to the default
-  virtual void resetToDefault() = 0;
+  virtual void resetToDefault() {}
 
   // Allow others to trigger these signals...
   void emitModelValueChanged( QVariant const &newValue ) 
@@ -162,7 +166,7 @@ private:
 
   // A modelitem should implement this function to
   // push metadata to the underlying class
-  virtual void setMetadataImp( const char* key, const char* val, bool canUndo ) = 0;
+  virtual void setMetadataImp( const char* key, const char* val, bool canUndo ) {}
 
 public slots:
 
@@ -179,3 +183,5 @@ signals:
 	void modelValueChanged( QVariant const &newValue );
 };
 
+} // namespace FabricUI 
+} // namespace ValueEditor 

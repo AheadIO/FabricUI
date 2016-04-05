@@ -11,6 +11,8 @@
 
 #include <FTL/AutoSet.h>
 
+using namespace FabricUI::ValueEditor;
+
 DoubleSlider::DoubleSlider( QWidget * parent )
   : QSlider( parent )
   , m_min( 0.0 )

@@ -3,6 +3,7 @@
 //
 
 #include "ComboBox.h"
+using namespace FabricUI::ValueEditor;
 
 ComboBox::ComboBox( QWidget *parent )
 {

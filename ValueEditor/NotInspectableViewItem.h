@@ -8,6 +8,10 @@
 
 class QLabel;
 
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 class NotInspectableViewItem : public BaseViewItem
 {
   QLabel *m_label;
@@ -41,3 +45,6 @@ private:
 
   void UpdateWidget();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

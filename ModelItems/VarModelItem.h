@@ -27,11 +27,11 @@ namespace FabricUI
         );
       ~VarModelItem();
 
-      virtual BaseModelItem* createChild( FTL::CStrRef name );
+      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name );
 
       virtual QVariant getValue() /*override*/;
 
-      virtual ItemMetadata *getMetadata() /*override*/;
+      virtual FabricUI::ValueEditor::ItemMetadata *getMetadata() /*override*/;
 
     protected:
 

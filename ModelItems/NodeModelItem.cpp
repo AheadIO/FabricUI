@@ -83,7 +83,7 @@ FTL::CStrRef NodeModelItem::getChildName( int i )
   return m_exec.getNodePortName( m_nodeName.c_str(), i );
 }
 
-ItemMetadata* NodeModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* NodeModelItem::getMetadata()
 {
   return NULL;
 }

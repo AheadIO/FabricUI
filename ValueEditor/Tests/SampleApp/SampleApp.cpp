@@ -5,20 +5,22 @@
 #include <ViewItemFactory.h>
 #include "SampleModel.h"
 
+using namespace FabricUI::ValueEditor;
+
 static QTime myTimer;
 void SetStylesheet(const char* filename)
 {
-	QFile File(filename);
-	File.open(QFile::ReadOnly);
-	QString StyleSheet = QLatin1String(File.readAll());
+  QFile File(filename);
+  File.open(QFile::ReadOnly);
+  QString StyleSheet = QLatin1String(File.readAll());
 
-	qApp->setStyleSheet(StyleSheet);
+  qApp->setStyleSheet(StyleSheet);
 }
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-	SetStylesheet("styles.qss");
+  QApplication a(argc, argv);
+  SetStylesheet("styles.qss");
 
   // We create a FabricInstance in order to test
   FabricCore::Initialize();
@@ -29,23 +31,23 @@ int main(int argc, char *argv[])
 
   FabricCore::Client client( NULL, NULL, &createOptions );
 
-	BaseModelItem* pSampleModel = BuildSampleModel( client );
+  FabricUI::ValueEditor::BaseModelItem* pSampleModel = BuildSampleModel( client );
 
-	myTimer.start();
-	MainWindow w;
+  myTimer.start();
+  MainWindow w;
 
   w.setModelItem( pSampleModel );
 
-	// Now everything is connected up, try modifying a model value
-	BaseModelItem* pAModel = pSampleModel->GetChild(1);
-	SampleModelItem* pFloatModel = dynamic_cast<SampleModelItem*>(pAModel);
-	if (pFloatModel)
-	{
-		QVariant anotherValue(45.43f);
-		pFloatModel->SetValueDirect(anotherValue);
-	}
-	w.show();
-	return a.exec();
+  // Now everything is connected up, try modifying a model value
+  FabricUI::ValueEditor::BaseModelItem* pAModel = pSampleModel->GetChild(1);
+  SampleModelItem* pFloatModel = dynamic_cast<SampleModelItem*>(pAModel);
+  if (pFloatModel)
+  {
+    QVariant anotherValue(45.43f);
+    pFloatModel->SetValueDirect(anotherValue);
+  }
+  w.show();
+  return a.exec();
 }
 
 MainWindow::MainWindow()
@@ -53,14 +55,14 @@ MainWindow::MainWindow()
   setCentralWidget( &m_treeWidget );
 
   bool var = connect(
-    this, SIGNAL( modelChanged( BaseModelItem* ) ),
-    &m_treeWidget, SLOT( onSetModelItem( BaseModelItem* ) )
+    this, SIGNAL( modelChanged( FabricUI::ValueEditor::BaseModelItem* ) ),
+    &m_treeWidget, SLOT( onSetModelItem( FabricUI::ValueEditor::BaseModelItem* ) )
     );
 
   printf( "%i", var );
 }
 
-void MainWindow::setModelItem( BaseModelItem *model )
+void MainWindow::setModelItem( FabricUI::ValueEditor::BaseModelItem *model )
 {
   emit modelChanged( model );
   //m_treeWidget.onSetModelItem( model );

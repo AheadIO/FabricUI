@@ -35,7 +35,7 @@ class DFGUICmdHandler;
 
       virtual bool isBinding() const /*override*/ { return true; }
 
-      BaseModelItem *createChild( FTL::CStrRef name ) /*override*/;
+      FabricUI::ValueEditor::BaseModelItem *createChild( FTL::CStrRef name ) /*override*/;
 
       virtual int getNumChildren() /*override*/;
 
@@ -67,7 +67,7 @@ class DFGUICmdHandler;
       // Metadata
       /////////////////////////////////////////////////////////////////////////
 
-      virtual ItemMetadata* getMetadata() /*override*/;
+      virtual FabricUI::ValueEditor::ItemMetadata* getMetadata() /*override*/;
 
       virtual void setMetadataImp( const char* key, 
                                 const char* value, 

@@ -16,6 +16,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
 
+using namespace FabricUI::ValueEditor;
+
 #define IDX_RGB 0
 #define IDX_HSV 1
 #define META_FORMAT  "displayFormat"

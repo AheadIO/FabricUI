@@ -7,6 +7,10 @@
 #include <QtGui/QSlider>
 #include <QtGui/qevent.h>
 
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class DoubleSlider : public QSlider {
   Q_OBJECT
 
@@ -46,3 +50,6 @@ private:
   double m_value;
   bool m_isSettingValue;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

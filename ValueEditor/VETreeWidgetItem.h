@@ -6,6 +6,9 @@
 
 #include <QtGui/QTreeWidget>
 
+namespace FabricUI {
+namespace ValueEditor {
+	
 class BaseViewItem;
 
 class VETreeWidgetItem : public QTreeWidgetItem
@@ -25,3 +28,6 @@ private:
 
   BaseViewItem *m_viewItem;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -20,7 +20,7 @@ class VarPathItemMetadata;
 
 //////////////////////////////////////////////////////////////////////////
 // Basic ModelItem for accessing ports
-class VarPathModelItem : public BaseModelItem
+class VarPathModelItem : public FabricUI::ValueEditor::BaseModelItem
 {
 protected:
 
@@ -73,7 +73,7 @@ public:
   virtual bool hasDefault() /*override*/;
   virtual void resetToDefault() /*override*/;
 
-  virtual ItemMetadata* getMetadata();
+  virtual FabricUI::ValueEditor::ItemMetadata* getMetadata();
 
 protected:
 

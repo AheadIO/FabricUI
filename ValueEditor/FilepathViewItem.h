@@ -9,6 +9,11 @@
 
 class QWidget;
 class QLineEdit;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class ItemMetadata;
 
 class FilepathViewItem : public BaseViewItem
@@ -54,3 +59,6 @@ private slots:
   void OnEditFinished();
 
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

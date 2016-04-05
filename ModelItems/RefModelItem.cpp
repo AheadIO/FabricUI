@@ -66,13 +66,13 @@ void RefModelItem::setValue(
   {
     FTL::CStrRef varPath = m_exec.getRefVarPath( getNodeName().c_str() );
     FabricCore::RTVal val = m_exec.getVarValue( varPath.c_str() );
-    if ( RTVariant::toRTVal( var, val ) )
+    if ( FabricUI::ValueEditor::RTVariant::toRTVal( var, val ) )
       m_exec.setVarValue( varPath.c_str(), val );
   }
   catch ( ... ) {}
 }
 
-ItemMetadata *RefModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata *RefModelItem::getMetadata()
 {
   return &m_metadata;
 }

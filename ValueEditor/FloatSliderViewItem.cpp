@@ -17,6 +17,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QDoubleValidator>
 
+using namespace FabricUI::ValueEditor;
+
 FloatSliderViewItem::FloatSliderViewItem(
   QString const &name,
   QVariant const &variant,

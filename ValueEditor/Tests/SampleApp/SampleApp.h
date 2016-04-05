@@ -1,6 +1,8 @@
 #pragma once
 #include <VETreeWidget.h>
 
+using namespace FabricUI::ValueEditor;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
@@ -11,7 +13,7 @@ class MainWindow : public QMainWindow
 public:
 
   MainWindow();
-  void setModelItem( BaseModelItem *model );
+  void setModelItem( FabricUI::ValueEditor::BaseModelItem *model );
 
   virtual void showEvent( QShowEvent *ev ) /*override*/
   {
@@ -21,5 +23,5 @@ public:
   }
 
 signals:
-  void modelChanged( BaseModelItem* model );
+  void modelChanged( FabricUI::ValueEditor::BaseModelItem* model );
 };

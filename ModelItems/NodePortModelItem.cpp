@@ -44,7 +44,7 @@ void NodePortModelItem::updatePortPath()
   m_portPath += m_portName;
 }
 
-ItemMetadata* NodePortModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* NodePortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new NodePortItemMetadata( this );
@@ -109,7 +109,7 @@ void NodePortModelItem::setValue(
     {
       if ( valueAtInteractionBegin.isValid() )
       {
-        RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
+        FabricUI::ValueEditor::RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
         m_exec.setPortDefaultValue(
           m_portPath.c_str(),
           rtVal,
@@ -117,7 +117,7 @@ void NodePortModelItem::setValue(
           );
       }
 
-      RTVariant::toRTVal( value, rtVal );
+      FabricUI::ValueEditor::RTVariant::toRTVal( value, rtVal );
       m_dfgUICmdHandler->dfgDoSetPortDefaultValue(
         m_binding,
         QString::fromUtf8( m_execPath.data(), m_execPath.size() ),
@@ -128,7 +128,7 @@ void NodePortModelItem::setValue(
     }
     else
     {
-      RTVariant::toRTVal( value, rtVal );
+      FabricUI::ValueEditor::RTVariant::toRTVal( value, rtVal );
       m_exec.setPortDefaultValue(
         m_portPath.c_str(),
         rtVal,

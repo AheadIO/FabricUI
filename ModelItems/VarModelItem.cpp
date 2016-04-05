@@ -33,7 +33,7 @@ VarModelItem::~VarModelItem()
 {
 }
 
-BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
+FabricUI::ValueEditor::BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
 {
   return new VarPortModelItem(
     m_dfgUICmdHandler,
@@ -57,13 +57,13 @@ void VarModelItem::setValue(
   )
 {
   FabricCore::RTVal val = m_exec.getVarValue( m_nodeName.c_str() );
-  if (RTVariant::toRTVal( var, val ))
+  if (FabricUI::ValueEditor::RTVariant::toRTVal( var, val ))
   {
     m_exec.setVarValue( m_nodeName.c_str(), val );
   }
 }
 
-ItemMetadata *VarModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata *VarModelItem::getMetadata()
 {
   return &m_metadata;
 }

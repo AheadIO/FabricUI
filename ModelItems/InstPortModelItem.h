@@ -53,7 +53,7 @@ class DFGUICmdHandler;
       // Others
       /////////////////////////////////////////////////////////////////////////
 
-      virtual ItemMetadata *getMetadata() /*override*/;
+      virtual FabricUI::ValueEditor::ItemMetadata *getMetadata() /*override*/;
 
       virtual QVariant getValue();
 

@@ -5,15 +5,18 @@
 #pragma once
 
 #include "BaseComplexViewItem.h"
-
 #include <algorithm>
 #include <FabricCore.h>
 #include <math.h>
 #include <QtGui/QColor>
 #include <QtGui/QPushButton>
 
-class ItemMetadata;
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class ComboBox;
+class ItemMetadata;
 
 class AlphaButton : public QPushButton
 {
@@ -128,3 +131,6 @@ protected:
 
   void sync();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 
