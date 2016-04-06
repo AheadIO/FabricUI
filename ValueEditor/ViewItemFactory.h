@@ -7,6 +7,9 @@
 #include <QtCore/QObject>
 #include <vector>
 
+namespace FabricUI {
+namespace ValueEditor {
+	
 class BaseViewItem;
 class BaseModelItem;
 class ItemMetadata;
@@ -106,3 +109,6 @@ public:
     ItemMetadata* metaData = NULL
 	  );
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

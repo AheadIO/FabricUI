@@ -8,6 +8,8 @@
 
 #include <limits.h>
 
+using namespace FabricUI::ValueEditor;
+
 UIntViewItem::UIntViewItem(
   QString const &name,
   QVariant const &value,

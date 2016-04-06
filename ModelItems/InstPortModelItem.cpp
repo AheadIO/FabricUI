@@ -36,7 +36,7 @@ InstPortModelItem::~InstPortModelItem()
 {
 }
 
-ItemMetadata *InstPortModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata *InstPortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new InstPortItemMetadata( this );

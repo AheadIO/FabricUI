@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <QtGui/QLabel>
 
+using namespace FabricUI::ValueEditor;
+
 NotInspectableViewItem::NotInspectableViewItem(
   QString name,
   QVariant value,

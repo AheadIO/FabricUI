@@ -6,10 +6,15 @@
 
 #include "BaseViewItem.h"
 
-class ItemMetadata;
 class QString;
 class QVariant;
 class QWidget;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+
+class ItemMetadata;
 class IntSlider;
 class VELineEdit;
 
@@ -60,3 +65,6 @@ private slots:
   void onValueChanged( int value );
   void onSliderReleased();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

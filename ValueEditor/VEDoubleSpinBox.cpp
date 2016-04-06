@@ -8,6 +8,8 @@
 #include <math.h>
 #include <algorithm>
 
+using namespace FabricUI::ValueEditor;
+
 double const VEDoubleSpinBox::MAX_QT_VAL = 999999999.0;
 int const VEDoubleSpinBox::MAX_QT_EXP = 10;
 

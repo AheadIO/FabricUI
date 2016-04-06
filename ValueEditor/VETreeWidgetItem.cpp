@@ -8,6 +8,8 @@
 
 #include <assert.h>
 
+using namespace FabricUI::ValueEditor;
+
 VETreeWidgetItem::VETreeWidgetItem( BaseViewItem *viewItem ) : m_viewItem( viewItem )
 {
 }

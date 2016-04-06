@@ -1,0 +1,46 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <namespace-type name="FabricUI"  generate="no">
+    <namespace-type name="ValueEditor" generate="yes">
+      <object-type name="ArrayViewItem" />
+      <object-type name="BaseComplexViewItem" />
+      <object-type name="BaseModelItem" />
+      <object-type name="BaseViewItem" />
+      <object-type name="RTVariant" copyable="false">
+        <rejection function-name="isType"/>
+      </object-type>
+      <object-type name="ComboBox" />
+      <object-type name="ComboBoxViewItem" />
+      <object-type name="DefaultViewItem" />
+      <object-type name="DoubleSlider" />
+      <object-type name="FilepathViewItem" />
+      <object-type name="FloatSliderViewItem" />
+      <object-type name="FloatViewItem" />
+      <object-type name="IntSlider" />
+      <object-type name="IntSliderViewItem" />
+      <object-type name="ItemMetadata" copyable="false">
+        <rejection field-name="VEPortTypeKey"/>
+        <rejection field-name="VENotInspectableKey"/>
+      </object-type>
+      <object-type name="ViewItemMetadata" />
+      <object-type name="NotInspectableViewItem" />
+      <object-type name="SIntViewItem" />
+      <object-type name="StringViewItem" />
+      <object-type name="UIntViewItem" />
+      <object-type name="VEDialog" />
+      <object-type name="VEDoubleSpinBox" />
+      <object-type name="VEIntSpinBox" />
+      <object-type name="VELineEdit" />
+      <object-type name="VETreeWidget" />
+      <object-type name="VETreeWidgetItem" />
+      <object-type name="Vec2ViewItem" />
+      <object-type name="Vec3ViewItem" />
+      <object-type name="Vec4ViewItem" />
+      <object-type name="ViewItemChildRouter" />
+      <object-type name="ViewItemFactory" />
+      <object-type name="ValueEditorBridgeOwner" />
+      <object-type name="VEEditorOwner" />
+      <object-type name="VETreeWidget" />
+    </namespace-type>
+  </namespace-type>
+</typesystem>

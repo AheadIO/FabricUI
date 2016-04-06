@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <QtGui/QLabel>
 
+using namespace FabricUI::ValueEditor;
+
 RTValViewItem::RTValViewItem( QString name, 
                               const FabricCore::RTVal& value,
                               ItemMetadata* metadata )

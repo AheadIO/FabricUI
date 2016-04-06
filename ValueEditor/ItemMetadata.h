@@ -11,6 +11,9 @@ namespace FTL {
   class JSONArray;
 }
 
+namespace FabricUI {
+namespace ValueEditor {
+
 /* 
  * This base class is supplied to ViewItems on creation
  * It can supply hints on how to create the appropriate
@@ -26,14 +29,14 @@ public:
   virtual ~ItemMetadata() {}
 
   // Access arbirtary metadata
-  virtual const char* getString( const char* key )  const = 0;
-  virtual int getSInt32( const char* key )  const = 0;
-  virtual double getFloat64( const char* key )  const = 0;
-  virtual const FTL::JSONObject* getDict( const char* key ) const = 0;
-  virtual const FTL::JSONArray* getArray( const char* key ) const = 0;
+  virtual const char* getString( const char* key ) const { return 0; }
+  virtual int getSInt32( const char* key ) const { return 0; }
+  virtual double getFloat64( const char* key )  const { return 0.0; }
+  virtual const FTL::JSONObject* getDict( const char* key ) const { return 0; }
+  virtual const FTL::JSONArray* getArray( const char* key ) const { return 0; }
 
   // Returns 'true' if this key is present in our dictionary
-  virtual bool has( const char* key ) const = 0;
+  virtual bool has( const char* key ) const { return false; }
 };
 
 /*
@@ -78,3 +81,6 @@ public:
   virtual bool has( const char* key ) const;
 
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

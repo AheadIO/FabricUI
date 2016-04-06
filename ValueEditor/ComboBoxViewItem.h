@@ -6,6 +6,10 @@
 
 #include "BaseViewItem.h"
 
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class ComboBox;
 
 class ComboBoxViewItem : public BaseViewItem
@@ -40,3 +44,6 @@ private:
 private slots:
   void entrySelected(int index);
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

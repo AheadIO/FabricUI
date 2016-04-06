@@ -6,6 +6,9 @@
 
 #include "VEBaseSpinBox.h"
 
+namespace FabricUI {
+namespace ValueEditor {
+
 // The Int version of the spinbox just needs to implement the signals
 // defined in VEBaseSpinBox
 class VEDoubleSpinBox : public VEBaseSpinBox<QDoubleSpinBox, double>
@@ -63,3 +66,6 @@ private:
   static double const MAX_QT_VAL;
   static int const MAX_QT_EXP;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

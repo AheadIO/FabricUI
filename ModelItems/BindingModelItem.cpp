@@ -37,7 +37,7 @@ FTL::CStrRef BindingModelItem::getChildName( int i )
   return m_rootExec.getExecPortName( i );
 }
 
-BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
+FabricUI::ValueEditor::BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
 {
   return new ArgModelItem(
     m_dfgUICmdHandler,
@@ -82,7 +82,7 @@ QVariant BindingModelItem::getValue()
   return QVariant();
 }
 
-ItemMetadata* BindingModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* BindingModelItem::getMetadata()
 {
   return NULL;
 }
@@ -106,7 +106,7 @@ void BindingModelItem::argRemoved( unsigned index, FTL::CStrRef name )
   for ( ChildVec::iterator itr = m_children.begin();
     itr != m_children.end(); itr++ )
   {
-    BaseModelItem *childModelItem = *itr;
+    FabricUI::ValueEditor::BaseModelItem *childModelItem = *itr;
     if ( childModelItem->getName() == name )
     {
       delete childModelItem;

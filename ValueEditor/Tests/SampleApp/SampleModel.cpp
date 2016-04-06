@@ -2,7 +2,9 @@
 #include "../../QVariantRTVal.h"
 #include "SampleModel.h"
 
-BaseModelItem* BuildSampleModel( FabricCore::Client& client )
+using namespace FabricUI::ValueEditor;
+
+FabricUI::ValueEditor::BaseModelItem* BuildSampleModel( FabricCore::Client& client )
 {
 	SampleModelItem* rootItem = new SampleModelItem("RootNode", QVariant());
 

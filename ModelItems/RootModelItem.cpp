@@ -20,12 +20,12 @@ RootModelItem::~RootModelItem()
   for ( ChildVec::iterator it = m_children.begin();
     it != m_children.end(); ++it )
   {
-    BaseModelItem *child = *it;
+    FabricUI::ValueEditor::BaseModelItem *child = *it;
     delete child;
   }
 }
 
-BaseModelItem *RootModelItem::getChild(
+FabricUI::ValueEditor::BaseModelItem *RootModelItem::getChild(
   FTL::CStrRef childName,
   bool doCreate
   )
@@ -41,7 +41,7 @@ BaseModelItem *RootModelItem::getChild(
     // Ensure this child exists, we can't assume its valid
     if ( getChildIndex( childName ) >= 0 )
     {
-      BaseModelItem* res = createChild( childName );
+      FabricUI::ValueEditor::BaseModelItem* res = createChild( childName );
       m_children.push_back( res );
       return res;
     }
@@ -49,7 +49,7 @@ BaseModelItem *RootModelItem::getChild(
   return NULL;
 }
 
-BaseModelItem *RootModelItem::getChild( int index, bool doCreate )
+FabricUI::ValueEditor::BaseModelItem *RootModelItem::getChild( int index, bool doCreate )
 {
   FTL::CStrRef childName = getChildName( index );
   return getChild( childName, doCreate );
@@ -68,7 +68,7 @@ int RootModelItem::getChildIndex( FTL::CStrRef name )
   return -1;
 }
 
-BaseModelItem *RootModelItem::onPortRenamed(
+FabricUI::ValueEditor::BaseModelItem *RootModelItem::onPortRenamed(
   unsigned index,
   FTL::CStrRef oldName,
   FTL::CStrRef newName
@@ -77,7 +77,7 @@ BaseModelItem *RootModelItem::onPortRenamed(
   for ( ChildVec::iterator it = m_children.begin();
     it != m_children.end(); ++it )
   {
-    BaseModelItem *childModelItem = *it;
+    FabricUI::ValueEditor::BaseModelItem *childModelItem = *it;
     if ( childModelItem->getName() == oldName )
     {
       childModelItem->onRenamed(

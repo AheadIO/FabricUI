@@ -12,7 +12,7 @@ namespace FabricUI
   {
     //////////////////////////////////////////////////////////////////////////
     // MetaData specialization allows access to Port metadata
-    class ModelItemMetadata : public ItemMetadata
+    class ModelItemMetadata : public FabricUI::ValueEditor::ItemMetadata
     {
     public:
 

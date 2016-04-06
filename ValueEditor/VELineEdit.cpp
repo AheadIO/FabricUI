@@ -6,6 +6,8 @@
 
 #include <QtGui/QFocusEvent>
 
+using namespace FabricUI::ValueEditor;
+
 void VELineEdit::focusInEvent( QFocusEvent *event )
 {
   if ( event->reason() != Qt::PopupFocusReason )

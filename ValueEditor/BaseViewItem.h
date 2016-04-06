@@ -5,17 +5,20 @@
 #pragma once
 
 #include "ItemMetadata.h"
-
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
-
-class BaseModelItem;
-class BaseViewItem;
-class ItemMetadata;
 
 class QTreeWidget;
 class QTreeWidgetItem;
 class QString;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
+class BaseModelItem;
+class BaseViewItem;
+class ItemMetadata;
 
 // The base item for the view-side of the equation.
 // A BaseViewItem essentially represents a row in the
@@ -68,12 +71,12 @@ public:
     { return m_modelItem; }
 
   // Get the name of this ViewItem
-  QString const &getName() const
+  QString getName() const
     { return m_name; }
 
   // Implement this function to build the widgets to
   // display the value represented by your class
-  virtual QWidget *getWidget() = 0;
+  virtual QWidget *getWidget() { return 0; }
 
   // Indicate if this ViewItem will return any 
   // ViewItems in the appendChildViewItems function
@@ -108,14 +111,14 @@ public:
   // It is required for external parties to use this function
   // instead of directly deleting the object, as that ensures
   // the memory is released in the same Dll as it was allocated in
-  virtual void deleteMe() = 0;
+  virtual void deleteMe() {}
 
 public slots:
 
   // Implement this slot to update the UI to the
   // passed variant.  If necessary, pass the update
   // down to this items children as well.
-  virtual void onModelValueChanged( QVariant const &value ) = 0;
+  virtual void onModelValueChanged( QVariant const &value ) {}
   
 signals:
 
@@ -130,6 +133,8 @@ signals:
   // A view item may emit this signal to request 
   // its children be rebuilt.  The item being passed
   // should be the item who requires children rebuilt
-  void rebuildChildren(BaseViewItem* item);
+  void rebuildChildren(FabricUI::ValueEditor::BaseViewItem* item);
 };
 
+} // namespace FabricUI 
+} // namespace ValueEditor 

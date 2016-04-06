@@ -9,6 +9,8 @@
 #include <QtCore/QVariant>
 #include <QtGui/QLabel>
 
+using namespace FabricUI::ValueEditor;
+
 DefaultViewItem::DefaultViewItem(
   QString const &name,
   QVariant const &value,

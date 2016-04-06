@@ -10,6 +10,8 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>
 
+using namespace FabricUI::ValueEditor;
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 

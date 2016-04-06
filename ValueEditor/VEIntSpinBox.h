@@ -6,6 +6,9 @@
 
 #include "VEBaseSpinBox.h"
 
+namespace FabricUI {
+namespace ValueEditor {
+
 // The Int version of the spinbox just needs to implement the signals
 // defined in VEBaseSpinBox
 class VEIntSpinBox : public VEBaseSpinBox<QSpinBox, int>
@@ -54,3 +57,6 @@ protected slots:
 
 //////////////////////////////////////////////////////////////////////////////
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -7,6 +7,10 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QWheelEvent>
 
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class ComboBox : public QComboBox {
   Q_OBJECT
 
@@ -16,3 +20,6 @@ public:
 
   virtual void wheelEvent( QWheelEvent *event ) /*override*/;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -6,9 +6,14 @@
 
 #include "BaseViewItem.h"
 
+class QLabel;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 class BaseModelItem;
 class ItemMetadata;
-class QLabel;
 
 class DefaultViewItem : public BaseViewItem
 {
@@ -38,3 +43,6 @@ public:
 
   void deleteMe() { delete this; }
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

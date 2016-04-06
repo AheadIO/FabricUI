@@ -6,6 +6,9 @@
 
 #include <QtGui/QLineEdit>
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class VELineEdit : public QLineEdit
 {
   Q_OBJECT
@@ -66,3 +69,6 @@ protected slots:
     selectAll();
   }
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

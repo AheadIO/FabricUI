@@ -8,6 +8,10 @@
 #include <FabricCore.h>
 
 class QWidget;
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class VELineEdit;
 class ItemMetadata;
 
@@ -53,3 +57,6 @@ private slots:
   void onTextModified( QString text );
   void doBrowse();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

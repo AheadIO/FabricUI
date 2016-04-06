@@ -104,7 +104,7 @@ void VarPortModelItem::resetToDefault()
   assert( false );
 }
 
-ItemMetadata* VarPortModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* VarPortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new VarPortItemMetadata( this );

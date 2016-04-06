@@ -33,7 +33,7 @@ class DFGUICmdHandler;
         );
       ~InstModelItem();
 
-      virtual BaseModelItem* createChild( FTL::CStrRef name );
+      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name );
 
       virtual QVariant getValue();
 

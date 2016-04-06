@@ -29,8 +29,8 @@ namespace FabricUI
     // and path will be "Node.Port".
     extern std::string SplitFirst( std::string& path );
 
-    typedef std::vector<BaseModelItem*> ChildVec;
-    class RootModelItem : public BaseModelItem
+    typedef std::vector<FabricUI::ValueEditor::BaseModelItem*> ChildVec;
+    class RootModelItem : public FabricUI::ValueEditor::BaseModelItem
     {
     protected:
 
@@ -44,16 +44,16 @@ namespace FabricUI
       virtual bool isNode() const { return false; }
       virtual bool isBinding() const { return false; }
 
-      virtual BaseModelItem* createChild( FTL::CStrRef name ) = 0;
+      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name ) = 0;
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
 
-      virtual BaseModelItem *getChild(
+      virtual FabricUI::ValueEditor::BaseModelItem *getChild(
         FTL::CStrRef childName,
         bool doCreate = true
         ) /*override*/;
-      virtual BaseModelItem *getChild(
+      virtual FabricUI::ValueEditor::BaseModelItem *getChild(
         int index,
         bool doCreate = true
         ) /*override*/;
@@ -64,7 +64,7 @@ namespace FabricUI
 
       virtual void resetToDefault() /*override*/;
 
-      BaseModelItem *onPortRenamed(
+      FabricUI::ValueEditor::BaseModelItem *onPortRenamed(
         unsigned index,
         FTL::CStrRef oldName,
         FTL::CStrRef newName

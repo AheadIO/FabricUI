@@ -88,7 +88,7 @@ void VarPathModelItem::resetToDefault()
   assert( false );
 }
 
-ItemMetadata *VarPathModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata *VarPathModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new VarPathItemMetadata( this );

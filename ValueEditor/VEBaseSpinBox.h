@@ -5,7 +5,6 @@
 #pragma once
 
 #include "VELineEdit.h"
-
 #include <assert.h>
 #include <FabricUI/Util/QTSignalBlocker.h>
 #include <math.h>
@@ -15,6 +14,9 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QSpinBox>
 
+namespace FabricUI {
+namespace ValueEditor {
+  
 template<typename QT_SPINBOX, typename value_type>
 class VEBaseSpinBox : public QT_SPINBOX
 {
@@ -247,3 +249,6 @@ protected:
   bool m_steppingTimerConnected;
   QTimer m_steppingTimer;
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

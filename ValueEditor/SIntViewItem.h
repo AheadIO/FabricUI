@@ -7,6 +7,11 @@
 #include "BaseViewItem.h"
 
 class QSpinBox;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 class ItemMetadata;
 
 class SIntViewItem : public BaseViewItem
@@ -43,3 +48,6 @@ private slots:
   void OnSpinnerChanged(int value);
   void OnEditFinished();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

@@ -3,10 +3,12 @@
 #include <assert.h>
 #include "ItemMetadata.h"
 
+using namespace FabricUI::ValueEditor;
+
 //////////////////////////////////////////////////////////////////////////
 // This sample model implementation allows us to create a test
 // model to run the UI against without loading FE
-class SampleModelItem : public BaseModelItem {
+class SampleModelItem : public FabricUI::ValueEditor::BaseModelItem {
 	// Sample 
 	std::string m_name;
 	QVariant m_value;
@@ -17,7 +19,7 @@ class SampleModelItem : public BaseModelItem {
 
 public:
 	SampleModelItem(const char* name, const QVariant& value)
-		: BaseModelItem()
+		: FabricUI::ValueEditor::BaseModelItem()
 		, m_name(name)
 		, m_value(value)
 	{
@@ -29,7 +31,7 @@ public:
 		return m_children.size();
 	}
 
-	virtual BaseModelItem* GetChild(int i) /*override*/
+	virtual FabricUI::ValueEditor::BaseModelItem* GetChild(int i) /*override*/
 	{
 		return m_children[i];
 	}
@@ -83,4 +85,4 @@ public:
 };
 
 
-extern BaseModelItem* BuildSampleModel( FabricCore::Client& client );
+extern FabricUI::ValueEditor::BaseModelItem* BuildSampleModel( FabricCore::Client& client );

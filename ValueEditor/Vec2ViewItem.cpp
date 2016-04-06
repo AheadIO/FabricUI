@@ -14,6 +14,8 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QWidget>
 
+using namespace FabricUI::ValueEditor;
+
 Vec2ViewItem::Vec2ViewItem(
   QString const &name,
   QVariant const &value,

@@ -20,7 +20,7 @@ class DFGUICmdHandler;
   {
     //////////////////////////////////////////////////////////////////////////
     // Specialization for accessing ports that are also args
-    class ArgModelItem : public BaseModelItem
+    class ArgModelItem : public FabricUI::ValueEditor::BaseModelItem
     {
     private:
 
@@ -29,7 +29,7 @@ class DFGUICmdHandler;
       std::string m_argName;
 
       FabricCore::DFGExec m_rootExec;
-      ItemMetadata *m_metadata;
+      FabricUI::ValueEditor::ItemMetadata *m_metadata;
 
     public:
 
@@ -70,7 +70,7 @@ class DFGUICmdHandler;
       // Metadata
       /////////////////////////////////////////////////////////////////////////
 
-      virtual ItemMetadata* getMetadata() /*override*/;
+      virtual FabricUI::ValueEditor::ItemMetadata* getMetadata() /*override*/;
 
       virtual void setMetadataImp( const char* key, 
                                 const char* value,
