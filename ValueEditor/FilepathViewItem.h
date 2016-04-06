@@ -8,12 +8,11 @@
 #include <FabricCore.h>
 
 class QWidget;
-class QLineEdit;
-
 
 namespace FabricUI {
 namespace ValueEditor {
 
+class VELineEdit;
 class ItemMetadata;
 
 class FilepathViewItem : public BaseViewItem
@@ -31,16 +30,16 @@ public:
     );
   static const int Priority;
 
-	FilepathViewItem(
+  FilepathViewItem(
     QString const &name,
     QVariant const &value,
     ItemMetadata* metadata
     );
-	~FilepathViewItem();
+  ~FilepathViewItem();
 
-	QWidget *getWidget() /*override*/;
+  QWidget *getWidget() /*override*/;
   
-	void onModelValueChanged( QVariant const &value ) /*override*/;
+  void onModelValueChanged( QVariant const &value ) /*override*/;
 
   void deleteMe() /*override*/ { delete this; }
 
@@ -49,15 +48,14 @@ public:
 
 private:
 
+  VELineEdit* m_edit;
   QWidget *m_widget;
-  QLineEdit *m_lineEdit;
   QString m_filter;
 
 private slots:
-  void doBrowse();
-  void OnTextEdited( const QString& text );
-  void OnEditFinished();
 
+  void onTextModified( QString text );
+  void doBrowse();
 };
 
 } // namespace FabricUI 

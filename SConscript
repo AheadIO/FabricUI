@@ -179,6 +179,10 @@ if uiLibPrefix == 'ui':
 
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
 
+  if uiLibPrefix == 'uiModo901' and buildOS == 'Darwin':
+    env.Append(CCFLAGS = ['-Wno-#warnings'])
+    env.Append(CCFLAGS = ['-Wno-unused-private-field'])
+
   pysideGens = []
   installedPySideLibs = []
 
@@ -203,6 +207,9 @@ if uiLibPrefix == 'ui':
       os.path.join(qtIncludeDir, 'QtGui'),
       os.path.join(qtIncludeDir, 'QtOpenGL'),
       ])
+
+    if buildOS != 'Windows':
+      pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
     pysideDir = pysideEnv.Dir('pyside').Dir('python'+pythonVersion)
     shibokenDir = pysideEnv.Dir('shiboken')
