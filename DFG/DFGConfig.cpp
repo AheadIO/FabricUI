@@ -49,6 +49,7 @@ DFGConfig::DFGConfig()
   registerDataTypeColor("UInt64", QColor(0, 153, 100));
   registerDataTypeColor("Index", QColor(0, 153, 100));
   registerDataTypeColor("Size", QColor(0, 153, 100));
+  registerDataTypeColor("Count", QColor(0, 153, 100));
   registerDataTypeColor("String", QColor(76, 16, 0));
   registerDataTypeColor("Execute", QColor("#60D4E7"));
 
