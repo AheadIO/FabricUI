@@ -1335,7 +1335,9 @@ void DFGWidget::onExecPortAction(QAction * action)
         reorder = true;
       }
 
-      if(a != UINT_MAX && b != UINT_MAX && a != b)
+      if ( a < indices.size()
+        && b < indices.size()
+        && a != b )
       {
         // swap indices
         unsigned int temp = indices[a];
