@@ -176,6 +176,10 @@ pysideEnv = env.Clone()
 pysideDir = pysideEnv.Dir('pyside')
 shibokenDir = pysideEnv.Dir('shiboken')
 
+if uiLibPrefix == 'uiModo901' and buildOS == 'Darwin':
+  env.Append(CCFLAGS = ['-Wno-#warnings'])
+  env.Append(CCFLAGS = ['-Wno-unused-private-field'])
+
 if buildOS != 'Windows':
   pysideEnv.Append(CCFLAGS = ['-Wno-sign-compare', '-Wno-error'])
 
