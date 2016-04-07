@@ -109,7 +109,8 @@ dirs = [
   'SceneHub',
   'Viewports',
   'Licensing',
-  'ModelItems'
+  'ModelItems',
+  'Test',
 ]
 
 installedHeaders = []
@@ -286,6 +287,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('ValueEditor').srcnode(),
         pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
         pysideEnv.Dir('Viewports').srcnode(),
+        pysideEnv.Dir('Test').srcnode(),
         fabricDir.Dir('include'),
         ])
     pysideEnv.Append(CPPPATH = [pythonConfig['includeDir']])

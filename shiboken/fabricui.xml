@@ -29,6 +29,9 @@
 
     <load-typesystem name="fabricui_valueeditor.xml" generate="yes"/>
 
+    <namespace-type name="_Test" generate="yes">
+      <object-type name="RTValCrash" />
+    </namespace-type>
      
   </namespace-type>
 

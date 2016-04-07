@@ -96,3 +96,4 @@
 #include <FabricUI/Viewports/GLViewportWidget.h>
 #include <FabricUI/Viewports/TimeLineWidget.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>
+#include <FabricUI/Test/RTValCrash.h>
