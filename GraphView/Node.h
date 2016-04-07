@@ -57,7 +57,16 @@ namespace FabricUI
       virtual ~Node();
 
       virtual int type() const { return QGraphicsItemType_Node; }
-      bool isBackDropNode() const { return m_isBackDropNode; }
+
+      bool isBackDropNode() const
+        { return m_isBackDropNode; }
+      void setIsBackDropNode( bool isBackDropNode )
+        { m_isBackDropNode = isBackDropNode; }
+
+      bool isInstNode() const
+        { return m_isInstNode; }
+      void setIsInstNode( bool isInstNode )
+        { m_isInstNode = isInstNode; }
 
       Graph * graph();
       const Graph * graph() const;
@@ -181,6 +190,7 @@ namespace FabricUI
       bool onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
       bool onMouseDoubleClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers, QPointF scenePos, QPointF lastScenePos);
 
+      bool m_isInstNode;
       bool m_isBackDropNode;
       Graph * m_graph;
       std::string m_name;

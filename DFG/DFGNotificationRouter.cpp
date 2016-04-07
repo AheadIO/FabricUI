@@ -476,7 +476,11 @@ void DFGNotificationRouter::onNodeInserted(
   if ( nodeType == FabricCore::DFGNodeType_User )
     uiNode = uiGraph->addBackDropNode( nodeName );
   else
+  {
     uiNode = uiGraph->addNode( nodeName, FTL::CStrRef() );
+    if ( nodeType == FabricCore::DFGNodeType_Inst )
+      uiNode->setIsInstNode( true );
+  }
   if(!uiNode)
     return;
 

@@ -16,7 +16,14 @@ BackDropNode::BackDropNode(
   QColor color,
   QColor titleColor
   )
-  : Node( parent, name, title, color, titleColor, true )
+  : Node(
+    parent,
+    name,
+    title,
+    color,
+    titleColor,
+    true // isBackDropNode
+    )
 {
   m_mainWidget->setMinimumWidth(graph()->config().nodeMinWidth * 2.0f);
   m_mainWidget->setMinimumHeight(graph()->config().nodeMinHeight * 2.0f);
