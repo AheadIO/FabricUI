@@ -7,6 +7,7 @@
 
 #include <QtGui/QGraphicsWidget>
 #include <QtGui/QGraphicsLinearLayout>
+#include <vector>
 
 #include "PortType.h"
 #include "Port.h"

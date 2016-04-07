@@ -37,7 +37,7 @@ FTL::CStrRef GetPortModelItem::getName()
   return FTL_STR("value");
 }
 
-ItemMetadata* GetPortModelItem::getMetadata()
+FabricUI::ValueEditor::ItemMetadata* GetPortModelItem::getMetadata()
 {
   if ( !m_metadata )
     m_metadata = new GetPortItemMetadata( this );

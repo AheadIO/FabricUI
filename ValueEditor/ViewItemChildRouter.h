@@ -7,6 +7,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class BaseViewItem;
 class BaseComplexViewItem;
 
@@ -38,3 +41,6 @@ public slots:
   void onViewValueChanged( QVariant value );
   void onInteractionEnd( bool accept );
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

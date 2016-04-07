@@ -9,6 +9,8 @@
 #include <limits.h>
 #include "VEIntSpinBox.h"
 
+using namespace FabricUI::ValueEditor;
+
 SIntViewItem::SIntViewItem(
   QString const &name,
   QVariant const &value,

@@ -6,9 +6,14 @@
 
 #include "BaseViewItem.h"
 
+class QWidget;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class DoubleSlider;
 class ItemMetadata;
-class QWidget;
 class VELineEdit;
 
 #define FLOAT_SLIDER_DECIMALS 2
@@ -60,3 +65,6 @@ private slots:
   void onDoubleValueChanged( double value );
   void onSliderReleased();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

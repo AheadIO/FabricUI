@@ -5,10 +5,14 @@
 #pragma once
 
 #include "BaseComplexViewItem.h"
-
 #include <QtGui/QVector4D>
 
 class QLayout;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+  
 class VEDoubleSpinBox;
 class ItemMetadata;
 
@@ -64,3 +68,6 @@ public slots:
   void onZSpinBoxValueChanged( double value );
   void onTSpinBoxValueChanged( double value );
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

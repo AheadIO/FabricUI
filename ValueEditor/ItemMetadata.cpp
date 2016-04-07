@@ -5,6 +5,8 @@
 #include "ItemMetadata.h"
 #include <FTL/JSONValue.h>
 
+using namespace FabricUI::ValueEditor;
+
 FTL::CStrRef const ItemMetadata::VEPortTypeKey = FTL_STR("vePortType");
 FTL::CStrRef const ItemMetadata::VENotInspectableKey = FTL_STR("veNotInspectable");
 

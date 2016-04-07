@@ -5,6 +5,8 @@
 #include "ViewItemChildRouter.h"
 #include "BaseComplexViewItem.h"
 
+using namespace FabricUI::ValueEditor;
+
 ViewItemChildRouter::ViewItemChildRouter(
   BaseComplexViewItem *viewItem,
   int index

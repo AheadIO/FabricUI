@@ -15,14 +15,14 @@
 #include <FabricUI/ValueEditor/VETreeWidgetItem.h>
 
 using namespace FabricUI;
-using namespace ValueEditor;
+using namespace FabricUI::ValueEditor;
 using namespace ModelItems;
 
 VEEditorOwner::VEEditorOwner()
   : m_valueEditor( NULL )
   , m_modelRoot( NULL )
 {
-  m_valueEditor = new VETreeWidget();
+  m_valueEditor = new FabricUI::ValueEditor::VETreeWidget();
 }
 
 VEEditorOwner::~VEEditorOwner()
@@ -38,36 +38,36 @@ QWidget* VEEditorOwner::getWidget() const
 void VEEditorOwner::initConnections()
 {
   connect(
-    this, SIGNAL( modelItemInserted( BaseModelItem*, int, const char* ) ),
-    m_valueEditor, SLOT( onModelItemChildInserted( BaseModelItem*, int, const char* ) )
+    this, SIGNAL( modelItemInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) ),
+    m_valueEditor, SLOT( onModelItemChildInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) )
     );
   connect(
-    this, SIGNAL( modelItemInserted( BaseModelItem*, int, const char* ) ),
-    this, SLOT( onModelItemInserted( BaseModelItem*, int, const char* ) )
+    this, SIGNAL( modelItemInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) ),
+    this, SLOT( onModelItemInserted( FabricUI::ValueEditor::BaseModelItem*, int, const char* ) )
     );
   connect(
-    this, SIGNAL( modelItemTypeChange( BaseModelItem*, const char* ) ),
-    m_valueEditor, SLOT( onModelItemTypeChanged( BaseModelItem*, const char* ) )
+    this, SIGNAL( modelItemTypeChange( FabricUI::ValueEditor::BaseModelItem*, const char* ) ),
+    m_valueEditor, SLOT( onModelItemTypeChanged( FabricUI::ValueEditor::BaseModelItem*, const char* ) )
     );
   connect(
-    this, SIGNAL( modelItemRemoved( BaseModelItem* ) ),
-    m_valueEditor, SLOT( onModelItemRemoved( BaseModelItem* ) )
+    this, SIGNAL( modelItemRemoved( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_valueEditor, SLOT( onModelItemRemoved( FabricUI::ValueEditor::BaseModelItem* ) )
     );
   connect(
-    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
-    m_valueEditor, SLOT( onModelItemRenamed( BaseModelItem* ) )
+    this, SIGNAL( modelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_valueEditor, SLOT( onModelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) )
     );
   connect(
-    this, SIGNAL( modelItemChildrenReordered( BaseModelItem*, const QList<int>& ) ),
-    m_valueEditor, SLOT( onModelItemChildrenReordered( BaseModelItem*, const QList<int>& ) )
+    this, SIGNAL( modelItemChildrenReordered( FabricUI::ValueEditor::BaseModelItem*, const QList<int>& ) ),
+    m_valueEditor, SLOT( onModelItemChildrenReordered( FabricUI::ValueEditor::BaseModelItem*, const QList<int>& ) )
     );
   connect(
-    this, SIGNAL( replaceModelRoot( BaseModelItem* ) ),
-    m_valueEditor, SLOT( onSetModelItem( BaseModelItem* ) )
+    this, SIGNAL( replaceModelRoot( FabricUI::ValueEditor::BaseModelItem* ) ),
+    m_valueEditor, SLOT( onSetModelItem( FabricUI::ValueEditor::BaseModelItem* ) )
     );
 }
 
-void VEEditorOwner::onModelItemInserted( BaseModelItem* parent, int index, const char* childName )
+void VEEditorOwner::onModelItemInserted( FabricUI::ValueEditor::BaseModelItem* parent, int index, const char* childName )
 {
   BaseModelItem * child = parent->getChild(childName);
   if(child)

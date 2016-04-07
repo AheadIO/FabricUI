@@ -15,6 +15,8 @@
 #include <FabricUI/GraphView/Pin.h>
 #include <FabricUI/GraphView/GraphicItemTypes.h>
 
+#include <vector>
+
 namespace FabricUI
 {
 

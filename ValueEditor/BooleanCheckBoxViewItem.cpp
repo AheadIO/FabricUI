@@ -9,6 +9,8 @@
 #include <QtCore/QVariant>
 #include <QtGui/QCheckBox>
 
+using namespace FabricUI::ValueEditor;
+
 BooleanCheckBoxViewItem::BooleanCheckBoxViewItem(
   QString const &name,
   QVariant const &value,

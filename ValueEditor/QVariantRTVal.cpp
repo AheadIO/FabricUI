@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <QtGui/QtGui>
 
+using namespace FabricUI::ValueEditor;
 
 const QVariant::Handler* RTVariant::origh = NULL;
 

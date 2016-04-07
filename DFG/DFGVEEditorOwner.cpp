@@ -48,7 +48,7 @@ void DFGVEEditorOwner::initConnections()
     this, SLOT( onStructureChanged() )
     );
   connect(  // [FE-6010]
-    this, SIGNAL( modelItemRenamed( BaseModelItem* ) ),
+    this, SIGNAL( modelItemRenamed( FabricUI::ValueEditor::BaseModelItem* ) ),
     this, SLOT( onStructureChanged() )
     );
 
@@ -392,7 +392,7 @@ void DFGVEEditorOwner::onBindingArgValueChanged(
     }
     else
     {
-      BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
+      ValueEditor::BaseModelItem* changingChild = m_modelRoot->getChild( name, false );
       if (changingChild != NULL)
       {
         QVariant val = changingChild->getValue();
@@ -414,7 +414,7 @@ void DFGVEEditorOwner::onExecPortDefaultValuesChanged(
 
   try
   {
-    if ( BaseModelItem *changingChild =
+    if( ValueEditor::BaseModelItem *changingChild =
       m_modelRoot->getChild( portName, false ) )
     {
       QVariant val = changingChild->getValue();
@@ -441,7 +441,7 @@ void DFGVEEditorOwner::onExecNodePortDefaultValuesChanged(
 
   try
   {
-    if ( BaseModelItem *changingChild =
+    if( ValueEditor::BaseModelItem *changingChild =
       m_modelRoot->getChild( portName, false ) )
     {
       QVariant val = changingChild->getValue();
@@ -469,7 +469,7 @@ void DFGVEEditorOwner::onExecNodePortResolvedTypeChanged(
 
   try
   {
-    if ( BaseModelItem *changingChild =
+    if( ValueEditor::BaseModelItem *changingChild =
       m_modelRoot->getChild( portName, false ) )
     {
       emit modelItemTypeChange( changingChild, newResolveTypeName.c_str() );
@@ -495,11 +495,11 @@ void DFGVEEditorOwner::onOutputsChanged()
     m_modelRoot->GetChildItrEnd();
   for (; itr != end; itr++)
   {
-    BaseModelItem *childModelItem = *itr;
-    if ( ItemMetadata *childItemMetadata = childModelItem->getMetadata() )
+    ValueEditor::BaseModelItem *childModelItem = *itr;
+    if( ValueEditor::ItemMetadata *childItemMetadata = childModelItem->getMetadata() )
     {
       FTL::CStrRef vePortType =
-        childItemMetadata->getString( ItemMetadata::VEPortTypeKey.c_str() );
+        childItemMetadata->getString( ValueEditor::ItemMetadata::VEPortTypeKey.c_str() );
       if ( vePortType != FTL_STR("In") )
       {
         QVariant val = childModelItem->getValue();
@@ -523,7 +523,7 @@ void DFGVEEditorOwner::onBindingArgTypeChanged( unsigned index, FTL::CStrRef nam
   assert( m_modelRoot );
   if ( m_modelRoot->isBinding() )
   {
-    BaseModelItem *changingChild = m_modelRoot->getChild( name, false );
+    ValueEditor::BaseModelItem *changingChild = m_modelRoot->getChild( name, false );
     if ( changingChild != NULL )
       emit modelItemTypeChange( changingChild, newType.c_str() );
   }
@@ -536,7 +536,7 @@ void DFGVEEditorOwner::onBindingArgRemoved( unsigned index, FTL::CStrRef name )
   {
     BindingModelItem *bindingModelItem =
       static_cast<BindingModelItem *>( m_modelRoot );
-    BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
+    ValueEditor::BaseModelItem* removedChild = m_modelRoot->getChild( name, false );
     if ( removedChild != NULL )
     {
       emit modelItemRemoved( removedChild );
@@ -570,7 +570,7 @@ void DFGVEEditorOwner::onBindingArgRenamed(
 {
   assert( m_modelRoot );
 
-  if ( BaseModelItem *changingChild =
+  if( ValueEditor::BaseModelItem *changingChild =
     m_modelRoot->onPortRenamed(
       argIndex,
       oldArgName,
@@ -601,7 +601,7 @@ void DFGVEEditorOwner::onExecNodePortRenamed(
 {
   assert( m_modelRoot );
 
-  if ( BaseModelItem *changingChild =
+  if( ValueEditor::BaseModelItem *changingChild =
     m_modelRoot->onPortRenamed(
       portIndex,
       oldPortName,
@@ -621,7 +621,7 @@ void DFGVEEditorOwner::onExecNodePortRemoved(
   {
     BindingModelItem *bindingModelItem =
       static_cast<BindingModelItem *>( m_modelRoot );
-    BaseModelItem* removedChild = m_modelRoot->getChild( portName, false );
+    ValueEditor::BaseModelItem* removedChild = m_modelRoot->getChild( portName, false );
     if ( removedChild != NULL )
     {
       emit modelItemRemoved( removedChild );
@@ -661,7 +661,7 @@ void DFGVEEditorOwner::onExecPortMetadataChanged(
   if ( key == FTL_STR("uiPersistValue") )
     return;
 
-  BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
+  ValueEditor::BaseModelItem* changingChild = m_modelRoot->getChild( portName, false );
   // Only update if the change isn't coming from the child itself
     if ( changingChild != NULL && !changingChild->isSettingMetadata() )
   {
@@ -717,7 +717,7 @@ void DFGVEEditorOwner::onExecPortsConnectedOrDisconnected(
     std::string portName = SplitLast( nodeName );
     if ( nodeName == nodeModelItem->getNodeName() )
     {
-      if ( BaseModelItem* destChild =
+      if( ValueEditor::BaseModelItem* destChild =
         m_modelRoot->getChild( portName, false ) )
         emit modelItemTypeChange( destChild, "" );
     }
@@ -726,7 +726,7 @@ void DFGVEEditorOwner::onExecPortsConnectedOrDisconnected(
     portName = SplitLast( nodeName );
     if ( nodeName == nodeModelItem->getNodeName() )
     {
-      if ( BaseModelItem* destChild =
+      if( ValueEditor::BaseModelItem* destChild =
         m_modelRoot->getChild( portName, false ) )
         emit modelItemTypeChange( destChild, "" );
     }
@@ -750,7 +750,7 @@ void DFGVEEditorOwner::onExecRefVarPathChanged(
         static_cast<RefModelItem *>( nodeModelItem );
       if ( refModelItem->getNodeName() == refName )
       {
-        if ( BaseModelItem *changingChild =
+        if( ValueEditor::BaseModelItem *changingChild =
           refModelItem->getChild( FTL_STR("varPath"), false ) )
         {
           QVariant val = changingChild->getValue();

@@ -22,7 +22,7 @@ class DFGUICmdHandler;
 
     //////////////////////////////////////////////////////////////////////////
     // Basic ModelItem for accessing ports
-    class NodePortModelItem : public BaseModelItem
+    class NodePortModelItem : public FabricUI::ValueEditor::BaseModelItem
     {
     protected:
 
@@ -67,7 +67,7 @@ class DFGUICmdHandler;
       // Metadata
       /////////////////////////////////////////////////////////////////////////
 
-      virtual ItemMetadata* getMetadata();
+      virtual FabricUI::ValueEditor::ItemMetadata* getMetadata();
       virtual void setMetadataImp( const char* key,
                                 const char* value,
                                 bool canUndo )/*override*/;

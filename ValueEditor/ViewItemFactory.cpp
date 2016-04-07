@@ -24,6 +24,8 @@
 #include "ArrayViewItem.h"
 #include "ViewItemFactory.h"
 
+using namespace FabricUI::ValueEditor;
+
 ViewItemFactory::ViewItemFactory()
 {
 

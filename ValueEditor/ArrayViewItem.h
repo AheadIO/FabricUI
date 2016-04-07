@@ -5,10 +5,14 @@
 #pragma once
 
 #include "BaseComplexViewItem.h"
-
 #include <FabricCore.h>
 
 class QWidget;
+
+
+namespace FabricUI {
+namespace ValueEditor {
+
 class VEIntSpinBox;
 
 // This implementation supports displaying RTVal arrays 
@@ -64,3 +68,6 @@ public slots:
   void onMaxIndexChanged( int value );
   void onArraySizeChanged( int value );
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

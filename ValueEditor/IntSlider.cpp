@@ -4,6 +4,8 @@
 
 #include "IntSlider.h"
 
+using namespace FabricUI::ValueEditor;
+
 IntSlider::IntSlider( QWidget *parent )
 {
   setFocusPolicy(Qt::StrongFocus);

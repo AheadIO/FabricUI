@@ -5,6 +5,8 @@
 #include "BaseModelItem.h"
 #include <FabricCore.h>
 
+using namespace FabricUI::ValueEditor;
+
 BaseModelItem::BaseModelItem()
   : m_interactionBracketCount( 0 )
   , m_modelValueChangedBracketCount( 0 )
@@ -12,11 +14,9 @@ BaseModelItem::BaseModelItem()
 {
 }
 
-
 BaseModelItem::~BaseModelItem()
 {
 }
-
 
 int BaseModelItem::getNumChildren()
 {
@@ -59,7 +59,6 @@ ItemMetadata* BaseModelItem::getMetadata()
 {
   return NULL;
 }
-
 
 void BaseModelItem::setMetadata( const char* key, const char* val, bool canUndo )
 {

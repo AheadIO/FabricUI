@@ -6,6 +6,9 @@
 
 #include "BaseViewItem.h"
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class VEDoubleSpinBox;
 class ItemMetadata;
 
@@ -44,3 +47,6 @@ private slots:
 
 	void onSpinBoxValueChanged(double value);
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 

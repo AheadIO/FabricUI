@@ -6,6 +6,7 @@
 #include <QtGui/QGraphicsWidget>
 #include <QtGui/QPen>
 #include <QtGui/QColor>
+#include <vector>
 
 #include "SelectionRect.h"
 

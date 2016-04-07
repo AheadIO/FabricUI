@@ -7,6 +7,7 @@
 #include <QtGui/QGraphicsWidget>
 #include <QtCore/QPointF>
 #include "PortType.h"
+#include <string>
 
 namespace FabricUI
 {

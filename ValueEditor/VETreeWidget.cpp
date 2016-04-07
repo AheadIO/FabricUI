@@ -18,6 +18,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 
+using namespace FabricUI::ValueEditor;
+
 //////////////////////////////////////////////////////////////////////////
 
 BaseModelItem* GetFirstModelItem( VETreeWidgetItem* item );
@@ -328,8 +330,8 @@ VETreeWidgetItem* VETreeWidget::createTreeWidgetItem( BaseViewItem* viewItem, QT
   viewItem->setWidgetsOnTreeItem( this, treeWidgetItem );
 
   // Connect a signal allowing the item to rebuild its children
-  connect( viewItem, SIGNAL( rebuildChildren( BaseViewItem* ) ),
-           this, SLOT( onViewItemChildrenRebuild( BaseViewItem* ) ) );
+  connect( viewItem, SIGNAL( rebuildChildren( FabricUI::ValueEditor::BaseViewItem* ) ),
+           this, SLOT( onViewItemChildrenRebuild( FabricUI::ValueEditor::BaseViewItem* ) ) );
 
   // Ensure our columns are sized to fit our names
   resizeColumnToContents( 0 );

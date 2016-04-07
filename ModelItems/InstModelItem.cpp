@@ -33,7 +33,7 @@ InstModelItem::~InstModelItem()
 {
 }
 
-BaseModelItem *InstModelItem::createChild( FTL::CStrRef portName )
+FabricUI::ValueEditor::BaseModelItem *InstModelItem::createChild( FTL::CStrRef portName )
 {
   return pushChild(new InstPortModelItem(
     m_dfgUICmdHandler,

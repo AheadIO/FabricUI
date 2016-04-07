@@ -9,6 +9,8 @@
 #include <FTL/StrSplit.h>
 #include "QVariantRTVal.h"
 
+using namespace FabricUI::ValueEditor;
+
 ComboBoxViewItem::ComboBoxViewItem( QString const &name, QVariant const &v, ItemMetadata* metadata, bool isString )
   : BaseViewItem(name, metadata)
   , m_comboBox(NULL)

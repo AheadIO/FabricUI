@@ -7,6 +7,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 
+using namespace FabricUI::ValueEditor;
+
 VEDialog::VEDialog( QWidget * parent, Qt::WindowFlags f )
 : QDialog( parent, f )
 {

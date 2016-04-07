@@ -9,6 +9,8 @@
 #include <FabricUI/Util/UIRange.h>
 #include <float.h>
 
+using namespace FabricUI::ValueEditor;
+
 FloatViewItem::FloatViewItem(
   QString const &name,
   QVariant const &value,

@@ -12,6 +12,8 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QTreeWidgetItem>
 
+using namespace FabricUI::ValueEditor;
+
 static int s_nInstances = 0;
 
 BaseViewItem::BaseViewItem( QString const &name, ItemMetadata* metadata )

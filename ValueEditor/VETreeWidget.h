@@ -6,6 +6,9 @@
 
 #include <QtGui/QTreeWidget>
 
+namespace FabricUI {
+namespace ValueEditor {
+
 class BaseViewItem;
 class BaseModelItem;
 class VETreeWidgetItem;
@@ -36,15 +39,15 @@ public:
 
 public slots:
 
-  void onSetModelItem( BaseModelItem* pItem );
+  void onSetModelItem( FabricUI::ValueEditor::BaseModelItem* pItem );
 
-  void onModelItemChildInserted( BaseModelItem* parent, int index, const char* name );
-  void onModelItemRemoved( BaseModelItem* item );
-  void onModelItemRenamed( BaseModelItem* item );
-  void onModelItemTypeChanged( BaseModelItem* item, const char* newType );
-  void onModelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder );
+  void onModelItemChildInserted( FabricUI::ValueEditor::BaseModelItem* parent, int index, const char* name );
+  void onModelItemRemoved( FabricUI::ValueEditor::BaseModelItem* item );
+  void onModelItemRenamed( FabricUI::ValueEditor::BaseModelItem* item );
+  void onModelItemTypeChanged( FabricUI::ValueEditor::BaseModelItem* item, const char* newType );
+  void onModelItemChildrenReordered( FabricUI::ValueEditor::BaseModelItem* parent, const QList<int>& newOrder );
 
-  void onViewItemChildrenRebuild( BaseViewItem* item );
+  void onViewItemChildrenRebuild( FabricUI::ValueEditor::BaseViewItem* item );
 
   // This slot is triggered when an item is edited in the view
   void onItemEdited( QTreeWidgetItem* item, int column );
@@ -59,3 +62,6 @@ protected slots:
 
   void resetItem();
 };
+
+} // namespace FabricUI 
+} // namespace ValueEditor 
