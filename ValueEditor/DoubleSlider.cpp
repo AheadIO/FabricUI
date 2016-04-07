@@ -14,8 +14,8 @@ DoubleSlider::DoubleSlider( QWidget * parent )
   : QSlider( parent )
   , m_min( 0.0 )
   , m_max( 1.0 )
-  , m_isSettingValue( false )
   , m_value(0)
+  , m_isSettingValue( false )
 {
   setResolution( 2, m_min, m_max );
   setFocusPolicy(Qt::StrongFocus);
