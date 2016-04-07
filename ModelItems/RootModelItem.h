@@ -35,6 +35,7 @@ namespace FabricUI
     protected:
 
       ChildVec m_children;
+      BaseModelItem * pushChild(BaseModelItem * item);
       
     public:
 

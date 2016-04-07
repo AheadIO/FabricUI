@@ -34,7 +34,7 @@ public:
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem ) const;
   VETreeWidgetItem * findTreeWidget( BaseViewItem * pItem, VETreeWidgetItem * pWidget ) const;
 
-  public slots:
+public slots:
 
   void onSetModelItem( BaseModelItem* pItem );
 

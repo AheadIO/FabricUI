@@ -7,7 +7,6 @@
 #include <FabricCore.h>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
-#include <FabricUI/DFG/DFGNotifier.h>
 #include <FTL/ArrayRef.h>
 #include <FTL/CStrRef.h>
 
@@ -37,171 +36,40 @@ namespace FabricUI {
   namespace ValueEditor 
   { 
 
-    class ValueEditorBridgeOwner
-    {
-    public:
-      // This must be concrete so we can subclass in PySide
-      virtual ~ValueEditorBridgeOwner() {}
-      virtual void log(const char* txt) const {}
-      virtual FabricUI::DFG::DFGWidget * getDfgWidget() { return 0; }
-    };
-
     class VEEditorOwner : public QObject 
     {
       Q_OBJECT
 
     public:
 
-      VEEditorOwner( ValueEditorBridgeOwner *owner );
+      VEEditorOwner();
       ~VEEditorOwner();
 
-      QWidget* getWidget() const;
+      virtual QWidget* getWidget() const;
+      virtual void initConnections();
 
-      void initConnections();
+    public slots :
+      virtual void onOutputsChanged() {} // Call after each evaluation
 
     protected slots:
-
-      void onControllerBindingChanged(
-        FabricCore::DFGBinding const &binding
-        );
-
-      void onSidePanelInspectRequested();
-      void onNodeInspectRequested(FabricUI::GraphView::Node *node);
-
-      void onBindingArgValueChanged( unsigned index, FTL::CStrRef name );
-      void onOutputsChanged(); // Call after each evaluation
-
-      void onBindingArgInserted(
-        unsigned index,
-        FTL::CStrRef name,
-        FTL::CStrRef type
-        );
-
-      void onBindingArgRenamed(
-        unsigned argIndex,
-        FTL::CStrRef oldArgName,
-        FTL::CStrRef newArgName
-        );
-
-      void onBindingArgRemoved(
-        unsigned index,
-        FTL::CStrRef name
-        );
-
-      void onBindingArgTypeChanged(
-        unsigned index,
-        FTL::CStrRef name,
-        FTL::CStrRef newType
-        );
-
-      void onBindingArgsReordered(
-        FTL::ArrayRef<unsigned> newOrder
-        );
-
-      void onExecNodePortInserted(
-        FTL::CStrRef nodeName,
-        unsigned portIndex,
-        FTL::CStrRef portName
-        );
-
-      void onExecNodePortRenamed(
-        FTL::CStrRef nodeName,
-        unsigned portIndex,
-        FTL::CStrRef oldNodePortName,
-        FTL::CStrRef newNodePortName
-        );
-
-      void onExecNodePortRemoved(
-        FTL::CStrRef nodeName,
-        unsigned portIndex,
-        FTL::CStrRef portName
-        );
-
-      void onExecNodePortsReordered(
-        FTL::CStrRef nodeName,
-        FTL::ArrayRef<unsigned> newOrder
-        );
-
-      void onExecPortMetadataChanged(
-        FTL::CStrRef portName,
-        FTL::CStrRef key,
-        FTL::CStrRef value
-        );
-
-      void onExecNodeRemoved(
-        FTL::CStrRef nodeName
-        );
-
-      void onExecNodeRenamed(
-        FTL::CStrRef oldNodeName,
-        FTL::CStrRef newNodeName
-        );
-
-      void onExecPortsConnectedOrDisconnected(
-        FTL::CStrRef srcPortPath,
-        FTL::CStrRef dstPortPath
-        );
-
-      void onExecPortDefaultValuesChanged(
-        FTL::CStrRef portName
-        );
-
-      void onExecNodePortDefaultValuesChanged(
-        FTL::CStrRef nodeName,
-        FTL::CStrRef portName
-        );
-
-      void onExecNodePortResolvedTypeChanged(
-        FTL::CStrRef nodeName,
-        FTL::CStrRef portName,
-        FTL::CStrRef newResolvedTypeName
-        );
-
-      void onExecRefVarPathChanged(
-        FTL::CStrRef refName,
-        FTL::CStrRef newVarPath
-        );
-
-      void onStructureChanged();
-
-      void onFrameChanged(int frame);
-
-      void onGraphSet(FabricUI::GraphView::Graph * graph);
-
-    private:
-      FabricUI::DFG::DFGWidget * getDfgWidget();
-      FabricUI::DFG::DFGController * getUIController();
-      FabricUI::DFG::DFGController * getDFGController();
+      virtual void onFrameChanged(int frame) {}
+      virtual void onModelItemInserted( BaseModelItem* parent, int index, const char* childName );
+      virtual void onModelValueChanged( QVariant const &newValue );
 
     signals:
+      void log(const char * message);
       void replaceModelRoot( BaseModelItem* model);
+      void modelItemValueChanged( BaseModelItem * item, QVariant const &newValue );
       void modelItemInserted( BaseModelItem* parent, int index, const char* childName);
       void modelItemTypeChange( BaseModelItem* changingItem, const char* newType);
       void modelItemRemoved( BaseModelItem* removedItem);
       void modelItemChildrenReordered( BaseModelItem* parent, const QList<int>& newOrder );
       void modelItemRenamed( BaseModelItem* renamedItem );
 
-    private:
+    protected:
 
-      void setModelRoot(
-        FabricUI::DFG::DFGController *dfgController,
-        FabricUI::ModelItems::BindingModelItem *bindingModelItem
-        );
-      void setModelRoot(
-        FabricCore::DFGExec exec,
-        FTL::CStrRef nodeName,
-        FabricUI::ModelItems::NodeModelItem *nodeModelItem
-        );
-
-      int m_timelinePortIndex;
-
-      ValueEditorBridgeOwner *m_owner;
-      VETreeWidget* m_dfgValueEditor;
-      FabricUI::GraphView::Graph * m_setGraph;
-
+      VETreeWidget* m_valueEditor;
       FabricUI::ModelItems::RootModelItem* m_modelRoot;
-      QSharedPointer<DFG::DFGNotifier> m_notifier;
-      QSharedPointer<DFG::DFGNotifier> m_subNotifier;
     };
 }
 }

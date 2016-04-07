@@ -33,22 +33,22 @@ GetModelItem::~GetModelItem()
 BaseModelItem *GetModelItem::createChild( FTL::CStrRef portName )
 {
   if ( portName == FTL_STR("varPath") )
-    return new VarPathModelItem(
+    return pushChild(new VarPathModelItem(
       m_dfgUICmdHandler,
       m_binding,
       m_execPath,
       m_exec,
       m_nodeName
-      );
+      ));
   else
-    return new GetPortModelItem(
+    return pushChild(new GetPortModelItem(
       m_dfgUICmdHandler,
       m_binding,
       m_execPath,
       m_exec,
       m_nodeName,
       portName
-      );
+      ));
 }
 
 } // namespace ModelItems

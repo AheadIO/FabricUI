@@ -39,11 +39,11 @@ FTL::CStrRef BindingModelItem::getChildName( int i )
 
 BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
 {
-  return new ArgModelItem(
+  return pushChild(new ArgModelItem(
     m_dfgUICmdHandler,
     m_binding,
     name
-    );
+    ));
 }
 
 FTL::CStrRef BindingModelItem::getName()

@@ -60,5 +60,6 @@
 #include <FabricUI/ValueEditor/VEEditorOwner.h>
 #include <FabricUI/ValueEditor/VTreeWidget.h>
 #include <FabricUI/Viewports/GLViewportWidget.h>
+#include <FabricUI/Viewports/ViewportWidget.h>
 #include <FabricUI/Viewports/TimeLineWidget.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>

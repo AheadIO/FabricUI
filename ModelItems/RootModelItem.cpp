@@ -25,6 +25,12 @@ RootModelItem::~RootModelItem()
   }
 }
 
+BaseModelItem * RootModelItem::pushChild(BaseModelItem * item)
+{
+  m_children.push_back(item); 
+  return item;
+}
+
 BaseModelItem *RootModelItem::getChild(
   FTL::CStrRef childName,
   bool doCreate
@@ -41,9 +47,7 @@ BaseModelItem *RootModelItem::getChild(
     // Ensure this child exists, we can't assume its valid
     if ( getChildIndex( childName ) >= 0 )
     {
-      BaseModelItem* res = createChild( childName );
-      m_children.push_back( res );
-      return res;
+      return createChild( childName );
     }
   }
   return NULL;

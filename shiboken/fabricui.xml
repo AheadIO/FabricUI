@@ -13,7 +13,8 @@
   <namespace-type name="FabricUI" generate="no">
     <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
     <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
-
+    <load-typesystem name="fabricui_timeline.xml" generate="yes"/>
+  
     <namespace-type name="GraphView" generate="yes">
       <object-type name="Node" />
       <object-type name="Graph" />
@@ -32,6 +33,8 @@
       <object-type name="VEEditorOwner" />
       <object-type name="VETreeWidget" />
     </namespace-type>
+    
+    <load-typesystem name="fabricui_scenehub.xml" generate="yes"/>
 
   </namespace-type>
 
