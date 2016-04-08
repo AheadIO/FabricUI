@@ -89,7 +89,6 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SplitFromPreset.h>
 #include <FabricUI/DFG/DFGWidget.h>
 #include <FabricUI/DFG/DFGMainWindow.h>
-#include <FabricUI/DFG/DFGValueEditor.h>
 #include <FabricUI/DFG/PresetTreeWidget.h>
 #include <FabricUI/Licensing/Licensing.h>
 #include <FabricUI/Style/FabricStyle.h>

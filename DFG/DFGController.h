@@ -32,7 +32,6 @@ namespace FabricUI
     {
       Q_OBJECT
 
-      friend class DFGValueEditor;
       friend class DFGWidget;
 
     public:
@@ -285,14 +284,6 @@ namespace FabricUI
         FabricCore::RTVal const &value
         );
 
-      bool cmdSetDefaultValue(
-        FabricCore::DFGBinding &binding,
-        QString execPath,
-        FabricCore::DFGExec &exec,
-        QString portPath,
-        FabricCore::RTVal const &value
-        );
-
       void cmdSetRefVarPath(
         FabricCore::DFGBinding &binding,
         QString execPath,
@@ -500,11 +491,6 @@ namespace FabricUI
     public slots:
 
       void onTopoDirty();
-
-      void onValueItemDelta( ValueItem *valueItem );
-      void onValueItemInteractionEnter( ValueItem *valueItem );
-      void onValueItemInteractionDelta( ValueItem *valueItem );
-      void onValueItemInteractionLeave( ValueItem *valueItem );
 
       void onVariablesChanged();
       virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);

@@ -22,27 +22,6 @@ diff -purN FabricUI.orig/fabricui_dfg_dfgtabsearchwidget_wrapper.h FabricUI/fabr
      virtual int heightForWidth(int arg__1) const;
      inline int heightFromResults_protected() const { return FabricUI::DFG::DFGTabSearchWidget::heightFromResults(); }
      virtual void hideEvent(QHideEvent * event);
-diff -purN FabricUI.orig/fabricui_dfg_dfgvalueeditor_wrapper.cpp FabricUI/fabricui_dfg_dfgvalueeditor_wrapper.cpp
---- FabricUI.orig/fabricui_dfg_dfgvalueeditor_wrapper.cpp	2016-03-04 13:52:49.970219993 +0100
-+++ FabricUI/fabricui_dfg_dfgvalueeditor_wrapper.cpp	2016-03-04 13:49:26.802220017 +0100
-@@ -29,17 +29,6 @@ DFGValueEditorWrapper::DFGValueEditorWra
-     // ... middle
- }
- 
--const QMetaObject* DFGValueEditorWrapper::metaObject() const
--{
--    #if QT_VERSION >= 0x040700
--    if (QObject::d_ptr->metaObject) return QObject::d_ptr->metaObject;
--    #endif
--    SbkObject* pySelf = Shiboken::BindingManager::instance().retrieveWrapper(this);
--    if (pySelf == NULL)
--        return FabricUI::DFG::DFGValueEditor::metaObject();
--    return PySide::SignalManager::retriveMetaObject(reinterpret_cast<PyObject*>(pySelf));
--}
--
- int DFGValueEditorWrapper::qt_metacall(QMetaObject::Call call, int id, void** args)
- {
-     int result = FabricUI::DFG::DFGValueEditor::qt_metacall(call, id, args);
 diff -purN FabricUI.orig/fabricui_graphview_controller_wrapper.cpp FabricUI/fabricui_graphview_controller_wrapper.cpp
 --- FabricUI.orig/fabricui_graphview_controller_wrapper.cpp	2016-03-04 13:52:50.410219992 +0100
 +++ FabricUI/fabricui_graphview_controller_wrapper.cpp	2016-03-04 13:47:51.866220028 +0100
