@@ -388,7 +388,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "get")
   {
-    controller->cmdAddGet(
+    nodeName = controller->cmdAddGet(
       "get",
       "",
       scenePos
@@ -396,7 +396,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path == "set")
   {
-    controller->cmdAddSet(
+    nodeName = controller->cmdAddSet(
       "set",
       "",
       scenePos
@@ -404,7 +404,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "get.")
   {
-    controller->cmdAddGet(
+    nodeName = controller->cmdAddGet(
       "get",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -412,7 +412,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else if(path.left(4) == "set.")
   {
-    controller->cmdAddSet(
+    nodeName = controller->cmdAddSet(
       "set",
       path.mid(4).toUtf8().constData(),
       scenePos
@@ -420,7 +420,7 @@ void DFGTabSearchWidget::addNodeFromPath(QString path)
   }
   else
   {
-    controller->cmdAddInstFromPreset(
+    nodeName = controller->cmdAddInstFromPreset(
       path.toUtf8().constData(),
       scenePos
       ).toUtf8().constData();
