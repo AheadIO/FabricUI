@@ -86,7 +86,6 @@ void ArgModelItem::setValue(
   FabricCore::RTVal curRTVal = m_binding.getArgValue( m_argName.c_str() );
   assert( curRTVal.isValid() );
   FabricCore::DFGHost host = m_binding.getHost();
-  FabricCore::DFGNotifBracket _( host );
   FabricCore::Context context = host.getContext();
   FabricCore::RTVal rtVal =
     FabricCore::RTVal::Construct( context, curRTVal.getTypeNameCStr(), 0, 0 );
@@ -96,23 +95,38 @@ void ArgModelItem::setValue(
   {
     if ( valueAtInteractionBegin.isValid() )
     {
+      m_binding.suspendDirtyNotifs();
+
       FabricUI::ValueEditor::RTVariant::toRTVal( valueAtInteractionBegin, rtVal );
       m_binding.setArgValue(
         m_argName.c_str(),
         rtVal,
         false // canUndo
         );
-    }
 
-    FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
-    m_dfgUICmdHandler->dfgDoSetArgValue(
-      m_binding,
-      QString::fromUtf8( m_argName.data(), m_argName.size() ),
-      rtVal
-      );
+      FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
+      m_dfgUICmdHandler->dfgDoSetArgValue(
+        m_binding,
+        QString::fromUtf8( m_argName.data(), m_argName.size() ),
+        rtVal
+        );
+
+      m_binding.resumeDirtyNotifs();
+    }
+    else
+    {
+      FabricCore::DFGNotifBracket _( host );
+      FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
+      m_dfgUICmdHandler->dfgDoSetArgValue(
+        m_binding,
+        QString::fromUtf8( m_argName.data(), m_argName.size() ),
+        rtVal
+        );
+    }
   }
   else
   {
+    FabricCore::DFGNotifBracket _( host );
     FabricUI::ValueEditor::RTVariant::toRTVal( var, rtVal );
     m_binding.setArgValue(
       m_argName.c_str(),
