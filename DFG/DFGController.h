@@ -15,6 +15,7 @@
 #include <SplitSearch/SplitSearch.hpp>
 #include <vector>
 #include <ASTWrapper/KLASTManager.h>
+#include <QtCore/QTimer>
 
 using namespace FabricUI::ValueEditor_Legacy;
 
@@ -340,50 +341,38 @@ namespace FabricUI
 
       void emitVarsChanged()
       {
-        if ( m_updateSignalBlockCount > 0 )
-          m_varsChangedPending = true;
-        else
-          emit varsChanged();
+        m_varsChangedPending = true;
+        startNotificationTimer();
       }
 
       void emitArgsChanged()
       {
-        if ( m_updateSignalBlockCount > 0 )
-          m_argsChangedPending = true;
-        else
-          emit argsChanged();
+        m_argsChangedPending = true;
+        startNotificationTimer();
       }
 
       void emitArgValuesChanged()
       {
-        if (m_updateSignalBlockCount > 0)
-          m_argValuesChangedPending = true;
-        else
-          emit argValuesChanged();
+        m_argValuesChangedPending = true;
+        startNotificationTimer();
       }
 
       void emitDefaultValuesChanged()
       {
-        if ( m_updateSignalBlockCount > 0 )
-          m_defaultValuesChangedPending = true;
-        else
-          emit defaultValuesChanged();
+        m_defaultValuesChangedPending = true;
+        startNotificationTimer();
       }
 
       void emitTopoDirty()
       {
-        if ( m_updateSignalBlockCount > 0 )
-          m_topoDirtyPending = true;
-        else
-          emit topoDirty();
+        m_topoDirtyPending = true;
+        startNotificationTimer();
       }
 
       void emitDirty()
       {
-        if ( m_updateSignalBlockCount > 0 )
-          m_dirtyPending = true;
-        else
-          emit dirty();
+        m_dirtyPending = true;
+        startNotificationTimer();
       }
 
       void emitExecSplitChanged()
@@ -392,62 +381,6 @@ namespace FabricUI
       }
 
       void setBlockCompilations( bool blockCompilations );
-
-      class UpdateSignalBlocker
-      {
-      public:
-
-        UpdateSignalBlocker( DFGController *controller )
-          : m_controller( controller )
-        {
-          ++m_controller->m_updateSignalBlockCount;
-        }
-
-        ~UpdateSignalBlocker()
-        {
-          if ( --m_controller->m_updateSignalBlockCount == 0 )
-          {
-            if ( m_controller->m_varsChangedPending )
-            {
-              m_controller->m_varsChangedPending = false;
-              emit m_controller->varsChanged();
-            }
-            if ( m_controller->m_argsChangedPending )
-            {
-              m_controller->m_argsChangedPending = false;
-              emit m_controller->argsChanged();
-            }
-            if ( m_controller->m_argValuesChangedPending )
-            {
-              m_controller->m_argValuesChangedPending = false;
-              emit m_controller->argValuesChanged();
-            }
-            if ( m_controller->m_defaultValuesChangedPending )
-            {
-              m_controller->m_defaultValuesChangedPending = false;
-              emit m_controller->defaultValuesChanged();
-            }
-            if ( m_controller->m_topoDirtyPending )
-            {
-              m_controller->m_topoDirtyPending = false;
-              emit m_controller->topoDirty();
-
-              // [pzion 20160405] FE-6269
-              // topoDirty implies dirty
-              m_controller->m_dirtyPending = false;
-            }
-            if ( m_controller->m_dirtyPending )
-            {
-              m_controller->m_dirtyPending = false;
-              emit m_controller->dirty();
-            }
-          }
-        }
-
-      private:
-
-        DFGController *m_controller;
-      };
 
       void emitNodeRenamed(
         FTL::CStrRef oldNodeName,
@@ -495,11 +428,24 @@ namespace FabricUI
       void onVariablesChanged();
       virtual void onNodeHeaderButtonTriggered(FabricUI::GraphView::NodeHeaderButton * button);
 
+    protected:
+
+      void startNotificationTimer()
+      {
+        if ( !m_notificationTimer->isActive() )
+          m_notificationTimer->start( 0 );
+      }
+
+    protected slots:
+
+      void onNotificationTimer();
+
     private:
 
       void updateErrors();
       void updatePresetPathDB();
 
+      QTimer *m_notificationTimer;
       DFGWidget *m_dfgWidget;
       FabricCore::Client m_client;
       FabricCore::DFGHost m_host;
@@ -525,6 +471,8 @@ namespace FabricUI
       bool m_defaultValuesChangedPending;
       bool m_topoDirtyPending;
       bool m_dirtyPending;
+
+      QTimer *m_executeTimer;
 
     private slots:
 

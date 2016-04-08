@@ -40,6 +40,7 @@ DFGController::DFGController(
   bool overTakeBindingNotifications
   )
   : GraphView::Controller(graph)
+  , m_notificationTimer( new QTimer( this ) )
   , m_dfgWidget( dfgWidget )
   , m_client(client)
   , m_manager(manager)
@@ -55,6 +56,12 @@ DFGController::DFGController(
   , m_topoDirtyPending( false )
   , m_dirtyPending( false )
 {
+  m_notificationTimer->setSingleShot( true );
+  connect(
+    m_notificationTimer, SIGNAL(timeout()),
+    this, SLOT(onNotificationTimer())
+    );
+
   m_router = NULL;
   m_logFunc = NULL;
   m_presetDictsUpToDate = false;
@@ -259,8 +266,6 @@ void DFGController::cmdAddBackDrop(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoAddBackDrop(
     getBinding(),
     getExecPath_QS(),
@@ -280,8 +285,6 @@ QString DFGController::cmdEditNode(
   if(!validPresetSplit())
     return oldName;
 
-  UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoEditNode(
     getBinding(),
     getExecPath_QS(),
@@ -301,8 +304,6 @@ void DFGController::cmdSetNodeComment(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoSetNodeComment(
     getBinding(),
     getExecPath_QS(),
@@ -404,8 +405,6 @@ QString DFGController::cmdRenameExecPort(
   if(!validPresetSplit())
     return QString();
 
-  UpdateSignalBlocker blocker( this );
-
   QString result = m_cmdHandler->dfgDoRenamePort(
     getBinding(),
     getExecPath_QS(),
@@ -475,8 +474,6 @@ void DFGController::cmdSetCode( QString code )
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoSetCode(
     getBinding(),
     getExecPath_QS(),
@@ -845,8 +842,6 @@ void DFGController::cmdPaste()
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   try
   {
     QClipboard *clipboard = QApplication::clipboard();
@@ -1146,8 +1141,6 @@ void DFGController::cmdSetArgValue(
   if ( !currentValue
     || !currentValue.isExEQTo( value ) )
   {
-    UpdateSignalBlocker blocker( this );
-  
     m_cmdHandler->dfgDoSetArgValue(
       m_binding,
       argName,
@@ -1171,8 +1164,6 @@ void DFGController::cmdSetRefVarPath(
     exec.getRefVarPath( refName.toUtf8().constData() );
   if ( QString::fromUtf8( currentVarPath.c_str() ) != varPath )
   {
-    UpdateSignalBlocker blocker( this );
-    
     m_cmdHandler->dfgDoSetRefVarPath(
       binding,
       execPath,
@@ -1193,8 +1184,6 @@ void DFGController::cmdReorderPorts(
   if(!validPresetSplit())
     return;
 
-  //UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoReorderPorts(
     binding,
     execPath,
@@ -1210,8 +1199,6 @@ void DFGController::cmdSetExtDeps(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoSetExtDeps(
     getBinding(),
     getExecPath_QS(),
@@ -1222,8 +1209,6 @@ void DFGController::cmdSetExtDeps(
 
 void DFGController::cmdSplitFromPreset()
 {
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoSplitFromPreset(
     getBinding(),
     getExecPath_QS(),
@@ -1569,8 +1554,6 @@ void DFGController::cmdRemoveNodes(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoRemoveNodes(
     getBinding(),
     getExecPath_QS(),
@@ -1587,8 +1570,6 @@ void DFGController::cmdConnect(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoConnect(
     getBinding(),
     getExecPath_QS(),
@@ -1606,8 +1587,6 @@ void DFGController::cmdDisconnect(
   if(!validPresetSplit())
     return;
 
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoDisconnect(
     getBinding(),
     getExecPath_QS(),
@@ -1625,7 +1604,6 @@ QString DFGController::cmdAddInstWithEmptyGraph(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGraph(
     getBinding(),
     getExecPath_QS(),
@@ -1644,7 +1622,6 @@ QString DFGController::cmdAddInstWithEmptyFunc(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddFunc(
     getBinding(),
     getExecPath_QS(),
@@ -1663,7 +1640,6 @@ QString DFGController::cmdAddInstFromPreset(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoInstPreset(
     getBinding(),
     getExecPath_QS(),
@@ -1685,7 +1661,6 @@ QString DFGController::cmdAddVar(
      || dataType.isEmpty() )
     return QString();
 
-  UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddVar(
     getBinding(),
     getExecPath_QS(),
@@ -1706,7 +1681,6 @@ QString DFGController::cmdAddGet(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
   return m_cmdHandler->dfgDoAddGet(
     getBinding(),
     getExecPath_QS(),
@@ -1726,8 +1700,6 @@ QString DFGController::cmdAddSet(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoAddSet(
     getBinding(),
     getExecPath_QS(),
@@ -1750,8 +1722,6 @@ QString DFGController::cmdAddPort(
   if(!validPresetSplit())
     return QString();
 
-  UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoAddPort(
     getBinding(),
     getExecPath_QS(),
@@ -1771,8 +1741,6 @@ QString DFGController::cmdCreatePreset(
   QString presetName
   )
 {
-  UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoCreatePreset(
     getBinding(),
     getExecPath_QS(),
@@ -1794,8 +1762,6 @@ QString DFGController::cmdEditPort(
   if(!validPresetSplit())
     return QString();
 
-  //UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoEditPort(
     getBinding(),
     getExecPath_QS(),
@@ -1815,8 +1781,6 @@ void DFGController::cmdRemovePort(
   if(!validPresetSplit())
     return;
 
-  //UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoRemovePort(
     getBinding(),
     getExecPath_QS(),
@@ -1830,8 +1794,6 @@ void DFGController::cmdMoveNodes(
   QList<QPointF> newTopLeftPoss
   )
 {
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoMoveNodes(
     getBinding(),
     getExecPath_QS(),
@@ -1847,8 +1809,6 @@ void DFGController::cmdResizeBackDropNode(
   QSizeF newSize
   )
 {
-  UpdateSignalBlocker blocker( this );
-  
   m_cmdHandler->dfgDoResizeBackDrop(
     getBinding(),
     getExecPath_QS(),
@@ -1867,8 +1827,6 @@ QString DFGController::cmdImplodeNodes(
   if(!validPresetSplit())
     return "";
 
-  UpdateSignalBlocker blocker( this );
-
   return m_cmdHandler->dfgDoImplodeNodes(
     getBinding(),
     getExecPath_QS(),
@@ -1885,8 +1843,6 @@ QList<QString> DFGController::cmdExplodeNode(
   if(!validPresetSplit())
     return QList<QString>();
 
-  UpdateSignalBlocker blocker( this );
-  
   return m_cmdHandler->dfgDoExplodeNode(
     getBinding(),
     getExecPath_QS(),
@@ -2057,5 +2013,43 @@ void DFGController::focusNode( FTL::StrRef nodeName )
       gvNode->setSelected( true );
       frameSelectedNodes();
     }
+  }
+}
+
+void DFGController::onNotificationTimer()
+{
+  if ( m_varsChangedPending )
+  {
+    m_varsChangedPending = false;
+    emit varsChanged();
+  }
+  if ( m_argsChangedPending )
+  {
+    m_argsChangedPending = false;
+    emit argsChanged();
+  }
+  if ( m_argValuesChangedPending )
+  {
+    m_argValuesChangedPending = false;
+    emit argValuesChanged();
+  }
+  if ( m_defaultValuesChangedPending )
+  {
+    m_defaultValuesChangedPending = false;
+    emit defaultValuesChanged();
+  }
+  if ( m_topoDirtyPending )
+  {
+    m_topoDirtyPending = false;
+    emit topoDirty();
+
+    // [pzion 20160405] FE-6269
+    // topoDirty implies dirty
+    m_dirtyPending = false;
+  }
+  if ( m_dirtyPending )
+  {
+    m_dirtyPending = false;
+    emit dirty();
   }
 }
