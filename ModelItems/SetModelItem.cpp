@@ -33,22 +33,22 @@ SetModelItem::~SetModelItem()
 FabricUI::ValueEditor::BaseModelItem *SetModelItem::createChild( FTL::CStrRef portName )
 {
   if ( portName == FTL_STR("varPath") )
-    return new VarPathModelItem(
+    return pushChild(new VarPathModelItem(
       m_dfgUICmdHandler,
       m_binding,
       m_execPath,
       m_exec,
       m_nodeName
-      );
+      ));
   else
-    return new SetPortModelItem(
+    return pushChild(new SetPortModelItem(
       m_dfgUICmdHandler,
       m_binding,
       m_execPath,
       m_exec,
       m_nodeName,
       portName
-      );
+      ));
 }
 
 } // namespace ModelItems

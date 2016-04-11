@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <math.h>
 
-using namespace FabricUI::Viewports;
+using namespace FabricUI::TimeLine;
 
 TimeLineWidget::TimeLineWidget()
 {
@@ -166,7 +166,7 @@ TimeLineWidget::TimeLineWidget()
 
   // [Julien] Fix FE-4596.
   // The TimeLineWidget height is sometimes too small when displayed
-  // It might happend with 4K or retina display, should be fixe when using Qt5
+  // It might happen with 4K or retina display, should be fixe when using Qt5
   // To fix it, we set the widget minimum size to 80.
   QDesktopWidget desktop;
   QRect mainScreenSize = desktop.availableGeometry(desktop.primaryScreen());
@@ -280,7 +280,7 @@ void TimeLineWidget::currentFrameChanged()
   setTime( static_cast<int>(  m_currentFrameSpinBox->value() ) );
 }
 
-void TimeLineWidget::setTimeRange(int start , int end)
+void TimeLineWidget::setTimeRange(int start, int end)
 {
   m_startSpinBox->blockSignals(true);
   m_startSpinBox->setValue( static_cast<int>( start ) );
@@ -302,7 +302,21 @@ void TimeLineWidget::setTimeRange(int start , int end)
 
   if (currentTime < start )
     setTime(start);
+}
 
+void TimeLineWidget::setFrameRate(float framesPerSecond) {
+  // For now just clamp to existing options
+  int index = 0; // max fps
+  if( framesPerSecond <= 15 )
+    index = 1; // 12 fps
+  else if( framesPerSecond <= 30 )
+    index = 2; // 24 fps
+  else if( framesPerSecond <= 50 )
+    index = 3; // 48 fps
+  else if( framesPerSecond <= 70 )
+    index = 4; // 60 fps
+  frameRateChanged( index );
+  m_frameRateComboBox->setCurrentIndex( index );
 }
 
 void TimeLineWidget::setLoopMode(int mode)
@@ -373,6 +387,7 @@ void TimeLineWidget::play()
   {
     m_timer->stop();
     m_playButton->setText(">");
+    emit playbackChanged(false);
   }
   else
   {
@@ -380,7 +395,8 @@ void TimeLineWidget::play()
       goToStartFrame();
     m_timer->start();
     m_lastFrameTime.start();
-    m_playButton->setText("||");
+    m_playButton->setText( "||" );
+    emit playbackChanged(true);
   }
 }
 
@@ -390,6 +406,7 @@ void TimeLineWidget::pause()
   {
     m_timer->stop();
     m_playButton->setText(">");
+    emit playbackChanged(false);
   }
 }
 
@@ -494,7 +511,7 @@ void TimeLineWidget::frameRateChanged(int index)
 {
   m_fps = m_frameRateComboBox->itemData(index).toDouble();
   if(m_fps == 0.0) // max fps
-    m_timer->setInterval(1); // max fps
+    m_fps = 1000; // max fps
   else if(m_fps == -1.0) // custom fps
   {
     bool ok;

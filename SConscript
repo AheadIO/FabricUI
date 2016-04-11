@@ -7,22 +7,22 @@ Import(
   'buildOS',
   'buildArch',
   'buildType',
-  'buildDir',
   'parentEnv',
   'fabricFlags',
-  'glewFlags',
   'qtFlags',
   'qtMOC',
   'uiLibPrefix',
-  'qtIncludeDir',
-  'qtBinDir',
-  'qtLibDir',
+  'qtDir',
   'stageDir',
   'pythonConfigs',
   'capiSharedLibFlags',
   'servicesFlags_mt',
   'corePythonModuleFiles',
   )
+
+qtIncludeDir = os.path.join(qtDir, 'include')
+qtLibDir = os.path.join(qtDir, 'lib')
+qtBinDir = os.path.join(qtDir, 'bin')
 
 suffix = '4'
 if buildType == 'Debug':
@@ -92,7 +92,6 @@ if buildType == 'Debug':
 
 env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
-env.MergeFlags(glewFlags)
 
 dirs = [
   'Util',
@@ -109,7 +108,8 @@ dirs = [
   'SceneHub',
   'Viewports',
   'Licensing',
-  'ModelItems'
+  'ModelItems',
+  'Test',
 ]
 
 installedHeaders = []
@@ -286,6 +286,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('ValueEditor').srcnode(),
         pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
         pysideEnv.Dir('Viewports').srcnode(),
+        pysideEnv.Dir('Test').srcnode(),
         fabricDir.Dir('include'),
         ])
     pysideEnv.Append(CPPPATH = [pythonConfig['includeDir']])
@@ -301,9 +302,6 @@ if uiLibPrefix == 'ui':
       ])
 
     fabricPythonLibName = "FabricPython"
-
-    majMinVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN']])
-    majMinRevVer = '.'.join([pysideEnv['FABRIC_VERSION_MAJ'], pysideEnv['FABRIC_VERSION_MIN'], pysideEnv['FABRIC_VERSION_REV']])
 
     if buildOS == 'Linux':
       pysideEnv.Append(LINKFLAGS = Literal(','.join([
@@ -327,6 +325,10 @@ if uiLibPrefix == 'ui':
         pysideEnv.Append(LIBS = "MSVCRT")
     installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
     pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
+
+    if buildOS == 'Linux':
+      pysideEnv['_LIBFLAGS'] = '-Wl,--start-group ' + pysideEnv['_LIBFLAGS'] + ' -Wl,--end-group'
+
     installedPySideLib = pysideEnv.LoadableModule(
       pythonDstDir.File(installedPySideLibName),
       [

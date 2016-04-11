@@ -1,0 +1,8 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <namespace-type name="FabricUI"  generate="no">
+    <namespace-type name="TimeLine"  generate="yes">
+      <object-type name="TimeLineWidget" copyable="false"/>
+    </namespace-type>
+  </namespace-type>
+</typesystem>

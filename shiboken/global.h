@@ -93,5 +93,7 @@
 #include <FabricUI/Licensing/Licensing.h>
 #include <FabricUI/Style/FabricStyle.h>
 #include <FabricUI/Viewports/GLViewportWidget.h>
+#include <FabricUI/Viewports/ViewportWidget.h>
 #include <FabricUI/Viewports/TimeLineWidget.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>
+#include <FabricUI/Test/RTValCrash.h>

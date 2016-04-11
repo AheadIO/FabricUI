@@ -471,11 +471,13 @@ void VETreeWidget::onModelItemChildInserted(
     {
       // Insert new child in the appropriate place
       BaseModelItem* newItem = parent->getChild( name );
-      BaseViewItem* newView =
-        ViewItemFactory::GetInstance()->createViewItem( newItem );
-      createTreeWidgetItem( newView, parentItem, index );
-
-      sortTree();
+      if (newItem)
+      {
+        BaseViewItem* newView =
+          ViewItemFactory::GetInstance()->createViewItem( newItem );
+        createTreeWidgetItem( newView, parentItem, index );
+        sortTree();
+      }
     }
   }
 }
