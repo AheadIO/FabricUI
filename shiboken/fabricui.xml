@@ -13,6 +13,7 @@
   <namespace-type name="FabricUI" generate="no">
     <load-typesystem name="fabricui_dfg.xml" generate="yes"/>
     <load-typesystem name="fabricui_viewports.xml" generate="yes"/>
+    <load-typesystem name="fabricui_timeline.xml" generate="yes"/>
 
     <namespace-type name="GraphView" generate="yes">
       <object-type name="Node" />
@@ -28,10 +29,6 @@
     </namespace-type>
 
     <load-typesystem name="fabricui_valueeditor.xml" generate="yes"/>
-
-    <namespace-type name="_Test" generate="yes">
-      <object-type name="RTValCrash" />
-    </namespace-type>
      
   </namespace-type>
 
