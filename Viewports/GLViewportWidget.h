@@ -1,68 +1,67 @@
-#ifndef __GLVIEWPORT_H__
-#define __GLVIEWPORT_H__
+/*
+ *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
+ */
+
+#ifndef __FABRICUI_GLVIEWPORT_H__
+#define __FABRICUI_GLVIEWPORT_H__
 
 
-#include <QtCore/QtCore>
-#include <QtCore/QTime>
-#include <QtCore/QSettings>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QImage>
-#include <QtOpenGL/QGLWidget>
+#include <FabricUI/Viewports/ViewportWidget.h>
 
-#include <FabricCore.h>
 
 namespace FabricUI
 {
   namespace Viewports
   {
-    class ManipulationTool;
-
-    class GLViewportWidget : public QGLWidget
+ 
+    class GLViewportWidget : public ViewportWidget
     {
     	Q_OBJECT
 
       friend class MainWindow;
       friend class ManipulationTool;
 
+
     public:
+    	GLViewportWidget(
+        FabricCore::Client &client, 
+        QColor bgColor, 
+        QGLFormat format, 
+        QWidget *parent = NULL, 
+        QSettings *settings = NULL);
 
-    	GLViewportWidget(FabricCore::Client &client, QColor bgColor, QGLFormat format, QWidget *parent = NULL, QSettings *settings = NULL);
     	virtual ~GLViewportWidget();
-
-      double fps() const { return m_fps; }
-
-      QColor backgroundColor() const;
-      void setBackgroundColor(QColor color);
-
-      bool isManipulationActive() const;
-      void setManipulationActive(bool state);
-
-      void clearInlineDrawing();
-
-      FabricCore::Client getClient() { return m_client; }
-      FabricCore::RTVal getCamera() const { return m_camera; }
-      FabricCore::RTVal getCameraManipulator() const { return m_cameraManipulator; }
-      FabricCore::RTVal getViewport() const { return m_viewport; }
-      FabricCore::RTVal getDrawContext() const { return m_drawContext; }
-      ManipulationTool * getManipTool() { return m_manipTool; }
+      
+      virtual void setBackgroundColor(QColor color);
+      virtual bool isManipulationActive();
+      virtual void setManipulationActive(bool state);
+      virtual void clearInlineDrawing();
+   
+      FabricCore::RTVal getDrawContext() { return m_drawContext; }
+      virtual ManipulationTool * getManipTool() { return m_manipTool; }
+      virtual FabricCore::RTVal getCameraManipulator() { return m_cameraManipulator; }
+      virtual FabricCore::RTVal getCamera() { return m_camera; }
+      
+      virtual double fps() { return ViewportWidget::fps(); }
 
       bool isGridVisible();
 
-    public slots:
 
-      void redraw();
-      void onKeyPressed(QKeyEvent * event);
+    public slots:
+      virtual void redraw() { ViewportWidget::redraw(); }
+
+      virtual void onKeyPressed(QKeyEvent * event);
       void toggleManipulation() { setManipulationActive(!isManipulationActive()); }
       void setGridVisible( bool gridVisible, bool update = true );
       void resetCamera();
 
-    signals:
 
+    signals:
       void redrawn();
       void portManipulationRequested(QString portName);
 
-    protected:
 
+    protected:
       virtual void initializeGL();
       virtual void resizeGL(int w, int h);
       virtual void paintGL();
@@ -71,39 +70,28 @@ namespace FabricUI
       bool manipulateCamera(
         QInputEvent *event,
         bool requireModifier = true,
-        bool shouldUpdateGL = true
-        );
+        bool shouldUpdateGL = true);
 
-      void mousePressEvent(QMouseEvent *event);
-      void mouseMoveEvent(QMouseEvent *event);
-      void mouseReleaseEvent(QMouseEvent *event);
-      void wheelEvent(QWheelEvent *event);
+      virtual void mousePressEvent(QMouseEvent *event);
+      virtual void mouseMoveEvent(QMouseEvent *event);
+      virtual void mouseReleaseEvent(QMouseEvent *event);
+      virtual void wheelEvent(QWheelEvent *event);
 
       int m_width;
       int m_height;
       bool m_resizedOnce;
       bool m_gridVisible;
-      bool m_hasCommercialLicense;
-      QColor m_bgColor;
-      FabricCore::Client m_client;
+
       FabricCore::RTVal m_drawing;
+      FabricCore::RTVal m_drawContext;
       FabricCore::RTVal m_camera;
       FabricCore::RTVal m_cameraManipulator;
-      FabricCore::RTVal m_viewport;
-      FabricCore::RTVal m_drawContext;
-
-      ManipulationTool * m_manipTool;
-
-      QTime m_fpsTimer;
-      double m_fps;
-      double m_fpsStack[16];
-
-      QSettings * m_settings;
-
+      ManipulationTool *m_manipTool;
     };
-  };
-};
+
+  }
+}
 
 #include "ManipulationTool.h"
 
-#endif // __GLVIEWPORT_H__
+#endif // __FABRICUI_GLVIEWPORT_H__

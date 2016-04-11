@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:fabric-engine/FabricUI.git
+	branch = p2s2
+	commit = 7bc77f79bed8c108fdfa3850fa9e269563231e79
+	parent = f8080bc9cd6263ba0594372722693b86bcf12f37
+	cmdver = 0.3.0

@@ -3,9 +3,8 @@
 #ifndef __UI_DFG_DFGUICmdHandler_QUndo__
 #define __UI_DFG_DFGUICmdHandler_QUndo__
 
-#include <FabricUI/DFG/DFGUICmdHandler.h>
-
 #include <QtGui/QUndoStack>
+#include <FabricUI/DFG/DFGUICmdHandler.h>
 
 FABRIC_UI_DFG_NAMESPACE_BEGIN
 
@@ -13,6 +12,8 @@ class DFGUICmdHandler_QUndo : public DFGUICmdHandler
 {
 public:
 
+  DFGUICmdHandler_QUndo() {}
+  
   DFGUICmdHandler_QUndo(
     QUndoStack *qUndoStack
     )
@@ -268,7 +269,7 @@ protected:
 
   class WrappedCommand;
 
-private:
+protected:
 
   QUndoStack *m_qUndoStack;
 };
