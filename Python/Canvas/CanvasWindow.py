@@ -2,9 +2,9 @@ import optparse, os, sys
 from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports, TimeLine
 from PySide import QtCore, QtGui, QtOpenGL
-from BindingWrapper import BindingWrapper
-from ScriptEditor import ScriptEditor
-from UICmdHandler import UICmdHandler
+from FabricEngine.Canvas.BindingWrapper import BindingWrapper
+from FabricEngine.Canvas.ScriptEditor import ScriptEditor
+from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 
 
 class CanvasWindowEventFilter(QtCore.QObject):

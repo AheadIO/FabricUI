@@ -1,6 +1,6 @@
 import os, sys
 current_dir = os.path.dirname(os.path.realpath(__file__))
-shiboken_dir = os.path.join(current_dir, '..', 'shiboken')
+shiboken_dir = os.path.join(current_dir, '..', 'Python')
 sys.path.append(shiboken_dir)
 
 import unittest
@@ -12,7 +12,7 @@ class CanvasTest(unittest.TestCase):
             return
 
         from canvas import FabricStyle
-        from CanvasWindow import CanvasWindow
+        from FabricEngine.Canvas.CanvasWindow import CanvasWindow
         from PySide import QtCore, QtGui
         from PySide.QtTest import QTest
 
