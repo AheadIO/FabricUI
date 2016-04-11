@@ -326,7 +326,9 @@ if uiLibPrefix == 'ui':
     installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
     pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
 
-    if buildOS == 'Linux' and pysideEnv['_LIBFLAGS'].find('-Wl,--start-group') == -1:
+    # [andrew 20160411] building FabricUI from open repo needs to resolve circular deps
+    # but if building in the Fabric tree this is already done elsewhere
+    if buildOS == 'Linux' and not '-Wl,--start-group' in pysideEnv['_LIBFLAGS']:
       pysideEnv['_LIBFLAGS'] = '-Wl,--start-group ' + pysideEnv['_LIBFLAGS'] + ' -Wl,--end-group'
 
     installedPySideLib = pysideEnv.LoadableModule(
@@ -423,6 +425,18 @@ if uiLibPrefix == 'ui':
       pysideEnv.Install(
         pysideModuleDstDir,
         Glob(os.path.join(pysideModuleSrcDir.abspath, '*'))
+        )
+      )
+    installedPySideLibs.append(
+      pysideEnv.Install(
+        pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine').Dir('Canvas'),
+        Glob(os.path.join(pysideEnv.Dir('Python').Dir('Canvas').abspath, '*'))
+        )
+      )
+    installedPySideLibs.append(
+      pysideEnv.Install(
+        pysideEnv['STAGE_DIR'].Dir('bin'),
+        pysideEnv.Dir('Python').File('canvas.py')
         )
       )
 
