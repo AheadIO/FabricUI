@@ -25,12 +25,6 @@ RootModelItem::~RootModelItem()
   }
 }
 
-ValueEditor::BaseModelItem * RootModelItem::pushChild( BaseModelItem * item )
-{
-  m_children.push_back(item); 
-  return item;
-}
-
 ValueEditor::BaseModelItem *RootModelItem::getChild(
   FTL::CStrRef childName,
   bool doCreate
@@ -47,7 +41,9 @@ ValueEditor::BaseModelItem *RootModelItem::getChild(
     // Ensure this child exists, we can't assume its valid
     if ( getChildIndex( childName ) >= 0 )
     {
-      return createChild( childName );
+      BaseModelItem* res = createChild( childName );
+      m_children.push_back( res );
+      return res;
     }
   }
   return NULL;

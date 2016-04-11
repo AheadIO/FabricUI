@@ -39,11 +39,11 @@ FTL::CStrRef BindingModelItem::getChildName( int i )
 
 FabricUI::ValueEditor::BaseModelItem *BindingModelItem::createChild( FTL::CStrRef name ) /**/
 {
-  return pushChild(new ArgModelItem(
+  return new ArgModelItem(
     m_dfgUICmdHandler,
     m_binding,
     name
-    ));
+    );
 }
 
 FTL::CStrRef BindingModelItem::getName()

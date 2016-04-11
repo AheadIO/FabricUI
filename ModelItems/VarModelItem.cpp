@@ -35,14 +35,14 @@ VarModelItem::~VarModelItem()
 
 FabricUI::ValueEditor::BaseModelItem *VarModelItem::createChild( FTL::CStrRef portName )
 {
-  return pushChild(new VarPortModelItem(
+  return new VarPortModelItem(
     m_dfgUICmdHandler,
     m_binding,
     m_execPath,
     m_exec,
     m_nodeName,
     portName
-    ));
+    );
 }
 
 QVariant VarModelItem::getValue()

@@ -35,14 +35,14 @@ InstModelItem::~InstModelItem()
 
 FabricUI::ValueEditor::BaseModelItem *InstModelItem::createChild( FTL::CStrRef portName )
 {
-  return pushChild(new InstPortModelItem(
+  return new InstPortModelItem(
     m_dfgUICmdHandler,
     m_binding,
     m_execPath,
     m_exec,
     m_nodeName,
     portName
-    ));
+    );
 }
 
 QVariant InstModelItem::getValue()
