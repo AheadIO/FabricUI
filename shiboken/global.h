@@ -54,6 +54,7 @@
 #include <FabricUI/DFG/DFGUICmdHandler.h>
 #include <FabricUI/DFG/DFGUICmdHandler_QUndo.h>
 #include <FabricUI/DFG/DFGUICmdHandler_Python.h>
+#include <FabricUI/DFG/DFGVEEditorOwner.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddBackDrop.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddFunc.h>

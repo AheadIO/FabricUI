@@ -1,6 +1,6 @@
 import optparse, os, sys
 from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
+from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports, TimeLine
 from PySide import QtCore, QtGui, QtOpenGL
 from BindingWrapper import BindingWrapper
 from ScriptEditor import ScriptEditor
@@ -190,20 +190,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
 
     def _initValueEditor(self):
-        class VEBridgeOwner(FabricUI.ValueEditor.ValueEditorBridgeOwner):
-          def __init__(self, mainWindow):
-            FabricUI.ValueEditor.ValueEditorBridgeOwner.__init__(self)
-            self.mainWindow = mainWindow
-
-          def log(self, txt):
-            if self.mainWindow.dfgWidget:
-              self.mainWindow.dfgWidget.getDFGController().logError(txt)
-
-          def getDfgWidget(self):
-            return self.mainWindow.dfgWidget
-        self.veBridgeOwner = VEBridgeOwner(self)
-
-        self.valueEditor = FabricUI.ValueEditor.VEEditorOwner(self.veBridgeOwner)
+        self.valueEditor = FabricUI.DFG.DFGVEEditorOwner(self.dfgWidget)
      
     def _initLog(self):
         self.logWidget = DFG.DFGLogWidget(self.config)
@@ -213,7 +200,7 @@ class CanvasWindow(DFG.DFGMainWindow):
     def _initTimeLine(self):
         self.timeLinePortIndex = -1
         self.timeLinePortPath = None
-        self.timeLine = Viewports.TimeLineWidget()
+        self.timeLine = TimeLine.TimeLineWidget()
         self.timeLine.setTimeRange(CanvasWindow.defaultFrameIn, CanvasWindow.defaultFrameOut)
         self.timeLine.updateTime(1)
         self.timeLine.frameChanged.connect(self.onFrameChanged)

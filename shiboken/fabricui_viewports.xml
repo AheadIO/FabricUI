@@ -6,8 +6,6 @@
       <object-type name="GLViewportWidget" copyable="false">
         <rejection field-name="m_fpsStack"/>
       </object-type>
-      <object-type name="RTRGLContext" copyable="false"/>
-      <object-type name="RTRGLViewportWidget" copyable="false"/>
     </namespace-type>
   </namespace-type>
 </typesystem>
