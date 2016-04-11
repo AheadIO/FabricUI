@@ -2,8 +2,8 @@ import optparse, os, sys
 from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
-from BindingWrapper import BindingWrapper
-from LogWidget import LogWidget
+from FabricEngine.Canvas.BindingWrapper import BindingWrapper
+from FabricEngine.Canvas.LogWidget import LogWidget
 import StringIO
 import contextlib
 

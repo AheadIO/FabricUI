@@ -1,8 +1,10 @@
+#!/usr/bin/env python2.7
+
 import optparse, os, sys
 from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
 from PySide import QtCore, QtGui, QtOpenGL
-from CanvasWindow import CanvasWindow
+from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 
 # [andrew 20151028] shiboken thinks FabricStyle is an abstract class
 # unless we re-define the virtual standardPixmap method
