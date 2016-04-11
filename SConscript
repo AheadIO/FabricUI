@@ -326,7 +326,7 @@ if uiLibPrefix == 'ui':
     installedPySideLibName = 'FabricUI'+pythonConfig['moduleSuffix']
     pythonDstDir = pysideEnv['STAGE_DIR'].Dir('Python').Dir(pythonVersion).Dir('FabricEngine')
 
-    if buildOS == 'Linux':
+    if buildOS == 'Linux' and pysideEnv['_LIBFLAGS'].find('-Wl,--start-group') == -1:
       pysideEnv['_LIBFLAGS'] = '-Wl,--start-group ' + pysideEnv['_LIBFLAGS'] + ' -Wl,--end-group'
 
     installedPySideLib = pysideEnv.LoadableModule(
