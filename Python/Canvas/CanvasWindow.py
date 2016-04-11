@@ -38,7 +38,6 @@ class CanvasWindowEventFilter(QtCore.QObject):
 
 class CanvasWindow(DFG.DFGMainWindow):
     
-    isCanvas = True
     defaultFrameIn = 1
     defaultFrameOut = 50
     autosaveIntervalSecs = 30
