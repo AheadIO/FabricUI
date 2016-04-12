@@ -1,4 +1,4 @@
-import os, sys
+import os, platform, sys
 current_dir = os.path.dirname(os.path.realpath(__file__))
 shiboken_dir = os.path.join(current_dir, '..', 'Python')
 sys.path.append(shiboken_dir)
@@ -8,7 +8,7 @@ import unittest
 class CanvasTest(unittest.TestCase):
     def test_all(self):
         # [andrew 20160330] FE-6364
-        if sys.version_info < (2, 7):
+        if sys.version_info < (2, 7) or platform.system() == 'Darwin':
             return
 
         from canvas import FabricStyle
