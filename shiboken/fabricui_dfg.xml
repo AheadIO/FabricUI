@@ -47,6 +47,7 @@
       <object-type name="DFGUICmd_SetPortDefaultValue" />
       <object-type name="DFGUICmd_SetRefVarPath" />
       <object-type name="DFGUICmd_SplitFromPreset" />
+      <object-type name="DFGVEEditorOwner" />
       <object-type name="DFGWidget" />
       <object-type name="PresetTreeWidget" />-
     </namespace-type>
