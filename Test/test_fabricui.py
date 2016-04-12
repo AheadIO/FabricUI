@@ -1,9 +1,9 @@
-import sys, unittest
+import platform, sys, unittest
 
 class FabricUITest(unittest.TestCase):
     def test_fe_6396(self):
         # [andrew 20160330] FE-6364
-        if sys.version_info < (2, 7):
+        if sys.version_info < (2, 7) or platform.system() == 'Darwin':
             return
 
         from FabricEngine import Core, FabricUI
