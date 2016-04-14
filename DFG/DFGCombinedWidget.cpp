@@ -169,6 +169,7 @@ void DFGCombinedWidget::init(
 
 DFGCombinedWidget::~DFGCombinedWidget()
 {
+  delete m_valueEditor;
 }
 
 QWidget* FabricUI::DFG::DFGCombinedWidget::getDfgValueEditor()
