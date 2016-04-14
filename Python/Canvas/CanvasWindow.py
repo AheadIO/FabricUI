@@ -41,7 +41,7 @@ class CanvasWindow(DFG.DFGMainWindow):
     defaultFrameOut = 50
     autosaveIntervalSecs = 30
 
-    def __init__(self, fabricDir, settings, unguarded):
+    def __init__(self, settings, unguarded):
         self.settings = settings
 
         super(CanvasWindow, self).__init__()
@@ -51,7 +51,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.autosaveTimer.start(CanvasWindow.autosaveIntervalSecs * 1000)
         self.dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
-        self.__init(fabricDir)
+        self.__init()
         self._initWindow()
         self._initKL(unguarded)
         self._initLog()
@@ -69,11 +69,13 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.valueEditor.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
-    def __init(self, fabricDir):
+    def __init(self):
         DFG.DFGWidget.setSettings(self.settings)
         self.config = DFG.DFGConfig()
 
-        self.autosaveFilename = os.path.join(fabricDir, 'autosave')
+        # [andrew 20160414] despite similar names this is not the same as FABRIC_DIR
+        userFabricDir = Core.CAPI.GetFabricDir()
+        self.autosaveFilename = os.path.join(userFabricDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
             os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'

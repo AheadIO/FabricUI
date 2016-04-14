@@ -36,7 +36,7 @@ if __name__ == "__main__":
     unguarded = opts.unguarded is True
 
     settings = QtCore.QSettings()
-    mainWin = CanvasWindow(fabricDir, settings, unguarded)
+    mainWin = CanvasWindow(settings, unguarded)
     mainWin.show()
 
     for arg in args:
