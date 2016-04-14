@@ -1,9 +1,8 @@
 #!/usr/bin/env python2.7
 
-import optparse, os, sys
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
-from PySide import QtCore, QtGui, QtOpenGL
+import optparse, os
+from FabricEngine.FabricUI import Style
+from PySide import QtCore, QtGui
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 
 # [andrew 20151028] shiboken thinks FabricStyle is an abstract class

@@ -1,8 +1,7 @@
-import optparse, os, sys
+import os, sys
 from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports, TimeLine
+from FabricEngine.FabricUI import DFG, KLASTManager, Viewports, TimeLine
 from PySide import QtCore, QtGui, QtOpenGL
-from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.ScriptEditor import ScriptEditor
 from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 
@@ -76,7 +75,7 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         self.autosaveFilename = os.path.join(fabricDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
-          os.makedirs(self.autosaveFilename)
+            os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
         self.autosaveFilename = os.path.join(self.autosaveFilename, autosaveBasename)
         print 'Will autosave to ' + self.autosaveFilename + ' every ' + str(
@@ -124,10 +123,10 @@ class CanvasWindow(DFG.DFGMainWindow):
 
     def __statusCallback(self, target, data):
         if target == "licensing":
-          try:
-            FabricUI.HandleLicenseData(self, self.client, data, True)
-          except Exception as e:
-            self.dfgWidget.getDFGController().logError(str(e))
+            try:
+                FabricUI.HandleLicenseData(self, self.client, data, True)
+            except Exception as e:
+                self.dfgWidget.getDFGController().logError(str(e))
 
     def _initKL(self, unguarded):
         clientOpts = {
