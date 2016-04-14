@@ -256,7 +256,16 @@ bool DFGErrorsWidget::haveErrors()
 void DFGErrorsWidget::onDismissSelected()
 {
   QList<int> diagIndices;
-  QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  // [FABMODO-8] ** temporary fix consisting of changing the crash into a memory leak **
+  //
+  // replace the original line
+  //
+  //    QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  //
+  // with the following three lines:
+  QList<QTableWidgetSelectionRange> *ptr_ranges = new QList<QTableWidgetSelectionRange>;
+  QList<QTableWidgetSelectionRange> &ranges = *ptr_ranges;
+  ranges = m_tableWidget->selectedRanges();
   for ( int i = 0; i < ranges.size(); ++i )
   {
     QTableWidgetSelectionRange const &range = ranges[i];
@@ -286,7 +295,16 @@ void DFGErrorsWidget::onCustomContextMenuRequested( QPoint const &pos )
   menu.addAction( dismissAction );
 
   bool haveDiagIndex = false;
-  QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  // [FABMODO-8] ** temporary fix consisting of changing the crash into a memory leak **
+  //
+  // replace the original line
+  //
+  //    QList<QTableWidgetSelectionRange> ranges = m_tableWidget->selectedRanges();
+  //
+  // with the following three lines:
+  QList<QTableWidgetSelectionRange> *ptr_ranges = new QList<QTableWidgetSelectionRange>;
+  QList<QTableWidgetSelectionRange> &ranges = *ptr_ranges;
+  ranges = m_tableWidget->selectedRanges();
   for ( int i = 0; i < ranges.size(); ++i )
   {
     QTableWidgetSelectionRange const &range = ranges[i];

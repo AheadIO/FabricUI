@@ -1347,7 +1347,9 @@ void DFGWidget::onExecPortAction(QAction * action)
         reorder = true;
       }
 
-      if(a != -1 && b != -1 && a != b)
+      if ( a < indices.size()
+        && b < indices.size()
+        && a != b )
       {
         // swap indices
         int temp = indices[a];
