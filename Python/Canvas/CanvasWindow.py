@@ -575,9 +575,9 @@ class CanvasWindow(DFG.DFGMainWindow):
             focalDistance = camera.getFocalDistance('Float32')
 
             graph.setMetadata("camera_mat44",
-                              str(mat44.getJSON()), False)
+                              str(mat44.getJSONStr()), False)
             graph.setMetadata("camera_focalDistance",
-                              str(focalDistance.getJSON()),
+                              str(focalDistance.getJSONStr()),
                               False)
         except Exception as e:
             print 'Exception: ' + str(e)
