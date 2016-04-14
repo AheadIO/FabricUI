@@ -1,8 +1,7 @@
-import optparse, os, sys
+import os, sys
 from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports, TimeLine
+from FabricEngine.FabricUI import DFG, KLASTManager, Viewports, TimeLine
 from PySide import QtCore, QtGui, QtOpenGL
-from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.ScriptEditor import ScriptEditor
 from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 
@@ -42,7 +41,7 @@ class CanvasWindow(DFG.DFGMainWindow):
     defaultFrameOut = 50
     autosaveIntervalSecs = 30
 
-    def __init__(self, fabricDir, settings, unguarded):
+    def __init__(self, settings, unguarded):
         self.settings = settings
 
         super(CanvasWindow, self).__init__()
@@ -52,7 +51,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.autosaveTimer.start(CanvasWindow.autosaveIntervalSecs * 1000)
         self.dockFeatures = QtGui.QDockWidget.DockWidgetMovable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable
 
-        self.__init(fabricDir)
+        self.__init()
         self._initWindow()
         self._initKL(unguarded)
         self._initLog()
@@ -70,13 +69,15 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.valueEditor.initConnections()
         self.installEventFilter(CanvasWindowEventFilter(self))
 
-    def __init(self, fabricDir):
+    def __init(self):
         DFG.DFGWidget.setSettings(self.settings)
         self.config = DFG.DFGConfig()
 
-        self.autosaveFilename = os.path.join(fabricDir, 'autosave')
+        # [andrew 20160414] despite similar names this is not the same as FABRIC_DIR
+        userFabricDir = Core.CAPI.GetFabricDir()
+        self.autosaveFilename = os.path.join(userFabricDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
-          os.makedirs(self.autosaveFilename)
+            os.makedirs(self.autosaveFilename)
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
         self.autosaveFilename = os.path.join(self.autosaveFilename, autosaveBasename)
         print 'Will autosave to ' + self.autosaveFilename + ' every ' + str(
@@ -114,20 +115,14 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsTimer.start()
 
     def __reportCallback(self, source, level, line):
-        if self.dfgWidget:
-          self.dfgWidget.getDFGController().log(line)
-
-        if source == Core.ReportSource.User or level == Core.ReportLevel.Error or 'Ignoring' in line:
-          sys.stdout.write(line + "\n")
-        else:
-          sys.stderr.write(line + "\n")
+        DFG.DFGLogWidget.callback(None, source, level, line, len(line))
 
     def __statusCallback(self, target, data):
         if target == "licensing":
-          try:
-            FabricUI.HandleLicenseData(self, self.client, data, True)
-          except Exception as e:
-            self.dfgWidget.getDFGController().logError(str(e))
+            try:
+                FabricUI.HandleLicenseData(self, self.client, data, True)
+            except Exception as e:
+                self.dfgWidget.getDFGController().logError(str(e))
 
     def _initKL(self, unguarded):
         clientOpts = {
@@ -408,7 +403,6 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         QtGui.QMainWindow.closeEvent(self, event)
 
-        self.valueEditor = None
         self.client.close()
 
         if os.path.exists(self.autosaveFilename):
@@ -490,6 +484,9 @@ class CanvasWindow(DFG.DFGMainWindow):
                 tmpAutosaveFilename += ".tmp"
 
                 if self.performSave(binding, tmpAutosaveFilename):
+                    # [andrew 20160414] os.rename fails on Windows if file exists
+                    if os.path.exists(self.autosaveFilename):
+                        os.remove(self.autosaveFilename)
                     os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
@@ -582,9 +579,9 @@ class CanvasWindow(DFG.DFGMainWindow):
             focalDistance = camera.getFocalDistance('Float32')
 
             graph.setMetadata("camera_mat44",
-                              str(mat44.getJSON()), False)
+                              str(mat44.getJSONStr()), False)
             graph.setMetadata("camera_focalDistance",
-                              str(focalDistance.getJSON()),
+                              str(focalDistance.getJSONStr()),
                               False)
         except Exception as e:
             print 'Exception: ' + str(e)

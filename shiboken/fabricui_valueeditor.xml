@@ -38,7 +38,6 @@
       <object-type name="Vec4ViewItem" />
       <object-type name="ViewItemChildRouter" />
       <object-type name="ViewItemFactory" />
-      <object-type name="ValueEditorBridgeOwner" />
       <object-type name="VEEditorOwner" />
       <object-type name="VETreeWidget" />
     </namespace-type>

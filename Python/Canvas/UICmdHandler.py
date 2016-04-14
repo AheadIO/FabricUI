@@ -1,7 +1,4 @@
-import optparse, os, sys
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
-from PySide import QtCore, QtGui, QtOpenGL
+from FabricEngine.FabricUI import DFG
 
 class UICmdHandler(DFG.DFGUICmdHandler_Python):
 

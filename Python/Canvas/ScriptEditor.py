@@ -1,7 +1,5 @@
-import optparse, os, sys
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
-from PySide import QtCore, QtGui, QtOpenGL
+import sys
+from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
 import StringIO
@@ -104,6 +102,7 @@ class ScriptEditor(QtGui.QWidget):
             return result
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))
+            sys.stderr.write("# Exception: " + str(e) + "\n")
 
     def exec_(self, code):
         self.log.appendCommand(code)
@@ -114,3 +113,4 @@ class ScriptEditor(QtGui.QWidget):
                     self.dfgLogWidget.log(s)
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))
+            sys.stderr.write("# Exception: " + str(e) + "\n")

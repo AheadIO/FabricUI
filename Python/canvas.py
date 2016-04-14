@@ -1,19 +1,10 @@
 #!/usr/bin/env python2.7
 
-import optparse, os, sys
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, Style, Viewports
-from PySide import QtCore, QtGui, QtOpenGL
+import optparse, os
+from FabricEngine.FabricUI import Style
+from PySide import QtCore, QtGui
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
-
-# [andrew 20151028] shiboken thinks FabricStyle is an abstract class
-# unless we re-define the virtual standardPixmap method
-class FabricStyle(Style.FabricStyle):
-    def __init__(self):
-        super(FabricStyle, self).__init__()
-
-    def standardPixmap(self, _standardPixmap, _option=None, _widget=None):
-        return QtGui.QPixmap()
+from FabricEngine.Canvas.FabricStyle import FabricStyle
 
 if __name__ == "__main__":
     app = QtGui.QApplication([])
@@ -45,7 +36,7 @@ if __name__ == "__main__":
     unguarded = opts.unguarded is True
 
     settings = QtCore.QSettings()
-    mainWin = CanvasWindow(fabricDir, settings, unguarded)
+    mainWin = CanvasWindow(settings, unguarded)
     mainWin.show()
 
     for arg in args:
