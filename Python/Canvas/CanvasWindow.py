@@ -113,13 +113,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsTimer.start()
 
     def __reportCallback(self, source, level, line):
-        if self.dfgWidget:
-          self.dfgWidget.getDFGController().log(line)
-
-        if source == Core.ReportSource.User or level == Core.ReportLevel.Error or 'Ignoring' in line:
-          sys.stdout.write(line + "\n")
-        else:
-          sys.stderr.write(line + "\n")
+        DFG.DFGLogWidget.callback(None, source, level, line, len(line))
 
     def __statusCallback(self, target, data):
         if target == "licensing":
