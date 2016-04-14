@@ -1,9 +1,4 @@
-import os, platform, sys
-current_dir = os.path.dirname(os.path.realpath(__file__))
-shiboken_dir = os.path.join(current_dir, '..', 'Python')
-sys.path.append(shiboken_dir)
-
-import unittest
+import os, platform, sys, unittest
 
 class CanvasTest(unittest.TestCase):
     def test_all(self):
@@ -11,7 +6,7 @@ class CanvasTest(unittest.TestCase):
         if sys.version_info < (2, 7) or platform.system() == 'Darwin':
             return
 
-        from canvas import FabricStyle
+        from FabricEngine.Canvas.FabricStyle import FabricStyle
         from FabricEngine.Canvas.CanvasWindow import CanvasWindow
         from PySide import QtCore, QtGui
         from PySide.QtTest import QTest
@@ -21,10 +16,9 @@ class CanvasTest(unittest.TestCase):
         app.setApplicationName('Fabric Canvas Standalone')
         app.setStyle( FabricStyle() )
 
-        fabric_dir = os.environ['FABRIC_DIR']
         settings = QtCore.QSettings()
         unguarded = False
-        main_win = CanvasWindow(fabric_dir, settings, unguarded)
+        main_win = CanvasWindow(settings, unguarded)
         main_win.show()
 
         # https://doc.qt.io/qt-4.8/qttest-module.html
