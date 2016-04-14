@@ -332,7 +332,7 @@ class BindingWrapper:
         ):
         rootExec = self.binding.getExec()
         exec_ = rootExec.getSubExec(execPath)
-        cmd = DFG.DFGUICmd_Disonnect(
+        cmd = DFG.DFGUICmd_Disconnect(
             self.binding,
             execPath,
             exec_,
