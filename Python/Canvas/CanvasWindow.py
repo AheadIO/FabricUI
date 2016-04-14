@@ -483,6 +483,9 @@ class CanvasWindow(DFG.DFGMainWindow):
                 tmpAutosaveFilename += ".tmp"
 
                 if self.performSave(binding, tmpAutosaveFilename):
+                    # [andrew 20160414] os.rename fails on Windows if file exists
+                    if os.path.exists(self.autosaveFilename):
+                        os.remove(self.autosaveFilename)
                     os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
