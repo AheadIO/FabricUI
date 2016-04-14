@@ -102,6 +102,7 @@ class ScriptEditor(QtGui.QWidget):
             return result
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))
+            sys.stderr.write("# Exception: " + str(e) + "\n")
 
     def exec_(self, code):
         self.log.appendCommand(code)
@@ -112,3 +113,4 @@ class ScriptEditor(QtGui.QWidget):
                     self.dfgLogWidget.log(s)
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))
+            sys.stderr.write("# Exception: " + str(e) + "\n")
