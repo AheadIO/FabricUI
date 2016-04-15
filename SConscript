@@ -175,13 +175,13 @@ Export(uiLibPrefix + 'Lib', uiLibPrefix + 'IncludeDir', uiLibPrefix + 'Flags')
 
 env.Alias(uiLibPrefix + 'Lib', uiFiles)
 
+if uiLibPrefix == 'uiModo901' and buildOS == 'Darwin':
+  env.Append(CCFLAGS = ['-Wno-#warnings'])
+  env.Append(CCFLAGS = ['-Wno-unused-private-field'])
+
 if uiLibPrefix == 'ui':
 
   fabricDir = env.Dir(os.environ['FABRIC_DIR'])
-
-  if uiLibPrefix == 'uiModo901' and buildOS == 'Darwin':
-    env.Append(CCFLAGS = ['-Wno-#warnings'])
-    env.Append(CCFLAGS = ['-Wno-unused-private-field'])
 
   pysideGens = []
   installedPySideLibs = []
