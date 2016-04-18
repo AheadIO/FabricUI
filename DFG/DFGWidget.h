@@ -87,6 +87,7 @@ namespace FabricUI
     public slots:
 
       void onExecChanged();
+      void onExecSplitChanged();
       void onGoUpPressed();
       void onGraphAction(QAction * action);
       void onNodeAction(QAction * action);

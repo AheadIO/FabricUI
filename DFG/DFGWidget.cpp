@@ -56,6 +56,7 @@ DFGWidget::DFGWidget(
   , m_router( 0 )
   , m_manager( manager )
   , m_dfgConfig( dfgConfig )
+  , m_isEditable( false )
 {
   reloadStyles();
 
@@ -71,6 +72,10 @@ DFGWidget::DFGWidget(
   QObject::connect(
     m_uiController.get(), SIGNAL( execChanged() ),
     this, SLOT( onExecChanged() )
+    );
+  QObject::connect(
+    m_uiController.get(), SIGNAL( execSplitChanged() ),
+    this, SLOT( onExecSplitChanged() )
     );
 
   m_uiHeader =
@@ -93,14 +98,6 @@ DFGWidget::DFGWidget(
       m_manager,
       m_dfgConfig
       );
-
-  m_isEditable = !exec.editWouldSplitFromPreset();
-  if(binding.isValid())
-  {
-    FTL::StrRef editable = binding.getMetadata("editable");
-    if(editable == "false")
-      m_isEditable = false;
-  }
 
   QVBoxLayout *layout = new QVBoxLayout();
   layout->setSpacing( 0 );
@@ -143,21 +140,18 @@ DFGWidget::DFGWidget(
   layout->addWidget( splitter );
   setLayout( layout );
 
-  if ( m_isEditable )
-  {
-    m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
-    m_tabSearchWidget->hide();
+  m_tabSearchWidget = new DFGTabSearchWidget(this, m_dfgConfig);
+  m_tabSearchWidget->hide();
 
-    QObject::connect(
-      m_uiHeader, SIGNAL(goUpPressed()),
-      this, SLOT(onGoUpPressed())
-      );
+  QObject::connect(
+    m_uiHeader, SIGNAL(goUpPressed()),
+    this, SLOT(onGoUpPressed())
+    );
 
-    QObject::connect(
-      m_uiController.get(), SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
-      this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
-      );
-  }
+  QObject::connect(
+    m_uiController.get(), SIGNAL(nodeEditRequested(FabricUI::GraphView::Node *)), 
+    this, SLOT(onNodeEditRequested(FabricUI::GraphView::Node *))
+    );
 
   m_uiController->setHostBindingExec( host, binding, execPath, exec );
 }
@@ -449,6 +443,9 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
 
 void DFGWidget::onGoUpPressed()
 {
+  if ( !m_isEditable )
+    return;
+
   FTL::StrRef execPath = m_uiController->getExecPath();
   if ( execPath.empty() )
     return;
@@ -1448,6 +1445,9 @@ void DFGWidget::onKeyReleased(QKeyEvent * event)
 
 void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
 {
+  if ( !m_isEditable )
+    return;
+
   QString text;
   bool visible = true;
   bool collapsed = false;
@@ -1537,6 +1537,9 @@ bool DFGWidget::maybeEditNode(
   FabricUI::GraphView::Node * node
   )
 {
+  if ( !m_isEditable )
+    return false;
+  
   if ( node->isBackDropNode() )
     return false;
 
@@ -1859,16 +1862,10 @@ void DFGWidget::onExecChanged()
   FabricCore::DFGExec &exec = m_uiController->getExec();
   if ( exec.isValid() )
   {
-    m_isEditable = !exec.editWouldSplitFromPreset();
-    FabricCore::DFGBinding &binding = m_uiController->getBinding();
-    FTL::StrRef bindingEditable = binding.getMetadata( "editable" );
-    if ( bindingEditable == "false" )
-      m_isEditable = false;
-
     m_uiGraph = new GraphView::Graph( NULL, m_dfgConfig.graphConfig );
     m_uiGraph->setController(m_uiController.get());
-    m_uiGraph->setEditable(m_isEditable);
     m_uiController->setGraph(m_uiGraph);
+    m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
 
     QObject::connect(
       m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
@@ -1878,15 +1875,12 @@ void DFGWidget::onExecChanged()
       m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
       this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
     );  
-    m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
+    QObject::connect(
+      m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
+      this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
+    );
 
-    if(m_isEditable)
-    {
-      QObject::connect(
-        m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
-        this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
-      );  
-    }
+    onExecSplitChanged();
 
     // [Julien] FE-5264
     // Before initializing the graph, sets the dimConnectionLines and portsCentered properties
@@ -1988,4 +1982,19 @@ void DFGWidget::onNodeSelected(
   m_uiController->setExec( execPath, exec );
   QApplication::processEvents(); // Let graph view resize etc.
   m_uiController->focusNode( nodeName );
+}
+
+void DFGWidget::onExecSplitChanged()
+{
+  FabricCore::DFGExec &exec = m_uiController->getExec();
+  if ( exec.isValid() )
+  {
+    m_isEditable = !exec.editWouldSplitFromPreset();
+    FabricCore::DFGBinding &binding = m_uiController->getBinding();
+    FTL::StrRef bindingEditable = binding.getMetadata( "editable" );
+    if ( bindingEditable == "false" )
+      m_isEditable = false;
+    if ( m_uiGraph )
+      m_uiGraph->setEditable( m_isEditable );
+  }
 }
