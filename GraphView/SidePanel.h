@@ -56,6 +56,8 @@ namespace FabricUI
 
       virtual void resizeEvent(QGraphicsSceneResizeEvent * event);
 
+      virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+
       // accessed through controller
       virtual Port * addPort(Port * port);
       virtual bool removePort(Port * port);

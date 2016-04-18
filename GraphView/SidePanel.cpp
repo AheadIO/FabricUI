@@ -31,6 +31,7 @@ SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
   setMinimumWidth(config.sidePanelCollapsedWidth);
   setContentsMargins(0, 0, 0, 0);
+  setAcceptDrops( true );
 
   m_proxyPort = new ProxyPort(this, m_portType);
 
@@ -306,4 +307,20 @@ void SidePanel::updateItemGroupScroll(float height)
   graph()->updateOverlays(graph()->rect().width(), graph()->rect().height());
 
   emit scrolled();
+}
+
+void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
+{
+  bool accept = false;
+  QMimeData const *md = event->mimeData();
+  if ( md->hasFormat( "FabricUI/PortLabel" ) )
+  {
+    QByteArray ba = md->data( "FabricUI/PortLabel" );
+    QDataStream ds( ba );
+    char *portLabelCharPtr;
+    ds >> portLabelCharPtr;
+    // TODO check portLabel match
+    accept = true;
+  }
+  event->setAccepted( accept );
 }

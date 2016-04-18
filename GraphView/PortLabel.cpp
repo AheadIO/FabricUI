@@ -33,7 +33,6 @@ void PortLabel::mousePressEvent( QGraphicsSceneMouseEvent *event )
   {
     m_dragStartPosition = event->pos();
     event->accept();
-    grabMouse();
   }
   else TextContainer::mousePressEvent( event );
 }
@@ -46,7 +45,6 @@ void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
        >= QApplication::startDragDistance() )
     {
       event->accept();
-      ungrabMouse();
 
       QByteArray ba;
       {
@@ -75,7 +73,6 @@ void PortLabel::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
   if ( !!(event->buttons() & Qt::LeftButton) )
   {
     event->accept();
-    ungrabMouse();
   }
   else TextContainer::mouseReleaseEvent( event );  
 }

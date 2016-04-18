@@ -2,6 +2,7 @@
 
 #include "GraphViewWidget.h"
 
+#include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtOpenGL/QGLWidget>
 
@@ -94,15 +95,13 @@ void GraphViewWidget::resizeEvent(QResizeEvent * event)
 
 void GraphViewWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-  event->accept();
-}
-
-void GraphViewWidget::dragEnterEvent(QDragEnterEvent *event)
-{
   if (event->mimeData()->hasFormat("text/plain"))
   {
     event->acceptProposedAction();
+    return;
   }
+
+  QGraphicsView::dragMoveEvent( event );
 }
 
 void GraphViewWidget::dropEvent(QDropEvent *event)

@@ -57,7 +57,6 @@ namespace FabricUI
 
       virtual void resizeEvent(QResizeEvent * event);
       virtual void dragMoveEvent(QDragMoveEvent *event);
-      virtual void dragEnterEvent(QDragEnterEvent *event);
       virtual void dropEvent(QDropEvent *event);
       virtual void mouseMoveEvent(QMouseEvent * event);
       virtual void keyPressEvent(QKeyEvent * event);
