@@ -5,9 +5,12 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Connection.h>
 
+#include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsView>
+
+#include <math.h>
 
 using namespace FabricUI::GraphView;
 
@@ -321,6 +324,24 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
     ds >> portLabelCharPtr;
     // TODO check portLabel match
     accept = true;
+
+    QList<QGraphicsItem *> ports = m_itemGroup->childItems();
+    // Start at 1: skip proxy port
+    qreal eventY = event->pos().y();
+    int best = -1;
+    qreal bestDist;
+    for ( int i = 1; i < ports.size(); ++i )
+    {
+      QGraphicsItem *port = ports[i];
+      qreal portY = mapToParent( port->pos() ).y();
+      if ( best == -1
+        || fabs( portY - eventY ) < bestDist )
+      {
+        bestDist = fabs( portY - eventY );
+        best = i;
+      }
+    }
+    qDebug() << "best: " << best;
   }
   event->setAccepted( accept );
 }
