@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.7
 
-import optparse, os
-from FabricEngine.FabricUI import Style
+import optparse
+import os
 from PySide import QtCore, QtGui
+from FabricEngine.FabricUI import Style
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 from FabricEngine.Canvas.FabricStyle import FabricStyle
 
