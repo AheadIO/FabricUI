@@ -48,8 +48,16 @@ void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
       event->accept();
       ungrabMouse();
 
+      QByteArray ba;
+      {
+        QDataStream ds( &ba, QIODevice::WriteOnly );
+        ds << this;
+      }
+
       QDrag *drag = new QDrag( event->widget() );
       QMimeData *mimeData = new QMimeData;
+      mimeData->setData( "FabricUI/PortLabel", ba );
+
       drag->setMimeData( mimeData );
 
       Qt::DropAction dropAction = drag->exec( Qt::MoveAction );
