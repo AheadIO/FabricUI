@@ -1352,7 +1352,13 @@ void DFGWidget::onSidePanelAction(QAction * action)
 
 void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)
 { 
-  if(hotkey == DFGHotkeys::DELETE_1 || hotkey == DFGHotkeys::DELETE_2)
+  if(hotkey == DFGHotkeys::PAN_GRAPH)
+  {
+    m_uiGraph->mainPanel()->setAlwaysPan(true);
+  }
+  else if ( !m_isEditable )
+    return; // exit quickly if we are not editable
+  else if(hotkey == DFGHotkeys::DELETE_1 || hotkey == DFGHotkeys::DELETE_2)
   {
     std::vector<GraphView::Node *> nodes = getUIGraph()->selectedNodes();
     getUIController()->gvcDoRemoveNodes(nodes);
@@ -1413,10 +1419,6 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   else if(hotkey == DFGHotkeys::COLLAPSE_LEVEL_3)
   {
     getUIController()->setSelectedNodeCollapseState(0);
-  }
-  else if(hotkey == DFGHotkeys::PAN_GRAPH)
-  {
-    m_uiGraph->mainPanel()->setAlwaysPan(true);
   }
 }
 
@@ -1868,21 +1870,22 @@ void DFGWidget::onExecChanged()
     m_uiGraph->setEditable(m_isEditable);
     m_uiController->setGraph(m_uiGraph);
 
+    QObject::connect(
+      m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
+      this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
+    );  
+    QObject::connect(
+      m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
+      this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
+    );  
+    m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
+
     if(m_isEditable)
     {
-      QObject::connect(
-        m_uiGraph, SIGNAL(hotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString)), 
-        this, SLOT(onHotkeyPressed(Qt::Key, Qt::KeyboardModifier, QString))
-      );  
-      QObject::connect(
-        m_uiGraph, SIGNAL(hotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString)), 
-        this, SLOT(onHotkeyReleased(Qt::Key, Qt::KeyboardModifier, QString))
-      );  
       QObject::connect(
         m_uiGraph, SIGNAL(bubbleEditRequested(FabricUI::GraphView::Node*)), 
         this, SLOT(onBubbleEditRequested(FabricUI::GraphView::Node*))
       );  
-      m_uiGraph->defineHotkey(Qt::Key_Space, Qt::NoModifier, DFGHotkeys::PAN_GRAPH);
     }
 
     // [Julien] FE-5264
