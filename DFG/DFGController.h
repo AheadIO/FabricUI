@@ -149,6 +149,11 @@ namespace FabricUI
         bool allowUndo
         );
 
+      virtual void gvcDoMoveExecPort(
+        QString srcName,
+        QString dstName
+        );
+
       // Commands
 
       void cmdRemoveNodes(

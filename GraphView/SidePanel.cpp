@@ -126,11 +126,17 @@ bool SidePanel::removePort(Port * port)
 
 void SidePanel::reorderPorts(QStringList names)
 {
-  std::vector<Port*> ports;
-  for(int i=0;i<names.length();i++)
+  std::vector<Port *> ports;
+  ports.reserve( names.length() );
+  for ( int i = 0; i < names.length(); ++i )
   {
-    ports.push_back(port(names[i].toUtf8().constData()));
-    ports[i]->setIndex(i);
+    QByteArray nameByteArray = names[i].toUtf8();
+    FTL::CStrRef nameCStr = nameByteArray.constData();
+    Port *portPtr = port( nameCStr );
+    if ( !portPtr )
+      continue; // "exec" port
+    portPtr->setIndex( i );
+    ports.push_back( portPtr );
   }
 
   m_ports = ports;
@@ -401,7 +407,10 @@ void SidePanel::dropEvent( QGraphicsSceneDragDropEvent *event )
 {
   if ( !m_dragSrcPortName.isEmpty() )
   {
-    // gvcDoMoveExecPort(
+    graph()->controller()->gvcDoMoveExecPort(
+      m_dragSrcPortName,
+      m_dragDstPortName
+      );
 
     m_dragSrcPortName = QString();
     m_dragDstPortName = QString();

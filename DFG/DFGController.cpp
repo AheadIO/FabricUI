@@ -2053,3 +2053,48 @@ void DFGController::onNotificationTimer()
     emit dirty();
   }
 }
+
+void DFGController::gvcDoMoveExecPort(
+  QString srcName,
+  QString dstName
+  )
+{
+  if ( !validPresetSplit() )
+    return;
+
+  QList<int> indices;
+
+  unsigned execPortCount = m_exec.getExecPortCount();
+  unsigned srcPortIndex =
+    m_exec.getExecPortIndex( srcName.toUtf8().constData() );
+  for ( unsigned i = 0; i < execPortCount; ++i )
+  {
+    FTL::CStrRef execPortName = m_exec.getExecPortName( i );
+    if ( i == srcPortIndex )
+      continue;
+    if ( !dstName.isEmpty()
+      && dstName == execPortName.c_str() )
+      indices.append( srcPortIndex );
+    indices.append( i );
+  }
+  if ( dstName.isEmpty() )
+    indices.append( srcPortIndex );
+
+  // Ensure that the permutation is non-trivial
+  bool trivial = true;
+  for ( unsigned i = 0; i < execPortCount; ++i )
+  {
+    if ( indices[i] != i )
+    {
+      trivial = false;
+      break;
+    }
+  }
+  if ( !trivial )
+    m_cmdHandler->dfgDoReorderPorts(
+      m_binding,
+      QString::fromUtf8( m_execPath.data(), m_execPath.size() ),
+      m_exec,
+      indices
+      );
+}

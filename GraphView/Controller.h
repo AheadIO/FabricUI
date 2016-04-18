@@ -96,6 +96,11 @@ namespace FabricUI
         bool allowUndo
         ) = 0;
 
+      virtual void gvcDoMoveExecPort(
+        QString srcName,
+        QString dstName
+        ) = 0;
+
       virtual bool selectNode(Node * node, bool state);
       virtual bool clearSelection();
       virtual bool zoomCanvas(float zoom);
