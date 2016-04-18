@@ -11,7 +11,7 @@
 #include <FTL/CStrRef.h>
 
 #include "PortType.h"
-#include "TextContainer.h"
+#include "PortLabel.h"
 #include "PinCircle.h"
 #include "ConnectionTarget.h"
 #include "GraphicItemTypes.h"
@@ -82,8 +82,6 @@ namespace FabricUI
       virtual TargetType targetType() const { return TargetType_Port; }
       virtual QPointF connectionPos(PortType pType) const;
 
-      virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
-
       bool allowEdits() const
         { return m_allowEdits; }
       void disableEdits()
@@ -96,6 +94,8 @@ namespace FabricUI
     protected:
 
       void setIndex(unsigned id) { m_index = id; }
+
+      virtual void mousePressEvent( QGraphicsSceneMouseEvent * event );
 
     private:
 
@@ -112,6 +112,7 @@ namespace FabricUI
       PinCircle * m_circle;
       unsigned int m_index;
       bool m_allowEdits;
+      QPointF m_dragStartPosition;
     };
 
   };

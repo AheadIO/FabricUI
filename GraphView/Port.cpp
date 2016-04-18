@@ -46,7 +46,13 @@ void Port::init()
   layout->setOrientation(Qt::Horizontal);
   setLayout(layout);
 
-  m_label = new TextContainer(this, QSTRING_FROM_STL_UTF8(m_labelCaption), config.sidePanelFontColor, config.sidePanelFontHighlightColor, config.sidePanelFont);
+  m_label = new PortLabel(
+    this,
+    QSTRING_FROM_STL_UTF8(m_labelCaption),
+    config.sidePanelFontColor,
+    config.sidePanelFontHighlightColor,
+    config.sidePanelFont
+    );
   m_circle = new PinCircle(this, m_portType, color());
 
   if(m_portType == PortType_Input)
@@ -205,7 +211,7 @@ QPointF Port::connectionPos(PortType pType) const
   return m_circle->centerInSceneCoords();
 }
 
-void Port::mousePressEvent(QGraphicsSceneMouseEvent * event)
+void Port::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
   if(event->button() == Qt::RightButton)
   {
