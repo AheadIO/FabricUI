@@ -32,118 +32,126 @@ void DFGGraphViewWidget::setGraph(GraphView::Graph * graph)
 
 void DFGGraphViewWidget::dropEvent(QDropEvent *event)
 {
-  DFGController *controller =
-    static_cast<DFGController *>( graph()->controller() );
-
-  std::string json = event->mimeData()->text().toUtf8().constData();
-
-  graph()->controller()->beginInteraction();
-
-  QPointF pos(event->pos().x(), event->pos().y());
-  pos = graph()->itemGroup()->mapFromScene(pos);
-
-  try
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasText() )
   {
-    FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
-    QList<QString> droppedNodes;
-    if(jsonVar.isArray())
+    DFGController *controller =
+      static_cast<DFGController *>( graph()->controller() );
+
+    std::string json = mimeData->text().toUtf8().constData();
+
+    graph()->controller()->beginInteraction();
+
+    QPointF pos(event->pos().x(), event->pos().y());
+    pos = graph()->itemGroup()->mapFromScene(pos);
+
+    try
     {
-      for(uint32_t i=0;i<jsonVar.getArraySize();i++)
+      FabricCore::Variant jsonVar = FabricCore::Variant::CreateFromJSON(json.c_str());
+      QList<QString> droppedNodes;
+      if(jsonVar.isArray())
       {
-        const FabricCore::Variant * dictVar = jsonVar.getArrayElement(i);
-        if(dictVar->isDict())
+        for(uint32_t i=0;i<jsonVar.getArraySize();i++)
         {
-          const FabricCore::Variant * typeVar = dictVar->getDictValue("type");
-          if(typeVar->isString())
+          const FabricCore::Variant * dictVar = jsonVar.getArrayElement(i);
+          if(dictVar->isDict())
           {
-            QString node;
-
-            if(std::string(typeVar->getStringData()) == "DFGPreset")
+            const FabricCore::Variant * typeVar = dictVar->getDictValue("type");
+            if(typeVar->isString())
             {
-              const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
-              if(pathVar->isString())
+              QString node;
+
+              if(std::string(typeVar->getStringData()) == "DFGPreset")
               {
-                node = controller->cmdAddInstFromPreset(
-                        pathVar->getStringData(),
-                        pos
-                        );
-                pos += QPointF(30, 30);
-              }
-            }
-
-            else if(std::string(typeVar->getStringData()) == "DFGVariable")
-            {
-              DFGController* controller = (DFGController*)graph()->controller();
-              FabricCore::Client client = controller->getClient();
-              FabricCore::DFGBinding binding = controller->getBinding();
-
-              const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
-              std::string path = pathVar->getStringData();
-              std::string execPath = controller->getExecPath();
-
-              while(execPath.length() > 0)
-              {
-                size_t delimPos = execPath.find('.');
-                if(delimPos != std::string::npos)
+                const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
+                if(pathVar->isString())
                 {
-                  std::string prefix = execPath.substr(0, delimPos+1);
-                  execPath = execPath.substr(delimPos+1);
-                  if(path.substr(0, prefix.length()) == prefix)
+                  node = controller->cmdAddInstFromPreset(
+                          pathVar->getStringData(),
+                          pos
+                          );
+                  pos += QPointF(30, 30);
+                }
+              }
+
+              else if(std::string(typeVar->getStringData()) == "DFGVariable")
+              {
+                DFGController* controller = (DFGController*)graph()->controller();
+                FabricCore::Client client = controller->getClient();
+                FabricCore::DFGBinding binding = controller->getBinding();
+
+                const FabricCore::Variant * pathVar = dictVar->getDictValue("path");
+                std::string path = pathVar->getStringData();
+                std::string execPath = controller->getExecPath();
+
+                while(execPath.length() > 0)
+                {
+                  size_t delimPos = execPath.find('.');
+                  if(delimPos != std::string::npos)
                   {
-                    path = path.substr(delimPos+1);
+                    std::string prefix = execPath.substr(0, delimPos+1);
+                    execPath = execPath.substr(delimPos+1);
+                    if(path.substr(0, prefix.length()) == prefix)
+                    {
+                      path = path.substr(delimPos+1);
+                    }
+                    else
+                      break;
+                  }
+                  else if(execPath + "." == path.substr(0, execPath.length() + 1))
+                  {
+                    path = path.substr(execPath.length() + 1);
+                    execPath = "";
                   }
                   else
                     break;
                 }
-                else if(execPath + "." == path.substr(0, execPath.length() + 1))
+
+                if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
+                  event->mouseButtons().testFlag(Qt::RightButton))
                 {
-                  path = path.substr(execPath.length() + 1);
-                  execPath = "";
+                  node = controller->cmdAddSet(
+                          "",
+                          path.c_str(),
+                          pos
+                          );
                 }
                 else
-                  break;
+                {
+                  node = controller->cmdAddGet(
+                          "",
+                          path.c_str(),
+                          pos
+                          );
+                }
               }
 
-              if(event->keyboardModifiers().testFlag(Qt::ShiftModifier) || 
-                event->mouseButtons().testFlag(Qt::RightButton))
-              {
-                node = controller->cmdAddSet(
-                        "",
-                        path.c_str(),
-                        pos
-                        );
-              }
-              else
-              {
-                node = controller->cmdAddGet(
-                        "",
-                        path.c_str(),
-                        pos
-                        );
-              }
+              if ( !node.isEmpty() )
+                droppedNodes.append( node );
             }
-
-            if ( !node.isEmpty() )
-              droppedNodes.append( node );
+          }
+        }
+        if ( !droppedNodes.empty() )
+        {
+          graph()->clearSelection();
+          for ( int i = 0; i < droppedNodes.size(); i++ )
+          {
+            if ( GraphView::Node *uiNode = graph()->node( droppedNodes.at( i ) ) )
+              uiNode->setSelected( true );
           }
         }
       }
-      if ( !droppedNodes.empty() )
-      {
-        graph()->clearSelection();
-        for ( int i = 0; i < droppedNodes.size(); i++ )
-        {
-          if ( GraphView::Node *uiNode = graph()->node( droppedNodes.at( i ) ) )
-            uiNode->setSelected( true );
-        }
-      }
     }
-  }
-  catch(FabricCore::Exception e)
-  {
-    controller->logError(e.getDesc_cstr());
+    catch(FabricCore::Exception e)
+    {
+      controller->logError(e.getDesc_cstr());
+    }
+
+    graph()->controller()->endInteraction();
+    event->acceptProposedAction();
+
+    return;
   }
 
-  graph()->controller()->endInteraction();
-  event->acceptProposedAction();
+  GraphView::GraphViewWidget::dropEvent( event );
 }

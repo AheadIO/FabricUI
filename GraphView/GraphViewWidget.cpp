@@ -95,7 +95,7 @@ void GraphViewWidget::resizeEvent(QResizeEvent * event)
 
 void GraphViewWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-  if (event->mimeData()->hasFormat("text/plain"))
+  if ( event->mimeData()->hasText() )
   {
     event->acceptProposedAction();
     return;
@@ -106,16 +106,23 @@ void GraphViewWidget::dragMoveEvent(QDragMoveEvent *event)
 
 void GraphViewWidget::dropEvent(QDropEvent *event)
 {
-  m_lastEventPos = event->pos();
+  if ( event->mimeData()->hasText() )
+  {
+    m_lastEventPos = event->pos();
 
-  // event->mimeData()->text()
-  QString presetPath = event->mimeData()->text();
+    // event->mimeData()->text()
+    QString presetPath = event->mimeData()->text();
 
-  QPointF pos( event->pos().x(), event->pos().y() );
-  pos = graph()->itemGroup()->mapFromScene( pos );
+    QPointF pos( event->pos().x(), event->pos().y() );
+    pos = graph()->itemGroup()->mapFromScene( pos );
 
-  if ( graph()->controller()->gvcDoAddInstFromPreset( presetPath, pos ) )
-    event->acceptProposedAction();
+    if ( graph()->controller()->gvcDoAddInstFromPreset( presetPath, pos ) )
+      event->acceptProposedAction();
+
+    return;
+  }
+
+  QGraphicsView::dropEvent( event );
 }
 
 void GraphViewWidget::mouseMoveEvent(QMouseEvent * event)

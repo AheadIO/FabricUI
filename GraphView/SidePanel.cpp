@@ -15,7 +15,8 @@
 using namespace FabricUI::GraphView;
 
 SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
-: QGraphicsWidget(parent)
+  : QGraphicsWidget( parent )
+  , m_dragTargetIndex( -1 )
 {
   m_itemGroup = new SidePanelItemGroup(this);
   m_itemGroup->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -221,6 +222,28 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
     }
     m_requiresToSendSignalsForPorts = false;
   }
+
+  if ( m_dragTargetIndex != -1 )
+  {
+    QList<QGraphicsItem *> portLabels = m_itemGroup->childItems();
+    qreal y;
+    if ( m_dragTargetIndex < portLabels.size() )
+    {
+      QGraphicsItem *portLabel = portLabels[m_dragTargetIndex];
+      y = m_itemGroup->mapToParent( portLabel->pos() ).y();
+    }
+    else
+    {
+      QGraphicsItem *portLabel = portLabels.back();
+      y = m_itemGroup->mapToParent( portLabel->pos() ).y()
+        + portLabel->boundingRect().height() + 8;
+    }
+    y -= 4;
+    painter->setPen( QPen( Qt::white ) );
+    painter->drawLine(
+      QPointF( rect.left(), y ), QPointF( rect.right(), y )
+      );
+  }
 }
 
 void SidePanel::onItemGroupResized()
@@ -314,7 +337,6 @@ void SidePanel::updateItemGroupScroll(float height)
 
 void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
 {
-  bool accept = false;
   QMimeData const *md = event->mimeData();
   if ( md->hasFormat( "FabricUI/PortLabel" ) )
   {
@@ -323,25 +345,67 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
     char *portLabelCharPtr;
     ds >> portLabelCharPtr;
     // TODO check portLabel match
-    accept = true;
 
     QList<QGraphicsItem *> ports = m_itemGroup->childItems();
+
     // Start at 1: skip proxy port
     qreal eventY = event->pos().y();
-    int best = -1;
+    int oldDragTargetIndex = m_dragTargetIndex;
+    m_dragTargetIndex = -1;
     qreal bestDist;
     for ( int i = 1; i < ports.size(); ++i )
     {
       QGraphicsItem *port = ports[i];
-      qreal portY = mapToParent( port->pos() ).y();
-      if ( best == -1
+      qreal portY = m_itemGroup->mapToParent( port->pos() ).y();
+      if ( m_dragTargetIndex == -1
         || fabs( portY - eventY ) < bestDist )
       {
         bestDist = fabs( portY - eventY );
-        best = i;
+        m_dragTargetIndex = i;
       }
     }
-    qDebug() << "best: " << best;
+
+    QGraphicsItem *lastPort = ports.back();
+    qreal lastPortBottomY =
+        m_itemGroup->mapToParent( lastPort->pos() ).y()
+      + lastPort->boundingRect().height() + 8;
+    if ( m_dragTargetIndex == -1
+      || fabs( lastPortBottomY - eventY ) < bestDist )
+    {
+      bestDist = fabs( lastPortBottomY - eventY );
+      m_dragTargetIndex = ports.size();
+    }
+
+    // qDebug() << "m_dragTargetIndex: " << m_dragTargetIndex;
+    if ( m_dragTargetIndex != oldDragTargetIndex )
+      update();
+
+    event->acceptProposedAction();
+    event->accept();
+    return;
   }
-  event->setAccepted( accept );
+
+  QGraphicsWidget::dragMoveEvent( event );
+}
+
+void SidePanel::dragLeaveEvent( QGraphicsSceneDragDropEvent *event )
+{
+  if ( m_dragTargetIndex != -1 )
+  {
+    m_dragTargetIndex = -1;
+    update();
+  }
+
+  QGraphicsWidget::dragLeaveEvent( event );
+}
+
+void SidePanel::dropEvent( QGraphicsSceneDragDropEvent *event )
+{
+  if ( m_dragTargetIndex != -1 )
+  {
+    m_dragTargetIndex = -1;
+    update();
+  }
+
+  QGraphicsWidget::dropEvent( event );
 }

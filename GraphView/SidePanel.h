@@ -57,6 +57,8 @@ namespace FabricUI
       virtual void resizeEvent(QGraphicsSceneResizeEvent * event);
 
       virtual void dragMoveEvent( QGraphicsSceneDragDropEvent *event );
+      virtual void dragLeaveEvent( QGraphicsSceneDragDropEvent *event );
+      virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
 
       // accessed through controller
       virtual Port * addPort(Port * port);
@@ -87,6 +89,8 @@ namespace FabricUI
 
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;
+
+      int m_dragTargetIndex;
     };
 
   };
