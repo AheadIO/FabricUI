@@ -81,9 +81,7 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
   presetSplitPalette.setColor( QPalette::Foreground, QColor("#000000") );
   m_presetSplitWidget->setPalette( presetSplitPalette );
   m_presetSplitWidget->setAutoFillBackground( true );
-  QPalette labelPalette( presetSplitPalette );
-  labelPalette.setColor( QPalette::Foreground, QColor("#000000") );
-  label->setPalette( labelPalette );
+  label->setPalette( presetSplitPalette );  // [FE-6232]
 
   QVBoxLayout *vLayout = new QVBoxLayout;
   vLayout->setContentsMargins(0, 0, 0, 0);
