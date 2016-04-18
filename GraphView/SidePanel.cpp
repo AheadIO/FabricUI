@@ -1,22 +1,25 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
-#include <FabricUI/GraphView/SidePanel.h>
-#include <FabricUI/GraphView/Pin.h>
-#include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Connection.h>
+#include <FabricUI/GraphView/Graph.h>
+#include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/Port.h>
+#include <FabricUI/GraphView/PortLabel.h>
+#include <FabricUI/GraphView/SidePanel.h>
 
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsView>
 
+#include <float.h>
 #include <math.h>
 
 using namespace FabricUI::GraphView;
 
 SidePanel::SidePanel(Graph * parent, PortType portType, QColor color)
   : QGraphicsWidget( parent )
-  , m_dragTargetIndex( -1 )
+  , m_dragDstY( 0 )
 {
   m_itemGroup = new SidePanelItemGroup(this);
   m_itemGroup->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -223,25 +226,12 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
     m_requiresToSendSignalsForPorts = false;
   }
 
-  if ( m_dragTargetIndex != -1 )
+  if ( !m_dragSrcPortName.isEmpty() )
   {
     QList<QGraphicsItem *> portLabels = m_itemGroup->childItems();
-    qreal y;
-    if ( m_dragTargetIndex < portLabels.size() )
-    {
-      QGraphicsItem *portLabel = portLabels[m_dragTargetIndex];
-      y = m_itemGroup->mapToParent( portLabel->pos() ).y();
-    }
-    else
-    {
-      QGraphicsItem *portLabel = portLabels.back();
-      y = m_itemGroup->mapToParent( portLabel->pos() ).y()
-        + portLabel->boundingRect().height() + 8;
-    }
-    y -= 4;
     painter->setPen( QPen( Qt::white ) );
     painter->drawLine(
-      QPointF( rect.left(), y ), QPointF( rect.right(), y )
+      QPointF( rect.left(), m_dragDstY ), QPointF( rect.right(), m_dragDstY )
       );
   }
 }
@@ -337,62 +327,70 @@ void SidePanel::updateItemGroupScroll(float height)
 
 void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
 {
-  QMimeData const *md = event->mimeData();
-  if ( md->hasFormat( "FabricUI/PortLabel" ) )
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasFormat( Port::MimeType ) )
   {
-    QByteArray ba = md->data( "FabricUI/PortLabel" );
-    QDataStream ds( ba );
-    char *portLabelCharPtr;
-    ds >> portLabelCharPtr;
-    // TODO check portLabel match
-
-    QList<QGraphicsItem *> ports = m_itemGroup->childItems();
-
-    // Start at 1: skip proxy port
-    qreal eventY = event->pos().y();
-    int oldDragTargetIndex = m_dragTargetIndex;
-    m_dragTargetIndex = -1;
-    qreal bestDist;
-    for ( int i = 1; i < ports.size(); ++i )
+    Port::MimeData const *portMimeData =
+      static_cast<Port::MimeData const *>( mimeData );
+    Port *port = portMimeData->port();
+    // Check that we are in the same sidepanel
+    if ( port->sidePanel() == this )
     {
-      QGraphicsItem *port = ports[i];
-      qreal portY = m_itemGroup->mapToParent( port->pos() ).y();
-      if ( m_dragTargetIndex == -1
-        || fabs( portY - eventY ) < bestDist )
+      m_dragSrcPortName = port->nameQString();
+
+      QList<QGraphicsItem *> ports = m_itemGroup->childItems();
+
+      // Start at 1: skip proxy port
+      qreal eventY = event->pos().y();
+      QString oldDragDstPortName = m_dragDstPortName;
+      m_dragDstPortName = QString();
+      qreal bestDist = FLT_MAX;
+      for ( int i = 1; i < ports.size(); ++i )
       {
-        bestDist = fabs( portY - eventY );
-        m_dragTargetIndex = i;
+        Port *port = static_cast<Port *>( ports[i] );
+        qreal portY = m_itemGroup->mapToParent( port->pos() ).y() - 4;
+        if ( fabs( portY - eventY ) < bestDist )
+        {
+          bestDist = fabs( portY - eventY );
+          m_dragDstPortName = port->nameQString();
+          m_dragDstY = portY;
+        }
       }
+
+      QGraphicsItem *lastPort = ports.back();
+      qreal lastPortBottomY =
+          m_itemGroup->mapToParent( lastPort->pos() ).y()
+        + lastPort->boundingRect().height() + 8;
+      if ( fabs( lastPortBottomY - eventY ) < bestDist )
+      {
+        bestDist = fabs( lastPortBottomY - eventY );
+        m_dragDstPortName = QString();
+        m_dragDstY = lastPortBottomY;
+      }
+
+      // qDebug() << "m_dragDstPortName: " << m_dragDstPortName;
+      if ( m_dragDstPortName != oldDragDstPortName )
+        update();
+
+      event->acceptProposedAction();
+      event->accept();
+      return;
     }
-
-    QGraphicsItem *lastPort = ports.back();
-    qreal lastPortBottomY =
-        m_itemGroup->mapToParent( lastPort->pos() ).y()
-      + lastPort->boundingRect().height() + 8;
-    if ( m_dragTargetIndex == -1
-      || fabs( lastPortBottomY - eventY ) < bestDist )
-    {
-      bestDist = fabs( lastPortBottomY - eventY );
-      m_dragTargetIndex = ports.size();
-    }
-
-    // qDebug() << "m_dragTargetIndex: " << m_dragTargetIndex;
-    if ( m_dragTargetIndex != oldDragTargetIndex )
-      update();
-
-    event->acceptProposedAction();
-    event->accept();
-    return;
   }
 
-  QGraphicsWidget::dragMoveEvent( event );
+  m_dragSrcPortName = QString();
+  m_dragDstPortName = QString();
+  m_dragDstY = 0;
+  event->ignore();
 }
 
 void SidePanel::dragLeaveEvent( QGraphicsSceneDragDropEvent *event )
 {
-  if ( m_dragTargetIndex != -1 )
+  if ( !m_dragSrcPortName.isEmpty() )
   {
-    m_dragTargetIndex = -1;
+    m_dragSrcPortName = QString();
+    m_dragDstPortName = QString();
+    m_dragDstY = 0;
     update();
   }
 
@@ -401,9 +399,13 @@ void SidePanel::dragLeaveEvent( QGraphicsSceneDragDropEvent *event )
 
 void SidePanel::dropEvent( QGraphicsSceneDragDropEvent *event )
 {
-  if ( m_dragTargetIndex != -1 )
+  if ( !m_dragSrcPortName.isEmpty() )
   {
-    m_dragTargetIndex = -1;
+    // gvcDoMoveExecPort(
+
+    m_dragSrcPortName = QString();
+    m_dragDstPortName = QString();
+    m_dragDstY = 0;
     update();
   }
 

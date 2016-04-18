@@ -90,7 +90,9 @@ namespace FabricUI
       ProxyPort* m_proxyPort;
       std::vector<Port*> m_ports;
 
-      int m_dragTargetIndex;
+      QString m_dragSrcPortName;
+      QString m_dragDstPortName;
+      qreal m_dragDstY;
     };
 
   };

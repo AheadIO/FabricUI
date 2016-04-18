@@ -3,6 +3,7 @@
 #ifndef __UI_GraphView_Port__
 #define __UI_GraphView_Port__
 
+#include <QtCore/QMimeData>
 #include <QtGui/QGraphicsWidget>
 #include <QtGui/QColor>
 #include <QtGui/QPen>
@@ -47,15 +48,23 @@ namespace FabricUI
 
       virtual int type() const { return QGraphicsItemType_Port; }
 
-      SidePanel * sidePanel();
-      const SidePanel * sidePanel() const;
-      Graph * graph();
-      const Graph * graph() const;
-      PinCircle * circle();
-      const PinCircle * circle() const;
+      SidePanel *sidePanel()
+        { return m_sidePanel; }
+      SidePanel const *sidePanel() const
+        { return m_sidePanel; }
+
+      Graph *graph();
+      Graph const *graph() const;
+
+      PinCircle *circle()
+        { return m_circle; }
+      PinCircle const *circle() const
+        { return m_circle; }
 
       FTL::CStrRef name() const
         { return m_name; }
+      QString nameQString() const
+        { return QString::fromUtf8( m_name.data(), m_name.size() ); }
       void setName( FTL::CStrRef name );
 
       virtual std::string path() const;
@@ -86,6 +95,37 @@ namespace FabricUI
         { return m_allowEdits; }
       void disableEdits()
         { m_allowEdits = false; }
+
+      static QString const MimeType;
+
+      class MimeData : public QMimeData
+      {
+        typedef QMimeData Parent;
+
+      public:
+
+        MimeData( Port *port )
+          : m_port( port )
+          {}
+
+        virtual bool hasFormat( QString const &mimeType) const;
+
+        virtual QStringList formats() const;
+
+        Port *port() const
+          { return m_port; }
+
+      protected:
+        
+        virtual QVariant retrieveData(
+          QString const &mimeType,
+          QVariant::Type type
+          ) const;
+
+      private:
+
+        Port *m_port;
+      };
 
     signals:
 

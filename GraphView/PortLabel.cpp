@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
+#include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/PortLabel.h>
 
 #include <QtGui/QApplication>
@@ -46,16 +47,11 @@ void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
     {
       event->accept();
 
-      QByteArray ba;
-      {
-        QDataStream ds( &ba, QIODevice::WriteOnly );
-        ds << this;
-      }
+      Port *port = static_cast<Port *>( parentItem() );
 
       QDrag *drag = new QDrag( event->widget() );
-      QMimeData *mimeData = new QMimeData;
-      mimeData->setData( "FabricUI/PortLabel", ba );
 
+      Port::MimeData *mimeData = new Port::MimeData( port );
       drag->setMimeData( mimeData );
 
       Qt::DropAction dropAction = drag->exec( Qt::MoveAction );
