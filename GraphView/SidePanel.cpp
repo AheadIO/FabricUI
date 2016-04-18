@@ -347,7 +347,8 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
       static_cast<Port::MimeData const *>( mimeData );
     Port *draggedPort = portMimeData->port();
     // Check that we are in the same sidepanel
-    if ( draggedPort->sidePanel() == this )
+    if ( draggedPort->sidePanel() == this
+      && draggedPort->allowEdits() )
     {
       QString draggedPortName = draggedPort->nameQString();
 
@@ -377,6 +378,10 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
             m_dragDstY = portY;
           }
         }
+        // If this port is non-editable (ie. "exec") then don't allow
+        // moves before it
+        if ( !port->allowEdits() )
+          m_dragSrcPortName = QString();
       }
 
       // See if drag is to end

@@ -34,7 +34,8 @@ void PortLabel::mousePressEvent( QGraphicsSceneMouseEvent *event )
   if ( !!(event->buttons() & Qt::LeftButton) )
   {
     Port *port = static_cast<Port *>( parentItem() );
-    if ( port->graph()->isEditable() )
+    if ( port->allowEdits()
+      && port->graph()->isEditable() )
     {
       m_dragStartPosition = event->pos();
       event->accept();
@@ -53,7 +54,8 @@ void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
        >= QApplication::startDragDistance() )
     {
       Port *port = static_cast<Port *>( parentItem() );
-      if ( port->graph()->isEditable() )
+      if ( port->allowEdits()
+        && port->graph()->isEditable() )
       {
         event->accept();
 
@@ -78,7 +80,8 @@ void PortLabel::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
   if ( !!(event->buttons() & Qt::LeftButton) )
   {
     Port *port = static_cast<Port *>( parentItem() );
-    if ( port->graph()->isEditable() )
+    if ( port->allowEdits()
+      && port->graph()->isEditable() )
     {
       event->accept();
       return;
