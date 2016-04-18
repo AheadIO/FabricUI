@@ -94,7 +94,7 @@ DFGWidget::DFGWidget(
       m_dfgConfig
       );
 
-  m_isEditable = true;
+  m_isEditable = !exec.editWouldSplitFromPreset();
   if(binding.isValid())
   {
     FTL::StrRef editable = binding.getMetadata("editable");
@@ -1855,9 +1855,14 @@ void DFGWidget::onExecChanged()
   }
 
   FabricCore::DFGExec &exec = m_uiController->getExec();
-
   if ( exec.isValid() )
   {
+    m_isEditable = !exec.editWouldSplitFromPreset();
+    FabricCore::DFGBinding &binding = m_uiController->getBinding();
+    FTL::StrRef bindingEditable = binding.getMetadata( "editable" );
+    if ( bindingEditable == "false" )
+      m_isEditable = false;
+
     m_uiGraph = new GraphView::Graph( NULL, m_dfgConfig.graphConfig );
     m_uiGraph->setController(m_uiController.get());
     m_uiGraph->setEditable(m_isEditable);
@@ -1923,6 +1928,7 @@ void DFGWidget::onExecChanged()
   {
     m_uiGraph = NULL;
     m_uiController->setGraph(NULL);
+    m_isEditable = false;
   }
 
   m_uiGraphViewWidget->setGraph(m_uiGraph);

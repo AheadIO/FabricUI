@@ -2,6 +2,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
+#include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/Port.h>
 #include <FabricUI/GraphView/PortLabel.h>
 
@@ -32,10 +33,16 @@ void PortLabel::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
   if ( !!(event->buttons() & Qt::LeftButton) )
   {
-    m_dragStartPosition = event->pos();
-    event->accept();
+    Port *port = static_cast<Port *>( parentItem() );
+    if ( port->graph()->isEditable() )
+    {
+      m_dragStartPosition = event->pos();
+      event->accept();
+      return;
+    }
   }
-  else TextContainer::mousePressEvent( event );
+  
+  TextContainer::mousePressEvent( event );
 }
 
 void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
@@ -45,19 +52,21 @@ void PortLabel::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
     if ( (event->pos() - m_dragStartPosition).manhattanLength()
        >= QApplication::startDragDistance() )
     {
-      event->accept();
-
       Port *port = static_cast<Port *>( parentItem() );
+      if ( port->graph()->isEditable() )
+      {
+        event->accept();
 
-      QDrag *drag = new QDrag( event->widget() );
+        QDrag *drag = new QDrag( event->widget() );
 
-      Port::MimeData *mimeData = new Port::MimeData( port );
-      drag->setMimeData( mimeData );
+        Port::MimeData *mimeData = new Port::MimeData( port );
+        drag->setMimeData( mimeData );
 
-      Qt::DropAction dropAction = drag->exec( Qt::MoveAction );
-      (void)dropAction;
+        Qt::DropAction dropAction = drag->exec( Qt::MoveAction );
+        (void)dropAction;
 
-      return;
+        return;
+      }
     }
   }
 
@@ -68,9 +77,15 @@ void PortLabel::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
 {
   if ( !!(event->buttons() & Qt::LeftButton) )
   {
-    event->accept();
+    Port *port = static_cast<Port *>( parentItem() );
+    if ( port->graph()->isEditable() )
+    {
+      event->accept();
+      return;
+    }
   }
-  else TextContainer::mouseReleaseEvent( event );  
+  
+  TextContainer::mouseReleaseEvent( event );  
 }
 
 } // namespace GraphView
