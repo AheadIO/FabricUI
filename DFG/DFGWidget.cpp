@@ -413,24 +413,6 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
     {
       result->addSeparator();
 
-      QAction *MOVE_TOP_Action = new QAction( DFG_MOVE_TOP, result );
-      MOVE_TOP_Action->setEnabled( port->allowEdits() );
-      result->addAction( MOVE_TOP_Action );
-
-      QAction *MOVE_UP_Action = new QAction( DFG_MOVE_UP, result );
-      MOVE_UP_Action->setEnabled( port->allowEdits() );
-      result->addAction( MOVE_UP_Action );
-
-      QAction *MOVE_DOWN_Action = new QAction( DFG_MOVE_DOWN, result );
-      MOVE_DOWN_Action->setEnabled( port->allowEdits() );
-      result->addAction( MOVE_DOWN_Action );
-
-      QAction *MOVE_BOTTOM_Action = new QAction( DFG_MOVE_BOTTOM, result );
-      MOVE_BOTTOM_Action->setEnabled( port->allowEdits() );
-      result->addAction( MOVE_BOTTOM_Action );
-
-      result->addSeparator();
-
       result->addAction(DFG_MOVE_INPUTS_TO_END);
       result->addAction(DFG_MOVE_OUTPUTS_TO_END);
     }
@@ -1216,12 +1198,8 @@ void DFGWidget::onExecPortAction(QAction * action)
     //   // setup the value editor
     // }
   }
-  else if(action->text() == DFG_MOVE_TOP ||
-    action->text() == DFG_MOVE_UP ||
-    action->text() == DFG_MOVE_DOWN ||
-    action->text() == DFG_MOVE_BOTTOM ||
-    action->text() == DFG_MOVE_INPUTS_TO_END || 
-    action->text() == DFG_MOVE_OUTPUTS_TO_END)
+  else if ( action->text() == DFG_MOVE_INPUTS_TO_END
+    || action->text() == DFG_MOVE_OUTPUTS_TO_END )
   {
     try
     {
@@ -1255,129 +1233,19 @@ void DFGWidget::onExecPortAction(QAction * action)
           inputsFirst.append(i);
       }
 
-      FTL::StrRef portNameRef = portName;
-      FabricCore::DFGPortType portType = exec.getExecPortType(portNameRef.data());
       QList<int> indices;
-      bool reorder = false;
 
-      if(exec.getExecPortType(exec.getExecPortCount()-1) == FEC_DFGPortType_Out)
-        indices = inputsFirst;
-      else
+      if(action->text() == DFG_MOVE_INPUTS_TO_END)
         indices = outputsFirst;
-
-      int a = -1;
-      int b = -1;
-
-      if(action->text() == DFG_MOVE_TOP)
-      {
-        for(int i=0;i<indices.size();i++)
-        {
-          if(b == -1 && exec.getExecPortType(indices[i]) == portType)
-          {
-            b = i;
-          }
-          if(portNameRef == exec.getExecPortName(indices[i]))
-          {
-            a = i;
-            reorder = a > 0;
-          }
-        }
-
-        if(a != b)
-        {
-          int temp = indices[a];
-          for(int i=a;i>b;i--)
-            indices[i] = indices[i-1];
-          indices[b] = temp;
-
-          a = -1;
-          b = -1;
-        }
-      }
-      else if(action->text() == DFG_MOVE_UP)
-      {
-        for(int i=0;i<indices.size();i++)
-        {
-          if(portNameRef == exec.getExecPortName(indices[i]))
-          {
-            a = i;
-            b = a - 1;
-            reorder = a > 0;
-            break;
-          }
-        }
-      }
-      else if(action->text() == DFG_MOVE_DOWN)
-      {
-        for(int i=0;i<indices.size();i++)
-        {
-          if(portNameRef == exec.getExecPortName(indices[i]))
-          {
-            a = i;
-            b = a + 1;
-            reorder = true;
-            break;
-          }
-        }
-      }
-      else if(action->text() == DFG_MOVE_BOTTOM)
-      {
-        for(int i=0;i<indices.size();i++)
-        {
-          if(portNameRef == exec.getExecPortName(indices[i]))
-          {
-            a = i;
-          }
-          if(exec.getExecPortType(indices[i]) == portType)
-          {
-            b = i;
-          }
-        }
-
-        if(a != b)
-        {
-          int temp = indices[a];
-          for(int i=a;i<b;i++)
-            indices[i] = indices[i+1];
-          indices[b] = temp;
-
-          a = -1;
-          b = -1;
-          reorder = true;
-        }
-      }
-      else if(action->text() == DFG_MOVE_INPUTS_TO_END)
-      {
-        indices = outputsFirst;
-        reorder = true;
-      }
       else if(action->text() == DFG_MOVE_OUTPUTS_TO_END)
-      {
         indices = inputsFirst;
-        reorder = true;
-      }
 
-      if ( a < indices.size()
-        && b < indices.size()
-        && a != b )
-      {
-        // swap indices
-        int temp = indices[a];
-        indices[a] = indices[b];
-        indices[b] = temp;
-        reorder = true;
-      }
-
-      if(!reorder)
-        return;
-
-      if(indices.size() > 0)
-        m_uiController->cmdReorderPorts(
-          binding,
-          execPath,
-          exec,
-          indices
-          );
+      m_uiController->cmdReorderPorts(
+        binding,
+        execPath,
+        exec,
+        indices
+        );
     }
     catch(FabricCore::Exception e)
     {

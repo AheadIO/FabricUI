@@ -37,10 +37,6 @@ namespace FabricUI
     #define DFG_CREATE_PORT             "Create port"
     #define DFG_SCROLL_UP               "Scroll up"
     #define DFG_SCROLL_DOWN             "Scroll down"
-    #define DFG_MOVE_TOP                "Move top"
-    #define DFG_MOVE_UP                 "Move up"
-    #define DFG_MOVE_DOWN               "Move down"
-    #define DFG_MOVE_BOTTOM             "Move bottom"
     #define DFG_MOVE_INPUTS_TO_END      "Move inputs to end"
     #define DFG_MOVE_OUTPUTS_TO_END     "Move outputs to end"
   };
