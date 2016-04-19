@@ -70,9 +70,9 @@ DFGExecHeaderWidget::DFGExecHeaderWidget(
     this, SLOT(onSplitFromPresetClicked())
     );
   presetSplitLayout->addWidget( presetSplitButton );
-  presetSplitLayout->addWidget( new QLabel( "\
-This node or one of its parents is an instance of a preset\n\
-and cannot be changed unless split from the preset" ) );
+
+  QLabel *label = new QLabel( "This node or one of its parents is an instance of a preset\nand cannot be changed unless split from the preset" );
+  presetSplitLayout->addWidget( label );
   presetSplitLayout->addStretch(1);
   m_presetSplitWidget = new QWidget;
   m_presetSplitWidget->setLayout( presetSplitLayout );
@@ -81,6 +81,7 @@ and cannot be changed unless split from the preset" ) );
   presetSplitPalette.setColor( QPalette::Foreground, QColor("#000000") );
   m_presetSplitWidget->setPalette( presetSplitPalette );
   m_presetSplitWidget->setAutoFillBackground( true );
+  label->setPalette( presetSplitPalette );  // [FE-6232]
 
   QVBoxLayout *vLayout = new QVBoxLayout;
   vLayout->setContentsMargins(0, 0, 0, 0);
