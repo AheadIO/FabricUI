@@ -443,9 +443,6 @@ QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* p
 
 void DFGWidget::onGoUpPressed()
 {
-  if ( !m_isEditable )
-    return;
-
   FTL::StrRef execPath = m_uiController->getExecPath();
   if ( execPath.empty() )
     return;
