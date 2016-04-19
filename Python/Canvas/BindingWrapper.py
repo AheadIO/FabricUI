@@ -1,5 +1,5 @@
-from FabricEngine.FabricUI import DFG
 from PySide import QtCore, QtGui
+from FabricEngine.FabricUI import DFG
 
 class UndoCmd(QtGui.QUndoCommand):
     def __init__(self, cmd):

@@ -1,5 +1,5 @@
-from FabricEngine.FabricUI import Style
 from PySide import QtGui
+from FabricEngine.FabricUI import Style
 
 # [andrew 20151028] shiboken thinks FabricStyle is an abstract class
 # unless we re-define the virtual standardPixmap method
