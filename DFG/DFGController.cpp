@@ -2084,7 +2084,7 @@ void DFGController::gvcDoMoveExecPort(
   bool trivial = true;
   for ( unsigned i = 0; i < execPortCount; ++i )
   {
-    if ( indices[i] != i )
+    if ( indices[i] != int(i) )
     {
       trivial = false;
       break;
