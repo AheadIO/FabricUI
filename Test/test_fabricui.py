@@ -1,4 +1,6 @@
-import platform, sys, unittest
+import platform
+import sys
+import unittest
 
 class FabricUITest(unittest.TestCase):
     def test_fe_6396(self):

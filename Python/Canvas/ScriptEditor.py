@@ -1,9 +1,9 @@
 import sys
+import StringIO
+import contextlib
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
-import StringIO
-import contextlib
 
 @contextlib.contextmanager
 def stdoutIO():

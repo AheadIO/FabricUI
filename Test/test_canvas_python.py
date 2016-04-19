@@ -1,4 +1,7 @@
-import os, platform, sys, unittest
+import os
+import platform
+import sys
+import unittest
 
 class CanvasTest(unittest.TestCase):
     def test_all(self):

@@ -1,7 +1,8 @@
-import os, sys
+import os
+import sys
+from PySide import QtCore, QtGui, QtOpenGL
 from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Viewports, TimeLine
-from PySide import QtCore, QtGui, QtOpenGL
 from FabricEngine.Canvas.ScriptEditor import ScriptEditor
 from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 
@@ -208,37 +209,37 @@ class CanvasWindow(DFG.DFGMainWindow):
 
     def _initDocksAndMenus(self):
 
-        undoDockWidget = QtGui.QDockWidget("History", self)
-        undoDockWidget.setObjectName("History")
-        undoDockWidget.setFeatures(self.dockFeatures)
-        undoDockWidget.setWidget(self.qUndoView)
-        undoDockWidget.hide()     
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
+        self.undoDockWidget = QtGui.QDockWidget("History", self)
+        self.undoDockWidget.setObjectName("History")
+        self.undoDockWidget.setFeatures(self.dockFeatures)
+        self.undoDockWidget.setWidget(self.qUndoView)
+        self.undoDockWidget.hide()     
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.undoDockWidget)
 
-        logDockWidget = QtGui.QDockWidget("Log Messages", self)
-        logDockWidget.setObjectName("Log")
-        logDockWidget.setFeatures(self.dockFeatures)
-        logDockWidget.setWidget(self.logWidget)
-        logDockWidget.hide()
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, logDockWidget, QtCore.Qt.Vertical)
+        self.logDockWidget = QtGui.QDockWidget("Log Messages", self)
+        self.logDockWidget.setObjectName("Log")
+        self.logDockWidget.setFeatures(self.dockFeatures)
+        self.logDockWidget.setWidget(self.logWidget)
+        self.logDockWidget.hide()
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.logDockWidget, QtCore.Qt.Vertical)
 
-        valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
-        valueEditorDockWidget.setObjectName("Values")
-        valueEditorDockWidget.setFeatures(self.dockFeatures)
-        valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, valueEditorDockWidget)
+        self.valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
+        self.valueEditorDockWidget.setObjectName("Values")
+        self.valueEditorDockWidget.setFeatures(self.dockFeatures)
+        self.valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.valueEditorDockWidget)
 
-        dfgDock = QtGui.QDockWidget('Canvas Graph', self)
-        dfgDock.setObjectName('Canvas Graph')
-        dfgDock.setFeatures(self.dockFeatures)
-        dfgDock.setWidget(self.dfgWidget)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
+        self.dfgDock = QtGui.QDockWidget('Canvas Graph', self)
+        self.dfgDock.setObjectName('Canvas Graph')
+        self.dfgDock.setFeatures(self.dockFeatures)
+        self.dfgDock.setWidget(self.dfgWidget)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.dfgDock, QtCore.Qt.Vertical)
 
-        treeDock = QtGui.QDockWidget("Explorer", self)
-        treeDock.setObjectName("Explorer")
-        treeDock.setFeatures(self.dockFeatures)
-        treeDock.setWidget(self.treeWidget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, treeDock)
+        self.treeDock = QtGui.QDockWidget("Explorer", self)
+        self.treeDock.setObjectName("Explorer")
+        self.treeDock.setFeatures(self.dockFeatures)
+        self.treeDock.setWidget(self.treeWidget)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.treeDock)
 
         self.timeLineDock = QtGui.QDockWidget("TimeLine", self)
         self.timeLineDock.setObjectName("TimeLine")
@@ -246,35 +247,35 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.timeLineDock.setWidget(self.timeLine)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.timeLineDock, QtCore.Qt.Vertical)
 
-        scriptEditorDock = QtGui.QDockWidget('Script Editor', self)
-        scriptEditorDock.setObjectName('Script Editor')
-        scriptEditorDock.setFeatures(self.dockFeatures)
-        scriptEditorDock.setWidget(self.scriptEditor)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, scriptEditorDock, QtCore.Qt.Vertical)
+        self.scriptEditorDock = QtGui.QDockWidget('Script Editor', self)
+        self.scriptEditorDock.setObjectName('Script Editor')
+        self.scriptEditorDock.setFeatures(self.dockFeatures)
+        self.scriptEditorDock.setWidget(self.scriptEditor)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.scriptEditorDock, QtCore.Qt.Vertical)
 
         self.dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
 
-        toggleAction = dfgDock.toggleViewAction()
+        toggleAction = self.dfgDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_1)
         windowMenu.addAction(toggleAction)
-        toggleAction = treeDock.toggleViewAction()
+        toggleAction = self.treeDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_2)
         windowMenu.addAction(toggleAction)
-        toggleAction = valueEditorDockWidget.toggleViewAction()
+        toggleAction = self.valueEditorDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
         toggleAction = self.timeLineDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_4)
         windowMenu.addAction(toggleAction)
         windowMenu.addSeparator()
-        toggleAction = undoDockWidget.toggleViewAction()
+        toggleAction = self.undoDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_5)
         windowMenu.addAction(toggleAction)
-        toggleAction = logDockWidget.toggleViewAction()
+        toggleAction = self.logDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
-        toggleAction = scriptEditorDock.toggleViewAction()
+        toggleAction = self.scriptEditorDock.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_7)
         windowMenu.addAction(toggleAction)
     
