@@ -357,7 +357,6 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
       m_dragDstPortName = QString();
       qreal bestDist = FLT_MAX;
 
-      // Start at 1: skip proxy port
       for ( size_t i = 0; i < m_ports.size(); ++i )
       {
         Port *port = static_cast<Port *>( m_ports[i] );
