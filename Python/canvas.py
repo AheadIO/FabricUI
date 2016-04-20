@@ -24,6 +24,10 @@ if __name__ == "__main__":
                           action='store_true',
                           dest='unguarded',
                           help='compile KL code in unguarded mode')
+    opt_parser.add_option('-n', '--noopt',
+                          action='store_true',
+                          dest='noopt',
+                          help='compile KL code wihout brackground optimization')
     opt_parser.add_option('-e', '--exec',
                           action='store',
                           dest='exec_',
@@ -35,9 +39,10 @@ if __name__ == "__main__":
     (opts, args) = opt_parser.parse_args()
 
     unguarded = opts.unguarded is True
+    noopt = opts.noopt is True
 
     settings = QtCore.QSettings()
-    mainWin = CanvasWindow(settings, unguarded)
+    mainWin = CanvasWindow(settings, unguarded, noopt)
     mainWin.show()
 
     for arg in args:

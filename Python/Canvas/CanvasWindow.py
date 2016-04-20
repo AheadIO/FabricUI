@@ -42,7 +42,7 @@ class CanvasWindow(DFG.DFGMainWindow):
     defaultFrameOut = 50
     autosaveIntervalSecs = 30
 
-    def __init__(self, settings, unguarded):
+    def __init__(self, settings, unguarded, noopt):
         self.settings = settings
 
         super(CanvasWindow, self).__init__()
@@ -54,14 +54,15 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         self.__init()
         self._initWindow()
-        self._initKL(unguarded)
+        self._initKL(unguarded, noopt)
         self._initLog()
         self._initDFG()
         self._initTreeView()
         self._initGL()
         self._initValueEditor()
         self._initTimeLine()
-        self._initDocksAndMenus()
+        self._initDocks()
+        self._initMenus()
 
         self.restoreGeometry(self.settings.value("mainWindow/geometry"))
         self.restoreState(self.settings.value("mainWindow/state"))
@@ -131,9 +132,10 @@ class CanvasWindow(DFG.DFGMainWindow):
             except Exception as e:
                 self.dfgWidget.getDFGController().logError(str(e))
 
-    def _initKL(self, unguarded):
+    def _initKL(self, unguarded, noopt):
         clientOpts = {
           'guarded': not unguarded,
+          'noOptimization': noopt,
           'reportCallback': self.__reportCallback
           }
         client = Core.createClient(clientOpts)
@@ -207,8 +209,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.timeLine.frameChanged.connect(self.onFrameChanged)
         self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
 
-    def _initDocksAndMenus(self):
-
+    def _initDocks(self):
         self.undoDockWidget = QtGui.QDockWidget("History", self)
         self.undoDockWidget.setObjectName("History")
         self.undoDockWidget.setFeatures(self.dockFeatures)
@@ -253,6 +254,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.scriptEditorDock.setWidget(self.scriptEditor)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.scriptEditorDock, QtCore.Qt.Vertical)
 
+    def _initMenus(self):
         self.dfgWidget.populateMenuBar(self.menuBar())
         windowMenu = self.menuBar().addMenu("&Window")
 
