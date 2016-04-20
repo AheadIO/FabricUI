@@ -251,7 +251,6 @@ void Node::setCollapsedState(Node::CollapseState state)
   emit collapsedStateChanged(this, m_collapsedState);
   m_header->setHeaderButtonState("node_collapse", (int)m_collapsedState);
   updatePinLayout();
-  update();
 }
 
 void Node::toggleCollapsedState()
@@ -755,6 +754,8 @@ void Node::onBubbleEditRequested(FabricUI::GraphView::NodeBubble * bubble)
 
 void Node::updatePinLayout()
 {
+  prepareGeometryChange();
+
   int count = m_pinsLayout->count();
   if(count > 0)
   {
