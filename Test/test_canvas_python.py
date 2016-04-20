@@ -1,4 +1,3 @@
-import os
 import platform
 import sys
 import unittest
@@ -21,7 +20,8 @@ class CanvasTest(unittest.TestCase):
 
         settings = QtCore.QSettings()
         unguarded = False
-        main_win = CanvasWindow(settings, unguarded)
+        noopt = True
+        main_win = CanvasWindow(settings, unguarded, noopt)
         main_win.show()
 
         # https://doc.qt.io/qt-4.8/qttest-module.html
