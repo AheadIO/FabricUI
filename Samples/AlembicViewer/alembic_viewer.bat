@@ -1,10 +1,13 @@
 @ECHO OFF
-
+ECHO ========================
+ECHO Launching Alembic Viewer
+ECHO ========================
+ECHO.
 REM ==================================
 REM Calls the Fabric Environment .bat
 REM ==================================
 
-CALL %FABRIC_DIR%\environment.bat
+CALL %cd%\..\..\..\environment.bat
 
 REM ==================================
 REM Adds the parent directory to the
