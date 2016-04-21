@@ -1,6 +1,10 @@
+"""Canvas Window."""
+
 import os
 import sys
+
 from PySide import QtCore, QtGui, QtOpenGL
+
 from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Viewports, TimeLine
 from FabricEngine.Canvas.ScriptEditor import ScriptEditor
@@ -8,6 +12,7 @@ from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 
 
 class CanvasWindowEventFilter(QtCore.QObject):
+
     def __init__(self, window):
         super(CanvasWindowEventFilter, self).__init__()
         self.window = window
@@ -37,7 +42,22 @@ class CanvasWindowEventFilter(QtCore.QObject):
         return QtCore.QObject.eventFilter(obj, event)
 
 class CanvasWindow(DFG.DFGMainWindow):
-    
+    """CanvasWindow
+
+    This window encompasses the entire Canvas application.
+
+    Attributes:
+        defaultFrameIn (int): Default in frame.
+        defaultFrameOut (int): Default out frame.
+        defaultFrameOut (int): Interval at which to autosave the current graph.
+
+    Arguments:
+        settings (QtCore.QSettings): Settings object that is used to store and
+            retrieve settings for the application.
+        unguarded (bool): Whether to create the Fabric client in unguarded mode.
+
+    """
+
     defaultFrameIn = 1
     defaultFrameOut = 50
     autosaveIntervalSecs = 30
@@ -71,6 +91,12 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.installEventFilter(CanvasWindowEventFilter(self))
 
     def __init(self):
+        """Initinalizes the settings and config for the application.
+
+        The autosave directory and file name are established here.
+
+        """
+
         DFG.DFGWidget.setSettings(self.settings)
         self.config = DFG.DFGConfig()
 
@@ -79,12 +105,17 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.autosaveFilename = os.path.join(userFabricDir, 'autosave')
         if not os.path.exists(self.autosaveFilename):
             os.makedirs(self.autosaveFilename)
+
         autosaveBasename = 'autosave.' + str(os.getpid()) + '.canvas'
         self.autosaveFilename = os.path.join(self.autosaveFilename, autosaveBasename)
         print 'Will autosave to ' + self.autosaveFilename + ' every ' + str(
-          CanvasWindow.autosaveIntervalSecs) + ' seconds'
+            CanvasWindow.autosaveIntervalSecs) + ' seconds'
 
     def _initWindow(self):
+        """Initializes the window attributes, window widgets, actions, and the
+        fps timer.
+
+        """
 
         self.viewport = None
         self.dfgWidget = None
@@ -116,6 +147,27 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsTimer.start()
 
     def __reportCallback(self, source, level, line):
+        """Call back method that fires when the client emits reports.
+
+        Report sources:
+            NONE = 0
+            System = 1
+            User = 2
+            ALL = 3
+
+        Report levels:
+            Error = 0
+            Warning = 1
+            Info = 2
+            Debug = 3
+
+        Arguments:
+            source (int): Source of the report call.
+            level (int): Level of the report.
+            line (int): Line number where the report was called.
+
+        """
+
         if self.dfgWidget:
             self.dfgWidget.getDFGController().log(line)
         else:
@@ -125,6 +177,15 @@ class CanvasWindow(DFG.DFGMainWindow):
                 sys.stderr.write(line + "\n")
 
     def __statusCallback(self, target, data):
+        """Status callback used for KL code to communicate status messages back
+        to the client.
+
+        Arguments:
+            target (str): Target of the callback.
+            data: Data to be sent to the target.
+
+        """
+
         if target == "licensing":
             try:
                 FabricUI.HandleLicenseData(self, self.client, data, True)
@@ -132,10 +193,22 @@ class CanvasWindow(DFG.DFGMainWindow):
                 self.dfgWidget.getDFGController().logError(str(e))
 
     def _initKL(self, unguarded):
+        """Initializes the Fabric client.
+
+        The core client is what drives the application and what the user
+        interface interacts with to create data types and process the data. The
+        client is required in all Fabric based applications.
+
+        Arguments:
+            unguarded (bool): Sets the client to run in guarded mode or not.
+
+        """
+
         clientOpts = {
           'guarded': not unguarded,
           'reportCallback': self.__reportCallback
-          }
+        }
+
         client = Core.createClient(clientOpts)
         #options.licenseType = FabricCore::ClientLicenseType_Interactive
         client.loadExtension('Math')
@@ -146,6 +219,23 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.qUndoStack = QtGui.QUndoStack()
 
     def _initDFG(self):
+        """Initializes the Data Flow Graph.
+
+        An evalContext is created to provide contextual information about the
+        evaluation to operators and other objects and systems with Fabric
+        Engine.
+
+        A binding to a graph is initialized and is setup so the application can
+        interact with it via the DFGWidget and through other scripted methods
+        within the application.
+
+        The UICmdHandler handles the interaction between the UI and the client.
+
+        The DFGWidget is the UI that reflects the binding to the graph that is
+        created and changed through the application.
+
+        """
+
         self.evalContext = self.client.RT.types.EvalContext.create()
         self.evalContext = self.evalContext.getInstance('EvalContext')
         self.evalContext.host = 'Canvas'
@@ -160,7 +250,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         graph = binding.getExec()
         self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget)
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
-       
+
         self.dfgWidget = DFG.DFGWidget(None, self.client, self.host,
                                        binding, '', graph, astManager,
                                        self.dfguiCommandHandler, self.config)
@@ -172,6 +262,12 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
 
     def _initTreeView(self):
+        """Initializes the preset TreeView.
+
+        Also connects the DFG Controller's dirty signal to the onDirty method.
+
+        """
+
         controller = self.dfgWidget.getDFGController()
         self.treeWidget = DFG.PresetTreeWidget(controller, self.config, True, False, False, False, False, True)
         self.dfgWidget.newPresetSaved.connect(self.treeWidget.refresh)
@@ -179,6 +275,8 @@ class CanvasWindow(DFG.DFGMainWindow):
         controller.dirty.connect(self.onDirty)
 
     def _initGL(self):
+        """Initializes the Open GL viewport widget."""
+
         glFormat = QtOpenGL.QGLFormat()
         glFormat.setDoubleBuffer(True)
         glFormat.setDepth(True)
@@ -191,14 +289,27 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.viewport.portManipulationRequested.connect(self.onPortManipulationRequested)
 
     def _initValueEditor(self):
+        """Initializes the value editor."""
+
         self.valueEditor = FabricUI.DFG.DFGVEEditorOwner(self.dfgWidget)
-     
+
     def _initLog(self):
+        """Initializes the DFGLogWidget and Undo view."""
         self.logWidget = DFG.DFGLogWidget(self.config)
         self.qUndoView = QtGui.QUndoView(self.qUndoStack)
         self.qUndoView.setEmptyLabel("New Graph")
 
     def _initTimeLine(self):
+        """Initializes the TimeLineWidget.
+
+        The timeline widget is setup with the class variables for the default in
+        and out frames.
+
+        The frameChanged signal is connected to the onFrameChanged method along
+        with the Value Editor's onFrameChanged method too.
+
+        """
+
         self.timeLinePortIndex = -1
         self.timeLinePortPath = None
         self.timeLine = TimeLine.TimeLineWidget()
@@ -208,82 +319,126 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.timeLine.frameChanged.connect(self.valueEditor.onFrameChanged)
 
     def _initDocksAndMenus(self):
+        """Initializes all of doc widgets and menus for the application.
 
-        undoDockWidget = QtGui.QDockWidget("History", self)
-        undoDockWidget.setObjectName("History")
+        The dock widgets host the main widgets for the application and are able
+        to be toggled on and off via the menu items that are created. Some
+        widgets that are hosted in dock widgets are instanced here and some have
+        already been created such as the DFGWidget and TimeLineWidget.
+
+        """
+
+        # Undo Dock Widget
+        undoDockWidget = QtGui.QDockWidget('History', self)
+        undoDockWidget.setObjectName('HistoryDockWidget')
         undoDockWidget.setFeatures(self.dockFeatures)
         undoDockWidget.setWidget(self.qUndoView)
-        undoDockWidget.hide()     
+        undoDockWidget.hide()
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, undoDockWidget)
 
-        logDockWidget = QtGui.QDockWidget("Log Messages", self)
-        logDockWidget.setObjectName("Log")
+        # Log Dock Widget
+        logDockWidget = QtGui.QDockWidget('Log Messages', self)
+        logDockWidget.setObjectName('LogDockWidget')
         logDockWidget.setFeatures(self.dockFeatures)
         logDockWidget.setWidget(self.logWidget)
         logDockWidget.hide()
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, logDockWidget, QtCore.Qt.Vertical)
 
-        valueEditorDockWidget = QtGui.QDockWidget("Value Editor", self)
-        valueEditorDockWidget.setObjectName("Values")
+        # Value Editor Dock Widget
+        valueEditorDockWidget = QtGui.QDockWidget('Value Editor', self)
+        valueEditorDockWidget.setObjectName('ValueEditorDockWidget')
         valueEditorDockWidget.setFeatures(self.dockFeatures)
         valueEditorDockWidget.setWidget(self.valueEditor.getWidget())
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, valueEditorDockWidget)
 
-        dfgDock = QtGui.QDockWidget('Canvas Graph', self)
-        dfgDock.setObjectName('Canvas Graph')
-        dfgDock.setFeatures(self.dockFeatures)
-        dfgDock.setWidget(self.dfgWidget)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDock, QtCore.Qt.Vertical)
+        # DFG Dock Widget
+        dfgDockWidget = QtGui.QDockWidget('Canvas Graph', self)
+        dfgDockWidget.setObjectName('CanvasGraphDockWidget')
+        dfgDockWidget.setFeatures(self.dockFeatures)
+        dfgDockWidget.setWidget(self.dfgWidget)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dfgDockWidget, QtCore.Qt.Vertical)
 
-        treeDock = QtGui.QDockWidget("Explorer", self)
-        treeDock.setObjectName("Explorer")
-        treeDock.setFeatures(self.dockFeatures)
-        treeDock.setWidget(self.treeWidget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, treeDock)
 
-        self.timeLineDock = QtGui.QDockWidget("TimeLine", self)
-        self.timeLineDock.setObjectName("TimeLine")
-        self.timeLineDock.setFeatures(self.dockFeatures)
-        self.timeLineDock.setWidget(self.timeLine)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.timeLineDock, QtCore.Qt.Vertical)
+        # Value Editor Dock Widget
+        explorerDockWidget = QtGui.QDockWidget('Explorer', self)
+        explorerDockWidget.setObjectName('ExplorerDockWidget')
+        explorerDockWidget.setFeatures(self.dockFeatures)
+        explorerDockWidget.setWidget(self.treeWidget)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, explorerDockWidget)
 
-        scriptEditorDock = QtGui.QDockWidget('Script Editor', self)
-        scriptEditorDock.setObjectName('Script Editor')
-        scriptEditorDock.setFeatures(self.dockFeatures)
-        scriptEditorDock.setWidget(self.scriptEditor)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, scriptEditorDock, QtCore.Qt.Vertical)
+        # Timeline Dock Widget
+        self.timeLineDockWidget = QtGui.QDockWidget('TimeLine', self)
+        self.timeLineDockWidget.setObjectName('TimeLineDockWidget')
+        self.timeLineDockWidget.setFeatures(self.dockFeatures)
+        self.timeLineDockWidget.setWidget(self.timeLine)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.timeLineDockWidget, QtCore.Qt.Vertical)
 
+        # Script Editor Dock Widget
+        scriptEditorDockWidget = QtGui.QDockWidget('Script Editor', self)
+        scriptEditorDockWidget.setObjectName('ScriptEditorDockWidget')
+        scriptEditorDockWidget.setFeatures(self.dockFeatures)
+        scriptEditorDockWidget.setWidget(self.scriptEditor)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, scriptEditorDockWidget, QtCore.Qt.Vertical)
+
+        # Main Menu Bar
         self.dfgWidget.populateMenuBar(self.menuBar())
-        windowMenu = self.menuBar().addMenu("&Window")
+        windowMenu = self.menuBar().addMenu('&Window')
 
-        toggleAction = dfgDock.toggleViewAction()
+        # Toggle DFG Dock Widget Action
+        toggleAction = dfgDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_1)
         windowMenu.addAction(toggleAction)
-        toggleAction = treeDock.toggleViewAction()
+
+        # Toggle Explorer Dock Widget Action
+        toggleAction = explorerDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_2)
         windowMenu.addAction(toggleAction)
+
+        # Toggle Value Editor Dock Widget Action
         toggleAction = valueEditorDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
-        toggleAction = self.timeLineDock.toggleViewAction()
+
+        # Toggle Timeline Dock Widget Action
+        toggleAction = self.timeLineDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_4)
         windowMenu.addAction(toggleAction)
+
         windowMenu.addSeparator()
+
+        # Toggle Undo Dock Widget Action
         toggleAction = undoDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_5)
         windowMenu.addAction(toggleAction)
+
+        # Toggle Log Dock Widget Action
         toggleAction = logDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_6)
         windowMenu.addAction(toggleAction)
-        toggleAction = scriptEditorDock.toggleViewAction()
+
+        # Toggle Script Editor Dock Widget Action
+        toggleAction = scriptEditorDockWidget.toggleViewAction()
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_7)
         windowMenu.addAction(toggleAction)
-    
+
     def _contentChanged(self) :
+        """Method called to tell the application services that content has been
+        changed.
+
+        """
+
         self.valueEditor.onOutputsChanged()
         self.viewport.redraw()
 
     def onPortManipulationRequested(self, portName):
+        """Method to trigger value changes that are requested form manipulators
+        in the viewport.
+
+        Arguments:
+            portName (str): Name of the port that is being driven.
+
+        """
+
         try:
             controller = self.dfgWidget.getDFGController()
             binding = controller.getBinding()
@@ -310,10 +465,21 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.dfgWidget.getDFGController().logError(str(e))
 
     def onDirty(self):
+        """Method called when the graph is dirtied."""
+
         self.dfgWidget.getDFGController().execute()
         self._contentChanged()
 
     def loadGraph(self, filePath):
+        """Method to load a graph from disk.
+
+        Files are tyipcally *.canvas files.
+
+        Arguments:
+            filePath (str): Path to the graph to load.
+
+        """
+
         self.timeLine.pause()
         self.timeLinePortPath = None
 
@@ -394,12 +560,30 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.lastFileName = filePath
 
     def onSaveGraph(self):
+        """Method called when the graph is saved."""
+
         self.saveGraph(False)
 
     def onSaveGraphAs(self):
+        """Method called when the graph is to be saved under a different file
+        name.
+
+        """
+
         self.saveGraph(True)
 
     def closeEvent(self, event):
+        """Standard close event method called when the Window is closed.
+
+        Settings for the application are stored and the window widget is closed.
+        The super class's closeEvent is then fired and the Fabric client is
+        closed.
+
+        Arguments:
+            event (QtCore.QEvent): Event that has been triggered.
+
+        """
+
         if not self.checkUnsavedChanges():
             event.ignore()
             return
@@ -416,6 +600,13 @@ class CanvasWindow(DFG.DFGMainWindow):
             os.remove(self.autosaveFilename)
 
     def checkUnsavedChanges(self):
+        """Checks for any unsaved changes in the graph.
+
+        If there are changes that haven't been saved the user is prompted with a
+        dialog asking them if the graph should be saved.
+
+        """
+
         binding = self.dfgWidget.getDFGController().getBinding()
 
         if binding.getVersion() != self.lastSavedBindingVersion:
@@ -437,9 +628,24 @@ class CanvasWindow(DFG.DFGMainWindow):
         return True
 
     def onNodeEditRequested(self, node):
+        """Method that is called when a request to edit the specified node has
+        been emitted.
+
+        """
+
         self.dfgWidget.maybeEditNode(node)
 
     def onFrameChanged(self, frame):
+        """Method called when the user has changed frames.
+
+        The frame change call pushes the new frame into the binding ports which
+        map to the timeline.
+
+        Arguments:
+            frame (float): The new frame the user has changed to.
+
+        """
+
         try:
             self.evalContext.time = frame
         except Exception as e:
@@ -471,6 +677,8 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.dfgWidget.getDFGController().logError(str(e))
 
     def updateFPS(self):
+        """Method for updating the FPS label in the status bar."""
+
         if not self.viewport:
             return
 
@@ -478,6 +686,8 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsLabel.setText(caption)
 
     def autosave(self):
+        """Saves the scene when the auto-save timer triggers."""
+
         # [andrew 20150909] can happen if this triggers while the licensing
         # dialogs are up
         if not self.dfgWidget or not self.dfgWidget.getDFGController():
@@ -498,6 +708,17 @@ class CanvasWindow(DFG.DFGMainWindow):
                     self.lastAutosaveBindingVersion = bindingVersion
 
     def onNewGraph(self, skip_save=False):
+        """Callback Executed when a call to create a new graph has been made.
+
+        This method deallocates the previous binding and creates a new one. It
+        also resets the undo stack, clears inline drawing, and sets the
+        timeline.
+
+        Arguments:
+            skip_save (bool): Whether to skip the check for unsaved changes.
+
+        """
+
         self.timeLine.pause()
 
         if not skip_save:
@@ -548,6 +769,13 @@ class CanvasWindow(DFG.DFGMainWindow):
             raise e
 
     def onLoadGraph(self):
+        """Callback for when users wish to load a graph from the UI.
+
+        A file dialog is opened and users can select the file to load. The last
+        directory the user saved or opened a graph from is used.
+
+        """
+
         self.timeLine.pause()
 
         if not self.checkUnsavedChanges():
@@ -567,6 +795,14 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.loadGraph(filePath)
 
     def performSave(self, binding, filePath):
+        """Writes the current graph to disk.
+
+        Arguments:
+            binding: The graph binding to save to disk.
+            filePath (str): The file path to which the binding is saved.
+
+        """
+
         graph = binding.getExec()
 
         graph.setMetadata("timeline_start", str(self.timeLine.getRangeStart()),
@@ -607,6 +843,17 @@ class CanvasWindow(DFG.DFGMainWindow):
         return True
 
     def saveGraph(self, saveAs):
+        """Wraps the performSave method.
+
+        Opens a dialog for user to save the file if the lastFileName attribute
+        is not set or if the saveas argument is True. Otherwise it overwrites
+        the file which was opened.
+
+        Arguments:
+            saveAs (bool): Whether to save the graph to a different file path.
+
+        """
+
         self.timeLine.pause()
 
         filePath = self.lastFileName
@@ -647,16 +894,35 @@ class CanvasWindow(DFG.DFGMainWindow):
         return True
 
     def setBlockCompilations(self, blockCompilations):
+        """Sets the graph to block compilations.
+
+        Arguments:
+            blockCompilations (bool): Whether to block compilations or not.
+
+        """
+
         dfgController = self.dfgWidget.getDFGController()
         dfgController.setBlockCompilations(blockCompilations)
 
     def onFileNameChanged(self, fileName):
+        """Callback for when the file name has changed.
+
+        This method updates the window title to reflect the new file path.
+
+        """
+
         if not fileName:
             self.setWindowTitle(self.windowTitle)
         else:
             self.setWindowTitle(self.windowTitle + " - " + fileName)
 
     def enableShortCuts(self, enabled):
+        """Enables or disables shortcuts.
+
+        enabled (bool): Whether or not to enable the shortcuts.
+
+        """
+
         if self.newGraphAction:
             self.newGraphAction.blockSignals(enabled)
         if self.loadGraphAction:
@@ -679,6 +945,15 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.blockCompilationsAction.blockSignals(enabled)
 
     def onAdditionalMenuActionsRequested(self, name, menu, prefix):
+        """Callback for when a request to add additional menu actions is called.
+
+        Args:
+            name (str): Name of the menu.
+            menu (QMenu): Menu item to add to.
+            prefix (str): Whether to add the prefixed menu items or not.
+
+        """
+
         if name == 'File':
             if prefix:
                 self.newGraphAction = QtGui.QAction('New Graph', menu)
@@ -777,6 +1052,15 @@ class CanvasWindow(DFG.DFGMainWindow):
                 menu.addAction(self.blockCompilationsAction)
 
     def onHotkeyPressed(self, key, modifiers, hotkey):
+        """Callback for when a hot key is pressed.
+
+        Arguments:
+            key: Key that is pressed.
+            modifiers: Modifiers that were pressed.
+            hotkey (str): Hot key constant.
+
+        """
+
         if hotkey == DFG.DFGHotkeys.EXECUTE:
             self.onDirty()
         elif hotkey == DFG.DFGHotkeys.NEW_SCENE:
@@ -793,6 +1077,13 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.dfgWidget.onHotkeyPressed(key, modifiers, hotkey)
 
     def onGraphSet(self, graph):
+        """Callback when the graph is set.
+
+        Args:
+            graph: The graph that is being set as current.
+
+        """
+
         if graph != self.currentGraph:
             graph = self.dfgWidget.getUIGraph()
             graph.defineHotkey(QtCore.Qt.Key_Delete, QtCore.Qt.NoModifier,
