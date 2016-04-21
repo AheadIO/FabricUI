@@ -321,6 +321,29 @@ class AlembicViewerWindow(CanvasWindow):
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_3)
         windowMenu.addAction(toggleAction)
 
+    def closeEvent(self, event):
+        """Standard close event method called when the Window is closed.
+
+        Settings for the application are stored and the window widget is closed.
+        QMainWindow closeEvent is then fired and the Fabric client is
+        closed.
+
+        Arguments:
+            event (QtCore.QEvent): Event that has been triggered.
+
+        """
+
+        self.viewport.setManipulationActive(False)
+        self.settings.setValue("mainWindow/geometry", self.saveGeometry())
+        self.settings.setValue("mainWindow/state", self.saveState())
+
+        QtGui.QMainWindow.closeEvent(self, event)
+
+        self.client.close()
+
+        if os.path.exists(self.autosaveFilename):
+            os.remove(self.autosaveFilename)
+
     # =============
     # Custom Slots
     # =============
