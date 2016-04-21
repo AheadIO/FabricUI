@@ -235,6 +235,14 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 
   result->addSeparator();
 
+  QAction * disconnectAllPortsAction = new QAction(DFG_DISCONNECT_ALL_PORTS, graphWidget);
+  disconnectAllPortsAction->setShortcut( QKeySequence(Qt::Key_D) );
+  // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
+  disconnectAllPortsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  result->addAction(disconnectAllPortsAction);
+
+  result->addSeparator();
+
   QAction * resetZoomAction = new QAction(DFG_RESET_ZOOM, graphWidget);
   resetZoomAction->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_0) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
@@ -334,6 +342,12 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
     {
       result->addAction(DFG_SELECT_ALL_PRESET);
       result->addAction(DFG_PASTE_PRESET);
+    }
+
+    if(nodes.size())
+    {
+      result->addSeparator();
+      result->addAction(DFG_DISCONNECT_ALL_PORTS);
     }
 
     if(onlyInstNodes)
@@ -666,6 +680,10 @@ dfgEntry {\n\
   else if(action->text() == DFG_SELECT_ALL_PRESET)
   {
     onSelectAll();
+  }
+  else if(action->text() == DFG_DISCONNECT_ALL_PORTS)
+  {
+    onDisconnectAllPorts();
   }
   else if(action->text() == DFG_PASTE_PRESET)
   {
@@ -1008,6 +1026,10 @@ void DFGWidget::onNodeAction(QAction * action)
     QString nodeName = QString::fromUtf8( m_contextNode->name().c_str() );
     m_uiController->setNodeCommentExpanded( nodeName, false );
     m_uiController->cmdSetNodeComment( nodeName, QString() );
+  }
+  else if(action->text() == DFG_DISCONNECT_ALL_PORTS)
+  {
+    onDisconnectAllPorts();
   }
 
   m_contextNode = NULL;
@@ -1378,6 +1400,10 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   {
     onSelectAll();
   }
+  else if(hotkey == DFGHotkeys::DISCONNECT_ALL_PORTS)
+  {
+    onDisconnectAllPorts();
+  }
   else if(hotkey == DFGHotkeys::COPY)
   {
     onCopy();
@@ -1489,6 +1515,11 @@ void DFGWidget::onBubbleEditRequested(FabricUI::GraphView::Node * node)
 void DFGWidget::onSelectAll()
 {
   getUIGraph()->selectAllNodes();
+}
+
+void DFGWidget::onDisconnectAllPorts()
+{
+  getUIGraph()->disconnectAllPorts();
 }
 
 void DFGWidget::onCopy()

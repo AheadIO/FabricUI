@@ -17,6 +17,7 @@ namespace FabricUI
     #define DFG_EDIT_PRESET_PROPERTIES  "Properties - F2"
     #define DFG_DELETE_PRESET           "Delete - Del"
     #define DFG_SELECT_ALL_PRESET       "Select all - Ctrl+A"
+    #define DFG_DISCONNECT_ALL_PORTS    "Disconnect all ports - D"
     #define DFG_COPY_PRESET             "Copy - Ctrl+C"
     #define DFG_CUT_PRESET              "Cut - Ctrl+X"
     #define DFG_PASTE_PRESET            "Paste - Ctrl+V"

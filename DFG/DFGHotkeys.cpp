@@ -14,6 +14,7 @@ namespace FabricUI
     const char *DFGHotkeys::FRAME_ALL = "Frame all";
     const char *DFGHotkeys::TAB_SEARCH = "Tab search";
     const char *DFGHotkeys::SELECT_ALL = "Select all";
+    const char *DFGHotkeys::DISCONNECT_ALL_PORTS = "Disconnect all ports";
     const char *DFGHotkeys::COPY = "Copy";
     const char *DFGHotkeys::CUT = "Cut";
     const char *DFGHotkeys::PASTE = "Paste";

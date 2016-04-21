@@ -524,6 +524,11 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
   return true;
 }
 
+bool Graph::disconnectAllPorts()
+{
+  printf("yay!\n");
+  return true;
+}
 
 MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType)
 {

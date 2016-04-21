@@ -100,6 +100,7 @@ namespace FabricUI
       void onKeyReleased(QKeyEvent * event);
       void onBubbleEditRequested(FabricUI::GraphView::Node * node);
       void onSelectAll();
+      void onDisconnectAllPorts();
       void onCut();
       void onCopy();
       void onPaste();

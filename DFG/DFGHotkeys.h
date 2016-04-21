@@ -20,6 +20,7 @@ namespace FabricUI
       static const char *FRAME_ALL;
       static const char *TAB_SEARCH;
       static const char *SELECT_ALL;
+      static const char *DISCONNECT_ALL_PORTS;
       static const char *COPY;
       static const char *CUT;
       static const char *PASTE;
