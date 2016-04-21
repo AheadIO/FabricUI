@@ -161,6 +161,7 @@ class AlembicViewerWindow(CanvasWindow):
         This method updates the window title to reflect the new file path.
 
         """
+
         pass
 
     def _initDocks(self):
@@ -170,6 +171,7 @@ class AlembicViewerWindow(CanvasWindow):
         to be toggled on and off via the menu items that are created. Some
         widgets that are hosted in dock widgets are instanced here and some have
         already been created such as the DFGWidget and TimeLineWidget.
+
         """
 
         if self.initDir is None or os.path.exists(self.initDir) is False:
@@ -232,9 +234,7 @@ class AlembicViewerWindow(CanvasWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.timeLineDockWidget, QtCore.Qt.Vertical)
 
     def _initMenus(self):
-        """Initializes all menus for the application.
-
-        """
+        """Initializes all menus for the application."""
 
         # ==============
         # Add File Menu
