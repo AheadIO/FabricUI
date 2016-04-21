@@ -1,11 +1,15 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 """Canvas launcher script."""
 
 import optparse
 import os
+import sys
+
+if sys.version_info < (2, 7):
+    raise Exception('canvas.py currently requires Python 2.7')
+
 from PySide import QtCore, QtGui
-from FabricEngine.FabricUI import Style
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 from FabricEngine.Canvas.FabricStyle import FabricStyle
 
