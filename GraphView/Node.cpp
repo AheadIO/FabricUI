@@ -689,15 +689,23 @@ bool Node::onMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers modifier
       emit positionChanged(this, graphPos());
     else
     {
-      m_graph->controller()->gvcDoMoveNodes(
-        m_nodesToMove,
-        m_mouseDownPos - lastScenePos,
-        false // allowUndo
-        );
+      QPointF delta;
+
+      delta = m_mouseDownPos - lastScenePos;
+      delta *= 1.0f / graph()->mainPanel()->canvasZoom();
 
       m_graph->controller()->gvcDoMoveNodes(
         m_nodesToMove,
-        scenePos - m_mouseDownPos,
+        delta,
+        false // allowUndo
+        );
+
+      delta = scenePos - m_mouseDownPos;
+      delta *= 1.0f / graph()->mainPanel()->canvasZoom();
+
+      m_graph->controller()->gvcDoMoveNodes(
+        m_nodesToMove,
+        delta,
         true // allowUndo
         );
     }
