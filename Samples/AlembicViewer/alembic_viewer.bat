@@ -1,5 +1,8 @@
 @ECHO OFF
-
+ECHO ========================
+ECHO Launching Alembic Viewer
+ECHO ========================
+ECHO.
 REM ==================================
 REM Calls the Fabric Environment .bat
 REM ==================================
