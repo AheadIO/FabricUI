@@ -1,5 +1,7 @@
 #!/usr/bin/env python2.7
 
+"""Canvas launcher script."""
+
 import optparse
 import os
 from PySide import QtCore, QtGui
@@ -8,6 +10,14 @@ from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 from FabricEngine.Canvas.FabricStyle import FabricStyle
 
 if __name__ == "__main__":
+    # This only runs when launched directly from the command line.
+    # A QApplication is setup and the Canvas Window is instanced and attached to
+    # the QApplication and shown.
+    #
+    # Optional command line arguments for unguarded mode, Python code to
+    # execute, and a Python script to execute are also available to be called on
+    # startup.
+
     app = QtGui.QApplication([])
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Fabric Canvas Standalone')
