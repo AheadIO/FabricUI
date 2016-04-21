@@ -526,7 +526,34 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
 
 bool Graph::disconnectAllPorts()
 {
-  printf("yay!\n");
+  std::vector<Node *> nodes = selectedNodes();
+
+  printf("___\n");
+  for (size_t i=0;i<nodes.size();i++)
+  {
+    Node *node = nodes[i];
+
+    printf("%s  (num pins = %d)\n", node->name().c_str(), node->pinCount());
+    for (unsigned int i=0;i<node->pinCount();i++)
+    {
+      Pin *pin = node->pin(i);
+      if (pin->isConnected())
+      {
+        printf("   %s\n", pin->path().c_str());
+
+        for(size_t i=0;i<m_connections.size();i++)
+        {
+          if (   m_connections[i]->src()->path() == pin->path()
+              || m_connections[i]->dst()->path() == pin->path() )
+          {
+            if (!removeConnection(m_connections[i]))
+              return false;
+          }
+        }
+      }
+    }
+  }
+
   return true;
 }
 
