@@ -31,9 +31,6 @@ class AlembicViewerWindow(CanvasWindow):
 
         self.initDir = initDir
 
-        # Required! Cannot be set to none, or not included!
-        self.dockFeatures = QtGui.QDockWidget.DockWidgetClosable
-
         settings = QtCore.QSettings()
         unguarded = False
         noopt = False
