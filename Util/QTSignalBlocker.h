@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FABRICUI_UTIL_QTSIGNALBLOCKER_H
+#define FABRICUI_UTIL_QTSIGNALBLOCKER_H
 
 #include <QtCore/QObject>
 
@@ -24,3 +25,5 @@ namespace FabricUI {
     };
   }
 }
+
+#endif // FABRICUI_UTIL_QTSIGNALBLOCKER_H

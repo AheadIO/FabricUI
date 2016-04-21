@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_COLORVIEWITEM_H
+#define FABRICUI_VALUEEDITOR_COLORVIEWITEM_H
 
 #include "BaseComplexViewItem.h"
 #include <algorithm>
@@ -134,3 +135,5 @@ protected:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_COLORVIEWITEM_H
