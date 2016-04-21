@@ -51,6 +51,31 @@ Pin::Pin(
     m_inCircle = new PinCircle(this, PortType_Input, m_color);
     layout->addItem(m_inCircle);
     layout->setAlignment(m_inCircle, Qt::AlignLeft | Qt::AlignVCenter);
+
+    connect(
+      m_inCircle, SIGNAL(xChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
+    connect(
+      m_inCircle, SIGNAL(yChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
+    connect(
+      this, SIGNAL(xChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
+    connect(
+      this, SIGNAL(yChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
+    connect(
+      m_node, SIGNAL(xChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
+    connect(
+      m_node, SIGNAL(yChanged()),
+      this, SIGNAL(inCircleScenePositionChanged())
+      );
   }
 
   if(portType() != PortType_Input)
@@ -97,6 +122,30 @@ Pin::Pin(
     m_outCircle->setClipping(true);
   }
   setDaisyChainCircleVisible(false);
+  connect(
+    m_outCircle, SIGNAL(xChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
+  connect(
+    m_outCircle, SIGNAL(yChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
+  connect(
+    this, SIGNAL(xChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
+  connect(
+    this, SIGNAL(yChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
+  connect(
+    m_node, SIGNAL(xChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
+  connect(
+    m_node, SIGNAL(yChanged()),
+    this, SIGNAL(outCircleScenePositionChanged())
+    );
 }
 
 Graph * Pin::graph()
@@ -323,11 +372,8 @@ bool Pin::drawState() const
 
 void Pin::setDaisyChainCircleVisible(bool flag)
 {
-  if(portType() == PortType_Input && m_outCircle)
-  {
-    m_outCircle->setVisible(flag);
-    m_outCircle->setShouldBeVisible(flag);
-  }
+  if( portType() == PortType_Input )
+    m_outCircle->setDaisyChainCircleVisible( flag );
 }
 
 void Pin::setName( FTL::StrRef newName )
