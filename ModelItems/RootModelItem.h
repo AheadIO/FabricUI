@@ -45,7 +45,7 @@ namespace FabricUI
       virtual bool isNode() const { return false; }
       virtual bool isBinding() const { return false; }
 
-      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name ) = 0;
+      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name ) { return 0; } /* To override */
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }

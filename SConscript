@@ -283,6 +283,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('GraphView').srcnode(),
         pysideEnv.Dir('Licensing').srcnode(),
         pysideEnv.Dir('Style').srcnode(),
+        pysideEnv.Dir('ModelItems').srcnode(),
         pysideEnv.Dir('ValueEditor').srcnode(),
         pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
         pysideEnv.Dir('Viewports').srcnode(),
