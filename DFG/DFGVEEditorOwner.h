@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGVEEDITOROWNER_H
+#define FABRICUI_DFG_DFGVEEDITOROWNER_H
 
 #include <FabricUI/ValueEditor/VEEditorOwner.h>
 #include <FabricUI/DFG/DFGNotifier.h>
@@ -178,3 +179,5 @@ namespace FabricUI {
     };
 }
 }
+
+#endif // FABRICUI_DFG_DFGVEEDITOROWNER_H

@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGUICMD_DFGUICMDS_H
+#define FABRICUI_DFG_DFGUICMD_DFGUICMDS_H
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddBackDrop.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_AddFunc.h>
@@ -34,3 +35,5 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetPortDefaultValue.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SetRefVarPath.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_SplitFromPreset.h>
+
+#endif // FABRICUI_DFG_DFGUICMD_DFGUICMDS_H

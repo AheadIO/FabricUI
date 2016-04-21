@@ -1,0 +1,35 @@
+<?xml  version="1.0"?>
+<typesystem package="FabricUI">
+  <namespace-type name="FabricUI"  generate="no">
+    <namespace-type name="ModelItems" generate="yes">
+      <object-type name="ArgItemMetadata" />
+      <object-type name="ArgModelItem" />
+      <object-type name="BindingModelItem" />
+      <object-type name="DFGModelItemMetadata" copyable="false">
+        <rejection function-name="DFGPortTypeToVEPortType"/>
+      </object-type>
+      <object-type name="RootModelItem" />
+      <object-type name="InstModelItem" />
+      <object-type name="NodeModelItem" />
+      <object-type name="RefModelItem" />
+      <object-type name="RefPortModelItem" />
+      <object-type name="VarModelItem" />
+      <object-type name="VarItemMetadata" />
+      <object-type name="RefItemMetadata" />
+      <object-type name="GetModelItem" />
+      <object-type name="GetPortItemMetadata" />
+      <object-type name="GetportModelItem" />
+      <object-type name="InstPortItemMetadata" />
+      <object-type name="InstPortModelItem" />
+      <object-type name="NodePortItemMetadata" />
+      <object-type name="NodePortModelItem" />
+      <object-type name="SetModelItem" />
+      <object-type name="SetPortItemMetadata" />
+      <object-type name="SetPortModelItem" />
+      <object-type name="VarPathModelItem" />
+      <object-type name="VarPathItemMetadata" />
+      <object-type name="VarPortItemMetadata" />
+      <object-type name="VarPortModelItem" />
+    </namespace-type>
+  </namespace-type>
+</typesystem>

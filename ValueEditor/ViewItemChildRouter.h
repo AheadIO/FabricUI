@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_VIEWITEMCHILDROUTER_H
+#define FABRICUI_VALUEEDITOR_VIEWITEMCHILDROUTER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
@@ -44,3 +45,5 @@ public slots:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_VIEWITEMCHILDROUTER_H

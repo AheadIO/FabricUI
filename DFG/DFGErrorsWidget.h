@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGERRORSWIDGET_H
+#define FABRICUI_DFG_DFGERRORSWIDGET_H
 
 #include <FabricUI/DFG/DFGBindingNotifier.h>
 #include <FabricCore.h>
@@ -86,3 +87,5 @@ private:
 
 } // namespace DFG
 } // namespace FabricUI
+
+#endif // FABRICUI_DFG_DFGERRORSWIDGET_H

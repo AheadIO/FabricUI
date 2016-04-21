@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEMODEL_H
+#define FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEMODEL_H
 
 #include <assert.h>
 #include "ItemMetadata.h"
@@ -86,3 +87,5 @@ public:
 
 
 extern FabricUI::ValueEditor::BaseModelItem* BuildSampleModel( FabricCore::Client& client );
+
+#endif // FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEMODEL_H

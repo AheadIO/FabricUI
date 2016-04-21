@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_REFPORTMODELITEM_H
+#define FABRICUI_MODELITEMS_REFPORTMODELITEM_H
 
 #include <FabricUI/ModelItems/NodePortModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
@@ -59,3 +60,5 @@ public:
 
 } // namespace ModelItems
 } // namespace FabricUI
+
+#endif // FABRICUI_MODELITEMS_REFPORTMODELITEM_H
