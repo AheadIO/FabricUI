@@ -378,6 +378,16 @@ bool Graph::isConnected(const ConnectionTarget * target) const
   return false;
 }
 
+bool Graph::isConnectedAsSource(const ConnectionTarget * target) const
+{
+  for(size_t i=0;i<m_connections.size();i++)
+  {
+    if(m_connections[i]->src() == target)
+      return true;
+  }
+  return false;
+}
+
 void Graph::updateColorForConnections(const ConnectionTarget * target) const
 {
   if(!m_config.connectionUsePinColor)

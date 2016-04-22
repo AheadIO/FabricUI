@@ -797,7 +797,7 @@ void Node::updatePinLayout()
   for(size_t i=0;i<m_pins.size();i++)
   {
     m_pins[i]->setDaisyChainCircleVisible(
-      m_alwaysShowDaisyChainPorts || m_pins[i]->isConnected()
+      m_alwaysShowDaisyChainPorts || m_pins[i]->isConnectedAsSource()
       );
   }
 }
