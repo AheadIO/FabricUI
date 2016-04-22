@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_UTIL_UIRANGE_H
+#define FABRICUI_UTIL_UIRANGE_H
 
 #include <FTL/StrRef.h>
 #include <math.h>
@@ -59,3 +60,5 @@ inline bool DecodeUIRange(
 }
 
 }
+
+#endif // FABRICUI_UTIL_UIRANGE_H

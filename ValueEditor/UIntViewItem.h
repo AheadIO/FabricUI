@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_UINTVIEWITEM_H
+#define FABRICUI_VALUEEDITOR_UINTVIEWITEM_H
 
 #include "BaseViewItem.h"
 
@@ -51,3 +52,5 @@ private slots:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_UINTVIEWITEM_H

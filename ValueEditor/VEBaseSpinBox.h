@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_VEBASESPINBOX_H
+#define FABRICUI_VALUEEDITOR_VEBASESPINBOX_H
 
 #include "VELineEdit.h"
 #include <assert.h>
@@ -252,3 +253,5 @@ protected:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_VEBASESPINBOX_H

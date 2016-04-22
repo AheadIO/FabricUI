@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGBINDINGNOTIFIER_H
+#define FABRICUI_DFG_DFGBINDINGNOTIFIER_H
 
 #include <FabricCore.h>
 #include <FTL/ArrayRef.h>
@@ -100,3 +101,5 @@ private:
 
 } // namespace DFG
 } // namespace FabricUI
+
+#endif // FABRICUI_DFG_DFGBINDINGNOTIFIER_H

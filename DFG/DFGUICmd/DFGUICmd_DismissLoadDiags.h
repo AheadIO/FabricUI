@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGUICMD_DFGUICMD_DISMISSLOADDIAGS_H
+#define FABRICUI_DFG_DFGUICMD_DFGUICMD_DISMISSLOADDIAGS_H
 
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Binding.h>
 
@@ -44,3 +45,5 @@ private:
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
+
+#endif // FABRICUI_DFG_DFGUICMD_DFGUICMD_DISMISSLOADDIAGS_H

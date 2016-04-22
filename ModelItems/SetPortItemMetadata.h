@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_SETPORTITEMMETADATA_H
+#define FABRICUI_MODELITEMS_SETPORTITEMMETADATA_H
 
 #include "NodePortItemMetadata.h"
 
@@ -48,3 +49,5 @@ public:
 
 } // namespace ModelItems
 } // namespace FabricUI
+
+#endif // FABRICUI_MODELITEMS_SETPORTITEMMETADATA_H

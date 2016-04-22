@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEAPP_H
+#define FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEAPP_H
 #include <VETreeWidget.h>
 
 using namespace FabricUI::ValueEditor;
@@ -25,3 +26,5 @@ public:
 signals:
   void modelChanged( FabricUI::ValueEditor::BaseModelItem* model );
 };
+
+#endif // FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_SAMPLEAPP_H

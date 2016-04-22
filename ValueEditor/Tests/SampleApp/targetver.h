@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_TARGETVER_H
+#define FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_TARGETVER_H
 
 // Including SDKDDKVer.h defines the highest available Windows platform.
 
@@ -8,3 +9,5 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
 # include <SDKDDKVer.h>
 #endif
+
+#endif // FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_TARGETVER_H

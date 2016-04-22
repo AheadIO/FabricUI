@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_NODEPORTMODELITEM_H
+#define FABRICUI_MODELITEMS_NODEPORTMODELITEM_H
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
@@ -93,3 +94,5 @@ class DFGUICmdHandler;
     };
   }
 }
+
+#endif // FABRICUI_MODELITEMS_NODEPORTMODELITEM_H

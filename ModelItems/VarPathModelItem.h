@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_VARPATHMODELITEM_H
+#define FABRICUI_MODELITEMS_VARPATHMODELITEM_H
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
@@ -86,3 +87,5 @@ protected:
 
 } // namespace ModelItems
 } // namespace FabricUI
+
+#endif // FABRICUI_MODELITEMS_VARPATHMODELITEM_H

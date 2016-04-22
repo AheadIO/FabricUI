@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_DFG_DFGNOTIFIER_H
+#define FABRICUI_DFG_DFGNOTIFIER_H
 
 #include <FTL/StrRef.h>
 #include <QtCore/QObject>
@@ -43,3 +44,5 @@ private:
 
 } // namespace DFG
 } // namespace FabricUI
+
+#endif // FABRICUI_DFG_DFGNOTIFIER_H

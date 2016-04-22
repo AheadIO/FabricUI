@@ -3,7 +3,8 @@
 // are changed infrequently
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_STDAFX_H
+#define FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_STDAFX_H
 
 #include "targetver.h"
 
@@ -23,3 +24,5 @@
 #include <BaseViewItem.h>
 
 // TODO: reference additional headers your program requires here
+
+#endif // FABRICUI_VALUEEDITOR_TESTS_SAMPLEAPP_STDAFX_H
