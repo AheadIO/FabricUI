@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_VEDOUBLESPINBOX_H
+#define FABRICUI_VALUEEDITOR_VEDOUBLESPINBOX_H
 
 #include "VEBaseSpinBox.h"
 
@@ -69,3 +70,5 @@ private:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_VEDOUBLESPINBOX_H

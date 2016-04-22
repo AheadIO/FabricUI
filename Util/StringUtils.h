@@ -5,9 +5,6 @@
 #ifndef __UI_FABRICUI_STRING_UTILS_H__
 #define __UI_FABRICUI_STRING_UTILS_H__
 
-
-#include <FabricUI/Util/macros.h>
-
 namespace FabricUI
 {
   namespace Util

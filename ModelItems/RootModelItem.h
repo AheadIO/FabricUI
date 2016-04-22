@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_ROOTMODELITEM_H
+#define FABRICUI_MODELITEMS_ROOTMODELITEM_H
 
 #include <FabricUI/ValueEditor/BaseModelItem.h>
 #include <FabricUI/ValueEditor/QVariantRTVal.h>
@@ -45,7 +46,7 @@ namespace FabricUI
       virtual bool isNode() const { return false; }
       virtual bool isBinding() const { return false; }
 
-      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name ) = 0;
+      virtual FabricUI::ValueEditor::BaseModelItem* createChild( FTL::CStrRef name ) { return 0; } /* To override */
 
       ChildVec::iterator GetChildItrBegin() { return m_children.begin(); }
       ChildVec::iterator GetChildItrEnd() { return m_children.end(); }
@@ -73,3 +74,5 @@ namespace FabricUI
     };
   }
 }
+
+#endif // FABRICUI_MODELITEMS_ROOTMODELITEM_H

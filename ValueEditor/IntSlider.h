@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_INTSLIDER_H
+#define FABRICUI_VALUEEDITOR_INTSLIDER_H
 
 #include <QtGui/QSlider>
 #include <QtGui/qevent.h>
@@ -22,3 +23,5 @@ public:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_INTSLIDER_H
