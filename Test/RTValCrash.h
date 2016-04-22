@@ -2,7 +2,8 @@
  *  Copyright 2010-2016 Fabric Software Inc. All rights reserved.
  */
 
-#pragma once
+#ifndef FABRICUI_TEST_RTVALCRASH_H
+#define FABRICUI_TEST_RTVALCRASH_H
  
 #include <FabricCore.h>
 
@@ -30,3 +31,5 @@ class RTValCrash {
 }
 }
 
+
+#endif // FABRICUI_TEST_RTVALCRASH_H

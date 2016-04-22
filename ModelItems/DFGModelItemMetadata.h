@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_DFGMODELITEMMETADATA_H
+#define FABRICUI_MODELITEMS_DFGMODELITEMMETADATA_H
 
 #include <assert.h>
 #include <FabricCore.h>
@@ -41,3 +42,5 @@ public:
 
 } // namespace ModelItems
 } // namespace FabricUI
+
+#endif // FABRICUI_MODELITEMS_DFGMODELITEMMETADATA_H

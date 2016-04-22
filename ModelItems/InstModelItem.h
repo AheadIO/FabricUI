@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_INSTMODELITEM_H
+#define FABRICUI_MODELITEMS_INSTMODELITEM_H
 
 #include <FabricCore.h>
 #include <FabricUI/ModelItems/NodeModelItem.h>
@@ -47,3 +48,5 @@ class DFGUICmdHandler;
     };
   }
 }
+
+#endif // FABRICUI_MODELITEMS_INSTMODELITEM_H

@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_VARMODELITEM_H
+#define FABRICUI_MODELITEMS_VARMODELITEM_H
 
 #include <FabricUI/ModelItems/NodeModelItem.h>
 #include <FabricUI/ModelItems/VarItemMetadata.h>
@@ -47,3 +48,5 @@ namespace FabricUI
     };
   }
 }
+
+#endif // FABRICUI_MODELITEMS_VARMODELITEM_H

@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_MODELITEMS_SETMODELITEM_H
+#define FABRICUI_MODELITEMS_SETMODELITEM_H
 
 #include <FabricUI/ModelItems/RefModelItem.h>
 #include <FabricUI/ModelItems/RefItemMetadata.h>
@@ -28,3 +29,5 @@ public:
 
 } // namespace ModelItems
 } // namespace FabricUI
+
+#endif // FABRICUI_MODELITEMS_SETMODELITEM_H

@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_VEC3VIEWITEM_H
+#define FABRICUI_VALUEEDITOR_VEC3VIEWITEM_H
 
 #include "BaseComplexViewItem.h"
 #include <QtGui/QVector3D>
@@ -69,3 +70,5 @@ public slots:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_VEC3VIEWITEM_H

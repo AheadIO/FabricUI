@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_VALUEEDITOR_VIEWITEMFACTORY_H
+#define FABRICUI_VALUEEDITOR_VIEWITEMFACTORY_H
 
 #include <QtCore/QObject>
 #include <vector>
@@ -112,3 +113,5 @@ public:
 
 } // namespace FabricUI 
 } // namespace ValueEditor 
+
+#endif // FABRICUI_VALUEEDITOR_VIEWITEMFACTORY_H

@@ -2,7 +2,8 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 //
 
-#pragma once
+#ifndef FABRICUI_UTIL_LOADPIXMAP_H
+#define FABRICUI_UTIL_LOADPIXMAP_H
 
 #include <QtGui/QPixmap>
 
@@ -16,3 +17,5 @@ namespace FabricUI {
 QPixmap LoadPixmap( QString filename );
 
 }
+
+#endif // FABRICUI_UTIL_LOADPIXMAP_H
