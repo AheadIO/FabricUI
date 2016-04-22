@@ -35,8 +35,6 @@ Node::Node(
   , m_header( NULL )
   , m_mainWidget( NULL )
 {
-  setAcceptDrops( true );
-
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;

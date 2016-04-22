@@ -3,6 +3,7 @@
 #ifndef __UI_GraphView_GraphViewWidget__
 #define __UI_GraphView_GraphViewWidget__
 
+#include <QtCore/QUrl>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QColor>
 #include <QtGui/QPen>
@@ -30,9 +31,16 @@ namespace FabricUI
         Graph * graph
         );
 
+    signals:
+
+      void urlDropped( QUrl url, bool bypassUnsavedChanges );
+
     protected:
 
       virtual bool event(QEvent * e);
+
+      virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
+      virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
 
     private:
 
@@ -56,8 +64,6 @@ namespace FabricUI
       virtual void setGraph(Graph * graph);
 
       virtual void resizeEvent(QResizeEvent * event);
-      virtual void dragMoveEvent(QDragMoveEvent *event);
-      virtual void dropEvent(QDropEvent *event);
       virtual void mouseMoveEvent(QMouseEvent * event);
       virtual void keyPressEvent(QKeyEvent * event);
       virtual void keyReleaseEvent(QKeyEvent * event);
@@ -70,6 +76,7 @@ namespace FabricUI
     signals:
 
       void sceneChanged();
+      void urlDropped( QUrl url, bool bypassUnsavedChanges );
 
     protected:
 
