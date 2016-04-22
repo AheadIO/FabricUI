@@ -448,7 +448,7 @@ class CanvasWindow(DFG.DFGMainWindow):
             controller = self.dfgWidget.getDFGController()
             binding = controller.getBinding()
             dfgExec = binding.getExec()
-            portResolvedType = dfgExec.getExecPortResolvedType(portName)
+            portResolvedType = dfgExec.getExecPortResolvedType(str(portName))
             value = self.viewport.getManipTool().getLastManipVal()
             if portResolvedType == 'Xfo':
                 pass
