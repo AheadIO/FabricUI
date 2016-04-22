@@ -52,30 +52,24 @@ Pin::Pin(
     layout->addItem(m_inCircle);
     layout->setAlignment(m_inCircle, Qt::AlignLeft | Qt::AlignVCenter);
 
-    connect(
-      m_inCircle, SIGNAL(xChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
-    connect(
-      m_inCircle, SIGNAL(yChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
-    connect(
-      this, SIGNAL(xChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
-    connect(
-      this, SIGNAL(yChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
-    connect(
-      m_node, SIGNAL(xChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
-    connect(
-      m_node, SIGNAL(yChanged()),
-      this, SIGNAL(inCircleScenePositionChanged())
-      );
+    QGraphicsItem *graphicsItem = m_inCircle;
+    while ( graphicsItem )
+    {
+      if ( QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject() )
+      {
+        connect(
+          graphicsObject, SIGNAL(xChanged()),
+          this, SIGNAL(inCircleScenePositionChanged())
+          );
+        connect(
+          graphicsObject, SIGNAL(yChanged()),
+          this, SIGNAL(inCircleScenePositionChanged())
+          );
+      }
+      if ( graphicsItem == m_node )
+        break;
+      graphicsItem = graphicsItem->parentItem();
+    }
   }
 
   if(portType() != PortType_Input)
@@ -122,30 +116,24 @@ Pin::Pin(
     m_outCircle->setClipping(true);
   }
   setDaisyChainCircleVisible(false);
-  connect(
-    m_outCircle, SIGNAL(xChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
-  connect(
-    m_outCircle, SIGNAL(yChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
-  connect(
-    this, SIGNAL(xChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
-  connect(
-    this, SIGNAL(yChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
-  connect(
-    m_node, SIGNAL(xChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
-  connect(
-    m_node, SIGNAL(yChanged()),
-    this, SIGNAL(outCircleScenePositionChanged())
-    );
+  QGraphicsItem *graphicsItem = m_outCircle;
+  while ( graphicsItem )
+  {
+    if ( QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject() )
+    {
+      connect(
+        graphicsObject, SIGNAL(xChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+      connect(
+        graphicsObject, SIGNAL(yChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+    }
+    if ( graphicsItem == m_node )
+      break;
+    graphicsItem = graphicsItem->parentItem();
+  }
 }
 
 Graph * Pin::graph()
