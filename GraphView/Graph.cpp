@@ -526,31 +526,61 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
 
 bool Graph::disconnectAllPorts()
 {
-  std::vector<Node *> nodes = selectedNodes();
+//  std::vector<Node *> nodes = selectedNodes();
+//
+//printf("___connections\n");
+//for(int i=0;i<(int)m_connections.size();i++)
+//  printf("   %s  --->  %s\n", m_connections[i]->src()->path().c_str(), m_connections[i]->dst()->path().c_str());
+//
+//printf("___nodes\n");
+//for (size_t i=0;i<nodes.size();i++)
+//  printf("   %s\n", nodes[i]->name().c_str());
+//
+//printf("___\n");
+//
+//  for (size_t i=0;i<nodes.size();i++)
+//  {
+//    Node *node = nodes[i];
+//    for (unsigned int i=0;i<node->pinCount();i++)
+//    {
+//      Pin *pin = node->pin(i);
+//printf("   %s\n", pin->path().c_str());
+//      if (pin->isConnected())
+//      {
+//        for(int i=0;i<(int)m_connections.size();i++)
+//        {
+//          if (   m_connections[i]->src()->path() == pin->path()
+//              || m_connections[i]->dst()->path() == pin->path() )
+//          {
+//            if (!controller()->gvcDoRemoveConnection(m_connections[i]))
+//              return false;
+//            i--;
+//          }
+//        }
+//      }
+//    }
+//  }
 
-  printf("___\n");
-  for (size_t i=0;i<nodes.size();i++)
+  for(int i=0;i<(int)m_connections.size();i++)
   {
-    Node *node = nodes[i];
+    bool srcIsSelected = false;
+    bool dstIsSelected = false;
 
-    printf("%s  (num pins = %d)\n", node->name().c_str(), node->pinCount());
-    for (unsigned int i=0;i<node->pinCount();i++)
+    FTL::CStrRef src = FTL::CStrRef(m_connections[i]->src()->path()).split('.').first;
+    FTL::CStrRef dst = FTL::CStrRef(m_connections[i]->dst()->path()).split('.').first;
+
+    const Node *srcNode = node(src);
+    const Node *dstNode = node(dst);
+
+    srcIsSelected = (srcNode && srcNode->isSelected());
+    dstIsSelected = (dstNode && dstNode->isSelected());
+
+    if (   ( srcIsSelected ||  dstIsSelected)
+        && (!srcIsSelected || !dstIsSelected) )
     {
-      Pin *pin = node->pin(i);
-      if (pin->isConnected())
-      {
-        printf("   %s\n", pin->path().c_str());
-
-        for(size_t i=0;i<m_connections.size();i++)
-        {
-          if (   m_connections[i]->src()->path() == pin->path()
-              || m_connections[i]->dst()->path() == pin->path() )
-          {
-            if (!removeConnection(m_connections[i]))
-              return false;
-          }
-        }
-      }
+      if (!controller()->gvcDoRemoveConnection(m_connections[i]))
+        return false;
+      i--;
     }
   }
 
