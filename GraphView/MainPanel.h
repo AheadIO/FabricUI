@@ -56,6 +56,9 @@ namespace FabricUI
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
       virtual void resizeEvent(QGraphicsSceneResizeEvent * event);
 
+      virtual void dragEnterEvent( QGraphicsSceneDragDropEvent *event );
+      virtual void dropEvent( QGraphicsSceneDragDropEvent *event );
+
       // used by controller
       void setCanvasZoom(float state, bool quiet = false);
       void setCanvasPan(QPointF pos, bool quiet = false);

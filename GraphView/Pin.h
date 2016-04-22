@@ -90,6 +90,9 @@ namespace FabricUI
 
       void colorChanged(Pin*, QColor);
 
+      void inCircleScenePositionChanged();
+      void outCircleScenePositionChanged();
+
     private:
 
       Node * m_node;

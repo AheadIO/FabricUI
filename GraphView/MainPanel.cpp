@@ -1,5 +1,6 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
+#include <QtCore/QDebug>
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsSceneWheelEvent>
 #include <QtGui/QPainter>
@@ -29,6 +30,7 @@ MainPanel::MainPanel(Graph * parent)
   m_mouseWheelZoomRate = m_graph->config().mouseWheelZoomRate;
 
   setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  setAcceptDrops( true );
 
   m_itemGroup = new QGraphicsWidget(this);
 
@@ -326,3 +328,33 @@ void MainPanel::resizeEvent(QGraphicsSceneResizeEvent * event)
     emit m_graph->sidePanel(PortType_Output)->scrolled();
 }
 
+void MainPanel::dragEnterEvent( QGraphicsSceneDragDropEvent *event )
+{
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasText() )
+  {
+    event->acceptProposedAction();
+    return;
+  }
+
+  QGraphicsWidget::dragEnterEvent( event );
+}
+
+void MainPanel::dropEvent( QGraphicsSceneDragDropEvent *event )
+{
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasText() )
+  {
+    QString presetPath = mimeData->text();
+
+    QPointF pos = graph()->itemGroup()->mapFromScene( event->pos() );
+
+    graph()->controller()->gvcDoAddInstFromPreset( presetPath, pos );
+
+    event->acceptProposedAction();
+
+    return;
+  }
+
+  QGraphicsWidget::dropEvent( event );
+}

@@ -37,6 +37,8 @@ GraphViewWidget::GraphViewWidget(
 
   setViewportUpdateMode(SmartViewportUpdate);
 
+  setAcceptDrops( true );
+
   // use opengl for rendering with multi sampling
   if(config.useOpenGL)
   {
@@ -53,7 +55,6 @@ GraphViewWidget::GraphViewWidget(
 
   setGraph(graph);
 
-  setAcceptDrops(true);
   setMouseTracking(true);
 }
 
@@ -73,6 +74,10 @@ void GraphViewWidget::setGraph(Graph * graph)
   setScene(m_scene);
 
   QObject::connect(m_scene, SIGNAL(changed(const QList<QRectF> &)), this, SLOT(onSceneChanged()));
+  QObject::connect(
+    m_scene, SIGNAL(urlDropped(QUrl, bool)),
+    this, SIGNAL(urlDropped(QUrl, bool))
+    );
 
   m_graph = graph;
   if(m_graph)
@@ -91,38 +96,6 @@ void GraphViewWidget::resizeEvent(QResizeEvent * event)
     m_graph->setGeometry(0, 0, event->size().width(), event->size().height());
     m_graph->updateOverlays(event->size().width(), event->size().height());
   }
-}
-
-void GraphViewWidget::dragMoveEvent(QDragMoveEvent *event)
-{
-  if ( event->mimeData()->hasText() )
-  {
-    event->acceptProposedAction();
-    return;
-  }
-
-  QGraphicsView::dragMoveEvent( event );
-}
-
-void GraphViewWidget::dropEvent(QDropEvent *event)
-{
-  if ( event->mimeData()->hasText() )
-  {
-    m_lastEventPos = event->pos();
-
-    // event->mimeData()->text()
-    QString presetPath = event->mimeData()->text();
-
-    QPointF pos( event->pos().x(), event->pos().y() );
-    pos = graph()->itemGroup()->mapFromScene( pos );
-
-    if ( graph()->controller()->gvcDoAddInstFromPreset( presetPath, pos ) )
-      event->acceptProposedAction();
-
-    return;
-  }
-
-  QGraphicsView::dropEvent( event );
 }
 
 void GraphViewWidget::mouseMoveEvent(QMouseEvent * event)
@@ -198,4 +171,40 @@ bool GraphViewScene::event( QEvent * e ) {
     return sendEvent( m_graph->mainPanel(), e );
   } else
     return QGraphicsScene::event( e );
+}
+
+void GraphViewScene::dragEnterEvent( QGraphicsSceneDragDropEvent *event )
+{
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasUrls() )
+  {
+    QList<QUrl> urls = mimeData->urls();
+    if ( urls.count() == 1 )
+    {
+      event->acceptProposedAction();
+    }
+  }
+
+  if ( !event->isAccepted() )
+    QGraphicsScene::dragEnterEvent( event );
+}
+
+void GraphViewScene::dropEvent( QGraphicsSceneDragDropEvent *event )
+{
+  QGraphicsScene::dropEvent( event );
+  
+  QMimeData const *mimeData = event->mimeData();
+  if ( mimeData->hasUrls() )
+  {
+    QList<QUrl> urls = mimeData->urls();
+    if ( urls.count() == 1 )
+    {
+      QUrl url = urls.front();
+
+      bool bypassUnsavedChanges =
+        event->modifiers().testFlag( Qt::ControlModifier );
+
+      emit urlDropped( url, bypassUnsavedChanges );
+    }
+  }
 }

@@ -53,6 +53,7 @@ namespace FabricUI
       virtual void setHighlighted(bool state = true) = 0;
 
       virtual bool isConnected() const;
+      virtual bool isConnectedAsSource() const;
 
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);

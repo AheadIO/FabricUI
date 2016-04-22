@@ -103,10 +103,17 @@ Connection::Connection(
     {
       Pin * pin = (Pin*)target;
       Node * node = pin->node();
-      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()), Qt::QueuedConnection);
-      QObject::connect(pin, SIGNAL(yChanged()), this, SLOT(dependencyMoved()), Qt::QueuedConnection);
-      QObject::connect(node, SIGNAL(positionChanged(FabricUI::GraphView::Node *, QPointF)), this, SLOT(dependencyMoved()));
-      QObject::connect(node, SIGNAL(geometryChanged()), this, SLOT(dependencyMoved()));
+      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()));
+      if ( i == 0 )
+        QObject::connect(
+          pin, SIGNAL(outCircleScenePositionChanged()),
+          this, SLOT(dependencyMoved())
+          );
+      else
+        QObject::connect(
+          pin, SIGNAL(inCircleScenePositionChanged()),
+          this, SLOT(dependencyMoved())
+          );
       QObject::connect(node, SIGNAL(selectionChanged(FabricUI::GraphView::Node *, bool)), this, SLOT(dependencySelected()));
     }
     else if(target->targetType() == TargetType_MouseGrabber)
