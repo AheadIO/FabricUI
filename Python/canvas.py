@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     parser.add_argument('graph',
                         nargs='?',
-                        action=CheckExtension({'canvas'}),
-                        help='Canvas graph to load')
+                        action=CheckExtension(['canvas']),
+                        help='canvas graph (.canvas) to load on startup')
 
     parser.add_argument('-u', '--unguarded',
                         action='store_true',
@@ -52,12 +52,12 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--exec',
                           action='store',
                           dest='exec_',
-                          help='Python code to execute on startup')
+                          help='python code to execute on startup')
 
     parser.add_argument('-s', '--script',
                           action='store',
                           dest='script',
-                          help='Python script file to execute on startup')
+                          help='python script file to execute on startup')
 
 
     args = parser.parse_args()
