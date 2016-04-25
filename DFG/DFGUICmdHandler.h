@@ -60,8 +60,8 @@ public:
     FabricCore::DFGBinding const &binding,
     QString execPath,
     FabricCore::DFGExec const &exec,
-    QStringList srcPaths, 
-    QStringList dstPaths
+    QStringList srcPortPaths, 
+    QStringList dstPortPaths
     ) = 0;
 
   virtual QString dfgDoAddGraph(
