@@ -250,7 +250,9 @@ void Connection::mousePressEvent(QGraphicsSceneMouseEvent * event)
   {
     if(graph()->config().middleClickDeletesConnections)
     {
-      graph()->controller()->gvcDoRemoveConnection(this);
+      std::vector<Connection*> conns;
+      conns.push_back(this);
+      graph()->controller()->gvcDoRemoveConnections(conns);
       event->accept();
       return;
     }
@@ -283,14 +285,16 @@ void Connection::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     if(delta.x() < 0 || delta.x() > 0)
     {
       // create local variables
-      // since "this" might be deleted after the removeConnection call
+      // since "this" might be deleted after the removeConnections call
       ConnectionTarget * src = m_src;
       ConnectionTarget * dst = m_dst;
       Graph * graph = m_graph;
 
       graph->controller()->beginInteraction();
 
-      if(graph->controller()->gvcDoRemoveConnection(this))
+      std::vector<Connection*> conns;
+      conns.push_back(this);
+      if(graph->controller()->gvcDoRemoveConnections(conns))
       {
         // todo: review the features for disconnecting input vs output based on gesture
         if(delta.x() < 0)

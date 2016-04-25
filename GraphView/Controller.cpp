@@ -94,9 +94,15 @@ bool Controller::clearSelection()
   return nodes.size() > 0;
 }
 
-bool Controller::gvcDoRemoveConnection(Connection * conn)
+bool Controller::gvcDoRemoveConnections(const std::vector<Connection*> & conns)
 {
-  return gvcDoRemoveConnection(conn->src(), conn->dst());  
+  std::vector<ConnectionTarget*> srcs;
+  std::vector<ConnectionTarget*> dsts;
+  for (size_t i=0;i<conns.size();i++)
+    if (conns[i])
+    { srcs.push_back(conns[i]->src());
+      dsts.push_back(conns[i]->dst()); }
+  return gvcDoRemoveConnections(srcs, dsts);
 }
 
 bool Controller::zoomCanvas(float zoom)

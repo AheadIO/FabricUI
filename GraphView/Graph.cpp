@@ -229,7 +229,11 @@ bool Graph::removeNode(Node * node, bool quiet)
     }
 
     if(found)
-      controller()->gvcDoRemoveConnection(con);
+    {
+      std::vector<Connection*> conns;
+      conns.push_back(con);
+      controller()->gvcDoRemoveConnections(conns);
+    }
   }
 
   size_t index = it->second;
@@ -536,6 +540,8 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
 
 bool Graph::disconnectAllPorts()
 {
+  std::vector<Connection*> conns;
+
   for(int i=0;i<(int)m_connections.size();i++)
   {
     Node *srcNode = ((Pin*)m_connections[i]->src())->node();
@@ -545,14 +551,10 @@ bool Graph::disconnectAllPorts()
     bool dstIsSelected = (dstNode && dstNode->selected());
 
     if (srcIsSelected != dstIsSelected)
-    {
-      if (!controller()->gvcDoRemoveConnection(m_connections[i]))
-        return false;
-      i--;
-    }
+      conns.push_back(m_connections[i]);
   }
 
-  return true;
+  return controller()->gvcDoRemoveConnections(conns);
 }
 
 MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType)

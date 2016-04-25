@@ -59,9 +59,9 @@ namespace FabricUI
         ConnectionTarget * dst
         ) = 0;
 
-      virtual bool gvcDoRemoveConnection(
-        ConnectionTarget * src,
-        ConnectionTarget * dst
+      virtual bool gvcDoRemoveConnections(
+        std::vector<ConnectionTarget  *> const &srcs,
+        std::vector<ConnectionTarget  *> const &dsts
         ) = 0;
 
       virtual bool gvcDoAddInstFromPreset(
@@ -114,7 +114,7 @@ namespace FabricUI
         std::string &failureReason
         );
 
-      bool gvcDoRemoveConnection(Connection * conn);
+      bool gvcDoRemoveConnections(const std::vector<Connection*> & conns);
 
     virtual void collapseNodes(int state, const std::vector<Node*> & nodes);
     virtual void collapseSelectedNodes(int state);

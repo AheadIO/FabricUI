@@ -112,9 +112,9 @@ namespace FabricUI
         GraphView::ConnectionTarget * dst
         );
 
-      virtual bool gvcDoRemoveConnection(
-        GraphView::ConnectionTarget * src,
-        GraphView::ConnectionTarget * dst
+      virtual bool gvcDoRemoveConnections(
+        std::vector<GraphView::ConnectionTarget *> const &srcs,
+        std::vector<GraphView::ConnectionTarget *> const &dsts
         );
       
       virtual bool gvcDoAddInstFromPreset(

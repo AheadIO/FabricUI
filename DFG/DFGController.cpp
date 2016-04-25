@@ -444,27 +444,37 @@ bool DFGController::gvcDoAddConnection(
   return true;
 }
 
-bool DFGController::gvcDoRemoveConnection(
-  GraphView::ConnectionTarget * src,
-  GraphView::ConnectionTarget * dst
+bool DFGController::gvcDoRemoveConnections(
+  std::vector<GraphView::ConnectionTarget *> const &srcs,
+  std::vector<GraphView::ConnectionTarget *> const &dsts
   )
 {
-  std::string srcPath;
-  if(src->targetType() == GraphView::TargetType_Pin)
-    srcPath = ((GraphView::Pin*)src)->path();
-  else if(src->targetType() == GraphView::TargetType_Port)
-    srcPath = ((GraphView::Port*)src)->path();
+  QStringList srcPaths;
+  QStringList dstPaths;
 
-  std::string dstPath;
-  if(dst->targetType() == GraphView::TargetType_Pin)
-    dstPath = ((GraphView::Pin*)dst)->path();
-  else if(dst->targetType() == GraphView::TargetType_Port)
-    dstPath = ((GraphView::Port*)dst)->path();
+  for (size_t i=0;i<srcs.size();i++)
+  {
+    GraphView::ConnectionTarget *src = srcs[i];
+    std::string srcPath;
+    if(src->targetType() == GraphView::TargetType_Pin)
+      srcPath = ((GraphView::Pin*)src)->path();
+    else if(src->targetType() == GraphView::TargetType_Port)
+      srcPath = ((GraphView::Port*)src)->path();
+    srcPaths.push_back( QString::fromUtf8( srcPath.data(), srcPath.size() ) );
+  }
 
-  cmdDisconnect(
-    QStringList( QString::fromUtf8( srcPath.data(), srcPath.size() ) ),
-    QStringList( QString::fromUtf8( dstPath.data(), dstPath.size() ) )
-    );
+  for (size_t i=0;i<dsts.size();i++)
+  {
+    GraphView::ConnectionTarget *dst = dsts[i];
+    std::string dstPath;
+    if(dst->targetType() == GraphView::TargetType_Pin)
+      dstPath = ((GraphView::Pin*)dst)->path();
+    else if(dst->targetType() == GraphView::TargetType_Port)
+      dstPath = ((GraphView::Port*)dst)->path();
+    dstPaths.push_back( QString::fromUtf8( dstPath.data(), dstPath.size() ) );
+  }
+
+  cmdDisconnect( srcPaths, dstPaths );
 
   return true;
 }
