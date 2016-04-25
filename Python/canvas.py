@@ -2,7 +2,6 @@
 
 """Canvas launcher script."""
 
-import optparse
 import os
 import sys
 
@@ -12,6 +11,8 @@ if sys.version_info < (2, 7):
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 from FabricEngine.Canvas.FabricStyle import FabricStyle
+from FabricEngine.Canvas.FabricParser import FabricParser
+from FabricEngine.Canvas.FabricParser import CheckExtension
 
 if __name__ == "__main__":
     # This only runs when launched directly from the command line.
@@ -33,40 +34,49 @@ if __name__ == "__main__":
         logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
         app.setWindowIcon(QtGui.QIcon(logoPath))
 
-    opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
-    opt_parser.add_option('-u', '--unguarded',
-                          action='store_true',
-                          dest='unguarded',
-                          help='compile KL code in unguarded mode')
-    opt_parser.add_option('-n', '--noopt',
-                          action='store_true',
-                          dest='noopt',
-                          help='compile KL code wihout brackground optimization')
-    opt_parser.add_option('-e', '--exec',
+    parser = FabricParser()
+
+    parser.add_argument('graph',
+                        nargs='?',
+                        action=CheckExtension({'canvas'}),
+                        help='Canvas graph to load')
+
+    parser.add_argument('-u', '--unguarded',
+                        action='store_true',
+                        help='compile KL code in unguarded mode')
+
+    parser.add_argument('-n', '--noopt',
+                        action='store_true',
+                        help='compile KL code wihout brackground optimization')
+
+    parser.add_argument('-e', '--exec',
                           action='store',
                           dest='exec_',
                           help='Python code to execute on startup')
-    opt_parser.add_option('-s', '--script',
+
+    parser.add_argument('-s', '--script',
                           action='store',
                           dest='script',
                           help='Python script file to execute on startup')
-    (opts, args) = opt_parser.parse_args()
 
-    unguarded = opts.unguarded is True
-    noopt = opts.noopt is True
+
+    args = parser.parse_args()
+ 
+    unguarded = args.unguarded is True
+    noopt = args.noopt is True
 
     settings = QtCore.QSettings()
     mainWin = CanvasWindow(settings, unguarded, noopt)
     mainWin.show()
 
-    for arg in args:
-        mainWin.loadGraph(arg)
+    if args.graph:
+        mainWin.loadGraph(args.graph)
 
-    if opts.exec_:
-        mainWin.scriptEditor.exec_(opts.exec_)
+    if args.exec_:
+        mainWin.scriptEditor.exec_(args.exec_)
 
-    if opts.script:
-        with open(opts.script, "r") as f:
+    if args.script:
+        with open(args.script, "r") as f:
             mainWin.scriptEditor.exec_(f.read())
 
     app.exec_()

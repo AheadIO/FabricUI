@@ -53,6 +53,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         settings (QtCore.QSettings): Settings object that is used to store and
             retrieve settings for the application.
         unguarded (bool): Whether to create the Fabric client in unguarded mode.
+        noopt (bool): Whether to create the Fabric client in noopt mode.
 
     """
 
@@ -448,7 +449,7 @@ class CanvasWindow(DFG.DFGMainWindow):
             controller = self.dfgWidget.getDFGController()
             binding = controller.getBinding()
             dfgExec = binding.getExec()
-            portResolvedType = dfgExec.getExecPortResolvedType(portName)
+            portResolvedType = dfgExec.getExecPortResolvedType(str(portName))
             value = self.viewport.getManipTool().getLastManipVal()
             if portResolvedType == 'Xfo':
                 pass
