@@ -90,7 +90,11 @@ DFGWidget::DFGWidget(
     );
 
   m_uiGraphViewWidget = new DFGGraphViewWidget(this, dfgConfig.graphConfig, NULL);
-
+  QObject::connect(
+    m_uiGraphViewWidget, SIGNAL(urlDropped(QUrl, bool)),
+    this, SIGNAL(urlDropped(QUrl, bool))
+    );
+  
   m_klEditor =
     new DFGKLEditorWidget(
       this,

@@ -440,8 +440,14 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('Python').File('canvas.py')
         )
       )
+    installedPySideLibs.append(
+      pysideEnv.Install(
+        pysideEnv['STAGE_DIR'].Dir('Samples').Dir('Python').Dir('AlembicViewer'),
+        Glob(os.path.join(pysideEnv.Dir('Samples').Dir('AlembicViewer').abspath, '*'))
+        )
+      )
 
   pysideEnv.Alias('pysideGen', pysideGens)
-  pysideEnv.Alias('pysideLib', installedPySideLibs)
+  pysideEnv.Alias('pyside', installedPySideLibs)
 
 Return('uiFiles')

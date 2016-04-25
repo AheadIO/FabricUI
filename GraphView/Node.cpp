@@ -35,8 +35,6 @@ Node::Node(
   , m_header( NULL )
   , m_mainWidget( NULL )
 {
-  setAcceptDrops( true );
-
   m_defaultPen = m_graph->config().nodeDefaultPen;
   m_selectedPen = m_graph->config().nodeSelectedPen;
   m_errorPen = m_graph->config().nodeErrorPen;
@@ -796,7 +794,9 @@ void Node::updatePinLayout()
 
   for(size_t i=0;i<m_pins.size();i++)
   {
-    m_pins[i]->setDaisyChainCircleVisible(m_alwaysShowDaisyChainPorts);
+    m_pins[i]->setDaisyChainCircleVisible(
+      m_alwaysShowDaisyChainPorts || m_pins[i]->isConnectedAsSource()
+      );
   }
 }
 

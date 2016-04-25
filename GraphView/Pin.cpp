@@ -51,6 +51,25 @@ Pin::Pin(
     m_inCircle = new PinCircle(this, PortType_Input, m_color);
     layout->addItem(m_inCircle);
     layout->setAlignment(m_inCircle, Qt::AlignLeft | Qt::AlignVCenter);
+
+    QGraphicsItem *graphicsItem = m_inCircle;
+    while ( graphicsItem )
+    {
+      if ( QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject() )
+      {
+        connect(
+          graphicsObject, SIGNAL(xChanged()),
+          this, SIGNAL(inCircleScenePositionChanged())
+          );
+        connect(
+          graphicsObject, SIGNAL(yChanged()),
+          this, SIGNAL(inCircleScenePositionChanged())
+          );
+      }
+      if ( graphicsItem == m_node )
+        break;
+      graphicsItem = graphicsItem->parentItem();
+    }
   }
 
   if(portType() != PortType_Input)
@@ -97,6 +116,24 @@ Pin::Pin(
     m_outCircle->setClipping(true);
   }
   setDaisyChainCircleVisible(false);
+  QGraphicsItem *graphicsItem = m_outCircle;
+  while ( graphicsItem )
+  {
+    if ( QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject() )
+    {
+      connect(
+        graphicsObject, SIGNAL(xChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+      connect(
+        graphicsObject, SIGNAL(yChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+    }
+    if ( graphicsItem == m_node )
+      break;
+    graphicsItem = graphicsItem->parentItem();
+  }
 }
 
 Graph * Pin::graph()
@@ -323,11 +360,8 @@ bool Pin::drawState() const
 
 void Pin::setDaisyChainCircleVisible(bool flag)
 {
-  if(portType() == PortType_Input && m_outCircle)
-  {
-    m_outCircle->setVisible(flag);
-    m_outCircle->setShouldBeVisible(flag);
-  }
+  if( portType() == PortType_Input )
+    m_outCircle->setDaisyChainCircleVisible( flag );
 }
 
 void Pin::setName( FTL::StrRef newName )

@@ -45,7 +45,7 @@ namespace FabricUI
       bool isInputPortType() const;
       bool isOutputPortType() const;
       virtual void setClipping(bool state);
-      virtual void setShouldBeVisible(bool state);
+      virtual void setDaisyChainCircleVisible(bool state);
 
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);

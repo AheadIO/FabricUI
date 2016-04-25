@@ -6,6 +6,7 @@
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphConfig.h>
 
+#include <QtCore/QDebug>
 #include <QtGui/QGraphicsSceneHoverEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
@@ -120,7 +121,7 @@ float PinCircle::diameter() const
 
 QPointF PinCircle::centerInSceneCoords() const
 {
-  return m_ellipse->mapToScene(0, 0);
+  return mapToScene( radius(), radius() );
 }
 
 PortType PinCircle::portType() const
@@ -140,7 +141,7 @@ bool PinCircle::isOutputPortType() const
 
 void PinCircle::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
-  setVisible(true);
+  m_ellipse->setVisible(true);
   if(target()->targetType() != TargetType_NodeHeader)
     target()->setHighlighted(true);
   QGraphicsWidget::hoverEnterEvent(event);
@@ -148,7 +149,7 @@ void PinCircle::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 
 void PinCircle::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
-  setVisible(m_shouldBeVisible);
+  m_ellipse->setVisible(m_shouldBeVisible);
   if(target()->targetType() != TargetType_NodeHeader)
     target()->setHighlighted(false);
   QGraphicsWidget::hoverLeaveEvent(event);
@@ -220,7 +221,8 @@ void PinCircle::setClipping(bool state)
   }
 }
 
-void PinCircle::setShouldBeVisible(bool state)
+void PinCircle::setDaisyChainCircleVisible(bool state)
 {
+  m_ellipse->setVisible( state );
   m_shouldBeVisible = state;
 }

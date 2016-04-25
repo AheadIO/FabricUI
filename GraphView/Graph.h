@@ -88,6 +88,7 @@ namespace FabricUI
       // connections
       virtual std::vector<Connection *> connections() const;
       virtual bool isConnected(const ConnectionTarget * target) const;
+      virtual bool isConnectedAsSource(const ConnectionTarget * target) const;
       virtual void updateColorForConnections(const ConnectionTarget * target) const;
 
       // hotkeys

@@ -415,6 +415,9 @@ void SidePanel::dragMoveEvent( QGraphicsSceneDragDropEvent *event )
   if ( m_dragSrcPortName != oldDragSrcPortName
     || m_dragDstPortName != oldDragDstPortName )
     update();
+
+  if ( !event->isAccepted() )
+    QGraphicsWidget::dragMoveEvent( event );
 }
 
 void SidePanel::dragLeaveEvent( QGraphicsSceneDragDropEvent *event )
@@ -443,6 +446,8 @@ void SidePanel::dropEvent( QGraphicsSceneDragDropEvent *event )
     m_dragDstPortName = QString();
     m_dragDstY = 0;
     update();
+
+    return;
   }
 
   QGraphicsWidget::dropEvent( event );
