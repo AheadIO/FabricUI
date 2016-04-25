@@ -462,8 +462,8 @@ bool DFGController::gvcDoRemoveConnection(
     dstPath = ((GraphView::Port*)dst)->path();
 
   cmdDisconnect(
-    QString::fromUtf8( srcPath.data(), srcPath.size() ),
-    QString::fromUtf8( dstPath.data(), dstPath.size() )
+    QStringList( QString::fromUtf8( srcPath.data(), srcPath.size() ) ),
+    QStringList( QString::fromUtf8( dstPath.data(), dstPath.size() ) )
     );
 
   return true;
@@ -1580,8 +1580,8 @@ void DFGController::cmdConnect(
 }
 
 void DFGController::cmdDisconnect(
-  QString srcPath, 
-  QString dstPath
+  QStringList srcPaths, 
+  QStringList dstPaths
   )
 {
   if(!validPresetSplit())
@@ -1591,8 +1591,8 @@ void DFGController::cmdDisconnect(
     getBinding(),
     getExecPath_QS(),
     getExec(),
-    srcPath,
-    dstPath
+    srcPaths,
+    dstPaths
     );
 }
 

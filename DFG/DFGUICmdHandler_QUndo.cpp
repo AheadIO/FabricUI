@@ -242,8 +242,8 @@ void DFGUICmdHandler_QUndo::dfgDoDisconnect(
   FabricCore::DFGBinding const &binding,
   QString execPath,
   FabricCore::DFGExec const &exec,
-  QString srcPath, 
-  QString dstPath
+  QStringList srcPaths, 
+  QStringList dstPaths
   )
 {
   m_qUndoStack->push(
@@ -252,8 +252,8 @@ void DFGUICmdHandler_QUndo::dfgDoDisconnect(
         binding,
         execPath,
         exec,
-        srcPath,
-        dstPath
+        srcPaths,
+        dstPaths
         )
       )
     );

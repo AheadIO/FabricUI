@@ -166,8 +166,8 @@ namespace FabricUI
         );
 
       void cmdDisconnect(
-        QString srcPath, 
-        QString dstPath
+        QStringList srcPaths, 
+        QStringList dstPaths
         );
 
       QString cmdAddInstWithEmptyGraph(

@@ -16,12 +16,12 @@ public:
     FabricCore::DFGBinding const &binding,
     QString execPath,
     FabricCore::DFGExec const &exec,
-    QString srcPath,
-    QString dstPath
+    QStringList srcPaths,
+    QStringList dstPaths
     )
     : DFGUICmd_Exec( binding, execPath, exec )
-    , m_srcPath( srcPath )
-    , m_dstPath( dstPath )
+    , m_srcPaths( srcPaths )
+    , m_dstPaths( dstPaths )
     {}
 
   static FTL::CStrRef CmdName()
@@ -34,15 +34,15 @@ protected:
   virtual void invoke( unsigned &coreUndoCount );
 
   void invoke(
-    FTL::CStrRef srcPath,
-    FTL::CStrRef dstPath,
+    FTL::ArrayRef<FTL::CStrRef> srcPaths,
+    FTL::ArrayRef<FTL::CStrRef> dstPaths,
     unsigned &coreUndoCount
     );
 
 private:
 
-  QString m_srcPath;
-  QString m_dstPath;
+  QStringList m_srcPaths;
+  QStringList m_dstPaths;
 };
 
 FABRIC_UI_DFG_NAMESPACE_END
