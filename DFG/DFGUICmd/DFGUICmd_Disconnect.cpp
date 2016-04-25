@@ -9,9 +9,9 @@ FABRIC_UI_DFG_NAMESPACE_BEGIN
 void DFGUICmd_Disconnect::appendDesc( QString &desc )
 {
   desc += "Disconnect ";
-  appendDesc_Path( "\"" + m_srcPaths.join("|") + "\"", desc );
+  appendDesc_Path( m_srcPaths.join("|"), desc );
   desc += " from ";
-  appendDesc_Path( "\"" + m_dstPaths.join("|") + "\"", desc );
+  appendDesc_Path( m_dstPaths.join("|"), desc );
 }
 
 void DFGUICmd_Disconnect::invoke( unsigned &coreUndoCount )
