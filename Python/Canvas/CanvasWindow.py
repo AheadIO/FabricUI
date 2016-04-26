@@ -275,6 +275,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.dfgWidget.newPresetSaved.connect(self.treeWidget.refresh)
         controller.varsChanged.connect(self.treeWidget.refresh)
         controller.dirty.connect(self.onDirty)
+        controller.topoDirty.connect(self.onTopoDirty)
 
     def _initGL(self):
         """Initializes the Open GL viewport widget."""
@@ -476,6 +477,9 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.dfgWidget.getDFGController().execute()
         self._contentChanged()
 
+    def onTopoDirty(self):
+        self.onDirty()
+
     def loadGraph(self, filePath):
         """Method to load a graph from disk.
 
@@ -509,7 +513,6 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.scriptEditor.updateBinding(binding)
 
             self.evalContext.currentFilePath = filePath
-            dfgController.execute()
 
             tl_start = dfgExec.getMetadata("timeline_start")
             tl_end = dfgExec.getMetadata("timeline_end")
