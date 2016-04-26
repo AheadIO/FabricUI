@@ -2,10 +2,15 @@
 <typesystem package="FabricUI">
   <namespace-type name="FabricUI"  generate="no">
     <namespace-type name="Viewports"  generate="yes">
-	    <object-type name="ViewportWidget" copyable="false"/>
+      <object-type name="ViewportWidget" copyable="false"/>
       <object-type name="GLViewportWidget" copyable="false">
         <rejection field-name="m_fpsStack"/>
       </object-type>
+	  <object-type name="ManipulationCmd" copyable="false">
+        <rejection function-name="setStaticRTValCommands"/>
+        <rejection field-name="s_rtval_commands"/>
+      </object-type>
+	  <object-type name="ManipulationTool" copyable="false"/>
     </namespace-type>
   </namespace-type>
 </typesystem>

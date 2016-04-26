@@ -164,6 +164,7 @@ void DFGController::setBindingExec(
   updateErrors();
 
   emit bindingChanged( m_binding );
+  emitTopoDirty();
 }
 
 void DFGController::setExec(

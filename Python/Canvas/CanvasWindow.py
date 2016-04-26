@@ -53,6 +53,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         settings (QtCore.QSettings): Settings object that is used to store and
             retrieve settings for the application.
         unguarded (bool): Whether to create the Fabric client in unguarded mode.
+        noopt (bool): Whether to create the Fabric client in noopt mode.
 
     """
 
@@ -95,6 +96,8 @@ class CanvasWindow(DFG.DFGMainWindow):
         The autosave directory and file name are established here.
 
         """
+
+        self.setAcceptDrops(True)
 
         DFG.DFGWidget.setSettings(self.settings)
         self.config = DFG.DFGConfig()
@@ -261,6 +264,7 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.onGraphSet.connect(self.onGraphSet)
         self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
+        self.dfgWidget.urlDropped.connect(self.onUrlDropped)
 
     def _initTreeView(self):
         """Initializes the preset TreeView.
@@ -274,6 +278,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.dfgWidget.newPresetSaved.connect(self.treeWidget.refresh)
         controller.varsChanged.connect(self.treeWidget.refresh)
         controller.dirty.connect(self.onDirty)
+        controller.topoDirty.connect(self.onTopoDirty)
 
     def _initGL(self):
         """Initializes the Open GL viewport widget."""
@@ -448,7 +453,7 @@ class CanvasWindow(DFG.DFGMainWindow):
             controller = self.dfgWidget.getDFGController()
             binding = controller.getBinding()
             dfgExec = binding.getExec()
-            portResolvedType = dfgExec.getExecPortResolvedType(portName)
+            portResolvedType = dfgExec.getExecPortResolvedType(str(portName))
             value = self.viewport.getManipTool().getLastManipVal()
             if portResolvedType == 'Xfo':
                 pass
@@ -474,6 +479,9 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.getDFGController().execute()
         self._contentChanged()
+
+    def onTopoDirty(self):
+        self.onDirty()
 
     def loadGraph(self, filePath):
         """Method to load a graph from disk.
@@ -508,7 +516,6 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.scriptEditor.updateBinding(binding)
 
             self.evalContext.currentFilePath = filePath
-            dfgController.execute()
 
             tl_start = dfgExec.getMetadata("timeline_start")
             tl_end = dfgExec.getMetadata("timeline_end")
@@ -1137,3 +1144,38 @@ class CanvasWindow(DFG.DFGMainWindow):
             graph.nodeEditRequested.connect(self.onNodeEditRequested)
 
             self.currentGraph = graph
+
+    def dragEnterEvent(self, event):
+        # we accept the proposed action only if we
+        # are dealing with a single '.canvas' file.
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if len(urls) == 1:
+                url = urls[0];
+                filename = FabricUI.Util.GetFilenameForFileURL(url)
+                if filename.endswith(".canvas"):
+                    event.acceptProposedAction()
+                    return
+
+        DFG.DFGMainWindow.dragEnterEvent(self, event)
+
+    def dropEvent(self, event):
+        # The mimeData was already checked in the dragEnterEvent(), so we simply get the filepath and load the graph.
+        # We also check if the Control key is down and, if it is, we load the scene without prompting.
+        url = event.mimeData().urls()[0]
+        event.acceptProposedAction()
+
+        bypassUnsavedChanges = event.keyboardModifiers() & QtCore.Qt.ControlModifier
+        self.onUrlDropped(url, bypassUnsavedChanges)
+
+    def onUrlDropped(self, url, bypassUnsavedChanges):
+        filename = FabricUI.Util.GetFilenameForFileURL(url)
+        if not filename:
+            return
+
+        self.timeLine.pause()
+
+        if not (bypassUnsavedChanges or self.checkUnsavedChanges()):
+            return
+
+        self.loadGraph(filename)
