@@ -1,11 +1,17 @@
+#!/usr/bin/env python
+
 """Alembic Viewer launcher script."""
 
-import optparse
 import os
+import sys
+
+if sys.version_info < (2, 7):
+    raise Exception('alembic_viewer.py currently requires Python 2.7')
 
 from PySide import QtGui
 
 from FabricEngine.Canvas.FabricStyle import FabricStyle
+from FabricEngine.Canvas.FabricParser import FabricParser
 
 from AlembicViewer.AlembicViewerWindow import AlembicViewerWindow
 
@@ -29,15 +35,16 @@ if __name__ == "__main__":
         logoPath = os.path.join(fabricDir, 'Resources', 'fe_logo.png')
         app.setWindowIcon(QtGui.QIcon(logoPath))
 
-    opt_parser = optparse.OptionParser(usage='Usage: %prog [options] [graph]')
-    opt_parser.add_option('-d', '--initDir',
-                          action='store',
-                          dest='initDir',
-                          help='Initial directory to load alembic files from.')
+    parser = FabricParser()
 
-    (opts, args) = opt_parser.parse_args()
+    parser.add_argument('-d', '--initDir',
+                        action='store',
+                        dest='initDir',
+                        help='initial directory to open')
 
-    initDir = opts.initDir
+    args = parser.parse_args()
+
+    initDir = args.initDir
 
     mainWin = AlembicViewerWindow(initDir=initDir)
     mainWin.show()
