@@ -5,9 +5,7 @@ import os
 
 from PySide import QtCore, QtGui
 
-from FabricEngine import Core, FabricUI
-from FabricEngine.FabricUI import DFG, KLASTManager, TimeLine, Viewports
-from FabricEngine.Canvas.ScriptEditor import ScriptEditor
+from FabricEngine import Core
 from FabricEngine.Canvas.UICmdHandler import UICmdHandler
 from FabricEngine.Canvas.CanvasWindow import CanvasWindow
 
