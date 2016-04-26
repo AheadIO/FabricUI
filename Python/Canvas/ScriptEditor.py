@@ -112,13 +112,14 @@ class ScriptEditor(QtGui.QWidget):
                 return
             QtGui.QPlainTextEdit.keyPressEvent(self, event)
 
-    def __init__(self, client, binding, qUndoStack, dfgLogWidget, settings):
+    def __init__(self, client, binding, qUndoStack, dfgLogWidget, settings, canvasWindow):
         QtGui.QWidget.__init__(self)
 
         self.eval_globals = {
             "binding": BindingWrapper(client, binding, qUndoStack),
             "undo": qUndoStack.undo,
             "redo": qUndoStack.redo,
+            "newGraph": canvasWindow.onNewGraph,
             }
 
         fixedFont = QtGui.QFont("Courier", 12)

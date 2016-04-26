@@ -252,7 +252,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.lastAutosaveBindingVersion = self.lastSavedBindingVersion
 
         graph = binding.getExec()
-        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget, self.settings)
+        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget, self.settings, self)
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
 
         self.dfgWidget = DFG.DFGWidget(None, self.client, self.host,
@@ -722,6 +722,18 @@ class CanvasWindow(DFG.DFGMainWindow):
                     os.rename(tmpAutosaveFilename, self.autosaveFilename)
                     self.lastAutosaveBindingVersion = bindingVersion
 
+    def execNewGraph(self, skip_save=False):
+        """Callback Executed when a key or menu command has requested a new graph.
+
+        This simply executes the corresponding script command.
+
+        Arguments:
+            skip_save (bool): Whether to skip the check for unsaved changes.
+
+        """
+
+        self.scriptEditor.exec_("newGraph(%s)" % str(skip_save))
+
     def onNewGraph(self, skip_save=False):
         """Callback Executed when a call to create a new graph has been made.
 
@@ -985,7 +997,7 @@ class CanvasWindow(DFG.DFGMainWindow):
                 menu.addAction(self.saveGraphAction)
                 menu.addAction(self.saveGraphAsAction)
 
-                self.newGraphAction.triggered.connect(self.onNewGraph)
+                self.newGraphAction.triggered.connect(self.execNewGraph)
                 self.loadGraphAction.triggered.connect(self.onLoadGraph)
                 self.saveGraphAction.triggered.connect(self.onSaveGraph)
                 self.saveGraphAsAction.triggered.connect(self.onSaveGraphAs)
@@ -1079,7 +1091,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         if hotkey == DFG.DFGHotkeys.EXECUTE:
             self.onDirty()
         elif hotkey == DFG.DFGHotkeys.NEW_SCENE:
-            self.onNewGraph()
+            self.execNewGraph()
         elif hotkey == DFG.DFGHotkeys.OPEN_SCENE:
             self.onLoadGraph()
         elif hotkey == DFG.DFGHotkeys.SAVE_SCENE:
