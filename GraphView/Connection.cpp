@@ -137,36 +137,6 @@ Connection::~Connection()
 {
 }
 
-Graph * Connection::graph()
-{
-  return m_graph;
-}
-
-const Graph * Connection::graph() const
-{
-  return m_graph;
-}
-
-ConnectionTarget * Connection::src()
-{
-  return m_src;
-}
-
-const ConnectionTarget * Connection::src() const
-{
-  return m_src;
-}
-
-ConnectionTarget * Connection::dst()
-{
-  return m_dst;
-}
-
-const ConnectionTarget * Connection::dst() const
-{
-  return m_dst;
-}
-
 void Connection::setColor(QColor color)
 {
   if(m_graph->config().connectionUsePinColor)
