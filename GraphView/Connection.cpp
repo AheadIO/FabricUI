@@ -103,7 +103,10 @@ Connection::Connection(
     {
       Pin * pin = (Pin*)target;
       Node * node = pin->node();
-      QObject::connect(pin, SIGNAL(visibleChanged()), this, SLOT(dependencyMoved()));
+      connect(
+        pin, SIGNAL(drawStateChanged()),
+        this, SLOT(dependencyMoved())
+        );
       if ( i == 0 )
         QObject::connect(
           pin, SIGNAL(outCircleScenePositionChanged()),

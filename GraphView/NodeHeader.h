@@ -36,6 +36,11 @@ namespace FabricUI
       const Node * node() const;
       NodeLabel * labelWidget() { return m_title; }
 
+      PinCircle const *inCircle() const
+        { return m_inCircle; }
+      PinCircle const *outCircle() const
+        { return m_outCircle; }
+
       void setTitle(QString const &title);
 
       virtual bool highlighted() const;

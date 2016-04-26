@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2016, Fabric Software Inc. All rights reserved.
 
 #include <FabricUI/GraphView/Pin.h>
+#include <FabricUI/GraphView/PinCircle.h>
 #include <FabricUI/GraphView/Node.h>
 #include <FabricUI/GraphView/Graph.h>
 #include <FabricUI/GraphView/GraphConfig.h>
@@ -27,9 +28,10 @@ Pin::Pin(
     m_labelCaption = m_name;
   m_color = color;
   m_index = 0;
-  m_drawState = true;
 
-  setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+  // [pzion 20160425] Force setDrawState to work
+  m_drawState = false;
+  setDrawState( true );
 
   const GraphConfig & config = node()->graph()->config();
 
@@ -116,10 +118,48 @@ Pin::Pin(
     m_outCircle->setClipping(true);
   }
   setDaisyChainCircleVisible(false);
-  QGraphicsItem *graphicsItem = m_outCircle;
+  QGraphicsItem const *graphicsItem = m_outCircle;
   while ( graphicsItem )
   {
-    if ( QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject() )
+    if ( QGraphicsObject const *graphicsObject = graphicsItem->toGraphicsObject() )
+    {
+      connect(
+        graphicsObject, SIGNAL(xChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+      connect(
+        graphicsObject, SIGNAL(yChanged()),
+        this, SIGNAL(outCircleScenePositionChanged())
+        );
+    }
+    if ( graphicsItem == m_node )
+      break;
+    graphicsItem = graphicsItem->parentItem();
+  }
+
+  graphicsItem = m_node->header()->inCircle();
+  while ( graphicsItem )
+  {
+    if ( QGraphicsObject const *graphicsObject = graphicsItem->toGraphicsObject() )
+    {
+      connect(
+        graphicsObject, SIGNAL(xChanged()),
+        this, SIGNAL(inCircleScenePositionChanged())
+        );
+      connect(
+        graphicsObject, SIGNAL(yChanged()),
+        this, SIGNAL(inCircleScenePositionChanged())
+        );
+    }
+    if ( graphicsItem == m_node )
+      break;
+    graphicsItem = graphicsItem->parentItem();
+  }
+
+  graphicsItem = m_node->header()->outCircle();
+  while ( graphicsItem )
+  {
+    if ( QGraphicsObject const *graphicsObject = graphicsItem->toGraphicsObject() )
     {
       connect(
         graphicsObject, SIGNAL(xChanged()),
@@ -304,58 +344,52 @@ bool Pin::canConnectTo(
 
 QPointF Pin::connectionPos(PortType pType) const
 {
-  if(!drawState())
+  PinCircle const *pinCircle;
+  if ( !drawState() )
   {
-    QPointF p;
-    if(pType == PortType_Input)
-    {
-      p = node()->header()->boundingRect().topLeft();
-      p += node()->header()->boundingRect().bottomLeft();
-      p *= 0.5f;
-      p += QPointF(node()->graph()->config().nodeWidthReduction * 0.5f, 0.0f);
-    }
+    if( pType == PortType_Input )
+      pinCircle = node()->header()->inCircle();
     else
-    {
-      p = node()->header()->boundingRect().topRight();
-      p += node()->header()->boundingRect().bottomRight();
-      p *= 0.5f;
-      p -= QPointF(node()->graph()->config().nodeWidthReduction * 0.5f, 0.0f);
-    }
-    return node()->header()->mapToScene(p);
-  }
-  if(pType == PortType_Input)
-  {
-    if(inCircle())
-      return inCircle()->centerInSceneCoords();
+      pinCircle = node()->header()->outCircle();
   }
   else
   {
-    if(outCircle())
-      return outCircle()->centerInSceneCoords();
+    if( pType == PortType_Input )
+      pinCircle = inCircle();
+    else
+      pinCircle = outCircle();
   }
-  return QPointF();
+
+  if ( pinCircle )
+    return pinCircle->centerInSceneCoords();
+  else
+    return QPointF();
 }
 
 void Pin::setDrawState(bool flag)
 {
-  m_drawState = flag;
-  setVisible(m_drawState);
-
-  if(m_drawState)
+  if ( m_drawState != flag )
   {
-    setMaximumHeight(1000);
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-  }
-  else
-  {
-    setMaximumHeight(0);
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-  }
-}
+    m_drawState = flag;
+    setVisible( m_drawState );
 
-bool Pin::drawState() const
-{
-  return m_drawState;
+    if ( m_drawState )
+    {
+      setMaximumHeight( 1000 );
+      setSizePolicy(
+        QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed )
+        );
+    }
+    else
+    {
+      setMaximumHeight( 0 );
+      setSizePolicy(
+        QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed )
+        );
+    }
+
+    emit drawStateChanged();
+  }
 }
 
 void Pin::setDaisyChainCircleVisible(bool flag)
