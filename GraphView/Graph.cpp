@@ -49,8 +49,7 @@ void Graph::requestSidePanelInspect(
   FabricUI::GraphView::SidePanel *sidePanel
   )
 {
-  if ( m_isEditable )
-    emit sidePanelInspectRequested();
+  emit sidePanelInspectRequested();
 }
 
 void Graph::initialize()
@@ -663,13 +662,10 @@ bool Graph::releaseHotkey(Qt::Key key, Qt::KeyboardModifier modifiers)
 
 void Graph::onNodeDoubleClicked(FabricUI::GraphView::Node * node, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 {
-  if(m_isEditable)
-  {
-    if(modifiers.testFlag(Qt::ShiftModifier))
-      emit nodeEditRequested(node);
-    else
-      emit nodeInspectRequested(node);
-  }
+  if ( modifiers.testFlag( Qt::ShiftModifier ) )
+    emit nodeEditRequested( node );
+  else
+    emit nodeInspectRequested( node );
 }
 
 void Graph::onBubbleEditRequested(FabricUI::GraphView::Node * node)
