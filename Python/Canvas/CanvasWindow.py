@@ -252,7 +252,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.lastAutosaveBindingVersion = self.lastSavedBindingVersion
 
         graph = binding.getExec()
-        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget)
+        self.scriptEditor = ScriptEditor(self.client, binding, self.qUndoStack, self.logWidget, self.settings)
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
 
         self.dfgWidget = DFG.DFGWidget(None, self.client, self.host,
@@ -599,7 +599,10 @@ class CanvasWindow(DFG.DFGMainWindow):
         if not self.checkUnsavedChanges():
             event.ignore()
             return
-
+        if not self.scriptEditor.checkUnsavedChanges():
+            event.ignore()
+            return
+            
         self.viewport.setManipulationActive(False)
         self.settings.setValue("mainWindow/geometry", self.saveGeometry())
         self.settings.setValue("mainWindow/state", self.saveState())

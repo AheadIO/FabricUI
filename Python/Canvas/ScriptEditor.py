@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import StringIO
 import contextlib
 from PySide import QtCore, QtGui
@@ -26,13 +26,12 @@ class ScriptEditor(QtGui.QWidget):
             QtGui.QPlainTextEdit.__init__(self)
 
         def keyPressEvent(self, event):
+            if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.ControlModifier:
+                event.ignore()
+                return
             QtGui.QPlainTextEdit.keyPressEvent(self, event)
 
-            if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.NoModifier:
-                self.selectAll()
-                self.returnPressed.emit()
-
-    def __init__(self, client, binding, qUndoStack, dfgLogWidget):
+    def __init__(self, client, binding, qUndoStack, dfgLogWidget, settings):
         QtGui.QWidget.__init__(self)
 
         self.eval_globals = {
@@ -48,12 +47,16 @@ class ScriptEditor(QtGui.QWidget):
 
         self.dfgLogWidget = dfgLogWidget
 
+        self.settings = settings
+
         self.log = LogWidget()
         self.log.setFont(fixedFont);
 
+        self.filename = ""
+
         self.cmd = self.CmdEditor()
         self.cmd.setFont(fixedFont)
-        self.cmd.returnPressed.connect(self.onReturnPressed)
+        self.cmd.returnPressed.connect(self.execute)
 
         cmdLayout = QtGui.QHBoxLayout()
         cmdLayout.setContentsMargins(0,0,0,0)
@@ -78,8 +81,38 @@ class ScriptEditor(QtGui.QWidget):
         splitter.addWidget(cmdContainer)
         splitter.addWidget(logContainer)
 
-        layout = QtGui.QHBoxLayout()
+        openAction = QtGui.QAction("Open", self)
+        openAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+O"))
+        openAction.setToolTip("Open Python Script (%s)" % openAction.shortcut().toString())
+        openAction.triggered.connect(self.open)
+
+        self.saveAction = QtGui.QAction("Save", self)
+        self.saveAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+S"))
+        self.saveAction.setToolTip("Save Python Script (%s)" % self.saveAction.shortcut().toString())
+        self.saveAction.triggered.connect(self.save)
+        self.saveAction.setEnabled(False)
+        self.cmd.modificationChanged.connect(self.onModificationChanged)
+
+        saveAsAction = QtGui.QAction("Save As...", self)
+        saveAsAction.setShortcut(QtGui.QKeySequence("Alt+Shift+Ctrl+S"))
+        saveAsAction.setToolTip("Save Python Script As... (%s)" % saveAsAction.shortcut().toString())
+        saveAsAction.triggered.connect(self.saveAs)
+
+        executeAction = QtGui.QAction("Execute", self)
+        executeAction.setShortcut(QtGui.QKeySequence("Ctrl+Return"))
+        executeAction.setToolTip("Execute Python Script (%s)" % executeAction.shortcut().toString())
+        executeAction.triggered.connect(self.execute)
+
+        toolBar = QtGui.QToolBar()
+        toolBar.addAction(openAction)
+        toolBar.addAction(self.saveAction)
+        toolBar.addAction(saveAsAction)
+        toolBar.addSeparator()
+        toolBar.addAction(executeAction)
+
+        layout = QtGui.QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(toolBar)
         layout.addWidget(splitter)
 
         self.setContentsMargins(0,0,0,0)
@@ -89,8 +122,74 @@ class ScriptEditor(QtGui.QWidget):
         prev = self.eval_globals['binding'] 
         self.eval_globals['binding'] = BindingWrapper(prev.client, binding, prev.qUndoStack)
 
-    def onReturnPressed(self):
-        code = self.cmd.toPlainText()
+    def onModificationChanged(self, modification):
+        textDocument = self.cmd.document()
+        self.saveAction.setEnabled(
+            not textDocument.isEmpty() and textDocument.isModified() and len(self.filename) > 0
+            )
+
+    def checkUnsavedChanges(self):
+        textDocument = self.cmd.document()
+        if textDocument.isModified() and not textDocument.isEmpty():
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText("Do you want to save your Python script?")
+            msgBox.setInformativeText(
+                "Your changes will be lost if you don't save them.")
+            msgBox.setStandardButtons(QtGui.QMessageBox.Save |
+                                      QtGui.QMessageBox.Discard |
+                                      QtGui.QMessageBox.Cancel)
+            msgBox.setDefaultButton(QtGui.QMessageBox.Save)
+            result = msgBox.exec_()
+            if result == QtGui.QMessageBox.Cancel:
+                return False
+            if result == QtGui.QMessageBox.Save:
+                return self.save()
+        return True
+
+    def open(self):
+        if not self.checkUnsavedChanges():
+            return False
+        lastFolder = str(self.settings.value("mainWindow/lastScriptFolder"))
+        filename, _ = QtGui.QFileDialog.getOpenFileName(
+            self, "Open Python Script", lastFolder, "*.py"
+            )
+        filename = str(filename)
+        if len(filename) == 0:
+            return False
+        textDocument = self.cmd.document()
+        with open(filename, "r") as fh:
+            textDocument.setPlainText(fh.read())
+        textDocument.setModified(False)
+        self.filename = filename
+        return True
+
+    def save(self):
+        if not self.filename:
+            return self.saveAs()
+        else:
+            with open(self.filename, "w") as fh:
+                fh.write(self.cmd.toPlainText())
+            self.cmd.document().setModified(False)
+            self.log.appendComment("# Saved Python script as '%s'" % self.filename)
+            return True
+
+    def saveAs(self):
+        filename = self.filename
+        if not filename:
+            filename = str(self.settings.value("mainWindow/lastScriptFolder"))
+        filename, _ = QtGui.QFileDialog.getSaveFileName(
+            self, "Save Python Script", filename, "*.py"
+            )
+        if not filename:
+            return False
+        self.settings.setValue("mainWindow/lastScriptFolder", os.path.dirname(filename))
+        self.filename = filename
+        return self.save()
+
+    def execute(self):
+        if not self.cmd.textCursor().hasSelection():
+            self.cmd.selectAll()
+        code = self.cmd.textCursor().selectedText().replace(u"\u2029", "\n")
         self.exec_(code)
 
     def eval(self, code):
