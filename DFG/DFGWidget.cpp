@@ -206,6 +206,9 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
   DFGWidget * graphWidget = (DFGWidget*)userData;
   if(graph->controller() == NULL)
     return NULL;
+  if ( !graphWidget->isEditable() )
+    return NULL;
+
   QMenu* result = new QMenu(NULL);
   result->addAction(DFG_NEW_GRAPH);
   result->addAction(DFG_NEW_FUNCTION);
@@ -254,6 +257,9 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
   try
   {
     DFGWidget * graphWidget = (DFGWidget*)userData;
+    if ( !graphWidget->isEditable() )
+      return NULL;
+
     FabricCore::DFGExec &exec = graphWidget->m_uiController->getExec();
 
     GraphView::Graph * graph = graphWidget->m_uiGraph;
@@ -388,6 +394,9 @@ QMenu* DFGWidget::nodeContextMenuCallback(FabricUI::GraphView::Node* uiNode, voi
 QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
+  if ( !graphWidget->isEditable() )
+    return NULL;
+
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
@@ -427,6 +436,9 @@ QMenu* DFGWidget::portContextMenuCallback(FabricUI::GraphView::Port* port, void*
 QMenu* DFGWidget::sidePanelContextMenuCallback(FabricUI::GraphView::SidePanel* panel, void* userData)
 {
   DFGWidget * graphWidget = (DFGWidget*)userData;
+  if ( !graphWidget->isEditable() )
+    return NULL;
+  
   GraphView::Graph * graph = graphWidget->m_uiGraph;
   if(graph->controller() == NULL)
     return NULL;
@@ -1893,13 +1905,10 @@ void DFGWidget::onExecChanged()
       static_cast<DFGNotificationRouter *>( m_uiController->createRouter() );
     m_uiController->setRouter(m_router);
   
-    if(m_isEditable)
-    {
-      m_uiGraph->setGraphContextMenuCallback(&graphContextMenuCallback, this);
-      m_uiGraph->setNodeContextMenuCallback(&nodeContextMenuCallback, this);
-      m_uiGraph->setPortContextMenuCallback(&portContextMenuCallback, this);
-      m_uiGraph->setSidePanelContextMenuCallback(&sidePanelContextMenuCallback, this);
-    }
+    m_uiGraph->setGraphContextMenuCallback( &graphContextMenuCallback, this );
+    m_uiGraph->setNodeContextMenuCallback( &nodeContextMenuCallback, this );
+    m_uiGraph->setPortContextMenuCallback( &portContextMenuCallback, this );
+    m_uiGraph->setSidePanelContextMenuCallback( &sidePanelContextMenuCallback, this );
 
     if(exec.getType() == FabricCore::DFGExecType_Graph)
     {
