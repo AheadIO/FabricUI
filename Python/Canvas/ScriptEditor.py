@@ -22,8 +22,89 @@ class ScriptEditor(QtGui.QWidget):
 
         returnPressed = QtCore.Signal()
 
+
+        class LineNumberArea(QtGui.QWidget):
+
+          def __init__(self, cmdEditor):
+            QtGui.QWidget.__init__(self, cmdEditor)
+            self.__cmdEditor = cmdEditor
+
+          def sizeHint(self):
+            return QtCore.QSize(self.__cmdEditor.lineNumberAreaWidth(), 0)
+
+          def paintEvent(self, event):
+            self.__cmdEditor.lineNumberAreaPaintEvent(event)
+
+          def mousePressEvent(self, event):
+            self.__cmdEditor.lineNumberAreaClickEvent(event)
+
         def __init__(self):
             QtGui.QPlainTextEdit.__init__(self)
+
+            lineNumberArea = self.LineNumberArea(self)
+            self.__lineNumberArea = lineNumberArea
+
+            def updateLineNumberAreaWidth(newBlockCount):
+                self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
+            self.blockCountChanged.connect(updateLineNumberAreaWidth)
+
+            def updateLineNumberArea(rect, dy):
+                if dy != 0:
+                  lineNumberArea.scroll(0, dy)
+                else:
+                  lineNumberArea.update(0, rect.y(), lineNumberArea.width(), rect.height())
+
+                if rect.contains(self.viewport().rect()):
+                  updateLineNumberAreaWidth(0)
+            self.updateRequest.connect(updateLineNumberArea)
+
+            updateLineNumberAreaWidth(0)
+
+        def resizeEvent(self, event):
+          QtGui.QWidget.resizeEvent(self, event)
+          cr = self.contentsRect()
+          self.__lineNumberArea.setGeometry(
+            QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
+            )
+
+        def lineNumberAreaWidth(self):
+          digits = 1
+          max = self.blockCount()
+          if max < 1:
+            max = 1
+          while max >= 10:
+            max = max / 10
+            digits = digits + 1
+          return 3 + self.fontMetrics().width('9') * digits + 3
+
+        def lineNumberAreaClickEvent(self, event):
+          firstBlock = self.firstVisibleBlock()
+          blockHeight = self.blockBoundingRect(firstBlock).height()
+          blockNum = int(event.y() / blockHeight) + firstBlock.blockNumber()
+          lineNum = blockNum+1
+          self.lineClicked.emit(self.__pathname, lineNum)
+
+        def lineNumberAreaPaintEvent(self, event):
+          lineNumberArea = self.__lineNumberArea
+          painter = QtGui.QPainter(lineNumberArea)
+          painter.fillRect(event.rect(), QtCore.Qt.lightGray)
+          block = self.firstVisibleBlock()
+          blockNumber = block.blockNumber()
+          top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+          bottom = top + int(self.blockBoundingRect(block).height())
+          while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+              blockNumberText = str(blockNumber + 1)
+              painter.setPen(QtCore.Qt.black)
+              painter.drawText(
+                0, top,
+                lineNumberArea.width() - 3, self.fontMetrics().height(),
+                QtCore.Qt.AlignRight, blockNumberText
+                )
+            block = block.next()
+            top = bottom
+            bottom = top + int(self.blockBoundingRect(block).height())
+            blockNumber = blockNumber + 1
 
         def keyPressEvent(self, event):
             if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -58,49 +139,31 @@ class ScriptEditor(QtGui.QWidget):
         self.cmd.setFont(fixedFont)
         self.cmd.returnPressed.connect(self.execute)
 
-        cmdLayout = QtGui.QHBoxLayout()
-        cmdLayout.setContentsMargins(0,0,0,0)
-        cmdLayout.addWidget(QtGui.QLabel("Editor:"))
-        cmdLayout.addWidget(self.cmd)
-
-        cmdContainer = QtGui.QWidget()
-        cmdContainer.setContentsMargins(0,0,0,0)
-        cmdContainer.setLayout(cmdLayout)
-
-        logLayout = QtGui.QHBoxLayout()
-        logLayout.setContentsMargins(0,0,0,0)
-        logLayout.addWidget(QtGui.QLabel("History:"))
-        logLayout.addWidget(self.log)
-
-        logContainer = QtGui.QWidget()
-        logContainer.setContentsMargins(0,0,0,0)
-        logContainer.setLayout(logLayout)
-
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         splitter.setContentsMargins(0,0,0,0)
-        splitter.addWidget(cmdContainer)
-        splitter.addWidget(logContainer)
+        splitter.addWidget(self.cmd)
+        splitter.addWidget(self.log)
 
         openAction = QtGui.QAction("Open", self)
         openAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+O"))
-        openAction.setToolTip("Open Python Script (%s)" % openAction.shortcut().toString())
+        openAction.setToolTip("Open Python script (%s)" % openAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         openAction.triggered.connect(self.open)
 
         self.saveAction = QtGui.QAction("Save", self)
         self.saveAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+S"))
-        self.saveAction.setToolTip("Save Python Script (%s)" % self.saveAction.shortcut().toString())
+        self.saveAction.setToolTip("Save Python script (%s)" % self.saveAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         self.saveAction.triggered.connect(self.save)
         self.saveAction.setEnabled(False)
         self.cmd.modificationChanged.connect(self.onModificationChanged)
 
         saveAsAction = QtGui.QAction("Save As...", self)
         saveAsAction.setShortcut(QtGui.QKeySequence("Alt+Shift+Ctrl+S"))
-        saveAsAction.setToolTip("Save Python Script As... (%s)" % saveAsAction.shortcut().toString())
+        saveAsAction.setToolTip("Save Python script As... (%s)" % saveAsAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         saveAsAction.triggered.connect(self.saveAs)
 
         executeAction = QtGui.QAction("Execute", self)
         executeAction.setShortcut(QtGui.QKeySequence("Ctrl+Return"))
-        executeAction.setToolTip("Execute Python Script (%s)" % executeAction.shortcut().toString())
+        executeAction.setToolTip("Execute Python script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         executeAction.triggered.connect(self.execute)
 
         toolBar = QtGui.QToolBar()
