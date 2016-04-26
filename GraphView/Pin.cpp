@@ -409,3 +409,8 @@ void Pin::setName( FTL::StrRef newName )
     m_label->setText( QSTRING_FROM_STL_UTF8(m_labelCaption + m_labelSuffix) );
   }
 }
+
+bool Pin::selected() const
+{
+  return m_node->selected();
+}

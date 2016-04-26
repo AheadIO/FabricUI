@@ -79,6 +79,8 @@ namespace FabricUI
 
       virtual void setDaisyChainCircleVisible(bool flag);
 
+      virtual bool selected() const /*override*/;
+
       // accessed by controller
       Pin(
         Node * parent,

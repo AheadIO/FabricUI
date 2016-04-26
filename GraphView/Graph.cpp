@@ -543,11 +543,11 @@ bool Graph::disconnectAllPorts()
 
   for(int i=0;i<(int)m_connections.size();i++)
   {
-    Node *srcNode = ((Pin*)m_connections[i]->src())->node();
-    Node *dstNode = ((Pin*)m_connections[i]->dst())->node();
+    ConnectionTarget *srcCT = m_connections[i]->src();
+    bool srcIsSelected = srcCT && srcCT->selected();
 
-    bool srcIsSelected = (srcNode && srcNode->selected());
-    bool dstIsSelected = (dstNode && dstNode->selected());
+    ConnectionTarget *dstCT = m_connections[i]->dst();
+    bool dstIsSelected = dstCT && dstCT->selected();
 
     if (srcIsSelected != dstIsSelected)
       conns.push_back(m_connections[i]);

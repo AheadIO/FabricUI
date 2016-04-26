@@ -116,3 +116,8 @@ PinCircle * ConnectionTarget::findPinCircle(QPointF pos)
   }
   return m_lastPinCircle;
 }
+
+bool ConnectionTarget::selected() const
+{
+  return false;
+}

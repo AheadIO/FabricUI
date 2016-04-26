@@ -55,6 +55,8 @@ namespace FabricUI
       virtual bool isConnected() const;
       virtual bool isConnectedAsSource() const;
 
+      virtual bool selected() const;
+
       virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
       virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
       virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
