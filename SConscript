@@ -287,6 +287,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('ValueEditor').srcnode(),
         pysideEnv.Dir('ValueEditor_Legacy').srcnode(),
         pysideEnv.Dir('Viewports').srcnode(),
+        pysideEnv.Dir('Util').srcnode(),
         pysideEnv.Dir('Test').srcnode(),
         fabricDir.Dir('include'),
         ])
@@ -294,6 +295,7 @@ if uiLibPrefix == 'ui':
     if buildOS == 'Darwin':
       pysideEnv.Append(LIBPATH = [pythonConfig['libDir']])
       pysideEnv.Append(LIBS = [pythonConfig['lib']])
+      pysideEnv.Append(FRAMEWORKS = ['CoreFoundation'])
     
     pysideEnv.Append(LIBS = [
       'FabricUI',

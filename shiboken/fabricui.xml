@@ -35,6 +35,13 @@
       <object-type name="RTValCrash" />
     </namespace-type>
      
+    <namespace-type name="Util" generate="yes">
+      <extra-includes>
+        <include file-name="GetFilenameForFileURL.h" location="global"/>
+      </extra-includes>
+      <function signature="GetFilenameForFileURL(QUrl)"/>
+      <object-type name="QTSignalBlocker"/>
+    </namespace-type>
   </namespace-type>
 
   <namespace-type name="FabricServices" generate="no">

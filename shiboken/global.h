@@ -124,4 +124,6 @@
 #include <FabricUI/Viewports/TimeLineWidget.h>
 #include <FabricUI/Viewports/ManipulationTool.h>
 #include <FabricServices/ASTWrapper/KLASTManager.h>
+#include <FabricUI/Util/GetFilenameForFileURL.h>
+#include <FabricUI/Util/QTSignalBlocker.h>
 #include <FabricUI/Test/RTValCrash.h>

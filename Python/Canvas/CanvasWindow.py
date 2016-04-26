@@ -97,6 +97,8 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         """
 
+        self.setAcceptDrops(True)
+
         DFG.DFGWidget.setSettings(self.settings)
         self.config = DFG.DFGConfig()
 
@@ -262,6 +264,7 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         self.dfgWidget.onGraphSet.connect(self.onGraphSet)
         self.dfgWidget.additionalMenuActionsRequested.connect(self.onAdditionalMenuActionsRequested)
+        self.dfgWidget.urlDropped.connect(self.onUrlDropped)
 
     def _initTreeView(self):
         """Initializes the preset TreeView.
@@ -1139,3 +1142,38 @@ class CanvasWindow(DFG.DFGMainWindow):
             graph.nodeEditRequested.connect(self.onNodeEditRequested)
 
             self.currentGraph = graph
+
+    def dragEnterEvent(self, event):
+        # we accept the proposed action only if we
+        # are dealing with a single '.canvas' file.
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            if len(urls) == 1:
+                url = urls[0];
+                filename = FabricUI.Util.GetFilenameForFileURL(url)
+                if filename.endswith(".canvas"):
+                    event.acceptProposedAction()
+                    return
+
+        DFG.DFGMainWindow.dragEnterEvent(self, event)
+
+    def dropEvent(self, event):
+        # The mimeData was already checked in the dragEnterEvent(), so we simply get the filepath and load the graph.
+        # We also check if the Control key is down and, if it is, we load the scene without prompting.
+        url = event.mimeData().urls()[0]
+        event.acceptProposedAction()
+
+        bypassUnsavedChanges = event.keyboardModifiers() & QtCore.Qt.ControlModifier
+        self.onUrlDropped(url, bypassUnsavedChanges)
+
+    def onUrlDropped(self, url, bypassUnsavedChanges):
+        filename = FabricUI.Util.GetFilenameForFileURL(url)
+        if not filename:
+            return
+
+        self.timeLine.pause()
+
+        if not (bypassUnsavedChanges or self.checkUnsavedChanges()):
+            return
+
+        self.loadGraph(filename)
