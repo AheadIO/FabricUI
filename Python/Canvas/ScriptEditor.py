@@ -1,8 +1,68 @@
-import sys, os
+import sys, os, traceback
 import StringIO
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
+
+class LogStd:
+
+    def __init__(self, log):
+        self._log = log
+
+    def _validate(self):
+        if not self._log:
+            raise ValueError("I/O operation on closed file")
+
+    def writelines(self, ss):
+        self._validate()
+        for s in ss:
+            self.write(s)
+
+    def close(self):
+        self._log = None
+
+    def flush(self):
+        self._validate()
+
+    def _raiseNotOpenForReading(self):
+        raise IOError('File not open for reading')
+
+    def next(self):
+        self._raiseNotOpenForReading()
+
+    def read(self, size=-1):
+        self._raiseNotOpenForReading()
+
+    def readline(self, sizehint=-1):
+        self._raiseNotOpenForReading()
+
+    def xreadlines(self):
+        self._raiseNotOpenForReading()
+
+    def seek(self, offset, whence=None):
+        pass
+
+    def tell(self):
+        return 0
+
+    def truncate(self, size=-1):
+        pass
+
+class LogStdOut(LogStd):
+
+    def __init__(self, log):
+        LogStd.__init__(self, log)
+
+    def write(self, s):
+        self._log.appendComment(s)
+
+class LogStdErr(LogStd):
+
+    def __init__(self, log):
+        LogStd.__init__(self, log)
+
+    def write(self, s):
+        self._log.appendException(s)
 
 class ScriptEditor(QtGui.QWidget):
 
@@ -124,6 +184,9 @@ class ScriptEditor(QtGui.QWidget):
 
         self.filename = ""
 
+        self.stdout = LogStdOut(self.log)
+        self.stderr = LogStdErr(self.log)
+
         self.cmd = self.CmdEditor()
         self.cmd.setFont(fixedFont)
         self.cmd.returnPressed.connect(self.execute)
@@ -155,12 +218,20 @@ class ScriptEditor(QtGui.QWidget):
         executeAction.setToolTip("Execute Python script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         executeAction.triggered.connect(self.execute)
 
+        self.echoCommandsAction = QtGui.QAction("Echo Commands", self)
+        self.echoCommandsAction.setCheckable(True)
+        self.echoCommandsAction.setChecked(bool(self.settings.value("scriptEditor/echoCommands", True)))
+        self.echoCommandsAction.toggled.connect(self.echoCommandsToggled)
+
         toolBar = QtGui.QToolBar()
         toolBar.addAction(openAction)
         toolBar.addAction(self.saveAction)
         toolBar.addAction(saveAsAction)
         toolBar.addSeparator()
         toolBar.addAction(executeAction)
+        toolBar.addSeparator()
+        toolBar.addAction(self.echoCommandsAction)
+        toolBar.addAction(self.log.clearAction("Clear Output"))
 
         layout = QtGui.QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
@@ -169,6 +240,9 @@ class ScriptEditor(QtGui.QWidget):
 
         self.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
+
+    def echoCommandsToggled(self, state):
+        self.settings.setValue("scriptEditor/echoCommands", state)
 
     def updateBinding(self, binding):
         prev = self.eval_globals['binding'] 
@@ -201,7 +275,7 @@ class ScriptEditor(QtGui.QWidget):
     def open(self):
         if not self.checkUnsavedChanges():
             return False
-        lastFolder = str(self.settings.value("mainWindow/lastScriptFolder"))
+        lastFolder = str(self.settings.value("scriptEditor/lastFolder"))
         filename, _ = QtGui.QFileDialog.getOpenFileName(
             self, "Open Python Script", lastFolder, "*.py"
             )
@@ -228,13 +302,13 @@ class ScriptEditor(QtGui.QWidget):
     def saveAs(self):
         filename = self.filename
         if not filename:
-            filename = str(self.settings.value("mainWindow/lastScriptFolder"))
+            filename = str(self.settings.value("scriptEditor/lastFolder"))
         filename, _ = QtGui.QFileDialog.getSaveFileName(
             self, "Save Python Script", filename, "*.py"
             )
         if not filename:
             return False
-        self.settings.setValue("mainWindow/lastScriptFolder", os.path.dirname(filename))
+        self.settings.setValue("scriptEditor/lastFolder", os.path.dirname(filename))
         self.filename = filename
         return self.save()
 
@@ -245,25 +319,37 @@ class ScriptEditor(QtGui.QWidget):
         self.exec_(code)
 
     def eval(self, code):
-        self.log.appendCommand(code)
+        if self.echoCommandsAction.isChecked():
+            self.log.appendCommand(code + "\n")
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = self.stdout
+        sys.stderr = self.stderr
         try:
             result = eval(code, self.eval_globals)
-            if result is not None:
-                self.log.appendComment("# Result: " + str(result))
-            return result
-        except Exception as e:
-            self.log.appendException("# Exception: " + str(e))
-            sys.stderr.write("# Exception: " + str(e) + "\n")
+            if self.echoCommandsAction.isChecked() and result is not None:
+                self.log.appendCommand("# Result: %s\n" % str(result))
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            sys.stderr.writelines(
+                traceback.format_exception(exc_type, exc_value, exc_traceback)
+                )
+        sys.stderr = old_stderr
+        sys.stdout = old_stdout
 
     def exec_(self, code):
-        self.log.appendCommand(code)
+        if self.echoCommandsAction.isChecked():
+            self.log.appendCommand(code + "\n")
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = self.stdout
+        sys.stderr = self.stderr
         try:
-            old_stdout = sys.stdout
-            sys.stdout = sio = StringIO.StringIO()
             exec code in self.eval_globals
-            sys.stdout = old_stdout
-            for s in sio.getvalue()[:-1].split("\n"):
-                self.log.appendComment("# Output: " + str(s))
-        except Exception as e:
-            self.log.appendException("# Exception: " + str(e))
-            sys.stderr.write("# Exception: " + str(e) + "\n")
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            sys.stderr.writelines(
+                traceback.format_exception(exc_type, exc_value, exc_traceback)
+                )
+        sys.stderr = old_stderr
+        sys.stdout = old_stdout

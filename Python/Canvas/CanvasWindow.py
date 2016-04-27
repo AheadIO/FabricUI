@@ -732,7 +732,7 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         """
 
-        self.scriptEditor.exec_("newGraph(%s)" % str(skip_save))
+        self.scriptEditor.exec_("newGraph(skip_save=%s)" % str(skip_save))
 
     def onNewGraph(self, skip_save=False):
         """Callback Executed when a call to create a new graph has been made.

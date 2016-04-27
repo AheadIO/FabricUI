@@ -12,14 +12,7 @@ class AppendingTextWidget(QtGui.QTextEdit):
         charFormat = self.currentCharFormat()
         textCursor = self.textCursor()
         textCursor.movePosition(QtGui.QTextCursor.End)
-        textCursor.insertText(text + "\n", charFormat)
-        self.setTextCursor(textCursor)
-        self.ensureCursorVisible()
-
-    def appendSeparator(self):
-        textCursor = self.textCursor()
-        textCursor.movePosition(QtGui.QTextCursor.End)
-        textCursor.insertHtml("<hr /><br />")
+        textCursor.insertText(text, charFormat)
         self.setTextCursor(textCursor)
         self.ensureCursorVisible()
 
@@ -39,8 +32,10 @@ class LogWidget(AppendingTextWidget):
         self.copyAction.triggered.connect(self.copy)
         self.copyAvailable.connect(self.copyAction.setEnabled)
 
-        self.clearAction = QtGui.QAction("Clear", self)
-        self.clearAction.triggered.connect(self.clear)
+    def clearAction(self, desc):
+        result = QtGui.QAction(desc, self)
+        result.triggered.connect(self.clear)
+        return result
 
     def appendCommand(self, text):
         self.append(text, self.commandColor)
@@ -55,5 +50,5 @@ class LogWidget(AppendingTextWidget):
         menu = QtGui.QMenu()
         menu.addAction(self.copyAction)
         menu.addSeparator()
-        menu.addAction(self.clearAction)
+        menu.addAction(self.clearAction("Clear"))
         menu.exec_(self.mapToGlobal(event.pos()))
