@@ -170,6 +170,10 @@ class ScriptEditor(QtGui.QWidget):
             "newGraph": canvasWindow.onNewGraph,
             }
 
+        self.__undoStackIndex = qUndoStack.index()
+        qUndoStack.indexChanged.connect(self.undoStackIndexChanged)
+        self.__qUndoStack = qUndoStack
+
         fixedFont = QtGui.QFont("Courier", 12)
         # fixedFont.setFamily("Monospace")
         # fixedFont.setStyleHint(QtGui.QFont.TypeWriter)
@@ -240,6 +244,20 @@ class ScriptEditor(QtGui.QWidget):
 
         self.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
+
+    def undoStackIndexChanged(self, index):
+        if self.echoCommandsAction.isChecked():
+            if index < self.__undoStackIndex:
+                for i in range(self.__undoStackIndex-1, index-1, -1):
+                    s = self.__qUndoStack.text(i)
+                    if s:
+                        self.log.appendCommand("# [UNDO] %s\n" % s)
+            else:
+                for i in range(self.__undoStackIndex, index, 1):
+                    s = self.__qUndoStack.text(i)
+                    if s:
+                        self.log.appendCommand("# %s\n" % s)
+        self.__undoStackIndex = index
 
     def echoCommandsToggled(self, state):
         self.settings.setValue("scriptEditor/echoCommands", state)
