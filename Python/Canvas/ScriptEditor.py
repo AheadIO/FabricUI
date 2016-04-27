@@ -3,6 +3,7 @@ import StringIO
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
+from FabricEngine.Canvas.PythonHighlighter import PythonHighlighter
 
 class LogStd:
 
@@ -89,6 +90,9 @@ class ScriptEditor(QtGui.QWidget):
         def __init__(self):
             QtGui.QPlainTextEdit.__init__(self)
 
+            self.setStyleSheet("background-color: #272822;");
+            self.__highlighter = PythonHighlighter(self.document())
+
             lineNumberArea = self.LineNumberArea(self)
             self.__lineNumberArea = lineNumberArea
 
@@ -160,6 +164,8 @@ class ScriptEditor(QtGui.QWidget):
                 return
             QtGui.QPlainTextEdit.keyPressEvent(self, event)
 
+    titleDataChanged = QtCore.Signal(str, bool)
+
     def __init__(self, client, binding, qUndoStack, dfgLogWidget, settings, canvasWindow):
         QtGui.QWidget.__init__(self)
 
@@ -171,6 +177,8 @@ class ScriptEditor(QtGui.QWidget):
         self.eval_globals = {
             "binding": BindingWrapper(client, binding, qUndoStack),
             "newGraph": canvasWindow.onNewGraph,
+            "newScript": self.newScript,
+            "loadScript": self.loadScript,
             }
 
         fixedFont = QtGui.QFont("Courier", 12)
@@ -199,26 +207,31 @@ class ScriptEditor(QtGui.QWidget):
         splitter.addWidget(self.cmd)
         splitter.addWidget(self.log)
 
+        newAction = QtGui.QAction("New", self)
+        newAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+N"))
+        newAction.setToolTip("New script (%s)" % newAction.shortcut().toString(QtGui.QKeySequence.NativeText))
+        newAction.triggered.connect(self.newScript)
+
         openAction = QtGui.QAction("Open", self)
         openAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+O"))
-        openAction.setToolTip("Open Python script (%s)" % openAction.shortcut().toString(QtGui.QKeySequence.NativeText))
+        openAction.setToolTip("Open script (%s)" % openAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         openAction.triggered.connect(self.open)
 
         self.saveAction = QtGui.QAction("Save", self)
         self.saveAction.setShortcut(QtGui.QKeySequence("Alt+Ctrl+S"))
-        self.saveAction.setToolTip("Save Python script (%s)" % self.saveAction.shortcut().toString(QtGui.QKeySequence.NativeText))
+        self.saveAction.setToolTip("Save script (%s)" % self.saveAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         self.saveAction.triggered.connect(self.save)
         self.saveAction.setEnabled(False)
         self.cmd.modificationChanged.connect(self.onModificationChanged)
 
         saveAsAction = QtGui.QAction("Save As...", self)
         saveAsAction.setShortcut(QtGui.QKeySequence("Alt+Shift+Ctrl+S"))
-        saveAsAction.setToolTip("Save Python script As... (%s)" % saveAsAction.shortcut().toString(QtGui.QKeySequence.NativeText))
+        saveAsAction.setToolTip("Save script As... (%s)" % saveAsAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         saveAsAction.triggered.connect(self.saveAs)
 
         executeAction = QtGui.QAction("Execute", self)
         executeAction.setShortcut(QtGui.QKeySequence("Ctrl+Return"))
-        executeAction.setToolTip("Execute Python script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
+        executeAction.setToolTip("Execute script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         executeAction.triggered.connect(self.execute)
 
         self.echoCommandsAction = QtGui.QAction("Echo Commands", self)
@@ -227,6 +240,7 @@ class ScriptEditor(QtGui.QWidget):
         self.echoCommandsAction.toggled.connect(self.echoCommandsToggled)
 
         toolBar = QtGui.QToolBar()
+        toolBar.addAction(newAction)
         toolBar.addAction(openAction)
         toolBar.addAction(self.saveAction)
         toolBar.addAction(saveAsAction)
@@ -270,6 +284,7 @@ class ScriptEditor(QtGui.QWidget):
         self.saveAction.setEnabled(
             not textDocument.isEmpty() and textDocument.isModified() and len(self.filename) > 0
             )
+        self.titleDataChanged.emit(self.filename, modification)
 
     def checkUnsavedChanges(self):
         textDocument = self.cmd.document()
@@ -289,6 +304,16 @@ class ScriptEditor(QtGui.QWidget):
                 return self.save()
         return True
 
+    def newScript(self):
+        if not self.checkUnsavedChanges():
+            return False
+        self.filename = ""
+        textDocument = self.cmd.document()
+        textDocument.setPlainText("")
+        textDocument.setModified(False)
+        self.titleDataChanged.emit("", False)
+        return True
+
     def open(self):
         if not self.checkUnsavedChanges():
             return False
@@ -299,12 +324,23 @@ class ScriptEditor(QtGui.QWidget):
         filename = str(filename)
         if len(filename) == 0:
             return False
+        return self.loadScript(filename)
+
+    def loadScript(self, filename):
         textDocument = self.cmd.document()
-        with open(filename, "r") as fh:
-            textDocument.setPlainText(fh.read())
-        textDocument.setModified(False)
-        self.filename = filename
-        return True
+        try:
+            with open(filename, "r") as fh:
+                textDocument.setPlainText(fh.read())
+            textDocument.setModified(False)
+            self.filename = filename
+            self.titleDataChanged.emit(filename, False)
+            return True
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            sys.stderr.writelines(
+                traceback.format_exception(exc_type, exc_value, exc_traceback)
+                )
+            return False
 
     def save(self):
         if not self.filename:
@@ -313,7 +349,6 @@ class ScriptEditor(QtGui.QWidget):
             with open(self.filename, "w") as fh:
                 fh.write(self.cmd.toPlainText())
             self.cmd.document().setModified(False)
-            self.log.appendComment("# Saved Python script as '%s'" % self.filename)
             return True
 
     def saveAs(self):
@@ -327,12 +362,14 @@ class ScriptEditor(QtGui.QWidget):
             return False
         self.settings.setValue("scriptEditor/lastFolder", os.path.dirname(filename))
         self.filename = filename
+        self.titleDataChanged.emit(filename, self.cmd.isModified())
         return self.save()
 
     def execute(self):
-        if not self.cmd.textCursor().hasSelection():
-            self.cmd.selectAll()
-        code = self.cmd.textCursor().selectedText().replace(u"\u2029", "\n")
+        if self.cmd.textCursor().hasSelection():
+            code = self.cmd.textCursor().selectedText().replace(u"\u2029", "\n")
+        else:
+            code = self.cmd.toPlainText()
         self.exec_(code)
 
     def eval(self, code):

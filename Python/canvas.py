@@ -76,7 +76,6 @@ if __name__ == "__main__":
         mainWin.scriptEditor.exec_(args.exec_)
 
     if args.script:
-        with open(args.script, "r") as f:
-            mainWin.scriptEditor.exec_(f.read())
+        mainWin.scriptEditor.loadScript(args.script)
 
     app.exec_()
