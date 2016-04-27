@@ -1,20 +1,8 @@
 import sys, os
 import StringIO
-import contextlib
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
-
-@contextlib.contextmanager
-def stdoutIO():
-    old_stdout = sys.stdout
-    old_stderr = sys.stderr
-    sio = StringIO.StringIO()
-    sys.stdout = sio
-    sys.stderr = sio
-    yield sio
-    sys.stdout = old_stdout
-    sys.stderr = old_stderr
 
 class ScriptEditor(QtGui.QWidget):
 
@@ -270,10 +258,12 @@ class ScriptEditor(QtGui.QWidget):
     def exec_(self, code):
         self.log.appendCommand(code)
         try:
-            with stdoutIO() as sio:
-                exec code in self.eval_globals
-                for s in sio.getvalue()[:-1].split("\n"):
-                    self.dfgLogWidget.log(s)
+            old_stdout = sys.stdout
+            sys.stdout = sio = StringIO.StringIO()
+            exec code in self.eval_globals
+            sys.stdout = old_stdout
+            for s in sio.getvalue()[:-1].split("\n"):
+                self.log.appendComment("# Output: " + str(s))
         except Exception as e:
             self.log.appendException("# Exception: " + str(e))
             sys.stderr.write("# Exception: " + str(e) + "\n")
