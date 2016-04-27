@@ -1010,20 +1010,10 @@ class CanvasWindow(DFG.DFGMainWindow):
                 self.quitAction.triggered.connect(self.close)
         elif name == 'Edit':
             if prefix:
-                undoAction = QtGui.QAction("Undo", self)
-                def onUndo():
-                    self.scriptEditor.eval("undo()")
-                undoAction.triggered.connect(onUndo)
-                undoAction.setEnabled(self.qUndoStack.canUndo())
-                self.qUndoStack.canUndoChanged.connect(undoAction.setEnabled)
+                undoAction = self.qUndoStack.createUndoAction(self)
                 undoAction.setShortcut(QtGui.QKeySequence.Undo)
                 menu.addAction(undoAction)
-                redoAction = QtGui.QAction("Redo", self)
-                def onRedo():
-                    self.scriptEditor.eval("redo()")
-                redoAction.triggered.connect(onRedo)
-                redoAction.setEnabled(self.qUndoStack.canRedo())
-                self.qUndoStack.canRedoChanged.connect(redoAction.setEnabled)
+                redoAction = self.qUndoStack.createRedoAction(self)
                 redoAction.setShortcut(QtGui.QKeySequence.Redo)
                 menu.addAction(redoAction)
             else:
