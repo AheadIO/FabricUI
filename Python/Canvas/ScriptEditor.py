@@ -70,7 +70,7 @@ class ScriptEditor(QtGui.QWidget):
     class CmdEditor(QtGui.QPlainTextEdit):
 
         returnPressed = QtCore.Signal()
-
+        linesSelected = QtCore.Signal(int, int)
 
         class LineNumberArea(QtGui.QWidget):
 
@@ -85,7 +85,13 @@ class ScriptEditor(QtGui.QWidget):
             self.__cmdEditor.lineNumberAreaPaintEvent(event)
 
           def mousePressEvent(self, event):
-            self.__cmdEditor.lineNumberAreaClickEvent(event)
+            self.__cmdEditor.lineNumberAreaMousePressEvent(event)
+
+          def mouseMoveEvent(self, event):
+            self.__cmdEditor.lineNumberAreaMouseMoveEvent(event)
+
+          def mouseReleaseEvent(self, event):
+            self.__cmdEditor.lineNumberAreaMouseReleaseEvent(event)
 
         def __init__(self):
             QtGui.QPlainTextEdit.__init__(self)
@@ -127,14 +133,24 @@ class ScriptEditor(QtGui.QWidget):
           while max >= 10:
             max = max / 10
             digits = digits + 1
+          if digits < 3:
+            digits = 3
           return 3 + self.fontMetrics().width('9') * digits + 3
 
-        def lineNumberAreaClickEvent(self, event):
-          firstBlock = self.firstVisibleBlock()
-          blockHeight = self.blockBoundingRect(firstBlock).height()
-          blockNum = int(event.y() / blockHeight) + firstBlock.blockNumber()
-          lineNum = blockNum+1
-          self.lineClicked.emit(self.__pathname, lineNum)
+        def lineNumberAreaMousePressEvent(self, event):
+            firstBlock = self.firstVisibleBlock()
+            blockHeight = self.blockBoundingRect(firstBlock).height()
+            self.__mousePressStartBlockNumber = int(event.y() / blockHeight) + firstBlock.blockNumber()
+            self.linesSelected.emit(self.__mousePressStartBlockNumber, self.__mousePressStartBlockNumber)
+
+        def lineNumberAreaMouseMoveEvent(self, event):
+            firstBlock = self.firstVisibleBlock()
+            blockHeight = self.blockBoundingRect(firstBlock).height()
+            blockNumber = int(event.y() / blockHeight) + firstBlock.blockNumber()
+            self.linesSelected.emit(self.__mousePressStartBlockNumber, blockNumber)
+
+        def lineNumberAreaMouseReleaseEvent(self, event):
+            pass
 
         def lineNumberAreaPaintEvent(self, event):
           lineNumberArea = self.__lineNumberArea
@@ -144,6 +160,7 @@ class ScriptEditor(QtGui.QWidget):
           blockNumber = block.blockNumber()
           top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
           bottom = top + int(self.blockBoundingRect(block).height())
+          painter.setFont(self.font())
           while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
               blockNumberText = str(blockNumber + 1)
@@ -201,6 +218,7 @@ class ScriptEditor(QtGui.QWidget):
         self.cmd = self.CmdEditor()
         self.cmd.setFont(fixedFont)
         self.cmd.returnPressed.connect(self.execute)
+        self.cmd.linesSelected.connect(self.onLinesSelected)
 
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         splitter.setContentsMargins(0,0,0,0)
@@ -257,6 +275,18 @@ class ScriptEditor(QtGui.QWidget):
 
         self.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
+
+    def onLinesSelected(self, startLineNum, endLineNum):
+        startTextBlock = self.cmd.document().findBlockByLineNumber(startLineNum)
+        endTextBlock = self.cmd.document().findBlockByLineNumber(endLineNum)
+        textCursor = self.cmd.textCursor()
+        if startLineNum > endLineNum:
+            textCursor.setPosition(startTextBlock.position() + startTextBlock.length())
+            textCursor.setPosition(endTextBlock.position(), textCursor.KeepAnchor)
+        else:
+            textCursor.setPosition(startTextBlock.position())
+            textCursor.setPosition(endTextBlock.position() + endTextBlock.length(), textCursor.KeepAnchor)
+        self.cmd.setTextCursor(textCursor)
 
     def undoStackIndexChanged(self, index):
         if self.__echoStackIndexChanges and self.echoCommandsAction.isChecked():
