@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # execute, and a Python script to execute are also available to be called on
     # startup.
 
-    app = QtGui.QApplication([])
+    app = FabricApplication()
     app.setOrganizationName('Fabric Software Inc')
     app.setApplicationName('Fabric Canvas Standalone')
     app.setApplicationVersion('2.0.0')

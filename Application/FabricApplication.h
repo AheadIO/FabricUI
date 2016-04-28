@@ -14,7 +14,7 @@ namespace FabricUI
     class FabricApplication : public QApplication
     {
     public:
-        FabricApplication(int &argc, char **argv);
+        FabricApplication();
     };
 
   };
