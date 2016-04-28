@@ -20,6 +20,7 @@ class RTValCrash {
     ~RTValCrash() {}
     
     FabricCore::RTVal getRTVal() { return m_rtVal; }
+    FabricCore::RTVal getEmptyRTVal() { return FabricCore::RTVal(); }
 
     void setRTVal(FabricCore::RTVal rtVal) { m_rtVal = rtVal; }
 
