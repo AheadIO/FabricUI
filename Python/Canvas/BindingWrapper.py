@@ -298,7 +298,7 @@ class BindingWrapper:
         ):
         rootExec = self.binding.getExec()
         exec_ = rootExec.getSubExec(execPath)
-        cmd = DFG.DFGUICmd_Explode(
+        cmd = DFG.DFGUICmd_ExplodeNode(
             self.binding,
             execPath,
             exec_,
