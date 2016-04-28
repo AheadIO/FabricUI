@@ -28,11 +28,11 @@ STYLES = {
     'keyword': format('#66d9ef'),
     'operator': format('red'),
     'brace': format('darkGray'),
-    'defclass': format('black', 'bold'),
+    'defclass': format('#bce4ec', 'bold'),
     'string': format('magenta'),
     'string2': format('darkMagenta'),
-    'comment': format('darkGreen', 'italic'),
-    'self': format('black', 'italic'),
+    'comment': format('#88ab87', 'italic'),
+    'self': format('#f98f8f', 'italic'),
     'numbers': format('#e6db74'),
 }
 
