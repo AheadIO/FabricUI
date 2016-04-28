@@ -91,7 +91,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.installEventFilter(CanvasWindowEventFilter(self))
 
     def __init(self):
-        """Initinalizes the settings and config for the application.
+        """Initializes the settings and config for the application.
 
         The autosave directory and file name are established here.
 
