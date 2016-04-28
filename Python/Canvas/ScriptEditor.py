@@ -93,7 +93,7 @@ class ScriptEditor(QtGui.QWidget):
           def mouseReleaseEvent(self, event):
             self.__cmdEditor.lineNumberAreaMouseReleaseEvent(event)
 
-        def __init__(self):
+        def __init__(self, font):
             QtGui.QPlainTextEdit.__init__(self)
 
             self.setStyleSheet("background-color: #272822;");
@@ -101,6 +101,9 @@ class ScriptEditor(QtGui.QWidget):
 
             lineNumberArea = self.LineNumberArea(self)
             self.__lineNumberArea = lineNumberArea
+
+            self.setFont(font)
+            self.setTabStopWidth(4 * self.fontMetrics().width(' '));
 
             def updateLineNumberAreaWidth(newBlockCount):
                 self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
@@ -175,11 +178,140 @@ class ScriptEditor(QtGui.QWidget):
             bottom = top + int(self.blockBoundingRect(block).height())
             blockNumber = blockNumber + 1
 
+        def leadingSpaceCount(self, tb):
+            s = tb.text()
+            result = 0
+            for c in s:
+                if c == " ":
+                    result += 1
+                elif c == '\t':
+                    result = int((result + 4)/4) * 4
+                else:
+                    break
+            return result
+
+        def isInLeadingSpace(self, tc):
+            tb = tc.block()
+            s = tb.text()
+            for i in range(0, tc.positionInBlock()):
+                if not s[i] in [" ", "\t"]:
+                    return False
+            return True
+
         def keyPressEvent(self, event):
-            if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.ControlModifier:
-                event.ignore()
-                return
+            # print "event.key() = %s" % str(event.key())
+            if event.key() == QtCore.Qt.Key_Return:
+                if event.modifiers() == QtCore.Qt.ControlModifier:
+                    event.ignore()
+                    return
+            elif event.key() == QtCore.Qt.Key_Tab:
+                if (event.modifiers() & ~QtCore.Qt.ShiftModifier) == 0:
+                    tc = self.textCursor()
+                    if tc.hasSelection() or self.isInLeadingSpace(tc):
+                        self.indent()
+                    else:
+                        self.insertTab()
+                    event.accept()
+                    return
+            elif event.key() == QtCore.Qt.Key_Backtab:
+                if (event.modifiers() & ~QtCore.Qt.ShiftModifier) == 0:
+                    tc = self.textCursor()
+                    if tc.hasSelection() or self.isInLeadingSpace(tc):
+                        self.exdent()
+                    else:
+                        self.insertTab()
+                    event.accept()
+                    return
+            elif event.key() == QtCore.Qt.Key_Backspace:
+                if event.modifiers() == QtCore.Qt.NoModifier:
+                    tc = self.textCursor()
+                    if not tc.hasSelection() and self.isInLeadingSpace(tc):
+                        self.exdent()
+                        event.accept()
+                        return
+            elif event.key() == QtCore.Qt.Key_BracketLeft:
+                if event.modifiers() == QtCore.Qt.ControlModifier:
+                    self.exdent()
+                    event.accept()
+                    return
+            elif event.key() == QtCore.Qt.Key_BracketRight:
+                if event.modifiers() == QtCore.Qt.ControlModifier:
+                    self.indent()
+                    event.accept()
+                    return
             QtGui.QPlainTextEdit.keyPressEvent(self, event)
+
+        def insertTab(self):
+            tc = self.textCursor()
+            try:
+                tc.beginEditBlock()
+                tb = tc.block()
+                s = tb.text()
+                leadingChars = 0
+                for i in range(0, tc.positionInBlock()):
+                    if s[i] == '\t':
+                        leadingChars = int((leadingChars + 4) / 4) * 4
+                    else:
+                        leadingChars += 1
+                spacesToAdd = int((leadingChars + 4) / 4) * 4 - leadingChars
+                tc.insertText(' '*spacesToAdd)
+                self.setTextCursor(tc)
+            finally:
+                tc.endEditBlock()
+
+        def indent(self):
+            otc = self.textCursor()
+            tc = self.textCursor()
+            try:
+                tc.beginEditBlock()
+                td = self.document()
+                sp = tc.selectionStart()
+                ep = tc.selectionEnd()
+                tc.setPosition(sp)
+                sbn = tc.blockNumber()
+                tc.setPosition(ep)
+                ebn = tc.blockNumber()
+                if tc.positionInBlock() == 0 and ebn > sbn:
+                    ebn -= 1
+                for bn in range(sbn, ebn+1):
+                    tb = td.findBlockByNumber(bn)
+                    oldLeadingSpaceCount = self.leadingSpaceCount(tb)
+                    newLeadingSpaceCount = int((oldLeadingSpaceCount + 4) / 4) * 4
+                    tc.setPosition(tb.position())
+                    tc.setPosition(tb.position() + oldLeadingSpaceCount, tc.KeepAnchor)
+                    tc.insertText(' ' * newLeadingSpaceCount)
+                self.setTextCursor(otc)
+            finally:
+                tc.endEditBlock()
+
+        def exdent(self):
+            otc = self.textCursor()
+            tc = self.textCursor()
+            try:
+                tc.beginEditBlock()
+                td = self.document()
+                sp = tc.selectionStart()
+                ep = tc.selectionEnd()
+                tc.setPosition(sp)
+                sbn = tc.blockNumber()
+                tc.setPosition(ep)
+                ebn = tc.blockNumber()
+                if tc.positionInBlock() == 0 and ebn > sbn:
+                    ebn -= 1
+                for bn in range(sbn, ebn+1):
+                    tb = td.findBlockByNumber(bn)
+                    s = tb.text()
+                    oldLeadingSpaceCount = self.leadingSpaceCount(tb)
+                    if oldLeadingSpaceCount > 4:
+                        newLeadingSpaceCount = int((oldLeadingSpaceCount - 3) / 4) * 4
+                    else:
+                        newLeadingSpaceCount = 0
+                    tc.setPosition(tb.position())
+                    tc.setPosition(tb.position() + oldLeadingSpaceCount, tc.KeepAnchor)
+                    tc.insertText(' ' * newLeadingSpaceCount)
+                self.setTextCursor(otc)
+            finally:
+                tc.endEditBlock()
 
     titleDataChanged = QtCore.Signal(str, bool)
 
@@ -215,8 +347,7 @@ class ScriptEditor(QtGui.QWidget):
         self.stdout = LogStdOut(self.log)
         self.stderr = LogStdErr(self.log)
 
-        self.cmd = self.CmdEditor()
-        self.cmd.setFont(fixedFont)
+        self.cmd = self.CmdEditor(fixedFont)
         self.cmd.returnPressed.connect(self.execute)
         self.cmd.linesSelected.connect(self.onLinesSelected)
 
