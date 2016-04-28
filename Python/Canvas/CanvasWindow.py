@@ -383,6 +383,15 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.scriptEditorDock.setObjectName('Script Editor')
         self.scriptEditorDock.setFeatures(self.dockFeatures)
         self.scriptEditorDock.setWidget(self.scriptEditor)
+        def scriptEditorTitleDataChanged(filename, isModified):
+            windowTitle = "Script Editor"
+            if filename:
+                windowTitle += ' - '
+                windowTitle += filename
+            if isModified:
+                windowTitle += ' (modified)'
+            self.scriptEditorDock.setWindowTitle(windowTitle)
+        self.scriptEditor.titleDataChanged.connect(scriptEditorTitleDataChanged)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.scriptEditorDock, QtCore.Qt.Vertical)
 
     def _initMenus(self):
