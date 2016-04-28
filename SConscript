@@ -94,9 +94,9 @@ env.MergeFlags(fabricFlags)
 env.MergeFlags(qtFlags)
 
 dirs = [
-  'Application',
   'Util',
   'Style',
+  'Application',
   'TreeView',
   'ValueEditor_Legacy',
   'ValueEditor',
@@ -283,6 +283,7 @@ if uiLibPrefix == 'ui':
         pysideEnv.Dir('DFG/DFGUICmd').srcnode(),
         pysideEnv.Dir('GraphView').srcnode(),
         pysideEnv.Dir('Licensing').srcnode(),
+        pysideEnv.Dir('Style').srcnode(),
         pysideEnv.Dir('Application').srcnode(),
         pysideEnv.Dir('ModelItems').srcnode(),
         pysideEnv.Dir('ValueEditor').srcnode(),
