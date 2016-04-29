@@ -1,5 +1,6 @@
 """Canvas Window."""
 
+import json
 import os
 import sys
 
@@ -148,6 +149,43 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsTimer.timeout.connect(self.updateFPS)
         self.fpsTimer.start()
 
+    def __rtvalEncoder(self, rtval, codecContext, metadataLookup):
+        try:
+            if codecContext == Core.CAPI.RTValCodecContext_BindingArgument \
+                    and metadataLookup \
+                    and metadataLookup("uiPersistValue") != "true":
+                return False
+            if not rtval.isObject():
+                return True
+            if rtval.isNullObject():
+                return True
+            cast = self.client.RT.types.RTValToJSONEncoder(rtval)
+            if cast.isNullObject():
+                return True
+            result = cast.convertToString('String')
+            ref = result.getSimpleType()
+            if len(ref) < 1:
+                return True
+            return json.dumps(ref)
+        except Exception as _e:
+            return True
+
+    def __rtvalDecoder(self, rtval, codecContext, string, metadataLookup):
+        try:
+            if not rtval.isObject():
+                return True
+            if rtval.isNullObject():
+                return True
+            cast = self.client.RT.types.RTValFromJSONDecoder(rtval)
+            if cast.isNullObject():
+                return True
+            decodedString = json.loads(string)
+            rtvalString = self.client.RT.types(decodedString)
+            result = cast.convertFromString('Boolean', rtvalString)
+            return result.getSimpleType()
+        except Exception as _e:
+            return True
+
     def __reportCallback(self, source, level, line):
         """Call back method that fires when the client emits reports.
 
@@ -210,7 +248,9 @@ class CanvasWindow(DFG.DFGMainWindow):
         clientOpts = {
           'guarded': not unguarded,
           'noOptimization': noopt,
-          'reportCallback': self.__reportCallback
+          'reportCallback': self.__reportCallback,
+          'rtValToJSONEncoder': self.__rtvalEncoder,
+          'rtValFromJSONDecoder': self.__rtvalDecoder,
           }
 
         client = Core.createClient(clientOpts)
