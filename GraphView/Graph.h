@@ -130,7 +130,7 @@ namespace FabricUI
       virtual Connection * addConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false, bool createdOnLoad = false);
       virtual bool removeConnection(ConnectionTarget * src, ConnectionTarget * dst, bool quiet = false);
       virtual bool removeConnection(Connection * connection, bool quiet = false);
-      virtual bool disconnectAllPorts();
+      virtual bool removeConnections();
       virtual void resetMouseGrabber();
 
       void updateOverlays(float width, float height);
