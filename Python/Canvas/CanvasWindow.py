@@ -245,7 +245,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.evalContext.host = 'Canvas'
         self.evalContext.graph = ''
 
-        astManager = KLASTManager(self.client)
+        self.astManager = KLASTManager(self.client)
         self.host = self.client.getDFGHost()
         binding = self.host.createBindingToNewGraph()
         self.lastSavedBindingVersion = binding.getVersion()
@@ -256,7 +256,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.dfguiCommandHandler = UICmdHandler(self.client, self.scriptEditor)
 
         self.dfgWidget = DFG.DFGWidget(None, self.client, self.host,
-                                       binding, '', graph, astManager,
+                                       binding, '', graph, self.astManager,
                                        self.dfguiCommandHandler, self.config)
 
         tabSearchWidget = self.dfgWidget.getTabSearchWidget()
@@ -618,6 +618,7 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         QtGui.QMainWindow.closeEvent(self, event)
 
+        self.astManager = None
         self.client.close()
 
         if os.path.exists(self.autosaveFilename):
