@@ -24,10 +24,6 @@
       </object-type>
     </namespace-type>
 
-    <namespace-type name="Style" generate="yes">
-      <object-type name="FabricStyle" />
-    </namespace-type>
-
     <namespace-type name="Application" generate="yes">
       <object-type name="FabricApplication" />
     </namespace-type>
