@@ -33,7 +33,8 @@ GLViewportWidget::GLViewportWidget(
   {
     printf("Error: %s\n", e.getDesc_cstr());
   }
-
+  
+  m_resizedOnce  = false;
   resetRTVals( false /*shouldUpdateGL*/ );
 }
 
