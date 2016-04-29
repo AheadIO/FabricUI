@@ -15,5 +15,8 @@ class FabricUITest(unittest.TestCase):
         rtValCrash_2 = FabricUI._Test.RTValCrash(client)
         rtValCrash_1.setRTVal(rtValCrash_2.getRTVal())
 
+        emptyRTVal = rtValCrash_1.getEmptyRTVal()
+        print emptyRTVal
+
 if __name__ == "__main__":
     unittest.main()
