@@ -70,6 +70,8 @@ namespace FabricUI
       virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
       virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
+      bool isHovered()  { return m_hovered; }
+
     public slots:
 
       virtual void dependencyMoved();

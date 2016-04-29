@@ -541,19 +541,30 @@ bool Graph::disconnectAllPorts()
 {
   std::vector<Connection*> conns;
 
+  // we first check if there are hovered connections.
+  // If there are none, we do the regular 'disconnect
+  // all ports' thing.
+
   for(int i=0;i<(int)m_connections.size();i++)
+    if (m_connections[i]->isHovered())
+        conns.push_back(m_connections[i]);
+
+  if (!conns.size())
   {
-    ConnectionTarget *srcCT = m_connections[i]->src();
-    bool srcIsSelected = srcCT && srcCT->selected();
+    for(int i=0;i<(int)m_connections.size();i++)
+    {
+      ConnectionTarget *srcCT = m_connections[i]->src();
+      bool srcIsSelected = srcCT && srcCT->selected();
 
-    ConnectionTarget *dstCT = m_connections[i]->dst();
-    bool dstIsSelected = dstCT && dstCT->selected();
+      ConnectionTarget *dstCT = m_connections[i]->dst();
+      bool dstIsSelected = dstCT && dstCT->selected();
 
-    if (srcIsSelected != dstIsSelected)
-      conns.push_back(m_connections[i]);
+      if (srcIsSelected != dstIsSelected)
+        conns.push_back(m_connections[i]);
+    }
   }
 
-  return controller()->gvcDoRemoveConnections(conns);
+  return (conns.size() ? controller()->gvcDoRemoveConnections(conns) : true);
 }
 
 MouseGrabber * Graph::constructMouseGrabber(QPointF pos, ConnectionTarget * target, PortType portType)
