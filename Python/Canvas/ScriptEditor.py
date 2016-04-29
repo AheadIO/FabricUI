@@ -225,7 +225,7 @@ class ScriptEditor(QtGui.QWidget):
             elif event.key() == QtCore.Qt.Key_Backspace:
                 if event.modifiers() == QtCore.Qt.NoModifier:
                     tc = self.textCursor()
-                    if not tc.hasSelection() and self.isInLeadingSpace(tc):
+                    if not tc.hasSelection() and not tc.atBlockStart() and self.isInLeadingSpace(tc):
                         self.exdent()
                         event.accept()
                         return
