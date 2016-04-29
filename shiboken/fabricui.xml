@@ -24,8 +24,8 @@
       </object-type>
     </namespace-type>
 
-    <namespace-type name="Style" generate="yes">
-      <object-type name="FabricStyle" />
+    <namespace-type name="Application" generate="yes">
+      <object-type name="FabricApplication" />
     </namespace-type>
 
     <load-typesystem name="fabricui_modelitems.xml" generate="yes"/>
