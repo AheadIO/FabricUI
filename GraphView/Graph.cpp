@@ -537,7 +537,7 @@ bool Graph::removeConnection(Connection * connection, bool quiet)
   return true;
 }
 
-bool Graph::disconnectAllPorts()
+bool Graph::removeConnections()
 {
   std::vector<Connection*> conns;
 

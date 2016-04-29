@@ -242,11 +242,11 @@ QMenu* DFGWidget::graphContextMenuCallback(FabricUI::GraphView::Graph* graph, vo
 
   result->addSeparator();
 
-  QAction * disconnectAllPortsAction = new QAction(DFG_DISCONNECT_ALL_PORTS, graphWidget);
-  disconnectAllPortsAction->setShortcut( QKeySequence(Qt::Key_D) );
+  QAction * removeConnectionsAction = new QAction(DFG_DISCONNECT_ALL_PORTS, graphWidget);
+  removeConnectionsAction->setShortcut( QKeySequence(Qt::Key_D) );
   // [Julien] When using shortcut in Qt, set the flag WidgetWithChildrenShortcut so the shortcut is specific to the widget
-  disconnectAllPortsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-  result->addAction(disconnectAllPortsAction);
+  removeConnectionsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  result->addAction(removeConnectionsAction);
 
   result->addSeparator();
 
@@ -699,7 +699,7 @@ dfgEntry {\n\
   }
   else if(action->text() == DFG_DISCONNECT_ALL_PORTS)
   {
-    onDisconnectAllPorts();
+    onRemoveConnections();
   }
   else if(action->text() == DFG_PASTE_PRESET)
   {
@@ -1045,7 +1045,7 @@ void DFGWidget::onNodeAction(QAction * action)
   }
   else if(action->text() == DFG_DISCONNECT_ALL_PORTS)
   {
-    onDisconnectAllPorts();
+    onRemoveConnections();
   }
 
   m_contextNode = NULL;
@@ -1418,7 +1418,7 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   }
   else if(hotkey == DFGHotkeys::DISCONNECT_ALL_PORTS)
   {
-    onDisconnectAllPorts();
+    onRemoveConnections();
   }
   else if(hotkey == DFGHotkeys::COPY)
   {
@@ -1533,9 +1533,9 @@ void DFGWidget::onSelectAll()
   getUIGraph()->selectAllNodes();
 }
 
-void DFGWidget::onDisconnectAllPorts()
+void DFGWidget::onRemoveConnections()
 {
-  getUIGraph()->disconnectAllPorts();
+  getUIGraph()->removeConnections();
 }
 
 void DFGWidget::onCopy()
