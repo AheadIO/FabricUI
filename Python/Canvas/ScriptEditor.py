@@ -523,7 +523,7 @@ class ScriptEditor(QtGui.QWidget):
             return False
         self.settings.setValue("scriptEditor/lastFolder", os.path.dirname(filename))
         self.filename = filename
-        self.titleDataChanged.emit(filename, self.cmd.isModified())
+        self.titleDataChanged.emit(filename, self.cmd.document().isModified())
         return self.save()
 
     def execute(self):
