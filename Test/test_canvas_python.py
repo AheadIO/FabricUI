@@ -8,15 +8,14 @@ class CanvasTest(unittest.TestCase):
         if sys.version_info < (2, 7) or platform.system() == 'Darwin':
             return
 
-        from FabricEngine.Canvas.FabricStyle import FabricStyle
+        from FabricEngine.FabricUI import Application
         from FabricEngine.Canvas.CanvasWindow import CanvasWindow
         from PySide import QtCore, QtGui
         from PySide.QtTest import QTest
 
-        app = QtGui.QApplication([])
+        app = Application.FabricApplication()
         app.setOrganizationName('Fabric Software Inc')
         app.setApplicationName('Fabric Canvas Standalone')
-        app.setStyle( FabricStyle() )
 
         settings = QtCore.QSettings()
         unguarded = False
