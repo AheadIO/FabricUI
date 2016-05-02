@@ -206,6 +206,12 @@ bool KLSourceCodeWidget::event(QEvent * event)
       QToolTip::showText(mapToGlobal(helpEvent->pos()), toolTipText.c_str());
   }
 
+  else if (event->type() == QEvent::MouseButtonPress)
+  {
+    event->accept();
+    return true;
+  }
+
   return QPlainTextEdit::event(event);
 }
 
