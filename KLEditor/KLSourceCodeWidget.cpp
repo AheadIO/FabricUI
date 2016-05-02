@@ -208,6 +208,7 @@ bool KLSourceCodeWidget::event(QEvent * event)
 
   else if (event->type() == QEvent::MouseButtonPress)
   {
+    // [FABMODO-3]
     event->accept();
     return true;
   }
