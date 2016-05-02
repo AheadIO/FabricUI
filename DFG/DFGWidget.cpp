@@ -1456,6 +1456,8 @@ void DFGWidget::onHotkeyPressed(Qt::Key key, Qt::KeyboardModifier mod, QString h
   {
     getUIController()->setSelectedNodeCollapseState(0);
   }
+
+  FabricCore::FlagUserInteraction();
 }
 
 void DFGWidget::onHotkeyReleased(Qt::Key key, Qt::KeyboardModifier mod, QString hotkey)

@@ -254,7 +254,6 @@ class CanvasWindow(DFG.DFGMainWindow):
           }
 
         client = Core.createClient(clientOpts)
-        #options.licenseType = FabricCore::ClientLicenseType_Interactive
         client.loadExtension('Math')
         client.loadExtension('Parameters')
         client.loadExtension('Util')
