@@ -68,7 +68,7 @@ BaseViewItem::~BaseViewItem()
 // A static instance of this class verifies on 
 // Shutdown that there are no leaked entities
 static class Counter {
-public: ~Counter() { assert( s_nInstances == 0 ); }
+public: ~Counter() { /* FE-6559 assert( s_nInstances == 0 );*/ }
 } InstCounter;
 
 int BaseViewItem::numInstances() 
