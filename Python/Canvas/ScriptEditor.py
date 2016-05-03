@@ -380,6 +380,7 @@ class ScriptEditor(QtGui.QWidget):
 
         executeAction = QtGui.QAction("Execute", self)
         executeAction.setShortcut(QtGui.QKeySequence("Ctrl+Return"))
+        executeAction.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         executeAction.setToolTip("Execute script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         executeAction.triggered.connect(self.execute)
 
