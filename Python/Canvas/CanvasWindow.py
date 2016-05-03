@@ -213,6 +213,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         clientOpts = {
           'guarded': not unguarded,
           'noOptimization': noopt,
+          'interactive': True,
           'reportCallback': self.__reportCallback,
           'rtValToJSONEncoder': self.rtvalEncoderDecoder.encode,
           'rtValFromJSONDecoder': self.rtvalEncoderDecoder.decode,
