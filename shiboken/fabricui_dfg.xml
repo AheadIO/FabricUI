@@ -27,6 +27,7 @@
       <object-type name="DFGUICmd_Connect" />
       <object-type name="DFGUICmd_CreatePreset" />
       <object-type name="DFGUICmd_Disconnect" />
+      <object-type name="DFGUICmd_DismissLoadDiags" />
       <object-type name="DFGUICmd_EditNode" />
       <object-type name="DFGUICmd_EditPort" />
       <object-type name="DFGUICmd_Exec" />

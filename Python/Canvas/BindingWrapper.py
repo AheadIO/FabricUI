@@ -594,6 +594,18 @@ class BindingWrapper:
             )
         InvokeCmd(cmd, self.qUndoStack)
 
+    def dismissLoadDiags(
+        self,
+        packedIndices,
+        ):
+        rootExec = self.binding.getExec()
+        indices = BindingWrapper.splitInts(packedIndices)
+        cmd = DFG.DFGUICmd_DismissLoadDiags(
+            self.binding,
+            indices,
+            )
+        InvokeCmd(cmd, self.qUndoStack)
+
     def setExtDeps(
         self,
         execPath,

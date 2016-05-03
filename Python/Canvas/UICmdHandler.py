@@ -582,6 +582,18 @@ class UICmdHandler(DFG.DFGUICmdHandler_Python):
                 ]
             )
 
+    def dfgDoDismissLoadDiags(
+        self,
+        binding,
+        indices,
+        ):
+        return self.evalCmdWithArgs(
+            "dismissLoadDiags",
+            [
+                UICmdHandler.encodeInts(indices),
+                ]
+            )
+
     def dfgDoSetExtDeps(
         self,
         binding,
