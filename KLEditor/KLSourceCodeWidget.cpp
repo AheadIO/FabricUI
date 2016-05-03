@@ -417,6 +417,49 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
     showPopup(newPopupForParen);
 }
 
+void KLSourceCodeWidget::mouseDoubleClickEvent(QMouseEvent * event)
+{
+  if(event->button() == Qt::MiddleButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  if(event->button() == Qt::RightButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  QPlainTextEdit::mouseDoubleClickEvent(event);
+}
+
+void KLSourceCodeWidget::mousePressEvent(QMouseEvent * event)
+{
+  if(event->button() == Qt::MiddleButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  if(event->button() == Qt::RightButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  QPlainTextEdit::mousePressEvent(event);
+}
+
+void KLSourceCodeWidget::mouseReleaseEvent(QMouseEvent * event)
+{
+  QPlainTextEdit::mouseReleaseEvent(event);
+}
+
 void KLSourceCodeWidget::contextMenuEvent(QContextMenuEvent *event)
 {
   QMenu *menu = createStandardContextMenu();

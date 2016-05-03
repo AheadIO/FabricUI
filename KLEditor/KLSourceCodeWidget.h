@@ -44,6 +44,9 @@ namespace FabricUI
 
       virtual bool event(QEvent * event);
       virtual void keyPressEvent(QKeyEvent * event);
+      virtual void mouseDoubleClickEvent(QMouseEvent * event);
+      virtual void mousePressEvent(QMouseEvent * event);
+      virtual void mouseReleaseEvent(QMouseEvent * event);
       virtual void contextMenuEvent(QContextMenuEvent *event);
       virtual void paintEvent(QPaintEvent * event);
 
