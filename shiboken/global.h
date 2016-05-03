@@ -94,6 +94,7 @@
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Connect.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_CreatePreset.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Disconnect.h>
+#include <FabricUI/DFG/DFGUICmd/DFGUICmd_DismissLoadDiags.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_EditNode.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_EditPort.h>
 #include <FabricUI/DFG/DFGUICmd/DFGUICmd_Exec.h>

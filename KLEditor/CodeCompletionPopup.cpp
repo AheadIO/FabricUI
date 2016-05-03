@@ -4,6 +4,7 @@
 
 #include <FTL/MapCharToLower.h>
 #include <FTL/StrRef.h>
+#include <QtGui/QLabel>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QVBoxLayout>
@@ -24,7 +25,6 @@ CodeCompletionPopup::CodeCompletionPopup(
   m_klType = klType;
   m_klFunction = NULL;
   m_search = search;
-  m_exactMatch = false;
 
   init();
   updateSearch();
@@ -42,7 +42,6 @@ CodeCompletionPopup::CodeCompletionPopup(
   m_klType = NULL;
   m_klFunction = klFunction;
   m_search = m_klFunction->getName();
-  m_exactMatch = true;
 
   if(m_klFunction->isOfDeclType(KLDeclType_Method))
   {
@@ -211,45 +210,6 @@ void CodeCompletionPopup::setPosFromCursor(QPoint cursorGlobalPos)
   move(pos);
 }
 
-struct MatchPrefixForCodeCompletion
-{
-  MatchPrefixForCodeCompletion( FTL::StrRef search, bool exact )
-    : _search( search )
-    , _exact( exact )
-  {
-  }
-
-  bool operator()( FTL::StrRef::IT &it, FTL::StrRef::IT itEnd ) const
-  {
-    FTL::StrRef::IT itOrig = it;
-
-    FTL::StrRef::IT searchIT = _search.begin();
-    FTL::StrRef::IT const searchITEnd = _search.end();
-    while ( searchIT != searchITEnd && it != itEnd )
-    {
-      char chToMatch = *searchIT++;
-      if ( (isalnum( chToMatch ) || chToMatch == '_')
-        && _toLower( *it++ ) != _toLower( chToMatch ) )
-      {
-        it = itOrig;
-        return false;
-      }
-    }
-
-    if ( it != itEnd && !_exact )
-    {
-      it = itOrig;
-      return false;
-    }
-
-    return true;
-  }
-private:
-  FTL::StrRef _search;
-  bool _exact;
-  FTL::MapCharToLower _toLower;
-};
-
 void CodeCompletionPopup::updateSearch()
 {
   if(m_search == "" && m_klType == NULL)
@@ -373,12 +333,10 @@ void CodeCompletionPopup::updateSearch()
       desc += "("+decl->getType()+" member)";
     }
 
-    FTL::StrRef labelStr = label;
-    FTL::StrRef::IT s = labelStr.begin();
-    FTL::StrRef::IT e = labelStr.end();
-    MatchPrefixForCodeCompletion matcher( m_search, m_exactMatch );
-
-    if(m_search == "" || matcher( s, e ))
+    if (
+      m_search.empty() ||
+      strncmp( m_search.c_str(), label.c_str(), m_search.size() ) == 0
+      )
     {
       m_visibleDecls.push_back(m_decls[i]);
 
@@ -394,7 +352,26 @@ void CodeCompletionPopup::updateSearch()
 
       numResults++;
       if(numResults == m_maxResults)
+      {
+        static QString s_maxResultsLabel;
+        if ( s_maxResultsLabel.isEmpty() )
+        {
+          s_maxResultsLabel += QString::fromAscii( "Only first " );
+          s_maxResultsLabel += QString::number( m_maxResults );
+          s_maxResultsLabel += QString::fromAscii( " matches shown..." );
+        }
+        QLabel *maxResultsLabel = new QLabel( s_maxResultsLabel );
+        maxResultsLabel->setStyleSheet(
+          "QLabel { "
+          "  font: Courier New;"
+          "  font-weight: bold;"
+          "  font-size: 14px;"
+          "  color: rgba(0, 0, 0, 180);"
+          "  background-color: rgba(207, 222, 242, 180);"
+          "}" );
+        vbox->addWidget( maxResultsLabel );
         break;
+      }
     }
   }
 
@@ -418,4 +395,9 @@ void CodeCompletionPopup::updateSearch()
     ((CodeCompletionEntry*)vbox->itemAt(m_index)->widget())->setActive(true);
 
   adjustSize();
+}
+
+void CodeCompletionPopup::focusOutEvent(QFocusEvent * event)
+{
+  close();
 }

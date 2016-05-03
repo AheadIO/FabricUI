@@ -15,6 +15,7 @@
 #include "KLSyntaxHighlighter.h"
 #include "CodeCompletionPopup.h"
 
+#include <ASTWrapper/KLASTClient.h>
 #include <ASTWrapper/KLASTManager.h>
 #include <CodeCompletion/KLCodeAssistant.h>
 
@@ -39,7 +40,7 @@ namespace FabricUI
       virtual void setFilePath(QString text);
       virtual QString fileName();
       virtual QString code();
-      virtual void setCode(QString text);
+      virtual void setCodeAndExec(QString text, FabricCore::DFGExec *dfgExec);
 
       virtual bool event(QEvent * event);
       virtual void keyPressEvent(QKeyEvent * event);
@@ -71,8 +72,8 @@ namespace FabricUI
 
     private:
 
-      // bool showPopup(bool forParen = false);
-      // bool hidePopup();
+      bool showPopup(bool forParen = false);
+      bool hidePopup();
 
       unsigned int m_lineOffset;
       EditorConfig m_config;
@@ -83,7 +84,8 @@ namespace FabricUI
       bool m_hasUnsavedChanges;
       bool m_isHighlighting;
       QString m_lastCode;
-      // CodeCompletionPopup * m_popup;
+      CodeCompletionPopup * m_popup;
+      FabricCore::DFGExec *m_dfgExec;
     };
 
   };

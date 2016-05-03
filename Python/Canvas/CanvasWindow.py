@@ -9,6 +9,7 @@ from FabricEngine import Core, FabricUI
 from FabricEngine.FabricUI import DFG, KLASTManager, Viewports, TimeLine
 from FabricEngine.Canvas.ScriptEditor import ScriptEditor
 from FabricEngine.Canvas.UICmdHandler import UICmdHandler
+from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 
 class CanvasWindowEventFilter(QtCore.QObject):
 
@@ -149,43 +150,6 @@ class CanvasWindow(DFG.DFGMainWindow):
         self.fpsTimer.timeout.connect(self.updateFPS)
         self.fpsTimer.start()
 
-    def __rtvalEncoder(self, rtval, codecContext, metadataLookup):
-        try:
-            if codecContext == Core.CAPI.RTValCodecContext_BindingArgument \
-                    and metadataLookup \
-                    and metadataLookup("uiPersistValue") != "true":
-                return False
-            if not rtval.isObject():
-                return True
-            if rtval.isNullObject():
-                return True
-            cast = self.client.RT.types.RTValToJSONEncoder(rtval)
-            if cast.isNullObject():
-                return True
-            result = cast.convertToString('String')
-            ref = result.getSimpleType()
-            if len(ref) < 1:
-                return True
-            return json.dumps(ref)
-        except Exception as _e:
-            return True
-
-    def __rtvalDecoder(self, rtval, codecContext, string, metadataLookup):
-        try:
-            if not rtval.isObject():
-                return True
-            if rtval.isNullObject():
-                return True
-            cast = self.client.RT.types.RTValFromJSONDecoder(rtval)
-            if cast.isNullObject():
-                return True
-            decodedString = json.loads(string)
-            rtvalString = self.client.RT.types(decodedString)
-            result = cast.convertFromString('Boolean', rtvalString)
-            return result.getSimpleType()
-        except Exception as _e:
-            return True
-
     def __reportCallback(self, source, level, line):
         """Call back method that fires when the client emits reports.
 
@@ -245,12 +209,14 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         """
 
+        self.rtvalEncoderDecoder = RTValEncoderDecoder(None)
         clientOpts = {
           'guarded': not unguarded,
           'noOptimization': noopt,
+          'interactive': True,
           'reportCallback': self.__reportCallback,
-          'rtValToJSONEncoder': self.__rtvalEncoder,
-          'rtValFromJSONDecoder': self.__rtvalDecoder,
+          'rtValToJSONEncoder': self.rtvalEncoderDecoder.encode,
+          'rtValFromJSONDecoder': self.rtvalEncoderDecoder.decode,
           }
 
         client = Core.createClient(clientOpts)
@@ -260,6 +226,7 @@ class CanvasWindow(DFG.DFGMainWindow):
         client.setStatusCallback(self.__statusCallback)
         self.client = client
         self.qUndoStack = QtGui.QUndoStack()
+        self.rtvalEncoderDecoder.client = self.client
 
     def _initDFG(self):
         """Initializes the Data Flow Graph.
