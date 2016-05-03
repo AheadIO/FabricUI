@@ -318,6 +318,49 @@ class ScriptEditor(QtGui.QWidget):
     def __init__(self, client, binding, qUndoStack, dfgLogWidget, settings, canvasWindow):
         QtGui.QWidget.__init__(self)
 
+        self.setObjectName('ScriptEditorWidget')
+
+        widgetStyleSheet = """
+
+        QWidget#ScriptEditorWidget QToolButton {
+            border: 1px #222222;
+            border-radius: 3px;
+            border-style: outset;
+            padding: 3px;
+            margin: 2px;
+
+            background-color: #2B2B2B;
+        }
+
+        QWidget#ScriptEditorWidget QToolButton::disabled {
+            background-color: #444;
+            color: #666666;
+        }
+
+        QWidget#ScriptEditorWidget QToolButton::checked {
+            background-color: #335252;
+        }
+
+        QWidget#ScriptEditorWidget QToolButton::checked:hover {
+            background-color: #335959;
+        }
+
+        QWidget#ScriptEditorWidget QToolButton:hover {
+            background-color: #3B3B3B;
+        }
+
+        QWidget#ScriptEditorWidget QToolButton::pressed {
+            border-style: inset;
+            padding-top: 5px;
+            padding-left: 5px;
+
+            background-color: #2B2B2B;
+        }
+
+        """
+
+        self.setStyleSheet(widgetStyleSheet)
+
         self.__undoStackIndex = qUndoStack.index()
         qUndoStack.indexChanged.connect(self.undoStackIndexChanged)
         self.__qUndoStack = qUndoStack
@@ -437,7 +480,7 @@ class ScriptEditor(QtGui.QWidget):
         self.settings.setValue("scriptEditor/echoCommands", state)
 
     def updateBinding(self, binding):
-        prev = self.eval_globals['binding'] 
+        prev = self.eval_globals['binding']
         self.eval_globals['binding'] = BindingWrapper(prev.client, binding, prev.qUndoStack)
 
     def onModificationChanged(self, modification):
