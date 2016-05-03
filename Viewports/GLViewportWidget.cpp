@@ -232,6 +232,7 @@ void GLViewportWidget::mousePressEvent(QMouseEvent *event)
   if(m_manipTool->onEvent(event))
     return;
   ViewportWidget::mousePressEvent(event);
+  FabricCore::FlagUserInteraction();
 }
 
 void GLViewportWidget::mouseMoveEvent(QMouseEvent *event)
