@@ -135,7 +135,7 @@ void DFGKLEditorWidget::onExecChanged()
       QString code = getExec().getCode();
       if ( code.length() == 0 )
         code = "dfgEntry {\n  //result = lhs + rhs;\n}\n";
-      m_klEditor->sourceCodeWidget()->setCode( code );
+      m_klEditor->sourceCodeWidget()->setCodeAndExec( code, &exec );
     }
     catch ( FabricCore::Exception e )
     {
@@ -342,7 +342,8 @@ void DFGKLEditorWidget::reload()
   {
     try
     {
-      m_klEditor->sourceCodeWidget()->setCode( code );
+      FabricCore::DFGExec &exec = m_controller->getExec();
+      m_klEditor->sourceCodeWidget()->setCodeAndExec( code, &exec );
     }
     catch(FabricCore::Exception e)
     {
