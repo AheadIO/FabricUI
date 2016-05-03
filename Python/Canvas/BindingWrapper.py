@@ -534,8 +534,7 @@ class BindingWrapper:
         typeName,
         valueJSON,
         ):
-        value = getattr(self.client.RT.types, typeName).create()
-        self.rtvalEncoderDecoder.setFromString(value, valueJSON)
+        value = self.rtvalEncoderDecoder.getFromString(typeName, valueJSON)
         cmd = DFG.DFGUICmd_SetArgValue(
             self.binding,
             argName,
@@ -552,8 +551,7 @@ class BindingWrapper:
         ):
         rootExec = self.binding.getExec()
         exec_ = rootExec.getSubExec(execPath)
-        value = getattr(self.client.RT.types, typeName)()
-        self.rtvalEncoderDecoder.setFromString(value, valueJSON)
+        value = self.rtvalEncoderDecoder.getFromString(typeName, valueJSON)
         cmd = DFG.DFGUICmd_SetPortDefaultValue(
             self.binding,
             execPath,

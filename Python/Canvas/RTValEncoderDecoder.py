@@ -51,10 +51,15 @@ class RTValEncoderDecoder:
             return rtval.getJSONStr()
         return result
 
-    def setFromString(self, rtval, string):
+    def getFromString(self, typeName, string):
+        rtvalType = getattr(self.client.RT.types, typeName)
+        if self.client.RT.getRegisteredTypeIsObject(typeName):
+            rtvalConstruct = rtvalType.create
+        else:
+            rtvalConstruct = rtvalType
+        rtval = rtvalConstruct()
         result = self.decode(rtval, None, string, None)
         if type(result) == bool:
             rtval.setJSON(string)
-        else:
-            rtval = string
+        return rtval
 

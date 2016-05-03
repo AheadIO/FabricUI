@@ -31,10 +31,7 @@ def test_fe_6548(core_client):
     print 'filepath:'+str(filepath)
     filepath_str = encdec.getAsString(filepath)
     print 'filepath_str:'+filepath_str
-    dec_filepath = core_client.RT.types.FilePath.create()
-    print 'dec_filepath:'+str(dec_filepath)
-    assert str(filepath) != str(dec_filepath)
-    encdec.setFromString(dec_filepath, filepath_str)
+    dec_filepath = encdec.getFromString('FilePath', filepath_str)
     print 'dec_filepath:'+str(dec_filepath)
     assert str(filepath) == str(dec_filepath)
 
@@ -42,10 +39,7 @@ def test_fe_6548(core_client):
     print 'vec3:'+str(vec3)
     vec3_str = encdec.getAsString(vec3)
     print 'vec3_str:'+vec3_str
-    dec_vec3 = core_client.RT.types.Vec3()
-    print 'dec_vec3:'+str(dec_vec3)
-    assert str(vec3) != str(dec_vec3)
-    encdec.setFromString(dec_vec3, vec3_str)
+    dec_vec3 = encdec.getFromString('Vec3', vec3_str)
     print 'dec_vec3:'+str(dec_vec3)
     assert str(vec3) == str(dec_vec3)
 
