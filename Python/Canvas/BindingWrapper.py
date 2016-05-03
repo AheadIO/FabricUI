@@ -1,5 +1,6 @@
 from PySide import QtCore, QtGui
 from FabricEngine.FabricUI import DFG
+from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 
 class UndoCmd(QtGui.QUndoCommand):
     def __init__(self, cmd):
@@ -26,6 +27,7 @@ class BindingWrapper:
         self.client = client
         self.binding = binding
         self.qUndoStack = qUndoStack
+        self.rtvalEncoderDecoder = RTValEncoderDecoder(self.client)
 
     @staticmethod
     def splitInts(packedIndices):
@@ -532,8 +534,7 @@ class BindingWrapper:
         typeName,
         valueJSON,
         ):
-        value = getattr(self.client.RT.types, typeName)()
-        value.setJSON(valueJSON)
+        value = self.rtvalEncoderDecoder.getFromString(typeName, valueJSON)
         cmd = DFG.DFGUICmd_SetArgValue(
             self.binding,
             argName,
@@ -550,8 +551,7 @@ class BindingWrapper:
         ):
         rootExec = self.binding.getExec()
         exec_ = rootExec.getSubExec(execPath)
-        value = getattr(self.client.RT.types, typeName)()
-        value.setJSON(valueJSON)
+        value = self.rtvalEncoderDecoder.getFromString(typeName, valueJSON)
         cmd = DFG.DFGUICmd_SetPortDefaultValue(
             self.binding,
             execPath,

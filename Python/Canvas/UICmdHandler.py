@@ -1,4 +1,5 @@
 from FabricEngine.FabricUI import DFG
+from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 
 class UICmdHandler(DFG.DFGUICmdHandler_Python):
 
@@ -6,6 +7,7 @@ class UICmdHandler(DFG.DFGUICmdHandler_Python):
         super(UICmdHandler, self).__init__()
         self.client = client
         self.scriptEditor = scriptEditor
+        self.rtvalEncoderDecoder = RTValEncoderDecoder(self.client)
 
     @staticmethod
     def encodeStringChars(string):
@@ -528,7 +530,7 @@ class UICmdHandler(DFG.DFGUICmdHandler_Python):
             [
                 UICmdHandler.encodeString(argName),
                 UICmdHandler.encodeString(value.getTypeNameStr()),
-                UICmdHandler.encodeString(value.getJSONStr()),
+                UICmdHandler.encodeString(self.rtvalEncoderDecoder.getAsString(value)),
                 ]
             )
 
@@ -546,7 +548,7 @@ class UICmdHandler(DFG.DFGUICmdHandler_Python):
                 UICmdHandler.encodeString(execPath),
                 UICmdHandler.encodeString(portPath),
                 UICmdHandler.encodeString(value.getTypeNameStr()),
-                UICmdHandler.encodeString(value.getJSONStr()),
+                UICmdHandler.encodeString(self.rtvalEncoderDecoder.getAsString(value)),
                 ]
             )
 
