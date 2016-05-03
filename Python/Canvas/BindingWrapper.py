@@ -31,6 +31,8 @@ class BindingWrapper:
 
     @staticmethod
     def splitInts(packedIndices):
+        if not packedIndices:
+            return []
         return map(
             lambda indexStr: int(indexStr),
             packedIndices.split('|')
@@ -38,10 +40,14 @@ class BindingWrapper:
 
     @staticmethod
     def splitNames(names):
+        if not names:
+            return []
         return names.split('|')
 
     @staticmethod
     def splitPoss(posXs, posYs):
+        if not posXs:
+            return []
         if isinstance(posXs, basestring):
             posXs = map(
                 lambda str: float(str),
