@@ -598,6 +598,7 @@ class ScriptEditor(QtGui.QWidget):
         sys.stderr = old_stderr
         sys.stdout = old_stdout
         self.__echoStackIndexChanges = oldEchoStackIndexChanges
+        return result
 
     def exec_(self, code):
         if self.echoCommandsAction.isChecked():
