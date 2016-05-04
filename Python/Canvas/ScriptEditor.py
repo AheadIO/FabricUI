@@ -323,6 +323,7 @@ class ScriptEditor(QtGui.QWidget):
         widgetStyleSheet = """
 
         QWidget#ScriptEditorWidget QToolButton {
+            color: #FFFFFF;
             border: 1px #222222;
             border-radius: 3px;
             border-style: outset;
