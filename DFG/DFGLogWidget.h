@@ -35,6 +35,9 @@ namespace FabricUI
         );
 
       virtual void keyPressEvent(QKeyEvent * event);
+      virtual void mouseDoubleClickEvent(QMouseEvent * event);
+      virtual void mousePressEvent(QMouseEvent * event);
+      virtual void mouseReleaseEvent(QMouseEvent * event);
 
       static void setLogFunc(DFGController::LogFunc func);
 

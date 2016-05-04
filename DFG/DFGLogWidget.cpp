@@ -100,6 +100,49 @@ void DFGLogWidget::keyPressEvent(QKeyEvent * event) {
   event->accept();
 }
 
+void DFGLogWidget::mouseDoubleClickEvent(QMouseEvent * event)
+{
+  if(event->button() == Qt::MiddleButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  if(event->button() == Qt::RightButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  QWidget::mouseDoubleClickEvent(event);
+}
+
+void DFGLogWidget::mousePressEvent(QMouseEvent * event)
+{
+  if(event->button() == Qt::MiddleButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  if(event->button() == Qt::RightButton)
+  {
+    // [FABMODO-3]
+    event->accept();
+    return;
+  }
+
+  QWidget::mousePressEvent(event);
+}
+
+void DFGLogWidget::mouseReleaseEvent(QMouseEvent * event)
+{
+  QWidget::mouseReleaseEvent(event);
+}
+
 void DFGLogWidget::setLogFunc(DFGController::LogFunc func)
 {
   s_logFunc = func;

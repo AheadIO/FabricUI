@@ -173,6 +173,8 @@ void SidePanel::mousePressEvent(QGraphicsSceneMouseEvent * event)
       menu->exec(QCursor::pos());
       menu->deleteLater();
     }
+    event->accept();
+    return;
   }
 
   if(event->button() == Qt::LeftButton)
