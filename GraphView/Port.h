@@ -131,6 +131,8 @@ namespace FabricUI
 
       void positionChanged();
 
+      void contentChanged();
+
     protected:
 
       void setIndex(unsigned id) { m_index = id; }

@@ -91,6 +91,8 @@ void Port::setName( FTL::CStrRef name )
     setLabel(name.c_str());
   else
     update();
+
+  emit contentChanged();
 }
 
 char const * Port::label() const

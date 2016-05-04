@@ -244,6 +244,9 @@ void SidePanel::paint(QPainter * painter, const QStyleOptionGraphicsItem * optio
 
 void SidePanel::onItemGroupResized()
 {
+  // Reset the layout.
+  // Needed because the content of m_itemGroup may have changed.
+  resetLayout();
   setMinimumWidth(m_itemGroup->size().width());
   setMaximumWidth(m_itemGroup->size().width());
 }
@@ -274,10 +277,14 @@ void SidePanel::resetLayout()
   {
     portsLayout->addItem(m_ports[i]);
     portsLayout->setAlignment(m_ports[i], Qt::AlignRight | Qt::AlignTop);
+    QObject::connect(m_ports[i], SIGNAL(contentChanged()), this, SLOT(onItemGroupResized()));
   }
   portsLayout->addStretch(2);
 
   m_itemGroup->setLayout(portsLayout);
+
+  // Set the group size according to its content
+  m_itemGroup->adjustSize();
 
   m_requiresToSendSignalsForPorts = true;
 }
@@ -321,7 +328,7 @@ void SidePanel::updateItemGroupScroll(float height)
       m_itemGroupScroll = 0.0;
   }
 
-  m_itemGroup->setTransform(QTransform::fromTranslate(0, m_itemGroupScroll), false);
+  //m_itemGroup->setTransform(QTransform::fromTranslate(0, m_itemGroupScroll), false);
 
   // [Julien]
   // Update the image overlay when panels are resized.
