@@ -313,7 +313,7 @@ class BindingWrapper:
             nodeName
             )
         InvokeCmd(cmd, self.qUndoStack)
-        return "|".join(cmd.getExplodedNodeNames())
+        return cmd.getExplodedNodeNames()
 
     def connect(
         self,
@@ -532,7 +532,7 @@ class BindingWrapper:
             QtCore.QPointF(cursorPosX, cursorPosY),
             )
         InvokeCmd(cmd, self.qUndoStack)
-        return "|".join(cmd.getPastedNodeNames())
+        return cmd.getPastedNodeNames()
 
     def setArgValue(
         self,
