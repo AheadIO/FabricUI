@@ -22,6 +22,10 @@ def test_fe_6396(core_client):
     print emptyRTVal
 
 def test_fe_6548(core_client):
+    # [andrew 20160330] FE-6364
+    if sys.version_info < (2, 7):
+        return
+
     from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
     core_client.loadExtension('FileIO')
 
