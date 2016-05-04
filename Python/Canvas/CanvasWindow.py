@@ -925,8 +925,15 @@ class CanvasWindow(DFG.DFGMainWindow):
 
         binding = self.dfgWidget.getDFGController().getBinding()
 
-        if self.performSave(binding, filePath):
-            self.evalContext.currentFilePath = filePath
+        if not self.performSave(binding, filePath):
+            if self.dfgWidget:
+                self.dfgWidget.getDFGController().log("ERROR: failed to save graph, unable to open file.")
+            return False
+
+        if self.dfgWidget:
+            self.dfgWidget.getDFGController().log("graph saved.")
+
+        self.evalContext.currentFilePath = filePath
 
         self.lastFileName = filePath
 

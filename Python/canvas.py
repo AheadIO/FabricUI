@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-n', '--noopt',
                         action='store_true',
-                        help='compile KL code wihout brackground optimization')
+                        help='compile KL code without background optimization')
 
     parser.add_argument('-e', '--exec',
                           action='store',
