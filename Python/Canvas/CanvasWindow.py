@@ -446,15 +446,6 @@ class CanvasWindow(DFG.DFGMainWindow):
         toggleAction.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_7)
         windowMenu.addAction(toggleAction)
 
-    def _contentChanged(self) :
-        """Method called to tell the application services that content has been
-        changed.
-
-        """
-
-        self.valueEditor.onOutputsChanged()
-        self.viewport.redraw()
-
     def onPortManipulationRequested(self, portName):
         """Method to trigger value changes that are requested form manipulators
         in the viewport.
@@ -493,7 +484,8 @@ class CanvasWindow(DFG.DFGMainWindow):
         """Method called when the graph is dirtied."""
 
         self.dfgWidget.getDFGController().execute()
-        self._contentChanged()
+        self.valueEditor.onOutputsChanged()
+        self.viewport.redraw()
 
     def onTopoDirty(self):
         self.onDirty()
@@ -568,9 +560,10 @@ class CanvasWindow(DFG.DFGMainWindow):
                 except Exception as e:
                     sys.stderr.write("Exception: " + str(e) + "\n")
 
-            self._contentChanged()
-
+            dfgController.emitDirty()
             self.onFileNameChanged(filePath)
+
+            QtCore.QCoreApplication.processEvents()
 
             # then set it to the current value if we still have it.
             # this will ensure that sim mode scenes will play correctly.
@@ -578,8 +571,6 @@ class CanvasWindow(DFG.DFGMainWindow):
                 self.timeLine.updateTime(int(tl_current), True)
             else:
                 self.timeLine.updateTime(CanvasWindow.defaultFrameIn, True)
-
-            self.viewport.update()
 
         except Exception as e:
             sys.stderr.write("Exception: " + str(e) + "\n")
@@ -798,14 +789,10 @@ class CanvasWindow(DFG.DFGMainWindow):
             self.timeLine.setSimulationMode(0)
             self.timeLine.updateTime(CanvasWindow.defaultFrameIn, True)
 
-            QtCore.QCoreApplication.processEvents()
             self.qUndoView.setEmptyLabel("New Graph")
 
-            self._contentChanged()
-
+            dfgController.emitDirty()
             self.onFileNameChanged('')
-
-            self.viewport.update()
 
         except Exception as e:
             print 'Exception: ' + str(e)
