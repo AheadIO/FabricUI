@@ -47,7 +47,14 @@ FabricUI::ValueEditor::BaseModelItem *VarModelItem::createChild( FTL::CStrRef po
 
 QVariant VarModelItem::getValue()
 {
-  return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
+  try
+  {
+    return QVariant::fromValue( m_exec.getVarValue( m_nodeName.c_str() ) );
+  }
+  catch ( FabricCore::Exception e )
+  {
+    return QVariant();
+  }
 }
 
 void VarModelItem::setValue(
