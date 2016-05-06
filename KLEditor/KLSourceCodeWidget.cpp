@@ -494,8 +494,9 @@ void KLSourceCodeWidget::contextMenuEvent(QContextMenuEvent *event)
       QObject::connect(menu->addAction("Open "+docPrefix+"'s Documentation"), SIGNAL(triggered()), this, SLOT(contextMenuOpenDocs()));
     }
 
-    QString klFile = m_contextMenuDecl->getKLFile()->getFileName();
-    QObject::connect(menu->addAction("Open "+klFile), SIGNAL(triggered()), this, SLOT(contextMenuOpenFile()));
+    // [andrew 20160506] FE-6605
+    // QString klFile = m_contextMenuDecl->getKLFile()->getFileName();
+    // QObject::connect(menu->addAction("Open "+klFile), SIGNAL(triggered()), this, SLOT(contextMenuOpenFile()));
   }
   menu->exec(event->globalPos());
   delete menu;
