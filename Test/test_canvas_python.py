@@ -1,42 +1,45 @@
 import platform
+import pytest
 import sys
-import unittest
 
-class CanvasTest(unittest.TestCase):
-    def test_all(self):
-        # [andrew 20160330] FE-6364
-        if sys.version_info < (2, 7) or platform.system() == 'Darwin':
-            return
+# [andrew 20160330] FE-6364
+pytestmark = pytest.mark.skipif(sys.version_info < (2, 7) or platform.system() == 'Darwin',
+        reason = "no support for Python 2.6 or missing display")
 
-        from FabricEngine.FabricUI import Application
-        from FabricEngine.Canvas.CanvasWindow import CanvasWindow
-        from PySide import QtCore, QtGui
-        from PySide.QtTest import QTest
+@pytest.fixture(scope="module")
+def canvas_win():
+    from FabricEngine.FabricUI import Application
+    from FabricEngine.Canvas.CanvasWindow import CanvasWindow
+    from PySide import QtCore
+    from PySide.QtTest import QTest
 
-        app = Application.FabricApplication()
-        app.setOrganizationName('Fabric Software Inc')
-        app.setApplicationName('Fabric Canvas Standalone')
+    global app
+    app = Application.FabricApplication()
+    app.setOrganizationName('Fabric Software Inc')
+    app.setApplicationName('Fabric Canvas Standalone')
 
-        settings = QtCore.QSettings()
-        unguarded = False
-        noopt = True
-        main_win = CanvasWindow(settings, unguarded, noopt)
-        main_win.show()
+    settings = QtCore.QSettings()
+    unguarded = False
+    noopt = True
+    main_win = CanvasWindow(settings, unguarded, noopt)
+    main_win.show()
 
-        # https://doc.qt.io/qt-4.8/qttest-module.html
-        QTest.qWaitForWindowShown(main_win)
+    # https://doc.qt.io/qt-4.8/qttest-module.html
+    QTest.qWaitForWindowShown(main_win)
 
-        # FE-5730
-        dfg_controller = main_win.dfgWidget.getDFGController()
-        binding = dfg_controller.getBinding()
-        root_exec = binding.getExec()
-        i_name = root_exec.addExecPort('i', main_win.client.DFG.PortTypes.In)
-        binding.setArgValue(i_name, main_win.client.RT.types.UInt32(5))
-        main_win.onNewGraph(skip_save=True)
+    return main_win
 
-        # FE-6338
-        dfg_controller = main_win.dfgWidget.getDFGController()
-        binding = dfg_controller.getBinding()
-        main_win.dfguiCommandHandler.dfgDoSetArgValue(binding, 'not_exist',
-                main_win.client.RT.types.UInt32(5))
-        main_win.onNewGraph(skip_save=True)
+def test_fe5730(canvas_win):
+    dfg_controller = canvas_win.dfgWidget.getDFGController()
+    binding = dfg_controller.getBinding()
+    root_exec = binding.getExec()
+    i_name = root_exec.addExecPort('i', canvas_win.client.DFG.PortTypes.In)
+    binding.setArgValue(i_name, canvas_win.client.RT.types.UInt32(5))
+    canvas_win.onNewGraph(skip_save=True)
+
+def test_fe6338(canvas_win):
+    dfg_controller = canvas_win.dfgWidget.getDFGController()
+    binding = dfg_controller.getBinding()
+    canvas_win.dfguiCommandHandler.dfgDoSetArgValue(binding, 'not_exist',
+            canvas_win.client.RT.types.UInt32(5))
+    canvas_win.onNewGraph(skip_save=True)

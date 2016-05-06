@@ -1,17 +1,17 @@
 import os
-import sys
 import pytest
+import sys
 
-@pytest.fixture
+# [andrew 20160330] FE-6364
+pytestmark = pytest.mark.skipif(sys.version_info < (2, 7),
+        reason = "no support for Python 2.6")
+
+@pytest.fixture(scope='module')
 def core_client():
     import FabricEngine.Core as Core
     return Core.createClient({'noOptimization': True})
 
 def test_fe_6396(core_client):
-    # [andrew 20160330] FE-6364
-    if sys.version_info < (2, 7):
-        return
-
     from FabricEngine import FabricUI
 
     rtValCrash_1 = FabricUI._Test.RTValCrash(core_client)
@@ -22,10 +22,6 @@ def test_fe_6396(core_client):
     print emptyRTVal
 
 def test_fe_6548(core_client):
-    # [andrew 20160330] FE-6364
-    if sys.version_info < (2, 7):
-        return
-
     from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
     core_client.loadExtension('FileIO')
 
