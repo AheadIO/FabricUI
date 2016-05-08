@@ -14,6 +14,8 @@
 #include <QtGui/QDesktopServices>
 #include <QtCore/QUrl>
 
+#include <FTL/Config.h>
+
 #include <limits.h>
 
 using namespace FabricServices;
@@ -378,7 +380,11 @@ void KLSourceCodeWidget::keyPressEvent(QKeyEvent * event)
   }
   else if(event->key() == Qt::Key_Space)
   {
+#if defined(FTL_OS_DARWIN)
+    if(event->modifiers().testFlag(Qt::MetaModifier))
+#else
     if(event->modifiers().testFlag(Qt::ControlModifier))
+#endif
     {
       int pos = textCursor().position();
       std::string charAtCursor = m_codeAssistant->getCharAtCursor(pos);
