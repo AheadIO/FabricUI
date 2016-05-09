@@ -427,6 +427,7 @@ class ScriptEditor(QtGui.QWidget):
         executeAction.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         executeAction.setToolTip("Execute script (%s)" % executeAction.shortcut().toString(QtGui.QKeySequence.NativeText))
         executeAction.triggered.connect(self.execute)
+        self.cmd.addAction(executeAction)
 
         self.echoCommandsAction = QtGui.QAction("Echo Commands", self)
         self.echoCommandsAction.setCheckable(True)
