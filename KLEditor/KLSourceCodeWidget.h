@@ -55,6 +55,10 @@ namespace FabricUI
       virtual void highlightLocation(const FabricServices::ASTWrapper::KLLocation * location);
       virtual void clearHighlightedLocations();
 
+    protected:
+
+      virtual void focusOutEvent(QFocusEvent * event);
+
     public slots:
 
       void contextMenuOpenDocs();

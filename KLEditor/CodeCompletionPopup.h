@@ -51,6 +51,7 @@ namespace FabricUI
       const FabricServices::ASTWrapper::KLDecl * currentDecl() const;
       unsigned int index() const;
       void setIndex(unsigned int value);
+      void updateSearch();
 
       virtual bool setASTManager(FabricServices::ASTWrapper::KLASTManager * manager);
 
@@ -64,14 +65,9 @@ namespace FabricUI
 
       void triggered(CodeCompletionEntry *);
 
-    protected:
-
-      virtual void focusOutEvent(QFocusEvent * event);
-
     private:
 
       void init();
-      void updateSearch();
  
       EditorConfig m_config;
       std::string m_search;
