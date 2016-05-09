@@ -27,7 +27,6 @@ CodeCompletionPopup::CodeCompletionPopup(
   m_search = search;
 
   init();
-  updateSearch();
 }
 
 CodeCompletionPopup::CodeCompletionPopup(
@@ -50,7 +49,6 @@ CodeCompletionPopup::CodeCompletionPopup(
   }
 
   init();
-  updateSearch();
 }
 
 void CodeCompletionPopup::init()
@@ -397,7 +395,3 @@ void CodeCompletionPopup::updateSearch()
   adjustSize();
 }
 
-void CodeCompletionPopup::focusOutEvent(QFocusEvent * event)
-{
-  close();
-}
