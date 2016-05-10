@@ -1,3 +1,16 @@
+"""
+The UICmdHandler is responsible for executing DFG commands sent
+from other parts of the UI (for example from the Canvas DFGWidget).
+
+Each Canvas integration has its own UICmdHandler (for example Maya,
+or Softimage) and this is the implementation for Python. The
+UICmdHandler turns each command into a pure Python command and then
+sends it to the ScriptEditor for execution. This allows logging
+all commands run by the Canvas standalone as simple Python commands
+which can later be used to recreate behaviors that were originally
+generated using the UI.
+"""
+
 from FabricEngine.FabricUI import DFG
 from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder
 

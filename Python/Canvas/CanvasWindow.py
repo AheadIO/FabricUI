@@ -1,3 +1,10 @@
+"""
+This module adds the CanvasWindow which encompasses most of the UI
+required to build a Python application. Users building their own
+custom apps may want to subclass the CanvasWindow and simply override
+relevant methods to change behavior as needed.
+"""
+
 import os
 import sys
 

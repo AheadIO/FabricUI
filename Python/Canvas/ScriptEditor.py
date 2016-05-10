@@ -1,5 +1,13 @@
+"""
+The ScriptEditor is where Python code may be written and executed in the
+context of the current Canvas scene. All Canvas commands that are
+executed through the UI (e.g. creating a node, moving one, editing a
+port, etc.) will also show up in the ScriptEditor as Python code so that
+users can see exactly what Canvas is doing, and to assist in reproducing
+issues that were initially triggered through the UI.
+"""
+
 import sys, os, traceback
-import StringIO
 from PySide import QtCore, QtGui
 from FabricEngine.Canvas.BindingWrapper import BindingWrapper
 from FabricEngine.Canvas.LogWidget import LogWidget
@@ -74,36 +82,36 @@ class ScriptEditor(QtGui.QWidget):
 
         class LineNumberArea(QtGui.QWidget):
 
-          def __init__(self, cmdEditor):
-            QtGui.QWidget.__init__(self, cmdEditor)
-            self.__cmdEditor = cmdEditor
+            def __init__(self, cmdEditor):
+                QtGui.QWidget.__init__(self, cmdEditor)
+                self.__cmdEditor = cmdEditor
 
-          def sizeHint(self):
-            return QtCore.QSize(self.__cmdEditor.lineNumberAreaWidth(), 0)
+            def sizeHint(self):
+                return QtCore.QSize(self.__cmdEditor.lineNumberAreaWidth(), 0)
 
-          def paintEvent(self, event):
-            self.__cmdEditor.lineNumberAreaPaintEvent(event)
-
-          def mousePressEvent(self, event):
-            self.__cmdEditor.lineNumberAreaMousePressEvent(event)
-
-          def mouseMoveEvent(self, event):
-            self.__cmdEditor.lineNumberAreaMouseMoveEvent(event)
-
-          def mouseReleaseEvent(self, event):
-            self.__cmdEditor.lineNumberAreaMouseReleaseEvent(event)
-
+            def paintEvent(self, event):
+                self.__cmdEditor.lineNumberAreaPaintEvent(event)
+  
+            def mousePressEvent(self, event):
+                self.__cmdEditor.lineNumberAreaMousePressEvent(event)
+  
+            def mouseMoveEvent(self, event):
+                self.__cmdEditor.lineNumberAreaMouseMoveEvent(event)
+  
+            def mouseReleaseEvent(self, event):
+                self.__cmdEditor.lineNumberAreaMouseReleaseEvent(event)
+  
         def __init__(self, font):
             QtGui.QPlainTextEdit.__init__(self)
 
-            self.setStyleSheet("background-color: #272822;");
+            self.setStyleSheet("background-color: #272822;")
             self.__highlighter = PythonHighlighter(self.document())
 
             lineNumberArea = self.LineNumberArea(self)
             self.__lineNumberArea = lineNumberArea
 
             self.setFont(font)
-            self.setTabStopWidth(4 * self.fontMetrics().width(' '));
+            self.setTabStopWidth(4 * self.fontMetrics().width(' '))
 
             def updateLineNumberAreaWidth(newBlockCount):
                 self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
@@ -111,34 +119,34 @@ class ScriptEditor(QtGui.QWidget):
 
             def updateLineNumberArea(rect, dy):
                 if dy != 0:
-                  lineNumberArea.scroll(0, dy)
+                    lineNumberArea.scroll(0, dy)
                 else:
-                  lineNumberArea.update(0, rect.y(), lineNumberArea.width(), rect.height())
+                    lineNumberArea.update(0, rect.y(), lineNumberArea.width(), rect.height())
 
                 if rect.contains(self.viewport().rect()):
-                  updateLineNumberAreaWidth(0)
+                    updateLineNumberAreaWidth(0)
             self.updateRequest.connect(updateLineNumberArea)
 
             updateLineNumberAreaWidth(0)
 
         def resizeEvent(self, event):
-          QtGui.QWidget.resizeEvent(self, event)
-          cr = self.contentsRect()
-          self.__lineNumberArea.setGeometry(
-            QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
-            )
+            QtGui.QWidget.resizeEvent(self, event)
+            cr = self.contentsRect()
+            self.__lineNumberArea.setGeometry(
+              QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height())
+              )
 
         def lineNumberAreaWidth(self):
-          digits = 1
-          max = self.blockCount()
-          if max < 1:
-            max = 1
-          while max >= 10:
-            max = max / 10
-            digits = digits + 1
-          if digits < 3:
-            digits = 3
-          return 3 + self.fontMetrics().width('9') * digits + 3
+            digits = 1
+            max = self.blockCount()
+            if max < 1:
+                max = 1
+            while max >= 10:
+                max = max / 10
+                digits = digits + 1
+            if digits < 3:
+                digits = 3
+            return 3 + self.fontMetrics().width('9') * digits + 3
 
         def lineNumberAreaMousePressEvent(self, event):
             firstBlock = self.firstVisibleBlock()
@@ -156,28 +164,28 @@ class ScriptEditor(QtGui.QWidget):
             pass
 
         def lineNumberAreaPaintEvent(self, event):
-          lineNumberArea = self.__lineNumberArea
-          painter = QtGui.QPainter(lineNumberArea)
-          painter.fillRect(event.rect(), QtCore.Qt.lightGray)
-          block = self.firstVisibleBlock()
-          blockNumber = block.blockNumber()
-          top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
-          bottom = top + int(self.blockBoundingRect(block).height())
-          painter.setFont(self.font())
-          while block.isValid() and top <= event.rect().bottom():
-            if block.isVisible() and bottom >= event.rect().top():
-              blockNumberText = str(blockNumber + 1)
-              painter.setPen(QtCore.Qt.black)
-              painter.drawText(
-                0, top,
-                lineNumberArea.width() - 3, self.fontMetrics().height(),
-                QtCore.Qt.AlignRight, blockNumberText
-                )
-            block = block.next()
-            top = bottom
+            lineNumberArea = self.__lineNumberArea
+            painter = QtGui.QPainter(lineNumberArea)
+            painter.fillRect(event.rect(), QtCore.Qt.lightGray)
+            block = self.firstVisibleBlock()
+            blockNumber = block.blockNumber()
+            top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
             bottom = top + int(self.blockBoundingRect(block).height())
-            blockNumber = blockNumber + 1
-
+            painter.setFont(self.font())
+            while block.isValid() and top <= event.rect().bottom():
+                if block.isVisible() and bottom >= event.rect().top():
+                    blockNumberText = str(blockNumber + 1)
+                    painter.setPen(QtCore.Qt.black)
+                    painter.drawText(
+                        0, top,
+                        lineNumberArea.width() - 3, self.fontMetrics().height(),
+                        QtCore.Qt.AlignRight, blockNumberText
+                        )
+                block = block.next()
+                top = bottom
+                bottom = top + int(self.blockBoundingRect(block).height())
+                blockNumber = blockNumber + 1
+  
         def leadingSpaceCount(self, tb):
             s = tb.text()
             result = 0
@@ -384,7 +392,7 @@ class ScriptEditor(QtGui.QWidget):
         self.settings = settings
 
         self.log = LogWidget()
-        self.log.setFont(fixedFont);
+        self.log.setFont(fixedFont)
 
         self.filename = ""
 

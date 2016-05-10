@@ -1,3 +1,11 @@
+"""
+The RTValEncoderDecoder is responsible for encoding and decoding RTVals
+to and from strings. This is used by the ScriptEditor to allow sending
+plain Python commands to the Core that include the contents of RTVals
+and is also used by the Fabric Core for persistence to allow saving
+the contents of a scene to JSON.
+"""
+
 import json
 from FabricEngine import Core
 

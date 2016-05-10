@@ -1,3 +1,16 @@
+"""
+The BindingWrapper wraps a Core DFGBinding in order to provide a simple
+API for the DFG UI commands. Commands sent from the UICmdHandler are
+executed in the ScriptEditor and the ScriptEditor uses the BindingWrapper
+to actually invoke each command.
+
+There is a 1-to-1 mapping of the methods provided by the UICmdHandler (which
+receives commands from the UI) and the BindingWrapper (which invokes the
+commands in the Fabric Core). The BindingWrapper also takes care of adding
+all commands to a QUndoStack so that undo/redo functionality is properly
+maintained.
+"""
+
 from PySide import QtCore, QtGui
 from FabricEngine.FabricUI import DFG
 from FabricEngine.Canvas.RTValEncoderDecoder import RTValEncoderDecoder

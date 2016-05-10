@@ -1,3 +1,6 @@
+"""
+The FabricParser handles parsing command line options for the Canvas standalone.
+"""
 
 import argparse, sys, os
 import os.path

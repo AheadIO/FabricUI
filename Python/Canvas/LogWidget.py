@@ -1,3 +1,7 @@
+"""
+The LogWidget receives and saves logging output from the ScriptEditor.
+"""
+
 from PySide import QtCore, QtGui
 
 
