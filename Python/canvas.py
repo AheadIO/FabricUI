@@ -56,7 +56,12 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--script',
                           action='store',
                           dest='script',
-                          help='python script file to execute on startup')
+                          help='python script file to load on startup')
+
+    parser.add_argument('-x', '--scriptexec',
+                          action='store',
+                          dest='scriptexec',
+                          help='python script file to load and execute on startup')
 
 
     args = parser.parse_args()
@@ -73,6 +78,10 @@ if __name__ == "__main__":
 
     if args.exec_:
         mainWin.scriptEditor.exec_(args.exec_)
+
+    if args.scriptexec:
+        mainWin.scriptEditor.loadScript(args.scriptexec)
+        mainWin.scriptEditor.execute()
 
     if args.script:
         mainWin.scriptEditor.loadScript(args.script)
